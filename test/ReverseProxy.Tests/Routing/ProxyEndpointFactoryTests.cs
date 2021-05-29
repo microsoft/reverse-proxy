@@ -9,10 +9,8 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.RuntimeModel;
-using Yarp.ReverseProxy.Service.Management;
 using Yarp.ReverseProxy.Service.Proxy;
 using Yarp.ReverseProxy.Service.Routing;
 

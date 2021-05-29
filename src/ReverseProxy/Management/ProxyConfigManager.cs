@@ -17,9 +17,10 @@ using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Service;
 using Yarp.ReverseProxy.Service.Proxy.Infrastructure;
 
-namespace Yarp.ReverseProxy.Service.Management
+namespace Yarp.ReverseProxy.Management
 {
     /// <summary>
     /// Provides a method to apply Proxy configuration changes

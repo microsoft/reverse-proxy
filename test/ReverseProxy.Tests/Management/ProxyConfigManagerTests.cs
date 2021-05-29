@@ -20,9 +20,10 @@ using Yarp.ReverseProxy.Discovery.Configuration;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.RuntimeModel;
 using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Service.Proxy.Tests;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Service.Management.Tests
+namespace Yarp.ReverseProxy.Management.Tests
 {
     public class ProxyConfigManagerTests
     {
@@ -190,7 +191,7 @@ namespace Yarp.ReverseProxy.Service.Management.Tests
             Assert.Equal(Encoding.UTF8.WebName, clusterModel.Config.HttpClient.RequestHeaderEncoding);
 #endif
 
-            var handler = Proxy.Tests.ProxyHttpClientFactoryTests.GetHandler(clusterModel.HttpClient);
+            var handler = ProxyHttpClientFactoryTests.GetHandler(clusterModel.HttpClient);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, handler.SslOptions.EnabledSslProtocols);
             Assert.Equal(10, handler.MaxConnectionsPerServer);
 #if NET

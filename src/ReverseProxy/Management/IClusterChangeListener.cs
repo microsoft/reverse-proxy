@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Yarp.ReverseProxy.RuntimeModel
+using Yarp.ReverseProxy.RuntimeModel;
+
+namespace Yarp.ReverseProxy.Management
 {
     /// <summary>
     /// Listener for changes in the clusters.

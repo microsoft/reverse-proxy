@@ -11,6 +11,7 @@ using Yarp.ReverseProxy.Abstractions.Config;
 using Yarp.ReverseProxy.Configuration.DependencyInjection;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Discovery.Configuration;
+using Yarp.ReverseProxy.Management;
 using Yarp.ReverseProxy.Service;
 using Yarp.ReverseProxy.Service.Config;
 using Yarp.ReverseProxy.Service.Proxy;

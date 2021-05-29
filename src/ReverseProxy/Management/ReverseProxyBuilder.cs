@@ -4,7 +4,7 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Yarp.ReverseProxy.Configuration.DependencyInjection
+namespace Yarp.ReverseProxy.Management
 {
     /// <summary>
     /// Reverse Proxy builder for DI configuration.
