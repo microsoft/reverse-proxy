@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Routing.Matching;
 using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Discovery;
 
-namespace Yarp.ReverseProxy.Service.Routing
+namespace Yarp.ReverseProxy.Routing
 {
     internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPolicy, IEndpointSelectorPolicy
     {

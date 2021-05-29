@@ -5,10 +5,10 @@ using System;
 using System.Linq;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Yarp.ReverseProxy;
 using Yarp.ReverseProxy.Management;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Routing;
 
 namespace Microsoft.AspNetCore.Builder
 {

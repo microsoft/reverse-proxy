@@ -4,11 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Builder;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Model;
 
-namespace Yarp.ReverseProxy
+namespace Microsoft.AspNetCore.Builder
 {
     public class ReverseProxyConventionBuilder : IEndpointConventionBuilder
     {

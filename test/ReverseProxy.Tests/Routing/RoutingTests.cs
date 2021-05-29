@@ -16,7 +16,7 @@ using Microsoft.Extensions.Hosting;
 using Xunit;
 using Yarp.ReverseProxy.Discovery;
 
-namespace Yarp.ReverseProxy.IntegrationTests
+namespace Yarp.ReverseProxy.Routing.Tests
 {
     public class RoutingTests
     {

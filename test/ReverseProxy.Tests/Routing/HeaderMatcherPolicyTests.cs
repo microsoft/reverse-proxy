@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Routing.Patterns;
 using Xunit;
 using Yarp.ReverseProxy.Discovery;
 
-namespace Yarp.ReverseProxy.Service.Routing
+namespace Yarp.ReverseProxy.Routing.Tests
 {
     public class HeaderMatcherPolicyTests
     {

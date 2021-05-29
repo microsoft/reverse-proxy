@@ -18,6 +18,7 @@ using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Routing;
 using Yarp.ReverseProxy.Service;
 
 namespace Yarp.ReverseProxy.Management

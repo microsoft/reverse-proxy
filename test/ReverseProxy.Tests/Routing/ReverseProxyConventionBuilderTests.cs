@@ -10,7 +10,7 @@ using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Proxy;
 
-namespace Yarp.ReverseProxy.DynamicEndpoint
+namespace Microsoft.AspNetCore.Builder.Tests
 {
     public class ReverseProxyConventionBuilderTests
     {

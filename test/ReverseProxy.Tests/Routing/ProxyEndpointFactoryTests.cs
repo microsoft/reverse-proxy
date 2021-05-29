@@ -12,9 +12,8 @@ using Xunit;
 using Yarp.ReverseProxy.Discovery;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Proxy;
-using Yarp.ReverseProxy.Service.Routing;
 
-namespace Yarp.ReverseProxy.Service.DynamicEndpoint
+namespace Yarp.ReverseProxy.Routing.Tests
 {
     public class ProxyEndpointFactoryTests
     {

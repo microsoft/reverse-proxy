@@ -12,11 +12,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Service.Routing;
 using CorsConstants = Yarp.ReverseProxy.Discovery.CorsConstants;
 using AuthorizationConstants = Yarp.ReverseProxy.Discovery.AuthorizationConstants;
 
-namespace Yarp.ReverseProxy
+namespace Yarp.ReverseProxy.Routing
 {
     internal sealed class ProxyEndpointFactory
     {

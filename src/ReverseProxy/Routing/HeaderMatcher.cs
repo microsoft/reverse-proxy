@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Yarp.ReverseProxy.Discovery;
 
-namespace Yarp.ReverseProxy.Service.Routing
+namespace Yarp.ReverseProxy.Routing
 {
     /// <summary>
     /// A request header matcher used during routing.

@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Yarp.ReverseProxy.Service.Routing
+namespace Yarp.ReverseProxy.Routing
 {
     /// <summary>
     /// Represents request header metadata used during routing.
