@@ -18,11 +18,32 @@ namespace Yarp.ReverseProxy.Utilities
     /// </summary>
     public static class RequestUtilities
     {
-        internal static bool ShouldSkipRequestHeader(string headerName)
+        internal static bool ShouldSkipRequestHeader(string headerName, HttpContext httpContext, HttpRequestMessage proxyRequest)
         {
             if (_headersToExclude.Contains(headerName))
             {
                 return true;
+            }
+
+            if (headerName.Equals(HeaderNames.TE, StringComparison.OrdinalIgnoreCase)
+                && ProtocolHelper.IsHttp11(httpContext.Request.Protocol)
+                && proxyRequest.Version == ProtocolHelper.Http11Version
+                && httpContext.Request.Headers.TryGetValue(HeaderNames.TE, out var teValues))
+            {
+                var containsTrailers = false;
+                foreach (var value in teValues)
+                {
+                    if (string.Equals(value, "trailers", StringComparison.OrdinalIgnoreCase))
+                    {
+                        containsTrailers = true;
+                    }
+                    else
+                    {
+                        // Unexpected TE header's value found.
+                        return false;
+                    }
+                }
+                return containsTrailers;
             }
 
             // Filter out HTTP/2 pseudo headers like ":method" and ":path", those go into other fields.

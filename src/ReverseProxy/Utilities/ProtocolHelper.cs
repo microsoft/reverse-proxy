@@ -20,6 +20,17 @@ namespace Yarp.ReverseProxy
 
         internal const string GrpcContentType = "application/grpc";
 
+        public static bool IsHttp11(string protocol)
+        {
+#if NET
+            return Microsoft.AspNetCore.Http.HttpProtocol.IsHttp11(protocol);
+#elif NETCOREAPP3_1
+            return StringComparer.OrdinalIgnoreCase.Equals("HTTP/1.1", protocol);
+#else
+#error A target framework was added to the project and needs to be added to this condition.
+#endif
+        }
+
         public static bool IsHttp2(string protocol)
         {
 #if NET

@@ -1775,8 +1775,8 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         }
 
         [Theory]
-        [MemberData(nameof(GetProhibitedHeaders))]
-        public async Task ProxyAsync_Request_RemoveProhibitedHeaders(string protocol, string prohibitedHeadersList)
+        [MemberData(nameof(GetProhibitedRequestHeaders))]
+        public async Task ProxyAsync_Request_RemoveProhibitedHeaders(string fromProtocol, string toProtocol, string prohibitedHeadersList)
         {
             const string preservedHeaderName = "Foo";
             const string preservedHeaderValue = "bar";
@@ -1784,6 +1784,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
 
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
+            httpContext.Request.Protocol = fromProtocol;
 
             foreach (var header in prohibitedHeaders)
             {
@@ -1810,7 +1811,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return response;
                 });
 
-            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyConfig { Version = Version.Parse(protocol) });
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyConfig { Version = Version.Parse(toProtocol) });
 
             Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
         }
@@ -1854,6 +1855,44 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
             {
                 Assert.False(httpContext.Response.Headers.TryGetValue(headerName, out _));
             }
+        }
+
+        [Fact]
+        public async Task ProxyAsync_ValidTEHeaderRequestVersionFrom11to2_ProxyHeader()
+        {
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+            httpContext.Request.Protocol = "HTTP/1.1";
+
+            httpContext.Request.Headers[HeaderNames.TE] = "trailers";
+
+            var destinationPrefix = "https://localhost:123/a/b/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    await Task.Yield();
+
+                    Assert.Equal("trailers", string.Join(", ", request.Headers.GetValues(HeaderNames.TE)));
+
+                    var response = new HttpResponseMessage(HttpStatusCode.OK);
+                    return response;
+                });
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyConfig { Version = Version.Parse("2.0") });
+
+            Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
+        }
+
+        public static IEnumerable<object[]> GetProhibitedRequestHeaders()
+        {
+            return GetProhibitedHeaders()
+                .Select(o => new[] { (string)o[0] == "1.1" ? "HTTP/1.1" : "HTTP/2", o[0], o[1] })
+                .Concat(new[]
+                {
+                    new[] {"HTTP/1.1", "2.0", "TE: trailers, somevalue" },
+                    new[] {"HTTP/1.1", "2.0", "TE: somevalue, trailers" }
+                });
         }
 
         public static IEnumerable<object[]> GetProhibitedHeaders()
