@@ -1645,6 +1645,33 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         }
 
         [Theory]
+        [InlineData("HTTP/1.1", "1.1")]
+        [InlineData("HTTP/2", "2.0")]
+        public async Task ProxyAsync_Expect100ContinueWithFailedResponse_ReturnResponse(string fromProtocol, string toProtocol)
+        {
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+            httpContext.Request.Protocol = fromProtocol;
+            httpContext.Request.Headers[HeaderNames.Expect] = "100-continue";
+            using var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(new string('a', 1024 * 1024 * 10)));
+            httpContext.Request.Body = contentStream;
+
+            var destinationPrefix = "https://localhost:123/a/b/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    await Task.Yield();
+                    return new HttpResponseMessage(HttpStatusCode.Conflict);
+                });
+
+            await sut.ProxyAsync(httpContext, destinationPrefix, client, new RequestProxyConfig { Version = Version.Parse(toProtocol) });
+
+            Assert.Equal(0, contentStream.Position);
+            Assert.Equal((int)HttpStatusCode.Conflict, httpContext.Response.StatusCode);
+        }
+
+        [Theory]
         [InlineData("1.1", false, "Connection: upgrade; Upgrade: test123", null, "Connection; Upgrade")]
         [InlineData("1.1", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
         [InlineData("1.1", true, "Connection: upgrade; Upgrade: websocket", "Connection: upgrade; Upgrade: websocket", null)]
