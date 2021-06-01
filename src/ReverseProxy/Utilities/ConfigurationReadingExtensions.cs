@@ -20,7 +20,7 @@ namespace Microsoft.Extensions.Configuration
 
         internal static TimeSpan? ReadTimeSpan(this IConfiguration configuration, string name)
         {
-            return configuration[name] is string value ? TimeSpan.Parse(value, CultureInfo.InvariantCulture) : null;
+            return configuration[name] is string value ? TimeSpan.ParseExact(value, "HH:mm:ss", null) : null;
         }
 
         internal static Uri? ReadUri(this IConfiguration configuration, string name)
