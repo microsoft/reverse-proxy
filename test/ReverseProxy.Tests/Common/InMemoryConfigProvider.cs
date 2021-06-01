@@ -4,8 +4,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Extensions.Primitives;
-using Yarp.ReverseProxy.Discovery;
-using Yarp.ReverseProxy.Discovery.Configuration;
+using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Configuration.ConfigProvider;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -19,7 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection
     }
 }
 
-namespace Yarp.ReverseProxy.Discovery.Configuration
+namespace Yarp.ReverseProxy.Configuration.ConfigProvider
 {
     public class InMemoryConfigProvider : IProxyConfigProvider
     {

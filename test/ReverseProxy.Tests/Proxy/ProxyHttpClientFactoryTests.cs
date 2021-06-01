@@ -11,7 +11,7 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Yarp.ReverseProxy.Common.Tests;
-using Yarp.ReverseProxy.Discovery;
+using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.ReverseProxy.Proxy.Tests
 {

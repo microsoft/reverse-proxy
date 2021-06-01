@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using Yarp.ReverseProxy.Discovery;
+using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.ReverseProxy.Kubernetes.Protocol
 {

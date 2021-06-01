@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Yarp.ReverseProxy.Discovery;
+using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.ReverseProxy.Kubernetes.Protocol
 {

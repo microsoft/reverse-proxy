@@ -5,7 +5,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using Xunit;
-using Yarp.ReverseProxy.Discovery;
+using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Proxy;
 

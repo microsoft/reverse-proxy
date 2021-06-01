@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Fabric.Health;
 using System.Fabric.Query;
 using Microsoft.ServiceFabric.Services.Communication;
-using Yarp.ReverseProxy.Discovery;
+using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.ReverseProxy.ServiceFabric.Tests
 {

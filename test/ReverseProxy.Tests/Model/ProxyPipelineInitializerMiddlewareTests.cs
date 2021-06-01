@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Routing.Patterns;
 using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Common.Tests;
-using Yarp.ReverseProxy.Discovery;
+using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Proxy;
 
 namespace Yarp.ReverseProxy.Model.Tests

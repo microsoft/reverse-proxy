@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using Yarp.ReverseProxy.Discovery;
+using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Proxy;
 
 namespace Yarp.ReverseProxy.Model

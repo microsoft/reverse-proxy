@@ -3,7 +3,7 @@
 
 using System;
 using System.Net.Http;
-using Yarp.ReverseProxy.Discovery;
+using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.ReverseProxy.Model
 {
