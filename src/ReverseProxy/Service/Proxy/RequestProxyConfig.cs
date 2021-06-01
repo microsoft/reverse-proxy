@@ -36,6 +36,12 @@ namespace Yarp.ReverseProxy.Service.Proxy
         public HttpVersionPolicy? VersionPolicy { get; init; }
 #endif
 
+        /// <summary>
+        /// Enables write buffering when sending a response back to the client.
+        /// NOTE: enabling it can break SSE (server side event) scenarios.
+        /// </summary>
+        public bool? EnableResponseBuffering { get; init; }
+
         /// <inheritdoc />
         public bool Equals(RequestProxyConfig? other)
         {
@@ -48,7 +54,8 @@ namespace Yarp.ReverseProxy.Service.Proxy
 #if NET
                 && VersionPolicy == other.VersionPolicy
 #endif
-                && Version == other.Version;
+                && Version == other.Version
+                && EnableResponseBuffering == other.EnableResponseBuffering;
         }
 
         /// <inheritdoc />
@@ -58,7 +65,8 @@ namespace Yarp.ReverseProxy.Service.Proxy
 #if NET
                 VersionPolicy,
 #endif
-                Version);
+                Version,
+                EnableResponseBuffering);
         }
     }
 }

@@ -304,6 +304,11 @@ namespace Yarp.ReverseProxy.Service.Proxy
 
             Log.Proxying(_logger, destinationRequest.RequestUri);
 
+            if (requestConfig?.EnableResponseBuffering != true)
+            {
+                context.Features.Get<IHttpResponseBodyFeature>()?.DisableBuffering();
+            }
+
             // TODO: What if they replace the HttpContent object? That would mess with our tracking and error handling.
             return (destinationRequest, requestContent);
         }
