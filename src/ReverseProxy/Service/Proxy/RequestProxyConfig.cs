@@ -37,7 +37,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
 #endif
 
         /// <summary>
-        /// Enables write buffering when sending a response back to the client.
+        /// Enables write buffering in Kestrel when sending a response back to the client.
         /// NOTE: enabling it can break SSE (server side event) scenarios.
         /// </summary>
         public bool? EnableResponseBuffering { get; init; }
