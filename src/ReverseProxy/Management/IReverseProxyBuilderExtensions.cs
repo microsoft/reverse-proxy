@@ -8,14 +8,13 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.LoadBalancing;
-using Yarp.ReverseProxy.Management;
 using Yarp.ReverseProxy.Proxy;
 using Yarp.ReverseProxy.Routing;
 using Yarp.ReverseProxy.SessionAffinity;
 using Yarp.ReverseProxy.Transforms;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Configuration.DependencyInjection
+namespace Yarp.ReverseProxy.Management
 {
     internal static class IReverseProxyBuilderExtensions
     {
