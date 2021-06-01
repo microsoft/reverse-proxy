@@ -510,7 +510,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
 
                     info.SupportedVersions |= versions;
                 }
-                else if (extensionType == ExtensionType.ApplicationProtocols && (options.HasFlag(ProcessingOptions.ApplicationProtocol))
+                else if (extensionType == ExtensionType.ApplicationProtocols && options.HasFlag(ProcessingOptions.ApplicationProtocol))
                 {
                     if (!TryGetApplicationProtocolsFromExtension(extensionData, out ApplicationProtocolInfo alpn))
                     {
