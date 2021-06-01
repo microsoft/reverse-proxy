@@ -406,7 +406,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
             // Skip SessionID (max size 32 => size fits in 1 byte)
             p = SkipOpaqueType1(p);
 
-            if (options == ProcessingOptions.All || (options & ProcessingOptions.CipherSuites) == ProcessingOptions.CipherSuites)
+            if (options.HasFlag(ProcessingOptions.CipherSuites))
             {
                 TryGetCipherSuites(p, ref info);
             }
@@ -492,8 +492,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
 
                 ReadOnlySpan<byte> extensionData = extensions.Slice(0, extensionLength);
 
-                if (extensionType == ExtensionType.ServerName && (options == ProcessingOptions.All ||
-                   (options & ProcessingOptions.ServerName) == ProcessingOptions.ServerName))
+                if (extensionType == ExtensionType.ServerName && (options.HasFlag(ProcessingOptions.ServerName)))
                 {
                     if (!TryGetSniFromServerNameList(extensionData, out string? sni))
                     {
@@ -502,8 +501,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
 
                     info.TargetName = sni!;
                 }
-                else if (extensionType == ExtensionType.SupportedVersions && (options == ProcessingOptions.All ||
-                          (options & ProcessingOptions.Versions) == ProcessingOptions.Versions))
+                else if (extensionType == ExtensionType.SupportedVersions && (options.HasFlag(ProcessingOptions.Versions)))
                 {
                     if (!TryGetSupportedVersionsFromExtension(extensionData, out SslProtocols versions))
                     {
@@ -512,8 +510,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
 
                     info.SupportedVersions |= versions;
                 }
-                else if (extensionType == ExtensionType.ApplicationProtocols && (options == ProcessingOptions.All ||
-                          (options & ProcessingOptions.ApplicationProtocol) == ProcessingOptions.ApplicationProtocol))
+                else if (extensionType == ExtensionType.ApplicationProtocols && (options.HasFlag(ProcessingOptions.ApplicationProtocol)))
                 {
                     if (!TryGetApplicationProtocolsFromExtension(extensionData, out ApplicationProtocolInfo alpn))
                     {
