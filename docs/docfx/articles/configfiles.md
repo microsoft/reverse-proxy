@@ -70,9 +70,9 @@ Example:
 
 ### Routes
 The routes section is an ordered list of route matches and their associated configuration. A route requires at least the following fields:
-- RouteId - A unique name
-- ClusterId - Refers to the name of an entry in the clusters section.
-- Match containing either a Hosts array or a Path pattern string.
+- RouteId - a unique name
+- ClusterId - refers to the name of an entry in the clusters section.
+- Match - contains either a Hosts array or a Path pattern string. Path is an ASP.NET Core's route template that can be defined as it's [explained here](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/routing?view=aspnetcore-5.0#route-template-reference).
 
 [Headers](header-routing.md), [Authorization](authn-authz.md), [CORS](cors.md), and other route based policies can be configured on each route entry. For additional fields see [RouteConfig](xref:Yarp.ReverseProxy.Abstractions.RouteConfig).
 
