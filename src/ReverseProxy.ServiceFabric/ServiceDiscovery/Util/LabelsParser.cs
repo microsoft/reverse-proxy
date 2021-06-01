@@ -58,7 +58,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
             }
             else
             {
-                return TimeSpan.ParseExact(value, "HH:mm:ss", CultureInfo.InvariantCulture);
+                return TimeSpan.ParseExact(value, "hh':'mm':'ss", CultureInfo.InvariantCulture);
             }
 
         }
