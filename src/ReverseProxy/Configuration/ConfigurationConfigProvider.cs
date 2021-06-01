@@ -137,6 +137,12 @@ namespace Yarp.ReverseProxy.Configuration
 
         private static RouteConfig CreateRoute(IConfigurationSection section)
         {
+
+            if (!string.IsNullOrEmpty(section["RouteId"]))
+            { 
+                throw new Exception();
+            }
+
             return new RouteConfig
             {
                 RouteId = section.Key,
