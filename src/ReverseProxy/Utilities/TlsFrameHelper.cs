@@ -492,7 +492,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
 
                 ReadOnlySpan<byte> extensionData = extensions.Slice(0, extensionLength);
 
-                if (extensionType == ExtensionType.ServerName && (options.HasFlag(ProcessingOptions.ServerName)))
+                if (extensionType == ExtensionType.ServerName && options.HasFlag(ProcessingOptions.ServerName))
                 {
                     if (!TryGetSniFromServerNameList(extensionData, out string? sni))
                     {
@@ -501,7 +501,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
 
                     info.TargetName = sni!;
                 }
-                else if (extensionType == ExtensionType.SupportedVersions && (options.HasFlag(ProcessingOptions.Versions)))
+                else if (extensionType == ExtensionType.SupportedVersions && options.HasFlag(ProcessingOptions.Versions))
                 {
                     if (!TryGetSupportedVersionsFromExtension(extensionData, out SslProtocols versions))
                     {
@@ -510,7 +510,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
 
                     info.SupportedVersions |= versions;
                 }
-                else if (extensionType == ExtensionType.ApplicationProtocols && (options.HasFlag(ProcessingOptions.ApplicationProtocol)))
+                else if (extensionType == ExtensionType.ApplicationProtocols && options.HasFlag(ProcessingOptions.ApplicationProtocol))
                 {
                     if (!TryGetApplicationProtocolsFromExtension(extensionData, out ApplicationProtocolInfo alpn))
                     {
