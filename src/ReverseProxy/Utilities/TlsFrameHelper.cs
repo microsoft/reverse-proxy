@@ -103,11 +103,11 @@ namespace Yarp.ReverseProxy.Utilities.Tls
         [Flags]
         public enum ProcessingOptions
         {
-            All = 0,
             ServerName = 0x1,
             ApplicationProtocol = 0x2,
             Versions = 0x4,
             CipherSuites = 0x8,
+            All = 0x15,
         }
 
         [Flags]
@@ -510,7 +510,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
 
                     info.SupportedVersions |= versions;
                 }
-                else if (extensionType == ExtensionType.ApplicationProtocols && options.HasFlag(ProcessingOptions.ApplicationProtocol))
+                else if (extensionType == ExtensionType.ApplicationProtocols && (options.HasFlag(ProcessingOptions.ApplicationProtocol))
                 {
                     if (!TryGetApplicationProtocolsFromExtension(extensionData, out ApplicationProtocolInfo alpn))
                     {
