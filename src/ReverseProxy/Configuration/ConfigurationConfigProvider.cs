@@ -139,7 +139,7 @@ namespace Yarp.ReverseProxy.Configuration
         {
             if (!string.IsNullOrEmpty(section["RouteId"]))
             { 
-                throw new Exception("should not set RouteId, RouteId should be section.Key");
+                throw new Exception("Don't set RouteId directly in configuration, use the section's key instead.");
             }
 
             return new RouteConfig
