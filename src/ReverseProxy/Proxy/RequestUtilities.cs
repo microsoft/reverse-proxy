@@ -21,7 +21,7 @@ namespace Yarp.ReverseProxy.Proxy
         /// Converts the given HTTP method (usually obtained from <see cref="HttpRequest.Method"/>)
         /// into the corresponding <see cref="HttpMethod"/> static instance.
         /// </summary>
-        public static HttpMethod GetHttpMethod(string method) => method switch
+        internal static HttpMethod GetHttpMethod(string method) => method switch
         {
             string mth when HttpMethods.IsGet(mth) => HttpMethod.Get,
             string mth when HttpMethods.IsPost(mth) => HttpMethod.Post,

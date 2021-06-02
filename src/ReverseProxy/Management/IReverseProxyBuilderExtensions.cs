@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.LoadBalancing;
+using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Proxy;
 using Yarp.ReverseProxy.Routing;
 using Yarp.ReverseProxy.SessionAffinity;
