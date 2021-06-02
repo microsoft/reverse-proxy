@@ -1650,10 +1650,12 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
         public async Task ProxyAsync_Expect100ContinueWithFailedResponse_ReturnResponse(string fromProtocol, string toProtocol)
         {
             var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
+            httpContext.Request.Method = "POST";
             httpContext.Request.Protocol = fromProtocol;
             httpContext.Request.Headers[HeaderNames.Expect] = "100-continue";
-            using var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(new string('a', 1024 * 1024 * 10)));
+            var content = Encoding.UTF8.GetBytes(new string('a', 1024 * 1024 * 10));
+            httpContext.Request.Headers[HeaderNames.ContentLength] = content.Length.ToString();
+            using var contentStream = new MemoryStream();
             httpContext.Request.Body = contentStream;
 
             var destinationPrefix = "https://localhost:123/a/b/";
