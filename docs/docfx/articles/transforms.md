@@ -151,7 +151,7 @@ The following are built in transforms identified by their primary config key. Th
 
 ### PathPrefix
 
-**Modifies to the request path adding a prefix value**
+**Modifies the request path adding a prefix value**
 
 | Key | Value | Required |
 |-----|-------|----------|
@@ -292,7 +292,7 @@ Example:
 
 ### QueryRouteParameter
 
-**Adds or replaces a query string parameter with a value from the route configurtaion**
+**Adds or replaces a query string parameter with a value from the route configuration**
 
 | Key | Value | Required |
 |-----|-------|----------|
@@ -549,7 +549,7 @@ The {Prefix}Prefix header value is taken from `HttpContext.Request.PathBase`. Th
 
 ### Forwarded
 
-**Selects which headers should be prefixed with `Forwarded`**
+**Adds a header with information about the original client request**
 
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
@@ -631,7 +631,7 @@ Example:
 ```
 X-Client-Cert: SSdtIGEgY2VydGlmaWNhdGU...
 ```
-As the inbound and outbound connections are independent, and the proxy may authenticate with the destination, there needs to be a way to pass any inbound client certificate to the destination server. This transform causes the client certificate taken from `HttpContext.Connection.ClientCertificate` to be Base64 encoded and set as the value for the given header name. The destination server may need that certificate to authenticate the client. There is no standard that defines this header and implementations vary, check your destination server for support.
+As the inbound and outbound connections are independent, there needs to be a way to pass any inbound client certificate to the destination server. This transform causes the client certificate taken from `HttpContext.Connection.ClientCertificate` to be Base64 encoded and set as the value for the given header name. The destination server may need that certificate to authenticate the client. There is no standard that defines this header and implementations vary, check your destination server for support.
 
 ## Response and Response Trailers
 
