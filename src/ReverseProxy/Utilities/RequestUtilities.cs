@@ -18,7 +18,7 @@ namespace Yarp.ReverseProxy.Utilities
     /// </summary>
     public static class RequestUtilities
     {
-        internal static bool ShouldSkipRequestHeader(string headerName, StringValues headerValue, HttpContext httpContext, HttpRequestMessage proxyRequest)
+        internal static bool ShouldSkipRequestHeader(string headerName, StringValues headerValue, Version destinationProtocol)
         {
             if (_headersToExclude.Contains(headerName))
             {
@@ -26,8 +26,7 @@ namespace Yarp.ReverseProxy.Utilities
             }
 
             if (headerName.Equals(HeaderNames.TE, StringComparison.OrdinalIgnoreCase)
-                && ProtocolHelper.IsHttp11(httpContext.Request.Protocol)
-                && proxyRequest.Version == ProtocolHelper.Http2Version)
+                && destinationProtocol == ProtocolHelper.Http2Version)
             {
                 return headerValue.Count != 1 || !string.Equals(headerValue[0], "trailers", StringComparison.OrdinalIgnoreCase);
             }
