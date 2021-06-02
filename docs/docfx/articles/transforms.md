@@ -1,9 +1,11 @@
-# Transforms
+# Header Transforms
 
 Introduced: preview2
 
 ## Introduction
-When proxying a request it's common to modify parts of the request or response to adapt to the destination server's requirements or to flow additional data such as the client's original IP address. This process is implemented via Transforms. Types of transforms are defined globally for the application and then individual routes supply the parameters to enable and configure those transforms. The original request objects are not modified by these transforms, only the proxy requests.
+When proxying a request it's common to modify parts of the request or response headers to adapt to the destination server's requirements or to flow additional data such as the client's original IP address. This process is implemented via Transforms. Types of transforms are defined globally for the application and then individual routes supply the parameters to enable and configure those transforms. The original request objects are not modified by these transforms, only the proxy requests.
+
+Request and response body transforms are not provided by YARP but you can write middleware to do this.
 
 ## Defaults
 The following transforms are enabled by default for all routes. They can be configured or disabled as shown later in this document.
@@ -31,12 +33,12 @@ X-Forwarded-Proto: http
 X-Forwarded-Host: IncomingHost:5000
 ```
 
-Transforms fall into a few categories: request, response, and response trailers. Request and response body transforms are not supported by YARP but you can write middleware to do this. Request trailers are not supported because they are not supported by the underlying HttpClient.
+## Transform Categories
 
-
+Transforms fall into a few categories: request, response, and response trailers.  Request trailers are not supported because they are not supported by the underlying HttpClient.
 Transforms can be added to routes either through configuration or programmatically.
 
-## From Configuration
+### From Configuration
 
 Transforms can be configured on [ProxyRoute.Transforms](xref:Yarp.ReverseProxy.Abstractions.ProxyRoute) and can be bound from the `Routes` sections of the config file. These can be modified and reloaded without restarting the proxy. A transform is configured using one or more key-value string pairs.
 
@@ -104,7 +106,7 @@ The details for these transforms are covered later in this document.
 
 Developers that want to integrate their custom transforms with the `Transforms` section of configuration can do so using [ITransformFactory](#itransformfactory) described below.
 
-## From Code
+### From Code
 
 Transforms can be added to routes programmatically by calling the [AddTransforms](xref:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions) method.
 
@@ -149,6 +151,8 @@ The following are built in transforms identified by their primary config key. Th
 
 ### PathPrefix
 
+**Modifies to the request path adding a prefix value**
+
 | Key | Value | Required |
 |-----|-------|----------|
 | PathPrefix | A path starting with a '/' | yes |
@@ -170,6 +174,8 @@ Example:<br/>
 This will prefix the request path with the given value.
 
 ### PathRemovePrefix
+
+**Modifies the request path removing a prefix value**
 
 | Key | Value | Required |
 |-----|-------|----------|
@@ -194,6 +200,8 @@ This will remove the matching prefix from the request path. Matches are made on 
 
 ### PathSet
 
+**Replaces the request path with the specified value**
+
 | Key | Value | Required |
 |-----|-------|----------|
 | PathSet | A path starting with a '/' | yes |
@@ -215,6 +223,8 @@ Example:<br/>
 This will set the request path with the given value.
 
 ### PathPattern
+
+**Replaces segment of the request path using substitution patterns**
 
 | Key | Value | Required |
 |-----|-------|----------|
@@ -246,6 +256,8 @@ Example:
 | Result | `/my/v1/api/more/stuff` |
 
 ### QueryValueParameter
+
+**Adds or replaces parameters in the request query string**
 
 | Key | Value | Required |
 |-----|-------|----------|
@@ -279,6 +291,8 @@ Example:
 | Result | `?a=b&foo=remainder` |
 
 ### QueryRouteParameter
+
+**Adds or replaces a query string parameter with a value from the route configurtaion**
 
 | Key | Value | Required |
 |-----|-------|----------|
@@ -315,6 +329,8 @@ Example:
 
 ### QueryRemoveParameter
 
+**Removes the specified parameter from the request query string**
+
 | Key | Value | Required |
 |-----|-------|----------|
 | QueryRemoveParameter | Name of a query string parameter | yes |
@@ -343,6 +359,8 @@ Example:
 
 ### HttpMethod
 
+**Changes the http method used in the request**
+
 | Key | Value | Required |
 |-----|-------|----------|
 | HttpMethod | The http method to replace | yes |
@@ -367,6 +385,8 @@ This will change PUT requests to POST.
 
 ### RequestHeadersCopy
 
+**Sets whether incomming request headers are copied to the outbound request**
+
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
 | RequestHeadersCopy | true/false | true | yes |
@@ -387,6 +407,8 @@ This sets if all incoming request headers are copied to the proxy request. This 
 
 ### RequestHeaderOriginalHost
 
+**Specifies if the incoming request Host header should be copied to the proxy request**
+
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
 | RequestHeaderOriginalHost | true/false | false | yes |
@@ -405,6 +427,8 @@ transformBuilderContext.UseOriginalHost = true;
 This specifies if the incoming request Host header should be copied to the proxy request. This setting is disabled by default and can be enabled by configuring the transform with a `true` value. Transforms that directly reference the `Host` header will override this transform.
 
 ### RequestHeader
+
+**Adds or replaces request headers**
 
 | Key | Value | Required |
 |-----|-------|----------|
@@ -436,6 +460,8 @@ Note: setting "" as a header value is not recommended and can cause an undefined
 
 ### RequestHeaderRemove
 
+**Removes request headers**
+
 | Key | Value | Required |
 |-----|-------|----------|
 | RequestHeaderRemove | The header name | yes |
@@ -463,6 +489,8 @@ AnotherHeader: AnotherValue
 This removes the named header.
 
 ### X-Forwarded
+
+**Selects which headers should be prefixed with `X-Forwarded`**
 
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
@@ -501,11 +529,11 @@ Disable default headers:
 transformBuilderContext.UseDefaultForwarders = false;
 ```
 
-X-Forwarded-* headers are a common way to forward information to the destination server that may otherwise be obscured by the use of a proxy. The destination server likely needs this information for security checks and to properly generate absolute URIs for links and redirects. There is no standard that defines these headers and implementations vary, check your destination server for support.
+When the proxy connects to the destination server, the connection is indepenent from the one the client made to the proxy. The destination server likely needs original connection information for security checks and to properly generate absolute URIs for links and redirects. To enable information about the client connection to be passed to the destination a set of extra headers can be added. Until the `Forwarded` standard was created, a common solution is to use `X-Forwarded-*` headers. There is no official standard that defines the `X-Forwarded-*` headers and implementations vary, check your destination server for support.
 
 This transform is enabled by default even if not specified in the route config.
 
-Set the `X-Forwarded` value to a comma separated list containing the headers you need to enable. All for headers are enabled by default. All can be disabled by specifying an empty value `""`.
+Set the `X-Forwarded` value to a comma separated list containing the headers you need to enable. All four headers are enabled by default. All can be disabled by specifying an empty value `""`.
 
 The Prefix specifies the header name prefix to use for each header. With the default `X-Forwarded-` prefix the resulting headers will be `X-Forwarded-For`, `X-Forwarded-Proto`, `X-Forwarded-Host`, and `X-Forwarded-PathBase`.
 
@@ -520,6 +548,8 @@ The {Prefix}Host header value is taken from the incoming request's Host header. 
 The {Prefix}Prefix header value is taken from `HttpContext.Request.PathBase`. The PathBase property is not used when generating the proxy request so the destination server will need the original value to correctly generate links and directs. The value is in the percent encoded Uri format.
 
 ### Forwarded
+
+**Selects which headers should be prefixed with `Forwarded`**
 
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
@@ -580,6 +610,8 @@ The RFC allows a [variety of formats](https://tools.ietf.org/html/rfc7239#sectio
 
 ### ClientCert
 
+**Forwards the client cert used on the inbound connection as a header to destination**
+
 | Key | Value | Required |
 |-----|-------|----------|
 | ClientCert | The header name | yes |
@@ -599,8 +631,7 @@ Example:
 ```
 X-Client-Cert: SSdtIGEgY2VydGlmaWNhdGU...
 ```
-
-This transform causes the client certificate taken from `HttpContext.Connection.ClientCertificate` to be Base64 encoded and set as the value for the given header name. This is needed because client certificates from incoming connections are not used when making connections to the destination server. The destination server may need that certificate to authenticate the client. There is no standard that defines this header and implementations vary, check your destination server for support.
+As the inbound and outbound connections are independent, and the proxy may authenticate with the destination, there needs to be a way to pass any inbound client certificate to the destination server. This transform causes the client certificate taken from `HttpContext.Connection.ClientCertificate` to be Base64 encoded and set as the value for the given header name. The destination server may need that certificate to authenticate the client. There is no standard that defines this header and implementations vary, check your destination server for support.
 
 ## Response and Response Trailers
 
@@ -609,6 +640,8 @@ All response headers and trailers are copied from the proxied response to the ou
 In code these are implemented as derivations of the abstract classes [ResponseTransform](xref:Yarp.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTransform) and [ResponseTrailersTransform](xref:Yarp.ReverseProxy.Service.RuntimeModel.Transforms.ResponseTrailersTransform).
 
 ### ResponseHeadersCopy
+
+**Sets whether destination response headers are copied to the client**
 
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
@@ -629,6 +662,8 @@ transformBuilderContext.CopyResponseHeaders = false;
 This sets if all proxy response headers are copied to the client response. This setting is enabled by default and can be disabled by configuring the transform with a `false` value. Transforms that reference specific headers will still be run if this is disabled.
 
 ### ResponseHeader
+
+**Adds or replaces response headers**
 
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
@@ -656,12 +691,14 @@ Example:
 HeaderName: value
 ```
 
-This sets or appends the value for the named header. Set replaces any existing header. Append adds an additional header with the given value.
+This sets or appends the value for the named response header. Set replaces any existing header. Append adds an additional header with the given value.
 Note: setting "" as a header value is not recommended and can cause an undefined behavior.
 
 `When` specifies if the response header should be included for successful responses or for all responses. Any response with a status code less than 400 is considered a success.
 
 ### ResponseHeaderRemove
+
+**Removes response headers**
 
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
@@ -688,11 +725,13 @@ HeaderName: value
 AnotherHeader: another-value
 ```
 
-This removes the named header.
+This removes the named response header.
 
 `When` specifies if the response header should be included for successful responses or for all responses. Any response with a status code less than 400 is considered a success.
 
 ### ResponseTrailersCopy
+
+**Sets whether destination trailing response headers are copied to the client**
 
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
@@ -713,6 +752,8 @@ transformBuilderContext.CopyResponseTrailers = false;
 This sets if all proxy response trailers are copied to the client response. This setting is enabled by default and can be disabled by configuring the transform with a `false` value. Transforms that reference specific headers will still be run if this is disabled.
 
 ### ResponseTrailer
+
+**Adds or replaces trailing response headers**
 
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
@@ -742,9 +783,11 @@ HeaderName: value
 
 Response trailers are headers sent at the end of the response body. Support for trailers is uncommon in HTTP/1.1 implementations but is becoming common in HTTP/2 implementations. Check your client and server for support.
 
-ResponseTrailer follows the same structure and guidance as ResponseHeader.
+ResponseTrailer follows the same structure and guidance as [ResponseHeader](#ResponseHeader).
 
 ### ResponseTrailerRemove
+
+**Removes trailing response headers**
 
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
@@ -773,7 +816,7 @@ AnotherHeader: another-value
 
 This removes the named trailing header.
 
-ResponseTrailerRemove follows the same structure and guidance as ResponseHeaderRemove.
+ResponseTrailerRemove follows the same structure and guidance as [ResponseHeaderRemove](#ResponseHeaderRemove).
 
 ## Extensibility
 
