@@ -107,7 +107,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
             ApplicationProtocol = 0x2,
             Versions = 0x4,
             CipherSuites = 0x8,
-            All = 15,
+            All = 0x7FFFFFFF,
         }
 
         [Flags]
