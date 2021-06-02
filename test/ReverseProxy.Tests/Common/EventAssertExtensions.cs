@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Linq;
 using Xunit;
-using Yarp.ReverseProxy.Telemetry;
+using Yarp.ReverseProxy.Proxy;
 
 namespace Yarp.ReverseProxy.Common.Tests
 {

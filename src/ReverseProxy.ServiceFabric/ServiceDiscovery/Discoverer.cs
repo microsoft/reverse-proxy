@@ -13,8 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.ServiceFabric.Services.Communication;
-using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Service;
+using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.ReverseProxy.ServiceFabric
 {
