@@ -224,7 +224,7 @@ This will set the request path with the given value.
 
 ### PathPattern
 
-**Replaces segment of the request path using substitution patterns**
+**Replaces the request path using a pattern template**
 
 | Key | Value | Required |
 |-----|-------|----------|
@@ -490,7 +490,7 @@ This removes the named header.
 
 ### X-Forwarded
 
-**Selects which headers should be prefixed with `X-Forwarded`**
+**Adds headers with information about the original client request**
 
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
