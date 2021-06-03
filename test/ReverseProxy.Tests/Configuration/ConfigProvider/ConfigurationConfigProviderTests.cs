@@ -221,15 +221,6 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
                     ""Tls12""
                 ],
                 ""DangerousAcceptAnyServerCertificate"": true,
-                ""ClientCertificate"": {
-                    ""Path"": ""mycert.pfx"",
-                    ""KeyPath"": null,
-                    ""Password"": ""myPassword1234"",
-                    ""Subject"": null,
-                    ""Store"": null,
-                    ""Location"": null,
-                    ""AllowInvalid"": null
-                },
                 ""MaxConnectionsPerServer"": 10,
                 ""EnableMultipleHttp2Connections"": true,
                 ""ActivityContextHeaders"": ""Baggage"",
