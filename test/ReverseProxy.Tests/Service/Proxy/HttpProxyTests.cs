@@ -1409,7 +1409,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                     return Task.FromResult(message);
                 });
 
-            var requestConfig = RequestProxyConfig.Empty with { EnableResponseBuffering = enableBuffering };
+            var requestConfig = RequestProxyConfig.Empty with { AllowResponseBuffering = enableBuffering };
             var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client, requestConfig, HttpTransformer.Default);
 
             Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);

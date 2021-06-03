@@ -304,7 +304,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
 
             Log.Proxying(_logger, destinationRequest.RequestUri);
 
-            if (requestConfig?.EnableResponseBuffering != true)
+            if (requestConfig?.AllowResponseBuffering != true)
             {
                 context.Features.Get<IHttpResponseBodyFeature>()?.DisableBuffering();
             }

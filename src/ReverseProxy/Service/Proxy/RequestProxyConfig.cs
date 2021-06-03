@@ -37,10 +37,11 @@ namespace Yarp.ReverseProxy.Service.Proxy
 #endif
 
         /// <summary>
-        /// Enables write buffering in Kestrel when sending a response back to the client.
+        /// Allows to use write buffering when sending a response back to the client,
+        /// if the server hosting YARP (e.g. IIS) supports it.
         /// NOTE: enabling it can break SSE (server side event) scenarios.
         /// </summary>
-        public bool? EnableResponseBuffering { get; init; }
+        public bool? AllowResponseBuffering { get; init; }
 
         /// <inheritdoc />
         public bool Equals(RequestProxyConfig? other)
@@ -55,7 +56,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 && VersionPolicy == other.VersionPolicy
 #endif
                 && Version == other.Version
-                && EnableResponseBuffering == other.EnableResponseBuffering;
+                && AllowResponseBuffering == other.AllowResponseBuffering;
         }
 
         /// <inheritdoc />
@@ -66,7 +67,7 @@ namespace Yarp.ReverseProxy.Service.Proxy
                 VersionPolicy,
 #endif
                 Version,
-                EnableResponseBuffering);
+                AllowResponseBuffering);
         }
     }
 }

@@ -109,7 +109,7 @@ namespace Yarp.ReverseProxy.Configuration
 #if NET
                             VersionPolicy = HttpVersionPolicy.RequestVersionExact,
 #endif
-                            EnableResponseBuffering = true
+                            AllowResponseBuffering = true
                         },
                         Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
                     }
@@ -248,7 +248,7 @@ namespace Yarp.ReverseProxy.Configuration
                 ""Timeout"": ""00:01:00"",
                 ""Version"": ""1"",
                 ""VersionPolicy"": ""RequestVersionExact"",
-                ""EnableResponseBuffering"": ""true""
+                ""AllowResponseBuffering"": ""true""
             },
             ""Destinations"": {
                 ""destinationA"": {
@@ -520,7 +520,7 @@ namespace Yarp.ReverseProxy.Configuration
 #if NET
             Assert.Equal(cluster1.HttpRequest.VersionPolicy, abstractCluster1.HttpRequest.VersionPolicy);
 #endif
-            Assert.Equal(cluster1.HttpRequest.EnableResponseBuffering, abstractCluster1.HttpRequest.EnableResponseBuffering);
+            Assert.Equal(cluster1.HttpRequest.AllowResponseBuffering, abstractCluster1.HttpRequest.AllowResponseBuffering);
             Assert.Equal(cluster1.HttpClient.DangerousAcceptAnyServerCertificate, abstractCluster1.HttpClient.DangerousAcceptAnyServerCertificate);
             Assert.Equal(cluster1.Metadata, abstractCluster1.Metadata);
 
