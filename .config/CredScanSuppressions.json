@@ -9,20 +9,6 @@
             ]
         },
         {
-            "_justification": "Unit test dummy credentials",
-            "file": [
-                "test/ReverseProxy.Tests/Configuration/ConfigProvider/ConfigurationConfigProviderTests.cs"
-            ],
-            "placeholder": [
-                "\"123\"",
-                "\"1234abc\"",
-                "\"12341234\"",
-                "\"abcde\"",
-                "\"myPassword1234\"",
-                "\"testPassword\""
-            ]
-        },
-        {
             "_justification": "Generic example password in documentation",
             "file": "docs/docfx/articles/proxyhttpclientconfig.md",
             "placeholder": "1234abc"
