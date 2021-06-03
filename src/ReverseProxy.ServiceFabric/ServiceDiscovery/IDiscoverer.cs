@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.ReverseProxy.ServiceFabric
 {
