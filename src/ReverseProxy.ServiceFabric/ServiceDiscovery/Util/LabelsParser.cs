@@ -52,15 +52,18 @@ namespace Yarp.ReverseProxy.ServiceFabric
 
         internal static TimeSpan? GetTimespanLabel(Dictionary<string, string> labels, string key, TimeSpan? defaultValue)
         {
-            if (!labels.TryGetValue(key, out var value))
+            if (!labels.TryGetValue(key, out var value) || string.IsNullOrEmpty(value))
             {
                 return defaultValue;
             }
             else
             {
-                return TimeSpan.ParseExact(value, "hh':'mm':'ss", CultureInfo.InvariantCulture);
+                if(!TimeSpan.TryParseExact(value, "c", CultureInfo.InvariantCulture, out var result))
+                {
+                    throw new ConfigException($"Could not convert label {key}='{value}' to type TimeSpan.");
+                }
+                return result;
             }
-
         }
 
         private static TValue ConvertLabelValue<TValue>(string key, string value)
