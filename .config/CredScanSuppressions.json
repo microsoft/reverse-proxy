@@ -5,22 +5,13 @@
             "_justification": "Legitimate key/cert used for testing",
             "file": [
                 "testassets/BenchmarkApp/testCert.pfx",
-                "test/TestCertificates/testCert.pfx",
-                "test/TestCertificates/aspnetdevcert.pfx",
-                "test/TestCertificates/https-aspnet.key",
-                "test/TestCertificates/https-dsa-protected.key",
-                "test/TestCertificates/https-dsa.key",
-                "test/TestCertificates/https-ecdsa-protected.key",
-                "test/TestCertificates/https-ecdsa.key",
-                "test/TestCertificates/https-rsa-protected.key",
-                "test/TestCertificates/https-rsa.key"
+                "test/TestCertificates/testCert.pfx"
             ]
         },
         {
             "_justification": "Unit test dummy credentials",
             "file": [
-                "test/ReverseProxy.Tests/Configuration/CertificateConfigLoaderTests.cs",
-                "test/ReverseProxy.Tests/Configuration/ConfigurationConfigProviderTests.cs"
+                "test/ReverseProxy.Tests/Configuration/ConfigProvider/ConfigurationConfigProviderTests.cs"
             ],
             "placeholder": [
                 "\"123\"",
