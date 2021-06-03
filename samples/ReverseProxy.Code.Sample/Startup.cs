@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Middleware;
-using Yarp.ReverseProxy.RuntimeModel;
+using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Model;
 
 
 namespace Yarp.Sample

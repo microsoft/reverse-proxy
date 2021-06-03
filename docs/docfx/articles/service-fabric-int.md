@@ -92,7 +92,7 @@ These are the supported parameters:
 - `YARP.Backend.ServiceFabric.ListenerName` - sets an explicit listener name for the main service's endpoint for each replica/instance that is used to route client requests to and is stored on the `Destination.Address` property in YARP's model. Optional parameter
 - `YARP.Backend.ServiceFabric.StatefulReplicaSelectionMode` - sets statefull replica selection mode. Supported values `All`, `PrimaryOnly`, `SecondaryOnly`. Values `All` and `SecondaryOnly` mean that the active secondary replicas will also be eligible for getting all kinds of client requests including writes. Default value `All`
 
-> NOTE: Label values can use the special syntax `[AppParamName]` to reference an application parameter with the name given within square brackets. This is consistent with Service Fabric conventions, see e.g. [using parameters in Service Fabric](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-how-to-specify-port-number-using-parameters).
+> NOTE: Label values can use the special syntax `[AppParamName]` to reference an application parameter with the name given within square brackets. This is consistent with Service Fabric conventions, see e.g. [using parameters in Service Fabric](https://docs.microsoft.com/azure/service-fabric/service-fabric-how-to-specify-port-number-using-parameters).
 
 ### Route definitions
 Multiple routes can be defined in an SF service configuration with the following parameters:
@@ -147,9 +147,9 @@ Replica / Instance (one endpoint only) | Destination (Address=instance' or repli
 YARP.Routes.<routeName>.* in ServiceManifest | ProxyRoute (id=ServiceName+routeName, Match=Hosts,Path extracted from the labels)
 
 ## Testing SF integration locally
-While developing a new YARP-based application with enabled SF integration, it's helpful to test how everything works locally on a dev machine before deploying it to the cloud. This can be done by following the steps explained in [Prepare your development environment on Windows](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-get-started) guide.
+While developing a new YARP-based application with enabled SF integration, it's helpful to test how everything works locally on a dev machine before deploying it to the cloud. This can be done by following the steps explained in [Prepare your development environment on Windows](https://docs.microsoft.com/azure/service-fabric/service-fabric-get-started) guide.
 
-There is also the [step-by-step guide](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-tutorial-create-dotnet-app#create-an-aspnet-web-api-service-as-a-reliable-service) on how to create a sample SF service and deploy it to the local SF cluster. Once the sample SF project is created, the 'YARP-preview' section shown in the 'Service extension example' above must be added into `ServiceManifest.xml` to enable YARP.ServiceFabric.
+There is also the [step-by-step guide](https://docs.microsoft.com/azure/service-fabric/service-fabric-tutorial-create-dotnet-app#create-an-aspnet-web-api-service-as-a-reliable-service) on how to create a sample SF service and deploy it to the local SF cluster. Once the sample SF project is created, the 'YARP-preview' section shown in the 'Service extension example' above must be added into `ServiceManifest.xml` to enable YARP.ServiceFabric.
 
 ## Known limitations
 Limitations of the current Service Fabric to YARP configuration model conversion implementation:

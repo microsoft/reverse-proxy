@@ -7,10 +7,10 @@ using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Abstractions.Config;
-using Yarp.ReverseProxy.Middleware;
+using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Telemetry.Consumption;
+using Yarp.ReverseProxy.Transforms;
 
 namespace Yarp.ReverseProxy.Sample
 {
