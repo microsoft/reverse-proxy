@@ -1655,7 +1655,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
             httpContext.Request.Headers[HeaderNames.Expect] = "100-continue";
             var content = Encoding.UTF8.GetBytes(new string('a', 1024 * 1024 * 10));
             httpContext.Request.Headers[HeaderNames.ContentLength] = content.Length.ToString();
-            using var contentStream = new MemoryStream();
+            using var contentStream = new MemoryStream(content);
             httpContext.Request.Body = contentStream;
 
             var destinationPrefix = "https://localhost:123/a/b/";
@@ -1664,6 +1664,7 @@ namespace Yarp.ReverseProxy.Service.Proxy.Tests
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     await Task.Yield();
+                    Assert.NotNull(request.Content);
                     return new HttpResponseMessage(HttpStatusCode.Conflict);
                 });
 
