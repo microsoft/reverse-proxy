@@ -18,14 +18,17 @@ The following features are supported on NET 5.0 and higher:
 - VersionPolicy - policy applied to version selection, e.g. whether to prefer downgrades, upgrades or request an exact version. The default is `RequestVersionOrLower`. Full path: `ClusterConfig.HttpRequest.VersionPolicy`. Type: `HttpVersionPolicy?`
 
 ### Yarp.ReverseProxy.Telemetry.Consumption package
-On .NET Core 3.1 runtime supports only:
+On .NET Core 3.1 it supports only:
 - YARP events and metrics
-- Limited support of Kestrel events. Only the following event fields are reported: timestamp, connection ID and request ID.
+- Kestrel events
 
-On .NET 5 and higher supports:
-- .NET networking library events for HTTP, DNS, Security, Sockets
-- Full Kestrel events support. Reported event fields: timestamp, connection ID, request ID, request's HTTP version, path, method
-- Kestrel metrics
+On .NET 5 and higher it supports events and metrics for:
+- YARP
+- Kestrel
+- HTTP (SocketsHttpHandler)
+- NameResolution (DNS)
+- NetSecurity (SslStream)
+- Sockets
 
 
 ## Building for .NET Core 3.1
