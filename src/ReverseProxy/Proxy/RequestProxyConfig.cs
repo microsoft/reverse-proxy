@@ -36,6 +36,13 @@ namespace Yarp.ReverseProxy.Proxy
         public HttpVersionPolicy? VersionPolicy { get; init; }
 #endif
 
+        /// <summary>
+        /// Allows to use write buffering when sending a response back to the client,
+        /// if the server hosting YARP (e.g. IIS) supports it.
+        /// NOTE: enabling it can break SSE (server side event) scenarios.
+        /// </summary>
+        public bool? AllowResponseBuffering { get; init; }
+
         /// <inheritdoc />
         public bool Equals(RequestProxyConfig? other)
         {
@@ -48,7 +55,8 @@ namespace Yarp.ReverseProxy.Proxy
 #if NET
                 && VersionPolicy == other.VersionPolicy
 #endif
-                && Version == other.Version;
+                && Version == other.Version
+                && AllowResponseBuffering == other.AllowResponseBuffering;
         }
 
         /// <inheritdoc />
@@ -58,7 +66,8 @@ namespace Yarp.ReverseProxy.Proxy
 #if NET
                 VersionPolicy,
 #endif
-                Version);
+                Version,
+                AllowResponseBuffering);
         }
     }
 }

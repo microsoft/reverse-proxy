@@ -68,7 +68,8 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
                                 Timeout = TimeSpan.FromSeconds(6),
                                 Policy = "Any5xxResponse",
                                 Path = "healthCheckPath"
-                            }
+                            },
+                            AvailableDestinationsPolicy = "HealthyOrPanic"
                         },
                         LoadBalancingPolicy = LoadBalancingPolicies.Random,
                         SessionAffinity = new SessionAffinityConfig
@@ -106,6 +107,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
 #if NET
                             VersionPolicy = HttpVersionPolicy.RequestVersionExact,
 #endif
+                            AllowResponseBuffering = true
                         },
                         Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
                     }
@@ -234,7 +236,8 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
             ""HttpRequest"": {
                 ""Timeout"": ""00:01:00"",
                 ""Version"": ""1"",
-                ""VersionPolicy"": ""RequestVersionExact""
+                ""VersionPolicy"": ""RequestVersionExact"",
+                ""AllowResponseBuffering"": ""true""
             },
             ""Destinations"": {
                 ""destinationA"": {
@@ -472,6 +475,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
             Assert.Equal(cluster1.Destinations["destinationB"].Address, abstractCluster1.Destinations["destinationB"].Address);
             Assert.Equal(cluster1.Destinations["destinationB"].Health, abstractCluster1.Destinations["destinationB"].Health);
             Assert.Equal(cluster1.Destinations["destinationB"].Metadata, abstractCluster1.Destinations["destinationB"].Metadata);
+            Assert.Equal(cluster1.HealthCheck.AvailableDestinationsPolicy, abstractCluster1.HealthCheck.AvailableDestinationsPolicy);
             Assert.Equal(cluster1.HealthCheck.Passive.Enabled, abstractCluster1.HealthCheck.Passive.Enabled);
             Assert.Equal(cluster1.HealthCheck.Passive.Policy, abstractCluster1.HealthCheck.Passive.Policy);
             Assert.Equal(cluster1.HealthCheck.Passive.ReactivationPeriod, abstractCluster1.HealthCheck.Passive.ReactivationPeriod);
@@ -505,6 +509,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
 #if NET
             Assert.Equal(cluster1.HttpRequest.VersionPolicy, abstractCluster1.HttpRequest.VersionPolicy);
 #endif
+            Assert.Equal(cluster1.HttpRequest.AllowResponseBuffering, abstractCluster1.HttpRequest.AllowResponseBuffering);
             Assert.Equal(cluster1.HttpClient.DangerousAcceptAnyServerCertificate, abstractCluster1.HttpClient.DangerousAcceptAnyServerCertificate);
             Assert.Equal(cluster1.Metadata, abstractCluster1.Metadata);
 
