@@ -1934,6 +1934,7 @@ namespace Yarp.ReverseProxy.Proxy.Tests
                 "Security-Scheme: value",
                 "ALPN: value",
                 "Close: value",
+                "TE: value",
 #if NET
                 "AltSvc: value",
 #endif
