@@ -30,7 +30,6 @@ On .NET 5 and higher it supports events and metrics for:
 - NetSecurity (SslStream)
 - Sockets
 
-
 ## Building for .NET Core 3.1
 YARP can be run on .Net Core 3.1 runtime, but .NET 5.0 SDK is required to build it for this runtime version because YARP code uses C# 9 language features. Thus, the steps YARP-based application are as follows:
 1. Install .NET 5.0 SDK
