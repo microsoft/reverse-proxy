@@ -9,10 +9,24 @@ YARP 1.0 previews support ASP.NET Core 3.1 and 5.0. You can download the .NET 5 
 
 YARP is taking advantage of ASP.NET Core 5.0 features and optimizations. This does mean that some features may not be available if you're running on ASP.NET Core 3.1.
 
-## YARP features supported only in .NET 5.0 and higher
+## Difference in features supported on .NET Core 3.1 vs .NET 5.0 and higher
+
+### Yarp.ReverseProxy package
+The following features are supported on NET 5.0 and higher:
 - EnableMultipleHttp2Connections - enables opening additional HTTP/2 connections to the same server when the maximum number of concurrent streams is reached on all existing connections. Full path: `ClusterConfig.HttpClient.EnableMultipleHttp2Connections`. Type: `bool?`
 - RequestHeaderEncoding - allows to set a non-ASCII header encoding for outgoing requests. Full path: `ClusterConfig.HttpClient.RequestHeaderEncoding`. Type: `string?`
 - VersionPolicy - policy applied to version selection, e.g. whether to prefer downgrades, upgrades or request an exact version. The default is `RequestVersionOrLower`. Full path: `ClusterConfig.HttpRequest.VersionPolicy`. Type: `HttpVersionPolicy?`
+
+### Yarp.ReverseProxy.Telemetry.Consumption package
+On .NET Core 3.1 runtime supports only:
+- YARP events and metrics
+- Limited support of Kestrel events. Only the following event fields are reported: timestamp, connection ID and request ID.
+
+On .NET 5 and higher supports:
+- .NET networking library events for HTTP, DNS, Security, Sockets
+- Full Kestrel events support. Reported event fields: timestamp, connection ID, request ID, request's HTTP version, path, method
+- Kestrel metrics
+
 
 ## Building for .NET Core 3.1
 YARP can be run on .Net Core 3.1 runtime, but .NET 5.0 SDK is required to build it for this runtime version because YARP code uses C# 9 language features. Thus, the steps YARP-based application are as follows:
