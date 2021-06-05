@@ -38,6 +38,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.SessionAffinity.Cookie.SameSite", "Strict" },
                 { "YARP.Backend.SessionAffinity.Cookie.SecurePolicy", "SameAsRequest" },
                 { "YARP.Backend.HttpRequest.Timeout", "00:00:17" },
+                { "YARP.Backend.HttpRequest.AllowResponseBuffering", "true" },
                 { "YARP.Backend.HttpRequest.Version", "1.1" },
 #if NET
                 { "YARP.Backend.HttpRequest.VersionPolicy", "RequestVersionExact" },
@@ -93,6 +94,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 {
                     Timeout = TimeSpan.FromSeconds(17),
                     Version = new Version(1, 1),
+                    AllowResponseBuffering = true,
 #if NET
                     VersionPolicy = System.Net.Http.HttpVersionPolicy.RequestVersionExact
 #endif

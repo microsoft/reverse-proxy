@@ -285,6 +285,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                 {
                     Timeout = GetLabel<TimeSpan?>(labels, "YARP.Backend.HttpRequest.Timeout", null),
                     Version = !string.IsNullOrEmpty(versionLabel) ? Version.Parse(versionLabel + (versionLabel.Contains('.') ? "" : ".0")) : null,
+                    AllowResponseBuffering = GetLabel<bool?>(labels, "YARP.Backend.HttpRequest.AllowResponseBuffering", null),
 #if NET
                     VersionPolicy = !string.IsNullOrEmpty(versionLabel) ? Enum.Parse<HttpVersionPolicy>(versionPolicyLabel) : null
 #endif
