@@ -4,9 +4,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Extensions.Primitives;
-using Yarp.ReverseProxy.Abstractions;
 using Yarp.ReverseProxy.Configuration;
-using Yarp.ReverseProxy.Service;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

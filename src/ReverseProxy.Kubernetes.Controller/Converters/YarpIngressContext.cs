@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
-using Yarp.ReverseProxy.Abstractions;
 using System.Collections.Generic;
+using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
 {

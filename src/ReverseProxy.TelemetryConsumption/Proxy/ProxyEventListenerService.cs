@@ -7,7 +7,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using Microsoft.Extensions.Logging;
-using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Proxy;
 
 namespace Yarp.ReverseProxy.Telemetry.Consumption
 {

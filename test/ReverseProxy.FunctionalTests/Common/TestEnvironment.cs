@@ -13,8 +13,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Utilities.Tests;
+using Yarp.ReverseProxy.Common.Tests;
+using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.ReverseProxy.Common
 {

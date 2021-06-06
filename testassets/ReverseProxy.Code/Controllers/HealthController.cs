@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AspNetCore.Mvc;
-using Yarp.ReverseProxy.Service.HealthChecks;
+using Yarp.ReverseProxy.Health;
 
 namespace Yarp.ReverseProxy.Sample.Controllers
 {
