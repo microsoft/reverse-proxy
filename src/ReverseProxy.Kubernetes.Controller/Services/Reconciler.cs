@@ -1,19 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using k8s.Models;
-using Microsoft.Extensions.Logging;
-using Microsoft.Kubernetes;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
-using Yarp.ReverseProxy.Kubernetes.Controller.Dispatching;
+using Microsoft.Extensions.Logging;
+using Microsoft.Kubernetes;
 using Yarp.ReverseProxy.Kubernetes.Controller.Converters;
+using Yarp.ReverseProxy.Kubernetes.Controller.Dispatching;
 using Yarp.ReverseProxy.Kubernetes.Protocol;
 
 namespace Yarp.ReverseProxy.Kubernetes.Controller.Services

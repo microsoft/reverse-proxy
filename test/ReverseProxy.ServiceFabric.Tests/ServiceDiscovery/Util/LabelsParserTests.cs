@@ -4,13 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Authentication;
-using System.Text;
 using FluentAssertions;
 using Xunit;
-using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Service.LoadBalancing;
-using Yarp.ReverseProxy.Service.Proxy;
-using Yarp.ReverseProxy.Service.SessionAffinity;
+using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.LoadBalancing;
+using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.SessionAffinity;
 
 namespace Yarp.ReverseProxy.ServiceFabric.Tests
 {
