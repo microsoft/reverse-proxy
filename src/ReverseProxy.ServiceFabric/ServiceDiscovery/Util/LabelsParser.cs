@@ -55,14 +55,13 @@ namespace Yarp.ReverseProxy.ServiceFabric
             {
                 return defaultValue;
             }
-            else
+            // Format "c" => [-][d'.']hh':'mm':'ss['.'fffffff]. 
+            // You also can find more info at https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-timespan-format-strings#the-constant-c-format-specifier
+            if (!TimeSpan.TryParseExact(value, "c", CultureInfo.InvariantCulture, out var result))
             {
-                if(!TimeSpan.TryParseExact(value, "c", CultureInfo.InvariantCulture, out var result))
-                {
-                    throw new ConfigException($"Could not convert label {key}='{value}' to type TimeSpan.");
-                }
-                return result;
+                throw new ConfigException($"Could not convert label {key}='{value}' to type TimeSpan. Use the format '[d.]hh:mm:ss'.");
             }
+            return result;
         }
 
         private static TValue ConvertLabelValue<TValue>(string key, string value)
