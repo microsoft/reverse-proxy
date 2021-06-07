@@ -13,9 +13,9 @@ YARP is taking advantage of ASP.NET Core 5.0 features and optimizations. This do
 
 ### Yarp.ReverseProxy package
 The following features are supported on NET 5.0 and higher:
-- EnableMultipleHttp2Connections - enables opening additional HTTP/2 connections to the same server when the maximum number of concurrent streams is reached on all existing connections. Full path: `ClusterConfig.HttpClient.EnableMultipleHttp2Connections`. Type: `bool?`
-- RequestHeaderEncoding - allows to set a non-ASCII header encoding for outgoing requests. Full path: `ClusterConfig.HttpClient.RequestHeaderEncoding`. Type: `string?`
-- VersionPolicy - policy applied to version selection, e.g. whether to prefer downgrades, upgrades or request an exact version. The default is `RequestVersionOrLower`. Full path: `ClusterConfig.HttpRequest.VersionPolicy`. Type: `HttpVersionPolicy?`
+- [EnableMultipleHttp2Connections](proxyhttpclientconfig.md#HttpClient) - enables opening additional HTTP/2 connections to the same server when the maximum number of concurrent streams is reached on all existing connections. Full path: `ClusterConfig.HttpClient.EnableMultipleHttp2Connections`. Type: `bool?`
+- [RequestHeaderEncoding](proxyhttpclientconfig.md#HttpClient) - allows to set a non-ASCII header encoding for outgoing requests. Full path: `ClusterConfig.HttpClient.RequestHeaderEncoding`. Type: `string?`
+- [VersionPolicy](proxyhttpclientconfig.md#HttpRequest) - policy applied to version selection, e.g. whether to prefer downgrades, upgrades or request an exact version. The default is `RequestVersionOrLower`. Full path: `ClusterConfig.HttpRequest.VersionPolicy`. Type: `HttpVersionPolicy?`
 
 ### Yarp.ReverseProxy.Telemetry.Consumption package
 On .NET Core 3.1 it supports only:
@@ -31,10 +31,18 @@ On .NET 5 and higher it supports events and metrics for:
 - Sockets
 
 ## Building for .NET Core 3.1
-YARP can be run on .Net Core 3.1 runtime, but .NET 5.0 SDK is required to build it for this runtime version because YARP code uses C# 9 language features. Thus, the steps YARP-based application are as follows:
-1. Install .NET 5.0 SDK
+YARP can be run on the .Net Core 3.1 runtime, but the .NET 5.0 SDK is still required for this runtime version because YARP APIs use C# 9 language features. Thus, the steps to create a YARP-based application are as follows:
+1. Install the .NET 5.0 SDK: https://dotnet.microsoft.com/download/dotnet/5.0
 2. Add the reference to the YARP package to the application project
 3. Add the property `<LangVersion>9.0</LangVersion>` to the .csproj file
+4. Add a new `IsExternalInit.cs` file with the following content to the root of the project.
+```C#
+namespace System.Runtime.CompilerServices
+{
+    // Allows "init" properties in .NET Core 3.1.
+    internal static class IsExternalInit { }
+}
+```
 
 ## Related 5.0 Runtime Improvements
 

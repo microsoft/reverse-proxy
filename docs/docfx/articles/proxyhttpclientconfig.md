@@ -20,7 +20,8 @@ HTTP client configuration is based on [HttpClientConfig](xref:Yarp.ReverseProxy.
     "SslProtocols": [ "<protocol-names>" ],
     "MaxConnectionsPerServer": "<int>",
     "DangerousAcceptAnyServerCertificate": "<bool>",
-    "RequestHeaderEncoding": "<encoding-name>"
+    "RequestHeaderEncoding": "<encoding-name>",
+    "EnableMultipleHttp2Connections": "<bool>"
 }
 ```
 
@@ -57,6 +58,10 @@ private static IHostBuilder CreateHostBuilder(string[] args) =>
                       });
         );
 ```
+- EnableMultipleHttp2Connections - enables opening additional HTTP/2 connections to the same server when the maximum number of concurrent streams is reached on all existing connections. **This feature is available from .NET 5.0**, see [SocketsHttpHandler.EnableMultipleHttp2Connections](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.socketshttphandler.enablemultiplehttp2connections)
+```JSON
+"EnableMultipleHttp2Connections": true
+```
 
 For .NET Core 3.1, Latin1 ("iso-8859-1") is the only non-ASCII header encoding that can be accepted and only via `appsettings.json`:
 ```JSON
@@ -88,7 +93,7 @@ HTTP request configuration is based on [RequestProxyConfig](xref:Yarp.ReversePro
 Configuration settings:
 - Timeout - the timeout for the outgoing request sent by [HttpMessageInvoker.SendAsync](https://docs.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker.sendasync). If not specified, 100 seconds is used.
 - Version - outgoing request [version](https://docs.microsoft.com/dotnet/api/system.net.http.httprequestmessage.version). The supported values at the moment are `1.0`, `1.1` and `2`. Default value is 2.
-- VersionPolicy - defines how the final version is selected for the outgoing requests. This feature is available from .NET 5.0, see [HttpRequestMessage.VersionPolicy](https://docs.microsoft.com/dotnet/api/system.net.http.httprequestmessage.versionpolicy). The default value is `RequestVersionOrLower`.
+- VersionPolicy - defines how the final version is selected for the outgoing requests. **This feature is available from .NET 5.0**, see [HttpRequestMessage.VersionPolicy](https://docs.microsoft.com/dotnet/api/system.net.http.httprequestmessage.versionpolicy). The default value is `RequestVersionOrLower`.
 
 
 ## Configuration example
