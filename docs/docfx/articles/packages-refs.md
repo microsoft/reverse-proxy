@@ -1,0 +1,33 @@
+# Packages referenced by YARP
+- Autofac. License: MIT
+- Autofac.Extras.Moq. License: MIT
+- coverlet.collector. License: MIT
+- docfx.console. License: MIT
+- FluentAssertions. License: Apache-2.0
+- KubernetesClient. License: Apache-2.0
+- Microsoft.AspNetCore.JsonPatch. License: Apache-2.0
+- Microsoft.AspNetCore.Mvc.NewtonsoftJson. License: Apache-2.0
+- Microsoft.AspNetCore.TestHost. License: Apache-2.0
+- Microsoft.CodeAnalysis.FxCopAnalyzers. License: [Microsoft .NET Library](https://dotnet.microsoft.com/en/dotnet_library_license.htm)
+- Microsoft.Crank.EventSources. License: MIT
+- Microsoft.Extensions.DependencyInjection.Abstractions. License: Apache-2.0
+- Microsoft.Extensions.Options. License: Apache-2.0
+- Microsoft.NET.Test.Sdk. License: [Microsoft .Net Library](https://www.microsoft.com/web/webpi/eula/net_library_eula_enu.htm)
+- Microsoft.ServiceFabric.Services. License: [Microsoft .Net Library](https://www.microsoft.com/web/webpi/eula/net_library_eula_ENU.htm)
+- Microsoft.SourceLink.AzureRepos.Git. License: Apache-2.0
+- Microsoft.SourceLink.GitHub. License: Apache-2.0
+- Microsoft.VisualStudio.Azure.Containers.Tools.Targets. License: [Microsoft .Net Library](https://www.microsoft.com/web/webpi/eula/net_library_eula_ENU.htm)
+- Moq. License: [BSD 3-Clause License](https://raw.githubusercontent.com/moq/moq4/master/License.txt)
+- Nerdbank.GitVersioning. License: MIT
+- NETStandard.Library. License: MIT
+- NJsonSchema. License: MIT
+- NSwag.Core. License: MIT
+- prometheus-net. License: MIT
+- prometheus-net.AspNetCore. License: MIT
+- Serilog.Extensions.Logging. License: Apache-2.0
+- Serilog.Formatting.Compact. License: Apache-2.0
+- Serilog.Sinks.Console. License: Apache-2.0
+- XliffTasks. License: MIT
+- xunit. License: [Multiple licenses](https://raw.githubusercontent.com/xunit/xunit/master/license.txt)
+- xunit.runner.console. License: [Multiple licenses](https://raw.githubusercontent.com/xunit/xunit/master/license.txt)
+- xunit.runner.visualstudio. License: MIT 
