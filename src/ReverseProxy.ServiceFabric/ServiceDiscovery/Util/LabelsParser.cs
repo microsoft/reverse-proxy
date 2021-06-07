@@ -49,7 +49,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
             }
         }
 
-        internal static TimeSpan? GetTimespanLabel(Dictionary<string, string> labels, string key, TimeSpan? defaultValue)
+        internal static TimeSpan? GetTimeSpanLabel(Dictionary<string, string> labels, string key, TimeSpan? defaultValue)
         {
             if (!labels.TryGetValue(key, out var value) || string.IsNullOrEmpty(value))
             {
