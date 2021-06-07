@@ -1381,6 +1381,39 @@ namespace Yarp.ReverseProxy.Proxy.Tests
             events.AssertContainProxyStages(hasRequestContent: false);
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        [InlineData(null)]
+        public async Task ProxyAsync_ResponseBodyDisableBuffering_Success(bool? enableBuffering)
+        {
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+            var responseBody = new TestResponseBody();
+            httpContext.Features.Set<IHttpResponseFeature>(responseBody);
+            httpContext.Features.Set<IHttpResponseBodyFeature>(responseBody);
+            httpContext.Features.Set<IHttpRequestLifetimeFeature>(responseBody);
+
+            var destinationPrefix = "https://localhost:123/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    var message = new HttpResponseMessage()
+                    {
+                        Content = new StreamContent(new MemoryStream(new byte[1]))
+                    };
+                    message.Headers.AcceptRanges.Add("bytes");
+                    return Task.FromResult(message);
+                });
+
+            var requestConfig = RequestProxyConfig.Empty with { AllowResponseBuffering = enableBuffering };
+            var proxyError = await sut.ProxyAsync(httpContext, destinationPrefix, client, requestConfig, HttpTransformer.Default);
+
+            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+            Assert.Equal(enableBuffering != true, responseBody.BufferingDisabled);
+        }
+
         [Fact]
         public async Task ProxyAsync_RequestBodyCanceledAfterResponse_Reported()
         {
@@ -1648,10 +1681,12 @@ namespace Yarp.ReverseProxy.Proxy.Tests
         public async Task ProxyAsync_Expect100ContinueWithFailedResponse_ReturnResponse(string fromProtocol, string toProtocol)
         {
             var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
+            httpContext.Request.Method = "POST";
             httpContext.Request.Protocol = fromProtocol;
             httpContext.Request.Headers[HeaderNames.Expect] = "100-continue";
-            using var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(new string('a', 1024 * 1024 * 10)));
+            var content = Encoding.UTF8.GetBytes(new string('a', 1024 * 1024 * 10));
+            httpContext.Request.Headers[HeaderNames.ContentLength] = content.Length.ToString();
+            using var contentStream = new MemoryStream(content);
             httpContext.Request.Body = contentStream;
 
             var destinationPrefix = "https://localhost:123/a/b/";
@@ -1660,6 +1695,7 @@ namespace Yarp.ReverseProxy.Proxy.Tests
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     await Task.Yield();
+                    Assert.NotNull(request.Content);
                     return new HttpResponseMessage(HttpStatusCode.Conflict);
                 });
 
@@ -1898,6 +1934,7 @@ namespace Yarp.ReverseProxy.Proxy.Tests
                 "Security-Scheme: value",
                 "ALPN: value",
                 "Close: value",
+                "TE: value",
 #if NET
                 "AltSvc: value",
 #endif
@@ -2139,6 +2176,8 @@ namespace Yarp.ReverseProxy.Proxy.Tests
 
             public PipeWriter Writer => throw new NotImplementedException();
 
+            public bool BufferingDisabled { get; set; }
+
             public int StatusCode { get; set; } = 200;
             public string ReasonPhrase { get; set; }
             public IHeaderDictionary Headers { get; set; } = new HeaderDictionary();
@@ -2158,7 +2197,7 @@ namespace Yarp.ReverseProxy.Proxy.Tests
 
             public void DisableBuffering()
             {
-                throw new NotImplementedException();
+                BufferingDisabled = true;
             }
 
             public void OnCompleted(Func<object, Task> callback, object state)

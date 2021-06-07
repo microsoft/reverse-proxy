@@ -86,7 +86,8 @@ HTTP request configuration is based on [RequestProxyConfig](xref:Yarp.ReversePro
 "HttpRequest": {
     "Timeout": "<timespan>",
     "Version": "<string>",
-    "VersionPolicy": ["RequestVersionOrLower", "RequestVersionOrHigher", "RequestVersionExact"]
+    "VersionPolicy": ["RequestVersionOrLower", "RequestVersionOrHigher", "RequestVersionExact"],
+    "AllowResponseBuffering": "<bool>"
 }
 ```
 
@@ -94,6 +95,7 @@ Configuration settings:
 - Timeout - the timeout for the outgoing request sent by [HttpMessageInvoker.SendAsync](https://docs.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker.sendasync). If not specified, 100 seconds is used.
 - Version - outgoing request [version](https://docs.microsoft.com/dotnet/api/system.net.http.httprequestmessage.version). The supported values at the moment are `1.0`, `1.1` and `2`. Default value is 2.
 - VersionPolicy - defines how the final version is selected for the outgoing requests. **This feature is available from .NET 5.0**, see [HttpRequestMessage.VersionPolicy](https://docs.microsoft.com/dotnet/api/system.net.http.httprequestmessage.versionpolicy). The default value is `RequestVersionOrLower`.
+- AllowResponseBuffering - allows to use write buffering when sending a response back to the client, if the server hosting YARP (e.g. IIS) supports it. **NOTE**: enabling it can break SSE (server side event) scenarios.
 
 
 ## Configuration example

@@ -340,6 +340,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider
 #if NET
                 VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(RequestProxyConfig.VersionPolicy)),
 #endif
+                AllowResponseBuffering = section.ReadBool(nameof(RequestProxyConfig.AllowResponseBuffering))
             };
         }
 

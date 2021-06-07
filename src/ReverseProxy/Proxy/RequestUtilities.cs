@@ -72,6 +72,7 @@ namespace Yarp.ReverseProxy.Proxy
             "Security-Scheme",
             "ALPN",
             "Close",
+            HeaderNames.TE,
 #if NET
             HeaderNames.AltSvc,
 #else
