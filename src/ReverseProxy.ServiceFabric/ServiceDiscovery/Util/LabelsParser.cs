@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Authentication;
@@ -46,6 +47,21 @@ namespace Yarp.ReverseProxy.ServiceFabric
             {
                 return ConvertLabelValue<TValue>(key, value);
             }
+        }
+
+        internal static TimeSpan? GetTimespanLabel(Dictionary<string, string> labels, string key, TimeSpan? defaultValue)
+        {
+            if (!labels.TryGetValue(key, out var value) || string.IsNullOrEmpty(value))
+            {
+                return defaultValue;
+            }
+            // Format "c" => [-][d'.']hh':'mm':'ss['.'fffffff]. 
+            // You also can find more info at https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-timespan-format-strings#the-constant-c-format-specifier
+            if (!TimeSpan.TryParseExact(value, "c", CultureInfo.InvariantCulture, out var result))
+            {
+                throw new ConfigException($"Could not convert label {key}='{value}' to type TimeSpan. Use the format '[d.]hh:mm:ss'.");
+            }
+            return result;
         }
 
         private static TValue ConvertLabelValue<TValue>(string key, string value)
@@ -274,16 +290,16 @@ namespace Yarp.ReverseProxy.ServiceFabric
                         Path = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.Cookie.Path", null),
                         SameSite = GetLabel<SameSiteMode?>(labels, "YARP.Backend.SessionAffinity.Cookie.SameSite", null),
                         HttpOnly = GetLabel<bool?>(labels, "YARP.Backend.SessionAffinity.Cookie.HttpOnly", null),
-                        MaxAge = GetLabel<TimeSpan?>(labels, "YARP.Backend.SessionAffinity.Cookie.MaxAge", null),
+                        MaxAge = GetTimespanLabel(labels, "YARP.Backend.SessionAffinity.Cookie.MaxAge", null),
                         Domain = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.Cookie.Domain", null),
                         IsEssential = GetLabel<bool?>(labels, "YARP.Backend.SessionAffinity.Cookie.IsEssential", null),
                         SecurePolicy = GetLabel<CookieSecurePolicy?>(labels, "YARP.Backend.SessionAffinity.Cookie.SecurePolicy", null),
-                        Expiration = GetLabel<TimeSpan?>(labels, "YARP.Backend.SessionAffinity.Cookie.Expiration", null)
+                        Expiration = GetTimespanLabel(labels, "YARP.Backend.SessionAffinity.Cookie.Expiration", null)
                     }
                 },
                 HttpRequest = new RequestProxyConfig
                 {
-                    Timeout = GetLabel<TimeSpan?>(labels, "YARP.Backend.HttpRequest.Timeout", null),
+                    Timeout = GetTimespanLabel(labels, "YARP.Backend.HttpRequest.Timeout", null),
                     Version = !string.IsNullOrEmpty(versionLabel) ? Version.Parse(versionLabel + (versionLabel.Contains('.') ? "" : ".0")) : null,
                     AllowResponseBuffering = GetLabel<bool?>(labels, "YARP.Backend.HttpRequest.AllowResponseBuffering", null),
 #if NET
@@ -295,8 +311,8 @@ namespace Yarp.ReverseProxy.ServiceFabric
                     Active = new ActiveHealthCheckConfig
                     {
                         Enabled = GetLabel<bool?>(labels, "YARP.Backend.HealthCheck.Active.Enabled", null),
-                        Interval = GetLabel<TimeSpan?>(labels, "YARP.Backend.HealthCheck.Active.Interval", null),
-                        Timeout = GetLabel<TimeSpan?>(labels, "YARP.Backend.HealthCheck.Active.Timeout", null),
+                        Interval = GetTimespanLabel(labels, "YARP.Backend.HealthCheck.Active.Interval", null),
+                        Timeout = GetTimespanLabel(labels, "YARP.Backend.HealthCheck.Active.Timeout", null),
                         Path = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Active.Path", null),
                         Policy = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Active.Policy", null)
                     },
@@ -304,7 +320,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                     {
                         Enabled = GetLabel<bool?>(labels, "YARP.Backend.HealthCheck.Passive.Enabled", null),
                         Policy = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Passive.Policy", null),
-                        ReactivationPeriod = GetLabel<TimeSpan?>(labels, "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", null)
+                        ReactivationPeriod = GetTimespanLabel(labels, "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", null)
                     },
                     AvailableDestinationsPolicy = GetLabel<string>(labels, "YARP.Backend.HealthCheck.AvailableDestinationsPolicy", null)
                 },
