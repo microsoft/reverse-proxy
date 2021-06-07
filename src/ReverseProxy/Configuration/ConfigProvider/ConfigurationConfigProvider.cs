@@ -135,6 +135,11 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider
 
         private static RouteConfig CreateRoute(IConfigurationSection section)
         {
+            if (!string.IsNullOrEmpty(section["RouteId"]))
+            { 
+                throw new Exception("The route config format has changed, routes are now objects instead of an array. The route id must be set as the object name, not with the 'RouteId' field.");
+            }
+
             return new RouteConfig
             {
                 RouteId = section.Key,
