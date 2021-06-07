@@ -58,9 +58,9 @@ private static IHostBuilder CreateHostBuilder(string[] args) =>
                       });
         );
 ```
-- EnableMultipleHttp2Connections - enables opening additional HTTP/2 connections to the same server when the maximum number of concurrent streams is reached on all existing connections. **This feature is available from .NET 5.0**, see [SocketsHttpHandler.EnableMultipleHttp2Connections](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.socketshttphandler.enablemultiplehttp2connections)
+- EnableMultipleHttp2Connections - enables opening additional HTTP/2 connections to the same server when the maximum number of concurrent streams is reached on all existing connections. The default is `true`. **This feature is available from .NET 5.0**, see [SocketsHttpHandler.EnableMultipleHttp2Connections](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.socketshttphandler.enablemultiplehttp2connections)
 ```JSON
-"EnableMultipleHttp2Connections": true
+"EnableMultipleHttp2Connections": false
 ```
 
 For .NET Core 3.1, Latin1 ("iso-8859-1") is the only non-ASCII header encoding that can be accepted and only via `appsettings.json`:
