@@ -91,7 +91,7 @@ The configuration for YARP is defined in the appsettings.json file. See [Configu
 
 The configuration can also be provided programmatically. See [Configuration Providers](config-providers.md) for details.
 
-You can find out more about the available configuration options by looking at [ProxyRoute](xref:Yarp.ReverseProxy.Abstractions.ProxyRoute) and [Cluster](xref:Yarp.ReverseProxy.Abstractions.Cluster).
+You can find out more about the available configuration options by looking at [RouteConfig](xref:Yarp.ReverseProxy.Configuration.RouteConfig) and [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.ClusterConfig).
  
  ```JSON
  {

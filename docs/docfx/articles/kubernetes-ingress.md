@@ -23,7 +23,7 @@ Before we continue with this tutorial, make sure you have the following ready...
 
 ## Get Started
 
-The first step will be to deploy the YARP ingress controller to the Kubernetes cluster. This can be done by navigating to [Kubernetes Ingress sample](..\..\..\samples\KuberenetesIngress.Sample\Ingress) and running:
+The first step will be to deploy the YARP ingress controller to the Kubernetes cluster. This can be done by navigating to [Kubernetes Ingress sample](../../../samples/KuberenetesIngress.Sample/Ingress) and running:
 
 ```
 kubectl apply -f ingress-definition.yaml
