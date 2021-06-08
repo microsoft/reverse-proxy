@@ -19,146 +19,146 @@ If multiple headers rules are specified on a route then all must match for a rou
 
 Configuration:
 ```JSON
-    "Routes": {
-      "route1" : {
-        "ClusterId": "cluster1",
-        "Match": {
-          "Path": "{**catch-all}",
-          "Headers": [
-            {
-              "Name": "header1",
-              "Values": [ "value1" ],
-              "Mode": "ExactHeader"
-            }
-          ]
+"Routes": {
+  "route1" : {
+    "ClusterId": "cluster1",
+    "Match": {
+      "Path": "{**catch-all}",
+      "Headers": [
+        {
+          "Name": "header1",
+          "Values": [ "value1" ],
+          "Mode": "ExactHeader"
         }
-      },
-      "route2" : {
-        "ClusterId": "cluster1",
-        "Match": {
-          "Path": "{**catch-all}",
-          "Headers": [
-            {
-              "Name": "header2",
-              "Values": [ "1prefix", "2prefix" ],
-              "Mode": "HeaderPrefix"
-            }
-          ]
-        }
-      },
-      "route3" : {
-        "ClusterId": "cluster1",
-        "Match": {
-          "Path": "{**catch-all}",
-          "Headers": [
-            {
-              "Name": "header3",
-              "Mode": "Exists"
-            }
-          ]
-        }
-      },
-      "route4" : {
-        "ClusterId": "cluster1",
-        "Match": {
-          "Path": "{**catch-all}",
-          "Headers": [
-            {
-              "Name": "header4",
-              "Values": [ "value1", "value2" ],
-              "Mode": "ExactHeader"
-            },
-            {
-              "Name": "header5",
-              "Mode": "Exists"
-            }
-          ]
-        }
-      }
+      ]
     }
+  },
+  "route2" : {
+    "ClusterId": "cluster1",
+    "Match": {
+      "Path": "{**catch-all}",
+      "Headers": [
+        {
+          "Name": "header2",
+          "Values": [ "1prefix", "2prefix" ],
+          "Mode": "HeaderPrefix"
+        }
+      ]
+    }
+  },
+  "route3" : {
+    "ClusterId": "cluster1",
+    "Match": {
+      "Path": "{**catch-all}",
+      "Headers": [
+        {
+          "Name": "header3",
+          "Mode": "Exists"
+        }
+      ]
+    }
+  },
+  "route4" : {
+    "ClusterId": "cluster1",
+    "Match": {
+      "Path": "{**catch-all}",
+      "Headers": [
+        {
+          "Name": "header4",
+          "Values": [ "value1", "value2" ],
+          "Mode": "ExactHeader"
+        },
+        {
+          "Name": "header5",
+          "Mode": "Exists"
+        }
+      ]
+    }
+  }
+}
 ```
 
 Code:
 ```C#
-    var routes = new[]
+var routes = new[]
+{
+    new RouteConfig()
     {
-        new RouteConfig()
+        RouteId = "route1",
+        ClusterId = "cluster1",
+        Match = new RouteMatch
         {
-            RouteId = "route1",
-            ClusterId = "cluster1",
-            Match = new RouteMatch
+            Path = "{**catch-all}",
+            Headers = new[]
             {
-                Path = "{**catch-all}",
-                Headers = new[]
+                new RouteHeader()
                 {
-                    new RouteHeader()
-                    {
-                        Name = "Header1",
-                        Values = new[] { "value1" },
-                        Mode = HeaderMatchMode.ExactHeader
-                    }
-                }
-            }
-        },
-        new RouteConfig()
-        {
-            RouteId = "route2",
-            ClusterId = "cluster1",
-            Match = new RouteMatch
-            {
-                Path = "{**catch-all}",
-                Headers = new[]
-                {
-                    new RouteHeader()
-                    {
-                        Name = "Header2",
-                        Values = new[] { "1prefix", "2prefix" },
-                        Mode = HeaderMatchMode.HeaderPrefix
-                    }
-                }
-            }
-        },
-        new RouteConfig()
-        {
-            RouteId = "route3",
-            ClusterId = "cluster1",
-            Match = new RouteMatch
-            {
-                Path = "{**catch-all}",
-                Headers = new[]
-                {
-                    new RouteHeader()
-                    {
-                        Name = "Header3",
-                        Mode = HeaderMatchMode.Exists
-                    }
-                }
-            }
-        },
-        new RouteConfig()
-        {
-            RouteId = "route4",
-            ClusterId = "cluster1",
-            Match = new RouteMatch
-            {
-                Path = "{**catch-all}",
-                Headers = new[]
-                {
-                    new RouteHeader()
-                    {
-                        Name = "Header4",
-                        Values = new[] { "value1", "value2" },
-                        Mode = HeaderMatchMode.ExactHeader
-                    },
-                    new RouteHeader()
-                    {
-                        Name = "Header5",
-                        Mode = HeaderMatchMode.Exists
-                    }
+                    Name = "Header1",
+                    Values = new[] { "value1" },
+                    Mode = HeaderMatchMode.ExactHeader
                 }
             }
         }
-    };
+    },
+    new RouteConfig()
+    {
+        RouteId = "route2",
+        ClusterId = "cluster1",
+        Match = new RouteMatch
+        {
+            Path = "{**catch-all}",
+            Headers = new[]
+            {
+                new RouteHeader()
+                {
+                    Name = "Header2",
+                    Values = new[] { "1prefix", "2prefix" },
+                    Mode = HeaderMatchMode.HeaderPrefix
+                }
+            }
+        }
+    },
+    new RouteConfig()
+    {
+        RouteId = "route3",
+        ClusterId = "cluster1",
+        Match = new RouteMatch
+        {
+            Path = "{**catch-all}",
+            Headers = new[]
+            {
+                new RouteHeader()
+                {
+                    Name = "Header3",
+                    Mode = HeaderMatchMode.Exists
+                }
+            }
+        }
+    },
+    new RouteConfig()
+    {
+        RouteId = "route4",
+        ClusterId = "cluster1",
+        Match = new RouteMatch
+        {
+            Path = "{**catch-all}",
+            Headers = new[]
+            {
+            new RouteHeader()
+                {
+                    Name = "Header4",
+                    Values = new[] { "value1", "value2" },
+                    Mode = HeaderMatchMode.ExactHeader
+                },
+                new RouteHeader()
+                {
+                    Name = "Header5",
+                    Mode = HeaderMatchMode.Exists
+                }
+            }
+        }
+    }
+};
 ```
 
 ## Contract
