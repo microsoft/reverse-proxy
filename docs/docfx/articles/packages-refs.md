@@ -7,6 +7,7 @@ Packages installed to all projects.
 Microsoft.SourceLink.AzureRepos.Git |  Apache-2.0
 Microsoft.SourceLink.GitHub |  Apache-2.0
 XliffTasks* |  MIT
+
 \* - installed to all projects excluding the ones ending with "*Tests"
 
 ## docfx
