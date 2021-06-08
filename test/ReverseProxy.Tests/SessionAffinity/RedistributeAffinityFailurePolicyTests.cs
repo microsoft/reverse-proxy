@@ -17,7 +17,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         {
             var policy = new RedistributeAffinityFailurePolicy();
 
-            Assert.Equal(SessionAffinityConstants.AffinityFailurePolicies.Redistribute, policy.Name);
+            Assert.Equal(SessionAffinityConstants.FailurePolicies.Redistribute, policy.Name);
             Assert.True(await policy.Handle(new DefaultHttpContext(), default, status));
         }
 

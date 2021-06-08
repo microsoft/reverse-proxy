@@ -76,7 +76,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
                         {
                             Enabled = true,
                             FailurePolicy = "Return503Error",
-                            Mode = "Cookie",
+                            Provider = "Cookie",
                             AffinityKeyName = "Key1",
                             Cookie = new SessionAffinityCookieConfig
                             {
@@ -188,7 +188,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
             ""LoadBalancingPolicy"": ""Random"",
             ""SessionAffinity"": {
                 ""Enabled"": true,
-                ""Mode"": ""Cookie"",
+                ""Provider"": ""Cookie"",
                 ""FailurePolicy"": ""Return503Error"",
                 ""AffinityKeyName"": ""Key1"",
                 ""Cookie"": {
@@ -487,7 +487,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
             Assert.Equal(LoadBalancingPolicies.Random, abstractCluster1.LoadBalancingPolicy);
             Assert.Equal(cluster1.SessionAffinity.Enabled, abstractCluster1.SessionAffinity.Enabled);
             Assert.Equal(cluster1.SessionAffinity.FailurePolicy, abstractCluster1.SessionAffinity.FailurePolicy);
-            Assert.Equal(cluster1.SessionAffinity.Mode, abstractCluster1.SessionAffinity.Mode);
+            Assert.Equal(cluster1.SessionAffinity.Provider, abstractCluster1.SessionAffinity.Provider);
             Assert.Equal(cluster1.SessionAffinity.AffinityKeyName, abstractCluster1.SessionAffinity.AffinityKeyName);
             Assert.Equal(cluster1.SessionAffinity.Cookie.Domain, abstractCluster1.SessionAffinity.Cookie.Domain);
             Assert.Equal(cluster1.SessionAffinity.Cookie.Expiration, abstractCluster1.SessionAffinity.Cookie.Expiration);

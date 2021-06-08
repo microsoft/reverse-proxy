@@ -16,7 +16,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         public void EnableSessionAffinity_AddsTransform()
         {
             var affinityProvider = new Mock<ISessionAffinityProvider>(MockBehavior.Strict);
-            affinityProvider.SetupGet(p => p.Mode).Returns("Mode");
+            affinityProvider.SetupGet(p => p.Name).Returns("Mode");
 
             var transformProvider = new AffinitizeTransformProvider(new[] { affinityProvider.Object });
             
@@ -26,7 +26,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 SessionAffinity = new SessionAffinityConfig
                 {
                     Enabled = true,
-                    Mode = "Mode",
+                    Provider = "Mode",
                     AffinityKeyName = "Key1"
                 }
             };
@@ -52,7 +52,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         public void EnableSession_InvalidMode_Fails()
         {
             var affinityProvider = new Mock<ISessionAffinityProvider>(MockBehavior.Strict);
-            affinityProvider.SetupGet(p => p.Mode).Returns("Mode");
+            affinityProvider.SetupGet(p => p.Name).Returns("Mode");
 
             var transformProvider = new AffinitizeTransformProvider(new[] { affinityProvider.Object });
 
@@ -62,7 +62,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 SessionAffinity = new SessionAffinityConfig
                 {
                     Enabled = true,
-                    Mode = "Invalid",
+                    Provider = "Invalid",
                     AffinityKeyName = "Key1"
                 }
             };
@@ -74,7 +74,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             transformProvider.ValidateCluster(validationContext);
 
             var ex = Assert.Single(validationContext.Errors);
-            Assert.Equal("No matching ISessionAffinityProvider found for the session affinity mode 'Invalid' set on the cluster 'cluster1'.", ex.Message);
+            Assert.Equal("No matching ISessionAffinityProvider found for the session affinity provider 'Invalid' set on the cluster 'cluster1'.", ex.Message);
 
             var builderContext = new TransformBuilderContext()
             {

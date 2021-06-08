@@ -25,7 +25,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             SessionAffinity = new SessionAffinityConfig
             {
                 Enabled = true,
-                Mode = "Mode-B",
+                Provider = "Mode-B",
                 FailurePolicy = "Policy-1",
                 AffinityKeyName = "Key1"
             }
@@ -50,8 +50,8 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 true,
                 cluster.Destinations.Values.ToList(),
                 cluster.ClusterId,
-                ("Mode-A", AffinityStatus.DestinationNotFound, (DestinationState)null, (Action<ISessionAffinityProvider>)(p => throw new InvalidOperationException($"Provider {p.Mode} call is not expected."))),
-                (expectedMode, status, foundDestination, p => invokedMode = p.Mode));
+                ("Mode-A", AffinityStatus.DestinationNotFound, (DestinationState)null, (Action<ISessionAffinityProvider>)(p => throw new InvalidOperationException($"Provider {p.Name} call is not expected."))),
+                (expectedMode, status, foundDestination, p => invokedMode = p.Name));
             var nextInvoked = false;
             var middleware = new SessionAffinityMiddleware(c => {
                     nextInvoked = true;
@@ -68,7 +68,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
 
             Assert.Equal(expectedMode, invokedMode);
             Assert.True(nextInvoked);
-            providers[0].VerifyGet(p => p.Mode, Times.Once);
+            providers[0].VerifyGet(p => p.Name, Times.Once);
             providers[0].VerifyNoOtherCalls();
             providers[1].VerifyAll();
 
@@ -150,7 +150,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             foreach (var (mode, status, destinations, callback) in prototypes)
             {
                 var provider = new Mock<ISessionAffinityProvider>(MockBehavior.Strict);
-                provider.SetupGet(p => p.Mode).Returns(mode);
+                provider.SetupGet(p => p.Name).Returns(mode);
                 if (lookupMiddlewareTest)
                 {
                     provider.Setup(p => p.FindAffinitizedDestinations(
@@ -163,7 +163,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 }
                 else
                 {
-                    provider.Setup(p => p.AffinitizeRequest(
+                    provider.Setup(p => p.AffinitizeResponse(
                         It.IsAny<HttpContext>(),
                         ClusterConfig.Config.SessionAffinity,
                         expectedDestinations[0]))

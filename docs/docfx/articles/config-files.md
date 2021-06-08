@@ -159,7 +159,7 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
         "LoadBalancingPolicy" : "PowerOfTwoChoices", // Alternatively "First", "Random", "RoundRobin", "LeastRequests"
         "SessionAffinity": {
           "Enabled": true, // Defaults to 'false'
-          "Mode": "Cookie", // Default, alternatively "CustomHeader"
+          "Provider": "Cookie", // Default, alternatively "CustomHeader"
           "FailurePolicy": "Redistribute", // default, Alternatively "Return503"
           "Settings" : {
               "CustomHeaderName": "MySessionHeaderName" // Defaults to 'X-Yarp-Proxy-Affinity`

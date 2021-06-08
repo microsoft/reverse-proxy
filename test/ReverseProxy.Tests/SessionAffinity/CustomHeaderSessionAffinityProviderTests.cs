@@ -15,7 +15,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         private readonly SessionAffinityConfig _defaultOptions = new SessionAffinityConfig
         {
             Enabled = true,
-            Mode = "Cookie",
+            Provider = "Cookie",
             FailurePolicy = "Return503",
             AffinityKeyName = AffinityHeaderName
         };
@@ -26,7 +26,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         {
             var provider = new CustomHeaderSessionAffinityProvider(AffinityTestHelper.GetDataProtector().Object, AffinityTestHelper.GetLogger<CustomHeaderSessionAffinityProvider>().Object);
 
-            Assert.Equal(SessionAffinityConstants.Modes.CustomHeader, provider.Mode);
+            Assert.Equal(SessionAffinityConstants.Providers.CustomHeader, provider.Name);
 
             var context = new DefaultHttpContext();
             context.Request.Headers["SomeHeader"] = new[] { "SomeValue" };
@@ -61,7 +61,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             var chosenDestination = _destinations[1];
             var expectedAffinityHeaderValue = chosenDestination.DestinationId.ToUTF8BytesInBase64();
 
-            provider.AffinitizeRequest(context, _defaultOptions, chosenDestination);
+            provider.AffinitizeResponse(context, _defaultOptions, chosenDestination);
 
             Assert.True(context.Response.Headers.ContainsKey(AffinityHeaderName));
             Assert.Equal(expectedAffinityHeaderValue, context.Response.Headers[AffinityHeaderName]);
@@ -80,7 +80,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
 
             Assert.Equal(AffinityStatus.OK, affinityResult.Status);
 
-            provider.AffinitizeRequest(context, _defaultOptions, affinitizedDestination);
+            provider.AffinitizeResponse(context, _defaultOptions, affinitizedDestination);
 
             Assert.False(context.Response.Headers.ContainsKey(AffinityHeaderName));
         }

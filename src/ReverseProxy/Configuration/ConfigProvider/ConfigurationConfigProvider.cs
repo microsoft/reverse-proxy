@@ -211,7 +211,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider
             return new SessionAffinityConfig
             {
                 Enabled = section.ReadBool(nameof(SessionAffinityConfig.Enabled)),
-                Mode = section[nameof(SessionAffinityConfig.Mode)],
+                Provider = section[nameof(SessionAffinityConfig.Provider)],
                 FailurePolicy = section[nameof(SessionAffinityConfig.FailurePolicy)],
                 AffinityKeyName = section[nameof(SessionAffinityConfig.AffinityKeyName)],
                 Cookie = CreateSessionAffinityCookieConfig(section.GetSection(nameof(SessionAffinityConfig.Cookie)))

@@ -19,7 +19,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
             : base(dataProtectionProvider, logger)
         {}
 
-        public override string Mode => SessionAffinityConstants.Modes.CustomHeader;
+        public override string Name => SessionAffinityConstants.Providers.CustomHeader;
 
         protected override string GetDestinationAffinityKey(DestinationState destination)
         {

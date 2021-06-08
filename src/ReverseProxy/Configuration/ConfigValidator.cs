@@ -321,7 +321,7 @@ namespace Yarp.ReverseProxy.Configuration
             if (string.IsNullOrEmpty(affinityFailurePolicy))
             {
                 // The default.
-                affinityFailurePolicy = SessionAffinityConstants.AffinityFailurePolicies.Redistribute;
+                affinityFailurePolicy = SessionAffinityConstants.FailurePolicies.Redistribute;
             }
 
             if (!_affinityFailurePolicies.ContainsKey(affinityFailurePolicy))

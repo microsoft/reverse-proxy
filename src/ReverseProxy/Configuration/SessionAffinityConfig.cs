@@ -17,9 +17,9 @@ namespace Yarp.ReverseProxy.Configuration
         public bool? Enabled { get; init; }
 
         /// <summary>
-        /// Session affinity mode which is implemented by one of providers.
+        /// The session affinity provider to use.
         /// </summary>
-        public string? Mode { get; init; }
+        public string? Provider { get; init; }
 
         /// <summary>
         /// Strategy handling missing destination for an affinitized request.
@@ -39,7 +39,7 @@ namespace Yarp.ReverseProxy.Configuration
 
         /// <summary>
         /// Configuration of a cookie storing the session affinity key in case
-        /// the <see cref="Mode"/> is set to 'Cookie'.
+        /// the <see cref="Provider"/> is set to 'Cookie'.
         /// </summary>
         public SessionAffinityCookieConfig? Cookie { get; init; }
 
@@ -52,7 +52,7 @@ namespace Yarp.ReverseProxy.Configuration
             }
 
             return Enabled == other.Enabled
-                && string.Equals(Mode, other.Mode, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(Provider, other.Provider, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(FailurePolicy, other.FailurePolicy, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(AffinityKeyName, other.AffinityKeyName, StringComparison.Ordinal)
                 && Cookie == other.Cookie;
@@ -62,7 +62,7 @@ namespace Yarp.ReverseProxy.Configuration
         public override int GetHashCode()
         {
             return HashCode.Combine(Enabled,
-                Mode?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                Provider?.GetHashCode(StringComparison.OrdinalIgnoreCase),
                 FailurePolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
                 AffinityKeyName?.GetHashCode(StringComparison.Ordinal),
                 Cookie);

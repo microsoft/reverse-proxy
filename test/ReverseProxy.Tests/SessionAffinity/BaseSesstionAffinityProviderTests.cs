@@ -23,7 +23,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         private readonly SessionAffinityConfig _defaultOptions = new SessionAffinityConfig
         {
             Enabled = true,
-            Mode = "Stub",
+            Provider = "Stub",
             FailurePolicy = "Return503",
             AffinityKeyName = "StubAffinityKey"
         };
@@ -77,7 +77,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             var options = new SessionAffinityConfig
             {
                 Enabled = false,
-                Mode = _defaultOptions.Mode,
+                Provider = _defaultOptions.Provider,
                 FailurePolicy = _defaultOptions.FailurePolicy,
                 AffinityKeyName = _defaultOptions.AffinityKeyName
             };
@@ -89,7 +89,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         {
             var dataProtector = GetDataProtector();
             var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
-            Assert.Throws<InvalidOperationException>(() => provider.AffinitizeRequest(new DefaultHttpContext(), new SessionAffinityConfig(), new DestinationState("id")));
+            Assert.Throws<InvalidOperationException>(() => provider.AffinitizeResponse(new DefaultHttpContext(), new SessionAffinityConfig(), new DestinationState("id")));
         }
 
         [Fact]
@@ -99,7 +99,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
             var context = new DefaultHttpContext();
             provider.DirectlySetExtractedKeyOnContext(context, "ExtractedKey");
-            provider.AffinitizeRequest(context, _defaultOptions, new DestinationState("id"));
+            provider.AffinitizeResponse(context, _defaultOptions, new DestinationState("id"));
             Assert.Null(provider.LastSetEncryptedKey);
             dataProtector.Verify(p => p.Protect(It.IsAny<byte[]>()), Times.Never);
         }
@@ -110,7 +110,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             var dataProtector = GetDataProtector();
             var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseSessionAffinityProvider<string>>().Object);
             var destination = new DestinationState("dest-A");
-            provider.AffinitizeRequest(new DefaultHttpContext(), _defaultOptions, destination);
+            provider.AffinitizeResponse(new DefaultHttpContext(), _defaultOptions, destination);
             Assert.Equal("ZGVzdC1B", provider.LastSetEncryptedKey);
             var keyBytes = Encoding.UTF8.GetBytes(destination.DestinationId);
             dataProtector.Verify(p => p.Protect(It.Is<byte[]>(b => b.SequenceEqual(keyBytes))), Times.Once);
@@ -167,7 +167,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 : base(dataProtectionProvider, logger)
             {}
 
-            public override string Mode => "Stub";
+            public override string Name => "Stub";
 
             public string LastSetEncryptedKey { get; private set; }
 
@@ -183,7 +183,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
 
             protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig options)
             {
-                Assert.Equal(Mode, options.Mode);
+                Assert.Equal(Name, options.Provider);
                 // HttpContext.Items is used here to store the request affinity key for simplicity.
                 // In real world scenario, a provider will extract it from request (e.g. header, cookie, etc.)
                 var encryptedKey = context.Items.TryGetValue(options.AffinityKeyName, out var requestKey) ? requestKey : null;
