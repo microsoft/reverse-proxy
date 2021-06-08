@@ -38,7 +38,7 @@ Transforms can be added to routes either through configuration or programmatical
 
 ## From Configuration
 
-Transforms can be configured on [ProxyRoute.Transforms](xref:Yarp.ReverseProxy.Configuration.RouteConfig) and can be bound from the `Routes` sections of the config file. These can be modified and reloaded without restarting the proxy. A transform is configured using one or more key-value string pairs.
+Transforms can be configured on [RouteConfig.Transforms](xref:Yarp.ReverseProxy.Configuration.RouteConfig) and can be bound from the `Routes` sections of the config file. These can be modified and reloaded without restarting the proxy. A transform is configured using one or more key-value string pairs.
 
 Here is an example of common transforms:
 ```JSON
@@ -108,7 +108,7 @@ Developers that want to integrate their custom transforms with the `Transforms` 
 
 Transforms can be added to routes programmatically by calling the [AddTransforms](xref:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions) method.
 
-`AddTransforms` can be called from `Startup.ConfigureServices` to provide a callback for configuring transforms. This callback is invoked each time a route is built or rebuilt and allows the developer to inspect the [ProxyRoute](xref:Yarp.ReverseProxy.Abstractions.ProxyRoute) information and conditionally add transforms for it.
+`AddTransforms` can be called from `Startup.ConfigureServices` to provide a callback for configuring transforms. This callback is invoked each time a route is built or rebuilt and allows the developer to inspect the [RouteConfig](xref:Yarp.ReverseProxy.Abstractions.RouteConfig) information and conditionally add transforms for it.
 
 The `AddTransforms` callback provides a [TransformBuilderContext](xref:Yarp.ReverseProxy.Transforms.Builder.TransformBuilderContext) where transforms can be added or configured. Most transforms provide `TransformBuilderContext` extension methods to make them easier to add. These are extensions documented below with the individual transform descriptions.
 
@@ -159,7 +159,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformPathPrefix(prefix: "/prefix");
+routeConfig = routeConfig.WithTransformPathPrefix(prefix: "/prefix");
 ```
 ```C#
 transformBuilderContext.AddPathPrefix(prefix: "/prefix");
@@ -181,7 +181,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformPathRemovePrefix(prefix: "/prefix");
+routeConfig = routeConfig.WithTransformPathRemovePrefix(prefix: "/prefix");
 ```
 ```csharp
 transformBuilderContext.AddPathRemovePrefix(prefix: "/prefix");
@@ -204,7 +204,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformPathSet(path: "/newpath");
+routeConfig = routeConfig.WithTransformPathSet(path: "/newpath");
 ```
 ```C#
 transformBuilderContext.AddPathSet(path: "/newpath");
@@ -226,7 +226,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformPathRouteValues(pattern: new PathString("/my/{plugin}/api/{remainder}"));
+routeConfig = routeConfig.WithTransformPathRouteValues(pattern: new PathString("/my/{plugin}/api/{remainder}"));
 ```
 ```C#
 transformBuilderContext.AddPathRouteValues(pattern: new PathString("/my/{plugin}/api/{remainder}"));
@@ -261,7 +261,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformQueryValue(queryKey: "foo", value: "bar", append: true);
+routeConfig = routeConfig.WithTransformQueryValue(queryKey: "foo", value: "bar", append: true);
 ```
 ```C#
 transformBuilderContext.AddQueryValue(queryKey: "foo", value: "bar", append: true);
@@ -294,7 +294,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformQueryRouteValue(queryKey: "foo", routeValueKey: "remainder", append: true);
+routeConfig = routeConfig.WithTransformQueryRouteValue(queryKey: "foo", routeValueKey: "remainder", append: true);
 ```
 ```C#
 transformBuilderContext.AddQueryRouteValue(queryKey: "foo", routeValueKey: "remainder", append: true);
@@ -325,7 +325,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformQueryRemoveKey(queryKey: "foo");
+routeConfig = routeConfig.WithTransformQueryRemoveKey(queryKey: "foo");
 ```
 ```C#
 transformBuilderContext.AddQueryRemoveKey(queryKey: "foo");
@@ -357,7 +357,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformHttpMethodChange(fromHttpMethod: HttpMethods.Put, toHttpMethod: HttpMethods.Post);
+routeConfig = routeConfig.WithTransformHttpMethodChange(fromHttpMethod: HttpMethods.Put, toHttpMethod: HttpMethods.Post);
 ```
 ```C#
 transformBuilderContext.AddHttpMethodChange(fromHttpMethod: HttpMethods.Put, toHttpMethod: HttpMethods.Post);
@@ -377,7 +377,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformCopyRequestHeaders(copy: false);
+routeConfig = routeConfig.WithTransformCopyRequestHeaders(copy: false);
 ```
 ```C#
 transformBuilderContext.CopyRequestHeaders = false;
@@ -396,7 +396,7 @@ Config:
 { "RequestHeaderOriginalHost": "true" }
 ```
 ```csharp
-proxyRoute = proxyRoute.WithTransformUseOriginalHostHeader(useOriginal: true);
+routeConfig = routeConfig.WithTransformUseOriginalHostHeader(useOriginal: true);
 ```
 ```C#
 transformBuilderContext.UseOriginalHost = true;
@@ -420,7 +420,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformRequestHeader(headerName: "MyHeader", value: "MyValue", append: false);
+routeConfig = routeConfig.WithTransformRequestHeader(headerName: "MyHeader", value: "MyValue", append: false);
 ```
 ```C#
 transformBuilderContext.AddRequestHeader(headerName: "MyHeader", value: "MyValue", append: false);
@@ -448,7 +448,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformRequestHeaderRemove(headerName: "MyHeader");
+routeConfig = routeConfig.WithTransformRequestHeaderRemove(headerName: "MyHeader");
 ```
 ```C#
 transformBuilderContext.AddRequestHeaderRemove(headerName: "MyHeader");
@@ -480,7 +480,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformXForwarded(headerPrefix: "X-Forwarded-", useFor: true, useHost: true, useProto: true, usePrefix: true, append: true);
+routeConfig = routeConfig.WithTransformXForwarded(headerPrefix: "X-Forwarded-", useFor: true, useHost: true, useProto: true, usePrefix: true, append: true);
 ```
 ```C#
 transformBuilderContext.AddXForwarded(headerPrefix: "X-Forwarded-", useFor: true, useHost: true, useProto: true, usePrefix: true, append: true);
@@ -538,7 +538,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformForwarded(useHost: true, useProto: true, forFormat: NodeFormat.IpAndPort, ByFormat: NodeFormat.Random, append: true);
+routeConfig = routeConfig.WithTransformForwarded(useHost: true, useProto: true, forFormat: NodeFormat.IpAndPort, ByFormat: NodeFormat.Random, append: true);
 ```
 ```C#
 transformBuilderContext.AddForwarded(useHost: true, useProto: true, forFormat: NodeFormat.IpAndPort, ByFormat: NodeFormat.Random, append: true);
@@ -590,7 +590,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformClientCertHeader(headerName: "X-Client-Cert");
+routeConfig = routeConfig.WithTransformClientCertHeader(headerName: "X-Client-Cert");
 ```
 ```C#
 transformBuilderContext.AddClientCertHeader(headerName: "X-Client-Cert");
@@ -620,7 +620,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformCopyResponseHeaders(copy: false);
+routeConfig = routeConfig.WithTransformCopyResponseHeaders(copy: false);
 ```
 ```C#
 transformBuilderContext.CopyResponseHeaders = false;
@@ -646,7 +646,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformResponseHeader(headerName: "HeaderName", value: "value", append: true, always: false);
+routeConfig = routeConfig.WithTransformResponseHeader(headerName: "HeaderName", value: "value", append: true, always: false);
 ```
 ```C#
 transformBuilderContext.AddResponseHeader(headerName: "HeaderName", value: "value", append: true, always: false);
@@ -677,7 +677,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformResponseHeaderRemove(headerName: "HeaderName", always: false);
+routeConfig = routeConfig.WithTransformResponseHeaderRemove(headerName: "HeaderName", always: false);
 ```
 ```C#
 transformBuilderContext.AddResponseHeaderRemove(headerName: "HeaderName", always: false);
@@ -704,7 +704,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformCopyResponseTrailers(copy: false);
+routeConfig = routeConfig.WithTransformCopyResponseTrailers(copy: false);
 ```
 ```C#
 transformBuilderContext.CopyResponseTrailers = false;
@@ -730,7 +730,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformResponseTrailer(headerName: "HeaderName", value: "value", append: true, always: false);
+routeConfig = routeConfig.WithTransformResponseTrailer(headerName: "HeaderName", value: "value", append: true, always: false);
 ```
 ```C#
 transformBuilderContext.AddResponseTrailer(headerName: "HeaderName", value: "value", append: true, always: false);
@@ -760,7 +760,7 @@ Config:
 ```
 Code:
 ```csharp
-proxyRoute = proxyRoute.WithTransformResponseTrailerRemove(headerName: "HeaderName", always: false);
+routeConfig = routeConfig.WithTransformResponseTrailerRemove(headerName: "HeaderName", always: false);
 ```
 ```C#
 transformBuilderContext.AddResponseTrailerRemove(headerName: "HeaderName", always: false);
@@ -914,15 +914,15 @@ services.AddReverseProxy()
     }
 ```
 
-`Validate` and `Build` return `true` if they've identified the given transform configuration as one that they own. A `ITransformFactory` may implement multiple transforms. Any `ProxyRoute.Transforms` entries not handled by any `ITransformFactory` will be considered configuration errors and prevent the configuration from being applied.
+`Validate` and `Build` return `true` if they've identified the given transform configuration as one that they own. A `ITransformFactory` may implement multiple transforms. Any `RouteConfig.Transforms` entries not handled by any `ITransformFactory` will be considered configuration errors and prevent the configuration from being applied.
 
-Consider also adding parametrized extension methods on `ProxyRoute` like `WithTransformQueryValue` to facilitate programmatic route construction.
+Consider also adding parametrized extension methods on `RouteConfig` like `WithTransformQueryValue` to facilitate programmatic route construction.
 
 ```C#
-        public static ProxyRoute WithTransformQueryValue(this ProxyRoute proxyRoute, string queryKey, string value, bool append = true)
+        public static RouteConfig WithTransformQueryValue(this RouteConfig routeConfig, string queryKey, string value, bool append = true)
         {
             var type = append ? QueryTransformFactory.AppendKey : QueryTransformFactory.SetKey;
-            return proxyRoute.WithTransform(transform =>
+            return routeConfig.WithTransform(transform =>
             {
                 transform[QueryTransformFactory.QueryValueParameterKey] = queryKey;
                 transform[type] = value;

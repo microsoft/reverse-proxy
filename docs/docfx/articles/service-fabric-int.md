@@ -144,7 +144,7 @@ Service Type | n/a
 Named Service Instance | Cluster (ClusterId=ServiceName)
 Partition | *TBD later*
 Replica / Instance (one endpoint only) | Destination (Address=instance' or replica's endpoint)
-YARP.Routes.<routeName>.* in ServiceManifest | ProxyRoute (id=ServiceName+routeName, Match=Hosts,Path extracted from the labels)
+YARP.Routes.<routeName>.* in ServiceManifest | RouteConfig (id=ServiceName+routeName, Match=Hosts,Path extracted from the labels)
 
 ## Testing SF integration locally
 While developing a new YARP-based application with enabled SF integration, it's helpful to test how everything works locally on a dev machine before deploying it to the cloud. This can be done by following the steps explained in [Prepare your development environment on Windows](https://docs.microsoft.com/azure/service-fabric/service-fabric-get-started) guide.
@@ -175,7 +175,7 @@ Service Fabric to YARP model conversion starts by enumerating all SF application
 
 Once a `ClusterConfig` and all its `DestinationConfig`'s have been built, `IDiscoverer` calls `IConfigValidator` to check validity of the produced YARP configuration. The validation is performed incrementally on each completed `ClusterConfig` before starting building the next one. In case of validation errors or other service conversion failures, the `Cluster`'s construction gets aborted and a health report gets sent to SF cluster indicating that the respective service is 'unhealthy'. A failure in conversion of one SF service doesn't fail the whole process, so all remaining services in the same SF application will be considered.
 
-If the `ClusterConfig` has been successfully validated, `IDiscoverer` proceeds to the final conversion step where it calls `LabelsParser` to create [RouteConfig](xref:Yarp.ReverseProxy.Configuration.RouteConfig) from `YARP.Routes.*` extension labels. New `RouteConfig`'s are also passed down to `IConfigValidator` to ensure their validity. A failure in `ProxyRoute` construction is communicated to SF cluster in form of a service health report similar to other service conversion failures.
+If the `ClusterConfig` has been successfully validated, `IDiscoverer` proceeds to the final conversion step where it calls `LabelsParser` to create [RouteConfig](xref:Yarp.ReverseProxy.Configuration.RouteConfig) from `YARP.Routes.*` extension labels. New `RouteConfig`'s are also passed down to `IConfigValidator` to ensure their validity. A failure in `RouteConfig` construction is communicated to SF cluster in form of a service health report similar to other service conversion failures.
 
 After all applications and their services have been processed and a new complete YARP configuration has been constructed, `ServiceFabricConfigProvier` updates [IProxyConfig](xref:Yarp.ReverseProxy.Service.IProxyConfig) and notifies the rest of YARP about a configuration change.
 
