@@ -1,5 +1,5 @@
 ---
-uid: getting_started
+uid: getting-started
 title: Getting Started with YARP
 ---
 
@@ -87,9 +87,9 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
  
 ### Configuration 
 
-The configuration for YARP is defined in the appsettings.json file. See [Configuration Files](configfiles.md) for details.
+The configuration for YARP is defined in the appsettings.json file. See [Configuration Files](config-files.md) for details.
 
-The configuration can also be provided programmatically. See [Configuration Providers](configproviders.md) for details.
+The configuration can also be provided programmatically. See [Configuration Providers](config-providers.md) for details.
 
 You can find out more about the available configuration options by looking at [ProxyRoute](xref:Yarp.ReverseProxy.Abstractions.ProxyRoute) and [Cluster](xref:Yarp.ReverseProxy.Abstractions.Cluster).
  

@@ -32,7 +32,7 @@ See [ReverseProxy.Direct.Sample](https://github.com/microsoft/reverse-proxy/tree
 
 ### Create a new project
 
-Follow the [Getting Started](xref:getting_started) guide to create a project and add the Yarp.ReverseProxy nuget dependency.
+Follow the [Getting Started](xref:getting-started) guide to create a project and add the Yarp.ReverseProxy nuget dependency.
 
 ### Update Startup
 

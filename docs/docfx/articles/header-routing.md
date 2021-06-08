@@ -5,7 +5,7 @@ title: Header Routing
 
 # Header Based Routing
 
-Proxy routes specified in [config](configfiles.md) or via [code](configproviders.md) must include at least a path or host to match against. In addition to these, a route can also specify one or more headers that must be present on the request.
+Proxy routes specified in [config](config-files.md) or via [code](config-providers.md) must include at least a path or host to match against. In addition to these, a route can also specify one or more headers that must be present on the request.
 
 ### Precedence
 
