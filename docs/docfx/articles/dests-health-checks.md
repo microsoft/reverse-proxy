@@ -86,7 +86,7 @@ The policy parameters are set in the cluster's metadata as follows:
 `ConsecutiveFailuresHealthPolicy.Threshold` - number of consecutively failed active health probing requests required to mark a destination as unhealthy. Default `2`.
 
 ### Design
-The main service in this process is [IActiveHealthCheckMonitor](xref:Yarp.ReverseProxy.Health.IActiveHealthCheckMonitor) that periodically creates probing requests via [IProbingRequestFactory](xref:Yarp.ReverseProxy.Health.IProbingRequestFactory), sends them to all [DestinationConfig](xref:Yarp.ReverseProxy.Configuration.DestinationConfig) of each [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.ClusterConfig) with enabled active health checks and then passes all the responses down to a [IActiveHealthCheckPolicy](xref:Yarp.ReverseProxy.Health.IActiveHealthCheckPolicy) specified for a cluster. `IActiveHealthCheckMonitor` doesn't make the actual decision on whether a destination is healthy or not, but delegates this duty to an `IActiveHealthCheckPolicy` specified for a cluster. A policy is called to evaluate the new health states once all probing of all cluster's destination completed. It takes in a [ClusterInfo](xref:Yarp.ReverseProxy.Model.ClusterState) representing the cluster's dynamic state and a set of [DestinationProbingResult](xref:Yarp.ReverseProxy.Health.DestinationProbingResult) storing cluster's destinations' probing results. Having evaluated a new health state for each destination, the policy calls [IDestinationHealthUpdater](xref:Yarp.ReverseProxy.Health.IDestinationHealthUpdater) to actually update [DestinationHealthState.Active](xref:Yarp.ReverseProxy.Model.DestinationHealthState.Active) values.
+The main service in this process is [IActiveHealthCheckMonitor](xref:Yarp.ReverseProxy.Health.IActiveHealthCheckMonitor) that periodically creates probing requests via [IProbingRequestFactory](xref:Yarp.ReverseProxy.Health.IProbingRequestFactory), sends them to all [DestinationConfig](xref:Yarp.ReverseProxy.Configuration.DestinationConfig) of each [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.ClusterConfig) with enabled active health checks and then passes all the responses down to a [IActiveHealthCheckPolicy](xref:Yarp.ReverseProxy.Health.IActiveHealthCheckPolicy) specified for a cluster. `IActiveHealthCheckMonitor` doesn't make the actual decision on whether a destination is healthy or not, but delegates this duty to an `IActiveHealthCheckPolicy` specified for a cluster. A policy is called to evaluate the new health states once all probing of all cluster's destination completed. It takes in a [ClusterState](xref:Yarp.ReverseProxy.Model.ClusterState) representing the cluster's dynamic state and a set of [DestinationProbingResult](xref:Yarp.ReverseProxy.Health.DestinationProbingResult) storing cluster's destinations' probing results. Having evaluated a new health state for each destination, the policy calls [IDestinationHealthUpdater](xref:Yarp.ReverseProxy.Health.IDestinationHealthUpdater) to actually update [DestinationHealthState.Active](xref:Yarp.ReverseProxy.Model.DestinationHealthState.Active) values.
 
 ```
 -{For each cluster's destination}-
@@ -104,7 +104,7 @@ DestinationProbingResult
 (Evaluate new destination active health states using probing results)
         |
         V
-IActiveHealthCheckPolicy --(New active health states)--> IDestinationHealthUpdater --(Update each destination's)--> DestinationInfo.Health.Active
+IActiveHealthCheckPolicy --(New active health states)--> IDestinationHealthUpdater --(Update each destination's)--> DestinationState.Health.Active
 ```
 There are default built-in implementations for all of the aforementioned components which can also be replaced with custom ones when necessary.
 
@@ -282,10 +282,10 @@ The main component is [PassiveHealthCheckMiddleware](xref:Yarp.ReverseProxy.Heal
                   |
     (Evaluate new passive health state)
                   |
-      IDestinationHealthUpdater --(Asynchronously update passive state)--> DestinationInfo.Health.Passive
+      IDestinationHealthUpdater --(Asynchronously update passive state)--> DestinationState.Health.Passive
                   |
                   V
-      (Schedule a reactivation) --(Set to Unknown)--> DestinationInfo.Health.Passive
+      (Schedule a reactivation) --(Set to Unknown)--> DestinationState.Health.Passive
 ```
 
 ### Extensibility
