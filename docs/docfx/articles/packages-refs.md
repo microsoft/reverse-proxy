@@ -1,13 +1,13 @@
 # Packages referenced by YARP
 
-## <Global>
+## [Global]
 Packages installed to all projects.
 | Package | License |
 | :--- | :--- |
 Microsoft.SourceLink.AzureRepos.Git |  Apache-2.0
 Microsoft.SourceLink.GitHub |  Apache-2.0
 XliffTasks* |  MIT
-* - installed to all projects excluding the ones ending with "*Tests"
+\* - installed to all projects excluding the ones ending with "*Tests"
 
 ## docfx
 | Package | License |
