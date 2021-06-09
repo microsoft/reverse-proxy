@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
@@ -29,8 +29,8 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
         /// Called before <see cref="OnProxyStop(DateTime, int)"/> if proxying the request failed.
         /// </summary>
         /// <param name="timestamp">Timestamp when the event was fired.</param>
-        /// <param name="error"><see cref="ProxyError"/> information for the proxy failure.</param>
-        void OnProxyFailed(DateTime timestamp, ProxyError error) { }
+        /// <param name="error"><see cref="ForwarderError"/> information for the proxy failure.</param>
+        void OnProxyFailed(DateTime timestamp, ForwarderError error) { }
 
         /// <summary>
         /// Called when reaching a given stage of proxying a request.

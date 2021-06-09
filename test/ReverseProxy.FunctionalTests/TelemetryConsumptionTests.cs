@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Yarp.ReverseProxy.Common;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Telemetry.Consumption;
 
 namespace Yarp.ReverseProxy
@@ -204,7 +204,7 @@ namespace Yarp.ReverseProxy
 
             public void OnProxyStart(DateTime timestamp, string destinationPrefix) => AddStage(nameof(OnProxyStart), timestamp);
             public void OnProxyStop(DateTime timestamp, int statusCode) => AddStage(nameof(OnProxyStop), timestamp);
-            public void OnProxyFailed(DateTime timestamp, ProxyError error) => AddStage(nameof(OnProxyFailed), timestamp);
+            public void OnProxyFailed(DateTime timestamp, ForwarderError error) => AddStage(nameof(OnProxyFailed), timestamp);
             public void OnProxyStage(DateTime timestamp, Telemetry.Consumption.ProxyStage stage) => AddStage($"{nameof(OnProxyStage)}-{stage}", timestamp);
             public void OnContentTransferring(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime) => AddStage(nameof(OnContentTransferring), timestamp);
             public void OnContentTransferred(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime, TimeSpan firstReadTime) => AddStage(nameof(OnContentTransferred), timestamp);

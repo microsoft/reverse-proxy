@@ -48,8 +48,8 @@ namespace Yarp.ReverseProxy
         public static readonly EventId ClusterConfigException = new EventId(42, "ClusterConfigException");
         public static readonly EventId ErrorReloadingConfig = new EventId(43, "ErrorReloadingConfig");
         public static readonly EventId ErrorApplyingConfig = new EventId(44, "ErrorApplyingConfig");
-        public static readonly EventId ProxyClientCreated = new EventId(45, "ProxyClientCreated");
-        public static readonly EventId ProxyClientReused = new EventId(46, "ProxyClientReused");
+        public static readonly EventId ClientCreated = new EventId(45, "ProxyClientCreated");
+        public static readonly EventId ClientReused = new EventId(46, "ProxyClientReused");
         public static readonly EventId ConfigurationDataConversionFailed = new EventId(47, "ConfigurationDataConversionFailed");
         public static readonly EventId ProxyError = new EventId(48, "ProxyError");
         public static readonly EventId ActiveDestinationHealthStateIsSetToUnhealthy = new EventId(49, "ActiveDestinationHealthStateIsSetToUnhealthy");

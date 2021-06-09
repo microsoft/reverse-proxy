@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Transforms;
 using Yarp.ReverseProxy.Transforms.Builder;
 
@@ -24,13 +24,13 @@ namespace Yarp.ReverseProxy.Sample
         /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHttpProxy();
+            services.AddHttpForwarder();
         }
 
         /// <summary>
         /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         /// </summary>
-        public void Configure(IApplicationBuilder app, IHttpProxy httpProxy)
+        public void Configure(IApplicationBuilder app, IHttpForwarder httpProxy)
         {
             var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
             {
@@ -51,14 +51,14 @@ namespace Yarp.ReverseProxy.Sample
             // or var transformer = new CustomTransformer();
             // or var transformer = HttpTransformer.Default;
 
-            var requestOptions = new RequestProxyConfig { Timeout = TimeSpan.FromSeconds(100) };
+            var requestOptions = new ForwarderRequestConfig { Timeout = TimeSpan.FromSeconds(100) };
 
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.Map("/{**catch-all}", async httpContext =>
                 {
-                    await httpProxy.ProxyAsync(httpContext, "https://example.com", httpClient, requestOptions, transformer);
+                    await httpProxy.SendAsync(httpContext, "https://example.com", httpClient, requestOptions, transformer);
                     var errorFeature = httpContext.GetProxyErrorFeature();
                     if (errorFeature != null)
                     {

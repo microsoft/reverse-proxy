@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Routing.Patterns;
 using Xunit;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Microsoft.AspNetCore.Builder.Tests
 {

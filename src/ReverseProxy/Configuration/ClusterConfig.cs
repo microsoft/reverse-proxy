@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Configuration
@@ -42,7 +42,7 @@ namespace Yarp.ReverseProxy.Configuration
         /// <summary>
         /// Config for outgoing HTTP requests.
         /// </summary>
-        public RequestProxyConfig? HttpRequest { get; init; }
+        public ForwarderRequestConfig? HttpRequest { get; init; }
 
         /// <summary>
         /// The set of destinations associated with this cluster.

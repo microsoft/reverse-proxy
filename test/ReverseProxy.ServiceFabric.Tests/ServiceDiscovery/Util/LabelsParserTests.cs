@@ -8,7 +8,7 @@ using FluentAssertions;
 using Xunit;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.LoadBalancing;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.SessionAffinity;
 
 namespace Yarp.ReverseProxy.ServiceFabric.Tests
@@ -90,7 +90,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                         SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest
                     }
                 },
-                HttpRequest = new RequestProxyConfig
+                HttpRequest = new ForwarderRequestConfig
                 {
                     Timeout = TimeSpan.FromSeconds(17),
                     Version = new Version(1, 1),
@@ -160,7 +160,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     AffinityKeyName = "Key1",
                     Cookie = new SessionAffinityCookieConfig()
                 },
-                HttpRequest = new RequestProxyConfig(),
+                HttpRequest = new ForwarderRequestConfig(),
                 HealthCheck = new HealthCheckConfig
                 {
                     Active = new ActiveHealthCheckConfig(),

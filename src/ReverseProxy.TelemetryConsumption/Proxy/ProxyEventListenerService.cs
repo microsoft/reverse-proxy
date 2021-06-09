@@ -7,7 +7,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using Microsoft.Extensions.Logging;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
@@ -75,7 +75,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 case 3:
                     Debug.Assert(eventData.EventName == "ProxyFailed" && payload.Count == 1);
                     {
-                        var error = (ProxyError)payload[0];
+                        var error = (ForwarderError)payload[0];
                         foreach (var consumer in TelemetryConsumers)
                         {
                             consumer.OnProxyFailed(eventData.TimeStamp, error);

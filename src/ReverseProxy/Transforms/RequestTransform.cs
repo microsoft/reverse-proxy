@@ -4,7 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Transforms

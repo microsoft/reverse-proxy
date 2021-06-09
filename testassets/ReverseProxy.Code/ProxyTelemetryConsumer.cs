@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.AspNetCore.Http;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Telemetry.Consumption;
 
 namespace Yarp.ReverseProxy.Sample
@@ -31,7 +31,7 @@ namespace Yarp.ReverseProxy.Sample
             Console.WriteLine($"Spent {elapsed.TotalMilliseconds:N2} ms proxying {path}");
         }
 
-        public void OnProxyFailed(DateTime timestamp, ProxyError error) { }
+        public void OnProxyFailed(DateTime timestamp, ForwarderError error) { }
 
         public void OnProxyStage(DateTime timestamp, ProxyStage stage) { }
 

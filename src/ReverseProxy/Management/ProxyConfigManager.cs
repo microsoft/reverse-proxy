@@ -17,7 +17,7 @@ using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Routing;
 using Yarp.ReverseProxy.Transforms.Builder;
 
@@ -42,7 +42,7 @@ namespace Yarp.ReverseProxy.Management
         private readonly ConcurrentDictionary<string, RouteState> _routes = new(StringComparer.OrdinalIgnoreCase);
         private readonly IProxyConfigFilter[] _filters;
         private readonly IConfigValidator _configValidator;
-        private readonly IProxyHttpClientFactory _httpClientFactory;
+        private readonly IForwarderHttpClientFactory _httpClientFactory;
         private readonly ProxyEndpointFactory _proxyEndpointFactory;
         private readonly ITransformBuilder _transformBuilder;
         private readonly List<Action<EndpointBuilder>> _conventions;
@@ -62,7 +62,7 @@ namespace Yarp.ReverseProxy.Management
             IConfigValidator configValidator,
             ProxyEndpointFactory proxyEndpointFactory,
             ITransformBuilder transformBuilder,
-            IProxyHttpClientFactory httpClientFactory,
+            IForwarderHttpClientFactory httpClientFactory,
             IActiveHealthCheckMonitor activeHealthCheckMonitor,
             IClusterDestinationsUpdater clusterDestinationsUpdater)
         {
@@ -343,7 +343,7 @@ namespace Yarp.ReverseProxy.Management
 
                     var currentClusterModel = currentCluster.Model;
 
-                    var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext
+                    var httpClient = _httpClientFactory.CreateClient(new ForwarderHttpClientContext
                     {
                         ClusterId = currentCluster.ClusterId,
                         OldConfig = currentClusterModel.Config.HttpClient ?? HttpClientConfig.Empty,
@@ -382,7 +382,7 @@ namespace Yarp.ReverseProxy.Management
 
                     UpdateRuntimeDestinations(incomingCluster.Destinations, newClusterState.Destinations);
 
-                    var httpClient = _httpClientFactory.CreateClient(new ProxyHttpClientContext
+                    var httpClient = _httpClientFactory.CreateClient(new ForwarderHttpClientContext
                     {
                         ClusterId = newClusterState.ClusterId,
                         NewConfig = incomingCluster.HttpClient ?? HttpClientConfig.Empty,

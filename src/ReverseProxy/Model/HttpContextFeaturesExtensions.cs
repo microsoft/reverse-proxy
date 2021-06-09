@@ -3,7 +3,7 @@
 
 using System;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Microsoft.AspNetCore.Http
 {
@@ -44,11 +44,11 @@ namespace Microsoft.AspNetCore.Http
         }
 
         /// <summary>
-        /// Retrieves the <see cref="IProxyErrorFeature"/> instance associated with the current request, if any.
+        /// Retrieves the <see cref="IForwarderErrorFeature"/> instance associated with the current request, if any.
         /// </summary>
-        public static IProxyErrorFeature? GetProxyErrorFeature(this HttpContext context)
+        public static IForwarderErrorFeature? GetProxyErrorFeature(this HttpContext context)
         {
-            return context.Features.Get<IProxyErrorFeature>();
+            return context.Features.Get<IForwarderErrorFeature>();
         }
     }
 }

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Yarp.ReverseProxy.Configuration;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Transforms.Builder
 {

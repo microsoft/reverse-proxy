@@ -1,12 +1,18 @@
-# Proxy HTTP Client Configuration
+# HTTP Client Configuration
 
 Introduced: preview5
 
 ## Introduction
 
+<<<<<<< HEAD:docs/docfx/articles/proxy-httpclient-config.md
 Each [Cluster](xref:Yarp.ReverseProxy.Configuration.ClusterConfig) has a dedicated [HttpMessageInvoker](https://docs.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker) instance used to proxy requests to its [Destination](xref:Yarp.ReverseProxy.Configuration.DestinationConfig)s. The configuration is defined per cluster. On YARP startup, all clusters get new `HttpMessageInvoker` instances, however if later the cluster configuration gets changed the [IProxyHttpClientFactory](xref:Yarp.ReverseProxy.Proxy.IProxyHttpClientFactory) will re-run and decide if it should create a new `HttpMessageInvoker` or keep using the existing one. The default `IProxyHttpClientFactory` implementation creates a new `HttpMessageInvoker` when there are changes to the [HttpClientConfig](xref:Yarp.ReverseProxy.Configuration.HttpClientConfig).
 
 Properties of outgoing requests for a given cluster can be configured as well. They are defined in [RequestProxyConfig](xref:Yarp.ReverseProxy.Proxy.RequestProxyConfig).
+=======
+Each [Cluster](xref:Yarp.ReverseProxy.Abstractions.ClusterConfig) has a dedicated [HttpMessageInvoker](https://docs.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker) instance used to proxy requests to its [Destination](xref:Yarp.ReverseProxy.Abstractions.DestinationConfig)s. The configuration is defined per cluster. On YARP startup, all clusters get new `HttpMessageInvoker` instances, however if later the cluster configuration gets changed the [IForwarderHttpClientFactory](xref:Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory) will re-run and decide if it should create a new `HttpMessageInvoker` or keep using the existing one. The default `IForwarderHttpClientFactory` implementation creates a new `HttpMessageInvoker` when there are changes to the [HttpClientConfig](xref:Yarp.ReverseProxy.Abstractions.HttpClientConfig).
+
+Properties of outgoing requests for a given cluster can be configured as well. They are defined in [ForwarderRequestConfig](xref:Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig).
+>>>>>>> Proxy -> Forwarder:docs/docfx/articles/httpclientconfig.md
 
 The configuration is represented differently if you're using the [IConfiguration](https://docs.microsoft.com/dotnet/api/microsoft.extensions.configuration.iconfiguration) model or the code-first model.
 
@@ -81,7 +87,11 @@ At the moment, there is no solution for changing encoding for response headers i
 
 
 ### HttpRequest
+<<<<<<< HEAD:docs/docfx/articles/proxy-httpclient-config.md
 HTTP request configuration is based on [RequestProxyConfig](xref:Yarp.ReverseProxy.Proxy.RequestProxyConfig) and represented by the following configuration schema.
+=======
+HTTP request configuration is based on [ForwarderRequestConfig](xref:Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig) and represented by the following configuration schema.
+>>>>>>> Proxy -> Forwarder:docs/docfx/articles/httpclientconfig.md
 ```JSON
 "HttpRequest": {
     "Timeout": "<timespan>",
@@ -199,8 +209,13 @@ public void ConfigureServices(IServiceCollection services)
         })
 ```
 
+<<<<<<< HEAD:docs/docfx/articles/proxy-httpclient-config.md
 ## Custom IProxyHttpClientFactory
 In case the direct control on a proxy HTTP client construction is necessary, the default [IProxyHttpClientFactory](xref:Yarp.ReverseProxy.Proxy.IProxyHttpClientFactory) can be replaced with a custom one. For some customizations you can derive from the default [ProxyHttpClientFactory](xref:Yarp.ReverseProxy.Proxy.ProxyHttpClientFactory) and override the methods that configure the client.
+=======
+## Custom IForwarderHttpClientFactory
+In case the direct control on a proxy HTTP client construction is necessary, the default [IForwarderHttpClientFactory](xref:Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory) can be replaced with a custom one. For some customizations you can derive from the default [ProxyHttpClientFactory](xref:Yarp.ReverseProxy.Service.Proxy.Infrastructure.ProxyHttpClientFactory) and override the methods that configure the client.
+>>>>>>> Proxy -> Forwarder:docs/docfx/articles/httpclientconfig.md
 
 It's recommended that any custom factory set the following `SocketsHttpHandler` properties to the same values as the default factory does in order to preserve a correct reverse proxy behavior and avoid unnecessary overhead.
 
@@ -218,12 +233,12 @@ Always return an HttpMessageInvoker instance rather than an HttpClient instance 
 
 Custom data can be provided in the cluster metadata.
 
-The below is an example of a custom `IProxyHttpClientFactory` implementation.
+The below is an example of a custom `IForwarderHttpClientFactory` implementation.
 
 ```C#
-public class CustomProxyHttpClientFactory : IProxyHttpClientFactory
+public class CustomForwarderHttpClientFactory : IForwarderHttpClientFactory
 {
-    public HttpMessageInvoker CreateClient(ProxyHttpClientContext context)
+    public HttpMessageInvoker CreateClient(ForwarderHttpClientContext context)
     {
         var handler = new SocketsHttpHandler
         {

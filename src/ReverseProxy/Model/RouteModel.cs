@@ -3,7 +3,7 @@
 
 using System;
 using Yarp.ReverseProxy.Configuration;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Model
 {

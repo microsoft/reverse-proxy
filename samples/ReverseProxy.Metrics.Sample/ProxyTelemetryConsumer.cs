@@ -4,7 +4,7 @@
 using System;
 using System.Threading;
 using Microsoft.AspNetCore.Http;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Telemetry.Consumption;
 
 namespace Yarp.Sample
@@ -23,7 +23,7 @@ namespace Yarp.Sample
             metrics.ProxyStopOffset = metrics.CalcOffset(timestamp);
         }
 
-        public void OnProxyFailed(DateTime timestamp, ProxyError error)
+        public void OnProxyFailed(DateTime timestamp, ForwarderError error)
         {
             var metrics = PerRequestMetrics.Current;
             metrics.ProxyStopOffset = metrics.CalcOffset(timestamp);
