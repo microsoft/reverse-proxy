@@ -5,7 +5,7 @@ title: Header Routing
 
 # Header Based Routing
 
-Proxy routes specified in [config](configfiles.md) or via [code](configproviders.md) must include at least a path or host to match against. In addition to these, a route can also specify one or more headers that must be present on the request.
+Proxy routes specified in [config](config-files.md) or via [code](config-providers.md) must include at least a path or host to match against. In addition to these, a route can also specify one or more headers that must be present on the request.
 
 ### Precedence
 
@@ -163,7 +163,7 @@ var routes = new[]
 
 ## Contract
 
-[RouteHeader](xref:Yarp.ReverseProxy.Abstractions.RouteHeader) defines the code contract and is mapped from config.
+[RouteHeader](xref:RouteHeaderYarp.ReverseProxy.Configuration.RouteHeader) defines the code contract and is mapped from config.
 
 ### Name
 
@@ -175,7 +175,7 @@ A list of possible values to search for. The header must match at least one of t
 
 ### Mode
 
-[HeaderMatchMode](xref:Yarp.ReverseProxy.Abstractions.HeaderMatchMode) specifies how to match the value(s) against the request header. The default is `ExactHeader`.
+[HeaderMatchMode](xref:RouteHeaderYarp.ReverseProxy.Configuration.HeaderMatchMode) specifies how to match the value(s) against the request header. The default is `ExactHeader`.
 - ExactHeader - The header must match in its entirety, subject to the value of `IsCaseSensitive`. Only single headers are supported. If there are multiple headers with the same name then the match fails.
 - HeaderPrefix - The header must match by prefix, subject to the value of `IsCaseSensitive`. Only single headers are supported. If there are multiple headers with the same name then the match fails.
 - Exists - The header must exist and contain any non-empty value.
