@@ -24,9 +24,9 @@ namespace Yarp.ReverseProxy.SessionAffinity
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public abstract string Mode { get; }
+        public abstract string Name { get; }
 
-        public virtual void AffinitizeRequest(HttpContext context, SessionAffinityConfig config, DestinationState destination)
+        public virtual void AffinitizeResponse(HttpContext context, SessionAffinityConfig config, DestinationState destination)
         {
             if (!config.Enabled.GetValueOrDefault())
             {

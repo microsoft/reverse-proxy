@@ -24,7 +24,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
         }
 
-        public override string Mode => SessionAffinityConstants.Modes.Cookie;
+        public override string Name => SessionAffinityConstants.Providers.Cookie;
 
         protected override string GetDestinationAffinityKey(DestinationState destination)
         {

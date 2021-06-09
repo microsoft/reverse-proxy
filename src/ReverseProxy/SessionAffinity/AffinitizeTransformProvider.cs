@@ -14,7 +14,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
 
         public AffinitizeTransformProvider(IEnumerable<ISessionAffinityProvider> sessionAffinityProviders)
         {
-            _sessionAffinityProviders = sessionAffinityProviders?.ToDictionaryByUniqueId(p => p.Mode)
+            _sessionAffinityProviders = sessionAffinityProviders?.ToDictionaryByUniqueId(p => p.Name)
                 ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
         }
 
@@ -30,16 +30,16 @@ namespace Yarp.ReverseProxy.SessionAffinity
                 return;
             }
 
-            var affinityMode = context.Cluster.SessionAffinity.Mode;
-            if (string.IsNullOrEmpty(affinityMode))
+            var provider = context.Cluster.SessionAffinity.Provider;
+            if (string.IsNullOrEmpty(provider))
             {
                 // The default.
-                affinityMode = SessionAffinityConstants.Modes.Cookie;
+                provider = SessionAffinityConstants.Providers.Cookie;
             }
 
-            if (!_sessionAffinityProviders.ContainsKey(affinityMode))
+            if (!_sessionAffinityProviders.ContainsKey(provider))
             {
-                context.Errors.Add(new ArgumentException($"No matching {nameof(ISessionAffinityProvider)} found for the session affinity mode '{affinityMode}' set on the cluster '{context.Cluster.ClusterId}'."));
+                context.Errors.Add(new ArgumentException($"No matching {nameof(ISessionAffinityProvider)} found for the session affinity provider '{provider}' set on the cluster '{context.Cluster.ClusterId}'."));
             }
         }
 
@@ -49,7 +49,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
 
             if (options != null && options.Enabled.GetValueOrDefault())
             {
-                var provider = _sessionAffinityProviders.GetRequiredServiceById(options.Mode, SessionAffinityConstants.Modes.Cookie);
+                var provider = _sessionAffinityProviders.GetRequiredServiceById(options.Provider, SessionAffinityConstants.Providers.Cookie);
                 context.ResponseTransforms.Add(new AffinitizeTransform(provider));
             }
         }

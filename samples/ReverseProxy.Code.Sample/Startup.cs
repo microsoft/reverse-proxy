@@ -79,7 +79,7 @@ namespace Yarp.Sample
                 new ClusterConfig()
                 {
                     ClusterId = "cluster1",
-                    SessionAffinity = new SessionAffinityConfig { Enabled = true, Mode = "Cookie", AffinityKeyName = ".Yarp.ReverseProxy.Affinity" },
+                    SessionAffinity = new SessionAffinityConfig { Enabled = true, Provider = "Cookie", AffinityKeyName = ".Yarp.ReverseProxy.Affinity" },
                     Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                     {
                         { "destination1", new DestinationConfig() { Address = "https://example.com" } },

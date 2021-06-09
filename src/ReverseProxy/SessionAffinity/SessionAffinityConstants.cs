@@ -8,14 +8,14 @@ namespace Yarp.ReverseProxy.SessionAffinity
     /// </summary>
     public static class SessionAffinityConstants
     {
-        public static class Modes
+        public static class Providers
         {
             public static string Cookie => nameof(Cookie);
 
             public static string CustomHeader => nameof(CustomHeader);
         }
 
-        public static class AffinityFailurePolicies
+        public static class FailurePolicies
         {
             public static string Redistribute => nameof(Redistribute);
 

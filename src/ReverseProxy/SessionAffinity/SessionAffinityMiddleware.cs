@@ -30,7 +30,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _sessionAffinityProviders = sessionAffinityProviders?.ToDictionaryByUniqueId(p => p.Mode) ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
+            _sessionAffinityProviders = sessionAffinityProviders?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
             _affinityFailurePolicies = affinityFailurePolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
         }
 
@@ -53,7 +53,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
         {
             var destinations = proxyFeature.AvailableDestinations;
 
-            var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(config.Mode, SessionAffinityConstants.Modes.Cookie);
+            var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(config.Provider, SessionAffinityConstants.Providers.Cookie);
             var affinityResult = currentProvider.FindAffinitizedDestinations(context, destinations, clusterId, config);
 
             switch (affinityResult.Status)
@@ -67,7 +67,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
                 case AffinityStatus.AffinityKeyExtractionFailed:
                 case AffinityStatus.DestinationNotFound:
 
-                    var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(config.FailurePolicy, SessionAffinityConstants.AffinityFailurePolicies.Redistribute);
+                    var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(config.FailurePolicy, SessionAffinityConstants.FailurePolicies.Redistribute);
                     var keepProcessing = await failurePolicy.Handle(context, config, affinityResult.Status);
 
                     if (!keepProcessing)

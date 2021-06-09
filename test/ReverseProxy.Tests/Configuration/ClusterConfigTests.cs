@@ -66,7 +66,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                 {
                     Enabled = true,
                     FailurePolicy = "Return503Error",
-                    Mode = "Cookie",
+                    Provider = "Cookie",
                     AffinityKeyName = "Key1",
                     Cookie = new SessionAffinityCookieConfig
                     {
@@ -147,7 +147,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                 {
                     Enabled = true,
                     FailurePolicy = "Return503Error",
-                    Mode = "Cookie",
+                    Provider = "Cookie",
                     AffinityKeyName = "Key1",
                     Cookie = new SessionAffinityCookieConfig
                     {
@@ -238,7 +238,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                 {
                     Enabled = true,
                     FailurePolicy = "Return503Error",
-                    Mode = "Cookie",
+                    Provider = "Cookie",
                     AffinityKeyName = "Key1",
                     Cookie = new SessionAffinityCookieConfig
                     {
@@ -280,7 +280,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                 {
                     Enabled = true,
                     FailurePolicy = "Return503Error",
-                    Mode = "Cookie",
+                    Provider = "Cookie",
                     AffinityKeyName = "Key1",
                     Cookie = new SessionAffinityCookieConfig
                     {
@@ -330,7 +330,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                 {
                     Enabled = true,
                     FailurePolicy = "Return503Error",
-                    Mode = "Cookie",
+                    Provider = "Cookie",
                     AffinityKeyName = "Key1",
                     Cookie = new SessionAffinityCookieConfig
                     {

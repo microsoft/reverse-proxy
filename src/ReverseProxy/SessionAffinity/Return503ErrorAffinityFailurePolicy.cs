@@ -11,7 +11,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
 {
     internal sealed class Return503ErrorAffinityFailurePolicy : IAffinityFailurePolicy
     {
-        public string Name => SessionAffinityConstants.AffinityFailurePolicies.Return503Error;
+        public string Name => SessionAffinityConstants.FailurePolicies.Return503Error;
 
         public Task<bool> Handle(HttpContext context, SessionAffinityConfig config, AffinityStatus affinityStatus)
         {

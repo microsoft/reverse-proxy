@@ -18,7 +18,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             var policy = new Return503ErrorAffinityFailurePolicy();
             var context = new DefaultHttpContext();
 
-            Assert.Equal(SessionAffinityConstants.AffinityFailurePolicies.Return503Error, policy.Name);
+            Assert.Equal(SessionAffinityConstants.FailurePolicies.Return503Error, policy.Name);
 
             Assert.False(await policy.Handle(context, default, status));
             Assert.Equal(503, context.Response.StatusCode);

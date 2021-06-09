@@ -27,7 +27,7 @@ Session affinity is configured per cluster according to the following configurat
         "<cluster-name>": {
             "SessionAffinity": {
                 "Enabled": "(true|false)", // defaults to 'false'
-                "Mode": "(Cookie|CustomHeader)", // defaults to 'Cookie'
+                "Provider": "(Cookie|CustomHeader)", // defaults to 'Cookie'
                 "FailurePolicy": "(Redistribute|Return503)", // defaults to 'Redistribute'
                 "AffinityKeyName": "Key1",
                 "Cookie": {
@@ -56,7 +56,7 @@ new ClusterConfig
     {
         Enabled = true,
         FailurePolicy = "Return503Error",
-        Mode = "Cookie",
+        Provider = "Cookie",
         AffinityKeyName = "Key1",
         Cookie = new SessionAffinityCookieConfig
         {
@@ -88,10 +88,10 @@ Once a request arrives and gets routed to a cluster with session affinity enable
 
 If a new affinity was established for the request, the affinity key gets attached to a response where exact key representation and location depends on the implementation. Currently, there are two built-in providers storing the key on a cookie or custom header. Once the response gets delivered to the client, it's the client responsibility to attach the key to all following requests in the same session. Further, when the next request carrying the key arrives to the proxy, it resolves the existing affinity, but affinity key does not get again attached to the response. Thus, only the first response carries the affinity key.
 
-There are two built-in affinity modes differing only in how the affinity key is stored on a request. The default mode is `Cookie`.
-1. `Cookie` - stores the key as a cookie. It expects the request's key to be delivered as a cookie with configured name and sets the same cookie with `Set-Cookie` header on the first response in an affinitized sequence. This mode is implemented by `CookieSessionAffinityProvider`. Cookie name must be explicitly set via `SessionAffinityConfig.AffinityKeyName` which is used by `CookieSessionAffinityProvider` for this purpose. Other cookie's properties can be configured via `SessionAffinityCookieConfig`. **Important**: `AffinityKeyName` must be unique across all clusters with enabled session affinity to avoid conflicts.
+There are two built-in affinity providers differing only in how the affinity key is stored on a request. The default provider is `Cookie`.
+1. `Cookie` - stores the key as a cookie. It expects the request's key to be delivered as a cookie with configured name and sets the same cookie with `Set-Cookie` header on the first response in an affinitized sequence. This is implemented by `CookieSessionAffinityProvider`. Cookie name must be explicitly set via `SessionAffinityConfig.AffinityKeyName` which is used by `CookieSessionAffinityProvider` for this purpose. Other cookie's properties can be configured via `SessionAffinityCookieConfig`. **Important**: `AffinityKeyName` must be unique across all clusters with enabled session affinity to avoid conflicts.
 
-2. `CustomHeader` - stores the key on a header. It expects the affinity key to be delivered in a customer header with configured name and sets the same header on the first response in an affinitized sequence. This mode is implemented by `CustomHeaderSessionAffinityProvider`. The header name must be set via `SessionAffinityConfig.AffinityKeyName` which is used by `CustomHeaderSessionAffinityProvider` for this purpose. **Important**: `AffinityKeyName` must be unique across all clusters with enabled session affinity to avoid conflicts.
+2. `CustomHeader` - stores the key on a header. It expects the affinity key to be delivered in a custom header with configured name and sets the same header on the first response in an affinitized sequence. This is implemented by `CustomHeaderSessionAffinityProvider`. The header name must be set via `SessionAffinityConfig.AffinityKeyName` which is used by `CustomHeaderSessionAffinityProvider` for this purpose. **Important**: `AffinityKeyName` must be unique across all clusters with enabled session affinity to avoid conflicts.
 
 ## Affinity failure policy
 If the affinity key cannot be decoded or no healthy destination found it's considered as a failure and an affinity failure policy is called to handle it. The policy has the full access to `HttpContext` and can send response to the client by itself. It returns a boolean value indicating whether the request processing can proceed down the pipeline or must be terminated.
@@ -103,6 +103,6 @@ There are two built-in failure policies.  The default is `Redistribute`.
 
 ## Request pipeline
 The session affinity mechanisms are implemented by the services (mentioned above) and the two following middleware:
-1. `SessionAffinityMiddleware` - coordinates the request's affinity resolution process. First, it calls a provider implementing the mode specified for the given cluster on `ClusterConfig.SessionAffinity.Mode` property. Then, it checks the affinity resolution status returned by the provider, and calls a failure handling policy set on `ClusterConfig.SessionAffinity.FailurePolicy` in case of failures. It must be added to the pipeline **before** the load balancer.
+1. `SessionAffinityMiddleware` - coordinates the request's affinity resolution process. First, it calls a provider specified for the given cluster on `ClusterConfig.SessionAffinity.Provider` property. Then, it checks the affinity resolution status returned by the provider, and calls a failure handling policy set on `ClusterConfig.SessionAffinity.FailurePolicy` in case of failures. It must be added to the pipeline **before** the load balancer.
 
 2. `AffinitizeTransform` - sets the key on the response if a new affinity has been established for the request. Otherwise, if the request follows an existing affinity, it does nothing. This is automatically added as a response transform.
