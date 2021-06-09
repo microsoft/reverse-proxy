@@ -25,7 +25,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             SessionAffinity = new SessionAffinityConfig
             {
                 Enabled = true,
-                Provider = "Mode-B",
+                Provider = "Provider-B",
                 FailurePolicy = "Policy-1",
                 AffinityKeyName = "Key1"
             }
@@ -45,12 +45,12 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 cluster.Destinations.TryGetValue(foundDestinationId, out foundDestination);
             }
             var invokedMode = string.Empty;
-            const string expectedMode = "Mode-B";
+            const string expectedMode = "Provider-B";
             var providers = RegisterAffinityProviders(
                 true,
                 cluster.Destinations.Values.ToList(),
                 cluster.ClusterId,
-                ("Mode-A", AffinityStatus.DestinationNotFound, (DestinationState)null, (Action<ISessionAffinityProvider>)(p => throw new InvalidOperationException($"Provider {p.Name} call is not expected."))),
+                ("Provider-A", AffinityStatus.DestinationNotFound, (DestinationState)null, (Action<ISessionAffinityProvider>)(p => throw new InvalidOperationException($"Provider {p.Name} call is not expected."))),
                 (expectedMode, status, foundDestination, p => invokedMode = p.Name));
             var nextInvoked = false;
             var middleware = new SessionAffinityMiddleware(c => {
@@ -92,7 +92,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         {
             var cluster = GetCluster();
             var endpoint = GetEndpoint(cluster);
-            var providers = RegisterAffinityProviders(true, cluster.Destinations.Values.ToList(), cluster.ClusterId, ("Mode-B", affinityStatus, null, _ => { }));
+            var providers = RegisterAffinityProviders(true, cluster.Destinations.Values.ToList(), cluster.ClusterId, ("Provider-B", affinityStatus, null, _ => { }));
             var invokedPolicy = string.Empty;
             const string expectedPolicy = "Policy-1";
             var failurePolicies = RegisterFailurePolicies(

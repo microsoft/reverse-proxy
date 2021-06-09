@@ -50,7 +50,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 SessionAffinity = new SessionAffinityConfig
                 {
                     Enabled = true,
-                    Provider = "Mode-B",
+                    Provider = "Provider-B",
                     FailurePolicy = "Policy-1",
                     AffinityKeyName = "Key1"
                 }

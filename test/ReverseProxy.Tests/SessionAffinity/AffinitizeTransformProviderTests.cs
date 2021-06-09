@@ -16,7 +16,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         public void EnableSessionAffinity_AddsTransform()
         {
             var affinityProvider = new Mock<ISessionAffinityProvider>(MockBehavior.Strict);
-            affinityProvider.SetupGet(p => p.Name).Returns("Mode");
+            affinityProvider.SetupGet(p => p.Name).Returns("Provider");
 
             var transformProvider = new AffinitizeTransformProvider(new[] { affinityProvider.Object });
             
@@ -26,7 +26,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 SessionAffinity = new SessionAffinityConfig
                 {
                     Enabled = true,
-                    Provider = "Mode",
+                    Provider = "Provider",
                     AffinityKeyName = "Key1"
                 }
             };
@@ -52,7 +52,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         public void EnableSession_InvalidMode_Fails()
         {
             var affinityProvider = new Mock<ISessionAffinityProvider>(MockBehavior.Strict);
-            affinityProvider.SetupGet(p => p.Name).Returns("Mode");
+            affinityProvider.SetupGet(p => p.Name).Returns("Provider");
 
             var transformProvider = new AffinitizeTransformProvider(new[] { affinityProvider.Object });
 
