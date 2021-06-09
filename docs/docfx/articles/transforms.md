@@ -815,44 +815,44 @@ services.AddReverseProxy()
     .AddTransforms<MyTransformProvider>();
 ```
 ```C#
-    internal class MyTransformProvider : ITransformProvider
+internal class MyTransformProvider : ITransformProvider
+{
+    public void Validate(TransformValidationContext context)
     {
-        public void Validate(TransformValidationContext context)
+        // Check all routes for a custom property and validate the associated
+        // transform data.
+        string value = null;
+        if (context.Route.Metadata?.TryGetValue("CustomMetadata", out value) ?? false)
         {
-            // Check all routes for a custom property and validate the associated
-            // transform data.
-            string value = null;
-            if (context.Route.Metadata?.TryGetValue("CustomMetadata", out value) ?? false)
+            if (string.IsNullOrEmpty(value))
             {
-                if (string.IsNullOrEmpty(value))
-                {
-                    context.Errors.Add(new ArgumentException(
-                        "A non-empty CustomMetadata value is required"));
-                }
-            }
-        }
-
-        public void Apply(TransformBuilderContext transformBuildContext)
-        {
-            // Check all routes for a custom property and add the associated transform.
-            string value = null;
-            if (transformBuildContext.Route.Metadata?.TryGetValue("CustomMetadata", out value)
-                ?? false)
-            {
-                if (string.IsNullOrEmpty(value))
-                {
-                    throw new ArgumentException(
-                        "A non-empty CustomMetadata value is required");
-                }
-
-                transformBuildContext.AddRequestTransform(transformContext =>
-                {
-                    transformContext.ProxyRequest.Headers.Add("CustomHeader", value);
-                    return default;
-                });
+                context.Errors.Add(new ArgumentException(
+                    "A non-empty CustomMetadata value is required")); 
             }
         }
     }
+
+    public void Apply(TransformBuilderContext transformBuildContext)
+    {
+        // Check all routes for a custom property and add the associated transform.
+        string value = null;
+        if (transformBuildContext.Route.Metadata?.TryGetValue("CustomMetadata", out value)
+            ?? false)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                throw new ArgumentException(
+                    "A non-empty CustomMetadata value is required");
+            }
+
+            transformBuildContext.AddRequestTransform(transformContext =>
+            {
+                transformContext.ProxyRequest.Headers.Add("CustomHeader", value);
+                return default;
+            });
+        }
+    }
+}
 ```
 
 ### ITransformFactory
@@ -871,47 +871,47 @@ services.AddReverseProxy()
     .AddTransformFactory<MyTransformFactory>();
 ```
 ```C#
-    internal class MyTransformFactory : ITransformFactory
+internal class MyTransformFactory : ITransformFactory
+{
+    public bool Validate(TransformValidationContext context,
+        IReadOnlyDictionary<string, string> transformValues)
     {
-        public bool Validate(TransformValidationContext context,
-            IReadOnlyDictionary<string, string> transformValues)
+        if (transformValues.TryGetValue("CustomTransform", out var value))
         {
-            if (transformValues.TryGetValue("CustomTransform", out var value))
+            if (string.IsNullOrEmpty(value))
             {
-                if (string.IsNullOrEmpty(value))
-                {
-                    context.Errors.Add(new ArgumentException(
-                        "A non-empty CustomTransform value is required"));
-                }
-
-                return true; // Matched
-            }
-            return false;
-        }
-
-        public bool Build(TransformBuilderContext context,
-            IReadOnlyDictionary<string, string> transformValues)
-        {
-            if (transformValues.TryGetValue("CustomTransform", out var value))
-            {
-                if (string.IsNullOrEmpty(value))
-                {
-                    throw new ArgumentException(
-                        "A non-empty CustomTransform value is required");
-                }
-
-                context.AddRequestTransform(transformContext =>
-                {
-                    transformContext.ProxyRequest.Headers.Add("CustomHeader", value);
-                    return default;
-                });
-
-                return true; // Matched
+                context.Errors.Add(new ArgumentException(
+                    "A non-empty CustomTransform value is required"));
             }
 
-            return false;
+            return true; // Matched
         }
+        return false;
     }
+
+    public bool Build(TransformBuilderContext context,
+        IReadOnlyDictionary<string, string> transformValues)
+    {
+        if (transformValues.TryGetValue("CustomTransform", out var value))
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                throw new ArgumentException(
+                    "A non-empty CustomTransform value is required");
+            }
+
+            context.AddRequestTransform(transformContext =>
+            {
+                transformContext.ProxyRequest.Headers.Add("CustomHeader", value);
+                return default;
+            });
+
+            return true; // Matched
+        }
+
+        return false;
+    }
+}
 ```
 
 `Validate` and `Build` return `true` if they've identified the given transform configuration as one that they own. A `ITransformFactory` may implement multiple transforms. Any `RouteConfig.Transforms` entries not handled by any `ITransformFactory` will be considered configuration errors and prevent the configuration from being applied.
@@ -919,13 +919,13 @@ services.AddReverseProxy()
 Consider also adding parametrized extension methods on `RouteConfig` like `WithTransformQueryValue` to facilitate programmatic route construction.
 
 ```C#
-        public static RouteConfig WithTransformQueryValue(this RouteConfig routeConfig, string queryKey, string value, bool append = true)
-        {
-            var type = append ? QueryTransformFactory.AppendKey : QueryTransformFactory.SetKey;
-            return routeConfig.WithTransform(transform =>
-            {
-                transform[QueryTransformFactory.QueryValueParameterKey] = queryKey;
-                transform[type] = value;
-            });
-        }
+public static RouteConfig WithTransformQueryValue(this RouteConfig routeConfig, string queryKey, string value, bool append = true)
+{
+    var type = append ? QueryTransformFactory.AppendKey : QueryTransformFactory.SetKey;
+    return routeConfig.WithTransform(transform =>
+    {
+        transform[QueryTransformFactory.QueryValueParameterKey] = queryKey;
+        transform[type] = value;
+    });
+}
 ```
