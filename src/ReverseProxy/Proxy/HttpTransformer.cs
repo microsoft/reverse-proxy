@@ -68,11 +68,19 @@ namespace Yarp.ReverseProxy.Proxy
         public virtual ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
         {
             var responseHeaders = httpContext.Response.Headers;
+#if NET6_0_OR_GREATER
+            CopyResponseHeaders(proxyResponse.Headers.NonValidated, responseHeaders);
+            if (proxyResponse.Content != null)
+            {
+                CopyResponseHeaders(proxyResponse.Content.Headers.NonValidated, responseHeaders);
+            }
+#else
             CopyResponseHeaders(proxyResponse.Headers, responseHeaders);
             if (proxyResponse.Content != null)
             {
                 CopyResponseHeaders(proxyResponse.Content.Headers, responseHeaders);
             }
+#endif
 
             return new ValueTask<bool>(true);
         }
@@ -93,14 +101,21 @@ namespace Yarp.ReverseProxy.Proxy
             {
                 // Note that trailers, if any, should already have been declared in Proxy's response
                 // by virtue of us having proxied all response headers in step 6.
+#if NET6_0_OR_GREATER
+                CopyResponseHeaders(proxyResponse.TrailingHeaders.NonValidated, outgoingTrailers);
+#else
                 CopyResponseHeaders(proxyResponse.TrailingHeaders, outgoingTrailers);
+#endif
             }
 
             return default;
         }
 
-
+#if NET6_0_OR_GREATER
+        private static void CopyResponseHeaders(HttpHeadersNonValidated source, IHeaderDictionary destination)
+#else
         private static void CopyResponseHeaders(HttpHeaders source, IHeaderDictionary destination)
+#endif
         {
             foreach (var header in source)
             {
@@ -110,8 +125,15 @@ namespace Yarp.ReverseProxy.Proxy
                     continue;
                 }
 
+#if NET6_0_OR_GREATER
+                foreach (var value in header.Value)
+                {
+                    destination.Append(headerName, value);
+                }
+#else
                 Debug.Assert(header.Value is string[]);
                 destination.Append(headerName, header.Value as string[] ?? header.Value.ToArray());
+#endif
             }
         }
     }

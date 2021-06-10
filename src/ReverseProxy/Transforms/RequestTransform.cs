@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Proxy;
@@ -34,6 +35,30 @@ namespace Yarp.ReverseProxy.Transforms
                 throw new System.ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
             }
 
+#if NET6_0_OR_GREATER
+            HeaderStringValues existingValues = default;
+            if (context.ProxyRequest.Headers.NonValidated.TryGetValues(headerName, out var values))
+            {
+                context.ProxyRequest.Headers.Remove(headerName);
+                existingValues = values;
+            }
+            else if (context.ProxyRequest.Content?.Headers.NonValidated.TryGetValues(headerName, out values) ?? false)
+            {
+                context.ProxyRequest.Content.Headers.Remove(headerName);
+                existingValues = values!;
+            }
+            else if (!context.HeadersCopied)
+            {
+                return context.HttpContext.Request.Headers[headerName];
+            }
+
+            var result = StringValues.Empty;
+            foreach (var headerValue in existingValues)
+            {
+                result = StringValues.Concat(headerValue, result);
+            }
+            return result;
+#else
             var existingValues = StringValues.Empty;
             if (context.ProxyRequest.Headers.TryGetValues(headerName, out var values))
             {
@@ -49,8 +74,8 @@ namespace Yarp.ReverseProxy.Transforms
             {
                 existingValues = context.HttpContext.Request.Headers[headerName];
             }
-
             return existingValues;
+#endif
         }
 
         /// <summary>
