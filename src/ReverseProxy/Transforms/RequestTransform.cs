@@ -52,12 +52,27 @@ namespace Yarp.ReverseProxy.Transforms
                 return context.HttpContext.Request.Headers[headerName];
             }
 
-            var result = StringValues.Empty;
+            string?[]? result = null;
+            string? singleValue = null;
+            var i = 0;
             foreach (var headerValue in existingValues)
             {
-                result = StringValues.Concat(headerValue, result);
+                if (i > 0)
+                {
+                    if (result == null)
+                    {
+                        result = new string[existingValues.Count];
+                        result[0] = singleValue;
+                    }
+                    result[i] = headerValue;
+                }
+                else
+                {
+                    singleValue = headerValue;
+                }
+                i++;
             }
-            return result;
+            return i==1 ? singleValue : result;
 #else
             var existingValues = StringValues.Empty;
             if (context.ProxyRequest.Headers.TryGetValues(headerName, out var values))
