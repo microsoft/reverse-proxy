@@ -49,7 +49,7 @@ namespace Yarp.ReverseProxy.Health
 
         public void Start()
         {
-            if (Interlocked.CompareExchange(ref _isStarted, 1, 0) != 0)
+            if (Interlocked.Exchange(ref _isStarted, 1) == 1)
             {
                 return;
             }

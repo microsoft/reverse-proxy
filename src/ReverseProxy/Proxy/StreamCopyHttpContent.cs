@@ -120,7 +120,7 @@ namespace Yarp.ReverseProxy.Proxy
         // would break bidirectional streaming scenarios.
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context)
         {
-            if (Interlocked.CompareExchange(ref _started, 1, 0) != 0)
+            if (Interlocked.Exchange(ref _started, 1) == 1)
             {
                 throw new InvalidOperationException("Stream was already consumed.");
             }
