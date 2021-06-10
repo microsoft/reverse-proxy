@@ -12,7 +12,7 @@ namespace Yarp.ReverseProxy
         public static readonly EventId NoClusterFound = new EventId(4, "NoClusterFound");
         public static readonly EventId NoAvailableDestinations = new EventId(7, "NoAvailableDestinations");
         public static readonly EventId MultipleDestinationsAvailable = new EventId(8, "MultipleDestinationsAvailable");
-        public static readonly EventId Proxying = new EventId(9, "Proxying");
+        public static readonly EventId Forwarding = new EventId(9, "Forwarding");
         public static readonly EventId ExplicitActiveCheckOfAllClustersHealthFailed = new EventId(10, "ExplicitActiveCheckOfAllClustersHealthFailed");
         public static readonly EventId ActiveHealthProbingFailedOnCluster = new EventId(11, "ActiveHealthProbingFailedOnCluster");
         public static readonly EventId ErrorOccuredDuringActiveHealthProbingShutdownOnCluster = new EventId(12, "ErrorOccuredDuringActiveHealthProbingShutdownOnCluster");
@@ -51,7 +51,7 @@ namespace Yarp.ReverseProxy
         public static readonly EventId ClientCreated = new EventId(45, "ClientCreated");
         public static readonly EventId ClientReused = new EventId(46, "ClientReused");
         public static readonly EventId ConfigurationDataConversionFailed = new EventId(47, "ConfigurationDataConversionFailed");
-        public static readonly EventId ProxyError = new EventId(48, "ProxyError");
+        public static readonly EventId ForwardingError = new EventId(48, "ForwardingError");
         public static readonly EventId ActiveDestinationHealthStateIsSetToUnhealthy = new EventId(49, "ActiveDestinationHealthStateIsSetToUnhealthy");
         public static readonly EventId ActiveDestinationHealthStateIsSet = new EventId(50, "ActiveDestinationHealthStateIsSet");
     }

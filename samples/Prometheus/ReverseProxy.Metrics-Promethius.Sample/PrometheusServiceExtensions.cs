@@ -11,7 +11,7 @@ namespace Yarp.Sample
         public static IServiceCollection AddPrometheusProxyMetrics(this IServiceCollection services)
         {
             services.AddTelemetryListeners();
-            services.AddSingleton<IProxyMetricsConsumer, PrometheusProxyMetrics>();
+            services.AddSingleton<IForwarderMetricsConsumer, PrometheusForwarderMetrics>();
             return services;
         }
 

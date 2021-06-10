@@ -4,7 +4,7 @@ Introduced: preview5
 
 ## Introduction
 
-Each [Cluster](xref:Yarp.ReverseProxy.Configuration.ClusterConfig) has a dedicated [HttpMessageInvoker](https://docs.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker) instance used to proxy requests to its [Destination](xref:Yarp.ReverseProxy.Configuration.DestinationConfig)s. The configuration is defined per cluster. On YARP startup, all clusters get new `HttpMessageInvoker` instances, however if later the cluster configuration gets changed the [IForwarderHttpClientFactory](xref:Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory) will re-run and decide if it should create a new `HttpMessageInvoker` or keep using the existing one. The default `IForwarderHttpClientFactory` implementation creates a new `HttpMessageInvoker` when there are changes to the [HttpClientConfig](xref:Yarp.ReverseProxy.Configuration.HttpClientConfig).
+Each [Cluster](xref:Yarp.ReverseProxy.Configuration.ClusterConfig) has a dedicated [HttpMessageInvoker](https://docs.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker) instance used to forward requests to its [Destination](xref:Yarp.ReverseProxy.Configuration.DestinationConfig)s. The configuration is defined per cluster. On YARP startup, all clusters get new `HttpMessageInvoker` instances, however if later the cluster configuration gets changed the [IForwarderHttpClientFactory](xref:Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory) will re-run and decide if it should create a new `HttpMessageInvoker` or keep using the existing one. The default `IForwarderHttpClientFactory` implementation creates a new `HttpMessageInvoker` when there are changes to the [HttpClientConfig](xref:Yarp.ReverseProxy.Configuration.HttpClientConfig).
 
 Properties of outgoing requests for a given cluster can be configured as well. They are defined in [ForwarderRequestConfig](xref:Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig).
 
@@ -200,7 +200,7 @@ public void ConfigureServices(IServiceCollection services)
 ```
 
 ## Custom IForwarderHttpClientFactory
-In case the direct control on a proxy HTTP client construction is necessary, the default [IForwarderHttpClientFactory](xref:Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory) can be replaced with a custom one. For some customizations you can derive from the default [ProxyHttpClientFactory](xref:Yarp.ReverseProxy.Service.Proxy.Infrastructure.ProxyHttpClientFactory) and override the methods that configure the client.
+If direct control of HTTP client construction is necessary, the default [IForwarderHttpClientFactory](xref:Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory) can be replaced with a custom one. For some customizations you can derive from the default [ProxyHttpClientFactory](xref:Yarp.ReverseProxy.Service.Proxy.Infrastructure.ProxyHttpClientFactory) and override the methods that configure the client.
 
 It's recommended that any custom factory set the following `SocketsHttpHandler` properties to the same values as the default factory does in order to preserve a correct reverse proxy behavior and avoid unnecessary overhead.
 

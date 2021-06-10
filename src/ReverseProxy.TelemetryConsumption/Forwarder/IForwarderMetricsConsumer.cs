@@ -4,15 +4,15 @@
 namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
     /// <summary>
-    /// A consumer of <see cref="ProxyMetrics"/>.
+    /// A consumer of <see cref="ForwarderMetrics"/>.
     /// </summary>
-    public interface IProxyMetricsConsumer
+    public interface IForwarderMetricsConsumer
     {
         /// <summary>
-        /// Processes <see cref="ProxyMetrics"/> from the last event counter interval.
+        /// Processes <see cref="ForwarderMetrics"/> from the last event counter interval.
         /// </summary>
         /// <param name="oldMetrics">Metrics collected in the previous interval.</param>
         /// <param name="newMetrics">Metrics collected in the last interval.</param>
-        void OnProxyMetrics(ProxyMetrics oldMetrics, ProxyMetrics newMetrics);
+        void OnForwarderMetrics(ForwarderMetrics oldMetrics, ForwarderMetrics newMetrics);
     }
 }

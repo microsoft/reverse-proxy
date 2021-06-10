@@ -48,7 +48,7 @@ namespace Yarp.ReverseProxy.Forwarder
 
                 if (telemetryEnabled)
                 {
-                    ForwarderTelemetry.Log.ProxyStage(isRequest ? ForwarderStage.RequestContentTransferStart : ForwarderStage.ResponseContentTransferStart);
+                    ForwarderTelemetry.Log.ForwarderStage(isRequest ? ForwarderStage.RequestContentTransferStart : ForwarderStage.ResponseContentTransferStart);
 
                     lastTime = clock.GetStopwatchTime();
                     nextTransferringEvent = lastTime + TimeBetweenTransferringEvents;

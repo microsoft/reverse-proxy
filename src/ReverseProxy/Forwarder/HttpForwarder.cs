@@ -103,7 +103,7 @@ namespace Yarp.ReverseProxy.Forwarder
                 throw new ArgumentException($"The http client must be of type HttpMessageInvoker, not HttpClient", nameof(httpClient));
             }
 
-            ForwarderTelemetry.Log.ProxyStart(destinationPrefix);
+            ForwarderTelemetry.Log.ForwarderStart(destinationPrefix);
             try
             {
                 var requestAborted = context.RequestAborted;
@@ -125,9 +125,9 @@ namespace Yarp.ReverseProxy.Forwarder
                 var requestTimeoutToken = requestTimeoutSource.Token;
                 try
                 {
-                    ForwarderTelemetry.Log.ProxyStage(ForwarderStage.SendAsyncStart);
+                    ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.SendAsyncStart);
                     destinationResponse = await httpClient.SendAsync(destinationRequest, requestTimeoutToken);
-                    ForwarderTelemetry.Log.ProxyStage(ForwarderStage.SendAsyncStop);
+                    ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.SendAsyncStop);
                 }
                 catch (OperationCanceledException canceledException)
                 {
@@ -247,7 +247,7 @@ namespace Yarp.ReverseProxy.Forwarder
             }
             finally
             {
-                ForwarderTelemetry.Log.ProxyStop(context.Response.StatusCode);
+                ForwarderTelemetry.Log.ForwarderStop(context.Response.StatusCode);
             }
 
             return ForwarderError.None;
@@ -520,7 +520,7 @@ namespace Yarp.ReverseProxy.Forwarder
         private async ValueTask<ForwarderError> HandleUpgradedResponse(HttpContext context, HttpResponseMessage destinationResponse,
             CancellationToken longCancellation)
         {
-            ForwarderTelemetry.Log.ProxyStage(ForwarderStage.ResponseUpgrade);
+            ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.ResponseUpgrade);
 
             // SocketHttpHandler and similar transports always provide an HttpContent object, even if it's empty.
             // Note as of 5.0 HttpResponse.Content never returns null.
@@ -698,7 +698,7 @@ namespace Yarp.ReverseProxy.Forwarder
         {
             context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(error, ex));
             Log.ErrorProxying(_logger, error, ex);
-            ForwarderTelemetry.Log.ProxyFailed(error);
+            ForwarderTelemetry.Log.ForwarderFailed(error);
         }
 
         private static void ResetOrAbort(HttpContext context, bool isCancelled)
@@ -725,12 +725,12 @@ namespace Yarp.ReverseProxy.Forwarder
 
             private static readonly Action<ILogger, string, Exception?> _proxying = LoggerMessage.Define<string>(
                 LogLevel.Information,
-                EventIds.Proxying,
+                EventIds.Forwarding,
                 "Proxying to {targetUrl}");
 
             private static readonly Action<ILogger, ForwarderError, string, Exception> _proxyError = LoggerMessage.Define<ForwarderError, string>(
                 LogLevel.Information,
-                EventIds.ProxyError,
+                EventIds.ForwardingError,
                 "{error}: {message}");
 
             public static void HttpDowngradeDetected(ILogger logger)

@@ -92,8 +92,8 @@ namespace Yarp.ReverseProxy.Sample
                 });
 
             services.AddHttpContextAccessor();
-            services.AddSingleton<IProxyMetricsConsumer, ProxyMetricsConsumer>();
-            services.AddScoped<IProxyTelemetryConsumer, ProxyTelemetryConsumer>();
+            services.AddSingleton<IForwarderMetricsConsumer, ForwarderMetricsConsumer>();
+            services.AddScoped<IForwarderTelemetryConsumer, ForwarderTelemetryConsumer>();
             services.AddTelemetryListeners();
         }
 

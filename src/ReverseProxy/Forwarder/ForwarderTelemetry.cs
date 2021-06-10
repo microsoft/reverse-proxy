@@ -26,7 +26,7 @@ namespace Yarp.ReverseProxy.Forwarder
         { }
 
         [Event(1, Level = EventLevel.Informational)]
-        public void ProxyStart(string destinationPrefix)
+        public void ForwarderStart(string destinationPrefix)
         {
             Interlocked.Increment(ref _startedRequests);
 
@@ -37,7 +37,7 @@ namespace Yarp.ReverseProxy.Forwarder
         }
 
         [Event(2, Level = EventLevel.Informational)]
-        public void ProxyStop(int statusCode)
+        public void ForwarderStop(int statusCode)
         {
             Interlocked.Increment(ref _stoppedRequests);
 
@@ -48,23 +48,23 @@ namespace Yarp.ReverseProxy.Forwarder
         }
 
         [Event(3, Level = EventLevel.Informational)]
-        public void ProxyFailed(ForwarderError error)
+        public void ForwarderFailed(ForwarderError error)
         {
             Interlocked.Increment(ref _failedRequests);
 
             if (IsEnabled(EventLevel.Informational, EventKeywords.All))
             {
-                Debug.Assert(sizeof(ForwarderError) == sizeof(int), "Backing type of ProxyError MUST NOT be changed");
+                Debug.Assert(sizeof(ForwarderError) == sizeof(int), "Backing type of ForwarderError MUST NOT be changed");
                 WriteEvent(eventId: 3, (int)error);
             }
         }
 
         [Event(4, Level = EventLevel.Informational)]
-        public void ProxyStage(ForwarderStage stage)
+        public void ForwarderStage(ForwarderStage stage)
         {
             if (IsEnabled(EventLevel.Informational, EventKeywords.All))
             {
-                Debug.Assert(sizeof(ForwarderStage) == sizeof(int), "Backing type of ProxyStage MUST NOT be changed");
+                Debug.Assert(sizeof(ForwarderStage) == sizeof(int), "Backing type of ForwarderStage MUST NOT be changed");
                 WriteEvent(eventId: 4, (int)stage);
             }
         }
@@ -88,7 +88,7 @@ namespace Yarp.ReverseProxy.Forwarder
         }
 
         [Event(7, Level = EventLevel.Informational)]
-        public void ProxyInvoke(string clusterId, string routeId, string destinationId)
+        public void ForwarderInvoke(string clusterId, string routeId, string destinationId)
         {
             if (IsEnabled(EventLevel.Informational, EventKeywords.All))
             {

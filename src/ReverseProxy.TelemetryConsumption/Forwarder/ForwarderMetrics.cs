@@ -8,10 +8,10 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
     /// <summary>
     /// Represents metrics reported by the Yarp.ReverseProxy event counters.
     /// </summary>
-    public sealed class ProxyMetrics
+    public sealed class ForwarderMetrics
     {
         /// <summary>
-        /// Timestamp of when this <see cref="ProxyMetrics"/> instance was created.
+        /// Timestamp of when this <see cref="ForwarderMetrics"/> instance was created.
         /// </summary>
         public DateTime Timestamp { get; internal set; }
 
@@ -35,6 +35,6 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
         /// </summary>
         public long CurrentRequests { get; internal set; }
 
-        internal ProxyMetrics() { }
+        internal ForwarderMetrics() { }
     }
 }

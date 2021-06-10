@@ -69,7 +69,7 @@ namespace Yarp.ReverseProxy.Forwarder
                 cluster.ConcurrencyCounter.Increment();
                 destination.ConcurrencyCounter.Increment();
 
-                ForwarderTelemetry.Log.ProxyInvoke(cluster.ClusterId, route.Config.RouteId, destination.DestinationId);
+                ForwarderTelemetry.Log.ForwarderInvoke(cluster.ClusterId, route.Config.RouteId, destination.DestinationId);
 
                 var clusterConfig = reverseProxyFeature.Cluster;
                 await _forwarder.SendAsync(context, destinationModel.Config.Address, clusterConfig.HttpClient,

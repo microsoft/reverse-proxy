@@ -46,7 +46,7 @@ namespace Yarp.ReverseProxy
             else if (approach == RegistrationApproach.Manual)
             {
                 services.AddSingleton<TelemetryConsumer>();
-                services.AddSingleton(services => (IProxyTelemetryConsumer)services.GetRequiredService<TelemetryConsumer>());
+                services.AddSingleton(services => (IForwarderTelemetryConsumer)services.GetRequiredService<TelemetryConsumer>());
                 services.AddSingleton(services => (IKestrelTelemetryConsumer)services.GetRequiredService<TelemetryConsumer>());
 #if NET
                 services.AddSingleton(services => (IHttpTelemetryConsumer)services.GetRequiredService<TelemetryConsumer>());
@@ -56,7 +56,7 @@ namespace Yarp.ReverseProxy
 #endif
 
                 services.AddSingleton<SecondTelemetryConsumer>();
-                services.AddSingleton(services => (IProxyTelemetryConsumer)services.GetRequiredService<SecondTelemetryConsumer>());
+                services.AddSingleton(services => (IForwarderTelemetryConsumer)services.GetRequiredService<SecondTelemetryConsumer>());
                 services.AddSingleton(services => (IKestrelTelemetryConsumer)services.GetRequiredService<SecondTelemetryConsumer>());
 #if NET
                 services.AddSingleton(services => (IHttpTelemetryConsumer)services.GetRequiredService<SecondTelemetryConsumer>());
@@ -177,7 +177,7 @@ namespace Yarp.ReverseProxy
         private class SecondTelemetryConsumer : TelemetryConsumer { }
 
         private class TelemetryConsumer :
-            IProxyTelemetryConsumer,
+            IForwarderTelemetryConsumer,
             IKestrelTelemetryConsumer
 #if NET
             ,
@@ -202,15 +202,15 @@ namespace Yarp.ReverseProxy
                 }
             }
 
-            public void OnProxyStart(DateTime timestamp, string destinationPrefix) => AddStage(nameof(OnProxyStart), timestamp);
-            public void OnProxyStop(DateTime timestamp, int statusCode) => AddStage(nameof(OnProxyStop), timestamp);
-            public void OnProxyFailed(DateTime timestamp, ForwarderError error) => AddStage(nameof(OnProxyFailed), timestamp);
-            public void OnProxyStage(DateTime timestamp, Telemetry.Consumption.ProxyStage stage) => AddStage($"{nameof(OnProxyStage)}-{stage}", timestamp);
+            public void OnForwarderStart(DateTime timestamp, string destinationPrefix) => AddStage(nameof(OnForwarderStart), timestamp);
+            public void OnForwarderStop(DateTime timestamp, int statusCode) => AddStage(nameof(OnForwarderStop), timestamp);
+            public void OnForwarderFailed(DateTime timestamp, ForwarderError error) => AddStage(nameof(OnForwarderFailed), timestamp);
+            public void OnForwarderStage(DateTime timestamp, Telemetry.Consumption.ForwarderStage stage) => AddStage($"{nameof(OnForwarderStage)}-{stage}", timestamp);
             public void OnContentTransferring(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime) => AddStage(nameof(OnContentTransferring), timestamp);
             public void OnContentTransferred(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime, TimeSpan firstReadTime) => AddStage(nameof(OnContentTransferred), timestamp);
-            public void OnProxyInvoke(DateTime timestamp, string clusterId, string routeId, string destinationId)
+            public void OnForwarderInvoke(DateTime timestamp, string clusterId, string routeId, string destinationId)
             {
-                AddStage(nameof(OnProxyInvoke), timestamp);
+                AddStage(nameof(OnForwarderInvoke), timestamp);
                 PerClusterTelemetry.TryAdd((clusterId, GetType()), _stages.Value);
             }
 #if NET
@@ -262,7 +262,7 @@ namespace Yarp.ReverseProxy
                 {
                     var services = proxyBuilder.Services;
 
-                    services.AddSingleton<IProxyMetricsConsumer>(consumer);
+                    services.AddSingleton<IForwarderMetricsConsumer>(consumer);
 #if NET
                     services.AddSingleton<IKestrelMetricsConsumer>(consumer);
                     services.AddSingleton<IHttpMetricsConsumer>(consumer);
@@ -289,7 +289,7 @@ namespace Yarp.ReverseProxy
                 catch { }
 
                 await Task.WhenAll(
-                    WaitAsync(() => consumer.ProxyMetrics.LastOrDefault()?.RequestsStarted > 0, nameof(ProxyMetrics))
+                    WaitAsync(() => consumer.ProxyMetrics.LastOrDefault()?.RequestsStarted > 0, nameof(ForwarderMetrics))
 #if NET
                     ,
                     WaitAsync(() => consumer.KestrelMetrics.LastOrDefault()?.TotalConnections > 0, nameof(KestrelMetrics)),
@@ -331,7 +331,7 @@ namespace Yarp.ReverseProxy
         }
 
         private sealed class MetricsConsumer :
-            IProxyMetricsConsumer
+            IForwarderMetricsConsumer
 #if NET
             ,
             IKestrelMetricsConsumer,
@@ -341,7 +341,7 @@ namespace Yarp.ReverseProxy
             ISocketsMetricsConsumer
 #endif
         {
-            public readonly ConcurrentQueue<ProxyMetrics> ProxyMetrics = new ConcurrentQueue<ProxyMetrics>();
+            public readonly ConcurrentQueue<ForwarderMetrics> ProxyMetrics = new ConcurrentQueue<ForwarderMetrics>();
 #if NET
             public readonly ConcurrentQueue<KestrelMetrics> KestrelMetrics = new();
             public readonly ConcurrentQueue<HttpMetrics> HttpMetrics = new();
@@ -350,7 +350,7 @@ namespace Yarp.ReverseProxy
             public readonly ConcurrentQueue<NameResolutionMetrics> NameResolutionMetrics = new();
 #endif
 
-            public void OnProxyMetrics(ProxyMetrics oldMetrics, ProxyMetrics newMetrics) => ProxyMetrics.Enqueue(newMetrics);
+            public void OnForwarderMetrics(ForwarderMetrics oldMetrics, ForwarderMetrics newMetrics) => ProxyMetrics.Enqueue(newMetrics);
 #if NET
             public void OnKestrelMetrics(KestrelMetrics oldMetrics, KestrelMetrics newMetrics) => KestrelMetrics.Enqueue(newMetrics);
             public void OnSocketsMetrics(SocketsMetrics oldMetrics, SocketsMetrics newMetrics) => SocketsMetrics.Enqueue(newMetrics);

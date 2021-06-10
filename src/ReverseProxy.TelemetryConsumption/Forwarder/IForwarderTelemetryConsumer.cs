@@ -9,35 +9,35 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
     /// <summary>
     /// A consumer of Yarp.ReverseProxy EventSource events.
     /// </summary>
-    public interface IProxyTelemetryConsumer
+    public interface IForwarderTelemetryConsumer
     {
         /// <summary>
-        /// Called before proxying a request.
+        /// Called before forwarding a request.
         /// </summary>
         /// <param name="timestamp">Timestamp when the event was fired.</param>
         /// <param name="destinationPrefix"></param>
-        void OnProxyStart(DateTime timestamp, string destinationPrefix) { }
+        void OnForwarderStart(DateTime timestamp, string destinationPrefix) { }
 
         /// <summary>
-        /// Called after proxying a request.
+        /// Called after forwarding a request.
         /// </summary>
         /// <param name="timestamp">Timestamp when the event was fired.</param>
         /// <param name="statusCode">The status code returned in the response.</param>
-        void OnProxyStop(DateTime timestamp, int statusCode) { }
+        void OnForwarderStop(DateTime timestamp, int statusCode) { }
 
         /// <summary>
-        /// Called before <see cref="OnProxyStop(DateTime, int)"/> if proxying the request failed.
+        /// Called before <see cref="OnForwarderStop(DateTime, int)"/> if forwarding the request failed.
         /// </summary>
         /// <param name="timestamp">Timestamp when the event was fired.</param>
-        /// <param name="error"><see cref="ForwarderError"/> information for the proxy failure.</param>
-        void OnProxyFailed(DateTime timestamp, ForwarderError error) { }
+        /// <param name="error"><see cref="ForwarderError"/> information for the forwarding failure.</param>
+        void OnForwarderFailed(DateTime timestamp, ForwarderError error) { }
 
         /// <summary>
-        /// Called when reaching a given stage of proxying a request.
+        /// Called when reaching a given stage of forwarding a request.
         /// </summary>
         /// <param name="timestamp">Timestamp when the event was fired.</param>
-        /// <param name="stage">Stage of the proxy operation.</param>
-        void OnProxyStage(DateTime timestamp, ProxyStage stage) { }
+        /// <param name="stage">Stage of the forwarding operation.</param>
+        void OnForwarderStage(DateTime timestamp, ForwarderStage stage) { }
 
         /// <summary>
         /// Called periodically while a content transfer is active.
@@ -63,12 +63,12 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
         void OnContentTransferred(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime, TimeSpan firstReadTime) { }
 
         /// <summary>
-        /// Called before proxying a request.
+        /// Called before forwarding a request.
         /// </summary>
         /// <param name="timestamp">Timestamp when the event was fired.</param>
         /// <param name="clusterId">Cluster ID</param>
         /// <param name="routeId">Route ID</param>
         /// <param name="destinationId">Destination ID</param>
-        void OnProxyInvoke(DateTime timestamp, string clusterId, string routeId, string destinationId) { }
+        void OnForwarderInvoke(DateTime timestamp, string clusterId, string routeId, string destinationId) { }
     }
 }

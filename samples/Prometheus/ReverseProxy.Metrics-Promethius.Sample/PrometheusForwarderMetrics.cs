@@ -6,7 +6,7 @@ using Prometheus;
 
 namespace Yarp.Sample
 {
-    public sealed class PrometheusProxyMetrics: IProxyMetricsConsumer
+    public sealed class PrometheusProxyMetrics: IForwarderMetricsConsumer
     {
         private static readonly Counter _requestsStarted = Metrics.CreateCounter(
             "yarp_proxy_requests_started",
@@ -23,7 +23,7 @@ namespace Yarp.Sample
             "Number of active proxy requests that have started but not yet completed or failed"
             );
 
-        public void OnProxyMetrics(ProxyMetrics oldMetrics, ProxyMetrics newMetrics)
+        public void OnForwarderMetrics(ForwarderMetrics oldMetrics, ForwarderMetrics newMetrics)
         {
             _requestsStarted.IncTo(newMetrics.RequestsStarted);
             _requestsFailed.IncTo(newMetrics.RequestsFailed);

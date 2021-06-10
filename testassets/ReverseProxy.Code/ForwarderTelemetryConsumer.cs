@@ -8,7 +8,7 @@ using Yarp.ReverseProxy.Telemetry.Consumption;
 
 namespace Yarp.ReverseProxy.Sample
 {
-    public sealed class ProxyTelemetryConsumer : IProxyTelemetryConsumer
+    public sealed class ProxyTelemetryConsumer : IForwarderTelemetryConsumer
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -19,26 +19,26 @@ namespace Yarp.ReverseProxy.Sample
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public void OnProxyStart(DateTime timestamp, string destinationPrefix)
+        public void OnForwarderStart(DateTime timestamp, string destinationPrefix)
         {
             _startTime = timestamp;
         }
 
-        public void OnProxyStop(DateTime timestamp, int statusCode)
+        public void OnForwarderStop(DateTime timestamp, int statusCode)
         {
             var elapsed =  timestamp - _startTime;
             var path = _httpContextAccessor.HttpContext.Request.Path;
             Console.WriteLine($"Spent {elapsed.TotalMilliseconds:N2} ms proxying {path}");
         }
 
-        public void OnProxyFailed(DateTime timestamp, ForwarderError error) { }
+        public void OnForwarderFailed(DateTime timestamp, ForwarderError error) { }
 
-        public void OnProxyStage(DateTime timestamp, ProxyStage stage) { }
+        public void OnForwarderStage(DateTime timestamp, ForwarderStage stage) { }
 
         public void OnContentTransferring(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime) { }
 
         public void OnContentTransferred(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime, TimeSpan firstReadTime) { }
 
-        public void OnProxyInvoke(DateTime timestamp, string clusterId, string routeId, string destinationId) { }
+        public void OnForwarderInvoke(DateTime timestamp, string clusterId, string routeId, string destinationId) { }
     }
 }

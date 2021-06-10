@@ -4,11 +4,11 @@
 using System;
 using Yarp.ReverseProxy.Telemetry.Consumption;
 
-namespace Yarp.Sample
+namespace Yarp.ReverseProxy.Sample
 {
-    public sealed class ProxyMetricsConsumer : IProxyMetricsConsumer
+    public sealed class ProxyMetricsConsumer : IForwarderMetricsConsumer
     {
-        public void OnProxyMetrics(ProxyMetrics oldMetrics, ProxyMetrics newMetrics)
+        public void OnForwarderMetrics(ForwarderMetrics oldMetrics, ForwarderMetrics newMetrics)
         {
             var elapsed = newMetrics.Timestamp - oldMetrics.Timestamp;
             var newRequests = newMetrics.RequestsStarted - oldMetrics.RequestsStarted;

@@ -41,7 +41,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 
         // Tests normal (as opposed to upgradeable) request proxying.
         [Fact]
-        public async Task ProxyAsync_NormalRequest_Works()
+        public async Task NormalRequest_Works()
         {
             var events = TestEventListener.Collect();
 
@@ -113,7 +113,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_NormalRequestWithTransforms_Works()
+        public async Task NormalRequestWithTransforms_Works()
         {
             var events = TestEventListener.Collect();
 
@@ -215,7 +215,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_NormalRequestWithCopyRequestHeadersDisabled_Works()
+        public async Task NormalRequestWithCopyRequestHeadersDisabled_Works()
         {
             var events = TestEventListener.Collect();
 
@@ -300,7 +300,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         [Theory]
         [InlineData("WebSocket")]
         [InlineData("SPDY/3.1")]
-        public async Task ProxyAsync_UpgradableRequest_Works(string upgradeHeader)
+        public async Task UpgradableRequest_Works(string upgradeHeader)
         {
             var events = TestEventListener.Collect();
 
@@ -375,7 +375,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         // Tests proxying an upgradeable request where the destination refused to upgrade.
         // We should still proxy back the response.
         [Fact]
-        public async Task ProxyAsync_UpgradableRequestFailsToUpgrade_ProxiesResponse()
+        public async Task UpgradableRequestFailsToUpgrade_ProxiesResponse()
         {
             var events = TestEventListener.Collect();
 
@@ -463,7 +463,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         [InlineData("GET", "HTTP/1.1", "Content-Type:Foo")]
         [InlineData("GET", "HTTP/1.1", "Expires:Foo")]
         [InlineData("GET", "HTTP/1.1", "Last-Modified:Foo")]
-        public async Task ProxyAsync_RequestWithoutBodies_NoHttpContent(string method, string protocol, string headerList)
+        public async Task RequestWithoutBodies_NoHttpContent(string method, string protocol, string headerList)
         {
             var events = TestEventListener.Collect();
 
@@ -532,7 +532,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         [InlineData("GET", "HTTP/2", "Content-Length:10")]
         [InlineData("HEAD", "HTTP/1.1", "transfer-encoding:Chunked")]
         [InlineData("HEAD", "HTTP/2", "transfer-encoding:Chunked")]
-        public async Task ProxyAsync_RequestWithBodies_HasHttpContent(string method, string protocol, string headers)
+        public async Task RequestWithBodies_HasHttpContent(string method, string protocol, string headers)
         {
             var events = TestEventListener.Collect();
 
@@ -573,7 +573,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 
 #if NET
         [Fact]
-        public async Task ProxyAsync_BodyDetectionFeatureSaysNo_NoHttpContent()
+        public async Task BodyDetectionFeatureSaysNo_NoHttpContent()
         {
             var events = TestEventListener.Collect();
 
@@ -603,7 +603,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_BodyDetectionFeatureSaysYes_HasHttpContent()
+        public async Task BodyDetectionFeatureSaysYes_HasHttpContent()
         {
             var events = TestEventListener.Collect();
 
@@ -641,7 +641,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 #endif
 
         [Fact]
-        public async Task ProxyAsync_RequestWithCookieHeaders()
+        public async Task RequestWithCookieHeaders()
         {
             var events = TestEventListener.Collect();
 
@@ -681,7 +681,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_OptionsWithVersion()
+        public async Task OptionsWithVersion()
         {
             var events = TestEventListener.Collect();
 
@@ -729,7 +729,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_OptionsWithVersion_Transformed()
+        public async Task OptionsWithVersion_Transformed()
         {
             var events = TestEventListener.Collect();
 
@@ -794,7 +794,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_UnableToConnect_Returns502()
+        public async Task UnableToConnect_Returns502()
         {
             var events = TestEventListener.Collect();
 
@@ -827,7 +827,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_UnableToConnectWithBody_Returns502()
+        public async Task UnableToConnectWithBody_Returns502()
         {
             var events = TestEventListener.Collect();
 
@@ -862,7 +862,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_RequestTimedOut_Returns504()
+        public async Task RequestTimedOut_Returns504()
         {
             var events = TestEventListener.Collect();
 
@@ -900,7 +900,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_RequestCanceled_Returns502()
+        public async Task RequestCanceled_Returns502()
         {
             var events = TestEventListener.Collect();
 
@@ -935,7 +935,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_RequestWithBodyTimedOut_Returns504()
+        public async Task RequestWithBodyTimedOut_Returns504()
         {
             var events = TestEventListener.Collect();
 
@@ -975,7 +975,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_RequestWithBodyCanceled_Returns502()
+        public async Task RequestWithBodyCanceled_Returns502()
         {
             var events = TestEventListener.Collect();
 
@@ -1012,7 +1012,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_RequestBodyClientErrorBeforeResponseError_Returns400()
+        public async Task RequestBodyClientErrorBeforeResponseError_Returns400()
         {
             var events = TestEventListener.Collect();
 
@@ -1052,7 +1052,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_RequestBodyDestinationErrorBeforeResponseError_Returns502()
+        public async Task RequestBodyDestinationErrorBeforeResponseError_Returns502()
         {
             var events = TestEventListener.Collect();
 
@@ -1092,7 +1092,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_RequestBodyCanceledBeforeResponseError_Returns502()
+        public async Task RequestBodyCanceledBeforeResponseError_Returns502()
         {
             var events = TestEventListener.Collect();
 
@@ -1134,7 +1134,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_ResponseBodySuppressedByTransform_ReturnsStatusCodeAndHeaders()
+        public async Task ResponseBodySuppressedByTransform_ReturnsStatusCodeAndHeaders()
         {
             var events = TestEventListener.Collect();
 
@@ -1180,7 +1180,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_ResponseBodyDestionationErrorFirstRead_Returns502()
+        public async Task ResponseBodyDestionationErrorFirstRead_Returns502()
         {
             var events = TestEventListener.Collect();
 
@@ -1219,7 +1219,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_ResponseBodyDestionationErrorSecondRead_Aborted()
+        public async Task ResponseBodyDestionationErrorSecondRead_Aborted()
         {
             var events = TestEventListener.Collect();
 
@@ -1260,7 +1260,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_ResponseBodyClientError_Aborted()
+        public async Task ResponseBodyClientError_Aborted()
         {
             var events = TestEventListener.Collect();
 
@@ -1300,7 +1300,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_ResponseBodyCancelled_502()
+        public async Task ResponseBodyCancelled_502()
         {
             var events = TestEventListener.Collect();
 
@@ -1341,7 +1341,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_ResponseBodyCancelledAfterStart_Aborted()
+        public async Task ResponseBodyCancelledAfterStart_Aborted()
         {
             var events = TestEventListener.Collect();
 
@@ -1385,7 +1385,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         [InlineData(false)]
         [InlineData(true)]
         [InlineData(null)]
-        public async Task ProxyAsync_ResponseBodyDisableBuffering_Success(bool? enableBuffering)
+        public async Task ResponseBodyDisableBuffering_Success(bool? enableBuffering)
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
@@ -1415,7 +1415,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_RequestBodyCanceledAfterResponse_Reported()
+        public async Task RequestBodyCanceledAfterResponse_Reported()
         {
             var events = TestEventListener.Collect();
 
@@ -1464,7 +1464,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_RequestBodyClientErrorAfterResponse_Reported()
+        public async Task RequestBodyClientErrorAfterResponse_Reported()
         {
             var events = TestEventListener.Collect();
 
@@ -1506,7 +1506,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_RequestBodyDestinationErrorAfterResponse_Reported()
+        public async Task RequestBodyDestinationErrorAfterResponse_Reported()
         {
             var events = TestEventListener.Collect();
 
@@ -1548,7 +1548,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_UpgradableRequest_RequestBodyCopyError_CancelsResponseBody()
+        public async Task UpgradableRequest_RequestBodyCopyError_CancelsResponseBody()
         {
             var events = TestEventListener.Collect();
 
@@ -1605,7 +1605,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_UpgradableRequest_ResponseBodyCopyError_CancelsRequestBody()
+        public async Task UpgradableRequest_ResponseBodyCopyError_CancelsRequestBody()
         {
             var events = TestEventListener.Collect();
 
@@ -1662,7 +1662,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public async Task ProxyAsync_WithHttpClient_Fails()
+        public async Task WithHttpClient_Fails()
         {
             var httpClient = new HttpClient();
             var httpContext = new DefaultHttpContext();
@@ -1678,7 +1678,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         [Theory]
         [InlineData("HTTP/1.1", "1.1")]
         [InlineData("HTTP/2", "2.0")]
-        public async Task ProxyAsync_Expect100ContinueWithFailedResponse_ReturnResponse(string fromProtocol, string toProtocol)
+        public async Task Expect100ContinueWithFailedResponse_ReturnResponse(string fromProtocol, string toProtocol)
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "POST";
@@ -1716,7 +1716,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         [InlineData("2.0", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
         [InlineData("2.0", false, "Connection: upgrade; Upgrade: websocket", null, "Connection; Upgrade")]
         [InlineData("2.0", false, "Foo: bar", "Foo: bar", null)]
-        public async Task ProxyAsync_ResponseToNonUpgradeableRequest_RemoveAllConnectionHeaders(string protocol, bool upgrade, string responseHeadersList, string preservedHeadersList, string removedHeadersList)
+        public async Task ResponseToNonUpgradeableRequest_RemoveAllConnectionHeaders(string protocol, bool upgrade, string responseHeadersList, string preservedHeadersList, string removedHeadersList)
         {
             var events = TestEventListener.Collect();
 
@@ -1785,7 +1785,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         [InlineData("2.0", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
         [InlineData("2.0", false, "Connection: upgrade; Upgrade: websocket", null, "Connection; Upgrade")]
         [InlineData("2.0", false, "Foo: bar", "Foo: bar", null)]
-        public async Task ProxyAsync_NonUpgradableRequest_RemoveAllConnectionHeaders(string protocol, bool upgrade, string addHeadersList, string preservedHeadersList, string removedHeadersList)
+        public async Task NonUpgradableRequest_RemoveAllConnectionHeaders(string protocol, bool upgrade, string addHeadersList, string preservedHeadersList, string removedHeadersList)
         {
             var addHeaders = addHeadersList.Split("; ");
             var preservedHeaders = preservedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
@@ -1837,7 +1837,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 
         [Theory]
         [MemberData(nameof(GetProhibitedHeaders))]
-        public async Task ProxyAsync_Request_RemoveProhibitedHeaders(string protocol, string prohibitedHeadersList)
+        public async Task Request_RemoveProhibitedHeaders(string protocol, string prohibitedHeadersList)
         {
             const string preservedHeaderName = "Foo";
             const string preservedHeaderValue = "bar";
@@ -1878,7 +1878,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 
         [Theory]
         [MemberData(nameof(GetProhibitedHeaders))]
-        public async Task ProxyAsync_Response_RemoveProhibitedHeaders(string protocol, string prohibitedHeadersList)
+        public async Task Response_RemoveProhibitedHeaders(string protocol, string prohibitedHeadersList)
         {
             const string preservedHeaderName = "Foo";
             const string preservedHeaderValue = "bar";

@@ -11,15 +11,15 @@ using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
-    internal sealed class ProxyEventListenerService : EventListenerService<ProxyEventListenerService, IProxyTelemetryConsumer, IProxyMetricsConsumer>
+    internal sealed class ForwarderEventListenerService : EventListenerService<ForwarderEventListenerService, IForwarderTelemetryConsumer, IForwarderMetricsConsumer>
     {
-        private ProxyMetrics? _previousMetrics;
-        private ProxyMetrics _currentMetrics = new();
+        private ForwarderMetrics? _previousMetrics;
+        private ForwarderMetrics _currentMetrics = new();
         private int _eventCountersCount;
 
         protected override string EventSourceName => "Yarp.ReverseProxy";
 
-        public ProxyEventListenerService(ILogger<ProxyEventListenerService> logger, IEnumerable<IProxyTelemetryConsumer> telemetryConsumers, IEnumerable<IProxyMetricsConsumer> metricsConsumers)
+        public ForwarderEventListenerService(ILogger<ForwarderEventListenerService> logger, IEnumerable<IForwarderTelemetryConsumer> telemetryConsumers, IEnumerable<IForwarderMetricsConsumer> metricsConsumers)
             : base(logger, telemetryConsumers, metricsConsumers)
         { }
 
@@ -56,7 +56,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                         var destinationPrefix = (string)payload[0];
                         foreach (var consumer in TelemetryConsumers)
                         {
-                            consumer.OnProxyStart(eventData.TimeStamp, destinationPrefix);
+                            consumer.OnForwarderStart(eventData.TimeStamp, destinationPrefix);
                         }
                     }
                     break;
@@ -67,7 +67,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                         var statusCode = (int)payload[0];
                         foreach (var consumer in TelemetryConsumers)
                         {
-                            consumer.OnProxyStop(eventData.TimeStamp, statusCode);
+                            consumer.OnForwarderStop(eventData.TimeStamp, statusCode);
                         }
                     }
                     break;
@@ -78,7 +78,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                         var error = (ForwarderError)payload[0];
                         foreach (var consumer in TelemetryConsumers)
                         {
-                            consumer.OnProxyFailed(eventData.TimeStamp, error);
+                            consumer.OnForwarderFailed(eventData.TimeStamp, error);
                         }
                     }
                     break;
@@ -86,10 +86,10 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 case 4:
                     Debug.Assert(eventData.EventName == "ProxyStage" && payload.Count == 1);
                     {
-                        var proxyStage = (ProxyStage)payload[0];
+                        var proxyStage = (ForwarderStage)payload[0];
                         foreach (var consumer in TelemetryConsumers)
                         {
-                            consumer.OnProxyStage(eventData.TimeStamp, proxyStage);
+                            consumer.OnForwarderStage(eventData.TimeStamp, proxyStage);
                         }
                     }
                     break;
@@ -133,7 +133,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                         var destinationId = (string)payload[2];
                         foreach (var consumer in TelemetryConsumers)
                         {
-                            consumer.OnProxyInvoke(eventData.TimeStamp, clusterId, routeId, destinationId);
+                            consumer.OnForwarderInvoke(eventData.TimeStamp, clusterId, routeId, destinationId);
                         }
                     }
                     break;
@@ -190,7 +190,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
 
                 var previous = _previousMetrics;
                 _previousMetrics = metrics;
-                _currentMetrics = new ProxyMetrics();
+                _currentMetrics = new ForwarderMetrics();
 
                 if (previous is null)
                 {
@@ -201,13 +201,13 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 {
                     foreach (var consumer in MetricsConsumers)
                     {
-                        consumer.OnProxyMetrics(previous, metrics);
+                        consumer.OnForwarderMetrics(previous, metrics);
                     }
                 }
                 catch (Exception ex)
                 {
                     // We can't let an uncaught exception propagate as that would crash the process
-                    Logger.LogError(ex, $"Uncaught exception occured while processing {nameof(ProxyMetrics)}.");
+                    Logger.LogError(ex, $"Uncaught exception occured while processing {nameof(ForwarderMetrics)}.");
                 }
             }
         }

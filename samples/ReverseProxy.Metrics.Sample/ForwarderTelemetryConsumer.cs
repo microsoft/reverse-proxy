@@ -9,28 +9,28 @@ using Yarp.ReverseProxy.Telemetry.Consumption;
 
 namespace Yarp.Sample
 {
-    public sealed class ProxyTelemetryConsumer : IProxyTelemetryConsumer
+    public sealed class ProxyTelemetryConsumer : IForwarderTelemetryConsumer
     {
-        public void OnProxyStart(DateTime timestamp, string destinationPrefix)
+        public void OnForwarderStart(DateTime timestamp, string destinationPrefix)
         {
             var metrics = PerRequestMetrics.Current;
             metrics.ProxyStartOffset = metrics.CalcOffset(timestamp);
         }
 
-        public void OnProxyStop(DateTime timestamp, int statusCode)
+        public void OnForwarderStop(DateTime timestamp, int statusCode)
         {
             var metrics = PerRequestMetrics.Current;
             metrics.ProxyStopOffset = metrics.CalcOffset(timestamp);
         }
 
-        public void OnProxyFailed(DateTime timestamp, ForwarderError error)
+        public void OnForwarderFailed(DateTime timestamp, ForwarderError error)
         {
             var metrics = PerRequestMetrics.Current;
             metrics.ProxyStopOffset = metrics.CalcOffset(timestamp);
             metrics.Error = error;
         }
 
-        public void OnProxyStage(DateTime timestamp, ProxyStage stage) { }
+        public void OnForwarderStage(DateTime timestamp, ForwarderStage stage) { }
 
         public void OnContentTransferring(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime) { }
 
@@ -53,7 +53,7 @@ namespace Yarp.Sample
             }
         }
 
-        public void OnProxyInvoke(DateTime timestamp, string clusterId, string routeId, string destinationId)
+        public void OnForwarderInvoke(DateTime timestamp, string clusterId, string routeId, string destinationId)
         {
             var metrics = PerRequestMetrics.Current;
             metrics.RouteInvokeOffset = metrics.CalcOffset(timestamp);

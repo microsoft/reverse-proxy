@@ -36,7 +36,7 @@ Follow the [Getting Started](xref:getting-started) guide to create a project and
 
 ### Update Startup
 
-In this example the IHttpForwarder is registered in DI, injected into the `Startup.Configure` method, and used to proxy requests from a specific route to `https://localhost:10000/prefix/`.
+In this example the IHttpForwarder is registered in DI, injected into the `Startup.Configure` method, and used to forward requests from a specific route to `https://localhost:10000/prefix/`.
 
 The optional transforms show how to copy all request headers except for the `Host`, it's common that the destination requires its own `Host` from the url.
 
@@ -66,7 +66,7 @@ public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
         {
             var error = await forwarder.SendAsync(httpContext, "https://localhost:10000/",
                 httpClient, requestOptions, transformer);
-            // Check if the proxy operation was successful
+            // Check if the operation was successful
             if (error != ForwarderError.None)
             {
                 var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
