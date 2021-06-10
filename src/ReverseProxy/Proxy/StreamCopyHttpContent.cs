@@ -43,6 +43,7 @@ namespace Yarp.ReverseProxy.Proxy
         // Note this is the long token that should only be canceled in the event of an error, not timed out.
         private readonly CancellationToken _cancellation;
         private readonly TaskCompletionSource<(StreamCopyResult, Exception?)> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private int _started;
 
         public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IClock clock, CancellationToken cancellation)
         {
@@ -69,9 +70,6 @@ namespace Yarp.ReverseProxy.Proxy
         /// completes, even when using <see cref="HttpCompletionOption.ResponseHeadersRead"/>.
         /// </remarks>
         public bool Started => Volatile.Read(ref _started) == 1;
-
-        private int _started;
-
 
         /// <summary>
         /// Copies bytes from the stream provided in our constructor into the target <paramref name="stream"/>.
