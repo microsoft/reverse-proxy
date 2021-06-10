@@ -68,7 +68,10 @@ namespace Yarp.ReverseProxy.Proxy
         /// <see cref="HttpClient.SendAsync(HttpRequestMessage, HttpCompletionOption, CancellationToken)"/>
         /// completes, even when using <see cref="HttpCompletionOption.ResponseHeadersRead"/>.
         /// </remarks>
-        public bool Started { get; private set; }
+        public bool Started => Volatile.Read(ref _started) == 1;
+
+        private int _started;
+
 
         /// <summary>
         /// Copies bytes from the stream provided in our constructor into the target <paramref name="stream"/>.
@@ -117,12 +120,10 @@ namespace Yarp.ReverseProxy.Proxy
         // would break bidirectional streaming scenarios.
         protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context)
         {
-            if (Started)
+            if (Interlocked.CompareExchange(ref _started, 1, 0) != 0)
             {
                 throw new InvalidOperationException("Stream was already consumed.");
             }
-
-            Started = true;
 
             if (_autoFlushHttpClientOutgoingStream)
             {
