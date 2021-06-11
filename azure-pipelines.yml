@@ -96,10 +96,9 @@ stages:
             artifactType: Container
             parallel: true
 
-      - job: Ubuntu_16_04
-        displayName: 'Ubuntu 16.04'
+      - job: Ubuntu
         pool:
-          vmImage: ubuntu-16.04
+          vmImage: ubuntu-latest
         variables:
         - name: _SignType
           value: none
