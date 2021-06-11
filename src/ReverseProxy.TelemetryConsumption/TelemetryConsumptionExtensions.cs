@@ -20,7 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
 #endif
         public static IServiceCollection AddTelemetryListeners(this IServiceCollection services)
         {
-            services.AddHostedService<ProxyEventListenerService>();
+            services.AddHostedService<ForwarderEventListenerService>();
             services.AddHostedService<KestrelEventListenerService>();
 #if NET
             services.AddHostedService<HttpEventListenerService>();
@@ -38,9 +38,9 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var implementsAny = false;
 
-            if (consumer is IProxyTelemetryConsumer)
+            if (consumer is IForwarderTelemetryConsumer)
             {
-                services.TryAddEnumerable(new ServiceDescriptor(typeof(IProxyTelemetryConsumer), consumer));
+                services.TryAddEnumerable(new ServiceDescriptor(typeof(IForwarderTelemetryConsumer), consumer));
                 implementsAny = true;
             }
 
@@ -94,9 +94,9 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var implementsAny = false;
 
-            if (typeof(IProxyTelemetryConsumer).IsAssignableFrom(typeof(TConsumer)))
+            if (typeof(IForwarderTelemetryConsumer).IsAssignableFrom(typeof(TConsumer)))
             {
-                services.AddSingleton(services => (IProxyTelemetryConsumer)services.GetRequiredService<TConsumer>());
+                services.AddSingleton(services => (IForwarderTelemetryConsumer)services.GetRequiredService<TConsumer>());
                 implementsAny = true;
             }
 

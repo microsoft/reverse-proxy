@@ -8,7 +8,7 @@ using Xunit;
 using Yarp.ReverseProxy.Common.Tests;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.LoadBalancing.Tests

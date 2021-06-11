@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using Yarp.ReverseProxy.LoadBalancing;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
 {
@@ -100,7 +100,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
                             EnableMultipleHttp2Connections = true,
 #endif
                         },
-                        HttpRequest = new RequestProxyConfig()
+                        HttpRequest = new ForwarderRequestConfig()
                         {
                             Timeout = TimeSpan.FromSeconds(60),
                             Version = Version.Parse("1.0"),

@@ -11,7 +11,7 @@ using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.LoadBalancing.Tests
 {

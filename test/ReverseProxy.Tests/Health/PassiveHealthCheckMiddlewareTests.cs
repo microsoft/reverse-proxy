@@ -9,7 +9,7 @@ using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Health.Tests
 {
@@ -39,7 +39,7 @@ namespace Yarp.ReverseProxy.Health.Tests
 
             nextInvoked = false;
 
-            var error = new ProxyErrorFeature(ProxyError.Request, null);
+            var error = new ForwarderErrorFeature(ForwarderError.Request, null);
             var context1 = GetContext(cluster1, selectedDestination: 0, error);
             await middleware.Invoke(context1);
 
@@ -92,7 +92,7 @@ namespace Yarp.ReverseProxy.Health.Tests
             policies[1].VerifyNoOtherCalls();
         }
 
-        private HttpContext GetContext(ClusterState cluster, int selectedDestination, IProxyErrorFeature error)
+        private HttpContext GetContext(ClusterState cluster, int selectedDestination, IForwarderErrorFeature error)
         {
             var context = new DefaultHttpContext();
             context.Features.Set(GetProxyFeature(cluster, cluster.DestinationsState.AllDestinations[selectedDestination]));

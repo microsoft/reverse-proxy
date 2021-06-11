@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Yarp.ReverseProxy.Management;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Routing;
 
 namespace Microsoft.AspNetCore.Builder
@@ -49,7 +49,7 @@ namespace Microsoft.AspNetCore.Builder
             var proxyAppBuilder = new ReverseProxyApplicationBuilder(endpoints.CreateApplicationBuilder());
             proxyAppBuilder.UseMiddleware<ProxyPipelineInitializerMiddleware>();
             configureApp(proxyAppBuilder);
-            proxyAppBuilder.UseMiddleware<ProxyInvokerMiddleware>();
+            proxyAppBuilder.UseMiddleware<ForwarderMiddleware>();
             var app = proxyAppBuilder.Build();
 
             var proxyEndpointFactory = endpoints.ServiceProvider.GetRequiredService<ProxyEndpointFactory>();

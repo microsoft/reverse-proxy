@@ -6,20 +6,20 @@ using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Linq;
 using Xunit;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Common.Tests
 {
     internal static class EventAssertExtensions
     {
-        public static (ProxyStage Stage, DateTime TimeStamp)[] GetProxyStages(this List<EventWrittenEventArgs> events)
+        public static (ForwarderStage Stage, DateTime TimeStamp)[] GetProxyStages(this List<EventWrittenEventArgs> events)
         {
             return events
-                .Where(e => e.EventName == "ProxyStage")
+                .Where(e => e.EventName == "ForwarderStage")
                 .Select(e =>
                 {
-                    var stage = (ProxyStage)Assert.Single(e.Payload);
-                    Assert.InRange(stage, ProxyStage.SendAsyncStart, ProxyStage.ResponseUpgrade);
+                    var stage = (ForwarderStage)Assert.Single(e.Payload);
+                    Assert.InRange(stage, ForwarderStage.SendAsyncStart, ForwarderStage.ResponseUpgrade);
                     return (stage, e.TimeStamp);
                 })
                 .ToArray();
@@ -27,31 +27,31 @@ namespace Yarp.ReverseProxy.Common.Tests
 
         public static void AssertContainProxyStages(this List<EventWrittenEventArgs> events, bool hasRequestContent = true, bool upgrade = false, bool hasResponseContent = true)
         {
-            var stages = new List<ProxyStage>()
+            var stages = new List<ForwarderStage>()
             {
-                ProxyStage.SendAsyncStart,
-                ProxyStage.SendAsyncStop,
+                ForwarderStage.SendAsyncStart,
+                ForwarderStage.SendAsyncStop,
             };
 
             if (hasRequestContent)
             {
-                stages.Add(ProxyStage.RequestContentTransferStart);
+                stages.Add(ForwarderStage.RequestContentTransferStart);
             }
 
             if (upgrade)
             {
-                stages.Add(ProxyStage.ResponseUpgrade);
+                stages.Add(ForwarderStage.ResponseUpgrade);
             }
 
             if (hasResponseContent)
             {
-                stages.Add(ProxyStage.ResponseContentTransferStart);
+                stages.Add(ForwarderStage.ResponseContentTransferStart);
             }
 
             events.AssertContainProxyStages(stages.ToArray());
         }
 
-        public static void AssertContainProxyStages(this List<EventWrittenEventArgs> events, ProxyStage[] expectedStages)
+        public static void AssertContainProxyStages(this List<EventWrittenEventArgs> events, ForwarderStage[] expectedStages)
         {
             var proxyStages = events.GetProxyStages()
                 .Select(s => s.Stage)

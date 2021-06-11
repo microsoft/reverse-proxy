@@ -9,7 +9,7 @@ using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.LoadBalancing;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Configuration.Tests
 {
@@ -693,7 +693,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                HttpRequest = new RequestProxyConfig
+                HttpRequest = new ForwarderRequestConfig
                 {
                     Version = null,
                 }
@@ -717,7 +717,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                HttpRequest = new RequestProxyConfig
+                HttpRequest = new ForwarderRequestConfig
                 {
                     Version = version,
                 }
@@ -741,7 +741,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
             var cluster = new ClusterConfig
             {
                 ClusterId = "cluster1",
-                HttpRequest = new RequestProxyConfig
+                HttpRequest = new ForwarderRequestConfig
                 {
                     Version = version,
                 }
