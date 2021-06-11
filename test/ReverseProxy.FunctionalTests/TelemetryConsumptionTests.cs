@@ -102,9 +102,9 @@ namespace Yarp.ReverseProxy
             var expected = new[]
             {
                 "OnRequestStart-Kestrel",
-                "OnProxyInvoke",
-                "OnProxyStart",
-                "OnProxyStage-SendAsyncStart",
+                "OnForwarderInvoke",
+                "OnForwarderStart",
+                "OnForwarderStage-SendAsyncStart",
 #if NET
                 "OnRequestStart",
                 "OnConnectStart",
@@ -118,10 +118,10 @@ namespace Yarp.ReverseProxy
                 "OnResponseHeadersStop",
                 "OnRequestStop",
 #endif
-                "OnProxyStage-SendAsyncStop",
-                "OnProxyStage-ResponseContentTransferStart",
+                "OnForwarderStage-SendAsyncStop",
+                "OnForwarderStage-ResponseContentTransferStart",
                 "OnContentTransferred",
-                "OnProxyStop",
+                "OnForwarderStop",
                 "OnRequestStop-Kestrel"
             };
 

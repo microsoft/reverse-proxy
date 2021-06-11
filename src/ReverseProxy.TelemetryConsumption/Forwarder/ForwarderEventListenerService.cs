@@ -51,7 +51,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
             switch (eventData.EventId)
             {
                 case 1:
-                    Debug.Assert(eventData.EventName == "ProxyStart" && payload.Count == 1);
+                    Debug.Assert(eventData.EventName == "ForwarderStart" && payload.Count == 1);
                     {
                         var destinationPrefix = (string)payload[0];
                         foreach (var consumer in TelemetryConsumers)
@@ -62,7 +62,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                     break;
 
                 case 2:
-                    Debug.Assert(eventData.EventName == "ProxyStop" && payload.Count == 1);
+                    Debug.Assert(eventData.EventName == "ForwarderStop" && payload.Count == 1);
                     {
                         var statusCode = (int)payload[0];
                         foreach (var consumer in TelemetryConsumers)
@@ -73,7 +73,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                     break;
 
                 case 3:
-                    Debug.Assert(eventData.EventName == "ProxyFailed" && payload.Count == 1);
+                    Debug.Assert(eventData.EventName == "ForwarderFailed" && payload.Count == 1);
                     {
                         var error = (ForwarderError)payload[0];
                         foreach (var consumer in TelemetryConsumers)
@@ -84,7 +84,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                     break;
 
                 case 4:
-                    Debug.Assert(eventData.EventName == "ProxyStage" && payload.Count == 1);
+                    Debug.Assert(eventData.EventName == "ForwarderStage" && payload.Count == 1);
                     {
                         var proxyStage = (ForwarderStage)payload[0];
                         foreach (var consumer in TelemetryConsumers)
@@ -126,7 +126,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                     break;
 
                 case 7:
-                    Debug.Assert(eventData.EventName == "ProxyInvoke" && payload.Count == 3);
+                    Debug.Assert(eventData.EventName == "ForwarderInvoke" && payload.Count == 3);
                     {
                         var clusterId = (string)payload[0];
                         var routeId = (string)payload[1];
