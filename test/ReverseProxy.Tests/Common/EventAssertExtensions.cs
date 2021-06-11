@@ -15,7 +15,7 @@ namespace Yarp.ReverseProxy.Common.Tests
         public static (ForwarderStage Stage, DateTime TimeStamp)[] GetProxyStages(this List<EventWrittenEventArgs> events)
         {
             return events
-                .Where(e => e.EventName == "ProxyStage")
+                .Where(e => e.EventName == "ForwarderStage")
                 .Select(e =>
                 {
                     var stage = (ForwarderStage)Assert.Single(e.Payload);

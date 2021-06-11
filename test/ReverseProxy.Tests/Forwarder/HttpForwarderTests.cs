@@ -1954,22 +1954,22 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 
         private static void AssertProxyStartFailedStop(List<EventWrittenEventArgs> events, string destinationPrefix, int statusCode, ForwarderError? error)
         {
-            var start = Assert.Single(events, e => e.EventName == "ProxyStart");
+            var start = Assert.Single(events, e => e.EventName == "ForwarderStart");
             var prefixActual = (string)Assert.Single(start.Payload);
             Assert.Equal(destinationPrefix, prefixActual);
 
-            var stop = Assert.Single(events, e => e.EventName == "ProxyStop");
+            var stop = Assert.Single(events, e => e.EventName == "ForwarderStop");
             var statusActual = (int)Assert.Single(stop.Payload);
             Assert.Equal(statusCode, statusActual);
             Assert.True(start.TimeStamp <= stop.TimeStamp);
 
             if (error is null)
             {
-                Assert.DoesNotContain(events, e => e.EventName == "ProxyFailed");
+                Assert.DoesNotContain(events, e => e.EventName == "ForwarderFailed");
             }
             else
             {
-                var failed = Assert.Single(events, e => e.EventName == "ProxyFailed");
+                var failed = Assert.Single(events, e => e.EventName == "ForwarderFailed");
                 var errorActual = (ForwarderError)Assert.Single(failed.Payload);
                 Assert.Equal(error.Value, errorActual);
                 Assert.True(start.TimeStamp <= failed.TimeStamp);

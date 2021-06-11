@@ -116,7 +116,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             Assert.Equal(0, cluster1.ConcurrencyCounter.Value);
             Assert.Equal(0, destination1.ConcurrentRequestCount);
 
-            var invoke = Assert.Single(events, e => e.EventName == "ProxyInvoke");
+            var invoke = Assert.Single(events, e => e.EventName == "ForwarderInvoke");
             Assert.Equal(3, invoke.Payload.Count);
             Assert.Equal(cluster1.ClusterId, (string)invoke.Payload[0]);
             Assert.Equal(routeConfig.Config.RouteId, (string)invoke.Payload[1]);
