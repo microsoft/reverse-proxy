@@ -2,14 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Threading;
-using Microsoft.AspNetCore.Http;
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Telemetry.Consumption;
 
 namespace Yarp.Sample
 {
-    public sealed class ProxyTelemetryConsumer : IForwarderTelemetryConsumer
+    public sealed class ForwarderTelemetryConsumer : IForwarderTelemetryConsumer
     {
         public void OnForwarderStart(DateTime timestamp, string destinationPrefix)
         {

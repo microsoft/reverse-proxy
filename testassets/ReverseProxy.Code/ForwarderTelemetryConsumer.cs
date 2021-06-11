@@ -8,13 +8,13 @@ using Yarp.ReverseProxy.Telemetry.Consumption;
 
 namespace Yarp.ReverseProxy.Sample
 {
-    public sealed class ProxyTelemetryConsumer : IForwarderTelemetryConsumer
+    public sealed class ForwarderTelemetryConsumer : IForwarderTelemetryConsumer
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         private DateTime _startTime;
 
-        public ProxyTelemetryConsumer(IHttpContextAccessor httpContextAccessor)
+        public ForwarderTelemetryConsumer(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
         }

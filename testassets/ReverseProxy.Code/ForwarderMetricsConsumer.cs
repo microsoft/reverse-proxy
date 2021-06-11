@@ -6,7 +6,7 @@ using Yarp.ReverseProxy.Telemetry.Consumption;
 
 namespace Yarp.ReverseProxy.Sample
 {
-    public sealed class ProxyMetricsConsumer : IForwarderMetricsConsumer
+    public sealed class ForwarderMetricsConsumer : IForwarderMetricsConsumer
     {
         public void OnForwarderMetrics(ForwarderMetrics oldMetrics, ForwarderMetrics newMetrics)
         {
