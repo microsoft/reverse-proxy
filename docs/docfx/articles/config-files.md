@@ -110,7 +110,7 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
       "allrouteprops" : {
         // matches /something/* and routes to "allclusterprops"
         "ClusterId": "allclusterprops", // Name of one of the clusters
-        "Order" : 100, // Lower numbers have higher precidence
+        "Order" : 100, // Lower numbers have higher precedence
         "Authorization Policy" : "Anonymous", // Name of the policy or "Default", "Anonymous"
         "CorsPolicy" : "Default", // Name of the CorsPolicy to apply to this route or "Default", "Disable"
         "Match": {
