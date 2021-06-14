@@ -8,9 +8,10 @@ using System.Threading;
 
 namespace Yarp.ReverseProxy.Forwarder
 {
+    [EventSource(Name = "Yarp.ReverseProxy")]
     internal sealed class ForwarderTelemetry : EventSource
     {
-        public static readonly ForwarderTelemetry Log = new ForwarderTelemetry();
+        public static readonly ForwarderTelemetry Log = new();
 
         private IncrementingPollingCounter? _startedRequestsPerSecondCounter;
         private PollingCounter? _startedRequestsCounter;
@@ -20,10 +21,6 @@ namespace Yarp.ReverseProxy.Forwarder
         private long _startedRequests;
         private long _stoppedRequests;
         private long _failedRequests;
-
-        private ForwarderTelemetry()
-            : base("Yarp.ReverseProxy")
-        { }
 
         [Event(1, Level = EventLevel.Informational)]
         public void ForwarderStart(string destinationPrefix)
