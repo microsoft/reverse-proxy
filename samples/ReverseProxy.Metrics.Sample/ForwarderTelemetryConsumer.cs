@@ -28,10 +28,6 @@ namespace Yarp.Sample
             metrics.Error = error;
         }
 
-        public void OnForwarderStage(DateTime timestamp, ForwarderStage stage) { }
-
-        public void OnContentTransferring(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime) { }
-
         public void OnContentTransferred(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime, TimeSpan firstReadTime)
         {
             var metrics = PerRequestMetrics.Current;
