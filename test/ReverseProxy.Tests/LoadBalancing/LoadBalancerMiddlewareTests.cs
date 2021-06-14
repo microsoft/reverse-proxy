@@ -55,7 +55,7 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
         [Fact]
         public async Task PickDestination_SingleDestinations_ShortCircuit()
         {
-            var context = CreateContext(LoadBalancingPolicies.First, new[]
+            var context = CreateContext(LoadBalancingPolicies.FirstAlphabetical, new[]
             {
                 new DestinationState("destination1")
             });
@@ -77,7 +77,7 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
         public async Task Invoke_Works()
         {
             // Selects the alphabetically first available destination.
-            var context = CreateContext(LoadBalancingPolicies.First, new[]
+            var context = CreateContext(LoadBalancingPolicies.FirstAlphabetical, new[]
             {
                 new DestinationState("destination2"),
                 new DestinationState("destination1"),
@@ -99,7 +99,7 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
         [Fact]
         public async Task Invoke_WithoutDestinations_503()
         {
-            var context = CreateContext(LoadBalancingPolicies.First, Array.Empty<DestinationState>());
+            var context = CreateContext(LoadBalancingPolicies.FirstAlphabetical, Array.Empty<DestinationState>());
 
             var sut = CreateMiddleware(context =>
             {

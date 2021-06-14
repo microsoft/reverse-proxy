@@ -13,7 +13,7 @@ namespace Yarp.ReverseProxy.LoadBalancing
     /// </summary>
     internal sealed class FirstLoadBalancingPolicy : ILoadBalancingPolicy
     {
-        public string Name => LoadBalancingPolicies.First;
+        public string Name => LoadBalancingPolicies.FirstAlphabetical;
 
         public DestinationState? PickDestination(HttpContext context, IReadOnlyList<DestinationState> availableDestinations)
         {
