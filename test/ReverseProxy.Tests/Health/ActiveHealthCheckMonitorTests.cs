@@ -46,11 +46,11 @@ namespace Yarp.ReverseProxy.Health.Tests
             var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object);
             clusters.Add(cluster2);
 
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             await monitor.CheckHealthAsync(clusters);
 
-            Assert.True(monitor.InitialDestinationsProbed);
+            Assert.True(monitor.InitialProbeCompleted);
 
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 1), ("https://localhost:20001/cluster0/api/health/", 1) });
 
@@ -103,11 +103,11 @@ namespace Yarp.ReverseProxy.Health.Tests
             var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, TimeSpan.FromMilliseconds(Interval1));
             monitor.OnClusterAdded(cluster2);
 
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             await monitor.CheckHealthAsync(new ClusterState[0]);
 
-            Assert.True(monitor.InitialDestinationsProbed);
+            Assert.True(monitor.InitialProbeCompleted);
 
             timerFactory.FireAll();
 
@@ -136,11 +136,11 @@ namespace Yarp.ReverseProxy.Health.Tests
             var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromMilliseconds(Interval1));
             monitor.OnClusterAdded(cluster2);
 
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             await monitor.CheckHealthAsync(new ClusterState[0]);
 
-            Assert.True(monitor.InitialDestinationsProbed);
+            Assert.True(monitor.InitialProbeCompleted);
 
             timerFactory.FireAll();
 
@@ -175,11 +175,11 @@ namespace Yarp.ReverseProxy.Health.Tests
             var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromMilliseconds(Interval0));
             monitor.OnClusterAdded(cluster0);
 
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             await monitor.CheckHealthAsync(new ClusterState[0]);
 
-            Assert.True(monitor.InitialDestinationsProbed);
+            Assert.True(monitor.InitialProbeCompleted);
 
             timerFactory.FireAll();
 
@@ -218,11 +218,11 @@ namespace Yarp.ReverseProxy.Health.Tests
             var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromMilliseconds(Interval1));
             monitor.OnClusterAdded(cluster2);
 
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             await monitor.CheckHealthAsync(new ClusterState[0]);
 
-            Assert.True(monitor.InitialDestinationsProbed);
+            Assert.True(monitor.InitialProbeCompleted);
 
             timerFactory.FireAll();
 
@@ -267,11 +267,11 @@ namespace Yarp.ReverseProxy.Health.Tests
             var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromMilliseconds(Interval1));
             monitor.OnClusterAdded(cluster2);
 
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             await monitor.CheckHealthAsync(new ClusterState[0]);
 
-            Assert.True(monitor.InitialDestinationsProbed);
+            Assert.True(monitor.InitialProbeCompleted);
 
             timerFactory.FireAll();
 
@@ -316,11 +316,11 @@ namespace Yarp.ReverseProxy.Health.Tests
             var cluster = GetClusterInfo("cluster0", "policy0", true, httpClient.Object, destinationCount: 3);
             clusters.Add(cluster);
 
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             await monitor.CheckHealthAsync(clusters);
 
-            Assert.True(monitor.InitialDestinationsProbed);
+            Assert.True(monitor.InitialProbeCompleted);
 
             policy.Verify(
                 p => p.ProbingCompleted(
@@ -378,11 +378,11 @@ namespace Yarp.ReverseProxy.Health.Tests
             var cluster = GetClusterInfo("cluster0", "policy0", true, httpClient.Object, destinationCount: 3);
             clusters.Add(cluster);
 
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             await monitor.CheckHealthAsync(clusters);
 
-            Assert.True(monitor.InitialDestinationsProbed);
+            Assert.True(monitor.InitialProbeCompleted);
 
             policy.Verify(
                 p => p.ProbingCompleted(
@@ -407,11 +407,11 @@ namespace Yarp.ReverseProxy.Health.Tests
             var cluster = GetClusterInfo("cluster0", "policy0", true, httpClient.Object);
             clusters.Add(cluster);
 
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             await monitor.CheckHealthAsync(clusters);
 
-            Assert.True(monitor.InitialDestinationsProbed);
+            Assert.True(monitor.InitialProbeCompleted);
 
             policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterState>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Once);
             policy.Verify(p => p.Name);
@@ -446,28 +446,28 @@ namespace Yarp.ReverseProxy.Health.Tests
             var cluster2 = GetClusterInfo("cluster2", "policy0", true, httpClient2.Object, destinationCount: 1);
             clusters.Add(cluster2);
 
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             var healthCheckTask = monitor.CheckHealthAsync(clusters);
 
             Assert.False(healthCheckTask.IsCompleted);
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             tcs0.SetResult(new HttpResponseMessage(firstResult));
 
             Assert.False(healthCheckTask.IsCompleted);
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             tcs1.SetResult(new HttpResponseMessage(secondResult));
 
             Assert.False(healthCheckTask.IsCompleted);
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             tcs2.SetResult(new HttpResponseMessage(thirdResult));
 
             await healthCheckTask;
 
-            Assert.True(monitor.InitialDestinationsProbed);
+            Assert.True(monitor.InitialProbeCompleted);
 
             policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterState>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(3));
             policy.Verify(p => p.Name);
@@ -492,23 +492,23 @@ namespace Yarp.ReverseProxy.Health.Tests
             var cluster1 = GetClusterInfo("cluster1", "policy0", true, httpClient1.Object, destinationCount: 1);
             clusters.Add(cluster1);
 
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             var healthCheckTask = monitor.CheckHealthAsync(clusters);
 
             Assert.False(healthCheckTask.IsCompleted);
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             tcs0.SetResult(new HttpResponseMessage(HttpStatusCode.OK));
 
             Assert.False(healthCheckTask.IsCompleted);
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             // Never set result to the second destination for it to time out.
 
             await healthCheckTask;
 
-            Assert.True(monitor.InitialDestinationsProbed);
+            Assert.True(monitor.InitialProbeCompleted);
 
             policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterState>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(2));
             policy.Verify(p => p.Name);
@@ -533,7 +533,7 @@ namespace Yarp.ReverseProxy.Health.Tests
             var cluster1 = GetClusterInfo("cluster1", "policy0", true, httpClient1.Object, destinationCount: 1);
             clusters.Add(cluster1);
 
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             var healthCheckTask = monitor.CheckHealthAsync(clusters);
 
@@ -541,7 +541,7 @@ namespace Yarp.ReverseProxy.Health.Tests
 
             await healthCheckTask;
 
-            Assert.True(monitor.InitialDestinationsProbed);
+            Assert.True(monitor.InitialProbeCompleted);
 
             policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterState>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(2));
             policy.Verify(p => p.Name);
@@ -566,23 +566,23 @@ namespace Yarp.ReverseProxy.Health.Tests
             var cluster1 = GetClusterInfo("cluster1", "policy0", true, httpClient1.Object, destinationCount: 1);
             clusters.Add(cluster1);
 
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             var healthCheckTask = monitor.CheckHealthAsync(clusters);
 
             Assert.False(healthCheckTask.IsCompleted);
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             tcs0.SetException(new Exception());
 
             Assert.False(healthCheckTask.IsCompleted);
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             tcs1.SetResult(new HttpResponseMessage(HttpStatusCode.OK));
 
             await healthCheckTask;
 
-            Assert.True(monitor.InitialDestinationsProbed);
+            Assert.True(monitor.InitialProbeCompleted);
 
             policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterState>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(2));
             policy.Verify(p => p.Name);
@@ -607,23 +607,23 @@ namespace Yarp.ReverseProxy.Health.Tests
             var cluster1 = GetClusterInfo("cluster1", "policy0", true, httpClient1.Object, destinationCount: 1);
             clusters.Add(cluster1);
 
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             var healthCheckTask = monitor.CheckHealthAsync(clusters);
 
             Assert.False(healthCheckTask.IsCompleted);
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             tcs0.SetException(new Exception());
 
             Assert.False(healthCheckTask.IsCompleted);
-            Assert.False(monitor.InitialDestinationsProbed);
+            Assert.False(monitor.InitialProbeCompleted);
 
             tcs1.SetException(new Exception());
 
             await healthCheckTask;
 
-            Assert.True(monitor.InitialDestinationsProbed);
+            Assert.True(monitor.InitialProbeCompleted);
 
             policy.Verify(p => p.ProbingCompleted(It.IsAny<ClusterState>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>()), Times.Exactly(2));
             policy.Verify(p => p.Name);

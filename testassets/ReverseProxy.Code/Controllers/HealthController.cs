@@ -30,7 +30,7 @@ namespace Yarp.ReverseProxy.Sample.Controllers
         public IActionResult CheckHealth()
         {
             // TODO: Implement health controller, use guid in route.
-            return _healthCheckMonitor.InitialDestinationsProbed ? Ok() : StatusCode(503);
+            return _healthCheckMonitor.InitialProbeCompleted ? Ok() : StatusCode(503);
         }
     }
 }

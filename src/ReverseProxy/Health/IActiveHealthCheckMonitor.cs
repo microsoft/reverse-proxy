@@ -20,7 +20,7 @@ namespace Yarp.ReverseProxy.Health
         /// <c>true</c> when all the initially configured destinations have been queried, regardless their availability or returned status code.
         /// The property stays <c>true</c> for the rest of the proxy process lifetime.
         /// </returns>
-        bool InitialDestinationsProbed { get; }
+        bool InitialProbeCompleted { get; }
 
         /// <summary>
         /// Checks health of all clusters' destinations.
