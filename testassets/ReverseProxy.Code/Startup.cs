@@ -93,7 +93,7 @@ namespace Yarp.ReverseProxy.Sample
 
             services.AddHttpContextAccessor();
             services.AddSingleton<IForwarderMetricsConsumer, ForwarderMetricsConsumer>();
-            services.AddScoped<IForwarderTelemetryConsumer, ForwarderTelemetryConsumer>();
+            services.AddTelemetryConsumer<ForwarderTelemetryConsumer>();
             services.AddTelemetryListeners();
         }
 
