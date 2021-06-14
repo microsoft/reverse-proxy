@@ -181,7 +181,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             {
                 var policy = new Mock<IAffinityFailurePolicy>(MockBehavior.Strict);
                 policy.SetupGet(p => p.Name).Returns(name);
-                policy.Setup(p => p.Handle(It.IsAny<HttpContext>(), It.Is<SessionAffinityConfig>(o => o.FailurePolicy == name), expectedStatus))
+                policy.Setup(p => p.Handle(It.IsAny<ClusterState>(), expectedStatus, It.IsAny<HttpContext>()))
                     .ReturnsAsync(handled)
                     .Callback(() => callback(policy.Object));
                 result.Add(policy);
@@ -194,6 +194,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             return new ReverseProxyFeature()
             {
                 AvailableDestinations = destinations,
+                Route = new RouteModel(new RouteConfig(), cluster: null, HttpTransformer.Default),
                 Cluster = clusterModel,
             };
         }
