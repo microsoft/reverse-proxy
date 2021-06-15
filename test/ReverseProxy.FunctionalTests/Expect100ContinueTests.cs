@@ -65,7 +65,7 @@ namespace Yarp.ReverseProxy
                 {
                     c = c with
                     {
-                        HttpRequest = new Proxy.RequestProxyConfig
+                        HttpRequest = new Forwarder.ForwarderRequestConfig
                         {
                             Version = destProtocol == HttpProtocols.Http2 ? HttpVersion.Version20 : HttpVersion.Version11,
 #if NET
