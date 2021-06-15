@@ -7,7 +7,7 @@ using System.Net.Http;
 using Xunit;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Health.Tests
 {
@@ -79,7 +79,7 @@ namespace Yarp.ReverseProxy.Health.Tests
                     {
                         Active = healthCheckOptions,
                     },
-                    HttpRequest = new RequestProxyConfig
+                    HttpRequest = new ForwarderRequestConfig
                     {
                         Timeout = TimeSpan.FromSeconds(60),
                         Version = version,

@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Configuration.ConfigProvider;
 using Yarp.ReverseProxy.Management;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Routing;
 using Yarp.ReverseProxy.Transforms.Builder;
 using Yarp.ReverseProxy.Utilities;
@@ -23,12 +23,12 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class ReverseProxyServiceCollectionExtensions
     {
         /// <summary>
-        /// Registers the <see cref="IHttpProxy"/> service for direct proxying scenarios.
+        /// Registers the <see cref="IHttpForwarder"/> service for direct forwarding scenarios.
         /// </summary>
-        public static IServiceCollection AddHttpProxy(this IServiceCollection services)
+        public static IServiceCollection AddHttpForwarder(this IServiceCollection services)
         {
             services.TryAddSingleton<IClock, Clock>();
-            services.TryAddSingleton<IHttpProxy, HttpProxy>();
+            services.TryAddSingleton<IHttpForwarder, HttpForwarder>();
             services.TryAddSingleton<ITransformBuilder, TransformBuilder>();
             return services;
         }
@@ -135,17 +135,17 @@ namespace Microsoft.Extensions.DependencyInjection
         /// This will be called each time a cluster is added or changed. Cluster settings are applied to the handler before
         /// the callback. Custom data can be provided in the cluster metadata.
         /// </summary>
-        public static IReverseProxyBuilder ConfigureHttpClient(this IReverseProxyBuilder builder, Action<ProxyHttpClientContext, SocketsHttpHandler> configure)
+        public static IReverseProxyBuilder ConfigureHttpClient(this IReverseProxyBuilder builder, Action<ForwarderHttpClientContext, SocketsHttpHandler> configure)
         {
             if (configure is null)
             {
                 throw new ArgumentNullException(nameof(configure));
             }
 
-            builder.Services.AddSingleton<IProxyHttpClientFactory>(services =>
+            builder.Services.AddSingleton<IForwarderHttpClientFactory>(services =>
             {
-                var logger = services.GetRequiredService<ILogger<ProxyHttpClientFactory>>();
-                return new CallbackProxyHttpClientFactory(logger, configure);
+                var logger = services.GetRequiredService<ILogger<ForwarderHttpClientFactory>>();
+                return new CallbackHttpClientFactory(logger, configure);
             });
             return builder;
         }

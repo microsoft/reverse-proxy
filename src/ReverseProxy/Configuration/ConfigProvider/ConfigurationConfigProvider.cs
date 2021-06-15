@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Configuration.ConfigProvider
 {
@@ -331,21 +331,21 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider
             };
         }
 
-        private static RequestProxyConfig? CreateProxyRequestConfig(IConfigurationSection section)
+        private static ForwarderRequestConfig? CreateProxyRequestConfig(IConfigurationSection section)
         {
             if (!section.Exists())
             {
                 return null;
             }
 
-            return new RequestProxyConfig
+            return new ForwarderRequestConfig
             {
-                Timeout = section.ReadTimeSpan(nameof(RequestProxyConfig.Timeout)),
-                Version = section.ReadVersion(nameof(RequestProxyConfig.Version)),
+                Timeout = section.ReadTimeSpan(nameof(ForwarderRequestConfig.Timeout)),
+                Version = section.ReadVersion(nameof(ForwarderRequestConfig.Version)),
 #if NET
-                VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(RequestProxyConfig.VersionPolicy)),
+                VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(ForwarderRequestConfig.VersionPolicy)),
 #endif
-                AllowResponseBuffering = section.ReadBool(nameof(RequestProxyConfig.AllowResponseBuffering))
+                AllowResponseBuffering = section.ReadBool(nameof(ForwarderRequestConfig.AllowResponseBuffering))
             };
         }
 

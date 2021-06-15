@@ -20,8 +20,8 @@ using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Configuration.ConfigProvider;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Proxy;
-using Yarp.ReverseProxy.Proxy.Tests;
+using Yarp.ReverseProxy.Forwarder;
+using Yarp.ReverseProxy.Forwarder.Tests;
 using Yarp.ReverseProxy.Routing;
 using Yarp.ReverseProxy.Utilities;
 
@@ -193,7 +193,7 @@ namespace Yarp.ReverseProxy.Management.Tests
             Assert.Equal(Encoding.UTF8.WebName, clusterModel.Config.HttpClient.RequestHeaderEncoding);
 #endif
 
-            var handler = ProxyHttpClientFactoryTests.GetHandler(clusterModel.HttpClient);
+            var handler = ForwarderHttpClientFactoryTests.GetHandler(clusterModel.HttpClient);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, handler.SslOptions.EnabledSslProtocols);
             Assert.Equal(10, handler.MaxConnectionsPerServer);
 #if NET
@@ -257,7 +257,7 @@ namespace Yarp.ReverseProxy.Management.Tests
                 {
                     { "d1", new DestinationConfig { Address = TestAddress } }
                 },
-                HttpRequest = new RequestProxyConfig() { Version = new Version(1, 2) }
+                HttpRequest = new ForwarderRequestConfig() { Version = new Version(1, 2) }
             };
 
             var services = CreateServices(new List<RouteConfig>(), new List<ClusterConfig>() { cluster });

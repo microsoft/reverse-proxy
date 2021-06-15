@@ -11,7 +11,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Xunit;
 using Yarp.ReverseProxy.LoadBalancing;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Configuration.Tests
 {
@@ -90,7 +90,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                     RequestHeaderEncoding = Encoding.UTF8.WebName
 #endif
                 },
-                HttpRequest = new RequestProxyConfig
+                HttpRequest = new ForwarderRequestConfig
                 {
                     Timeout = TimeSpan.FromSeconds(60),
                     Version = Version.Parse("1.0"),
@@ -171,7 +171,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                     RequestHeaderEncoding = Encoding.UTF8.WebName
 #endif
                 },
-                HttpRequest = new RequestProxyConfig
+                HttpRequest = new ForwarderRequestConfig
                 {
                     Timeout = TimeSpan.FromSeconds(60),
                     Version = Version.Parse("1.0"),
@@ -259,7 +259,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                     DangerousAcceptAnyServerCertificate = true,
                     ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
                 },
-                HttpRequest = new RequestProxyConfig
+                HttpRequest = new ForwarderRequestConfig
                 {
                     Timeout = TimeSpan.FromSeconds(60),
                     Version = Version.Parse("1.0"),
@@ -305,7 +305,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                     ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
                 }
             }));
-            Assert.False(config1.Equals(config1 with { HttpRequest = new RequestProxyConfig() { } }));
+            Assert.False(config1.Equals(config1 with { HttpRequest = new ForwarderRequestConfig() { } }));
             Assert.False(config1.Equals(config1 with { Metadata = null }));
         }
 
@@ -377,7 +377,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                         UseDefaultCredentials = false,
                     }
                 },
-                HttpRequest = new RequestProxyConfig
+                HttpRequest = new ForwarderRequestConfig
                 {
                     Timeout = TimeSpan.FromSeconds(60),
                     Version = Version.Parse("1.0"),
