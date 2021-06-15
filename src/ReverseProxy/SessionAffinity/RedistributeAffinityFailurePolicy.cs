@@ -13,7 +13,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
     {
         public string Name => SessionAffinityConstants.FailurePolicies.Redistribute;
 
-        public Task<bool> Handle(ClusterState cluster, AffinityStatus affinityStatus, HttpContext context)
+        public Task<bool> Handle(HttpContext context, ClusterState cluster, AffinityStatus affinityStatus)
         {
             if (affinityStatus == AffinityStatus.OK
                 || affinityStatus == AffinityStatus.AffinityKeyNotSet)

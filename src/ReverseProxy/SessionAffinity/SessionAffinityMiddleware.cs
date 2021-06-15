@@ -68,7 +68,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
                 case AffinityStatus.DestinationNotFound:
 
                     var failurePolicy = _affinityFailurePolicies.GetRequiredServiceById(config.FailurePolicy, SessionAffinityConstants.FailurePolicies.Redistribute);
-                    var keepProcessing = await failurePolicy.Handle(proxyFeature.Route.Cluster!, affinityResult.Status, context);
+                    var keepProcessing = await failurePolicy.Handle(context, proxyFeature.Route.Cluster!, affinityResult.Status);
 
                     if (!keepProcessing)
                     {
