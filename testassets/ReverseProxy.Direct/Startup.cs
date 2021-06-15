@@ -59,7 +59,7 @@ namespace Yarp.ReverseProxy.Sample
                 endpoints.Map("/{**catch-all}", async httpContext =>
                 {
                     await httpProxy.SendAsync(httpContext, "https://example.com", httpClient, requestOptions, transformer);
-                    var errorFeature = httpContext.GetProxyErrorFeature();
+                    var errorFeature = httpContext.GetForwarderErrorFeature();
                     if (errorFeature != null)
                     {
                         var error = errorFeature.Error;

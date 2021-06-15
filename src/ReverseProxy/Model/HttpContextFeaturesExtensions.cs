@@ -46,7 +46,7 @@ namespace Microsoft.AspNetCore.Http
         /// <summary>
         /// Retrieves the <see cref="IForwarderErrorFeature"/> instance associated with the current request, if any.
         /// </summary>
-        public static IForwarderErrorFeature? GetProxyErrorFeature(this HttpContext context)
+        public static IForwarderErrorFeature? GetForwarderErrorFeature(this HttpContext context)
         {
             return context.Features.Get<IForwarderErrorFeature>();
         }
