@@ -21,8 +21,6 @@ namespace Yarp.ReverseProxy.LoadBalancing
         /// <summary>
         /// Picks a destination to send traffic to.
         /// </summary>
-        DestinationState? PickDestination(
-            HttpContext context,
-            IReadOnlyList<DestinationState> availableDestinations);
+        DestinationState? PickDestination(HttpContext context, ClusterState cluster, IReadOnlyList<DestinationState> availableDestinations);
     }
 }

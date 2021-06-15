@@ -40,7 +40,7 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
 
             for (var i = 0; i < 10; i++)
             {
-                var result = loadBalancer.PickDestination(context, destinations);
+                var result = loadBalancer.PickDestination(context, cluster: null, availableDestinations: destinations);
                 Assert.Same(destinations[0], result);
                 result.ConcurrentRequestCount++;
             }
@@ -65,7 +65,7 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
 
             for (var i = 0; i < Iterations; i++)
             {
-                var result = loadBalancer.PickDestination(context, destinations);
+                var result = loadBalancer.PickDestination(context, cluster: null, availableDestinations: destinations);
                 Assert.Same(destinations[RandomInstance.Sequence[i]], result);
                 result.ConcurrentRequestCount++;
             }
@@ -91,7 +91,7 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
 
             for (var i = 0; i < Iterations; i++)
             {
-                var result = loadBalancer.PickDestination(context, destinations);
+                var result = loadBalancer.PickDestination(context, cluster: null, availableDestinations: destinations);
                 var first = destinations[RandomInstance.Sequence[i * 2]];
                 var second = destinations[RandomInstance.Sequence[i * 2 + 1]];
                 var expected = first.ConcurrentRequestCount <= second.ConcurrentRequestCount ? first : second;
@@ -116,7 +116,7 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
 
             for (var i = 0; i < 10; i++)
             {
-                var result = loadBalancer.PickDestination(context, destinations);
+                var result = loadBalancer.PickDestination(context, cluster: null, availableDestinations: destinations);
                 Assert.Same(destinations.OrderBy(d => d.ConcurrentRequestCount).First(), result);
                 result.ConcurrentRequestCount++;
             }
@@ -146,7 +146,7 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
 
             for (var i = 0; i < 10; i++)
             {
-                var result = loadBalancer.PickDestination(context, destinations);
+                var result = loadBalancer.PickDestination(context, cluster: null, availableDestinations: destinations);
                 Assert.Same(destinations[i % destinations.Length], result);
                 result.ConcurrentRequestCount++;
             }

@@ -133,7 +133,7 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
                 .Setup(p => p.Name)
                 .Returns(PolicyName);
             policy
-                .Setup(p => p.PickDestination(It.IsAny<HttpContext>(), It.IsAny<IReadOnlyList<DestinationState>>()))
+                .Setup(p => p.PickDestination(It.IsAny<HttpContext>(), It.IsAny<ClusterState>(), It.IsAny<IReadOnlyList<DestinationState>>()))
                 .Returns((DestinationState)null);
 
             var sut = CreateMiddleware(context =>
@@ -168,14 +168,14 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
                 .Setup(p => p.Name)
                 .Returns(LoadBalancingPolicies.PowerOfTwoChoices);
             policy
-                .Setup(p => p.PickDestination(It.IsAny<HttpContext>(), It.IsAny<IReadOnlyList<DestinationState>>()))
+                .Setup(p => p.PickDestination(It.IsAny<HttpContext>(), It.IsAny<ClusterState>(), It.IsAny<IReadOnlyList<DestinationState>>()))
                 .Returns((DestinationState)destinations[0]);
 
             var sut = CreateMiddleware(_ => Task.CompletedTask, policy.Object);
 
             await sut.Invoke(context);
 
-            policy.Verify(p => p.PickDestination(context, destinations), Times.Once);
+            policy.Verify(p => p.PickDestination(context, It.IsAny<ClusterState>(), destinations), Times.Once);
         }
 
         private static HttpContext CreateContext(string loadBalancingPolicy, IReadOnlyList<DestinationState> destinations)
@@ -188,16 +188,17 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
 
             var context = new DefaultHttpContext();
 
+            var route = new RouteModel(new RouteConfig(), cluster, HttpTransformer.Default);
             context.Features.Set<IReverseProxyFeature>(
                 new ReverseProxyFeature()
                 {
                     AvailableDestinations = destinations,
+                    Route = route,
                     Cluster = cluster.Model
                 });
             context.Features.Set(cluster);
 
-            var routeConfig = new RouteModel(new RouteConfig(), cluster, HttpTransformer.Default);
-            var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeConfig), string.Empty);
+            var endpoint = new Endpoint(default, new EndpointMetadataCollection(route), string.Empty);
             context.SetEndpoint(endpoint);
 
             return context;
