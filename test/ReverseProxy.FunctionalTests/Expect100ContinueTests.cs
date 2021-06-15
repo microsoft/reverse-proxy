@@ -18,12 +18,15 @@ namespace Yarp.ReverseProxy
     public class Expect100ContinueTests
     {
         [Theory]
-        [InlineData(HttpProtocols.Http1, true, 100)]
-        [InlineData(HttpProtocols.Http1, false, 100)]
-        [InlineData(HttpProtocols.Http2, true, 100)]
-        [InlineData(HttpProtocols.Http2, false, 100)]
-        [InlineData(HttpProtocols.Http1, true, 400)]
-        public async Task PostExpect100_BodyAlwaysUploaded(HttpProtocols protocol, bool useContentLength, int destResponseCode)
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, 200)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, 200)]
+        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, 200)]
+        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false, 200)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, 400)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, 400)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, 400)]
+        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, 400)]
+        public async Task PostExpect100_BodyAlwaysUploaded(HttpProtocols proxyProtocol, HttpProtocols destProtocol, bool useContentLength, int destResponseCode)
         {
             var headerTcs = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
             var bodyTcs = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -32,7 +35,12 @@ namespace Yarp.ReverseProxy
             var test = new TestEnvironment(
                 async context =>
                 {
-                    if (context.Request.Headers.TryGetValue(HeaderNames.Expect, out var expectHeader))
+                    if ((context.Request.Protocol == "HTTP/1.1" && destProtocol != HttpProtocols.Http1)
+                        || (context.Request.Protocol == "HTTP/2.0" && destProtocol != HttpProtocols.Http2))
+                    {
+                        headerTcs.SetException(new Exception($"Unexpected request protocol {context.Request.Protocol}"));
+                    }
+                    else if (context.Request.Headers.TryGetValue(HeaderNames.Expect, out var expectHeader))
                     {
                         headerTcs.SetResult(expectHeader);
                     }
@@ -41,30 +49,52 @@ namespace Yarp.ReverseProxy
                         headerTcs.SetException(new Exception("Missing 'Expect' header in request"));
                     }
 
-                    context.Response.StatusCode = destResponseCode;
-                    if (destResponseCode == 100)
+                    if (destResponseCode == 200)
                     {
+                        // 100 response code is sent automatically on reading Body.
                         await ReadContent(context, bodyTcs, contentString);
-                        context.Response.StatusCode = 200;
                     }
+                    context.Response.StatusCode = destResponseCode;
                     await context.Response.CompleteAsync();
                 },
                 proxyBuilder => { },
                 proxyApp => { },
-                proxyProtocol: protocol);
+                proxyProtocol: proxyProtocol,
+                useHttpsOnDestination: true,
+                configTransformer: (c, r) =>
+                {
+                    c = c with
+                    {
+                        HttpRequest = new Proxy.RequestProxyConfig
+                        {
+                            Version = destProtocol == HttpProtocols.Http2 ? HttpVersion.Version20 : HttpVersion.Version11,
+#if NET
+                            VersionPolicy = HttpVersionPolicy.RequestVersionExact
+#endif
+                        }
+                    };
+                    return (c, r);
+                });
 
             await test.Invoke(async uri =>
             {
-                await ProcessHttpRequest(new Uri(uri), protocol, contentString, useContentLength, destResponseCode == 100 ? 200 : destResponseCode);
+                await ProcessHttpRequest(new Uri(uri), proxyProtocol, contentString, useContentLength, destResponseCode);
 
                 Assert.True(headerTcs.Task.IsCompleted);
                 var expectHeader = await headerTcs.Task;
                 var expectValue = Assert.Single(expectHeader);
                 Assert.Equal("100-continue", expectValue);
 
-                Assert.True(bodyTcs.Task.IsCompleted);
-                var actualString = await bodyTcs.Task;
-                Assert.Equal(contentString, actualString);
+                if (destResponseCode == 200)
+                {
+                    Assert.True(bodyTcs.Task.IsCompleted);
+                    var actualString = await bodyTcs.Task;
+                    Assert.Equal(contentString, actualString);
+                }
+                else
+                {
+                    Assert.False(bodyTcs.Task.IsCompleted);
+                }
             });
         }
 
@@ -118,7 +148,14 @@ namespace Yarp.ReverseProxy
             using var response = await client.SendAsync(message);
 
             Assert.Equal((int)response.StatusCode, expectedCode);
-            Assert.Equal(content.Length, contentStream.Position);
+            if (expectedCode == 200)
+            {
+                Assert.Equal(content.Length, contentStream.Position);
+            }
+            else
+            {
+                Assert.Equal(0, contentStream.Position);
+            }
         }
     }
 }

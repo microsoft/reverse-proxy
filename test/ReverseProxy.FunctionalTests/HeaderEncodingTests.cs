@@ -170,7 +170,8 @@ namespace Yarp.ReverseProxy
                             throw;
                         }
                     });
-                });
+                },
+                (c,r) => (c,r));
 
             await proxy.StartAsync();
 
