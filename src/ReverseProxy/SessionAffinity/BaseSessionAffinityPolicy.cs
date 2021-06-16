@@ -26,7 +26,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
 
         public abstract string Name { get; }
 
-        public virtual void AffinitizeResponse(HttpContext context, SessionAffinityConfig config, DestinationState destination)
+        public virtual void AffinitizeResponse(HttpContext context, ClusterState cluster, SessionAffinityConfig config, DestinationState destination)
         {
             if (!config.Enabled.GetValueOrDefault())
             {

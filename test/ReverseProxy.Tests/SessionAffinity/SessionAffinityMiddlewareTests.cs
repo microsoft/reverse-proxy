@@ -153,7 +153,8 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 {
                     policy.Setup(p => p.FindAffinitizedDestinations(
                         It.IsAny<HttpContext>(),
-                        It.IsAny<ClusterState>(), ClusterConfig.Config.SessionAffinity,
+                        It.IsAny<ClusterState>(),
+                        ClusterConfig.Config.SessionAffinity,
                         expectedDestinations))
                     .Returns(new AffinityResult(destinations, status.Value))
                     .Callback(() => callback(policy.Object));
@@ -162,6 +163,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 {
                     policy.Setup(p => p.AffinitizeResponse(
                         It.IsAny<HttpContext>(),
+                        It.IsAny<ClusterState>(),
                         ClusterConfig.Config.SessionAffinity,
                         expectedDestinations[0]))
                     .Callback(() => callback(policy.Object));

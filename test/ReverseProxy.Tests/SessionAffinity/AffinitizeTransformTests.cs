@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Transforms;
 
@@ -21,7 +22,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             var cluster = GetCluster();
             var destination = cluster.Destinations.Values.First();
             var provider = new Mock<ISessionAffinityPolicy>(MockBehavior.Strict);
-            provider.Setup(p => p.AffinitizeResponse(It.IsAny<HttpContext>(), It.IsNotNull<SessionAffinityConfig>(), It.IsAny<DestinationState>()));
+            provider.Setup(p => p.AffinitizeResponse(It.IsAny<HttpContext>(), It.IsAny<ClusterState>(), It.IsNotNull<SessionAffinityConfig>(), It.IsAny<DestinationState>()));
 
             var transform = new AffinitizeTransform(provider.Object);
 
@@ -29,6 +30,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             context.Features.Set<IReverseProxyFeature>(new ReverseProxyFeature()
             {
                 Cluster = cluster.Model,
+                Route = new RouteModel(new RouteConfig(), cluster, HttpTransformer.Default),
                 ProxiedDestination = destination,
             });
 

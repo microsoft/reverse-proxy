@@ -91,7 +91,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         {
             var dataProtector = GetDataProtector();
             var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseSessionAffinityPolicy<string>>().Object);
-            Assert.Throws<InvalidOperationException>(() => provider.AffinitizeResponse(new DefaultHttpContext(), new SessionAffinityConfig(), new DestinationState("id")));
+            Assert.Throws<InvalidOperationException>(() => provider.AffinitizeResponse(new DefaultHttpContext(), new ClusterState("cluster"), new SessionAffinityConfig(), new DestinationState("id")));
         }
 
         [Fact]
@@ -101,7 +101,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseSessionAffinityPolicy<string>>().Object);
             var context = new DefaultHttpContext();
             provider.DirectlySetExtractedKeyOnContext(context, "ExtractedKey");
-            provider.AffinitizeResponse(context, _defaultOptions, new DestinationState("id"));
+            provider.AffinitizeResponse(context, new ClusterState("cluster"), _defaultOptions, new DestinationState("id"));
             Assert.Null(provider.LastSetEncryptedKey);
             dataProtector.Verify(p => p.Protect(It.IsAny<byte[]>()), Times.Never);
         }
@@ -112,7 +112,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             var dataProtector = GetDataProtector();
             var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseSessionAffinityPolicy<string>>().Object);
             var destination = new DestinationState("dest-A");
-            provider.AffinitizeResponse(new DefaultHttpContext(), _defaultOptions, destination);
+            provider.AffinitizeResponse(new DefaultHttpContext(), new ClusterState("cluster"), _defaultOptions, destination);
             Assert.Equal("ZGVzdC1B", provider.LastSetEncryptedKey);
             var keyBytes = Encoding.UTF8.GetBytes(destination.DestinationId);
             dataProtector.Verify(p => p.Protect(It.Is<byte[]>(b => b.SequenceEqual(keyBytes))), Times.Once);

@@ -32,8 +32,9 @@ namespace Yarp.ReverseProxy.SessionAffinity
         /// Affinitize the current response to the given <see cref="DestinationState"/> by setting the affinity key extracted from <see cref="DestinationState"/>.
         /// </summary>
         /// <param name="context">Current request's context.</param>
+        /// <param name="cluster">Current request's cluster.</param>
         /// <param name="config">Affinity config.</param>
         /// <param name="destination"><see cref="DestinationState"/> to which request is to be affinitized.</param>
-        void AffinitizeResponse(HttpContext context, SessionAffinityConfig config, DestinationState destination);
+        void AffinitizeResponse(HttpContext context, ClusterState cluster, SessionAffinityConfig config, DestinationState destination);
     }
 }

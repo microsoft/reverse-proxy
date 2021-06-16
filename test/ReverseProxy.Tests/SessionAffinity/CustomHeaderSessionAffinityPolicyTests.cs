@@ -63,7 +63,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             var chosenDestination = _destinations[1];
             var expectedAffinityHeaderValue = chosenDestination.DestinationId.ToUTF8BytesInBase64();
 
-            policy.AffinitizeResponse(context, _defaultOptions, chosenDestination);
+            policy.AffinitizeResponse(context, new ClusterState("cluster"), _defaultOptions, chosenDestination);
 
             Assert.True(context.Response.Headers.ContainsKey(AffinityHeaderName));
             Assert.Equal(expectedAffinityHeaderValue, context.Response.Headers[AffinityHeaderName]);
@@ -83,7 +83,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
 
             Assert.Equal(AffinityStatus.OK, affinityResult.Status);
 
-            policy.AffinitizeResponse(context, _defaultOptions, affinitizedDestination);
+            policy.AffinitizeResponse(context, cluster, _defaultOptions, affinitizedDestination);
 
             Assert.False(context.Response.Headers.ContainsKey(AffinityHeaderName));
         }

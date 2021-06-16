@@ -80,7 +80,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 AffinityTestHelper.GetLogger<CookieSessionAffinityPolicy>().Object);
             var context = new DefaultHttpContext();
 
-            policy.AffinitizeResponse(context, _config, _destinations[1]);
+            policy.AffinitizeResponse(context, new ClusterState("cluster"), _config, _destinations[1]);
 
             var affinityCookieHeader = context.Response.Headers["Set-Cookie"];
             Assert.Equal("My.Affinity=ZGVzdC1C; max-age=3600; domain=mydomain.my; path=/some; secure; samesite=lax", affinityCookieHeader);
@@ -95,7 +95,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 AffinityTestHelper.GetLogger<CookieSessionAffinityPolicy>().Object);
             var context = new DefaultHttpContext();
 
-            policy.AffinitizeResponse(context, _config, _destinations[1]);
+            policy.AffinitizeResponse(context, new ClusterState("cluster"), _config, _destinations[1]);
 
             var affinityCookieHeader = context.Response.Headers["Set-Cookie"];
             Assert.Equal("My.Affinity=ZGVzdC1C; max-age=3600; domain=mydomain.my; path=/some; secure; samesite=lax", affinityCookieHeader);
@@ -117,7 +117,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
 
             Assert.Equal(AffinityStatus.OK, affinityResult.Status);
 
-            policy.AffinitizeResponse(context, _config, affinitizedDestination);
+            policy.AffinitizeResponse(context, cluster, _config, affinitizedDestination);
 
             Assert.False(context.Response.Headers.ContainsKey("Cookie"));
         }
