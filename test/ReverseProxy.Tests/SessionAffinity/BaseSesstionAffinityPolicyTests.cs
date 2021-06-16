@@ -43,7 +43,8 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             var dataProtector = GetDataProtector();
             var logger = AffinityTestHelper.GetLogger<BaseSessionAffinityPolicy<string>>();
             var provider = new ProviderStub(dataProtector.Object, logger.Object);
-            var affinityResult = provider.FindAffinitizedDestinations(context, allDestinations, "cluster-1", _defaultOptions);
+            var cluster = new ClusterState("cluster");
+            var affinityResult = provider.FindAffinitizedDestinations(context, cluster, _defaultOptions, allDestinations);
 
             if(unprotectCalled)
             {
@@ -81,7 +82,8 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 FailurePolicy = _defaultOptions.FailurePolicy,
                 AffinityKeyName = _defaultOptions.AffinityKeyName
             };
-            Assert.Throws<InvalidOperationException>(() => provider.FindAffinitizedDestinations(new DefaultHttpContext(), new[] { new DestinationState("1") }, "cluster-1", options));
+            var cluster = new ClusterState("cluster");
+            Assert.Throws<InvalidOperationException>(() => provider.FindAffinitizedDestinations(new DefaultHttpContext(), cluster, options, new[] { new DestinationState("1") }));
         }
 
         [Fact]

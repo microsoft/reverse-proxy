@@ -41,11 +41,11 @@ namespace Yarp.ReverseProxy.SessionAffinity
             }
         }
 
-        public virtual AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationState> destinations, string clusterId, SessionAffinityConfig config)
+        public virtual AffinityResult FindAffinitizedDestinations(HttpContext context, ClusterState cluster, SessionAffinityConfig config, IReadOnlyList<DestinationState> destinations)
         {
             if (!config.Enabled.GetValueOrDefault())
             {
-                throw new InvalidOperationException($"Session affinity is disabled for cluster {clusterId}.");
+                throw new InvalidOperationException($"Session affinity is disabled for cluster {cluster.ClusterId}.");
             }
 
             var requestAffinityKey = GetRequestAffinityKey(context, config);
@@ -72,12 +72,12 @@ namespace Yarp.ReverseProxy.SessionAffinity
 
                 if (matchingDestinations == null)
                 {
-                    Log.DestinationMatchingToAffinityKeyNotFound(Logger, clusterId);
+                    Log.DestinationMatchingToAffinityKeyNotFound(Logger, cluster.ClusterId);
                 }
             }
             else
             {
-                Log.AffinityCannotBeEstablishedBecauseNoDestinationsFound(Logger, clusterId);
+                Log.AffinityCannotBeEstablishedBecauseNoDestinationsFound(Logger, cluster.ClusterId);
             }
 
             // Empty destination list passed to this method is handled the same way as if no matching destinations are found.

@@ -49,8 +49,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             var policies = RegisterAffinityPolicies(
                 true,
                 cluster.Destinations.Values.ToList(),
-                cluster.ClusterId,
-                ("Policy-A", AffinityStatus.DestinationNotFound, (DestinationState)null, (Action<ISessionAffinityPolicy>)(p => throw new InvalidOperationException($"Provider {p.Name} call is not expected."))),
+                ("Policy-A", AffinityStatus.DestinationNotFound, (DestinationState)null, (Action<ISessionAffinityPolicy>)(p => throw new InvalidOperationException($"Policy {p.Name} call is not expected."))),
                 (expectedMode, status, foundDestination, p => invokedMode = p.Name));
             var nextInvoked = false;
             var middleware = new SessionAffinityMiddleware(c => {
@@ -61,7 +60,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 new Mock<ILogger<SessionAffinityMiddleware>>().Object);
             var context = new DefaultHttpContext();
             context.SetEndpoint(endpoint);
-            var destinationFeature = GetDestinationsFeature(cluster.Destinations.Values.ToList(), cluster.Model);
+            var destinationFeature = GetReverseProxyFeature(cluster);
             context.Features.Set(destinationFeature);
 
             await middleware.Invoke(context);
@@ -92,7 +91,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         {
             var cluster = GetCluster();
             var endpoint = GetEndpoint(cluster);
-            var policies = RegisterAffinityPolicies(true, cluster.Destinations.Values.ToList(), cluster.ClusterId, ("Policy-B", affinityStatus, null, _ => { }));
+            var policies = RegisterAffinityPolicies(true, cluster.Destinations.Values.ToList(), ("Policy-B", affinityStatus, null, _ => { }));
             var invokedPolicy = string.Empty;
             const string expectedPolicy = "Policy-1";
             var failurePolicies = RegisterFailurePolicies(
@@ -108,7 +107,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 policies.Select(p => p.Object), failurePolicies.Select(p => p.Object),
                 logger.Object);
             var context = new DefaultHttpContext();
-            var destinationFeature = GetDestinationsFeature(cluster.Destinations.Values.ToList(), cluster.Model);
+            var destinationFeature = GetReverseProxyFeature(cluster);
 
             context.SetEndpoint(endpoint);
             context.Features.Set(destinationFeature);
@@ -143,7 +142,6 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         internal IReadOnlyList<Mock<ISessionAffinityPolicy>> RegisterAffinityPolicies(
             bool lookupMiddlewareTest,
             IReadOnlyList<DestinationState> expectedDestinations,
-            string expectedCluster,
             params (string Mode, AffinityStatus? Status, DestinationState Destinations, Action<ISessionAffinityPolicy> Callback)[] prototypes)
         {
             var result = new List<Mock<ISessionAffinityPolicy>>();
@@ -155,9 +153,8 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 {
                     policy.Setup(p => p.FindAffinitizedDestinations(
                         It.IsAny<HttpContext>(),
-                        expectedDestinations,
-                        expectedCluster,
-                        ClusterConfig.Config.SessionAffinity))
+                        It.IsAny<ClusterState>(), ClusterConfig.Config.SessionAffinity,
+                        expectedDestinations))
                     .Returns(new AffinityResult(destinations, status.Value))
                     .Callback(() => callback(policy.Object));
                 }
@@ -189,13 +186,13 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             return result.AsReadOnly();
         }
 
-        internal IReverseProxyFeature GetDestinationsFeature(IReadOnlyList<DestinationState> destinations, ClusterModel clusterModel)
+        internal IReverseProxyFeature GetReverseProxyFeature(ClusterState cluster)
         {
             return new ReverseProxyFeature()
             {
-                AvailableDestinations = destinations,
-                Route = new RouteModel(new RouteConfig(), cluster: null, HttpTransformer.Default),
-                Cluster = clusterModel,
+                AvailableDestinations = cluster.Destinations.Values.ToList(),
+                Route = new RouteModel(new RouteConfig(), cluster: cluster, HttpTransformer.Default),
+                Cluster = cluster.Model,
             };
         }
 

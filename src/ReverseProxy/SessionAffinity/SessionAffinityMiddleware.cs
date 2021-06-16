@@ -38,23 +38,23 @@ namespace Yarp.ReverseProxy.SessionAffinity
         {
             var proxyFeature = context.GetReverseProxyFeature();
 
-            var cluster = proxyFeature.Cluster.Config;
-            var config = cluster.SessionAffinity;
+            var config = proxyFeature.Cluster.Config.SessionAffinity;
 
             if (config == null || !config.Enabled.GetValueOrDefault())
             {
                 return _next(context);
             }
 
-            return InvokeInternal(context, proxyFeature, config, cluster.ClusterId);
+            return InvokeInternal(context, proxyFeature, config);
         }
 
-        private async Task InvokeInternal(HttpContext context, IReverseProxyFeature proxyFeature, SessionAffinityConfig config, string clusterId)
+        private async Task InvokeInternal(HttpContext context, IReverseProxyFeature proxyFeature, SessionAffinityConfig config)
         {
             var destinations = proxyFeature.AvailableDestinations;
+            var cluster = proxyFeature.Route.Cluster!;
 
             var policy = _sessionAffinityPolicies.GetRequiredServiceById(config.Policy, SessionAffinityConstants.Policies.Cookie);
-            var affinityResult = policy.FindAffinitizedDestinations(context, destinations, clusterId, config);
+            var affinityResult = policy.FindAffinitizedDestinations(context, cluster, config, destinations);
 
             switch (affinityResult.Status)
             {
@@ -74,11 +74,11 @@ namespace Yarp.ReverseProxy.SessionAffinity
                     {
                         // Policy reported the failure is unrecoverable and took the full responsibility for its handling,
                         // so we simply stop processing.
-                        Log.AffinityResolutionFailedForCluster(_logger, clusterId);
+                        Log.AffinityResolutionFailedForCluster(_logger, cluster.ClusterId);
                         return;
                     }
 
-                    Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, clusterId, failurePolicy.Name);
+                    Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, cluster.ClusterId, failurePolicy.Name);
 
                     break;
                 default:

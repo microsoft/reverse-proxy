@@ -30,8 +30,9 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
 
             var context = new DefaultHttpContext();
             context.Request.Headers["SomeHeader"] = new[] { "SomeValue" };
+            var cluster = new ClusterState("cluster");
 
-            var affinityResult = policy.FindAffinitizedDestinations(context, _destinations, "cluster-1", _defaultOptions);
+            var affinityResult = policy.FindAffinitizedDestinations(context, cluster, _defaultOptions, _destinations);
 
             Assert.Equal(AffinityStatus.AffinityKeyNotSet, affinityResult.Status);
             Assert.Null(affinityResult.Destinations);
@@ -45,8 +46,9 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             context.Request.Headers["SomeHeader"] = new[] { "SomeValue" };
             var affinitizedDestination = _destinations[1];
             context.Request.Headers[AffinityHeaderName] = new[] { affinitizedDestination.DestinationId.ToUTF8BytesInBase64() };
+            var cluster = new ClusterState("cluster");
 
-            var affinityResult = policy.FindAffinitizedDestinations(context, _destinations, "cluster-1", _defaultOptions);
+            var affinityResult = policy.FindAffinitizedDestinations(context, cluster, _defaultOptions, _destinations);
 
             Assert.Equal(AffinityStatus.OK, affinityResult.Status);
             Assert.Equal(1, affinityResult.Destinations.Count);
@@ -75,8 +77,9 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             context.Request.Headers["SomeHeader"] = new[] { "SomeValue" };
             var affinitizedDestination = _destinations[1];
             context.Request.Headers[AffinityHeaderName] = new[] { affinitizedDestination.DestinationId.ToUTF8BytesInBase64() };
+            var cluster = new ClusterState("cluster");
 
-            var affinityResult = policy.FindAffinitizedDestinations(context, _destinations, "cluster-1", _defaultOptions);
+            var affinityResult = policy.FindAffinitizedDestinations(context, cluster, _defaultOptions, _destinations);
 
             Assert.Equal(AffinityStatus.OK, affinityResult.Status);
 
