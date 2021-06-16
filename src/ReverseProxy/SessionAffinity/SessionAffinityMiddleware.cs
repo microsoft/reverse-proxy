@@ -18,19 +18,19 @@ namespace Yarp.ReverseProxy.SessionAffinity
     internal sealed class SessionAffinityMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
+        private readonly IDictionary<string, ISessionAffinityPolicy> _sessionAffinityPolicies;
         private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
         private readonly ILogger _logger;
 
         public SessionAffinityMiddleware(
             RequestDelegate next,
-            IEnumerable<ISessionAffinityProvider> sessionAffinityProviders,
+            IEnumerable<ISessionAffinityPolicy> sessionAffinityPolicies,
             IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
             ILogger<SessionAffinityMiddleware> logger)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _sessionAffinityProviders = sessionAffinityProviders?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
+            _sessionAffinityPolicies = sessionAffinityPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(sessionAffinityPolicies));
             _affinityFailurePolicies = affinityFailurePolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
         }
 
@@ -53,8 +53,8 @@ namespace Yarp.ReverseProxy.SessionAffinity
         {
             var destinations = proxyFeature.AvailableDestinations;
 
-            var currentProvider = _sessionAffinityProviders.GetRequiredServiceById(config.Provider, SessionAffinityConstants.Providers.Cookie);
-            var affinityResult = currentProvider.FindAffinitizedDestinations(context, destinations, clusterId, config);
+            var policy = _sessionAffinityPolicies.GetRequiredServiceById(config.Policy, SessionAffinityConstants.Policies.Cookie);
+            var affinityResult = policy.FindAffinitizedDestinations(context, destinations, clusterId, config);
 
             switch (affinityResult.Status)
             {

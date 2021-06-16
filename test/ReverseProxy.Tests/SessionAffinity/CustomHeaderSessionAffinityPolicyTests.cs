@@ -9,13 +9,13 @@ using Yarp.ReverseProxy.Model;
 
 namespace Yarp.ReverseProxy.SessionAffinity.Tests
 {
-    public class CustomHeaderSessionAffinityProviderTests
+    public class CustomHeaderSessionAffinityPolicyTests
     {
         private const string AffinityHeaderName = "X-MyAffinity";
         private readonly SessionAffinityConfig _defaultOptions = new SessionAffinityConfig
         {
             Enabled = true,
-            Provider = "Cookie",
+            Policy = "Cookie",
             FailurePolicy = "Return503",
             AffinityKeyName = AffinityHeaderName
         };
@@ -24,14 +24,14 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         [Fact]
         public void FindAffinitizedDestination_AffinityKeyIsNotSetOnRequest_ReturnKeyNotSet()
         {
-            var provider = new CustomHeaderSessionAffinityProvider(AffinityTestHelper.GetDataProtector().Object, AffinityTestHelper.GetLogger<CustomHeaderSessionAffinityProvider>().Object);
+            var policy = new CustomHeaderSessionAffinityPolicy(AffinityTestHelper.GetDataProtector().Object, AffinityTestHelper.GetLogger<CustomHeaderSessionAffinityPolicy>().Object);
 
-            Assert.Equal(SessionAffinityConstants.Providers.CustomHeader, provider.Name);
+            Assert.Equal(SessionAffinityConstants.Policies.CustomHeader, policy.Name);
 
             var context = new DefaultHttpContext();
             context.Request.Headers["SomeHeader"] = new[] { "SomeValue" };
 
-            var affinityResult = provider.FindAffinitizedDestinations(context, _destinations, "cluster-1", _defaultOptions);
+            var affinityResult = policy.FindAffinitizedDestinations(context, _destinations, "cluster-1", _defaultOptions);
 
             Assert.Equal(AffinityStatus.AffinityKeyNotSet, affinityResult.Status);
             Assert.Null(affinityResult.Destinations);
@@ -40,13 +40,13 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         [Fact]
         public void FindAffinitizedDestination_AffinityKeyIsSetOnRequest_Success()
         {
-            var provider = new CustomHeaderSessionAffinityProvider(AffinityTestHelper.GetDataProtector().Object, AffinityTestHelper.GetLogger<CustomHeaderSessionAffinityProvider>().Object);
+            var policy = new CustomHeaderSessionAffinityPolicy(AffinityTestHelper.GetDataProtector().Object, AffinityTestHelper.GetLogger<CustomHeaderSessionAffinityPolicy>().Object);
             var context = new DefaultHttpContext();
             context.Request.Headers["SomeHeader"] = new[] { "SomeValue" };
             var affinitizedDestination = _destinations[1];
             context.Request.Headers[AffinityHeaderName] = new[] { affinitizedDestination.DestinationId.ToUTF8BytesInBase64() };
 
-            var affinityResult = provider.FindAffinitizedDestinations(context, _destinations, "cluster-1", _defaultOptions);
+            var affinityResult = policy.FindAffinitizedDestinations(context, _destinations, "cluster-1", _defaultOptions);
 
             Assert.Equal(AffinityStatus.OK, affinityResult.Status);
             Assert.Equal(1, affinityResult.Destinations.Count);
@@ -56,12 +56,12 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         [Fact]
         public void AffinitizedRequest_AffinityKeyIsNotExtracted_SetKeyOnResponse()
         {
-            var provider = new CustomHeaderSessionAffinityProvider(AffinityTestHelper.GetDataProtector().Object, AffinityTestHelper.GetLogger<CustomHeaderSessionAffinityProvider>().Object);
+            var policy = new CustomHeaderSessionAffinityPolicy(AffinityTestHelper.GetDataProtector().Object, AffinityTestHelper.GetLogger<CustomHeaderSessionAffinityPolicy>().Object);
             var context = new DefaultHttpContext();
             var chosenDestination = _destinations[1];
             var expectedAffinityHeaderValue = chosenDestination.DestinationId.ToUTF8BytesInBase64();
 
-            provider.AffinitizeResponse(context, _defaultOptions, chosenDestination);
+            policy.AffinitizeResponse(context, _defaultOptions, chosenDestination);
 
             Assert.True(context.Response.Headers.ContainsKey(AffinityHeaderName));
             Assert.Equal(expectedAffinityHeaderValue, context.Response.Headers[AffinityHeaderName]);
@@ -70,17 +70,17 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         [Fact]
         public void AffinitizedRequest_AffinityKeyIsExtracted_DoNothing()
         {
-            var provider = new CustomHeaderSessionAffinityProvider(AffinityTestHelper.GetDataProtector().Object, AffinityTestHelper.GetLogger<CustomHeaderSessionAffinityProvider>().Object);
+            var policy = new CustomHeaderSessionAffinityPolicy(AffinityTestHelper.GetDataProtector().Object, AffinityTestHelper.GetLogger<CustomHeaderSessionAffinityPolicy>().Object);
             var context = new DefaultHttpContext();
             context.Request.Headers["SomeHeader"] = new[] { "SomeValue" };
             var affinitizedDestination = _destinations[1];
             context.Request.Headers[AffinityHeaderName] = new[] { affinitizedDestination.DestinationId.ToUTF8BytesInBase64() };
 
-            var affinityResult = provider.FindAffinitizedDestinations(context, _destinations, "cluster-1", _defaultOptions);
+            var affinityResult = policy.FindAffinitizedDestinations(context, _destinations, "cluster-1", _defaultOptions);
 
             Assert.Equal(AffinityStatus.OK, affinityResult.Status);
 
-            provider.AffinitizeResponse(context, _defaultOptions, affinitizedDestination);
+            policy.AffinitizeResponse(context, _defaultOptions, affinitizedDestination);
 
             Assert.False(context.Response.Headers.ContainsKey(AffinityHeaderName));
         }

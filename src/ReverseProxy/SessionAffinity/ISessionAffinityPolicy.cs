@@ -11,7 +11,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
     /// <summary>
     /// Provides session affinity for load-balanced clusters.
     /// </summary>
-    public interface ISessionAffinityProvider
+    public interface ISessionAffinityPolicy
     {
         /// <summary>
         ///  A unique identifier for this session affinity implementation. This will be referenced from config.

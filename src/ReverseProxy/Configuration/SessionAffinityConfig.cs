@@ -17,9 +17,9 @@ namespace Yarp.ReverseProxy.Configuration
         public bool? Enabled { get; init; }
 
         /// <summary>
-        /// The session affinity provider to use.
+        /// The session affinity policy to use.
         /// </summary>
-        public string? Provider { get; init; }
+        public string? Policy { get; init; }
 
         /// <summary>
         /// Strategy handling missing destination for an affinitized request.
@@ -28,9 +28,9 @@ namespace Yarp.ReverseProxy.Configuration
 
         /// <summary>
         /// Identifies the name of the field where the affinity value is stored.
-        /// For the cookie affinity provider this will be the cookie name.
-        /// For the header affinity provider this will be the header name.
-        /// The provider will give its own default if no value is set.
+        /// For the cookie affinity policy this will be the cookie name.
+        /// For the header affinity policy this will be the header name.
+        /// The policy will give its own default if no value is set.
         /// This value should be unique across clusters to avoid affinity conflicts.
         /// https://github.com/microsoft/reverse-proxy/issues/976
         /// This field is required.
@@ -39,7 +39,7 @@ namespace Yarp.ReverseProxy.Configuration
 
         /// <summary>
         /// Configuration of a cookie storing the session affinity key in case
-        /// the <see cref="Provider"/> is set to 'Cookie'.
+        /// the <see cref="Policy"/> is set to 'Cookie'.
         /// </summary>
         public SessionAffinityCookieConfig? Cookie { get; init; }
 
@@ -52,7 +52,7 @@ namespace Yarp.ReverseProxy.Configuration
             }
 
             return Enabled == other.Enabled
-                && string.Equals(Provider, other.Provider, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(Policy, other.Policy, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(FailurePolicy, other.FailurePolicy, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(AffinityKeyName, other.AffinityKeyName, StringComparison.Ordinal)
                 && Cookie == other.Cookie;
@@ -62,7 +62,7 @@ namespace Yarp.ReverseProxy.Configuration
         public override int GetHashCode()
         {
             return HashCode.Combine(Enabled,
-                Provider?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                Policy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
                 FailurePolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
                 AffinityKeyName?.GetHashCode(StringComparison.Ordinal),
                 Cookie);

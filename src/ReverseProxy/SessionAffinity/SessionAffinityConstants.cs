@@ -8,7 +8,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
     /// </summary>
     public static class SessionAffinityConstants
     {
-        public static class Providers
+        public static class Policies
         {
             public static string Cookie => nameof(Cookie);
 

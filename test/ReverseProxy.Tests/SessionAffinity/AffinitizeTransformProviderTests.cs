@@ -15,10 +15,10 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         [Fact]
         public void EnableSessionAffinity_AddsTransform()
         {
-            var affinityProvider = new Mock<ISessionAffinityProvider>(MockBehavior.Strict);
-            affinityProvider.SetupGet(p => p.Name).Returns("Provider");
+            var affinityPolicy = new Mock<ISessionAffinityPolicy>(MockBehavior.Strict);
+            affinityPolicy.SetupGet(p => p.Name).Returns("Policy");
 
-            var transformProvider = new AffinitizeTransformProvider(new[] { affinityProvider.Object });
+            var transformProvider = new AffinitizeTransformProvider(new[] { affinityPolicy.Object });
             
             var cluster = new ClusterConfig
             {
@@ -26,7 +26,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 SessionAffinity = new SessionAffinityConfig
                 {
                     Enabled = true,
-                    Provider = "Provider",
+                    Policy = "Policy",
                     AffinityKeyName = "Key1"
                 }
             };
@@ -51,10 +51,10 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         [Fact]
         public void EnableSession_InvalidMode_Fails()
         {
-            var affinityProvider = new Mock<ISessionAffinityProvider>(MockBehavior.Strict);
-            affinityProvider.SetupGet(p => p.Name).Returns("Provider");
+            var affinityPolicy = new Mock<ISessionAffinityPolicy>(MockBehavior.Strict);
+            affinityPolicy.SetupGet(p => p.Name).Returns("Policy");
 
-            var transformProvider = new AffinitizeTransformProvider(new[] { affinityProvider.Object });
+            var transformProvider = new AffinitizeTransformProvider(new[] { affinityPolicy.Object });
 
             var cluster = new ClusterConfig
             {
@@ -62,7 +62,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 SessionAffinity = new SessionAffinityConfig
                 {
                     Enabled = true,
-                    Provider = "Invalid",
+                    Policy = "Invalid",
                     AffinityKeyName = "Key1"
                 }
             };
@@ -74,7 +74,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             transformProvider.ValidateCluster(validationContext);
 
             var ex = Assert.Single(validationContext.Errors);
-            Assert.Equal("No matching ISessionAffinityProvider found for the session affinity provider 'Invalid' set on the cluster 'cluster1'.", ex.Message);
+            Assert.Equal("No matching ISessionAffinityPolicy found for the session affinity policy 'Invalid' set on the cluster 'cluster1'.", ex.Message);
 
             var builderContext = new TransformBuilderContext()
             {
@@ -82,7 +82,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             };
 
             ex = Assert.Throws<ArgumentException>(() => transformProvider.Apply(builderContext));
-            Assert.Equal($"No {typeof(ISessionAffinityProvider).FullName} was found for the id 'Invalid'. (Parameter 'id')", ex.Message);
+            Assert.Equal($"No {typeof(ISessionAffinityPolicy).FullName} was found for the id 'Invalid'. (Parameter 'id')", ex.Message);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             SessionAffinity = new SessionAffinityConfig
             {
                 Enabled = true,
-                Provider = "Provider-B",
+                Policy = "Policy-B",
                 FailurePolicy = "Policy-1",
                 AffinityKeyName = "Key1"
             }
@@ -45,19 +45,19 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 cluster.Destinations.TryGetValue(foundDestinationId, out foundDestination);
             }
             var invokedMode = string.Empty;
-            const string expectedMode = "Provider-B";
-            var providers = RegisterAffinityProviders(
+            const string expectedMode = "Policy-B";
+            var policies = RegisterAffinityPolicies(
                 true,
                 cluster.Destinations.Values.ToList(),
                 cluster.ClusterId,
-                ("Provider-A", AffinityStatus.DestinationNotFound, (DestinationState)null, (Action<ISessionAffinityProvider>)(p => throw new InvalidOperationException($"Provider {p.Name} call is not expected."))),
+                ("Policy-A", AffinityStatus.DestinationNotFound, (DestinationState)null, (Action<ISessionAffinityPolicy>)(p => throw new InvalidOperationException($"Provider {p.Name} call is not expected."))),
                 (expectedMode, status, foundDestination, p => invokedMode = p.Name));
             var nextInvoked = false;
             var middleware = new SessionAffinityMiddleware(c => {
                     nextInvoked = true;
                     return Task.CompletedTask;
                 },
-                providers.Select(p => p.Object), new IAffinityFailurePolicy[0],
+                policies.Select(p => p.Object), new IAffinityFailurePolicy[0],
                 new Mock<ILogger<SessionAffinityMiddleware>>().Object);
             var context = new DefaultHttpContext();
             context.SetEndpoint(endpoint);
@@ -68,9 +68,9 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
 
             Assert.Equal(expectedMode, invokedMode);
             Assert.True(nextInvoked);
-            providers[0].VerifyGet(p => p.Name, Times.Once);
-            providers[0].VerifyNoOtherCalls();
-            providers[1].VerifyAll();
+            policies[0].VerifyGet(p => p.Name, Times.Once);
+            policies[0].VerifyNoOtherCalls();
+            policies[1].VerifyAll();
 
             if (foundDestinationId != null)
             {
@@ -92,7 +92,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         {
             var cluster = GetCluster();
             var endpoint = GetEndpoint(cluster);
-            var providers = RegisterAffinityProviders(true, cluster.Destinations.Values.ToList(), cluster.ClusterId, ("Provider-B", affinityStatus, null, _ => { }));
+            var policies = RegisterAffinityPolicies(true, cluster.Destinations.Values.ToList(), cluster.ClusterId, ("Policy-B", affinityStatus, null, _ => { }));
             var invokedPolicy = string.Empty;
             const string expectedPolicy = "Policy-1";
             var failurePolicies = RegisterFailurePolicies(
@@ -105,7 +105,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                     nextInvoked = true;
                     return Task.CompletedTask;
                 },
-                providers.Select(p => p.Object), failurePolicies.Select(p => p.Object),
+                policies.Select(p => p.Object), failurePolicies.Select(p => p.Object),
                 logger.Object);
             var context = new DefaultHttpContext();
             var destinationFeature = GetDestinationsFeature(cluster.Destinations.Values.ToList(), cluster.Model);
@@ -140,36 +140,36 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             return cluster;
         }
 
-        internal IReadOnlyList<Mock<ISessionAffinityProvider>> RegisterAffinityProviders(
+        internal IReadOnlyList<Mock<ISessionAffinityPolicy>> RegisterAffinityPolicies(
             bool lookupMiddlewareTest,
             IReadOnlyList<DestinationState> expectedDestinations,
             string expectedCluster,
-            params (string Mode, AffinityStatus? Status, DestinationState Destinations, Action<ISessionAffinityProvider> Callback)[] prototypes)
+            params (string Mode, AffinityStatus? Status, DestinationState Destinations, Action<ISessionAffinityPolicy> Callback)[] prototypes)
         {
-            var result = new List<Mock<ISessionAffinityProvider>>();
+            var result = new List<Mock<ISessionAffinityPolicy>>();
             foreach (var (mode, status, destinations, callback) in prototypes)
             {
-                var provider = new Mock<ISessionAffinityProvider>(MockBehavior.Strict);
-                provider.SetupGet(p => p.Name).Returns(mode);
+                var policy = new Mock<ISessionAffinityPolicy>(MockBehavior.Strict);
+                policy.SetupGet(p => p.Name).Returns(mode);
                 if (lookupMiddlewareTest)
                 {
-                    provider.Setup(p => p.FindAffinitizedDestinations(
+                    policy.Setup(p => p.FindAffinitizedDestinations(
                         It.IsAny<HttpContext>(),
                         expectedDestinations,
                         expectedCluster,
                         ClusterConfig.Config.SessionAffinity))
                     .Returns(new AffinityResult(destinations, status.Value))
-                    .Callback(() => callback(provider.Object));
+                    .Callback(() => callback(policy.Object));
                 }
                 else
                 {
-                    provider.Setup(p => p.AffinitizeResponse(
+                    policy.Setup(p => p.AffinitizeResponse(
                         It.IsAny<HttpContext>(),
                         ClusterConfig.Config.SessionAffinity,
                         expectedDestinations[0]))
-                    .Callback(() => callback(provider.Object));
+                    .Callback(() => callback(policy.Object));
                 }
-                result.Add(provider);
+                result.Add(policy);
             }
             return result.AsReadOnly();
         }

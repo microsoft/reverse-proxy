@@ -11,15 +11,15 @@ using Yarp.ReverseProxy.Model;
 
 namespace Yarp.ReverseProxy.SessionAffinity
 {
-    internal sealed class CustomHeaderSessionAffinityProvider : BaseSessionAffinityProvider<string>
+    internal sealed class CustomHeaderSessionAffinityPolicy : BaseSessionAffinityPolicy<string>
     {
-        public CustomHeaderSessionAffinityProvider(
+        public CustomHeaderSessionAffinityPolicy(
             IDataProtectionProvider dataProtectionProvider,
-            ILogger<CustomHeaderSessionAffinityProvider> logger)
+            ILogger<CustomHeaderSessionAffinityPolicy> logger)
             : base(dataProtectionProvider, logger)
         {}
 
-        public override string Name => SessionAffinityConstants.Providers.CustomHeader;
+        public override string Name => SessionAffinityConstants.Policies.CustomHeader;
 
         protected override string GetDestinationAffinityKey(DestinationState destination)
         {

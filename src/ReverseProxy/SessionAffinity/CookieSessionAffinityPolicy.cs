@@ -11,20 +11,20 @@ using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.SessionAffinity
 {
-    internal sealed class CookieSessionAffinityProvider : BaseSessionAffinityProvider<string>
+    internal sealed class CookieSessionAffinityPolicy : BaseSessionAffinityPolicy<string>
     {
         private readonly IClock _clock;
 
-        public CookieSessionAffinityProvider(
+        public CookieSessionAffinityPolicy(
             IDataProtectionProvider dataProtectionProvider,
             IClock clock,
-            ILogger<CookieSessionAffinityProvider> logger)
+            ILogger<CookieSessionAffinityPolicy> logger)
             : base(dataProtectionProvider, logger)
         {
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
         }
 
-        public override string Name => SessionAffinityConstants.Providers.Cookie;
+        public override string Name => SessionAffinityConstants.Policies.Cookie;
 
         protected override string GetDestinationAffinityKey(DestinationState destination)
         {

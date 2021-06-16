@@ -75,15 +75,15 @@ namespace Yarp.ReverseProxy.Management
             return builder;
         }
 
-        public static IReverseProxyBuilder AddSessionAffinityProvider(this IReverseProxyBuilder builder)
+        public static IReverseProxyBuilder AddSessionAffinityPolicies(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddEnumerable(new[] {
                 ServiceDescriptor.Singleton<IAffinityFailurePolicy, RedistributeAffinityFailurePolicy>(),
                 ServiceDescriptor.Singleton<IAffinityFailurePolicy, Return503ErrorAffinityFailurePolicy>()
             });
             builder.Services.TryAddEnumerable(new[] {
-                ServiceDescriptor.Singleton<ISessionAffinityProvider, CookieSessionAffinityProvider>(),
-                ServiceDescriptor.Singleton<ISessionAffinityProvider, CustomHeaderSessionAffinityProvider>()
+                ServiceDescriptor.Singleton<ISessionAffinityPolicy, CookieSessionAffinityPolicy>(),
+                ServiceDescriptor.Singleton<ISessionAffinityPolicy, CustomHeaderSessionAffinityPolicy>()
             });
             builder.AddTransforms<AffinitizeTransformProvider>();
 

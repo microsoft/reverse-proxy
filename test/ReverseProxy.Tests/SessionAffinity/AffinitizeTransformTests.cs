@@ -20,7 +20,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
         {
             var cluster = GetCluster();
             var destination = cluster.Destinations.Values.First();
-            var provider = new Mock<ISessionAffinityProvider>(MockBehavior.Strict);
+            var provider = new Mock<ISessionAffinityPolicy>(MockBehavior.Strict);
             provider.Setup(p => p.AffinitizeResponse(It.IsAny<HttpContext>(), It.IsNotNull<SessionAffinityConfig>(), It.IsAny<DestinationState>()));
 
             var transform = new AffinitizeTransform(provider.Object);
@@ -50,7 +50,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 SessionAffinity = new SessionAffinityConfig
                 {
                     Enabled = true,
-                    Provider = "Provider-B",
+                    Policy = "Policy-B",
                     FailurePolicy = "Policy-1",
                     AffinityKeyName = "Key1"
                 }
