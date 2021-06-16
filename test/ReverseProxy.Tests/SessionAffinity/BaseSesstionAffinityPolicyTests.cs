@@ -183,7 +183,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 return destination.DestinationId;
             }
 
-            protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig options)
+            protected override (string Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, ClusterState cluster, SessionAffinityConfig options)
             {
                 Assert.Equal(Name, options.Policy);
                 // HttpContext.Items is used here to store the request affinity key for simplicity.
@@ -192,7 +192,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
                 return Unprotect((string)encryptedKey);
             }
 
-            protected override void SetAffinityKey(HttpContext context, SessionAffinityConfig options, string unencryptedKey)
+            protected override void SetAffinityKey(HttpContext context, ClusterState cluster, SessionAffinityConfig options, string unencryptedKey)
             {
                 var encryptedKey = Protect(unencryptedKey);
                 context.Items[options.AffinityKeyName] = encryptedKey;

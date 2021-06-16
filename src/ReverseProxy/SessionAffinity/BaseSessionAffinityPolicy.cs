@@ -37,7 +37,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
             if (!context.Items.ContainsKey(AffinityKeyId))
             {
                 var affinityKey = GetDestinationAffinityKey(destination);
-                SetAffinityKey(context, config, affinityKey);
+                SetAffinityKey(context, cluster, config, affinityKey);
             }
         }
 
@@ -48,7 +48,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
                 throw new InvalidOperationException($"Session affinity is disabled for cluster {cluster.ClusterId}.");
             }
 
-            var requestAffinityKey = GetRequestAffinityKey(context, config);
+            var requestAffinityKey = GetRequestAffinityKey(context, cluster, config);
 
             if (requestAffinityKey.Key == null)
             {
@@ -92,9 +92,9 @@ namespace Yarp.ReverseProxy.SessionAffinity
 
         protected abstract T GetDestinationAffinityKey(DestinationState destination);
 
-        protected abstract (T? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config);
+        protected abstract (T? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, ClusterState cluster, SessionAffinityConfig config);
 
-        protected abstract void SetAffinityKey(HttpContext context, SessionAffinityConfig config, T unencryptedKey);
+        protected abstract void SetAffinityKey(HttpContext context, ClusterState cluster, SessionAffinityConfig config, T unencryptedKey);
 
         protected string Protect(string unencryptedKey)
         {
