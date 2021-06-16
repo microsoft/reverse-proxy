@@ -14,7 +14,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
             {
                 Enabled = true,
                 FailurePolicy = "policy1",
-                Policy = "provider1",
+                Policy = "policy1",
                 AffinityKeyName = "Key1"
             };
 
@@ -22,7 +22,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
             {
                 Enabled = true,
                 FailurePolicy = "policy1",
-                Policy = "provider1",
+                Policy = "policy1",
                 AffinityKeyName = "Key1"
             };
 
@@ -38,7 +38,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
             {
                 Enabled = true,
                 FailurePolicy = "policy1",
-                Policy = "provider1",
+                Policy = "policy1",
                 AffinityKeyName = "Key1"
             };
 
@@ -62,7 +62,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
             {
                 Enabled = true,
                 FailurePolicy = "policy1",
-                Policy = "provider1",
+                Policy = "policy1",
                 AffinityKeyName = "Key1"
             };
 
