@@ -46,7 +46,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
             {
                 Enabled = false,
                 FailurePolicy = "policy2",
-                Policy = "provider2",
+                Policy = "policy2",
                 AffinityKeyName = "Key1"
             };
 
