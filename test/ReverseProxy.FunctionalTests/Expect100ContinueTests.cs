@@ -8,10 +8,12 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Xunit;
 using Yarp.ReverseProxy.Common;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy
 {
@@ -55,22 +57,21 @@ namespace Yarp.ReverseProxy
                         await ReadContent(context, bodyTcs, contentString);
                     }
                     context.Response.StatusCode = destResponseCode;
-                    await context.Response.CompleteAsync();
                 },
-                proxyBuilder => { },
+                proxyBuilder => {
+                    proxyBuilder.Services.RemoveAll(typeof(IForwarderHttpClientFactory));
+                    proxyBuilder.Services.TryAddSingleton<IForwarderHttpClientFactory, TestForwarderHttpClientFactory>(); },
                 proxyApp => { },
                 proxyProtocol: proxyProtocol,
                 useHttpsOnDestination: true,
+                useHttpsOnProxy: true,
                 configTransformer: (c, r) =>
                 {
                     c = c with
                     {
-                        HttpRequest = new Forwarder.ForwarderRequestConfig
+                        HttpRequest = new ForwarderRequestConfig
                         {
                             Version = destProtocol == HttpProtocols.Http2 ? HttpVersion.Version20 : HttpVersion.Version11,
-#if NET
-                            VersionPolicy = HttpVersionPolicy.RequestVersionExact
-#endif
                         }
                     };
                     return (c, r);
@@ -125,12 +126,10 @@ namespace Yarp.ReverseProxy
             using var handler = new SocketsHttpHandler() { Expect100ContinueTimeout = TimeSpan.FromSeconds(60) };
             handler.UseProxy = false;
             handler.AllowAutoRedirect = false;
+            handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
             using var client = new HttpClient(handler);
             using var message = new HttpRequestMessage(HttpMethod.Post, proxyHostUri);
             message.Version = protocol == HttpProtocols.Http2 ? HttpVersion.Version20 : HttpVersion.Version11;
-#if NET
-            message.VersionPolicy = HttpVersionPolicy.RequestVersionExact;
-#endif
             message.Headers.ExpectContinue = true;
 
             var content = Encoding.UTF8.GetBytes(contentString);
@@ -142,7 +141,7 @@ namespace Yarp.ReverseProxy
             }
             else
             {
-                message.Content.Headers.ContentEncoding.Add("chunked");
+                message.Headers.TransferEncodingChunked = true;
             }
 
             using var response = await client.SendAsync(message);
@@ -155,6 +154,15 @@ namespace Yarp.ReverseProxy
             else
             {
                 Assert.Equal(0, contentStream.Position);
+            }
+        }
+
+        private class TestForwarderHttpClientFactory : ForwarderHttpClientFactory
+        {
+            protected override void ConfigureHandler(ForwarderHttpClientContext context, SocketsHttpHandler handler)
+            {
+                base.ConfigureHandler(context, handler);
+                handler.Expect100ContinueTimeout = TimeSpan.FromSeconds(60);
             }
         }
     }
