@@ -11,33 +11,33 @@ using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.SessionAffinity
 {
-    internal sealed class CookieSessionAffinityProvider : BaseSessionAffinityProvider<string>
+    internal sealed class CookieSessionAffinityPolicy : BaseSessionAffinityPolicy<string>
     {
         private readonly IClock _clock;
 
-        public CookieSessionAffinityProvider(
+        public CookieSessionAffinityPolicy(
             IDataProtectionProvider dataProtectionProvider,
             IClock clock,
-            ILogger<CookieSessionAffinityProvider> logger)
+            ILogger<CookieSessionAffinityPolicy> logger)
             : base(dataProtectionProvider, logger)
         {
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
         }
 
-        public override string Name => SessionAffinityConstants.Providers.Cookie;
+        public override string Name => SessionAffinityConstants.Policies.Cookie;
 
         protected override string GetDestinationAffinityKey(DestinationState destination)
         {
             return destination.DestinationId;
         }
 
-        protected override (string? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config)
+        protected override (string? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, ClusterState cluster, SessionAffinityConfig config)
         {
             var encryptedRequestKey = context.Request.Cookies.TryGetValue(config.AffinityKeyName, out var keyInCookie) ? keyInCookie : null;
             return Unprotect(encryptedRequestKey);
         }
 
-        protected override void SetAffinityKey(HttpContext context, SessionAffinityConfig config, string unencryptedKey)
+        protected override void SetAffinityKey(HttpContext context, ClusterState cluster, SessionAffinityConfig config, string unencryptedKey)
         {
             var affinityCookieOptions = new CookieOptions
             {

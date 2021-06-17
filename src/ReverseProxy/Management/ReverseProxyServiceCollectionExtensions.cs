@@ -43,7 +43,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddConfigBuilder()
                 .AddRuntimeStateManagers()
                 .AddConfigManager()
-                .AddSessionAffinityProvider()
+                .AddSessionAffinityPolicies()
                 .AddActiveHealthChecks()
                 .AddPassiveHealthCheck()
                 .AddLoadBalancingPolicies()

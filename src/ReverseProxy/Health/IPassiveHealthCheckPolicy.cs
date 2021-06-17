@@ -19,9 +19,9 @@ namespace Yarp.ReverseProxy.Health
         /// <summary>
         /// Registers a successful or failed request and evaluates a new <see cref="DestinationHealthState.Passive"/> value.
         /// </summary>
+        /// <param name="context">Context.</param>
         /// <param name="cluster">Request's cluster.</param>
         /// <param name="destination">Request's destination.</param>
-        /// <param name="context">Context.</param>
-        void RequestProxied(ClusterState cluster, DestinationState destination, HttpContext context);
+        void RequestProxied(HttpContext context, ClusterState cluster, DestinationState destination);
     }
 }

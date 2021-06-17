@@ -55,7 +55,7 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
         [Fact]
         public async Task PickDestination_SingleDestinations_ShortCircuit()
         {
-            var context = CreateContext(LoadBalancingPolicies.First, new[]
+            var context = CreateContext(LoadBalancingPolicies.FirstAlphabetical, new[]
             {
                 new DestinationState("destination1")
             });
@@ -77,7 +77,7 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
         public async Task Invoke_Works()
         {
             // Selects the alphabetically first available destination.
-            var context = CreateContext(LoadBalancingPolicies.First, new[]
+            var context = CreateContext(LoadBalancingPolicies.FirstAlphabetical, new[]
             {
                 new DestinationState("destination2"),
                 new DestinationState("destination1"),
@@ -99,7 +99,7 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
         [Fact]
         public async Task Invoke_WithoutDestinations_503()
         {
-            var context = CreateContext(LoadBalancingPolicies.First, Array.Empty<DestinationState>());
+            var context = CreateContext(LoadBalancingPolicies.FirstAlphabetical, Array.Empty<DestinationState>());
 
             var sut = CreateMiddleware(context =>
             {
@@ -133,7 +133,7 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
                 .Setup(p => p.Name)
                 .Returns(PolicyName);
             policy
-                .Setup(p => p.PickDestination(It.IsAny<HttpContext>(), It.IsAny<IReadOnlyList<DestinationState>>()))
+                .Setup(p => p.PickDestination(It.IsAny<HttpContext>(), It.IsAny<ClusterState>(), It.IsAny<IReadOnlyList<DestinationState>>()))
                 .Returns((DestinationState)null);
 
             var sut = CreateMiddleware(context =>
@@ -168,14 +168,14 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
                 .Setup(p => p.Name)
                 .Returns(LoadBalancingPolicies.PowerOfTwoChoices);
             policy
-                .Setup(p => p.PickDestination(It.IsAny<HttpContext>(), It.IsAny<IReadOnlyList<DestinationState>>()))
+                .Setup(p => p.PickDestination(It.IsAny<HttpContext>(), It.IsAny<ClusterState>(), It.IsAny<IReadOnlyList<DestinationState>>()))
                 .Returns((DestinationState)destinations[0]);
 
             var sut = CreateMiddleware(_ => Task.CompletedTask, policy.Object);
 
             await sut.Invoke(context);
 
-            policy.Verify(p => p.PickDestination(context, destinations), Times.Once);
+            policy.Verify(p => p.PickDestination(context, It.IsAny<ClusterState>(), destinations), Times.Once);
         }
 
         private static HttpContext CreateContext(string loadBalancingPolicy, IReadOnlyList<DestinationState> destinations)
@@ -188,16 +188,17 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
 
             var context = new DefaultHttpContext();
 
+            var route = new RouteModel(new RouteConfig(), cluster, HttpTransformer.Default);
             context.Features.Set<IReverseProxyFeature>(
                 new ReverseProxyFeature()
                 {
                     AvailableDestinations = destinations,
+                    Route = route,
                     Cluster = cluster.Model
                 });
             context.Features.Set(cluster);
 
-            var routeConfig = new RouteModel(new RouteConfig(), cluster, HttpTransformer.Default);
-            var endpoint = new Endpoint(default, new EndpointMetadataCollection(routeConfig), string.Empty);
+            var endpoint = new Endpoint(default, new EndpointMetadataCollection(route), string.Empty);
             context.SetEndpoint(endpoint);
 
             return context;

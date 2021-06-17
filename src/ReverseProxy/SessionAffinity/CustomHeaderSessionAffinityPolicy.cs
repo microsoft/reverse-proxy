@@ -11,22 +11,22 @@ using Yarp.ReverseProxy.Model;
 
 namespace Yarp.ReverseProxy.SessionAffinity
 {
-    internal sealed class CustomHeaderSessionAffinityProvider : BaseSessionAffinityProvider<string>
+    internal sealed class CustomHeaderSessionAffinityPolicy : BaseSessionAffinityPolicy<string>
     {
-        public CustomHeaderSessionAffinityProvider(
+        public CustomHeaderSessionAffinityPolicy(
             IDataProtectionProvider dataProtectionProvider,
-            ILogger<CustomHeaderSessionAffinityProvider> logger)
+            ILogger<CustomHeaderSessionAffinityPolicy> logger)
             : base(dataProtectionProvider, logger)
         {}
 
-        public override string Name => SessionAffinityConstants.Providers.CustomHeader;
+        public override string Name => SessionAffinityConstants.Policies.CustomHeader;
 
         protected override string GetDestinationAffinityKey(DestinationState destination)
         {
             return destination.DestinationId;
         }
 
-        protected override (string? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config)
+        protected override (string? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, ClusterState cluster, SessionAffinityConfig config)
         {
             var customHeaderName = config.AffinityKeyName;
             var keyHeaderValues = context.Request.Headers[customHeaderName];
@@ -47,7 +47,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
             return Unprotect(keyHeaderValues[0]);
         }
 
-        protected override void SetAffinityKey(HttpContext context, SessionAffinityConfig config, string unencryptedKey)
+        protected override void SetAffinityKey(HttpContext context, ClusterState cluster, SessionAffinityConfig config, string unencryptedKey)
         {
             context.Response.Headers.Append(config.AffinityKeyName, Protect(unencryptedKey));
         }

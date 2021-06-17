@@ -282,7 +282,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                 SessionAffinity = new SessionAffinityConfig
                 {
                     Enabled = GetLabel<bool?>(labels, "YARP.Backend.SessionAffinity.Enabled", null),
-                    Provider = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.Provider", null),
+                    Policy = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.Policy", null),
                     FailurePolicy = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.FailurePolicy", null),
                     AffinityKeyName = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.AffinityKeyName", null),
                     Cookie = new SessionAffinityCookieConfig

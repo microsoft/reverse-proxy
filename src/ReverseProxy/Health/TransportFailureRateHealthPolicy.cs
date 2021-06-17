@@ -44,7 +44,7 @@ namespace Yarp.ReverseProxy.Health
             _healthUpdater = healthUpdater ?? throw new ArgumentNullException(nameof(healthUpdater));
         }
 
-        public void RequestProxied(ClusterState cluster, DestinationState destination, HttpContext context)
+        public void RequestProxied(HttpContext context, ClusterState cluster, DestinationState destination)
         {
             var error = context.Features.Get<IForwarderErrorFeature>();
             var newHealth = EvaluateProxiedRequest(cluster, destination, error != null);

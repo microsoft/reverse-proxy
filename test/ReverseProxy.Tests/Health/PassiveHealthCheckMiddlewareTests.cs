@@ -31,7 +31,7 @@ namespace Yarp.ReverseProxy.Health.Tests
             await middleware.Invoke(context0);
 
             Assert.True(nextInvoked);
-            policies[0].Verify(p => p.RequestProxied(cluster0, cluster0.DestinationsState.AllDestinations[1], context0), Times.Once);
+            policies[0].Verify(p => p.RequestProxied(context0, cluster0, cluster0.DestinationsState.AllDestinations[1]), Times.Once);
             policies[0].VerifyGet(p => p.Name, Times.Once);
             policies[0].VerifyNoOtherCalls();
             policies[1].VerifyGet(p => p.Name, Times.Once);
@@ -44,7 +44,7 @@ namespace Yarp.ReverseProxy.Health.Tests
             await middleware.Invoke(context1);
 
             Assert.True(nextInvoked);
-            policies[1].Verify(p => p.RequestProxied(cluster1, cluster1.DestinationsState.AllDestinations[0], context1), Times.Once);
+            policies[1].Verify(p => p.RequestProxied(context1, cluster1, cluster1.DestinationsState.AllDestinations[0]), Times.Once);
             policies[1].VerifyNoOtherCalls();
             policies[0].VerifyNoOtherCalls();
         }

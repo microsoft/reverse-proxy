@@ -4,7 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.SessionAffinity
@@ -13,7 +13,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
     {
         public string Name => SessionAffinityConstants.FailurePolicies.Return503Error;
 
-        public Task<bool> Handle(HttpContext context, SessionAffinityConfig config, AffinityStatus affinityStatus)
+        public Task<bool> Handle(HttpContext context, ClusterState cluster, AffinityStatus affinityStatus)
         {
             if (affinityStatus == AffinityStatus.OK
                 || affinityStatus == AffinityStatus.AffinityKeyNotSet)

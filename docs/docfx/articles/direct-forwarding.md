@@ -69,7 +69,7 @@ public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
             // Check if the operation was successful
             if (error != ForwarderError.None)
             {
-                var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+                var errorFeature = httpContext.GetForwarderErrorFeature();
                 var exception = errorFeature.Exception;
             }
         });

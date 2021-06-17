@@ -10,12 +10,12 @@ namespace Yarp.ReverseProxy.SessionAffinity
 {
     internal sealed class AffinitizeTransformProvider : ITransformProvider
     {
-        private readonly IDictionary<string, ISessionAffinityProvider> _sessionAffinityProviders;
+        private readonly IDictionary<string, ISessionAffinityPolicy> _sessionAffinityPolicies;
 
-        public AffinitizeTransformProvider(IEnumerable<ISessionAffinityProvider> sessionAffinityProviders)
+        public AffinitizeTransformProvider(IEnumerable<ISessionAffinityPolicy> sessionAffinityPolicies)
         {
-            _sessionAffinityProviders = sessionAffinityProviders?.ToDictionaryByUniqueId(p => p.Name)
-                ?? throw new ArgumentNullException(nameof(sessionAffinityProviders));
+            _sessionAffinityPolicies = sessionAffinityPolicies?.ToDictionaryByUniqueId(p => p.Name)
+                ?? throw new ArgumentNullException(nameof(sessionAffinityPolicies));
         }
 
         public void ValidateRoute(TransformRouteValidationContext context)
@@ -30,16 +30,16 @@ namespace Yarp.ReverseProxy.SessionAffinity
                 return;
             }
 
-            var provider = context.Cluster.SessionAffinity.Provider;
-            if (string.IsNullOrEmpty(provider))
+            var policy = context.Cluster.SessionAffinity.Policy;
+            if (string.IsNullOrEmpty(policy))
             {
                 // The default.
-                provider = SessionAffinityConstants.Providers.Cookie;
+                policy = SessionAffinityConstants.Policies.Cookie;
             }
 
-            if (!_sessionAffinityProviders.ContainsKey(provider))
+            if (!_sessionAffinityPolicies.ContainsKey(policy))
             {
-                context.Errors.Add(new ArgumentException($"No matching {nameof(ISessionAffinityProvider)} found for the session affinity provider '{provider}' set on the cluster '{context.Cluster.ClusterId}'."));
+                context.Errors.Add(new ArgumentException($"No matching {nameof(ISessionAffinityPolicy)} found for the session affinity policy '{policy}' set on the cluster '{context.Cluster.ClusterId}'."));
             }
         }
 
@@ -49,8 +49,8 @@ namespace Yarp.ReverseProxy.SessionAffinity
 
             if (options != null && options.Enabled.GetValueOrDefault())
             {
-                var provider = _sessionAffinityProviders.GetRequiredServiceById(options.Provider, SessionAffinityConstants.Providers.Cookie);
-                context.ResponseTransforms.Add(new AffinitizeTransform(provider));
+                var policy = _sessionAffinityPolicies.GetRequiredServiceById(options.Policy, SessionAffinityConstants.Policies.Cookie);
+                context.ResponseTransforms.Add(new AffinitizeTransform(policy));
             }
         }
     }

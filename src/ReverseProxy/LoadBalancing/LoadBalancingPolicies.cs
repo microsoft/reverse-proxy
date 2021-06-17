@@ -11,7 +11,7 @@ namespace Yarp.ReverseProxy.LoadBalancing
         /// <summary>
         /// Select the alphabetically first available destination without considering load. This is useful for dual destination fail-over systems.
         /// </summary>
-        public static string First => nameof(First);
+        public static string FirstAlphabetical => nameof(FirstAlphabetical);
 
         /// <summary>
         /// Select a destination randomly.

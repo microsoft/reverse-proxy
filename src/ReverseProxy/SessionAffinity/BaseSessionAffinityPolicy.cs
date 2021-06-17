@@ -12,13 +12,13 @@ using Yarp.ReverseProxy.Model;
 
 namespace Yarp.ReverseProxy.SessionAffinity
 {
-    internal abstract class BaseSessionAffinityProvider<T> : ISessionAffinityProvider
+    internal abstract class BaseSessionAffinityPolicy<T> : ISessionAffinityPolicy
     {
         private readonly IDataProtector _dataProtector;
         protected static readonly object AffinityKeyId = new object();
         protected readonly ILogger Logger;
 
-        protected BaseSessionAffinityProvider(IDataProtectionProvider dataProtectionProvider, ILogger logger)
+        protected BaseSessionAffinityPolicy(IDataProtectionProvider dataProtectionProvider, ILogger logger)
         {
             _dataProtector = dataProtectionProvider?.CreateProtector(GetType().FullName!) ?? throw new ArgumentNullException(nameof(dataProtectionProvider));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -26,7 +26,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
 
         public abstract string Name { get; }
 
-        public virtual void AffinitizeResponse(HttpContext context, SessionAffinityConfig config, DestinationState destination)
+        public virtual void AffinitizeResponse(HttpContext context, ClusterState cluster, SessionAffinityConfig config, DestinationState destination)
         {
             if (!config.Enabled.GetValueOrDefault())
             {
@@ -37,18 +37,18 @@ namespace Yarp.ReverseProxy.SessionAffinity
             if (!context.Items.ContainsKey(AffinityKeyId))
             {
                 var affinityKey = GetDestinationAffinityKey(destination);
-                SetAffinityKey(context, config, affinityKey);
+                SetAffinityKey(context, cluster, config, affinityKey);
             }
         }
 
-        public virtual AffinityResult FindAffinitizedDestinations(HttpContext context, IReadOnlyList<DestinationState> destinations, string clusterId, SessionAffinityConfig config)
+        public virtual AffinityResult FindAffinitizedDestinations(HttpContext context, ClusterState cluster, SessionAffinityConfig config, IReadOnlyList<DestinationState> destinations)
         {
             if (!config.Enabled.GetValueOrDefault())
             {
-                throw new InvalidOperationException($"Session affinity is disabled for cluster {clusterId}.");
+                throw new InvalidOperationException($"Session affinity is disabled for cluster {cluster.ClusterId}.");
             }
 
-            var requestAffinityKey = GetRequestAffinityKey(context, config);
+            var requestAffinityKey = GetRequestAffinityKey(context, cluster, config);
 
             if (requestAffinityKey.Key == null)
             {
@@ -72,12 +72,12 @@ namespace Yarp.ReverseProxy.SessionAffinity
 
                 if (matchingDestinations == null)
                 {
-                    Log.DestinationMatchingToAffinityKeyNotFound(Logger, clusterId);
+                    Log.DestinationMatchingToAffinityKeyNotFound(Logger, cluster.ClusterId);
                 }
             }
             else
             {
-                Log.AffinityCannotBeEstablishedBecauseNoDestinationsFound(Logger, clusterId);
+                Log.AffinityCannotBeEstablishedBecauseNoDestinationsFound(Logger, cluster.ClusterId);
             }
 
             // Empty destination list passed to this method is handled the same way as if no matching destinations are found.
@@ -92,9 +92,9 @@ namespace Yarp.ReverseProxy.SessionAffinity
 
         protected abstract T GetDestinationAffinityKey(DestinationState destination);
 
-        protected abstract (T? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, SessionAffinityConfig config);
+        protected abstract (T? Key, bool ExtractedSuccessfully) GetRequestAffinityKey(HttpContext context, ClusterState cluster, SessionAffinityConfig config);
 
-        protected abstract void SetAffinityKey(HttpContext context, SessionAffinityConfig config, T unencryptedKey);
+        protected abstract void SetAffinityKey(HttpContext context, ClusterState cluster, SessionAffinityConfig config, T unencryptedKey);
 
         protected string Protect(string unencryptedKey)
         {
