@@ -32,60 +32,48 @@ namespace Yarp.ReverseProxy.Transforms
 
         public bool Validate(TransformRouteValidationContext context, IReadOnlyDictionary<string, string> transformValues)
         {
+            var xExpected = 0;
+
             if (transformValues.TryGetValue(XForwardedKey, out var headerValue))
             {
-                var expected = 1;
+                xExpected++;
+                ValidateAction(context, XForwardedKey, headerValue);
+            }
 
-                expected++;
-                if (!Enum.TryParse<ForwardedTransformActions>(headerValue, out var _))
-                {
-                    context.Errors.Add(new ArgumentException($"Unexpected value for {XForwardedKey}: {headerValue}. Expected one of {nameof(ForwardedTransformActions)}"));
-                }
+            var prefix = "X-Forwarded-";
+            if (transformValues.TryGetValue(PrefixForwardedKey, out var prefixValue))
+            {
+                xExpected++;
+                prefix = prefixValue;
+            }
 
-                var prefix = "X-Forwarded-";
-                if (transformValues.TryGetValue(PrefixForwardedKey, out var prefixValue))
-                {
-                    expected++;
-                    prefix = prefixValue;
-                }
+            if (transformValues.TryGetValue(prefix + ForKey, out headerValue))
+            {
+                xExpected++;
+                ValidateAction(context, prefix + ForKey, headerValue);
+            }
 
-                if (transformValues.TryGetValue(prefix + ForKey, out headerValue))
-                {
-                    expected++;
-                    if (!Enum.TryParse<ForwardedTransformActions>(headerValue, out var _))
-                    {
-                        context.Errors.Add(new ArgumentException($"Unexpected value for {prefix + ForKey}: {headerValue}. Expected one of {nameof(ForwardedTransformActions)}"));
-                    }
-                }
+            if (transformValues.TryGetValue(prefix + PrefixKey, out headerValue))
+            {
+                xExpected++;
+                ValidateAction(context, prefix + PrefixKey, headerValue);
+            }
 
-                if (transformValues.TryGetValue(prefix + PrefixKey, out headerValue))
-                {
-                    expected++;
-                    if (!Enum.TryParse<ForwardedTransformActions>(headerValue, out var _))
-                    {
-                        context.Errors.Add(new ArgumentException($"Unexpected value for {prefix + PrefixKey}: {headerValue}. Expected one of {nameof(ForwardedTransformActions)}"));
-                    }
-                }
+            if (transformValues.TryGetValue(prefix + HostKey, out headerValue))
+            {
+                xExpected++;
+                ValidateAction(context, prefix + HostKey, headerValue);
+            }
 
-                if (transformValues.TryGetValue(prefix + HostKey, out headerValue))
-                {
-                    expected++;
-                    if (!Enum.TryParse<ForwardedTransformActions>(headerValue, out var _))
-                    {
-                        context.Errors.Add(new ArgumentException($"Unexpected value for {prefix + HostKey}: {headerValue}. Expected one of {nameof(ForwardedTransformActions)}"));
-                    }
-                }
+            if (transformValues.TryGetValue(prefix + ProtoKey, out headerValue))
+            {
+                xExpected++;
+                ValidateAction(context, prefix + ProtoKey, headerValue);
+            }
 
-                if (transformValues.TryGetValue(prefix + PrefixKey, out headerValue))
-                {
-                    expected++;
-                    if (!Enum.TryParse<ForwardedTransformActions>(headerValue, out var _))
-                    {
-                        context.Errors.Add(new ArgumentException($"Unexpected value for {prefix + PrefixKey}: {headerValue}. Expected one of {nameof(ForwardedTransformActions)}"));
-                    }
-                }
-
-                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected);
+            if (xExpected > 0)
+            {
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, xExpected);
             }
             else if (transformValues.TryGetValue(ForwardedKey, out var forwardedHeader))
             {
@@ -286,6 +274,14 @@ namespace Yarp.ReverseProxy.Transforms
             }
 
             return true;
+        }
+
+        private static void ValidateAction(TransformRouteValidationContext context, string key, string? headerValue)
+        {
+            if (!Enum.TryParse<ForwardedTransformActions>(headerValue, out var _))
+            {
+                context.Errors.Add(new ArgumentException($"Unexpected value for {key}: {headerValue}. Expected one of {nameof(ForwardedTransformActions)}"));
+            }
         }
     }
 }

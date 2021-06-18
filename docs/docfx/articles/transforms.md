@@ -466,24 +466,34 @@ This removes the named header.
 
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
-| X-Forwarded | A comma separated list containing any of these values: for,proto,host,Prefix | "for,proto,host,Prefix" | yes |
+| X-Forwarded | Default action (Set, Append, Remove, Off) to apply to all X-Forwarded-* listed below | Set | no |
+| X-Forwarded-For | Action to apply to this header | Set | no |
+| X-Forwarded-Proto | Action to apply to this header | Set | no |
+| X-Forwarded-Host | Action to apply to this header | Set | no |
+| X-Forwarded-Prefix | Action to apply to this header | Set | no |
 | Prefix | The header name prefix | "X-Forwarded-" | no |
-| Append | true/false | true | no |
+
+Action "Off" completely disables the transform.
 
 Config:
 ```JSON
 {
-  "X-Forwarded": "for,proto,host,Prefix",
-  "Prefix": "X-Forwarded-",
-  "Append": "true"
+  "X-Forwarded": "Set",
+  "X-Forwarded-For": "Remove",
+  "X-Forwarded-Proto": "Append",
+  "X-Forwarded-Prefix": "Off",
+  "Prefix": "X-Forwarded-"
 }
 ```
 Code:
 ```csharp
-routeConfig = routeConfig.WithTransformXForwarded(headerPrefix: "X-Forwarded-", useFor: true, useHost: true, useProto: true, usePrefix: true, append: true);
+routeConfig = routeConfig.WithTransformXForwarded(headerPrefix: "X-Forwarded-", useFor: true, useHost: true, useProto: true, usePrefix: true, action: ForwardedTransformAction.Remove);
 ```
 ```C#
-transformBuilderContext.AddXForwarded(headerPrefix: "X-Forwarded-", useFor: true, useHost: true, useProto: true, usePrefix: true, append: true);
+transformBuilderContext.AddXForwarded(headerPrefix: "X-Forwarded-", ForwardedTransformAction.Remove);
+transformBuilderContext.AddXForwardedFor(headerPrefix: "X-Forwarded-", ForwardedTransformAction.Remove);
+transformBuilderContext.AddXForwardedHost(headerPrefix: "X-Forwarded-", ForwardedTransformAction.Remove);
+transformBuilderContext.AddXForwardedProto(headerPrefix: "X-Forwarded-", ForwardedTransformAction.Remove);
 ```
 
 Example:

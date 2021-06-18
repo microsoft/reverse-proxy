@@ -18,22 +18,41 @@ namespace Yarp.ReverseProxy.Transforms.Tests
     {
         private readonly ForwardedTransformFactory _factory = new ForwardedTransformFactory(new TestRandomFactory());
 
-        /*[Theory]
-        [InlineData(false, false, false, false, false)]
-        [InlineData(false, false, false, false, true)]
-        [InlineData(true, true, true, true, false)]
-        [InlineData(true, true, true, true, true)]
-        [InlineData(true, true, false, false, true)]
-        [InlineData(true, true, false, false, false)]
-        public void WithTransformXForwarded(bool useFor, bool useHost, bool useProto, bool usePrefix, bool append)
+        [Theory]
+        [InlineData(false, false, false, false, ForwardedTransformActions.Set)]
+        [InlineData(false, false, false, false, ForwardedTransformActions.Append)]
+        [InlineData(true, true, true, true, ForwardedTransformActions.Set)]
+        [InlineData(true, true, true, true, ForwardedTransformActions.Append)]
+        [InlineData(true, true, false, false, ForwardedTransformActions.Append)]
+        [InlineData(true, true, false, false, ForwardedTransformActions.Set)]
+        public void WithTransformXForwarded(bool useFor, bool useHost, bool useProto, bool usePrefix, ForwardedTransformActions action)
         {
             var routeConfig = new RouteConfig();
-            routeConfig = routeConfig.WithTransformXForwarded("prefix-", useFor, useHost, useProto, usePrefix, append);
+            var prefix = "prefix-";
+            routeConfig = routeConfig.WithTransformXForwarded(prefix, useFor, useHost, useProto, usePrefix, action);
 
             var builderContext = ValidateAndBuild(routeConfig, _factory);
 
-            ValidateXForwarded(builderContext, useFor, useHost, useProto, usePrefix, append);
-        }*/
+            if (useFor)
+            {
+                ValidateXForwardedTransform("For", prefix, action, builderContext.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>().Single());
+            }
+
+            if (useHost)
+            {
+                ValidateXForwardedTransform("Host", prefix, action, builderContext.RequestTransforms.OfType<RequestHeaderXForwardedHostTransform>().Single());
+            }
+
+            if (useProto)
+            {
+                ValidateXForwardedTransform("Proto", prefix, action, builderContext.RequestTransforms.OfType<RequestHeaderXForwardedProtoTransform>().Single());
+            }
+
+            if (usePrefix)
+            {
+                ValidateXForwardedTransform("Prefix", prefix, action, builderContext.RequestTransforms.OfType<RequestHeaderXForwardedPrefixTransform>().Single());
+            }
+        }
 
         [Theory]
         [MemberData(nameof(GetAddXForwardedCases))]
@@ -69,10 +88,15 @@ namespace Yarp.ReverseProxy.Transforms.Tests
             else
             {
                 var transform = Assert.Single(builderContext.RequestTransforms);
-                Assert.Equal($"RequestHeaderXForwarded{transformName}Transform", transform.GetType().Name);
-                Assert.Equal(headerPrefix + transformName, ((dynamic)transform).HeaderName);
-                Assert.Equal(action, ((dynamic)transform).TransformAction);
+                ValidateXForwardedTransform(transformName, headerPrefix, action, transform);
             }
+        }
+
+        private static void ValidateXForwardedTransform(string transformName, string headerPrefix, ForwardedTransformActions action, RequestTransform transform)
+        {
+            Assert.Equal($"RequestHeaderXForwarded{transformName}Transform", transform.GetType().Name);
+            Assert.Equal(headerPrefix + transformName, ((dynamic)transform).HeaderName);
+            Assert.Equal(action, ((dynamic)transform).TransformAction);
         }
 
         [Theory]
