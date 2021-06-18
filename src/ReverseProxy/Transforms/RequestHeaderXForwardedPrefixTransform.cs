@@ -12,8 +12,7 @@ namespace Yarp.ReverseProxy.Transforms
     /// </summary>
     public class RequestHeaderXForwardedPrefixTransform : RequestTransform
     {
-        public RequestHeaderXForwardedPrefixTransform
-            (string headerName, bool append)
+        public RequestHeaderXForwardedPrefixTransform(string headerName, ForwardedTransformActions action)
         {
             if (string.IsNullOrEmpty(headerName))
             {
@@ -21,40 +20,56 @@ namespace Yarp.ReverseProxy.Transforms
             }
 
             HeaderName = headerName;
-            Append = append;
+            TransformAction = action;
         }
 
         internal string HeaderName { get; }
-        internal bool Append { get; }
+        internal ForwardedTransformActions TransformAction { get; }
 
         /// <inheritdoc/>
         public override ValueTask ApplyAsync(RequestTransformContext context)
         {
             if (context is null)
             {
-                throw new System.ArgumentNullException(nameof(context));
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            if (TransformAction == ForwardedTransformActions.Off)
+            {
+                return default;
             }
 
             var existingValues = TakeHeader(context, HeaderName);
 
             var pathBase = context.HttpContext.Request.PathBase;
 
-            if (!pathBase.HasValue)
+            switch (TransformAction)
             {
-                if (Append && !string.IsNullOrEmpty(existingValues))
-                {
-                    AddHeader(context, HeaderName, existingValues);
-                }
-            }
-            else if (Append)
-            {
-                var values = StringValues.Concat(existingValues, pathBase.ToUriComponent());
-                AddHeader(context, HeaderName, values);
-            }
-            else
-            {
-                // Set
-                AddHeader(context, HeaderName, pathBase.ToUriComponent());
+                case ForwardedTransformActions.Set:
+                    if (pathBase.HasValue)
+                    {
+                        AddHeader(context, HeaderName, pathBase.ToUriComponent());
+                    }
+                    break;
+                case ForwardedTransformActions.Append:
+                    if (!pathBase.HasValue)
+                    {
+                        if (!string.IsNullOrEmpty(existingValues))
+                        {
+                            AddHeader(context, HeaderName, existingValues);
+                        }
+                    }
+                    else
+                    {
+                        var values = StringValues.Concat(existingValues, pathBase.ToUriComponent());
+                        AddHeader(context, HeaderName, values);
+                    }
+                    break;
+                case ForwardedTransformActions.Remove:
+                    RemoveHeader(context, HeaderName);
+                    break;
+                default:
+                    throw new NotImplementedException(TransformAction.ToString());
             }
 
             return default;

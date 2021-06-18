@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -16,7 +18,7 @@ namespace Yarp.ReverseProxy.Transforms.Tests
     {
         private readonly ForwardedTransformFactory _factory = new ForwardedTransformFactory(new TestRandomFactory());
 
-        [Theory]
+        /*[Theory]
         [InlineData(false, false, false, false, false)]
         [InlineData(false, false, false, false, true)]
         [InlineData(true, true, true, true, false)]
@@ -31,69 +33,45 @@ namespace Yarp.ReverseProxy.Transforms.Tests
             var builderContext = ValidateAndBuild(routeConfig, _factory);
 
             ValidateXForwarded(builderContext, useFor, useHost, useProto, usePrefix, append);
-        }
+        }*/
 
         [Theory]
-        [InlineData(false, false, false, false, false)]
-        [InlineData(false, false, false, false, true)]
-        [InlineData(true, true, true, true, false)]
-        [InlineData(true, true, true, true, true)]
-        [InlineData(true, true, false, false, true)]
-        [InlineData(true, true, false, false, false)]
-        public void AddXForwarded(bool useFor, bool useHost, bool useProto, bool usePrefix, bool append)
+        [MemberData(nameof(GetAddXForwardedCases))]
+        public void AddXForwarded(Func<TransformBuilderContext, string, ForwardedTransformActions, TransformBuilderContext> addFunc,
+            string transformName, ForwardedTransformActions action)
         {
             var builderContext = CreateBuilderContext();
-            builderContext.AddXForwarded("prefix-", useFor, useHost, useProto, usePrefix, append);
+            addFunc(builderContext, "prefix-", action);
 
-            ValidateXForwarded(builderContext, useFor, useHost, useProto, usePrefix, append);
+            ValidateXForwarded(builderContext, transformName, "prefix-", action);
         }
 
-        private static void ValidateXForwarded(TransformBuilderContext builderContext, bool useFor, bool useHost, bool useProto, bool usePrefix, bool append)
+        public static IEnumerable<object[]> GetAddXForwardedCases()
+        {
+            var actions = (ForwardedTransformActions[])Enum.GetValues(typeof(ForwardedTransformActions));
+            var addTransformFuncs = new (Func<TransformBuilderContext, string, ForwardedTransformActions, TransformBuilderContext>, string)[]
+            {
+                (ForwardedTransformExtensions.AddXForwardedFor, "For"), (ForwardedTransformExtensions.AddXForwardedPrefix, "Prefix"),
+                (ForwardedTransformExtensions.AddXForwardedHost, "Host"), (ForwardedTransformExtensions.AddXForwardedProto, "Proto")
+            };
+
+            return addTransformFuncs.Join(actions, _ => true, _ => true, (t, a) => new object[] { t.Item1, t.Item2, a });
+        }
+
+        private static void ValidateXForwarded(TransformBuilderContext builderContext, string transformName, string headerPrefix, ForwardedTransformActions action)
         {
             Assert.False(builderContext.UseDefaultForwarders);
 
-            if (useFor)
+            if (action == ForwardedTransformActions.Off)
             {
-                var requestHeaderXForwardedForTransform = Assert.Single(builderContext.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
-                Assert.Equal("prefix-For", requestHeaderXForwardedForTransform.HeaderName);
-                Assert.Equal(append, requestHeaderXForwardedForTransform.Append);
+                Assert.Empty(builderContext.RequestTransforms);
             }
             else
             {
-                Assert.Empty(builderContext.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
-            }
-
-            if (useHost)
-            {
-                var requestHeaderXForwardedHostTransform = Assert.Single(builderContext.RequestTransforms.OfType<RequestHeaderXForwardedHostTransform>());
-                Assert.Equal("prefix-Host", requestHeaderXForwardedHostTransform.HeaderName);
-                Assert.Equal(append, requestHeaderXForwardedHostTransform.Append);
-            }
-            else
-            {
-                Assert.Empty(builderContext.RequestTransforms.OfType<RequestHeaderXForwardedHostTransform>());
-            }
-
-            if (useProto)
-            {
-                var requestHeaderXForwardedProtoTransform = Assert.Single(builderContext.RequestTransforms.OfType<RequestHeaderXForwardedProtoTransform>());
-                Assert.Equal("prefix-Proto", requestHeaderXForwardedProtoTransform.HeaderName);
-                Assert.Equal(append, requestHeaderXForwardedProtoTransform.Append);
-            }
-            else
-            {
-                Assert.Empty(builderContext.RequestTransforms.OfType<RequestHeaderXForwardedProtoTransform>());
-            }
-
-            if (usePrefix)
-            {
-                var requestHeaderXForwardedPrefixTransform = Assert.Single(builderContext.RequestTransforms.OfType<RequestHeaderXForwardedPrefixTransform>());
-                Assert.Equal("prefix-Prefix", requestHeaderXForwardedPrefixTransform.HeaderName);
-                Assert.Equal(append, requestHeaderXForwardedPrefixTransform.Append);
-            }
-            else
-            {
-                Assert.Empty(builderContext.RequestTransforms.OfType<RequestHeaderXForwardedPrefixTransform>());
+                var transform = Assert.Single(builderContext.RequestTransforms);
+                Assert.Equal($"RequestHeaderXForwarded{transformName}Transform", transform.GetType().Name);
+                Assert.Equal(headerPrefix + transformName, ((dynamic)transform).HeaderName);
+                Assert.Equal(action, ((dynamic)transform).TransformAction);
             }
         }
 

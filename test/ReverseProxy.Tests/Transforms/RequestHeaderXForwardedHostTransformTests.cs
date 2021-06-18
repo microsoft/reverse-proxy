@@ -13,28 +13,36 @@ namespace Yarp.ReverseProxy.Transforms.Tests
     {
         [Theory]
         // Using ";" to represent multi-line headers
-        [InlineData("", "", false, "")]
-        [InlineData("", "", true, "")]
-        [InlineData("", "host", false, "host")]
-        [InlineData("", "host:80", true, "host:80")]
-        [InlineData("", "ho本st", false, "xn--host-6j1i")]
-        [InlineData("", "::1", false, "::1")]
-        [InlineData("", "[::1]:80", false, "[::1]:80")]
-        [InlineData("existing,Header", "", false, "")]
-        [InlineData("existing;Header", "", false, "")]
-        [InlineData("existing,Header", "", true, "existing,Header")]
-        [InlineData("existing;Header", "", true, "existing;Header")]
-        [InlineData("existing,Header", "host", false, "host")]
-        [InlineData("existing;Header", "host", false, "host")]
-        [InlineData("existing,Header", "host:80", true, "existing,Header;host:80")]
-        [InlineData("existing;Header", "host", true, "existing;Header;host")]
-        public async Task Host_Added(string startValue, string host, bool append, string expected)
+        [InlineData("", "", ForwardedTransformActions.Set, "")]
+        [InlineData("", "", ForwardedTransformActions.Append, "")]
+        [InlineData("", "", ForwardedTransformActions.Remove, "")]
+        [InlineData("", "", ForwardedTransformActions.Off, "")]
+        [InlineData("", "host", ForwardedTransformActions.Set, "host")]
+        [InlineData("", "host:80", ForwardedTransformActions.Append, "host:80")]
+        [InlineData("", "host:80", ForwardedTransformActions.Remove, "")]
+        [InlineData("", "host:80", ForwardedTransformActions.Off, "")]
+        [InlineData("", "ho本st", ForwardedTransformActions.Set, "xn--host-6j1i")]
+        [InlineData("", "::1", ForwardedTransformActions.Set, "::1")]
+        [InlineData("", "[::1]:80", ForwardedTransformActions.Set, "[::1]:80")]
+        [InlineData("existing,Header", "", ForwardedTransformActions.Set, "")]
+        [InlineData("existing;Header", "", ForwardedTransformActions.Set, "")]
+        [InlineData("existing,Header", "", ForwardedTransformActions.Append, "existing,Header")]
+        [InlineData("existing;Header", "", ForwardedTransformActions.Append, "existing;Header")]
+        [InlineData("existing;Header", "", ForwardedTransformActions.Remove, "")]
+        [InlineData("existing;Header", "", ForwardedTransformActions.Off, "existing;Header")]
+        [InlineData("existing,Header", "host", ForwardedTransformActions.Set, "host")]
+        [InlineData("existing;Header", "host", ForwardedTransformActions.Set, "host")]
+        [InlineData("existing,Header", "host:80", ForwardedTransformActions.Append, "existing,Header;host:80")]
+        [InlineData("existing;Header", "host", ForwardedTransformActions.Append, "existing;Header;host")]
+        [InlineData("existing;Header", "host", ForwardedTransformActions.Remove, "")]
+        [InlineData("existing;Header", "host", ForwardedTransformActions.Off, "existing;Header")]
+        public async Task Host_Added(string startValue, string host, ForwardedTransformActions action, string expected)
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Host = string.IsNullOrEmpty(host) ? new HostString() : new HostString(host);
             var proxyRequest = new HttpRequestMessage();
             proxyRequest.Headers.Add("name", startValue.Split(";", StringSplitOptions.RemoveEmptyEntries));
-            var transform = new RequestHeaderXForwardedHostTransform("name", append);
+            var transform = new RequestHeaderXForwardedHostTransform("name", action);
             await transform.ApplyAsync(new RequestTransformContext()
             {
                 HttpContext = httpContext,

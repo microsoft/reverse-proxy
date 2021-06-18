@@ -14,7 +14,7 @@ namespace Yarp.ReverseProxy.Transforms
         internal static readonly string ForwardedKey = "Forwarded";
         internal static readonly string AppendKey = "Append";
         internal static readonly string PrefixForwardedKey = "Prefix";
-        internal static readonly string ForKey = "For";
+        internal static readonly string ForKey =  "For";
         internal static readonly string ByKey = "By";
         internal static readonly string HostKey = "Host";
         internal static readonly string ProtoKey = "Proto";
@@ -32,39 +32,60 @@ namespace Yarp.ReverseProxy.Transforms
 
         public bool Validate(TransformRouteValidationContext context, IReadOnlyDictionary<string, string> transformValues)
         {
-            if (transformValues.TryGetValue(XForwardedKey, out var xforwardedHeaders))
+            if (transformValues.TryGetValue(XForwardedKey, out var headerValue))
             {
                 var expected = 1;
 
-                if (transformValues.TryGetValue(AppendKey, out var appendValue))
+                expected++;
+                if (!Enum.TryParse<ForwardedTransformActions>(headerValue, out var _))
+                {
+                    context.Errors.Add(new ArgumentException($"Unexpected value for {XForwardedKey}: {headerValue}. Expected one of {nameof(ForwardedTransformActions)}"));
+                }
+
+                var prefix = "X-Forwarded-";
+                if (transformValues.TryGetValue(PrefixForwardedKey, out var prefixValue))
                 {
                     expected++;
-                    if (!bool.TryParse(appendValue, out var _))
+                    prefix = prefixValue;
+                }
+
+                if (transformValues.TryGetValue(prefix + ForKey, out headerValue))
+                {
+                    expected++;
+                    if (!Enum.TryParse<ForwardedTransformActions>(headerValue, out var _))
                     {
-                        context.Errors.Add(new ArgumentException($"Unexpected value for X-Forwarded:Append: {appendValue}. Expected 'true' or 'false'"));
+                        context.Errors.Add(new ArgumentException($"Unexpected value for {prefix + ForKey}: {headerValue}. Expected one of {nameof(ForwardedTransformActions)}"));
                     }
                 }
 
-                if (transformValues.TryGetValue(PrefixForwardedKey, out var _))
+                if (transformValues.TryGetValue(prefix + PrefixKey, out headerValue))
                 {
                     expected++;
+                    if (!Enum.TryParse<ForwardedTransformActions>(headerValue, out var _))
+                    {
+                        context.Errors.Add(new ArgumentException($"Unexpected value for {prefix + PrefixKey}: {headerValue}. Expected one of {nameof(ForwardedTransformActions)}"));
+                    }
+                }
+
+                if (transformValues.TryGetValue(prefix + HostKey, out headerValue))
+                {
+                    expected++;
+                    if (!Enum.TryParse<ForwardedTransformActions>(headerValue, out var _))
+                    {
+                        context.Errors.Add(new ArgumentException($"Unexpected value for {prefix + HostKey}: {headerValue}. Expected one of {nameof(ForwardedTransformActions)}"));
+                    }
+                }
+
+                if (transformValues.TryGetValue(prefix + PrefixKey, out headerValue))
+                {
+                    expected++;
+                    if (!Enum.TryParse<ForwardedTransformActions>(headerValue, out var _))
+                    {
+                        context.Errors.Add(new ArgumentException($"Unexpected value for {prefix + PrefixKey}: {headerValue}. Expected one of {nameof(ForwardedTransformActions)}"));
+                    }
                 }
 
                 TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected);
-
-                // for, host, proto, Prefix
-                var tokens = xforwardedHeaders.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (var token in tokens)
-                {
-                    if (!string.Equals(token, ForKey, StringComparison.OrdinalIgnoreCase)
-                        && !string.Equals(token, HostKey, StringComparison.OrdinalIgnoreCase)
-                        && !string.Equals(token, ProtoKey, StringComparison.OrdinalIgnoreCase)
-                        && !string.Equals(token, PrefixKey, StringComparison.OrdinalIgnoreCase))
-                    {
-                        context.Errors.Add(new ArgumentException($"Unexpected value for X-Forwarded: {token}. Expected 'for', 'host', 'proto', or 'Prefix'"));
-                    }
-                }
             }
             else if (transformValues.TryGetValue(ForwardedKey, out var forwardedHeader))
             {
@@ -128,56 +149,63 @@ namespace Yarp.ReverseProxy.Transforms
 
         public bool Build(TransformBuilderContext context, IReadOnlyDictionary<string, string> transformValues)
         {
-            if (transformValues.TryGetValue(XForwardedKey, out var xforwardedHeaders))
+            var xExpected = 0;
+
+            var defaultXAction = ForwardedTransformActions.Set;
+            if (transformValues.TryGetValue(XForwardedKey, out var headerValue)
+                && Enum.TryParse<ForwardedTransformActions>(headerValue, out var action))
             {
-                var expected = 1;
+                xExpected++;
+                defaultXAction = action;
+            }
 
-                var append = true;
-                if (transformValues.TryGetValue(AppendKey, out var appendValue))
-                {
-                    expected++;
-                    append = bool.Parse(appendValue);
-                }
+            var prefix = "X-Forwarded-";
+            if (transformValues.TryGetValue(PrefixForwardedKey, out var prefixValue))
+            {
+                xExpected++;
+                prefix = prefixValue;
+            }
 
-                var prefix = "X-Forwarded-";
-                if (transformValues.TryGetValue(PrefixForwardedKey, out var prefixValue))
-                {
-                    expected++;
-                    prefix = prefixValue;
-                }
+            var xForAction = defaultXAction;
+            if (transformValues.TryGetValue(prefix + ForKey, out headerValue)
+                && Enum.TryParse<ForwardedTransformActions>(headerValue, out action))
+            {
+                xExpected++;
+                xForAction = action;
+            }
 
-                TransformHelpers.CheckTooManyParameters(transformValues, expected);
+            var xPrefixAction = defaultXAction;
+            if (transformValues.TryGetValue(prefix + PrefixKey, out headerValue)
+                && Enum.TryParse(headerValue, out action))
+            {
+                xExpected++;
+                xPrefixAction = action;
+            }
 
-                // for, host, proto, Prefix
-                var tokens = xforwardedHeaders.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                bool useFor, useHost, useProto, usePrefix;
-                useFor = useHost = useProto = usePrefix = false;
+            var xHostAction = defaultXAction;
+            if (transformValues.TryGetValue(prefix + HostKey, out headerValue)
+                && Enum.TryParse(headerValue, out action))
+            {
+                xExpected++;
+                xHostAction = action;
+            }
 
-                foreach (var token in tokens)
-                {
-                    if (string.Equals(token, ForKey, StringComparison.OrdinalIgnoreCase))
-                    {
-                        useFor = true;
-                    }
-                    else if (string.Equals(token, HostKey, StringComparison.OrdinalIgnoreCase))
-                    {
-                        useHost = true;
-                    }
-                    else if (string.Equals(token, ProtoKey, StringComparison.OrdinalIgnoreCase))
-                    {
-                        useProto = true;
-                    }
-                    else if (string.Equals(token, PrefixKey, StringComparison.OrdinalIgnoreCase))
-                    {
-                        usePrefix = true;
-                    }
-                    else
-                    {
-                        throw new ArgumentException($"Unexpected value for X-Forwarded: {token}. Expected 'for', 'host', 'proto', or 'Prefix'");
-                    }
-                }
+            var xProtoAction = defaultXAction;
+            if (transformValues.TryGetValue(prefix + ProtoKey, out headerValue)
+                && Enum.TryParse(headerValue, out action))
+            {
+                xExpected++;
+                xProtoAction = action;
+            }
 
-                context.AddXForwarded(prefix, useFor, useHost, useProto, usePrefix, append);
+            if (xExpected > 0)
+            {
+                TransformHelpers.CheckTooManyParameters(transformValues, xExpected);
+
+                context.AddXForwardedFor(prefix, xForAction);
+                context.AddXForwardedPrefix(prefix, xPrefixAction);
+                context.AddXForwardedHost(prefix, xHostAction);
+                context.AddXForwardedProto(prefix, xProtoAction);
             }
             else if (transformValues.TryGetValue(ForwardedKey, out var forwardedHeader))
             {
@@ -213,13 +241,13 @@ namespace Yarp.ReverseProxy.Transforms
                     }
                     else
                     {
-                        throw new ArgumentException($"Unexpected value for X-Forwarded: {token}. Expected 'for', 'host', 'proto', or 'by'");
+                        throw new ArgumentException($"Unexpected value for Forwarded: {token}. Expected 'for', 'host', 'proto', or 'by'");
                     }
                 }
 
                 var expected = 1;
 
-                var append = true;
+                var append = false;
                 if (transformValues.TryGetValue(AppendKey, out var appendValue))
                 {
                     expected++;

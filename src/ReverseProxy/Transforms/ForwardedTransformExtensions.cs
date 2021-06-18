@@ -51,28 +51,70 @@ namespace Yarp.ReverseProxy.Transforms
         }
 
         /// <summary>
-        /// Adds the transform which will add X-Forwarded-* request headers.
+        /// Adds the transform which will add X-Forwarded-For request header.
         /// </summary>
-        public static TransformBuilderContext AddXForwarded(this TransformBuilderContext context, string headerPrefix = "X-Forwarded-",
-            bool useFor = true, bool useHost = true, bool useProto = true, bool usePrefix = true, bool append = true)
+        public static TransformBuilderContext AddXForwardedFor(this TransformBuilderContext context, string headerPrefix = "X-Forwarded-", ForwardedTransformActions action = ForwardedTransformActions.Set)
         {
             context.UseDefaultForwarders = false;
-            if (useFor)
+            if (action == ForwardedTransformActions.Off)
             {
-                context.RequestTransforms.Add(new RequestHeaderXForwardedForTransform(headerPrefix + ForwardedTransformFactory.ForKey, append));
+                return context;
             }
-            if (useHost)
+            context.RequestTransforms.Add(new RequestHeaderXForwardedForTransform(headerPrefix + ForwardedTransformFactory.ForKey, action));
+            return context;
+        }
+
+        /// <summary>
+        /// Adds the transform which will add X-Forwarded-Host request header.
+        /// </summary>
+        public static TransformBuilderContext AddXForwardedHost(this TransformBuilderContext context, string headerPrefix = "X-Forwarded-", ForwardedTransformActions action = ForwardedTransformActions.Set)
+        {
+            context.UseDefaultForwarders = false;
+            if (action == ForwardedTransformActions.Off)
             {
-                context.RequestTransforms.Add(new RequestHeaderXForwardedHostTransform(headerPrefix + ForwardedTransformFactory.HostKey, append));
+                return context;
             }
-            if (useProto)
+            context.RequestTransforms.Add(new RequestHeaderXForwardedHostTransform(headerPrefix + ForwardedTransformFactory.HostKey, action));
+            return context;
+        }
+
+        /// <summary>
+        /// Adds the transform which will add X-Forwarded-Proto request header.
+        /// </summary>
+        public static TransformBuilderContext AddXForwardedProto(this TransformBuilderContext context, string headerPrefix = "X-Forwarded-", ForwardedTransformActions action = ForwardedTransformActions.Set)
+        {
+            context.UseDefaultForwarders = false;
+            if (action == ForwardedTransformActions.Off)
             {
-                context.RequestTransforms.Add(new RequestHeaderXForwardedProtoTransform(headerPrefix + ForwardedTransformFactory.ProtoKey, append));
+                return context;
             }
-            if (usePrefix)
+            context.RequestTransforms.Add(new RequestHeaderXForwardedProtoTransform(headerPrefix + ForwardedTransformFactory.ProtoKey, action));
+            return context;
+        }
+
+        /// <summary>
+        /// Adds the transform which will add X-Forwarded-Proto request header.
+        /// </summary>
+        public static TransformBuilderContext AddXForwardedPrefix(this TransformBuilderContext context, string headerPrefix = "X-Forwarded-", ForwardedTransformActions action = ForwardedTransformActions.Set)
+        {
+            context.UseDefaultForwarders = false;
+            if (action == ForwardedTransformActions.Off)
             {
-                context.RequestTransforms.Add(new RequestHeaderXForwardedPrefixTransform(headerPrefix + ForwardedTransformFactory.PrefixKey, append));
+                return context;
             }
+            context.RequestTransforms.Add(new RequestHeaderXForwardedPrefixTransform(headerPrefix + ForwardedTransformFactory.PrefixKey, action));
+            return context;
+        }
+
+        /// <summary>
+        /// Adds the transform which will add X-Forwarded-* request headers.
+        /// </summary>
+        public static TransformBuilderContext AddXForwarded(this TransformBuilderContext context, string headerPrefix = "X-Forwarded-", ForwardedTransformActions action = ForwardedTransformActions.Set)
+        {
+            context.AddXForwardedFor(headerPrefix, action);
+            context.AddXForwardedPrefix(headerPrefix, action);
+            context.AddXForwardedHost(headerPrefix, action);
+            context.AddXForwardedProto(headerPrefix, action);
             return context;
         }
 

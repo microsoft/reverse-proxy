@@ -16,8 +16,8 @@ namespace Yarp.ReverseProxy.Transforms
         /// Creates a new transform.
         /// </summary>
         /// <param name="headerName">The header name.</param>
-        /// <param name="append">Indicates if the new value should append to or replace an existing header.</param>
-        public RequestHeaderXForwardedForTransform(string headerName, bool append)
+        /// <param name="append">Action to applied to the header.</param>
+        public RequestHeaderXForwardedForTransform(string headerName, ForwardedTransformActions action)
         {
             if (string.IsNullOrEmpty(headerName))
             {
@@ -25,41 +25,57 @@ namespace Yarp.ReverseProxy.Transforms
             }
 
             HeaderName = headerName;
-            Append = append;
+            TransformAction = action;
         }
 
         internal string HeaderName { get; }
 
-        internal bool Append { get; }
+        internal ForwardedTransformActions TransformAction { get; }
 
         /// <inheritdoc/>
         public override ValueTask ApplyAsync(RequestTransformContext context)
         {
             if (context is null)
             {
-                throw new System.ArgumentNullException(nameof(context));
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            if (TransformAction == ForwardedTransformActions.Off)
+            {
+                return default;
             }
 
             var existingValues = TakeHeader(context, HeaderName);
 
             var remoteIp = context.HttpContext.Connection.RemoteIpAddress?.ToString();
 
-            if (remoteIp == null)
+            switch (TransformAction)
             {
-                if (Append && !string.IsNullOrEmpty(existingValues))
-                {
-                    AddHeader(context, HeaderName, existingValues);
-                }
-            }
-            else if (Append)
-            {
-                var values = StringValues.Concat(existingValues, remoteIp);
-                AddHeader(context, HeaderName, values);
-            }
-            else
-            {
-                // Set
-                AddHeader(context, HeaderName, remoteIp);
+                case ForwardedTransformActions.Set:
+                    if (remoteIp != null)
+                    {
+                        AddHeader(context, HeaderName, remoteIp);
+                    }
+                    break;
+                case ForwardedTransformActions.Append:
+                    if (remoteIp == null)
+                    {
+                        if (!string.IsNullOrEmpty(existingValues))
+                        {
+                            AddHeader(context, HeaderName, existingValues);
+                        }
+                    }
+                    else
+                    {
+                        var values = StringValues.Concat(existingValues, remoteIp);
+                        AddHeader(context, HeaderName, values);
+                    }
+                    break;
+                case ForwardedTransformActions.Remove:
+                    RemoveHeader(context, HeaderName);
+                    break;
+                default:
+                    throw new NotImplementedException(TransformAction.ToString());
             }
 
             return default;

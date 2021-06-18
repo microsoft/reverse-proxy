@@ -70,5 +70,23 @@ namespace Yarp.ReverseProxy.Transforms
 
             RequestUtilities.AddHeader(context.ProxyRequest, headerName, values);
         }
+
+        /// <summary>
+        /// Removed the given header from the HttpRequestMessage or HttpContent where applicable.
+        /// </summary>
+        public static void RemoveHeader(RequestTransformContext context, string headerName)
+        {
+            if (context is null)
+            {
+                throw new System.ArgumentNullException(nameof(context));
+            }
+
+            if (string.IsNullOrEmpty(headerName))
+            {
+                throw new System.ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
+            }
+
+            RequestUtilities.RemoveHeader(context.ProxyRequest, headerName);
+        }
     }
 }
