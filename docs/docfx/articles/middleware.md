@@ -129,7 +129,7 @@ proxyPipeline.Use(async (context, next) =>
 
 Middleware can wrap the call to `await next()` in a try/catch block to handle exceptions from later components.
 
-The proxy logic at the end of the pipeline ([IHttpProxy](direct-proxying.md)) does not throw exceptions for common request proxy errors. These are captured and reported in the [IProxyErrorFeature](xref:Yarp.ReverseProxy.Proxy.IProxyErrorFeature) available from `HttpContext.Features` or the `HttpContext.GetProxyErrorFeature()` extension method.
+The proxy logic at the end of the pipeline ([IHttpForwarder](direct-forwarding.md)) does not throw exceptions for common request proxy errors. These are captured and reported in the [IForwarderErrorFeature](xref:Yarp.ReverseProxy.Forwarder.IForwarderErrorFeature) available from `HttpContext.Features` or the `HttpContext.GetForwarderErrorFeature()` extension method.
 
 ```C#
 proxyPipeline.Use(async (context, next) =>
