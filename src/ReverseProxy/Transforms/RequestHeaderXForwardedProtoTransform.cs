@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 
@@ -25,6 +26,7 @@ namespace Yarp.ReverseProxy.Transforms
             }
 
             HeaderName = headerName;
+            Debug.Assert(action != ForwardedTransformActions.Off);
             TransformAction = action;
         }
 
@@ -39,21 +41,16 @@ namespace Yarp.ReverseProxy.Transforms
                 throw new ArgumentNullException(nameof(context));
             }
 
-            if (TransformAction == ForwardedTransformActions.Off)
-            {
-                return default;
-            }
-
-            var existingValues = TakeHeader(context, HeaderName);
-
             var scheme = context.HttpContext.Request.Scheme;
 
             switch (TransformAction)
             {
                 case ForwardedTransformActions.Set:
+                    RemoveHeader(context, HeaderName);
                     AddHeader(context, HeaderName, scheme);
                     break;
                 case ForwardedTransformActions.Append:
+                    var existingValues = TakeHeader(context, HeaderName);
                     var values = StringValues.Concat(existingValues, scheme);
                     AddHeader(context, HeaderName, values);
                     break;

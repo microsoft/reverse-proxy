@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -21,14 +22,15 @@ namespace Yarp.ReverseProxy.Transforms
 
         private readonly IRandomFactory _randomFactory;
 
-        public RequestHeaderForwardedTransform(IRandomFactory randomFactory, NodeFormat forFormat, NodeFormat byFormat, bool host, bool proto, bool append)
+        public RequestHeaderForwardedTransform(IRandomFactory randomFactory, NodeFormat forFormat, NodeFormat byFormat, bool host, bool proto, ForwardedTransformActions action)
         {
             _randomFactory = randomFactory ?? throw new ArgumentNullException(nameof(randomFactory));
             ForFormat = forFormat;
             ByFormat = byFormat;
             HostEnabled = host;
             ProtoEnabled = proto;
-            Append = append;
+            Debug.Assert(action != ForwardedTransformActions.Off);
+            TransformAction = action;
         }
 
         internal NodeFormat ForFormat { get; }
@@ -39,7 +41,7 @@ namespace Yarp.ReverseProxy.Transforms
 
         internal bool ProtoEnabled { get; }
 
-        internal bool Append { get; }
+        internal ForwardedTransformActions TransformAction { get; }
 
         /// <inheritdoc/>
         public override ValueTask ApplyAsync(RequestTransformContext context)
@@ -58,15 +60,22 @@ namespace Yarp.ReverseProxy.Transforms
             AppendBy(httpContext, ref builder);
             var value = builder.ToString();
 
-            var existingValues = TakeHeader(context, ForwardedHeaderName);
-            if (Append)
+            switch (TransformAction)
             {
-                var values = StringValues.Concat(existingValues, value);
-                AddHeader(context, ForwardedHeaderName, values);
-            }
-            else
-            {
-                AddHeader(context, ForwardedHeaderName, value);
+                case ForwardedTransformActions.Set:
+                    RemoveHeader(context, ForwardedHeaderName);
+                    AddHeader(context, ForwardedHeaderName, value);
+                    break;
+                case ForwardedTransformActions.Append:
+                    var existingValues = TakeHeader(context, ForwardedHeaderName);
+                    var values = StringValues.Concat(existingValues, value);
+                    AddHeader(context, ForwardedHeaderName, values);
+                    break;
+                case ForwardedTransformActions.Remove:
+                    RemoveHeader(context, ForwardedHeaderName);
+                    break;
+                default:
+                    throw new NotImplementedException(TransformAction.ToString());
             }
 
             return default;

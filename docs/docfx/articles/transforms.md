@@ -490,10 +490,11 @@ Code:
 routeConfig = routeConfig.WithTransformXForwarded(headerPrefix: "X-Forwarded-", useFor: true, useHost: true, useProto: true, usePrefix: true, action: ForwardedTransformAction.Remove);
 ```
 ```C#
-transformBuilderContext.AddXForwarded(headerPrefix: "X-Forwarded-", ForwardedTransformAction.Remove);
-transformBuilderContext.AddXForwardedFor(headerPrefix: "X-Forwarded-", ForwardedTransformAction.Remove);
-transformBuilderContext.AddXForwardedHost(headerPrefix: "X-Forwarded-", ForwardedTransformAction.Remove);
+transformBuilderContext.AddXForwarded(headerPrefix: "X-Forwarded-", ForwardedTransformAction.Set);
+transformBuilderContext.AddXForwardedFor(headerPrefix: "X-Forwarded-", ForwardedTransformAction.Append);
+transformBuilderContext.AddXForwardedHost(headerPrefix: "X-Forwarded-", ForwardedTransformAction.Append);
 transformBuilderContext.AddXForwardedProto(headerPrefix: "X-Forwarded-", ForwardedTransformAction.Remove);
+transformBuilderContext.AddXForwardedPrefix(headerPrefix: "X-Forwarded-", ForwardedTransformAction.Remove);
 ```
 
 Example:
@@ -517,9 +518,9 @@ This transform is enabled by default even if not specified in the route config.
 
 Set the `X-Forwarded` value to a comma separated list containing the headers you need to enable. All for headers are enabled by default. All can be disabled by specifying an empty value `""`.
 
-The Prefix specifies the header name prefix to use for each header. With the default `X-Forwarded-` prefix the resulting headers will be `X-Forwarded-For`, `X-Forwarded-Proto`, `X-Forwarded-Host`, and `X-Forwarded-PathBase`.
+The Prefix specifies the header name prefix to use for each header. With the default `X-Forwarded-` prefix the resulting headers will be `X-Forwarded-For`, `X-Forwarded-Proto`, `X-Forwarded-Host`, and `X-Forwarded-Prefix`.
 
-Append specifies if each header should append to or replace an existing header of the same name. A request traversing multiple proxies may accumulate a list of such headers and the destination server will need to evaluate the list to determine the original value. If append is false and the associated value is not available on the request (e.g. RemoteIpAddress is null), any existing header is still removed to prevent spoofing.
+Transform action specifies how each header should be combined with an existing header of the same name. It can be "Set", "Append", "Remove, or "Off" (completely disable the transform). A request traversing multiple proxies may accumulate a list of such headers and the destination server will need to evaluate the list to determine the original value. If action is "Set" and the associated value is not available on the request (e.g. RemoteIpAddress is null), any existing header is still removed to prevent spoofing.
 
 The {Prefix}For header value is taken from `HttpContext.Connection.RemoteIpAddress` representing the prior caller's IP address. The port is not included. IPv6 addresses do not include the bounding `[]` brackets.
 
@@ -536,22 +537,23 @@ The {Prefix}Prefix header value is taken from `HttpContext.Request.PathBase`. Th
 | Forwarded | A comma separated list containing any of these values: for,by,proto,host | (none) | yes |
 | ForFormat | Random/RandomAndPort/RandomAndRandomPort/Unknown/UnknownAndPort/UnknownAndRandomPort/Ip/IpAndPort/IpAndRandomPort | Random | no |
 | ByFormat | Random/RandomAndPort/RandomAndRandomPort/Unknown/UnknownAndPort/UnknownAndRandomPort/Ip/IpAndPort/IpAndRandomPort | Random | no |
-| Append | true/false | true | no |
+| Action | Action to apply to this header | Set | no |
 
 Config:
 ```JSON
 {
   "Forwarded": "by,for,host,proto",
   "ByFormat": "Random",
-  "ForFormat": "IpAndPort"
+  "ForFormat": "IpAndPort",
+  "Action": "Append"
 },
 ```
 Code:
 ```csharp
-routeConfig = routeConfig.WithTransformForwarded(useHost: true, useProto: true, forFormat: NodeFormat.IpAndPort, ByFormat: NodeFormat.Random, append: true);
+routeConfig = routeConfig.WithTransformForwarded(useHost: true, useProto: true, forFormat: NodeFormat.IpAndPort, ByFormat: NodeFormat.Random, action: ForwardedTransformAction.Append);
 ```
 ```C#
-transformBuilderContext.AddForwarded(useHost: true, useProto: true, forFormat: NodeFormat.IpAndPort, ByFormat: NodeFormat.Random, append: true);
+transformBuilderContext.AddForwarded(useHost: true, useProto: true, forFormat: NodeFormat.IpAndPort, ByFormat: NodeFormat.Random, action: ForwardedTransformAction.Append);
 ```
 Example:
 ```
@@ -562,7 +564,7 @@ The `Forwarded` header is defined by [RFC 7239](https://tools.ietf.org/html/rfc7
 
 Enabling this transform will disable the default X-Forwarded transforms as they carry similar information in another format. The X-Forwarded transforms can still be explicitly enabled.
 
-Append: This specifies if the transform should append to or replace an existing Forwarded header. A request traversing multiple proxies may accumulate a list of such headers and the destination server will need to evaluate the list to determine the original value.
+Action: This specifies how the transform should handle an existing Forwarded header. It can be "Set", "Append", "Remove, or "Off" (completely disable the transform). A request traversing multiple proxies may accumulate a list of such headers and the destination server will need to evaluate the list to determine the original value.
 
 Proto: This value is taken from `HttpContext.Request.Scheme` indicating if the prior caller used HTTP or HTTPS.
 

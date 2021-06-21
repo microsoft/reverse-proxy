@@ -16,13 +16,11 @@ namespace Yarp.ReverseProxy.Transforms.Tests
         [InlineData("", "http", ForwardedTransformActions.Set, "http")]
         [InlineData("", "http", ForwardedTransformActions.Append, "http")]
         [InlineData("", "http", ForwardedTransformActions.Remove, "")]
-        [InlineData("", "http", ForwardedTransformActions.Off, "")]
         [InlineData("existing,Header", "http", ForwardedTransformActions.Set, "http")]
         [InlineData("existing;Header", "http", ForwardedTransformActions.Set, "http")]
         [InlineData("existing,Header", "http", ForwardedTransformActions.Append, "existing,Header;http")]
         [InlineData("existing;Header", "http", ForwardedTransformActions.Append, "existing;Header;http")]
         [InlineData("existing;Header", "http", ForwardedTransformActions.Remove, "")]
-        [InlineData("existing;Header", "http", ForwardedTransformActions.Off, "existing;Header")]
         public async Task Scheme_Added(string startValue, string scheme, ForwardedTransformActions action, string expected)
         {
             var httpContext = new DefaultHttpContext();

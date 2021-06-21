@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 
@@ -25,6 +26,7 @@ namespace Yarp.ReverseProxy.Transforms
             }
 
             HeaderName = headerName;
+            Debug.Assert(action != ForwardedTransformActions.Off);
             TransformAction = action;
         }
 
@@ -39,36 +41,19 @@ namespace Yarp.ReverseProxy.Transforms
                 throw new ArgumentNullException(nameof(context));
             }
 
-            if (TransformAction == ForwardedTransformActions.Off)
-            {
-                return default;
-            }
-
-            var existingValues = TakeHeader(context, HeaderName);
-
             var host = context.HttpContext.Request.Host;
 
             switch (TransformAction)
             {
                 case ForwardedTransformActions.Set:
+                    RemoveHeader(context, HeaderName);
                     if (host.HasValue)
                     {
                         AddHeader(context, HeaderName, host.ToUriComponent());
                     }
                     break;
                 case ForwardedTransformActions.Append:
-                    if (!host.HasValue)
-                    {
-                        if (!string.IsNullOrEmpty(existingValues))
-                        {
-                            AddHeader(context, HeaderName, existingValues);
-                        }
-                    }
-                    else
-                    {
-                        var values = StringValues.Concat(existingValues, host.ToUriComponent());
-                        AddHeader(context, HeaderName, values);
-                    }
+                    Append(context, host);
                     break;
                 case ForwardedTransformActions.Remove:
                     RemoveHeader(context, HeaderName);
@@ -78,6 +63,23 @@ namespace Yarp.ReverseProxy.Transforms
             }
 
             return default;
+        }
+
+        private void Append(RequestTransformContext context, Microsoft.AspNetCore.Http.HostString host)
+        {
+            var existingValues = TakeHeader(context, HeaderName);
+            if (!host.HasValue)
+            {
+                if (!string.IsNullOrEmpty(existingValues))
+                {
+                    AddHeader(context, HeaderName, existingValues);
+                }
+            }
+            else
+            {
+                var values = StringValues.Concat(existingValues, host.ToUriComponent());
+                AddHeader(context, HeaderName, values);
+            }
         }
     }
 }

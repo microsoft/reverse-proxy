@@ -16,11 +16,9 @@ namespace Yarp.ReverseProxy.Transforms.Tests
         [InlineData("", "", ForwardedTransformActions.Set, "")]
         [InlineData("", "", ForwardedTransformActions.Append, "")]
         [InlineData("", "", ForwardedTransformActions.Remove, "")]
-        [InlineData("", "", ForwardedTransformActions.Off, "")]
         [InlineData("", "host", ForwardedTransformActions.Set, "host")]
         [InlineData("", "host:80", ForwardedTransformActions.Append, "host:80")]
         [InlineData("", "host:80", ForwardedTransformActions.Remove, "")]
-        [InlineData("", "host:80", ForwardedTransformActions.Off, "")]
         [InlineData("", "ho本st", ForwardedTransformActions.Set, "xn--host-6j1i")]
         [InlineData("", "::1", ForwardedTransformActions.Set, "::1")]
         [InlineData("", "[::1]:80", ForwardedTransformActions.Set, "[::1]:80")]
@@ -29,13 +27,11 @@ namespace Yarp.ReverseProxy.Transforms.Tests
         [InlineData("existing,Header", "", ForwardedTransformActions.Append, "existing,Header")]
         [InlineData("existing;Header", "", ForwardedTransformActions.Append, "existing;Header")]
         [InlineData("existing;Header", "", ForwardedTransformActions.Remove, "")]
-        [InlineData("existing;Header", "", ForwardedTransformActions.Off, "existing;Header")]
         [InlineData("existing,Header", "host", ForwardedTransformActions.Set, "host")]
         [InlineData("existing;Header", "host", ForwardedTransformActions.Set, "host")]
         [InlineData("existing,Header", "host:80", ForwardedTransformActions.Append, "existing,Header;host:80")]
         [InlineData("existing;Header", "host", ForwardedTransformActions.Append, "existing;Header;host")]
         [InlineData("existing;Header", "host", ForwardedTransformActions.Remove, "")]
-        [InlineData("existing;Header", "host", ForwardedTransformActions.Off, "existing;Header")]
         public async Task Host_Added(string startValue, string host, ForwardedTransformActions action, string expected)
         {
             var httpContext = new DefaultHttpContext();

@@ -16,13 +16,11 @@ namespace Yarp.ReverseProxy.Transforms.Tests
         [InlineData("", "", ForwardedTransformActions.Set, "")]
         [InlineData("", "", ForwardedTransformActions.Append, "")]
         [InlineData("", "", ForwardedTransformActions.Remove, "")]
-        [InlineData("", "", ForwardedTransformActions.Off, "")]
         [InlineData("", "/", ForwardedTransformActions.Set, "/")]
         [InlineData("", "/", ForwardedTransformActions.Append, "/")]
         [InlineData("", "/base", ForwardedTransformActions.Set, "/base")]
         [InlineData("", "/base", ForwardedTransformActions.Append, "/base")]
         [InlineData("", "/base", ForwardedTransformActions.Remove, "")]
-        [InlineData("", "/base", ForwardedTransformActions.Off, "")]
         [InlineData("", "/base/value", ForwardedTransformActions.Set, "/base/value")]
         [InlineData("", "/base/value", ForwardedTransformActions.Append, "/base/value")]
         [InlineData("", "/base本", ForwardedTransformActions.Set, "/base%E6%9C%AC")]
@@ -31,13 +29,11 @@ namespace Yarp.ReverseProxy.Transforms.Tests
         [InlineData("existing,Header", "", ForwardedTransformActions.Append, "existing,Header")]
         [InlineData("existing;Header", "", ForwardedTransformActions.Append, "existing;Header")]
         [InlineData("existing;Header", "", ForwardedTransformActions.Remove, "")]
-        [InlineData("existing;Header", "", ForwardedTransformActions.Off, "existing;Header")]
         [InlineData("existing,Header", "/base", ForwardedTransformActions.Set, "/base")]
         [InlineData("existing;Header", "/base", ForwardedTransformActions.Set, "/base")]
         [InlineData("existing,Header", "/base", ForwardedTransformActions.Append, "existing,Header;/base")]
         [InlineData("existing;Header", "/base", ForwardedTransformActions.Append, "existing;Header;/base")]
         [InlineData("existing;Header", "/base", ForwardedTransformActions.Remove, "")]
-        [InlineData("existing;Header", "/base", ForwardedTransformActions.Off, "existing;Header")]
         public async Task PathBase_Added(string startValue, string pathBase, ForwardedTransformActions action, string expected)
         {
             var httpContext = new DefaultHttpContext();

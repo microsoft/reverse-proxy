@@ -12,7 +12,7 @@ namespace Yarp.ReverseProxy.Transforms
     {
         internal static readonly string XForwardedKey = "X-Forwarded";
         internal static readonly string ForwardedKey = "Forwarded";
-        internal static readonly string AppendKey = "Append";
+        internal static readonly string ActionKey = "Action";
         internal static readonly string PrefixForwardedKey = "Prefix";
         internal static readonly string ForKey =  "For";
         internal static readonly string ByKey = "By";
@@ -79,13 +79,10 @@ namespace Yarp.ReverseProxy.Transforms
             {
                 var expected = 1;
 
-                if (transformValues.TryGetValue(AppendKey, out var appendValue))
+                if (transformValues.TryGetValue(ActionKey, out headerValue))
                 {
                     expected++;
-                    if (!bool.TryParse(appendValue, out var _))
-                    {
-                        context.Errors.Add(new ArgumentException($"Unexpected value for Forwarded:Append: {appendValue}. Expected 'true' or 'false'"));
-                    }
+                    ValidateAction(context, ForwardedKey + ":" + ActionKey, headerValue);
                 }
 
                 var enumValues = "Random,RandomAndPort,Unknown,UnknownAndPort,Ip,IpAndPort";
@@ -154,32 +151,36 @@ namespace Yarp.ReverseProxy.Transforms
                 prefix = prefixValue;
             }
 
+            var xForName = prefix + ForKey;
             var xForAction = defaultXAction;
-            if (transformValues.TryGetValue(prefix + ForKey, out headerValue)
-                && Enum.TryParse<ForwardedTransformActions>(headerValue, out action))
+            if (transformValues.TryGetValue(xForName, out headerValue)
+                && Enum.TryParse(headerValue, out action))
             {
                 xExpected++;
                 xForAction = action;
             }
 
+            var xPrefixName = prefix + PrefixKey;
             var xPrefixAction = defaultXAction;
-            if (transformValues.TryGetValue(prefix + PrefixKey, out headerValue)
+            if (transformValues.TryGetValue(xPrefixName, out headerValue)
                 && Enum.TryParse(headerValue, out action))
             {
                 xExpected++;
                 xPrefixAction = action;
             }
 
+            var xHostName = prefix + HostKey;
             var xHostAction = defaultXAction;
-            if (transformValues.TryGetValue(prefix + HostKey, out headerValue)
+            if (transformValues.TryGetValue(xHostName, out headerValue)
                 && Enum.TryParse(headerValue, out action))
             {
                 xExpected++;
                 xHostAction = action;
             }
 
+            var xProtoName = prefix + ProtoKey;
             var xProtoAction = defaultXAction;
-            if (transformValues.TryGetValue(prefix + ProtoKey, out headerValue)
+            if (transformValues.TryGetValue(xProtoName, out headerValue)
                 && Enum.TryParse(headerValue, out action))
             {
                 xExpected++;
@@ -190,10 +191,10 @@ namespace Yarp.ReverseProxy.Transforms
             {
                 TransformHelpers.CheckTooManyParameters(transformValues, xExpected);
 
-                context.AddXForwardedFor(prefix, xForAction);
-                context.AddXForwardedPrefix(prefix, xPrefixAction);
-                context.AddXForwardedHost(prefix, xHostAction);
-                context.AddXForwardedProto(prefix, xProtoAction);
+                context.AddXForwardedFor(xForName, xForAction);
+                context.AddXForwardedPrefix(xPrefixName, xPrefixAction);
+                context.AddXForwardedHost(xHostName, xHostAction);
+                context.AddXForwardedProto(xProtoName, xProtoAction);
             }
             else if (transformValues.TryGetValue(ForwardedKey, out var forwardedHeader))
             {
@@ -235,11 +236,12 @@ namespace Yarp.ReverseProxy.Transforms
 
                 var expected = 1;
 
-                var append = false;
-                if (transformValues.TryGetValue(AppendKey, out var appendValue))
+                var headerAction = ForwardedTransformActions.Set;
+                if (transformValues.TryGetValue(ActionKey, out headerValue)
+                    && Enum.TryParse(headerValue, out action))
                 {
                     expected++;
-                    append = bool.Parse(appendValue);
+                    headerAction = action;
                 }
 
                 if (useFor && transformValues.TryGetValue(ForFormatKey, out var forFormatString))
@@ -260,7 +262,7 @@ namespace Yarp.ReverseProxy.Transforms
                 if (useBy || useFor || useHost || useProto)
                 {
                     // Not using the extension to avoid resolving the random factory each time.
-                    context.RequestTransforms.Add(new RequestHeaderForwardedTransform(_randomFactory, forFormat, byFormat, useHost, useProto, append));
+                    context.RequestTransforms.Add(new RequestHeaderForwardedTransform(_randomFactory, forFormat, byFormat, useHost, useProto, headerAction));
                 }
             }
             else if (transformValues.TryGetValue(ClientCertKey, out var clientCertHeader))
