@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Fabric.Query;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -41,7 +42,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
         /// <summary>
         /// Get details for all partitions of a service.
         /// </summary>
-        Task<IEnumerable<Guid>> GetPartitionListAsync(Uri serviceName, TimeSpan timeout, CancellationToken cancellationToken);
+        Task<IEnumerable<Partition>> GetPartitionListAsync(Uri serviceName, TimeSpan timeout, CancellationToken cancellationToken);
 
         /// <summary>
         /// Get all the replicas for a specific partition.

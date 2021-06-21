@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric.Health;
+using System.Fabric.Query;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,7 +30,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
         /// <summary>
         /// TODO.
         /// </summary>
-        Task<IEnumerable<Guid>> GetPartitionListAsync(Uri serviceName, CancellationToken cancellation);
+        Task<IEnumerable<Partition>> GetPartitionListAsync(Uri serviceName, CancellationToken cancellation);
 
         /// <summary>
         /// TODO.
