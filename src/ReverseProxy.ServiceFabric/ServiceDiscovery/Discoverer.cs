@@ -305,7 +305,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
 
                     try
                     {
-                        var destination = BuildDestination(replica, listenerName, healthListenerName);
+                        var destination = BuildDestination(replica, listenerName, healthListenerName, partition);
 
                         ReportReplicaHealth(options, service, partition.PartitionInformation.Id, replica, HealthState.Ok, $"Successfully built the endpoint from listener '{listenerName}'.");
 
