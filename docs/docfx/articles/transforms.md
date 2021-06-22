@@ -466,12 +466,12 @@ This removes the named header.
 
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
-| X-Forwarded | Default action (Set, Append, Remove, Off) to apply to all X-Forwarded-* listed below | Set | no |
-| X-Forwarded-For | Action to apply to this header | Set | no |
-| X-Forwarded-Proto | Action to apply to this header | Set | no |
-| X-Forwarded-Host | Action to apply to this header | Set | no |
-| X-Forwarded-Prefix | Action to apply to this header | Set | no |
-| Prefix | The header name prefix | "X-Forwarded-" | no |
+| X-Forwarded | Default action (Set, Append, Remove, Off) to apply to all X-Forwarded-* listed below | Set | yes |
+| For | Action to apply to this header | Set | no |
+| Proto | Action to apply to this header | Set | no |
+| Host | Action to apply to this header | Set | no |
+| Prefix | Action to apply to this header | Set | no |
+| HeaderPrefix | The header name prefix | "X-Forwarded-" | no |
 
 Action "Off" completely disables the transform.
 
@@ -479,10 +479,10 @@ Config:
 ```JSON
 {
   "X-Forwarded": "Set",
-  "X-Forwarded-For": "Remove",
-  "X-Forwarded-Proto": "Append",
-  "X-Forwarded-Prefix": "Off",
-  "Prefix": "X-Forwarded-"
+  "For": "Remove",
+  "Proto": "Append",
+  "Prefix": "Off",
+  "HeaderPrefix": "X-Forwarded-"
 }
 ```
 Code:

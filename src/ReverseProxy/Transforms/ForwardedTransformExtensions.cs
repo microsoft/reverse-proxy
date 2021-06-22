@@ -32,25 +32,25 @@ namespace Yarp.ReverseProxy.Transforms
 
                 if (xFor != null)
                 {
-                    transform[headerPrefix + ForwardedTransformFactory.ForKey] = xFor.Value.ToString();
+                    transform[ForwardedTransformFactory.ForKey] = xFor.Value.ToString();
                 }
 
                 if (xPrefix != null)
                 {
-                    transform[headerPrefix + ForwardedTransformFactory.PrefixKey] = xPrefix.Value.ToString();
+                    transform[ForwardedTransformFactory.PrefixKey] = xPrefix.Value.ToString();
                 }
 
                 if (xHost != null)
                 {
-                    transform[headerPrefix + ForwardedTransformFactory.HostKey] = xHost.Value.ToString();
+                    transform[ForwardedTransformFactory.HostKey] = xHost.Value.ToString();
                 }
 
                 if (xProto != null)
                 {
-                    transform[headerPrefix + ForwardedTransformFactory.ProtoKey] = xProto.Value.ToString();
+                    transform[ForwardedTransformFactory.ProtoKey] = xProto.Value.ToString();
                 }
 
-                transform[ForwardedTransformFactory.PrefixForwardedKey] = headerPrefix;
+                transform[ForwardedTransformFactory.HeaderPrefixKey] = headerPrefix;
             });
         }
 
@@ -97,7 +97,7 @@ namespace Yarp.ReverseProxy.Transforms
         }
 
         /// <summary>
-        /// Adds the transform which will add X-Forwarded-Proto request header.
+        /// Adds the transform which will add X-Forwarded-Prefix request header.
         /// </summary>
         public static TransformBuilderContext AddXForwardedPrefix(this TransformBuilderContext context, string headerName = "X-Forwarded-Prefix", ForwardedTransformActions action = ForwardedTransformActions.Set)
         {

@@ -53,22 +53,15 @@ namespace Yarp.ReverseProxy.Transforms
 
             var httpContext = context.HttpContext;
 
-            var builder = new ValueStringBuilder();
-            AppendProto(httpContext, ref builder);
-            AppendHost(httpContext, ref builder);
-            AppendFor(httpContext, ref builder);
-            AppendBy(httpContext, ref builder);
-            var value = builder.ToString();
-
             switch (TransformAction)
             {
                 case ForwardedTransformActions.Set:
                     RemoveHeader(context, ForwardedHeaderName);
-                    AddHeader(context, ForwardedHeaderName, value);
+                    AddHeader(context, ForwardedHeaderName, GetHeaderValue(httpContext));
                     break;
                 case ForwardedTransformActions.Append:
                     var existingValues = TakeHeader(context, ForwardedHeaderName);
-                    var values = StringValues.Concat(existingValues, value);
+                    var values = StringValues.Concat(existingValues, GetHeaderValue(httpContext));
                     AddHeader(context, ForwardedHeaderName, values);
                     break;
                 case ForwardedTransformActions.Remove:
@@ -79,6 +72,17 @@ namespace Yarp.ReverseProxy.Transforms
             }
 
             return default;
+        }
+
+        private string GetHeaderValue(HttpContext httpContext)
+        {
+            var builder = new ValueStringBuilder();
+            AppendProto(httpContext, ref builder);
+            AppendHost(httpContext, ref builder);
+            AppendFor(httpContext, ref builder);
+            AppendBy(httpContext, ref builder);
+            var value = builder.ToString();
+            return value;
         }
 
         private void AppendProto(HttpContext context, ref ValueStringBuilder builder)

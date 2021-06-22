@@ -13,7 +13,7 @@ namespace Yarp.ReverseProxy.Transforms
         internal static readonly string XForwardedKey = "X-Forwarded";
         internal static readonly string ForwardedKey = "Forwarded";
         internal static readonly string ActionKey = "Action";
-        internal static readonly string PrefixForwardedKey = "Prefix";
+        internal static readonly string HeaderPrefixKey = "HeaderPrefix";
         internal static readonly string ForKey =  "For";
         internal static readonly string ByKey = "By";
         internal static readonly string HostKey = "Host";
@@ -32,47 +32,41 @@ namespace Yarp.ReverseProxy.Transforms
 
         public bool Validate(TransformRouteValidationContext context, IReadOnlyDictionary<string, string> transformValues)
         {
-            var xExpected = 0;
-
             if (transformValues.TryGetValue(XForwardedKey, out var headerValue))
             {
-                xExpected++;
+                var xExpected = 1;
+
                 ValidateAction(context, XForwardedKey, headerValue);
-            }
 
-            var prefix = "X-Forwarded-";
-            if (transformValues.TryGetValue(PrefixForwardedKey, out var prefixValue))
-            {
-                xExpected++;
-                prefix = prefixValue;
-            }
+                if (transformValues.TryGetValue(HeaderPrefixKey, out _))
+                {
+                    xExpected++;
+                }
 
-            if (transformValues.TryGetValue(prefix + ForKey, out headerValue))
-            {
-                xExpected++;
-                ValidateAction(context, prefix + ForKey, headerValue);
-            }
+                if (transformValues.TryGetValue(ForKey, out headerValue))
+                {
+                    xExpected++;
+                    ValidateAction(context, ForKey, headerValue);
+                }
 
-            if (transformValues.TryGetValue(prefix + PrefixKey, out headerValue))
-            {
-                xExpected++;
-                ValidateAction(context, prefix + PrefixKey, headerValue);
-            }
+                if (transformValues.TryGetValue(PrefixKey, out headerValue))
+                {
+                    xExpected++;
+                    ValidateAction(context, PrefixKey, headerValue);
+                }
 
-            if (transformValues.TryGetValue(prefix + HostKey, out headerValue))
-            {
-                xExpected++;
-                ValidateAction(context, prefix + HostKey, headerValue);
-            }
+                if (transformValues.TryGetValue(HostKey, out headerValue))
+                {
+                    xExpected++;
+                    ValidateAction(context, HostKey, headerValue);
+                }
 
-            if (transformValues.TryGetValue(prefix + ProtoKey, out headerValue))
-            {
-                xExpected++;
-                ValidateAction(context, prefix + ProtoKey, headerValue);
-            }
+                if (transformValues.TryGetValue(ProtoKey, out headerValue))
+                {
+                    xExpected++;
+                    ValidateAction(context, ProtoKey, headerValue);
+                }
 
-            if (xExpected > 0)
-            {
                 TransformHelpers.TryCheckTooManyParameters(context, transformValues, xExpected);
             }
             else if (transformValues.TryGetValue(ForwardedKey, out var forwardedHeader))
@@ -134,67 +128,53 @@ namespace Yarp.ReverseProxy.Transforms
 
         public bool Build(TransformBuilderContext context, IReadOnlyDictionary<string, string> transformValues)
         {
-            var xExpected = 0;
-
-            var defaultXAction = ForwardedTransformActions.Set;
-            if (transformValues.TryGetValue(XForwardedKey, out var headerValue)
-                && Enum.TryParse<ForwardedTransformActions>(headerValue, out var action))
+            if (transformValues.TryGetValue(XForwardedKey, out var headerValue))
             {
-                xExpected++;
-                defaultXAction = action;
-            }
+                var xExpected = 1;
 
-            var prefix = "X-Forwarded-";
-            if (transformValues.TryGetValue(PrefixForwardedKey, out var prefixValue))
-            {
-                xExpected++;
-                prefix = prefixValue;
-            }
+                var defaultXAction = Enum.Parse<ForwardedTransformActions>(headerValue);
 
-            var xForName = prefix + ForKey;
-            var xForAction = defaultXAction;
-            if (transformValues.TryGetValue(xForName, out headerValue)
-                && Enum.TryParse(headerValue, out action))
-            {
-                xExpected++;
-                xForAction = action;
-            }
+                var prefix = "X-Forwarded-";
+                if (transformValues.TryGetValue(HeaderPrefixKey, out var prefixValue))
+                {
+                    xExpected++;
+                    prefix = prefixValue;
+                }
 
-            var xPrefixName = prefix + PrefixKey;
-            var xPrefixAction = defaultXAction;
-            if (transformValues.TryGetValue(xPrefixName, out headerValue)
-                && Enum.TryParse(headerValue, out action))
-            {
-                xExpected++;
-                xPrefixAction = action;
-            }
+                var xForAction = defaultXAction;
+                if (transformValues.TryGetValue(ForKey, out headerValue))
+                {
+                    xExpected++;
+                    xForAction = Enum.Parse<ForwardedTransformActions>(headerValue);
+                }
 
-            var xHostName = prefix + HostKey;
-            var xHostAction = defaultXAction;
-            if (transformValues.TryGetValue(xHostName, out headerValue)
-                && Enum.TryParse(headerValue, out action))
-            {
-                xExpected++;
-                xHostAction = action;
-            }
+                var xPrefixAction = defaultXAction;
+                if (transformValues.TryGetValue(PrefixKey, out headerValue))
+                {
+                    xExpected++;
+                    xPrefixAction = Enum.Parse<ForwardedTransformActions>(headerValue);
+                }
 
-            var xProtoName = prefix + ProtoKey;
-            var xProtoAction = defaultXAction;
-            if (transformValues.TryGetValue(xProtoName, out headerValue)
-                && Enum.TryParse(headerValue, out action))
-            {
-                xExpected++;
-                xProtoAction = action;
-            }
+                var xHostAction = defaultXAction;
+                if (transformValues.TryGetValue(HostKey, out headerValue))
+                {
+                    xExpected++;
+                    xHostAction = Enum.Parse<ForwardedTransformActions>(headerValue);
+                }
 
-            if (xExpected > 0)
-            {
+                var xProtoAction = defaultXAction;
+                if (transformValues.TryGetValue(ProtoKey, out headerValue))
+                {
+                    xExpected++;
+                    xProtoAction = Enum.Parse<ForwardedTransformActions>(headerValue); ;
+                }
+
                 TransformHelpers.CheckTooManyParameters(transformValues, xExpected);
 
-                context.AddXForwardedFor(xForName, xForAction);
-                context.AddXForwardedPrefix(xPrefixName, xPrefixAction);
-                context.AddXForwardedHost(xHostName, xHostAction);
-                context.AddXForwardedProto(xProtoName, xProtoAction);
+                context.AddXForwardedFor(prefix + ForKey, xForAction);
+                context.AddXForwardedPrefix(prefix + PrefixKey, xPrefixAction);
+                context.AddXForwardedHost(prefix + HostKey, xHostAction);
+                context.AddXForwardedProto(prefix + ProtoKey, xProtoAction);
             }
             else if (transformValues.TryGetValue(ForwardedKey, out var forwardedHeader))
             {
@@ -237,11 +217,10 @@ namespace Yarp.ReverseProxy.Transforms
                 var expected = 1;
 
                 var headerAction = ForwardedTransformActions.Set;
-                if (transformValues.TryGetValue(ActionKey, out headerValue)
-                    && Enum.TryParse(headerValue, out action))
+                if (transformValues.TryGetValue(ActionKey, out headerValue))
                 {
                     expected++;
-                    headerAction = action;
+                    headerAction = Enum.Parse<ForwardedTransformActions>(headerValue);
                 }
 
                 if (useFor && transformValues.TryGetValue(ForFormatKey, out var forFormatString))
