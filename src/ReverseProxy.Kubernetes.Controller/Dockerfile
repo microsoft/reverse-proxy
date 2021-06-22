@@ -9,16 +9,14 @@ FROM mcr.microsoft.com/dotnet/sdk:5.0 AS publish
 WORKDIR /src
 COPY ["src/OperatorFramework/src/Controller", "OperatorFramework/src/Controller"]
 COPY ["src/OperatorFramework/src/Core", "OperatorFramework/src/Core"]
-COPY ["src/ReverseProxy", "ReverseProxy"]
+COPY ["src/ReverseProxy.Kubernetes.Controller", "ReverseProxy.Kubernetes.Controller"]
 COPY ["src/ReverseProxy.Kubernetes.Protocol", "ReverseProxy.Kubernetes.Protocol"]
+COPY ["src/ReverseProxy", "ReverseProxy"]
 
-WORKDIR /samples
-COPY ["samples/KuberenetesIngress.Sample/Ingress", "KuberenetesIngress.Sample/Ingress"]
-
-WORKDIR KuberenetesIngress.Sample/Ingress/
+WORKDIR ReverseProxy.Kubernetes.Controller
 RUN dotnet publish -c Release -o /app/publish -f net5.0
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Yarp.ReverseProxy.Kubernetes.Ingress.dll"]
+ENTRYPOINT ["dotnet", "Yarp.ReverseProxy.Kubernetes.Controller.dll"]

@@ -26,7 +26,7 @@ Before we continue with this tutorial, make sure you have the following ready...
 The first step will be to deploy the YARP ingress controller to the Kubernetes cluster. This can be done by navigating to [Kubernetes Ingress sample](../../../samples/KuberenetesIngress.Sample/Ingress) and running:
 
 ```
-kubectl apply -f ingress-definition.yaml
+kubectl apply -f ingress-controller.yaml
 ```
 
 To verify that the ingress controller has been deployed, run:
@@ -52,7 +52,7 @@ docker push <REGISTRY_NAME>/yarp:<TAG>
 
 where REGISTRY_NAME is the name of your docker registry and TAG is a tag for the image (for example 1.0.0).
 
-Finally, we need to deploy the ingress itself to Kubernetes. To do this modify the `ingress.yaml` file for your registry and tag specified earlier and run:
+Finally, we need to deploy the ingress itself to Kubernetes. To do this navigate again to the 'Ingress' directory, modify the `ingress.yaml` file for your registry and tag specified earlier and run:
 
 ```
 kubectl apply -f .\ingress.yaml
@@ -89,6 +89,9 @@ And then run:
  kubectl get service -n yarp
 ```
 
-to get the external IP of the ingress.
+to get the external IP of the ingress, the name of the related service being `yarp-proxy`.
+
+> :bulb: If you are using a local K8s cluster and don't get an external IP, you may need to not use the default `port: 80` for the `yarp-proxy` service.
+If so, try to update again the `ingress.yaml` file to use another port e.g. `port: 8085` for this service and then re-deploy the ingress to Kubernetes.
 
 Navigate to the external IP, and you should see the backend information.
