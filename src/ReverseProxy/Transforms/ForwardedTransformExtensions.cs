@@ -17,30 +17,37 @@ namespace Yarp.ReverseProxy.Transforms
         /// <summary>
         /// Clones the route and adds the transform which will add X-Forwarded-* headers.
         /// </summary>
-        public static RouteConfig WithTransformXForwarded(this RouteConfig route, string headerPrefix = "X-Forwarded-", bool useFor = true,
-            bool useHost = true, bool useProto = true, bool usePrefix = true, ForwardedTransformActions action = ForwardedTransformActions.Set)
+        public static RouteConfig WithTransformXForwarded(
+            this RouteConfig route,
+            string headerPrefix = "X-Forwarded-",
+            ForwardedTransformActions xDefault = ForwardedTransformActions.Set,
+            ForwardedTransformActions? xFor = null,
+            ForwardedTransformActions? xHost = null,
+            ForwardedTransformActions? xProto = null,
+            ForwardedTransformActions? xPrefix = null)
         {
-            var actionString = action.ToString();
             return route.WithTransform(transform =>
             {
-                if (useFor)
+                transform[ForwardedTransformFactory.XForwardedKey] = xDefault.ToString();
+
+                if (xFor != null)
                 {
-                    transform[headerPrefix + ForwardedTransformFactory.ForKey] = action.ToString();
+                    transform[headerPrefix + ForwardedTransformFactory.ForKey] = xFor.Value.ToString();
                 }
 
-                if (usePrefix)
+                if (xPrefix != null)
                 {
-                    transform[headerPrefix + ForwardedTransformFactory.PrefixKey] = action.ToString();
+                    transform[headerPrefix + ForwardedTransformFactory.PrefixKey] = xPrefix.Value.ToString();
                 }
 
-                if (useHost)
+                if (xHost != null)
                 {
-                    transform[headerPrefix + ForwardedTransformFactory.HostKey] = action.ToString();
+                    transform[headerPrefix + ForwardedTransformFactory.HostKey] = xHost.Value.ToString();
                 }
 
-                if (useProto)
+                if (xProto != null)
                 {
-                    transform[headerPrefix + ForwardedTransformFactory.ProtoKey] = action.ToString();
+                    transform[headerPrefix + ForwardedTransformFactory.ProtoKey] = xProto.Value.ToString();
                 }
 
                 transform[ForwardedTransformFactory.PrefixForwardedKey] = headerPrefix;

@@ -19,38 +19,63 @@ namespace Yarp.ReverseProxy.Transforms.Tests
         private readonly ForwardedTransformFactory _factory = new ForwardedTransformFactory(new TestRandomFactory());
 
         [Theory]
-        [InlineData(false, false, false, false, ForwardedTransformActions.Set)]
-        [InlineData(false, false, false, false, ForwardedTransformActions.Append)]
-        [InlineData(true, true, true, true, ForwardedTransformActions.Set)]
-        [InlineData(true, true, true, true, ForwardedTransformActions.Append)]
-        [InlineData(true, true, false, false, ForwardedTransformActions.Append)]
-        [InlineData(true, true, false, false, ForwardedTransformActions.Set)]
-        public void WithTransformXForwarded(bool useFor, bool useHost, bool useProto, bool usePrefix, ForwardedTransformActions action)
+        [InlineData(ForwardedTransformActions.Set, null, null, null, null)]
+        [InlineData(ForwardedTransformActions.Append, ForwardedTransformActions.Set, null, null, null)]
+        [InlineData(ForwardedTransformActions.Append, null, ForwardedTransformActions.Set, null, null)]
+        [InlineData(ForwardedTransformActions.Append, null, null, ForwardedTransformActions.Set, null)]
+        [InlineData(ForwardedTransformActions.Append, null, null, null, ForwardedTransformActions.Set)]
+        [InlineData(ForwardedTransformActions.Append, ForwardedTransformActions.Off, null, null, null)]
+        [InlineData(ForwardedTransformActions.Append, null, ForwardedTransformActions.Off, null, null)]
+        [InlineData(ForwardedTransformActions.Append, null, null, ForwardedTransformActions.Off, null)]
+        [InlineData(ForwardedTransformActions.Append, null, null, null, ForwardedTransformActions.Off)]
+        [InlineData(ForwardedTransformActions.Set, ForwardedTransformActions.Append, ForwardedTransformActions.Remove, ForwardedTransformActions.Off, ForwardedTransformActions.Remove)]
+        public void WithTransformXForwarded(
+            ForwardedTransformActions xDefault,
+            ForwardedTransformActions? xFor,
+            ForwardedTransformActions? xHost,
+            ForwardedTransformActions? xProto,
+            ForwardedTransformActions? xPrefix)
         {
             var routeConfig = new RouteConfig();
             var prefix = "prefix-";
-            routeConfig = routeConfig.WithTransformXForwarded(prefix, useFor, useHost, useProto, usePrefix, action);
+            routeConfig = routeConfig.WithTransformXForwarded(prefix, xDefault, xFor, xHost, xProto, xPrefix);
 
             var builderContext = ValidateAndBuild(routeConfig, _factory);
 
-            if (useFor)
+            if (xFor != ForwardedTransformActions.Off)
             {
-                ValidateXForwardedTransform("For", prefix, action, builderContext.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>().Single());
+                ValidateXForwardedTransform("For", prefix, xFor ?? xDefault, builderContext.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>().Single());
+            }
+            else
+            {
+                Assert.Empty(builderContext.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
             }
 
-            if (useHost)
+            if (xHost != ForwardedTransformActions.Off)
             {
-                ValidateXForwardedTransform("Host", prefix, action, builderContext.RequestTransforms.OfType<RequestHeaderXForwardedHostTransform>().Single());
+                ValidateXForwardedTransform("Host", prefix, xHost ?? xDefault, builderContext.RequestTransforms.OfType<RequestHeaderXForwardedHostTransform>().Single());
+            }
+            else
+            {
+                Assert.Empty(builderContext.RequestTransforms.OfType<RequestHeaderXForwardedHostTransform>());
             }
 
-            if (useProto)
+            if (xProto != ForwardedTransformActions.Off)
             {
-                ValidateXForwardedTransform("Proto", prefix, action, builderContext.RequestTransforms.OfType<RequestHeaderXForwardedProtoTransform>().Single());
+                ValidateXForwardedTransform("Proto", prefix, xProto ?? xDefault, builderContext.RequestTransforms.OfType<RequestHeaderXForwardedProtoTransform>().Single());
+            }
+            else
+            {
+                Assert.Empty(builderContext.RequestTransforms.OfType<RequestHeaderXForwardedProtoTransform>());
             }
 
-            if (usePrefix)
+            if (xPrefix != ForwardedTransformActions.Off)
             {
-                ValidateXForwardedTransform("Prefix", prefix, action, builderContext.RequestTransforms.OfType<RequestHeaderXForwardedPrefixTransform>().Single());
+                ValidateXForwardedTransform("Prefix", prefix, xPrefix ?? xDefault, builderContext.RequestTransforms.OfType<RequestHeaderXForwardedPrefixTransform>().Single());
+            }
+            else
+            {
+                Assert.Empty(builderContext.RequestTransforms.OfType<RequestHeaderXForwardedPrefixTransform>());
             }
         }
 

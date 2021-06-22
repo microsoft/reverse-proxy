@@ -487,14 +487,20 @@ Config:
 ```
 Code:
 ```csharp
-routeConfig = routeConfig.WithTransformXForwarded(headerPrefix: "X-Forwarded-", useFor: true, useHost: true, useProto: true, usePrefix: true, action: ForwardedTransformAction.Remove);
+routeConfig = routeConfig.WithTransformXForwarded(
+  headerPrefix = "X-Forwarded-",
+  ForwardedTransformActions xDefault = ForwardedTransformActions.Set,
+  ForwardedTransformActions? xFor = null,
+  ForwardedTransformActions? xHost = null,
+  ForwardedTransformActions? xProto = null,
+  ForwardedTransformActions? xPrefix = null);
 ```
 ```C#
-transformBuilderContext.AddXForwarded(headerPrefix: "X-Forwarded-", ForwardedTransformAction.Set);
-transformBuilderContext.AddXForwardedFor(headerPrefix: "X-Forwarded-", ForwardedTransformAction.Append);
-transformBuilderContext.AddXForwardedHost(headerPrefix: "X-Forwarded-", ForwardedTransformAction.Append);
-transformBuilderContext.AddXForwardedProto(headerPrefix: "X-Forwarded-", ForwardedTransformAction.Remove);
-transformBuilderContext.AddXForwardedPrefix(headerPrefix: "X-Forwarded-", ForwardedTransformAction.Remove);
+transformBuilderContext.AddXForwarded(ForwardedTransformAction.Set);
+transformBuilderContext.AddXForwardedFor(headerName: "X-Forwarded-For", ForwardedTransformAction.Append);
+transformBuilderContext.AddXForwardedHost(headerName: "X-Forwarded-Host", ForwardedTransformAction.Append);
+transformBuilderContext.AddXForwardedProto(headerName: "X-Forwarded-Proto", ForwardedTransformAction.Off);
+transformBuilderContext.AddXForwardedPrefix(headerName: "X-Forwarded-Prefix", ForwardedTransformAction.Remove);
 ```
 
 Example:
