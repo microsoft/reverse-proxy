@@ -73,7 +73,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
         {
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             ApplicationWrapper application;
-            Mock_AppsResponse(application = CreateApp_1Service_SingletonPartition_1Replica("MyCoolApp", "MyAwesomeService", out var service, out _));
+            Mock_AppsResponse(application = CreateApp_1Service_SingletonPartition_1Replica("MyCoolApp", "MyAwesomeService", out var service, out _, out _));
             Mock_ServiceLabels(application, service, new Dictionary<string, string>());
 
             var (routes, clusters) = await RunScenarioAsync();
@@ -88,7 +88,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
         {
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             ApplicationWrapper application;
-            Mock_AppsResponse(application = CreateApp_1Service_SingletonPartition_1Replica("MyCoolApp", "MyAwesomeService", out var service, out _));
+            Mock_AppsResponse(application = CreateApp_1Service_SingletonPartition_1Replica("MyCoolApp", "MyAwesomeService", out var service, out _, out _));
             Mock_ServiceLabels(application, service, new Dictionary<string, string>() { { "YARP.Enable", "false" } });
 
             var (routes, clusters) = await RunScenarioAsync();
@@ -106,8 +106,8 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
             ApplicationWrapper application, anotherApplication;
             Mock_AppsResponse(
-                application = CreateApp_1StatelessService_2Partition_2ReplicasEach("MyApp", "MYService", out var service, out var replicas),
-                anotherApplication = CreateApp_1StatelessService_2Partition_2ReplicasEach("AnotherApp", "AnotherService", out var anotherService, out var otherReplicas));
+                application = CreateApp_1StatelessService_2Partition_2ReplicasEach("MyApp", "MYService", out var service, out var replicas, out var partitions),
+                anotherApplication = CreateApp_1StatelessService_2Partition_2ReplicasEach("AnotherApp", "AnotherService", out var anotherService, out var otherReplicas, out var otherPartitions));
             Mock_ServiceLabels(application, service, labels);
             Mock_ServiceLabels(anotherApplication, anotherService, new Dictionary<string, string>());
 
@@ -116,10 +116,10 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var expectedClusters = new[]
             {
                 ClusterWithDestinations(_testServiceName, labels,
-                    SFTestHelpers.BuildDestinationFromReplica(replicas[0]),
-                    SFTestHelpers.BuildDestinationFromReplica(replicas[1]),
-                    SFTestHelpers.BuildDestinationFromReplica(replicas[2]),
-                    SFTestHelpers.BuildDestinationFromReplica(replicas[3])),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[0], partitions[0]),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[1], partitions[0]),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[2], partitions[1]),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[3], partitions[1])),
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
@@ -141,7 +141,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var labels = SFTestHelpers.DummyLabels(TestClusterId, activeHealthChecks: true);
             ApplicationWrapper application;
             Mock_AppsResponse(
-                application = CreateApp_1StatelessService_2Partition_2ReplicasEach("MyApp", "MYService", out var service, out var replicas));
+                application = CreateApp_1StatelessService_2Partition_2ReplicasEach("MyApp", "MYService", out var service, out var replicas, out var partitions));
             Mock_ServiceLabels(application, service, labels);
 
             var (routes, clusters) = await RunScenarioAsync();
@@ -149,10 +149,10 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var expectedClusters = new[]
             {
                 ClusterWithDestinations(_testServiceName, labels,
-                    SFTestHelpers.BuildDestinationFromReplica(replicas[0]),
-                    SFTestHelpers.BuildDestinationFromReplica(replicas[1]),
-                    SFTestHelpers.BuildDestinationFromReplica(replicas[2]),
-                    SFTestHelpers.BuildDestinationFromReplica(replicas[3])),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[0], partitions[0]),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[1], partitions[0]),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[2], partitions[1]),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[3], partitions[1])),
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
@@ -174,8 +174,8 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var labels3 = SFTestHelpers.DummyLabels(TestClusterIdApp2Sv3);
             ApplicationWrapper application1, application2;
             Mock_AppsResponse(
-                application1 = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out var service1, out var replica1),
-                application2 = CreateApp_2StatelessService_SingletonPartition_1Replica("MyApp2", "MyService2", "MyService3", out var service2, out var service3, out var replica2, out var replica3));
+                application1 = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out var service1, out var replica1, out var partition1),
+                application2 = CreateApp_2StatelessService_SingletonPartition_1Replica("MyApp2", "MyService2", "MyService3", out var service2, out var service3, out var replica2, out var replica3, out var partition2, out var partition3));
 
             Mock_ServiceLabels(application1, service1, labels1);
             Mock_ServiceLabels(application2, service2, labels2);
@@ -186,11 +186,11 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var expectedClusters = new[]
             {
                 ClusterWithDestinations(_testServiceName, labels1,
-                    SFTestHelpers.BuildDestinationFromReplica(replica1)),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica1, partition1)),
                 ClusterWithDestinations(_testServiceName, labels2,
-                    SFTestHelpers.BuildDestinationFromReplica(replica2)),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica2, partition2)),
                 ClusterWithDestinations(_testServiceName, labels3,
-                    SFTestHelpers.BuildDestinationFromReplica(replica3)),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica3, partition3)),
             };
             var expectedRoutes = new List<RouteConfig>();
             expectedRoutes.AddRange(LabelsParser.BuildRoutes(_testServiceName, labels1));
@@ -218,8 +218,8 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var gatewayNotEnabledLabels = SFTestHelpers.DummyLabels(TestClusterIdApp2Sv2, false);
             ApplicationWrapper application1, application2;
             Mock_AppsResponse(
-                application1 = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService1", out var service1, out var replica1),
-                application2 = CreateApp_1Service_SingletonPartition_1Replica("MyApp2", "MyService2", out var service2, out var replica2));
+                application1 = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService1", out var service1, out var replica1, out var partition1),
+                application2 = CreateApp_1Service_SingletonPartition_1Replica("MyApp2", "MyService2", out var service2, out var replica2, out var partition2));
 
             Mock_ServiceLabels(application1, service1, gatewayEnabledLabels);
             Mock_ServiceLabels(application2, service2, gatewayNotEnabledLabels);
@@ -229,7 +229,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var expectedClusters = new[]
             {
                 ClusterWithDestinations(_testServiceName, gatewayEnabledLabels,
-                    SFTestHelpers.BuildDestinationFromReplica(replica1)),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica1, partition1)),
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, gatewayEnabledLabels);
 
@@ -246,7 +246,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
             ApplicationWrapper application;
             Mock_AppsResponse(
-                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out var service, out var replica1));
+                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out var service, out var replica1, out _));
 
             Mock_ServiceLabelsException(application, service, new ConfigException("foo"));
 
@@ -267,7 +267,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             labels[keyToOverride] = value;
             ApplicationWrapper application;
             Mock_AppsResponse(
-                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica));
+                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, out _));
 
             Mock_ServiceLabels(application, service, labels);
 
@@ -293,7 +293,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             };
             ApplicationWrapper application;
             Mock_AppsResponse(
-                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica));
+                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, out var partition));
 
             Mock_ServiceLabels(application, service, labels);
 
@@ -302,7 +302,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var expectedClusters = new[]
             {
                 ClusterWithDestinations(_testServiceName, labels,
-                    SFTestHelpers.BuildDestinationFromReplica(replica)),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica, partition)),
             };
             var expectedRoutes = new List<RouteConfig>();
 
@@ -322,7 +322,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             labels["YARP.Backend.ServiceFabric.ListenerName"] = "UnexistingListener";
             ApplicationWrapper application;
             Mock_AppsResponse(
-                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, serviceKind: ServiceKind.Stateful));
+                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, out _, serviceKind: ServiceKind.Stateful));
 
             Mock_ServiceLabels(application, service, labels);
 
@@ -352,7 +352,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             labels["YARP.Backend.ServiceFabric.ListenerName"] = "UnexistingListener";
             ApplicationWrapper application;
             Mock_AppsResponse(
-                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, serviceKind: ServiceKind.Stateless));
+                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, out _, serviceKind: ServiceKind.Stateless));
 
             Mock_ServiceLabels(application, service, labels);
 
@@ -383,7 +383,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             labels["YARP.Backend.ServiceFabric.ListenerName"] = "ExampleTeamEndpoint";
             ApplicationWrapper application;
             Mock_AppsResponse(
-                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, serviceKind: ServiceKind.Stateless));
+                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, out _, serviceKind: ServiceKind.Stateless));
             var nonHttpAddress = $"http://127.0.0.1/{ServiceName}/0";
             replica.ReplicaAddress = $"{{'Endpoints': {{'ExampleTeamEndpoint': '{nonHttpAddress}' }} }}".Replace("'", "\"");
             Mock_ServiceLabels(application, service, labels);
@@ -415,7 +415,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             labels["YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName"] = "ExampleTeamHealthEndpoint";
             ApplicationWrapper application;
             Mock_AppsResponse(
-                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, serviceKind: ServiceKind.Stateless));
+                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, out var partition, serviceKind: ServiceKind.Stateless));
             replica.ReplicaAddress = MockReplicaAdressWithListenerName("MyApp", "MyService", new string[] { "ExampleTeamEndpoint", "ExampleTeamHealthEndpoint" });
             Mock_ServiceLabels(application, service, labels);
 
@@ -424,7 +424,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var expectedClusters = new[]
             {
                 ClusterWithDestinations(_testServiceName, labels,
-                    SFTestHelpers.BuildDestinationFromReplica(replica, "ExampleTeamHealthEndpoint")),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica, partition, "ExampleTeamHealthEndpoint")),
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
@@ -448,7 +448,8 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     "MyApp",
                     "MYService",
                     out var service,
-                    out var replicas));
+                    out var replicas,
+                    out var partitions));
             Mock_ServiceLabels(application, service, labels);
 
             replicas[0].ReplicaStatus = ServiceReplicaStatus.Ready; // Should be used despite Warning health state
@@ -468,9 +469,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var expectedClusters = new[]
             {
                 ClusterWithDestinations(_testServiceName, labels,
-                    SFTestHelpers.BuildDestinationFromReplica(replicas[0]),
-                    SFTestHelpers.BuildDestinationFromReplica(replicas[1]),
-                    SFTestHelpers.BuildDestinationFromReplica(replicas[2])),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[0], partitions[0]),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[1], partitions[0]),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[2], partitions[1])),
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
@@ -491,7 +492,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
             ApplicationWrapper application;
             Mock_AppsResponse(
-                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out var service, out var replica));
+                application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out var service, out var replica, out var partition));
             Mock_ServiceLabels(application, service, labels);
 
             var (routes, clusters) = await RunScenarioAsync();
@@ -499,7 +500,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var expectedClusters = new[]
             {
                 ClusterWithDestinations(_testServiceName, labels,
-                    SFTestHelpers.BuildDestinationFromReplica(replica)),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica, partition)),
             };
             var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
@@ -525,7 +526,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
             labels["YARP.Backend.ServiceFabric.StatefulReplicaSelectionMode"] = selectionMode;
             ApplicationWrapper application;
-            Mock_AppsResponse(application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out var service, out var replica, serviceKind: ServiceKind.Stateful));
+            Mock_AppsResponse(application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out var service, out var replica, out var partition, serviceKind: ServiceKind.Stateful));
             Mock_ServiceLabels(application, service, labels);
             replica.ServiceKind = ServiceKind.Stateful;
             replica.Role = replicaRole;
@@ -535,7 +536,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var expectedClusters = new[]
             {
                 ClusterWithDestinations(_testServiceName, labels,
-                    SFTestHelpers.BuildDestinationFromReplica(replica)),
+                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica, partition)),
             };
 
             clusters.Should().BeEquivalentTo(expectedClusters);
@@ -558,7 +559,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var labels = SFTestHelpers.DummyLabels(TestClusterId);
             labels["YARP.Backend.ServiceFabric.StatefulReplicaSelectionMode"] = selectionMode;
             ApplicationWrapper application;
-            Mock_AppsResponse(application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out var service, out var replica, serviceKind: ServiceKind.Stateful));
+            Mock_AppsResponse(application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MYService", out var service, out var replica, out _, serviceKind: ServiceKind.Stateful));
             Mock_ServiceLabels(application, service, labels);
             replica.ServiceKind = ServiceKind.Stateful;
             replica.Role = replicaRole;
@@ -652,10 +653,12 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             string serviceTypeName,
             out ServiceWrapper service,
             out ReplicaWrapper replica,
+            out KeyValuePair<Guid, string> partition,
             ServiceKind serviceKind = ServiceKind.Stateless)
         {
-            service = CreateService(appTypeName, serviceTypeName, 1, 1, out var replicas, serviceKind);
+            service = CreateService(appTypeName, serviceTypeName, 1, 1, out var replicas, out var partitions, serviceKind);
             replica = replicas[0];
+            partition = partitions[0];
             Mock_ServicesResponse(new Uri($"fabric:/{appTypeName}"), service);
             return SFTestHelpers.FakeApp(appTypeName, appTypeName);
         }
@@ -663,9 +666,10 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             string appTypeName,
             string serviceTypeName,
             out ServiceWrapper service,
-            out List<ReplicaWrapper> replicas)
+            out List<ReplicaWrapper> replicas,
+            out List<KeyValuePair<Guid, string>> partitions)
         {
-            service = CreateService(appTypeName, serviceTypeName, 2, 2, out replicas);
+            service = CreateService(appTypeName, serviceTypeName, 2, 2, out replicas, out partitions);
             Mock_ServicesResponse(new Uri($"fabric:/{appTypeName}"), service);
             return SFTestHelpers.FakeApp(appTypeName, appTypeName);
         }
@@ -676,29 +680,33 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             out ServiceWrapper service1,
             out ServiceWrapper service2,
             out ReplicaWrapper service1replica,
-            out ReplicaWrapper service2replica)
+            out ReplicaWrapper service2replica,
+            out KeyValuePair<Guid, string> service1partition,
+            out KeyValuePair<Guid, string> service2partition)
         {
-            service1 = CreateService(appTypeName, serviceTypeName1, 1, 1, out var replicas1);
-            service2 = CreateService(appTypeName, serviceTypeName2, 1, 1, out var replicas2);
+            service1 = CreateService(appTypeName, serviceTypeName1, 1, 1, out var replicas1, out var partitions1);
+            service2 = CreateService(appTypeName, serviceTypeName2, 1, 1, out var replicas2, out var partitions2);
             service1replica = replicas1[0];
             service2replica = replicas2[0];
+            service1partition = partitions1[0];
+            service2partition = partitions2[0];
             Mock_ServicesResponse(new Uri($"fabric:/{appTypeName}"), service1, service2);
             return SFTestHelpers.FakeApp(appTypeName, appTypeName);
         }
-        private ServiceWrapper CreateService(string appName, string serviceName, int numPartitions, int numReplicasPerPartition, out List<ReplicaWrapper> replicas, ServiceKind serviceKind = ServiceKind.Stateless)
+        private ServiceWrapper CreateService(string appName, string serviceName, int numPartitions, int numReplicasPerPartition, out List<ReplicaWrapper> replicas, out List<KeyValuePair<Guid, string>> partitions, ServiceKind serviceKind = ServiceKind.Stateless)
         {
             var svcName = new Uri($"fabric:/{appName}/{serviceName}");
             var service = SFTestHelpers.FakeService(svcName, $"{appName}_{serviceName}_Type", serviceKind: serviceKind);
             replicas = new List<ReplicaWrapper>();
+            partitions = new List<KeyValuePair<Guid, string>>();
 
-            var partitions = new List<Guid>();
             for (var i = 0; i < numPartitions; i++)
             {
                 var partitionReplicas = Enumerable.Range(i * numReplicasPerPartition, numReplicasPerPartition).Select(replicaId => SFTestHelpers.FakeReplica(svcName, replicaId)).ToList();
                 replicas.AddRange(partitionReplicas);
                 var partition = SFTestHelpers.FakePartition();
                 partitions.Add(partition);
-                Mock_ReplicasResponse(partition, partitionReplicas.ToArray());
+                Mock_ReplicasResponse(partition.Key, partitionReplicas.ToArray());
             }
             Mock_PartitionsResponse(svcName, partitions.ToArray());
             return service;
@@ -715,7 +723,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 .Setup(m => m.GetServiceListAsync(applicationName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(services.ToList());
         }
-        private void Mock_PartitionsResponse(Uri serviceName, params Guid[] partitionIds)
+        private void Mock_PartitionsResponse(Uri serviceName, params KeyValuePair<Guid, string>[] partitionIds)
         {
             Mock<ICachedServiceFabricCaller>()
                 .Setup(m => m.GetPartitionListAsync(serviceName, It.IsAny<CancellationToken>()))

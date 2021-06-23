@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric.Health;
-using System.Fabric.Query;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -26,7 +25,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
 
         private readonly Cache<IEnumerable<ApplicationWrapper>> _applicationListCache;
         private readonly Cache<IEnumerable<ServiceWrapper>> _serviceListCache;
-        private readonly Cache<IEnumerable<Partition>> _partitionListCache;
+        private readonly Cache<IEnumerable<KeyValuePair<Guid, string>>> _partitionListCache;
         private readonly Cache<IEnumerable<ReplicaWrapper>> _replicaListCache;
         private readonly Cache<string> _serviceManifestCache;
         private readonly Cache<string> _serviceManifestNameCache;
@@ -49,7 +48,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
 
             _applicationListCache = new Cache<IEnumerable<ApplicationWrapper>>(_clock, CacheExpirationOffset);
             _serviceListCache = new Cache<IEnumerable<ServiceWrapper>>(_clock, CacheExpirationOffset);
-            _partitionListCache = new Cache<IEnumerable<Partition>>(_clock, CacheExpirationOffset);
+            _partitionListCache = new Cache<IEnumerable<KeyValuePair<Guid, string>>>(_clock, CacheExpirationOffset);
             _replicaListCache = new Cache<IEnumerable<ReplicaWrapper>>(_clock, CacheExpirationOffset);
             _serviceManifestCache = new Cache<string>(_clock, CacheExpirationOffset);
             _serviceManifestNameCache = new Cache<string>(_clock, CacheExpirationOffset);
@@ -76,7 +75,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                 cancellation);
         }
 
-        public async Task<IEnumerable<Partition>> GetPartitionListAsync(Uri serviceName, CancellationToken cancellation)
+        public async Task<IEnumerable<KeyValuePair<Guid, string>>> GetPartitionListAsync(Uri serviceName, CancellationToken cancellation)
         {
             return await TryWithCacheFallbackAsync(
                 operationName: "GetPartitionList",

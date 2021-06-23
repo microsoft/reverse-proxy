@@ -35,9 +35,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 ServiceKind = serviceKind,
             };
         }
-        internal static Guid FakePartition()
+        internal static KeyValuePair<Guid, string> FakePartition()
         {
-            return Guid.NewGuid();
+            return new KeyValuePair<Guid, string>(Guid.NewGuid(), "Test");
         }
         internal static ReplicaWrapper FakeReplica(Uri serviceName, int id)
         {
@@ -75,7 +75,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
         /// <remarks>
         /// The address JSON of the replica is expected to have exactly one endpoint, and that one will be used.
         /// </remarks>
-        internal static KeyValuePair<string, DestinationConfig> BuildDestinationFromReplica(ReplicaWrapper replica, string healthListenerName = null)
+        internal static KeyValuePair<string, DestinationConfig> BuildDestinationFromReplicaAndPartition(ReplicaWrapper replica, KeyValuePair<Guid, string> partition, string healthListenerName = null)
         {
             ServiceEndpointCollection.TryParseEndpointsString(replica.ReplicaAddress, out var endpoints);
             endpoints.TryGetFirstEndpointAddress(out var address);
@@ -86,13 +86,20 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 endpoints.TryGetEndpointAddress(healthListenerName, out healthAddressUri);
             }
 
+            var destinationId = $"{partition.Key}/{replica.Id}";
+
             return KeyValuePair.Create(
-                replica.Id.ToString(),
+                destinationId,
                 new DestinationConfig
                 {
                     Address = address,
                     Health = healthAddressUri,
-                    Metadata = null,
+                    Metadata = new Dictionary<string, string>
+                {
+                    { "PartitionId", partition.Key.ToString() ?? "" },
+                    { "NamedPartitionName", partition.Value ?? "" },
+                    { "ReplicaId", replica.Id.ToString() ?? "" }
+                }
                 });
         }
     }
