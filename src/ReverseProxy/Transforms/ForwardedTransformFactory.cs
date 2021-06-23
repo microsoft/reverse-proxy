@@ -238,7 +238,7 @@ namespace Yarp.ReverseProxy.Transforms
                 TransformHelpers.CheckTooManyParameters(transformValues, expected);
 
                 context.UseDefaultForwarders = false;
-                if (useBy || useFor || useHost || useProto)
+                if (headerAction != ForwardedTransformActions.Off && (useBy || useFor || useHost || useProto))
                 {
                     // Not using the extension to avoid resolving the random factory each time.
                     context.RequestTransforms.Add(new RequestHeaderForwardedTransform(_randomFactory, forFormat, byFormat, useHost, useProto, headerAction));

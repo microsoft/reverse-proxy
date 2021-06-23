@@ -175,6 +175,12 @@ namespace Yarp.ReverseProxy.Transforms
             NodeFormat byFormat = NodeFormat.Random, ForwardedTransformActions action = ForwardedTransformActions.Set)
         {
             context.UseDefaultForwarders = false;
+
+            if (action == ForwardedTransformActions.Off)
+            {
+                return context;
+            }
+
             if (byFormat != NodeFormat.None || forFormat != NodeFormat.None || useHost || useProto)
             {
                 var random = context.Services.GetRequiredService<IRandomFactory>();

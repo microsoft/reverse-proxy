@@ -467,10 +467,10 @@ This removes the named header.
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
 | X-Forwarded | Default action (Set, Append, Remove, Off) to apply to all X-Forwarded-* listed below | Set | yes |
-| For | Action to apply to this header | Set | no |
-| Proto | Action to apply to this header | Set | no |
-| Host | Action to apply to this header | Set | no |
-| Prefix | Action to apply to this header | Set | no |
+| For | Action to apply to this header | * See X-Forwarded | no |
+| Proto | Action to apply to this header | * See X-Forwarded | no |
+| Host | Action to apply to this header | * See X-Forwarded | no |
+| Prefix | Action to apply to this header | * See X-Forwarded | no |
 | HeaderPrefix | The header name prefix | "X-Forwarded-" | no |
 
 Action "Off" completely disables the transform.
@@ -512,7 +512,7 @@ X-Forwarded-Prefix: /path/base
 ```
 Disable default headers:
 ```JSON
-{ "X-Forwarded": "" }
+{ "X-Forwarded": "Off" }
 ```
 ```C#
 transformBuilderContext.UseDefaultForwarders = false;
@@ -543,7 +543,7 @@ The {Prefix}Prefix header value is taken from `HttpContext.Request.PathBase`. Th
 | Forwarded | A comma separated list containing any of these values: for,by,proto,host | (none) | yes |
 | ForFormat | Random/RandomAndPort/RandomAndRandomPort/Unknown/UnknownAndPort/UnknownAndRandomPort/Ip/IpAndPort/IpAndRandomPort | Random | no |
 | ByFormat | Random/RandomAndPort/RandomAndRandomPort/Unknown/UnknownAndPort/UnknownAndRandomPort/Ip/IpAndPort/IpAndRandomPort | Random | no |
-| Action | Action to apply to this header | Set | no |
+| Action | Action to apply to this header (Set, Append, Remove, Off) | Set | no |
 
 Config:
 ```JSON
