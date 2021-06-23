@@ -25,7 +25,7 @@ Before we continue with this tutorial, make sure you have the following ready...
 
 > :warning: For now there is no official docker image for the YARP ingress controller.
 
-So, in the meantime we need to build locally the YARP ingress controller and deploy it. In the root of the repository, run:
+So, in the meantime we need to build the YARP ingress controller locally and deploy it. In the root of the repository, run:
 
 ```
 docker build . -t <REGISTRY_NAME>/yarp-controller:<TAG> -f .\src\ReverseProxy.Kubernetes.Controller\Dockerfile
@@ -104,6 +104,6 @@ And then run:
 to get the external IP of the ingress, the name of the related service being `yarp-proxy`.
 
 > :bulb: If you are using a local K8s cluster and don't get an external IP, you may need to not use the default `port: 80` for the `yarp-proxy` service.
-If so, try to update again the `ingress.yaml` file to use another port e.g. `port: 8085` for this service and then re-deploy the ingress to Kubernetes.
+If so, try to update again the `ingress.yaml` file to use another port e.g. `port: 8085` and then re-deploy the ingress to Kubernetes.
 
 Navigate to the external IP, and you should see the backend information.
