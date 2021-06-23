@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 
@@ -12,7 +13,12 @@ namespace Yarp.ReverseProxy.Transforms
     /// </summary>
     public class RequestHeaderXForwardedProtoTransform : RequestTransform
     {
-        public RequestHeaderXForwardedProtoTransform(string headerName, bool append)
+        /// <summary>
+        /// Creates a new transform.
+        /// </summary>
+        /// <param name="headerName">The header name.</param>
+        /// <param name="append">Action to applied to the header.</param>
+        public RequestHeaderXForwardedProtoTransform(string headerName, ForwardedTransformActions action)
         {
             if (string.IsNullOrEmpty(headerName))
             {
@@ -20,33 +26,39 @@ namespace Yarp.ReverseProxy.Transforms
             }
 
             HeaderName = headerName;
-            Append = append;
+            Debug.Assert(action != ForwardedTransformActions.Off);
+            TransformAction = action;
         }
 
         internal string HeaderName { get; }
-        internal bool Append { get; }
+        internal ForwardedTransformActions TransformAction { get; }
 
         /// <inheritdoc/>
         public override ValueTask ApplyAsync(RequestTransformContext context)
         {
             if (context is null)
             {
-                throw new System.ArgumentNullException(nameof(context));
+                throw new ArgumentNullException(nameof(context));
             }
-
-            var existingValues = TakeHeader(context, HeaderName);
 
             var scheme = context.HttpContext.Request.Scheme;
 
-            if (Append)
+            switch (TransformAction)
             {
-                var values = StringValues.Concat(existingValues, scheme);
-                AddHeader(context, HeaderName, values);
-            }
-            else
-            {
-                // Set
-                AddHeader(context, HeaderName, scheme);
+                case ForwardedTransformActions.Set:
+                    RemoveHeader(context, HeaderName);
+                    AddHeader(context, HeaderName, scheme);
+                    break;
+                case ForwardedTransformActions.Append:
+                    var existingValues = TakeHeader(context, HeaderName);
+                    var values = StringValues.Concat(existingValues, scheme);
+                    AddHeader(context, HeaderName, values);
+                    break;
+                case ForwardedTransformActions.Remove:
+                    RemoveHeader(context, HeaderName);
+                    break;
+                default:
+                    throw new NotImplementedException(TransformAction.ToString());
             }
 
             return default;

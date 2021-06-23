@@ -13,26 +13,35 @@ namespace Yarp.ReverseProxy.Transforms.Tests
     {
         [Theory]
         // Using ";" to represent multi-line headers
-        [InlineData("", "http", false, "http")]
-        [InlineData("", "http", true, "http")]
-        [InlineData("existing,Header", "http", false, "http")]
-        [InlineData("existing;Header", "http", false, "http")]
-        [InlineData("existing,Header", "http", true, "existing,Header;http")]
-        [InlineData("existing;Header", "http", true, "existing;Header;http")]
-        public async Task Scheme_Added(string startValue, string scheme, bool append, string expected)
+        [InlineData("", "http", ForwardedTransformActions.Set, "http")]
+        [InlineData("", "http", ForwardedTransformActions.Append, "http")]
+        [InlineData("", "http", ForwardedTransformActions.Remove, "")]
+        [InlineData("existing,Header", "http", ForwardedTransformActions.Set, "http")]
+        [InlineData("existing;Header", "http", ForwardedTransformActions.Set, "http")]
+        [InlineData("existing,Header", "http", ForwardedTransformActions.Append, "existing,Header;http")]
+        [InlineData("existing;Header", "http", ForwardedTransformActions.Append, "existing;Header;http")]
+        [InlineData("existing;Header", "http", ForwardedTransformActions.Remove, "")]
+        public async Task Scheme_Added(string startValue, string scheme, ForwardedTransformActions action, string expected)
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Scheme = scheme;
             var proxyRequest = new HttpRequestMessage();
             proxyRequest.Headers.Add("name", startValue.Split(";", StringSplitOptions.RemoveEmptyEntries));
-            var transform = new RequestHeaderXForwardedProtoTransform("name", append);
+            var transform = new RequestHeaderXForwardedProtoTransform("name", action);
             await transform.ApplyAsync(new RequestTransformContext()
             {
                 HttpContext = httpContext,
                 ProxyRequest = proxyRequest,
                 HeadersCopied = true,
             });
-            Assert.Equal(expected.Split(";", StringSplitOptions.RemoveEmptyEntries), proxyRequest.Headers.GetValues("name"));
+            if (string.IsNullOrEmpty(expected))
+            {
+                Assert.False(proxyRequest.Headers.TryGetValues("name", out var _));
+            }
+            else
+            {
+                Assert.Equal(expected.Split(";", StringSplitOptions.RemoveEmptyEntries), proxyRequest.Headers.GetValues("name"));
+            }
         }
     }
 }

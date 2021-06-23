@@ -175,5 +175,13 @@ namespace Yarp.ReverseProxy.Forwarder
             }
 #endif
         }
+
+        internal static void RemoveHeader(HttpRequestMessage request, string headerName)
+        {
+            if (!request.Headers.Remove(headerName))
+            {
+                request.Content?.Headers.Remove(headerName);
+            }
+        }
     }
 }
