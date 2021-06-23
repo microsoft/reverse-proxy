@@ -653,7 +653,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             string serviceTypeName,
             out ServiceWrapper service,
             out ReplicaWrapper replica,
-            out KeyValuePair<Guid, string> partition,
+            out PartitionWrapper partition,
             ServiceKind serviceKind = ServiceKind.Stateless)
         {
             service = CreateService(appTypeName, serviceTypeName, 1, 1, out var replicas, out var partitions, serviceKind);
@@ -667,7 +667,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             string serviceTypeName,
             out ServiceWrapper service,
             out List<ReplicaWrapper> replicas,
-            out List<KeyValuePair<Guid, string>> partitions)
+            out List<PartitionWrapper> partitions)
         {
             service = CreateService(appTypeName, serviceTypeName, 2, 2, out replicas, out partitions);
             Mock_ServicesResponse(new Uri($"fabric:/{appTypeName}"), service);
@@ -681,8 +681,8 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             out ServiceWrapper service2,
             out ReplicaWrapper service1replica,
             out ReplicaWrapper service2replica,
-            out KeyValuePair<Guid, string> service1partition,
-            out KeyValuePair<Guid, string> service2partition)
+            out PartitionWrapper service1partition,
+            out PartitionWrapper service2partition)
         {
             service1 = CreateService(appTypeName, serviceTypeName1, 1, 1, out var replicas1, out var partitions1);
             service2 = CreateService(appTypeName, serviceTypeName2, 1, 1, out var replicas2, out var partitions2);
@@ -693,12 +693,12 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             Mock_ServicesResponse(new Uri($"fabric:/{appTypeName}"), service1, service2);
             return SFTestHelpers.FakeApp(appTypeName, appTypeName);
         }
-        private ServiceWrapper CreateService(string appName, string serviceName, int numPartitions, int numReplicasPerPartition, out List<ReplicaWrapper> replicas, out List<KeyValuePair<Guid, string>> partitions, ServiceKind serviceKind = ServiceKind.Stateless)
+        private ServiceWrapper CreateService(string appName, string serviceName, int numPartitions, int numReplicasPerPartition, out List<ReplicaWrapper> replicas, out List<PartitionWrapper> partitions, ServiceKind serviceKind = ServiceKind.Stateless)
         {
             var svcName = new Uri($"fabric:/{appName}/{serviceName}");
             var service = SFTestHelpers.FakeService(svcName, $"{appName}_{serviceName}_Type", serviceKind: serviceKind);
             replicas = new List<ReplicaWrapper>();
-            partitions = new List<KeyValuePair<Guid, string>>();
+            partitions = new List<PartitionWrapper>();
 
             for (var i = 0; i < numPartitions; i++)
             {
@@ -706,7 +706,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 replicas.AddRange(partitionReplicas);
                 var partition = SFTestHelpers.FakePartition();
                 partitions.Add(partition);
-                Mock_ReplicasResponse(partition.Key, partitionReplicas.ToArray());
+                Mock_ReplicasResponse(partition.Id, partitionReplicas.ToArray());
             }
             Mock_PartitionsResponse(svcName, partitions.ToArray());
             return service;
@@ -723,11 +723,11 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 .Setup(m => m.GetServiceListAsync(applicationName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(services.ToList());
         }
-        private void Mock_PartitionsResponse(Uri serviceName, params KeyValuePair<Guid, string>[] partitionIds)
+        private void Mock_PartitionsResponse(Uri serviceName, params PartitionWrapper[] partitions)
         {
             Mock<ICachedServiceFabricCaller>()
                 .Setup(m => m.GetPartitionListAsync(serviceName, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(partitionIds.ToList());
+                .ReturnsAsync(partitions.ToList());
         }
         private void Mock_ReplicasResponse(Guid partitionId, params ReplicaWrapper[] replicas)
         {

@@ -35,9 +35,13 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 ServiceKind = serviceKind,
             };
         }
-        internal static KeyValuePair<Guid, string> FakePartition()
+        internal static PartitionWrapper FakePartition()
         {
-            return new KeyValuePair<Guid, string>(Guid.NewGuid(), "Test");
+            return new PartitionWrapper
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test"
+            };
         }
         internal static ReplicaWrapper FakeReplica(Uri serviceName, int id)
         {
@@ -75,7 +79,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
         /// <remarks>
         /// The address JSON of the replica is expected to have exactly one endpoint, and that one will be used.
         /// </remarks>
-        internal static KeyValuePair<string, DestinationConfig> BuildDestinationFromReplicaAndPartition(ReplicaWrapper replica, KeyValuePair<Guid, string> partition, string healthListenerName = null)
+        internal static KeyValuePair<string, DestinationConfig> BuildDestinationFromReplicaAndPartition(ReplicaWrapper replica, PartitionWrapper partition, string healthListenerName = null)
         {
             ServiceEndpointCollection.TryParseEndpointsString(replica.ReplicaAddress, out var endpoints);
             endpoints.TryGetFirstEndpointAddress(out var address);
@@ -86,7 +90,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 endpoints.TryGetEndpointAddress(healthListenerName, out healthAddressUri);
             }
 
-            var destinationId = $"{partition.Key}/{replica.Id}";
+            var destinationId = $"{partition.Id}/{replica.Id}";
 
             return KeyValuePair.Create(
                 destinationId,
@@ -96,8 +100,8 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     Health = healthAddressUri,
                     Metadata = new Dictionary<string, string>
                 {
-                    { "PartitionId", partition.Key.ToString() ?? "" },
-                    { "NamedPartitionName", partition.Value ?? "" },
+                    { "PartitionId", partition.Id.ToString() ?? "" },
+                    { "NamedPartitionName", partition.Name ?? "" },
                     { "ReplicaId", replica.Id.ToString() ?? "" }
                 }
                 });

@@ -64,8 +64,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
         public async void GetPartitionListAsync_ServiceFabricFails_ResultIsCached()
         {
             var caller = Create<CachedServiceFabricCaller>();
-            var originalPartitionInfoList = new List<KeyValuePair<Guid, string>>();
-            originalPartitionInfoList.Add(new KeyValuePair<Guid, string>(Guid.NewGuid(), "Test"));
+            var originalPartitionInfoList = new List<PartitionWrapper> { SFTestHelpers.FakePartition() };
             Mock<IQueryClientWrapper>()
                 .SetupSequence(m => m.GetPartitionListAsync(
                     new Uri("http://localhost/app1/sv1"),

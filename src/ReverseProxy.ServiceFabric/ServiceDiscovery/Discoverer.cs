@@ -187,7 +187,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
             };
         }
 
-        private DestinationConfig BuildDestination(ReplicaWrapper replica, string listenerName, string healthListenerName, KeyValuePair<Guid, string> partition)
+        private DestinationConfig BuildDestination(ReplicaWrapper replica, string listenerName, string healthListenerName, PartitionWrapper partition)
         {
             if (!ServiceEndpointCollection.TryParseEndpointsString(replica.ReplicaAddress, out var serviceEndpointCollection))
             {
@@ -224,8 +224,8 @@ namespace Yarp.ReverseProxy.ServiceFabric
                 Health = healthEndpointUri?.AbsoluteUri,
                 Metadata = new Dictionary<string, string>
                 {
-                    { "PartitionId", partition.Key.ToString() ?? "" },
-                    { "NamedPartitionName", partition.Value ?? "" },
+                    { "PartitionId", partition.Id.ToString() ?? "" },
+                    { "NamedPartitionName", partition.Name ?? "" },
                     { "ReplicaId", replica.Id.ToString() ?? "" }
                 }
             };
@@ -252,7 +252,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
             Dictionary<string, string> serviceExtensionLabels,
             CancellationToken cancellation)
         {
-            IEnumerable<KeyValuePair<Guid, string>> partitions;
+            IEnumerable<PartitionWrapper> partitions;
             try
             {
                 partitions = await _serviceFabricCaller.GetPartitionListAsync(service.ServiceName, cancellation);
@@ -273,11 +273,11 @@ namespace Yarp.ReverseProxy.ServiceFabric
                 IEnumerable<ReplicaWrapper> replicas;
                 try
                 {
-                    replicas = await _serviceFabricCaller.GetReplicaListAsync(partition.Key, cancellation);
+                    replicas = await _serviceFabricCaller.GetReplicaListAsync(partition.Id, cancellation);
                 }
                 catch (Exception ex) // TODO: davidni: not fatal?
                 {
-                    Log.GettingReplicaFailed(_logger, partition.Key, service.ServiceName, ex);
+                    Log.GettingReplicaFailed(_logger, partition.Id, service.ServiceName, ex);
                     continue;
                 }
 
@@ -285,7 +285,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                 {
                     if (!IsHealthyReplica(replica))
                     {
-                        Log.UnhealthyReplicaSkipped(_logger, replica.Id, partition.Key, service.ServiceName, replica.ReplicaStatus, replica.HealthState);
+                        Log.UnhealthyReplicaSkipped(_logger, replica.Id, partition.Id, service.ServiceName, replica.ReplicaStatus, replica.HealthState);
                         continue;
                     }
 
@@ -301,10 +301,10 @@ namespace Yarp.ReverseProxy.ServiceFabric
                     {
                         var destination = BuildDestination(replica, listenerName, healthListenerName, partition);
 
-                        ReportReplicaHealth(options, service, partition.Key, replica, HealthState.Ok, $"Successfully built the endpoint from listener '{listenerName}'.");
+                        ReportReplicaHealth(options, service, partition.Id, replica, HealthState.Ok, $"Successfully built the endpoint from listener '{listenerName}'.");
 
                         // DestinationId is the concatenation of partitionId and replicaId.
-                        var destinationId = $"{partition.Key}/{replica.Id}";
+                        var destinationId = $"{partition.Id}/{replica.Id}";
                         if (!destinations.TryAdd(destinationId, destination))
                         {
                             throw new ConfigException($"Duplicated endpoint id '{replica.Id}'. Skipping repeated definition for service '{service.ServiceName}'.");
@@ -318,7 +318,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                         // TODO: emit Error health report once we are able to detect config issues *during* (as opposed to *after*) a target service upgrade.
                         // Proactive Error health report would trigger a rollback of the target service as desired. However, an Error report after rhe fact
                         // will NOT cause a rollback and will prevent the target service from performing subsequent monitored upgrades to mitigate, making things worse.
-                        ReportReplicaHealth(options, service, partition.Key, replica, HealthState.Warning, $"Could not build service endpoint: {ex.Message}");
+                        ReportReplicaHealth(options, service, partition.Id, replica, HealthState.Warning, $"Could not build service endpoint: {ex.Message}");
                     }
                     catch (Exception ex) // TODO: davidni: not fatal?
                     {
