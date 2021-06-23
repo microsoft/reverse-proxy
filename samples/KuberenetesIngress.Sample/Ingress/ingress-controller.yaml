@@ -125,7 +125,7 @@ spec:
       containers:
       - name: yarp-controller
         imagePullPolicy: Always
-        image: jkotalik/yarp-controller:0.0.0-19c9e0d733
+        image: <REGISTRY_NAME>/yarp-controller:<TAG>
         ports:
         - containerPort: 8000
           name: api
@@ -134,5 +134,3 @@ spec:
         - name: ASPNETCORE_URLS
           value: http://*:8000
       serviceAccountName: yarp-serviceaccount
----
-
