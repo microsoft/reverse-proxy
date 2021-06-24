@@ -204,7 +204,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
 
                 foreach (var partition in previousResult)
                 {
-                    var partitionName = "";
+                    var partitionName = string.Empty;
 
                     if (partition.PartitionInformation is NamedPartitionInformation namedPartition)
                     {

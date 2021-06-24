@@ -100,9 +100,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     Health = healthAddressUri,
                     Metadata = new Dictionary<string, string>
                 {
-                    { "PartitionId", partition.Id.ToString() ?? "" },
-                    { "NamedPartitionName", partition.Name ?? "" },
-                    { "ReplicaId", replica.Id.ToString() ?? "" }
+                    { "PartitionId", partition.Id.ToString() ?? string.Empty },
+                    { "NamedPartitionName", partition.Name ?? string.Empty },
+                    { "ReplicaId", replica.Id.ToString() ?? string.Empty }
                 }
                 });
         }

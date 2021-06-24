@@ -5,9 +5,6 @@ using System;
 
 namespace Yarp.ReverseProxy.ServiceFabric
 {
-    /// <summary>
-    /// TODO .
-    /// </summary>
     internal sealed class PartitionWrapper
     {
         public Guid Id { get; set; }
