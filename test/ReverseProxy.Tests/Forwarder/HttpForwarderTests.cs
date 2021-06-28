@@ -1787,8 +1787,8 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         [InlineData("2.0", false, "Foo: bar", "Foo: bar", null)]
         public async Task NonUpgradableRequest_RemoveAllConnectionHeaders(string protocol, bool upgrade, string addHeadersList, string preservedHeadersList, string removedHeadersList)
         {
-            var addHeaders = addHeadersList.Split("; ");
-            var preservedHeaders = preservedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
+            var addHeaders = addHeadersList.Split("; ").Select(GetHeaderNameAndValues);
+            var preservedHeaders = (preservedHeadersList?.Split("; ") ?? Enumerable.Empty<string>()).Select(GetHeaderNameAndValues);
             var removedHeaders = removedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
 
             var httpContext = new DefaultHttpContext();
@@ -1801,10 +1801,9 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 httpContext.Features.Set(upgradeFeature.Object);
             }
 
-            foreach (var header in addHeaders)
+            foreach (var (name, value) in addHeaders)
             {
-                (var headerName, var headerValues) = GetHeaderNameAndValues(header);
-                httpContext.Request.Headers[headerName] = headerValues;
+                httpContext.Request.Headers[name] = value;
             }
 
             var destinationPrefix = "https://localhost:123/a/b/";
@@ -1814,11 +1813,10 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 {
                     await Task.Yield();
 
-                    foreach(var preservedHeader in preservedHeaders)
+                    foreach(var (name, value) in preservedHeaders)
                     {
-                        (var headerName, var expectedValues) = GetHeaderNameAndValues(preservedHeader);
-                        var actualValues = string.Join(", ", request.Headers.GetValues(headerName));
-                        Assert.Equal(expectedValues, actualValues);
+                        var actualValues = string.Join(", ", request.Headers.GetValues(name));
+                        Assert.Equal(value, actualValues);
                     }
 
                     foreach (var removedHeaderName in removedHeaders)
@@ -1837,21 +1835,21 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 
         [Theory]
         [MemberData(nameof(GetProhibitedHeaders))]
+        [MemberData(nameof(GetHeadersWithNewLines))]
         public async Task Request_RemoveProhibitedHeaders(string protocol, string prohibitedHeadersList)
         {
-            const string preservedHeaderName = "Foo";
-            const string preservedHeaderValue = "bar";
-            var prohibitedHeaders = prohibitedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
+            const string PreservedHeaderName = "Foo";
+            const string PreservedHeaderValue = "bar";
+            var prohibitedHeaders = prohibitedHeadersList.Split("; ").Select(GetHeaderNameAndValues);
 
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
 
-            foreach (var header in prohibitedHeaders)
+            foreach (var (name, value) in prohibitedHeaders)
             {
-                (var headerName, var headerValues) = GetHeaderNameAndValues(header);
-                httpContext.Request.Headers[headerName] = headerValues;
+                httpContext.Request.Headers[name] = value;
             }
-            httpContext.Request.Headers[preservedHeaderName] = preservedHeaderValue;
+            httpContext.Request.Headers[PreservedHeaderName] = PreservedHeaderValue;
 
             var destinationPrefix = "https://localhost:123/a/b/";
             var sut = CreateProxy();
@@ -1860,11 +1858,11 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 {
                     await Task.Yield();
 
-                    Assert.Equal(preservedHeaderValue, string.Join(", ", request.Headers.GetValues(preservedHeaderName)));
+                    Assert.Equal(PreservedHeaderValue, string.Join(", ", request.Headers.GetValues(PreservedHeaderName)));
 
-                    foreach (var removedHeaderName in prohibitedHeaders)
+                    foreach (var (name, _) in prohibitedHeaders)
                     {
-                        Assert.False(request.Headers.TryGetValues(removedHeaderName, out _));
+                        Assert.False(request.Headers.TryGetValues(name, out _));
                     }
 
                     var response = new HttpResponseMessage(HttpStatusCode.OK);
@@ -1880,9 +1878,9 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         [MemberData(nameof(GetProhibitedHeaders))]
         public async Task Response_RemoveProhibitedHeaders(string protocol, string prohibitedHeadersList)
         {
-            const string preservedHeaderName = "Foo";
-            const string preservedHeaderValue = "bar";
-            var prohibitedHeaders = prohibitedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
+            const string PreservedHeaderName = "Foo";
+            const string PreservedHeaderValue = "bar";
+            var prohibitedHeaders = prohibitedHeadersList.Split("; ").Select(GetHeaderNameAndValues);
 
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Method = "GET";
@@ -1896,12 +1894,11 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 
                     var response = new HttpResponseMessage(HttpStatusCode.OK);
 
-                    foreach (var header in prohibitedHeaders)
+                    foreach (var (name, value) in prohibitedHeaders)
                     {
-                        (var headerName, var headerValues) = GetHeaderNameAndValues(header);
-                        response.Headers.TryAddWithoutValidation(headerName, headerValues);
+                        response.Headers.TryAddWithoutValidation(name, value);
                     }
-                    response.Headers.TryAddWithoutValidation(preservedHeaderName, preservedHeaderValue);
+                    response.Headers.TryAddWithoutValidation(PreservedHeaderName, PreservedHeaderValue);
 
                     return response;
                 });
@@ -1909,11 +1906,11 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = Version.Parse(protocol) });
 
             Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
-            Assert.Equal(preservedHeaderValue, string.Join(", ", httpContext.Response.Headers[preservedHeaderName]));
+            Assert.Equal(PreservedHeaderValue, string.Join(", ", httpContext.Response.Headers[PreservedHeaderName]));
 
-            foreach (var headerName in prohibitedHeaders)
+            foreach (var (name, _) in prohibitedHeaders)
             {
-                Assert.False(httpContext.Response.Headers.TryGetValue(headerName, out _));
+                Assert.False(httpContext.Response.Headers.TryGetValue(name, out _));
             }
         }
 
@@ -1936,11 +1933,28 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 "Close: value",
                 "TE: value",
 #if NET
-                "AltSvc: value",
+                "Alt-Svc: value",
 #endif
             };
 
-            foreach(var header in headers)
+            foreach (var header in headers)
+            {
+                yield return new object[] { "1.1", header };
+                yield return new object[] { "2.0", header };
+            }
+        }
+
+        public static IEnumerable<object[]> GetHeadersWithNewLines()
+        {
+            var headers = new[]
+            {
+                "valid-name-1: \rfoo",
+                "valid-name-2: bar\n",
+                "valid-name-3: foo\r\nbar",
+                "valid-name-4: foo\r\n bar",
+            };
+
+            foreach (var header in headers)
             {
                 yield return new object[] { "1.1", header };
                 yield return new object[] { "2.0", header };
@@ -1989,7 +2003,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             return reader.ReadToEnd();
         }
 
-        private (string name, string values) GetHeaderNameAndValues(string fullHeader)
+        private static (string Name, string Values) GetHeaderNameAndValues(string fullHeader)
         {
             var headerNameEnd = fullHeader.IndexOf(": ");
             return (fullHeader.Substring(0, headerNameEnd), fullHeader.Substring(headerNameEnd + 2));

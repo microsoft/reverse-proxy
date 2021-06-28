@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
@@ -57,7 +58,7 @@ namespace Yarp.ReverseProxy.Forwarder
             return _headersToExclude.Contains(headerName);
         }
 
-        private static readonly HashSet<string> _headersToExclude = new(14, StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> _headersToExclude = new(15, StringComparer.OrdinalIgnoreCase)
         {
             HeaderNames.Connection,
             HeaderNames.TransferEncoding,
@@ -128,18 +129,16 @@ namespace Yarp.ReverseProxy.Forwarder
         // an EmptyHttpContent - dummy 0-length container only used for headers.
         internal static void AddHeader(HttpRequestMessage request, string headerName, StringValues value)
         {
-            // HttpClient wrongly uses comma (",") instead of semi-colon (";") as a separator for Cookie headers.
-            // To mitigate this, we concatenate them manually and put them back as a single header value.
-            // A multi-header cookie header is invalid, but we get one because of
-            // https://github.com/dotnet/aspnetcore/issues/26461
-            if (string.Equals(headerName, HeaderNames.Cookie, StringComparison.OrdinalIgnoreCase) && value.Count > 1)
-            {
-                value = string.Join("; ", value);
-            }
-
             if (value.Count == 1)
             {
                 string headerValue = value;
+
+                if (ContainsNewLines(headerValue))
+                {
+                    // TODO: Log
+                    return;
+                }
+
                 if (!request.Headers.TryAddWithoutValidation(headerName, headerValue))
                 {
                     if (request.Content is null && _contentHeaders.Contains(headerName))
@@ -155,6 +154,26 @@ namespace Yarp.ReverseProxy.Forwarder
             else
             {
                 string[] headerValues = value;
+
+                // HttpClient wrongly uses comma (",") instead of semi-colon (";") as a separator for Cookie headers.
+                // To mitigate this, we concatenate them manually and put them back as a single header value.
+                // A multi-header cookie header is invalid, but we get one because of
+                // https://github.com/dotnet/aspnetcore/issues/26461
+                if (string.Equals(headerName, HeaderNames.Cookie, StringComparison.OrdinalIgnoreCase))
+                {
+                    AddHeader(request, headerName, string.Join("; ", headerValues));
+                    return;
+                }
+
+                foreach (var headerValue in headerValues)
+                {
+                    if (ContainsNewLines(headerValue))
+                    {
+                        // TODO: Log
+                        return;
+                    }
+                }
+
                 if (!request.Headers.TryAddWithoutValidation(headerName, headerValues))
                 {
                     if (request.Content is null && _contentHeaders.Contains(headerName))
@@ -174,6 +193,9 @@ namespace Yarp.ReverseProxy.Forwarder
                 Debug.Assert(contentLength.Single() == "0", "An actual content should have been set");
             }
 #endif
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            static bool ContainsNewLines(string value) => value.AsSpan().IndexOfAny('\r', '\n') >= 0;
         }
 
         internal static void RemoveHeader(HttpRequestMessage request, string headerName)
