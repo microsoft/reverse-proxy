@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
 using System.Collections.Generic;
 using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
 
 namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
 {
@@ -16,7 +16,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
         }
 
         public YarpIngressOptions Options { get; set; } = new YarpIngressOptions();
-        public Dictionary<string, ClusterTrasfer> ClusterTransfers { get; set; } = new Dictionary<string, ClusterTrasfer>();
+        public Dictionary<string, ClusterTransfer> ClusterTransfers { get; set; } = new Dictionary<string, ClusterTransfer>();
         public List<RouteConfig> Routes { get; set; } = new List<RouteConfig>();
         public List<ClusterConfig> Clusters { get; set; } = new List<ClusterConfig>();
         public IngressData Ingress { get; }

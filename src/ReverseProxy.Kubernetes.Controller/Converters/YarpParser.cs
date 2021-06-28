@@ -5,7 +5,6 @@ using k8s.Models;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
 using Yarp.ReverseProxy.Kubernetes.Controller.Services;
-using static Yarp.ReverseProxy.Kubernetes.Controller.Services.Reconciler;
 
 namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
 {
@@ -78,7 +77,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
 
                     if (!clusters.ContainsKey(key))
                     {
-                        clusters.Add(key, new ClusterTrasfer());
+                        clusters.Add(key, new ClusterTransfer());
                     }
                     var cluster = clusters[key];
                     cluster.ClusterId = key;
