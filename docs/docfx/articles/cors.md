@@ -10,7 +10,7 @@ The reverse proxy can handle cross-origin requests before they are proxied to th
 The requests won't be automatically matched for cors preflight requests unless enabled in the route or application configuration.
 
 ## Configuration
-CORS policies can be specified per route via [ProxyRoute.CorsPolicy](xref:Yarp.ReverseProxy.Abstractions.ProxyRoute) and can be bound from the `Routes` sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.
+CORS policies can be specified per route via [RouteConfig.CorsPolicy](xref:Yarp.ReverseProxy.Configuration.RouteConfig) and can be bound from the `Routes` sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.
 
 Example:
 ```JSON
@@ -38,7 +38,7 @@ Example:
 }
 ```
 
-[CORS policies](https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-3.1#cors-with-named-policy-and-middleware) are an ASP.NET Core concept that the proxy utilizes. The proxy provides the above configuration to specify a policy per route and the rest is handled by existing ASP.NET Core CORS Middleware.
+[CORS policies](https://docs.microsoft.com/aspnet/core/security/cors#cors-with-named-policy-and-middleware) are an ASP.NET Core concept that the proxy utilizes. The proxy provides the above configuration to specify a policy per route and the rest is handled by existing ASP.NET Core CORS Middleware.
 
 CORS policies can be configured in Startup.ConfigureServices as follows:
 ```
@@ -73,7 +73,7 @@ public void Configure(IApplicationBuilder app)
 
 ### DefaultPolicy
 
-Specifying the value `default` in a route's `CorsPolicy` parameter means that route will use the policy defined in [CorsOptions.DefaultPolicy](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.cors.infrastructure.corsoptions.defaultpolicyname).
+Specifying the value `default` in a route's `CorsPolicy` parameter means that route will use the policy defined in [CorsOptions.DefaultPolicy](https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.cors.infrastructure.corsoptions.defaultpolicyname).
 
 ### Disable CORS
 

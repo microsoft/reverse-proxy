@@ -11,10 +11,10 @@ using System.Threading.Tasks;
 namespace SampleClient.Scenarios
 {
     /// <summary>
-    /// Verifies that Island Gateway correctly handles the case where the client specifies
+    /// Verifies that YARP correctly handles the case where the client specifies
     /// <c>Expect: 100-continue</c> and the destination fails early without accepting the request body.
     /// This scenario can be encountered in real world scenarios, usually when authentication fails on the destination.
-    /// The <c>Expect: 100-continue</c> behavior causes the request body copy to not even start on Island Gateway in this case.
+    /// The <c>Expect: 100-continue</c> behavior causes the request body copy to not even start on YARP in this case.
     /// </summary>
     internal class Http2PostExpectContinueScenario : IScenario
     {

@@ -13,8 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.ServiceFabric.Services.Communication;
-using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Service;
+using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.ReverseProxy.ServiceFabric
 {
@@ -48,15 +47,15 @@ namespace Yarp.ReverseProxy.ServiceFabric
         }
 
         /// <inheritdoc/>
-        public async Task<(IReadOnlyList<ProxyRoute> Routes, IReadOnlyList<Cluster> Clusters)> DiscoverAsync(CancellationToken cancellation)
+        public async Task<(IReadOnlyList<RouteConfig> Routes, IReadOnlyList<ClusterConfig> Clusters)> DiscoverAsync(CancellationToken cancellation)
         {
             // Take a snapshot of current options and use that consistently for this execution.
             var options = _optionsMonitor.CurrentValue;
 
             _serviceFabricCaller.CleanUpExpired();
 
-            var discoveredBackends = new Dictionary<string, Cluster>(StringComparer.Ordinal);
-            var discoveredRoutes = new List<ProxyRoute>();
+            var discoveredBackends = new Dictionary<string, ClusterConfig>(StringComparer.Ordinal);
+            var discoveredRoutes = new List<RouteConfig>();
             IEnumerable<ApplicationWrapper> applications;
 
             try
@@ -110,12 +109,12 @@ namespace Yarp.ReverseProxy.ServiceFabric
                         var clusterValidationErrors = await _configValidator.ValidateClusterAsync(cluster);
                         if (clusterValidationErrors.Count > 0)
                         {
-                            throw new ConfigException($"Skipping cluster id '{cluster.Id} due to validation errors.", new AggregateException(clusterValidationErrors));
+                            throw new ConfigException($"Skipping cluster id '{cluster.ClusterId} due to validation errors.", new AggregateException(clusterValidationErrors));
                         }
 
-                        if (!discoveredBackends.TryAdd(cluster.Id, cluster))
+                        if (!discoveredBackends.TryAdd(cluster.ClusterId, cluster))
                         {
-                            throw new ConfigException($"Duplicated cluster id '{cluster.Id}'. Skipping repeated definition, service '{service.ServiceName}'");
+                            throw new ConfigException($"Duplicated cluster id '{cluster.ClusterId}'. Skipping repeated definition, service '{service.ServiceName}'");
                         }
 
                         var routes = LabelsParser.BuildRoutes(service.ServiceName, serviceExtensionLabels);
@@ -130,12 +129,12 @@ namespace Yarp.ReverseProxy.ServiceFabric
                             // Don't add ANY routes if even a single one is bad. Trying to add partial routes
                             // could lead to unexpected results (e.g. a typo in the configuration of higher-priority route
                             // could lead to a lower-priority route being selected for requests it should not be handling).
-                            throw new ConfigException($"Skipping ALL routes for cluster id '{cluster.Id} due to validation errors.", new AggregateException(routeValidationErrors));
+                            throw new ConfigException($"Skipping ALL routes for cluster id '{cluster.ClusterId} due to validation errors.", new AggregateException(routeValidationErrors));
                         }
 
                         discoveredRoutes.AddRange(routes);
 
-                        ReportServiceHealth(options, service.ServiceName, HealthState.Ok, $"Successfully built cluster '{cluster.Id}' with {routes.Count} routes.");
+                        ReportServiceHealth(options, service.ServiceName, HealthState.Ok, $"Successfully built cluster '{cluster.ClusterId}' with {routes.Count} routes.");
                     }
                     catch (ConfigException ex)
                     {
@@ -188,7 +187,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
             };
         }
 
-        private Destination BuildDestination(ReplicaWrapper replica, string listenerName, string healthListenerName)
+        private DestinationConfig BuildDestination(ReplicaWrapper replica, string listenerName, string healthListenerName, PartitionWrapper partition)
         {
             if (!ServiceEndpointCollection.TryParseEndpointsString(replica.ReplicaAddress, out var serviceEndpointCollection))
             {
@@ -219,11 +218,16 @@ namespace Yarp.ReverseProxy.ServiceFabric
                 }
             }
 
-            return new Destination
+            return new DestinationConfig
             {
-                Address = endpointUri.ToString(),
-                Health = healthEndpointUri?.ToString(),
-                Metadata = null, // TODO
+                Address = endpointUri.AbsoluteUri,
+                Health = healthEndpointUri?.AbsoluteUri,
+                Metadata = new Dictionary<string, string>
+                {
+                    { "PartitionId", partition.Id.ToString() ?? string.Empty },
+                    { "NamedPartitionName", partition.Name ?? string.Empty },
+                    { "ReplicaId", replica.Id.ToString() ?? string.Empty }
+                }
             };
         }
 
@@ -239,16 +243,16 @@ namespace Yarp.ReverseProxy.ServiceFabric
 
         /// <summary>
         /// Finds all eligible destinations (replica endpoints) for the <paramref name="service"/> specified,
-        /// and populates the specified <paramref name="cluster"/>'s <see cref="Cluster.Destinations"/> accordingly.
+        /// and populates the specified <paramref name="cluster"/>'s <see cref="ClusterConfig.Destinations"/> accordingly.
         /// </summary>
         /// <remarks>All non-fatal exceptions are caught and logged.</remarks>
-        private async Task<IReadOnlyDictionary<string, Destination>> DiscoverDestinationsAsync(
+        private async Task<IReadOnlyDictionary<string, DestinationConfig>> DiscoverDestinationsAsync(
             ServiceFabricDiscoveryOptions options,
             ServiceWrapper service,
             Dictionary<string, string> serviceExtensionLabels,
             CancellationToken cancellation)
         {
-            IEnumerable<Guid> partitions;
+            IEnumerable<PartitionWrapper> partitions;
             try
             {
                 partitions = await _serviceFabricCaller.GetPartitionListAsync(service.ServiceName, cancellation);
@@ -259,7 +263,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                 return null;
             }
 
-            var destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase);
+            var destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase);
 
             var listenerName = serviceExtensionLabels.GetValueOrDefault("YARP.Backend.ServiceFabric.ListenerName", string.Empty);
             var healthListenerName = serviceExtensionLabels.GetValueOrDefault("YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName", string.Empty);
@@ -269,11 +273,11 @@ namespace Yarp.ReverseProxy.ServiceFabric
                 IEnumerable<ReplicaWrapper> replicas;
                 try
                 {
-                    replicas = await _serviceFabricCaller.GetReplicaListAsync(partition, cancellation);
+                    replicas = await _serviceFabricCaller.GetReplicaListAsync(partition.Id, cancellation);
                 }
                 catch (Exception ex) // TODO: davidni: not fatal?
                 {
-                    Log.GettingReplicaFailed(_logger, partition, service.ServiceName, ex);
+                    Log.GettingReplicaFailed(_logger, partition.Id, service.ServiceName, ex);
                     continue;
                 }
 
@@ -281,7 +285,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                 {
                     if (!IsHealthyReplica(replica))
                     {
-                        Log.UnhealthyReplicaSkipped(_logger, replica.Id, partition, service.ServiceName, replica.ReplicaStatus, replica.HealthState);
+                        Log.UnhealthyReplicaSkipped(_logger, replica.Id, partition.Id, service.ServiceName, replica.ReplicaStatus, replica.HealthState);
                         continue;
                     }
 
@@ -295,10 +299,13 @@ namespace Yarp.ReverseProxy.ServiceFabric
 
                     try
                     {
-                        var destination = BuildDestination(replica, listenerName, healthListenerName);
+                        var destination = BuildDestination(replica, listenerName, healthListenerName, partition);
 
-                        ReportReplicaHealth(options, service, partition, replica, HealthState.Ok, $"Successfully built the endpoint from listener '{listenerName}'.");
-                        if (!destinations.TryAdd(replica.Id.ToString(), destination))
+                        ReportReplicaHealth(options, service, partition.Id, replica, HealthState.Ok, $"Successfully built the endpoint from listener '{listenerName}'.");
+
+                        // DestinationId is the concatenation of partitionId and replicaId.
+                        var destinationId = $"{partition.Id}/{replica.Id}";
+                        if (!destinations.TryAdd(destinationId, destination))
                         {
                             throw new ConfigException($"Duplicated endpoint id '{replica.Id}'. Skipping repeated definition for service '{service.ServiceName}'.");
                         }
@@ -311,7 +318,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                         // TODO: emit Error health report once we are able to detect config issues *during* (as opposed to *after*) a target service upgrade.
                         // Proactive Error health report would trigger a rollback of the target service as desired. However, an Error report after rhe fact
                         // will NOT cause a rollback and will prevent the target service from performing subsequent monitored upgrades to mitigate, making things worse.
-                        ReportReplicaHealth(options, service, partition, replica, HealthState.Warning, $"Could not build service endpoint: {ex.Message}");
+                        ReportReplicaHealth(options, service, partition.Id, replica, HealthState.Warning, $"Could not build service endpoint: {ex.Message}");
                     }
                     catch (Exception ex) // TODO: davidni: not fatal?
                     {

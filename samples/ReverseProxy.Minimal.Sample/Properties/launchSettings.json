@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "ReverseProxy.Minimal.Sample": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

@@ -20,16 +20,16 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller
         public void ConfigureServices(IServiceCollection services)
 #pragma warning restore CA1822 // Mark members as static
         {
-            // Add components from the kubernetes controller framweork
+            // Add components from the kubernetes controller framework
             services.AddKubernetesControllerRuntime();
 
             // Add components implemented by this application
-            services.AddHostedService<Services.IngressController>();
+            services.AddHostedService<IngressController>();
             services.AddSingleton<ICache, IngressCache>();
             services.AddTransient<IReconciler, Reconciler>();
             services.AddSingleton<IDispatcher, Dispatcher>();
 
-            // Register the necessary Kubernetes resource infromers
+            // Register the necessary Kubernetes resource informers
             services.RegisterResourceInformer<V1Ingress>();
             services.RegisterResourceInformer<V1Endpoints>();
 

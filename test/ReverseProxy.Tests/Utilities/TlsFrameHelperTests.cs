@@ -5,10 +5,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Security;
 using System.Security.Authentication;
 using Xunit;
 
-namespace Yarp.ReverseProxy.Utilities.Tls
+namespace Yarp.ReverseProxy.Utilities.Tls.Tests
 {
     public class TlsFrameHelperTests
     {
@@ -66,6 +67,20 @@ namespace Yarp.ReverseProxy.Utilities.Tls
             Assert.Equal(SslProtocols.Tls, info.Header.Version);
             Assert.Equal(SslProtocols.Tls|SslProtocols.Tls12, info.SupportedVersions);
             Assert.Equal(TlsFrameHelper.ApplicationProtocolInfo.Http11 | TlsFrameHelper.ApplicationProtocolInfo.Http2, info.ApplicationProtocols);
+
+            Assert.Equal(46, info.TlsCipherSuites.Length);
+            int expectedCiphersCount = 0;
+            for (int i = 0 ; i < info.TlsCipherSuites.Length; i++)
+            {
+                // spotcheck on ciphers
+                if (info.TlsCipherSuites.Span[i] == TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 ||
+                    info.TlsCipherSuites.Span[i] == TlsCipherSuite.TLS_RSA_WITH_AES_128_GCM_SHA256 ||
+                    info.TlsCipherSuites.Span[i] == TlsCipherSuite.TLS_RSA_WITH_RC4_128_SHA)
+                {
+                    expectedCiphersCount++;
+                }
+            }
+            Assert.Equal(3, expectedCiphersCount);
         }
 
         [Fact]
@@ -77,6 +92,20 @@ namespace Yarp.ReverseProxy.Utilities.Tls
             Assert.Equal(SslProtocols.Tls, info.Header.Version);
             Assert.Equal(SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12 | SslProtocols.Tls13, info.SupportedVersions);
             Assert.Equal(TlsFrameHelper.ApplicationProtocolInfo.Other, info.ApplicationProtocols);
+
+            Assert.Equal(6, info.TlsCipherSuites.Length);
+            int expectedCiphersCount = 0;
+            for (int i = 0; i < info.TlsCipherSuites.Length; i++)
+            {
+                if (info.TlsCipherSuites.Span[i] == TlsCipherSuite.TLS_AES_256_GCM_SHA384 ||
+                    info.TlsCipherSuites.Span[i] == TlsCipherSuite.TLS_CHACHA20_POLY1305_SHA256 ||
+                    info.TlsCipherSuites.Span[i] == TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384)
+                {
+                    expectedCiphersCount++;
+                }
+            }
+            Assert.Equal(3, expectedCiphersCount);
+
         }
 
         [Fact]

@@ -13,8 +13,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Utilities.Tests;
+using Yarp.ReverseProxy.Common.Tests;
+using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.ReverseProxy.Common
 {
@@ -38,7 +38,7 @@ namespace Yarp.ReverseProxy.Common
                   destinationServices => { },
                   destinationApp =>
                   {
-                      destinationApp.Use(async (context, next) => await destinationGetDelegate(context));
+                      destinationApp.Run(destinationGetDelegate);
                   },
                   configureProxy,
                   configureProxyApp,
@@ -86,25 +86,25 @@ namespace Yarp.ReverseProxy.Common
             return CreateHost(protocols, false, requestHeaderEncoding,
                 services =>
                 {
-                    var proxyRoute = new ProxyRoute
+                    var proxyRoute = new RouteConfig
                     {
                         RouteId = "route1",
                         ClusterId = clusterId,
                         Match = new RouteMatch { Path = "/{**catchall}" }
                     };
 
-                    var cluster = new Cluster
+                    var cluster = new ClusterConfig
                     {
-                        Id = clusterId,
-                        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+                        ClusterId = clusterId,
+                        Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                         {
-                            { "destination1",  new Destination() { Address = destinationAddress } }
+                            { "destination1",  new DestinationConfig() { Address = destinationAddress } }
                         },
-                        HttpClient = new ProxyHttpClientOptions
+                        HttpClient = new HttpClientConfig
                         {
                             DangerousAcceptAnyServerCertificate = useHttps,
 #if NET
-                            RequestHeaderEncoding = requestHeaderEncoding,
+                            RequestHeaderEncoding = requestHeaderEncoding?.WebName,
 #endif
                         }
                     };
