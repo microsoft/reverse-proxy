@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Yarp.ReverseProxy.Forwarder;
-using Yarp.ReverseProxy.Transforms;
+using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Service.RuntimeModel.Transforms;
 
 namespace Yarp.Sample
 {
     /// <summary>
-    /// ASP.NET Core pipeline initialization showing how to use IHttpForwarder to directly handle forwarding requests.
+    /// ASP.NET Core pipeline initialization showing how to use IHttpProxy to directly handle proxying requests.
     /// With this approach you are responsible for destination discovery, load balancing, and related concerns.
     /// </summary>
     public class Startup
@@ -24,13 +24,13 @@ namespace Yarp.Sample
         /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHttpForwarder();
+            services.AddHttpProxy();
         }
 
         /// <summary>
         /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         /// </summary>
-        public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
+        public void Configure(IApplicationBuilder app, IHttpProxy httpProxy)
         {
             // Configure our own HttpMessageInvoker for outbound calls for proxy operations
             var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
@@ -43,20 +43,22 @@ namespace Yarp.Sample
 
             // Setup our own request transform class
             var transformer = new CustomTransformer(); // or HttpTransformer.Default;
-            var requestOptions = new ForwarderRequestConfig { Timeout = TimeSpan.FromSeconds(100) };
+            var requestOptions = new RequestProxyOptions { Timeout = TimeSpan.FromSeconds(100) };
 
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
-                // When using IHttpForwarder for direct forwarding you are responsible for routing, destination discovery, load balancing, affinity, etc..
+                // When using IHttpProxy for direct proxying you are responsible for routing, destination discovery, load balancing, affinity, etc..
                 // For an alternate example that includes those features see BasicYarpSample.
                 endpoints.Map("/{**catch-all}", async httpContext =>
                 {
-                    var error = await forwarder.SendAsync(httpContext, "https://example.com", httpClient, requestOptions, transformer);
+                    await httpProxy.ProxyAsync(httpContext, "https://example.com", httpClient, requestOptions, transformer);
+                    var errorFeature = httpContext.Features.Get<IProxyErrorFeature>();
+                    
                     // Check if the proxy operation was successful
-                    if (error != ForwarderError.None)
+                    if (errorFeature != null)
                     {
-                        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+                        var error = errorFeature.Error;
                         var exception = errorFeature.Exception;
                     }
                 });

@@ -29,7 +29,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
         /// <summary>
         /// TODO.
         /// </summary>
-        Task<IEnumerable<PartitionWrapper>> GetPartitionListAsync(Uri serviceName, CancellationToken cancellation);
+        Task<IEnumerable<Guid>> GetPartitionListAsync(Uri serviceName, CancellationToken cancellation);
 
         /// <summary>
         /// TODO.

@@ -1,13 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Yarp.ReverseProxy.Kubernetes.Protocol;
 
 namespace Yarp.ReverseProxy.Kubernetes.Controller.Dispatching
@@ -19,16 +18,16 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Dispatching
     /// </summary>
     public class DispatchActionResult : IActionResult, IDispatchTarget
     {
-        private static readonly byte[] _newline = Encoding.UTF8.GetBytes(Environment.NewLine);
-
         private readonly IDispatcher _dispatcher;
+        private readonly CancellationToken _requestAborted;
         private Task _task = Task.CompletedTask;
-        private readonly object _taskSync = new();
+        private readonly object _taskSync = new object();
         private HttpContext _httpContext;
 
-        public DispatchActionResult(IDispatcher dispatcher)
+        public DispatchActionResult(IDispatcher dispatcher, CancellationToken requestAborted)
         {
             _dispatcher = dispatcher;
+            _requestAborted = requestAborted;
         }
 
         public override string ToString()
@@ -96,7 +95,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Dispatching
                 {
                     await task.ConfigureAwait(false);
                     await _httpContext.Response.BodyWriter.WriteAsync(bytes, cancellationToken);
-                    await _httpContext.Response.BodyWriter.WriteAsync(_newline, cancellationToken);
+                    await _httpContext.Response.BodyWriter.WriteAsync(new[] { (byte)'\n' }, cancellationToken);
                     await _httpContext.Response.BodyWriter.FlushAsync(cancellationToken);
                 }
             }

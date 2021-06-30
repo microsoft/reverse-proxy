@@ -8,7 +8,7 @@ namespace Yarp.ReverseProxy.Utilities
 {
     internal static class CaseSensitiveEqualHelper
     {
-        internal static bool Equals(IReadOnlyList<string>? list1, IReadOnlyList<string>? list2)
+        internal static bool Equals(IReadOnlyList<string> list1, IReadOnlyList<string> list2)
         {
             if (ReferenceEquals(list1, list2))
             {
@@ -36,7 +36,7 @@ namespace Yarp.ReverseProxy.Utilities
             return true;
         }
 
-        internal static int GetHashCode(IReadOnlyList<string>? values)
+        internal static int GetHashCode(IReadOnlyList<string> values)
         {
             return values?.GetHashCode() ?? 0;
         }

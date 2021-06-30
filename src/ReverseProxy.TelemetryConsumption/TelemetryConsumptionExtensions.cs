@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class TelemetryConsumptionExtensions
     {
-#if NET
+#if NET5_0
         /// <summary>
         /// Registers all telemetry listeners (Proxy, Kestrel, Http, NameResolution, NetSecurity and Sockets).
         /// </summary>
@@ -20,9 +20,9 @@ namespace Microsoft.Extensions.DependencyInjection
 #endif
         public static IServiceCollection AddTelemetryListeners(this IServiceCollection services)
         {
-            services.AddHostedService<ForwarderEventListenerService>();
+            services.AddHostedService<ProxyEventListenerService>();
             services.AddHostedService<KestrelEventListenerService>();
-#if NET
+#if NET5_0
             services.AddHostedService<HttpEventListenerService>();
             services.AddHostedService<NameResolutionEventListenerService>();
             services.AddHostedService<NetSecurityEventListenerService>();
@@ -38,9 +38,9 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var implementsAny = false;
 
-            if (consumer is IForwarderTelemetryConsumer)
+            if (consumer is IProxyTelemetryConsumer)
             {
-                services.TryAddEnumerable(new ServiceDescriptor(typeof(IForwarderTelemetryConsumer), consumer));
+                services.TryAddEnumerable(new ServiceDescriptor(typeof(IProxyTelemetryConsumer), consumer));
                 implementsAny = true;
             }
 
@@ -50,7 +50,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 implementsAny = true;
             }
 
-#if NET
+#if NET5_0
             if (consumer is IHttpTelemetryConsumer)
             {
                 services.TryAddEnumerable(new ServiceDescriptor(typeof(IHttpTelemetryConsumer), consumer));
@@ -94,9 +94,9 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var implementsAny = false;
 
-            if (typeof(IForwarderTelemetryConsumer).IsAssignableFrom(typeof(TConsumer)))
+            if (typeof(IProxyTelemetryConsumer).IsAssignableFrom(typeof(TConsumer)))
             {
-                services.AddSingleton(services => (IForwarderTelemetryConsumer)services.GetRequiredService<TConsumer>());
+                services.AddSingleton(services => (IProxyTelemetryConsumer)services.GetRequiredService<TConsumer>());
                 implementsAny = true;
             }
 
@@ -106,7 +106,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 implementsAny = true;
             }
 
-#if NET
+#if NET5_0
             if (typeof(IHttpTelemetryConsumer).IsAssignableFrom(typeof(TConsumer)))
             {
                 services.AddSingleton(services => (IHttpTelemetryConsumer)services.GetRequiredService<TConsumer>());

@@ -11,7 +11,7 @@ namespace Yarp.ReverseProxy.Utilities
     internal sealed class ThreadStaticRandom
     {
         [ThreadStatic]
-        private static Random? t_inst;
+        private static Random t_inst;
         public static Random Instance => t_inst ??= new Random();
     }
 }

@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Service;
 
 namespace Yarp.ReverseProxy.Kubernetes.Protocol
 {

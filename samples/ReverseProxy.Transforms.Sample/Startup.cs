@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Yarp.ReverseProxy.Transforms;
+using Yarp.ReverseProxy.Abstractions.Config;
 
 namespace Yarp.Sample
 {

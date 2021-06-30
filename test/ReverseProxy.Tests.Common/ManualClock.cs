@@ -69,8 +69,6 @@ namespace Yarp.ReverseProxy.Common.Tests
             _currentTime = targetTime;
         }
 
-        public DateTimeOffset GetUtcNow() => DateTimeOffset.UtcNow;
-
         public TimeSpan GetStopwatchTime() => _currentTime;
 
         public Task Delay(TimeSpan delay, CancellationToken cancellationToken)

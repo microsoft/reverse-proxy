@@ -3,8 +3,7 @@
 
 using System;
 using System.Net.Http;
-using Yarp.ReverseProxy.Transforms;
-using Yarp.ReverseProxy.Transforms.Builder;
+using Yarp.ReverseProxy.Abstractions.Config;
 
 namespace Yarp.ReverseProxy.Sample
 {

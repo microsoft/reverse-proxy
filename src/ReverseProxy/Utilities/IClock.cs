@@ -14,12 +14,6 @@ namespace Yarp.ReverseProxy.Utilities
     public interface IClock
     {
         /// <summary>
-        /// Gets the current time in UTC as a <see cref="DateTimeOffset"/>.
-        /// </summary>
-        /// <returns></returns>
-        DateTimeOffset GetUtcNow();
-
-        /// <summary>
         /// Gets a value that indicates the current tick count measured as milliseconds from an arbitrary reference time.
         /// The default implementation leverages <see cref="Environment.TickCount64"/>.
         /// This is generally more efficient than <see cref="GetStopwatchTime"/>, but provides less precision.

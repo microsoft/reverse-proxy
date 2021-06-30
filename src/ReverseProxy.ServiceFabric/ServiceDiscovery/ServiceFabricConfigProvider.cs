@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
-using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Service;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.ServiceFabric
@@ -69,7 +70,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                         if (_snapshot == null)
                         {
                             Log.StartWithoutInitialServiceFabricDiscovery(_logger);
-                            UpdateSnapshot(new List<RouteConfig>(), new List<ClusterConfig>());
+                            UpdateSnapshot(new List<ProxyRoute>(), new List<Cluster>());
                         }
                     }
                 }
@@ -131,7 +132,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
             }
         }
 
-        private void UpdateSnapshot(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
+        private void UpdateSnapshot(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
         {
             // Prevent overlapping updates
             lock (_lockObject)
@@ -161,9 +162,9 @@ namespace Yarp.ReverseProxy.ServiceFabric
         // TODO: Perhaps YARP should provide this type?
         private sealed class ConfigurationSnapshot : IProxyConfig
         {
-            public IReadOnlyList<RouteConfig> Routes { get; internal set; }
+            public IReadOnlyList<ProxyRoute> Routes { get; internal set; }
 
-            public IReadOnlyList<ClusterConfig> Clusters { get; internal set; }
+            public IReadOnlyList<Cluster> Clusters { get; internal set; }
 
             public IChangeToken ChangeToken { get; internal set; }
         }

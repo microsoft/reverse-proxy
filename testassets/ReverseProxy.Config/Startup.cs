@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Yarp.ReverseProxy.Model;
+using Yarp.ReverseProxy.Middleware;
 
 namespace Yarp.ReverseProxy.Sample
 {
