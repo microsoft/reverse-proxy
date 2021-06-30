@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class DispatchController
    ">
-    <meta name="generator" content="docfx 2.52.0.0">
+    <meta name="generator" content="docfx 2.58.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -80,553 +80,13 @@ information being sent out through the <a class="xref" href="Yarp.ReverseProxy.K
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object">Object</a></div>
-    <div class="level1"><a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase">ControllerBase</a></div>
-    <div class="level2"><span class="xref">DispatchController</span></div>
-  </div>
-  <div class="inheritedMembers">
-    <h5>Inherited Members</h5>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.statuscode#Microsoft_AspNetCore_Mvc_ControllerBase_StatusCode_System_Int32_">ControllerBase.StatusCode(Int32)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.statuscode#Microsoft_AspNetCore_Mvc_ControllerBase_StatusCode_System_Int32_System_Object_">ControllerBase.StatusCode(Int32, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.content#Microsoft_AspNetCore_Mvc_ControllerBase_Content_System_String_">ControllerBase.Content(String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.content#Microsoft_AspNetCore_Mvc_ControllerBase_Content_System_String_System_String_">ControllerBase.Content(String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.content#Microsoft_AspNetCore_Mvc_ControllerBase_Content_System_String_System_String_System_Text_Encoding_">ControllerBase.Content(String, String, Encoding)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.content#Microsoft_AspNetCore_Mvc_ControllerBase_Content_System_String_Microsoft_Net_Http_Headers_MediaTypeHeaderValue_">ControllerBase.Content(String, MediaTypeHeaderValue)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.nocontent#Microsoft_AspNetCore_Mvc_ControllerBase_NoContent">ControllerBase.NoContent()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.ok#Microsoft_AspNetCore_Mvc_ControllerBase_Ok">ControllerBase.Ok()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.ok#Microsoft_AspNetCore_Mvc_ControllerBase_Ok_System_Object_">ControllerBase.Ok(Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirect#Microsoft_AspNetCore_Mvc_ControllerBase_Redirect_System_String_">ControllerBase.Redirect(String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirectpermanent#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectPermanent_System_String_">ControllerBase.RedirectPermanent(String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirectpreservemethod#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectPreserveMethod_System_String_">ControllerBase.RedirectPreserveMethod(String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirectpermanentpreservemethod#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectPermanentPreserveMethod_System_String_">ControllerBase.RedirectPermanentPreserveMethod(String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.localredirect#Microsoft_AspNetCore_Mvc_ControllerBase_LocalRedirect_System_String_">ControllerBase.LocalRedirect(String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.localredirectpermanent#Microsoft_AspNetCore_Mvc_ControllerBase_LocalRedirectPermanent_System_String_">ControllerBase.LocalRedirectPermanent(String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.localredirectpreservemethod#Microsoft_AspNetCore_Mvc_ControllerBase_LocalRedirectPreserveMethod_System_String_">ControllerBase.LocalRedirectPreserveMethod(String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.localredirectpermanentpreservemethod#Microsoft_AspNetCore_Mvc_ControllerBase_LocalRedirectPermanentPreserveMethod_System_String_">ControllerBase.LocalRedirectPermanentPreserveMethod(String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoaction#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToAction">ControllerBase.RedirectToAction()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoaction#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToAction_System_String_">ControllerBase.RedirectToAction(String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoaction#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToAction_System_String_System_Object_">ControllerBase.RedirectToAction(String, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoaction#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToAction_System_String_System_String_">ControllerBase.RedirectToAction(String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoaction#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToAction_System_String_System_String_System_Object_">ControllerBase.RedirectToAction(String, String, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoaction#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToAction_System_String_System_String_System_String_">ControllerBase.RedirectToAction(String, String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoaction#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToAction_System_String_System_String_System_Object_System_String_">ControllerBase.RedirectToAction(String, String, Object, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoactionpreservemethod#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToActionPreserveMethod_System_String_System_String_System_Object_System_String_">ControllerBase.RedirectToActionPreserveMethod(String, String, Object, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoactionpermanent#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToActionPermanent_System_String_">ControllerBase.RedirectToActionPermanent(String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoactionpermanent#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToActionPermanent_System_String_System_Object_">ControllerBase.RedirectToActionPermanent(String, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoactionpermanent#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToActionPermanent_System_String_System_String_">ControllerBase.RedirectToActionPermanent(String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoactionpermanent#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToActionPermanent_System_String_System_String_System_String_">ControllerBase.RedirectToActionPermanent(String, String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoactionpermanent#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToActionPermanent_System_String_System_String_System_Object_">ControllerBase.RedirectToActionPermanent(String, String, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoactionpermanent#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToActionPermanent_System_String_System_String_System_Object_System_String_">ControllerBase.RedirectToActionPermanent(String, String, Object, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoactionpermanentpreservemethod#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToActionPermanentPreserveMethod_System_String_System_String_System_Object_System_String_">ControllerBase.RedirectToActionPermanentPreserveMethod(String, String, Object, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoroute#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToRoute_System_String_">ControllerBase.RedirectToRoute(String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoroute#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToRoute_System_Object_">ControllerBase.RedirectToRoute(Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoroute#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToRoute_System_String_System_Object_">ControllerBase.RedirectToRoute(String, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoroute#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToRoute_System_String_System_String_">ControllerBase.RedirectToRoute(String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoroute#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToRoute_System_String_System_Object_System_String_">ControllerBase.RedirectToRoute(String, Object, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoroutepreservemethod#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToRoutePreserveMethod_System_String_System_Object_System_String_">ControllerBase.RedirectToRoutePreserveMethod(String, Object, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoroutepermanent#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToRoutePermanent_System_String_">ControllerBase.RedirectToRoutePermanent(String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoroutepermanent#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToRoutePermanent_System_Object_">ControllerBase.RedirectToRoutePermanent(Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoroutepermanent#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToRoutePermanent_System_String_System_Object_">ControllerBase.RedirectToRoutePermanent(String, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoroutepermanent#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToRoutePermanent_System_String_System_String_">ControllerBase.RedirectToRoutePermanent(String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoroutepermanent#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToRoutePermanent_System_String_System_Object_System_String_">ControllerBase.RedirectToRoutePermanent(String, Object, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoroutepermanentpreservemethod#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToRoutePermanentPreserveMethod_System_String_System_Object_System_String_">ControllerBase.RedirectToRoutePermanentPreserveMethod(String, Object, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttopage#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToPage_System_String_">ControllerBase.RedirectToPage(String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttopage#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToPage_System_String_System_Object_">ControllerBase.RedirectToPage(String, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttopage#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToPage_System_String_System_String_">ControllerBase.RedirectToPage(String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttopage#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToPage_System_String_System_String_System_Object_">ControllerBase.RedirectToPage(String, String, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttopage#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToPage_System_String_System_String_System_String_">ControllerBase.RedirectToPage(String, String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttopage#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToPage_System_String_System_String_System_Object_System_String_">ControllerBase.RedirectToPage(String, String, Object, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttopagepermanent#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToPagePermanent_System_String_">ControllerBase.RedirectToPagePermanent(String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttopagepermanent#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToPagePermanent_System_String_System_Object_">ControllerBase.RedirectToPagePermanent(String, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttopagepermanent#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToPagePermanent_System_String_System_String_">ControllerBase.RedirectToPagePermanent(String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttopagepermanent#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToPagePermanent_System_String_System_String_System_String_">ControllerBase.RedirectToPagePermanent(String, String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttopagepermanent#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToPagePermanent_System_String_System_String_System_Object_System_String_">ControllerBase.RedirectToPagePermanent(String, String, Object, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttopagepreservemethod#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToPagePreserveMethod_System_String_System_String_System_Object_System_String_">ControllerBase.RedirectToPagePreserveMethod(String, String, Object, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttopagepermanentpreservemethod#Microsoft_AspNetCore_Mvc_ControllerBase_RedirectToPagePermanentPreserveMethod_System_String_System_String_System_Object_System_String_">ControllerBase.RedirectToPagePermanentPreserveMethod(String, String, Object, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_Byte___System_String_">ControllerBase.File(Byte[], String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_Byte___System_String_System_Boolean_">ControllerBase.File(Byte[], String, Boolean)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_Byte___System_String_System_String_">ControllerBase.File(Byte[], String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_Byte___System_String_System_String_System_Boolean_">ControllerBase.File(Byte[], String, String, Boolean)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_Byte___System_String_System_Nullable_System_DateTimeOffset__Microsoft_Net_Http_Headers_EntityTagHeaderValue_">ControllerBase.File(Byte[], String, Nullable&lt;DateTimeOffset&gt;, EntityTagHeaderValue)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_Byte___System_String_System_Nullable_System_DateTimeOffset__Microsoft_Net_Http_Headers_EntityTagHeaderValue_System_Boolean_">ControllerBase.File(Byte[], String, Nullable&lt;DateTimeOffset&gt;, EntityTagHeaderValue, Boolean)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_Byte___System_String_System_String_System_Nullable_System_DateTimeOffset__Microsoft_Net_Http_Headers_EntityTagHeaderValue_">ControllerBase.File(Byte[], String, String, Nullable&lt;DateTimeOffset&gt;, EntityTagHeaderValue)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_Byte___System_String_System_String_System_Nullable_System_DateTimeOffset__Microsoft_Net_Http_Headers_EntityTagHeaderValue_System_Boolean_">ControllerBase.File(Byte[], String, String, Nullable&lt;DateTimeOffset&gt;, EntityTagHeaderValue, Boolean)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_IO_Stream_System_String_">ControllerBase.File(Stream, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_IO_Stream_System_String_System_Boolean_">ControllerBase.File(Stream, String, Boolean)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_IO_Stream_System_String_System_String_">ControllerBase.File(Stream, String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_IO_Stream_System_String_System_String_System_Boolean_">ControllerBase.File(Stream, String, String, Boolean)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_IO_Stream_System_String_System_Nullable_System_DateTimeOffset__Microsoft_Net_Http_Headers_EntityTagHeaderValue_">ControllerBase.File(Stream, String, Nullable&lt;DateTimeOffset&gt;, EntityTagHeaderValue)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_IO_Stream_System_String_System_Nullable_System_DateTimeOffset__Microsoft_Net_Http_Headers_EntityTagHeaderValue_System_Boolean_">ControllerBase.File(Stream, String, Nullable&lt;DateTimeOffset&gt;, EntityTagHeaderValue, Boolean)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_IO_Stream_System_String_System_String_System_Nullable_System_DateTimeOffset__Microsoft_Net_Http_Headers_EntityTagHeaderValue_">ControllerBase.File(Stream, String, String, Nullable&lt;DateTimeOffset&gt;, EntityTagHeaderValue)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_IO_Stream_System_String_System_String_System_Nullable_System_DateTimeOffset__Microsoft_Net_Http_Headers_EntityTagHeaderValue_System_Boolean_">ControllerBase.File(Stream, String, String, Nullable&lt;DateTimeOffset&gt;, EntityTagHeaderValue, Boolean)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_String_System_String_">ControllerBase.File(String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_String_System_String_System_Boolean_">ControllerBase.File(String, String, Boolean)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_String_System_String_System_String_">ControllerBase.File(String, String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_String_System_String_System_String_System_Boolean_">ControllerBase.File(String, String, String, Boolean)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_String_System_String_System_Nullable_System_DateTimeOffset__Microsoft_Net_Http_Headers_EntityTagHeaderValue_">ControllerBase.File(String, String, Nullable&lt;DateTimeOffset&gt;, EntityTagHeaderValue)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_String_System_String_System_Nullable_System_DateTimeOffset__Microsoft_Net_Http_Headers_EntityTagHeaderValue_System_Boolean_">ControllerBase.File(String, String, Nullable&lt;DateTimeOffset&gt;, EntityTagHeaderValue, Boolean)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_String_System_String_System_String_System_Nullable_System_DateTimeOffset__Microsoft_Net_Http_Headers_EntityTagHeaderValue_">ControllerBase.File(String, String, String, Nullable&lt;DateTimeOffset&gt;, EntityTagHeaderValue)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.file#Microsoft_AspNetCore_Mvc_ControllerBase_File_System_String_System_String_System_String_System_Nullable_System_DateTimeOffset__Microsoft_Net_Http_Headers_EntityTagHeaderValue_System_Boolean_">ControllerBase.File(String, String, String, Nullable&lt;DateTimeOffset&gt;, EntityTagHeaderValue, Boolean)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.physicalfile#Microsoft_AspNetCore_Mvc_ControllerBase_PhysicalFile_System_String_System_String_">ControllerBase.PhysicalFile(String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.physicalfile#Microsoft_AspNetCore_Mvc_ControllerBase_PhysicalFile_System_String_System_String_System_Boolean_">ControllerBase.PhysicalFile(String, String, Boolean)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.physicalfile#Microsoft_AspNetCore_Mvc_ControllerBase_PhysicalFile_System_String_System_String_System_String_">ControllerBase.PhysicalFile(String, String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.physicalfile#Microsoft_AspNetCore_Mvc_ControllerBase_PhysicalFile_System_String_System_String_System_String_System_Boolean_">ControllerBase.PhysicalFile(String, String, String, Boolean)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.physicalfile#Microsoft_AspNetCore_Mvc_ControllerBase_PhysicalFile_System_String_System_String_System_Nullable_System_DateTimeOffset__Microsoft_Net_Http_Headers_EntityTagHeaderValue_">ControllerBase.PhysicalFile(String, String, Nullable&lt;DateTimeOffset&gt;, EntityTagHeaderValue)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.physicalfile#Microsoft_AspNetCore_Mvc_ControllerBase_PhysicalFile_System_String_System_String_System_Nullable_System_DateTimeOffset__Microsoft_Net_Http_Headers_EntityTagHeaderValue_System_Boolean_">ControllerBase.PhysicalFile(String, String, Nullable&lt;DateTimeOffset&gt;, EntityTagHeaderValue, Boolean)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.physicalfile#Microsoft_AspNetCore_Mvc_ControllerBase_PhysicalFile_System_String_System_String_System_String_System_Nullable_System_DateTimeOffset__Microsoft_Net_Http_Headers_EntityTagHeaderValue_">ControllerBase.PhysicalFile(String, String, String, Nullable&lt;DateTimeOffset&gt;, EntityTagHeaderValue)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.physicalfile#Microsoft_AspNetCore_Mvc_ControllerBase_PhysicalFile_System_String_System_String_System_String_System_Nullable_System_DateTimeOffset__Microsoft_Net_Http_Headers_EntityTagHeaderValue_System_Boolean_">ControllerBase.PhysicalFile(String, String, String, Nullable&lt;DateTimeOffset&gt;, EntityTagHeaderValue, Boolean)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.unauthorized#Microsoft_AspNetCore_Mvc_ControllerBase_Unauthorized">ControllerBase.Unauthorized()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.unauthorized#Microsoft_AspNetCore_Mvc_ControllerBase_Unauthorized_System_Object_">ControllerBase.Unauthorized(Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.notfound#Microsoft_AspNetCore_Mvc_ControllerBase_NotFound">ControllerBase.NotFound()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.notfound#Microsoft_AspNetCore_Mvc_ControllerBase_NotFound_System_Object_">ControllerBase.NotFound(Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.badrequest#Microsoft_AspNetCore_Mvc_ControllerBase_BadRequest">ControllerBase.BadRequest()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.badrequest#Microsoft_AspNetCore_Mvc_ControllerBase_BadRequest_System_Object_">ControllerBase.BadRequest(Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.badrequest#Microsoft_AspNetCore_Mvc_ControllerBase_BadRequest_Microsoft_AspNetCore_Mvc_ModelBinding_ModelStateDictionary_">ControllerBase.BadRequest(ModelStateDictionary)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.unprocessableentity#Microsoft_AspNetCore_Mvc_ControllerBase_UnprocessableEntity">ControllerBase.UnprocessableEntity()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.unprocessableentity#Microsoft_AspNetCore_Mvc_ControllerBase_UnprocessableEntity_System_Object_">ControllerBase.UnprocessableEntity(Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.unprocessableentity#Microsoft_AspNetCore_Mvc_ControllerBase_UnprocessableEntity_Microsoft_AspNetCore_Mvc_ModelBinding_ModelStateDictionary_">ControllerBase.UnprocessableEntity(ModelStateDictionary)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.conflict#Microsoft_AspNetCore_Mvc_ControllerBase_Conflict">ControllerBase.Conflict()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.conflict#Microsoft_AspNetCore_Mvc_ControllerBase_Conflict_System_Object_">ControllerBase.Conflict(Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.conflict#Microsoft_AspNetCore_Mvc_ControllerBase_Conflict_Microsoft_AspNetCore_Mvc_ModelBinding_ModelStateDictionary_">ControllerBase.Conflict(ModelStateDictionary)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.problem#Microsoft_AspNetCore_Mvc_ControllerBase_Problem_System_String_System_String_System_Nullable_System_Int32__System_String_System_String_">ControllerBase.Problem(String, String, Nullable&lt;Int32&gt;, String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.validationproblem#Microsoft_AspNetCore_Mvc_ControllerBase_ValidationProblem_Microsoft_AspNetCore_Mvc_ValidationProblemDetails_">ControllerBase.ValidationProblem(ValidationProblemDetails)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.validationproblem#Microsoft_AspNetCore_Mvc_ControllerBase_ValidationProblem_Microsoft_AspNetCore_Mvc_ModelBinding_ModelStateDictionary_">ControllerBase.ValidationProblem(ModelStateDictionary)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.validationproblem#Microsoft_AspNetCore_Mvc_ControllerBase_ValidationProblem">ControllerBase.ValidationProblem()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.validationproblem#Microsoft_AspNetCore_Mvc_ControllerBase_ValidationProblem_System_String_System_String_System_Nullable_System_Int32__System_String_System_String_Microsoft_AspNetCore_Mvc_ModelBinding_ModelStateDictionary_">ControllerBase.ValidationProblem(String, String, Nullable&lt;Int32&gt;, String, String, ModelStateDictionary)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.created#Microsoft_AspNetCore_Mvc_ControllerBase_Created_System_String_System_Object_">ControllerBase.Created(String, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.created#Microsoft_AspNetCore_Mvc_ControllerBase_Created_System_Uri_System_Object_">ControllerBase.Created(Uri, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.createdataction#Microsoft_AspNetCore_Mvc_ControllerBase_CreatedAtAction_System_String_System_Object_">ControllerBase.CreatedAtAction(String, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.createdataction#Microsoft_AspNetCore_Mvc_ControllerBase_CreatedAtAction_System_String_System_Object_System_Object_">ControllerBase.CreatedAtAction(String, Object, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.createdataction#Microsoft_AspNetCore_Mvc_ControllerBase_CreatedAtAction_System_String_System_String_System_Object_System_Object_">ControllerBase.CreatedAtAction(String, String, Object, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.createdatroute#Microsoft_AspNetCore_Mvc_ControllerBase_CreatedAtRoute_System_String_System_Object_">ControllerBase.CreatedAtRoute(String, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.createdatroute#Microsoft_AspNetCore_Mvc_ControllerBase_CreatedAtRoute_System_Object_System_Object_">ControllerBase.CreatedAtRoute(Object, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.createdatroute#Microsoft_AspNetCore_Mvc_ControllerBase_CreatedAtRoute_System_String_System_Object_System_Object_">ControllerBase.CreatedAtRoute(String, Object, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.accepted#Microsoft_AspNetCore_Mvc_ControllerBase_Accepted">ControllerBase.Accepted()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.accepted#Microsoft_AspNetCore_Mvc_ControllerBase_Accepted_System_Object_">ControllerBase.Accepted(Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.accepted#Microsoft_AspNetCore_Mvc_ControllerBase_Accepted_System_Uri_">ControllerBase.Accepted(Uri)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.accepted#Microsoft_AspNetCore_Mvc_ControllerBase_Accepted_System_String_">ControllerBase.Accepted(String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.accepted#Microsoft_AspNetCore_Mvc_ControllerBase_Accepted_System_String_System_Object_">ControllerBase.Accepted(String, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.accepted#Microsoft_AspNetCore_Mvc_ControllerBase_Accepted_System_Uri_System_Object_">ControllerBase.Accepted(Uri, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.acceptedataction#Microsoft_AspNetCore_Mvc_ControllerBase_AcceptedAtAction_System_String_">ControllerBase.AcceptedAtAction(String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.acceptedataction#Microsoft_AspNetCore_Mvc_ControllerBase_AcceptedAtAction_System_String_System_String_">ControllerBase.AcceptedAtAction(String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.acceptedataction#Microsoft_AspNetCore_Mvc_ControllerBase_AcceptedAtAction_System_String_System_Object_">ControllerBase.AcceptedAtAction(String, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.acceptedataction#Microsoft_AspNetCore_Mvc_ControllerBase_AcceptedAtAction_System_String_System_String_System_Object_">ControllerBase.AcceptedAtAction(String, String, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.acceptedataction#Microsoft_AspNetCore_Mvc_ControllerBase_AcceptedAtAction_System_String_System_Object_System_Object_">ControllerBase.AcceptedAtAction(String, Object, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.acceptedataction#Microsoft_AspNetCore_Mvc_ControllerBase_AcceptedAtAction_System_String_System_String_System_Object_System_Object_">ControllerBase.AcceptedAtAction(String, String, Object, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.acceptedatroute#Microsoft_AspNetCore_Mvc_ControllerBase_AcceptedAtRoute_System_Object_">ControllerBase.AcceptedAtRoute(Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.acceptedatroute#Microsoft_AspNetCore_Mvc_ControllerBase_AcceptedAtRoute_System_String_">ControllerBase.AcceptedAtRoute(String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.acceptedatroute#Microsoft_AspNetCore_Mvc_ControllerBase_AcceptedAtRoute_System_String_System_Object_">ControllerBase.AcceptedAtRoute(String, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.acceptedatroute#Microsoft_AspNetCore_Mvc_ControllerBase_AcceptedAtRoute_System_Object_System_Object_">ControllerBase.AcceptedAtRoute(Object, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.acceptedatroute#Microsoft_AspNetCore_Mvc_ControllerBase_AcceptedAtRoute_System_String_System_Object_System_Object_">ControllerBase.AcceptedAtRoute(String, Object, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.challenge#Microsoft_AspNetCore_Mvc_ControllerBase_Challenge">ControllerBase.Challenge()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.challenge#Microsoft_AspNetCore_Mvc_ControllerBase_Challenge_System_String___">ControllerBase.Challenge(String[])</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.challenge#Microsoft_AspNetCore_Mvc_ControllerBase_Challenge_Microsoft_AspNetCore_Authentication_AuthenticationProperties_">ControllerBase.Challenge(AuthenticationProperties)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.challenge#Microsoft_AspNetCore_Mvc_ControllerBase_Challenge_Microsoft_AspNetCore_Authentication_AuthenticationProperties_System_String___">ControllerBase.Challenge(AuthenticationProperties, String[])</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.forbid#Microsoft_AspNetCore_Mvc_ControllerBase_Forbid">ControllerBase.Forbid()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.forbid#Microsoft_AspNetCore_Mvc_ControllerBase_Forbid_System_String___">ControllerBase.Forbid(String[])</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.forbid#Microsoft_AspNetCore_Mvc_ControllerBase_Forbid_Microsoft_AspNetCore_Authentication_AuthenticationProperties_">ControllerBase.Forbid(AuthenticationProperties)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.forbid#Microsoft_AspNetCore_Mvc_ControllerBase_Forbid_Microsoft_AspNetCore_Authentication_AuthenticationProperties_System_String___">ControllerBase.Forbid(AuthenticationProperties, String[])</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.signin#Microsoft_AspNetCore_Mvc_ControllerBase_SignIn_System_Security_Claims_ClaimsPrincipal_">ControllerBase.SignIn(ClaimsPrincipal)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.signin#Microsoft_AspNetCore_Mvc_ControllerBase_SignIn_System_Security_Claims_ClaimsPrincipal_System_String_">ControllerBase.SignIn(ClaimsPrincipal, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.signin#Microsoft_AspNetCore_Mvc_ControllerBase_SignIn_System_Security_Claims_ClaimsPrincipal_Microsoft_AspNetCore_Authentication_AuthenticationProperties_">ControllerBase.SignIn(ClaimsPrincipal, AuthenticationProperties)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.signin#Microsoft_AspNetCore_Mvc_ControllerBase_SignIn_System_Security_Claims_ClaimsPrincipal_Microsoft_AspNetCore_Authentication_AuthenticationProperties_System_String_">ControllerBase.SignIn(ClaimsPrincipal, AuthenticationProperties, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.signout#Microsoft_AspNetCore_Mvc_ControllerBase_SignOut">ControllerBase.SignOut()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.signout#Microsoft_AspNetCore_Mvc_ControllerBase_SignOut_Microsoft_AspNetCore_Authentication_AuthenticationProperties_">ControllerBase.SignOut(AuthenticationProperties)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.signout#Microsoft_AspNetCore_Mvc_ControllerBase_SignOut_System_String___">ControllerBase.SignOut(String[])</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.signout#Microsoft_AspNetCore_Mvc_ControllerBase_SignOut_Microsoft_AspNetCore_Authentication_AuthenticationProperties_System_String___">ControllerBase.SignOut(AuthenticationProperties, String[])</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.tryupdatemodelasync#Microsoft_AspNetCore_Mvc_ControllerBase_TryUpdateModelAsync__1___0_">ControllerBase.TryUpdateModelAsync&lt;TModel&gt;(TModel)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.tryupdatemodelasync#Microsoft_AspNetCore_Mvc_ControllerBase_TryUpdateModelAsync__1___0_System_String_">ControllerBase.TryUpdateModelAsync&lt;TModel&gt;(TModel, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.tryupdatemodelasync#Microsoft_AspNetCore_Mvc_ControllerBase_TryUpdateModelAsync__1___0_System_String_Microsoft_AspNetCore_Mvc_ModelBinding_IValueProvider_">ControllerBase.TryUpdateModelAsync&lt;TModel&gt;(TModel, String, IValueProvider)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.tryupdatemodelasync#Microsoft_AspNetCore_Mvc_ControllerBase_TryUpdateModelAsync__1___0_System_String_System_Linq_Expressions_Expression_System_Func___0_System_Object_____">ControllerBase.TryUpdateModelAsync&lt;TModel&gt;(TModel, String, Expression&lt;Func&lt;TModel, Object&gt;&gt;[])</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.tryupdatemodelasync#Microsoft_AspNetCore_Mvc_ControllerBase_TryUpdateModelAsync__1___0_System_String_System_Func_Microsoft_AspNetCore_Mvc_ModelBinding_ModelMetadata_System_Boolean__">ControllerBase.TryUpdateModelAsync&lt;TModel&gt;(TModel, String, Func&lt;ModelMetadata, Boolean&gt;)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.tryupdatemodelasync#Microsoft_AspNetCore_Mvc_ControllerBase_TryUpdateModelAsync__1___0_System_String_Microsoft_AspNetCore_Mvc_ModelBinding_IValueProvider_System_Linq_Expressions_Expression_System_Func___0_System_Object_____">ControllerBase.TryUpdateModelAsync&lt;TModel&gt;(TModel, String, IValueProvider, Expression&lt;Func&lt;TModel, Object&gt;&gt;[])</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.tryupdatemodelasync#Microsoft_AspNetCore_Mvc_ControllerBase_TryUpdateModelAsync__1___0_System_String_Microsoft_AspNetCore_Mvc_ModelBinding_IValueProvider_System_Func_Microsoft_AspNetCore_Mvc_ModelBinding_ModelMetadata_System_Boolean__">ControllerBase.TryUpdateModelAsync&lt;TModel&gt;(TModel, String, IValueProvider, Func&lt;ModelMetadata, Boolean&gt;)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.tryupdatemodelasync#Microsoft_AspNetCore_Mvc_ControllerBase_TryUpdateModelAsync_System_Object_System_Type_System_String_">ControllerBase.TryUpdateModelAsync(Object, Type, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.tryupdatemodelasync#Microsoft_AspNetCore_Mvc_ControllerBase_TryUpdateModelAsync_System_Object_System_Type_System_String_Microsoft_AspNetCore_Mvc_ModelBinding_IValueProvider_System_Func_Microsoft_AspNetCore_Mvc_ModelBinding_ModelMetadata_System_Boolean__">ControllerBase.TryUpdateModelAsync(Object, Type, String, IValueProvider, Func&lt;ModelMetadata, Boolean&gt;)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.tryvalidatemodel#Microsoft_AspNetCore_Mvc_ControllerBase_TryValidateModel_System_Object_">ControllerBase.TryValidateModel(Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.tryvalidatemodel#Microsoft_AspNetCore_Mvc_ControllerBase_TryValidateModel_System_Object_System_String_">ControllerBase.TryValidateModel(Object, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.httpcontext#Microsoft_AspNetCore_Mvc_ControllerBase_HttpContext">ControllerBase.HttpContext</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.request#Microsoft_AspNetCore_Mvc_ControllerBase_Request">ControllerBase.Request</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.response#Microsoft_AspNetCore_Mvc_ControllerBase_Response">ControllerBase.Response</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.routedata#Microsoft_AspNetCore_Mvc_ControllerBase_RouteData">ControllerBase.RouteData</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.modelstate#Microsoft_AspNetCore_Mvc_ControllerBase_ModelState">ControllerBase.ModelState</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.controllercontext#Microsoft_AspNetCore_Mvc_ControllerBase_ControllerContext">ControllerBase.ControllerContext</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.metadataprovider#Microsoft_AspNetCore_Mvc_ControllerBase_MetadataProvider">ControllerBase.MetadataProvider</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.modelbinderfactory#Microsoft_AspNetCore_Mvc_ControllerBase_ModelBinderFactory">ControllerBase.ModelBinderFactory</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.url#Microsoft_AspNetCore_Mvc_ControllerBase_Url">ControllerBase.Url</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.objectvalidator#Microsoft_AspNetCore_Mvc_ControllerBase_ObjectValidator">ControllerBase.ObjectValidator</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.problemdetailsfactory#Microsoft_AspNetCore_Mvc_ControllerBase_ProblemDetailsFactory">ControllerBase.ProblemDetailsFactory</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.user#Microsoft_AspNetCore_Mvc_ControllerBase_User">ControllerBase.User</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_">Object.Equals(Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_System_Object_">Object.Equals(Object, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gethashcode#System_Object_GetHashCode">Object.GetHashCode()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gettype#System_Object_GetType">Object.GetType()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.memberwiseclone#System_Object_MemberwiseClone">Object.MemberwiseClone()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.referenceequals#System_Object_ReferenceEquals_System_Object_System_Object_">Object.ReferenceEquals(Object, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.tostring#System_Object_ToString">Object.ToString()</a>
-    </div>
+    <div class="level1"><span class="xref">DispatchController</span></div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Yarp.ReverseProxy.Kubernetes.Controller.Controllers.html">Yarp.ReverseProxy.Kubernetes.Controller.Controllers</a></h6>
   <h6><strong>Assembly</strong>: Yarp.ReverseProxy.Kubernetes.Controller.dll</h6>
   <h5 id="Yarp_ReverseProxy_Kubernetes_Controller_Controllers_DispatchController_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[Route(&quot;api/dispatch&quot;)]
-[ApiController]
-public class DispatchController : ControllerBase</code></pre>
+    <pre><code class="lang-csharp hljs">public class DispatchController : ControllerBase</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
@@ -635,7 +95,7 @@ public class DispatchController : ControllerBase</code></pre>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Kubernetes_Controller_Controllers_DispatchController__ctor_Yarp_ReverseProxy_Kubernetes_Controller_Dispatching_IDispatcher_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Kubernetes.Controller.Controllers.DispatchController.%23ctor(Yarp.ReverseProxy.Kubernetes.Controller.Dispatching.IDispatcher)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy.Kubernetes.Controller/Controllers/DispatchController.cs/#L22">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy.Kubernetes.Controller/Controllers/DispatchController.cs/#L20">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Kubernetes_Controller_Controllers_DispatchController__ctor_" data-uid="Yarp.ReverseProxy.Kubernetes.Controller.Controllers.DispatchController.#ctor*"></a>
   <h4 id="Yarp_ReverseProxy_Kubernetes_Controller_Controllers_DispatchController__ctor_Yarp_ReverseProxy_Kubernetes_Controller_Dispatching_IDispatcher_" data-uid="Yarp.ReverseProxy.Kubernetes.Controller.Controllers.DispatchController.#ctor(Yarp.ReverseProxy.Kubernetes.Controller.Dispatching.IDispatcher)">DispatchController(IDispatcher)</h4>
@@ -669,7 +129,7 @@ public class DispatchController : ControllerBase</code></pre>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Kubernetes_Controller_Controllers_DispatchController_WatchAsync.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Kubernetes.Controller.Controllers.DispatchController.WatchAsync%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy.Kubernetes.Controller/Controllers/DispatchController.cs/#L27">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy.Kubernetes.Controller/Controllers/DispatchController.cs/#L25">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Kubernetes_Controller_Controllers_DispatchController_WatchAsync_" data-uid="Yarp.ReverseProxy.Kubernetes.Controller.Controllers.DispatchController.WatchAsync*"></a>
   <h4 id="Yarp_ReverseProxy_Kubernetes_Controller_Controllers_DispatchController_WatchAsync" data-uid="Yarp.ReverseProxy.Kubernetes.Controller.Controllers.DispatchController.WatchAsync">WatchAsync()</h4>
@@ -677,8 +137,7 @@ public class DispatchController : ControllerBase</code></pre>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[HttpGet(&quot;/api/dispatch&quot;)]
-public Task&lt;IActionResult&gt; WatchAsync()</code></pre>
+    <pre><code class="lang-csharp hljs">public Task&lt;IActionResult&gt; WatchAsync()</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -690,7 +149,7 @@ public Task&lt;IActionResult&gt; WatchAsync()</code></pre>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task-1">Task</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.mvc.iactionresult">IActionResult</a>&gt;</td>
+        <td><span class="xref">Task</span>&lt;<span class="xref">IActionResult</span>&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -706,12 +165,13 @@ public Task&lt;IActionResult&gt; WatchAsync()</code></pre>
                     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Kubernetes_Controller_Controllers_DispatchController.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Kubernetes.Controller.Controllers.DispatchController%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy.Kubernetes.Controller/Controllers/DispatchController.cs/#L16" class="contribution-link">View Source</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy.Kubernetes.Controller/Controllers/DispatchController.cs/#L14" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>
               <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
-              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+                <h5>In This Article</h5>
+                <div></div>
               </nav>
             </div>
           </div>

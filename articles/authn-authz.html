@@ -8,7 +8,7 @@
     <title>Authentication and Authorization </title>
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Authentication and Authorization ">
-    <meta name="generator" content="docfx 2.52.0.0">
+    <meta name="generator" content="docfx 2.58.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -75,7 +75,7 @@
 <h2 id="defaults">Defaults</h2>
 <p>No authentication or authorization is performed on requests unless enabled in the route or application configuration.</p>
 <h2 id="configuration">Configuration</h2>
-<p>Authorization policies can be specified per route via <a href="xref:Yarp.ReverseProxy.Abstractions.ProxyRoute">ProxyRoute.AuthorizationPolicy</a> and can be bound from the <code>Routes</code> sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.</p>
+<p>Authorization policies can be specified per route via <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.RouteConfig.html">RouteConfig.AuthorizationPolicy</a> and can be bound from the <code>Routes</code> sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.</p>
 <p>Example:</p>
 <pre><code class="lang-JSON">{
   &quot;ReverseProxy&quot;: {
@@ -100,7 +100,7 @@
   }
 }
 </code></pre>
-<p><a href="https://docs.microsoft.com/en-us/aspnet/core/security/authorization/policies">Authorization policies</a> are an ASP.NET Core concept that the proxy utilizes. The proxy provides the above configuration to specify a policy per route and the rest is handled by existing ASP.NET Core authentication and authorization components.</p>
+<p><a href="https://docs.microsoft.com/aspnet/core/security/authorization/policies">Authorization policies</a> are an ASP.NET Core concept that the proxy utilizes. The proxy provides the above configuration to specify a policy per route and the rest is handled by existing ASP.NET Core authentication and authorization components.</p>
 <p>Authorization policies can be configured in Startup.ConfigureServices as follows:</p>
 <pre><code>public void ConfigureServices(IServiceCollection services)
 {
@@ -125,15 +125,15 @@
     });
 }
 </code></pre>
-<p>See the <a href="https://docs.microsoft.com/en-us/aspnet/core/security/authentication/">Authentication</a> docs for setting up your preferred kind of authentication.</p>
+<p>See the <a href="https://docs.microsoft.com/aspnet/core/security/authentication/">Authentication</a> docs for setting up your preferred kind of authentication.</p>
 <h3 id="special-values">Special values:</h3>
 <p>In addition to custom policy names, there are two special values that can be specified in a route's authorization parameter: <code>default</code> and <code>anonymous</code>. ASP.NET Core also has a FallbackPolicy setting that applies to routes that do not specify a policy.</p>
 <h4 id="defaultpolicy">DefaultPolicy</h4>
-<p>Specifying the value <code>default</code> in a route's authorization parameter means that route will use the policy defined in <a href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authorization.authorizationoptions.defaultpolicy?#Microsoft_AspNetCore_Authorization_AuthorizationOptions_DefaultPolicy">AuthorizationOptions.DefaultPolicy</a>. That policy is pre-configured to require authenticated users.</p>
+<p>Specifying the value <code>default</code> in a route's authorization parameter means that route will use the policy defined in <a href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.authorization.authorizationoptions.defaultpolicy?#Microsoft_AspNetCore_Authorization_AuthorizationOptions_DefaultPolicy">AuthorizationOptions.DefaultPolicy</a>. That policy is pre-configured to require authenticated users.</p>
 <h4 id="anonymous">Anonymous</h4>
 <p>Specifying the value <code>anonymous</code> in a route's authorization parameter means that route will not require authorization regardless of any other configuration in the application such as the FallbackPolicy.</p>
 <h4 id="fallbackpolicy">FallbackPolicy</h4>
-<p><a href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authorization.authorizationoptions.fallbackpolicy">AuthorizationOptions.FallbackPolicy</a> is the policy that will be used for any request or route that was not configured with a policy. FallbackPolicy does not have a value by default, any request will be allowed.</p>
+<p><a href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.authorization.authorizationoptions.fallbackpolicy">AuthorizationOptions.FallbackPolicy</a> is the policy that will be used for any request or route that was not configured with a policy. FallbackPolicy does not have a value by default, any request will be allowed.</p>
 <h2 id="flowing-credentials">Flowing Credentials</h2>
 <p>Even after a request has been authorized in the proxy, the destination server may still need to know who the user is (authentication) and what they're allowed to do (authorization). How you flow that information will depend on the type of authentication being used.</p>
 <h3 id="cookie-bearer-api-keys">Cookie, bearer, API keys</h3>
@@ -143,7 +143,7 @@
 <h3 id="windows-negotiate-ntlm-kerbereos">Windows, Negotiate, NTLM, Kerbereos</h3>
 <p>These authentication types are often bound to a specific connection. They are not supported as means of authenticating a user in a destination server behind the YARP proxy (see <a href="https://github.com/microsoft/reverse-proxy/issues/166">#166</a>. They can be used to authenticate an incoming request to the proxy, but that identity information will have to be communicated to the destination server in another form. They can also be used to authenticate the proxy to the destination servers, but only as the proxy's own user, impersonating the client is not supported.</p>
 <h3 id="client-certificates">Client Certificates</h3>
-<p>Client certificates are a TLS feature and are negotiated as part of a connection. See <a href="https://docs.microsoft.com/en-us/aspnet/core/security/authentication/certauth">these docs</a> for additional information. The certificate can be forwarded to the destination server as an HTTP header using the <a href="transforms.html#clientcert">ClientCert</a> transform.</p>
+<p>Client certificates are a TLS feature and are negotiated as part of a connection. See <a href="https://docs.microsoft.com/aspnet/core/security/authentication/certauth">these docs</a> for additional information. The certificate can be forwarded to the destination server as an HTTP header using the <a href="transforms.html#clientcert">ClientCert</a> transform.</p>
 <h3 id="swapping-authentication-types">Swapping authentication types</h3>
 <p>Authentication types like Windows that don't flow naturally to the destination server will need to be converted in the proxy to an alternate form. For example a JWT bearer token can be created with the user information and set on the proxy request.</p>
 <p>These swaps can be performed using <a href="transforms.html#from-code">custom request transforms</a>. Detailed examples can be developed for specific scenarios if there is enough community interest. We need more community feedback on how you want to convert and flow identity information.</p>
@@ -160,7 +160,8 @@
                 </ul>
               </div>
               <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
-              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+                <h5>In This Article</h5>
+                <div></div>
               </nav>
             </div>
           </div>

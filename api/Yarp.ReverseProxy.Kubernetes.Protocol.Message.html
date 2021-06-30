@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Struct Message
    ">
-    <meta name="generator" content="docfx 2.52.0.0">
+    <meta name="generator" content="docfx 2.58.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -75,27 +75,6 @@
   </h1>
   <div class="markdown level0 summary"></div>
   <div class="markdown level0 conceptual"></div>
-  <div class="inheritedMembers">
-    <h5>Inherited Members</h5>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.valuetype.equals#System_ValueType_Equals_System_Object_">ValueType.Equals(Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.valuetype.gethashcode#System_ValueType_GetHashCode">ValueType.GetHashCode()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.valuetype.tostring#System_ValueType_ToString">ValueType.ToString()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_System_Object_">Object.Equals(Object, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gettype#System_Object_GetType">Object.GetType()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.referenceequals#System_Object_ReferenceEquals_System_Object_System_Object_">Object.ReferenceEquals(Object, Object)</a>
-    </div>
-  </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Yarp.ReverseProxy.Kubernetes.Protocol.html">Yarp.ReverseProxy.Kubernetes.Protocol</a></h6>
   <h6><strong>Assembly</strong>: Yarp.ReverseProxy.Kubernetes.Protocol.dll</h6>
   <h5 id="Yarp_ReverseProxy_Kubernetes_Protocol_Message_syntax">Syntax</h5>
@@ -117,7 +96,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public List&lt;Cluster&gt; Cluster { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public List&lt;ClusterConfig&gt; Cluster { readonly get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -129,7 +108,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.list-1">List</a>&lt;<span class="xref">Cluster</span>&gt;</td>
+        <td><span class="xref">List</span>&lt;<a class="xref" href="Yarp.ReverseProxy.Configuration.ClusterConfig.html">ClusterConfig</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -147,7 +126,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string Key { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public string Key { readonly get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -177,8 +156,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">[JsonConverter(typeof(JsonStringEnumConverter))]
-public MessageType MessageType { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public MessageType MessageType { readonly get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -208,7 +186,7 @@ public MessageType MessageType { get; set; }</code></pre>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public List&lt;ProxyRoute&gt; Routes { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public List&lt;RouteConfig&gt; Routes { readonly get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -220,7 +198,7 @@ public MessageType MessageType { get; set; }</code></pre>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.collections.generic.list-1">List</a>&lt;<span class="xref">ProxyRoute</span>&gt;</td>
+        <td><span class="xref">List</span>&lt;<a class="xref" href="Yarp.ReverseProxy.Configuration.RouteConfig.html">RouteConfig</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -241,7 +219,8 @@ public MessageType MessageType { get; set; }</code></pre>
                 </ul>
               </div>
               <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
-              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+                <h5>In This Article</h5>
+                <div></div>
               </nav>
             </div>
           </div>
