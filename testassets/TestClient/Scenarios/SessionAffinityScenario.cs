@@ -64,7 +64,7 @@ namespace SampleClient.Scenarios
                 Console.WriteLine($"Response doesn't have Set-Cookie header.");
             }
 
-            var affinityCookie = handler.CookieContainer.GetCookies(targetUri)[".Yarp.ReverseProxy.Affinity"];
+            var affinityCookie = handler.CookieContainer.GetCookies(targetUri)[".Yarp.Affinity"];
             Console.WriteLine($"Affinity key stored on a cookie {affinityCookie.Value}");
         }
 

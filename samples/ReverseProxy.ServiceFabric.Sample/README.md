@@ -1,7 +1,7 @@
 # Service Fabric integration sample
 
 This project showcases how to to use YARP with dynamic configuration discovery using Service Fabric.
-To learn more about Service Fabric, see: https://azure.microsoft.com/en-us/services/service-fabric/
+To learn more about Service Fabric, see: https://azure.microsoft.com/services/service-fabric/
 
 
 # Architectural Overview
@@ -30,7 +30,7 @@ although it will also work in that setting and is ultimately what this is design
 
 Step-by-step instructions follow:
 
-1. Follow Service Fabric's [Prepare your development environment on Windows](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-get-started) guide. Specifically:
+1. Follow Service Fabric's [Prepare your development environment on Windows](https://docs.microsoft.com/azure/service-fabric/service-fabric-get-started) guide. Specifically:
 
     * Install the [Service Fabric SDK and runtime](https://www.microsoft.com/web/handlers/webpi.ashx?command=getinstallerredirect&appid=MicrosoftAzure-ServiceFabric-CoreSDK)
 
@@ -56,7 +56,7 @@ If you already have a service that you would like to expose with YARP, see the n
 
 ## Creating a Service Fabric service / application
 
-See for example [Create an ASP.NET Web API service as a reliable service](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-tutorial-create-dotnet-app#create-an-aspnet-web-api-service-as-a-reliable-service).
+See for example [Create an ASP.NET Web API service as a reliable service](https://docs.microsoft.com/azure/service-fabric/service-fabric-tutorial-create-dotnet-app#create-an-aspnet-web-api-service-as-a-reliable-service).
 
 If you intend to use gRPC, make sure to use HTTPS everywhere. gRPC relies on HTTP/2, and HTTP/2 negotiation relies on ALPN, a feature of TLS that is, for that reason, only available with encrypted transports.
 
@@ -95,9 +95,9 @@ You will need to add the lines indicated below. A brief explanation of labels is
 Label|Value|Explanation
 -|-|-
 `YARP.Enable`|`true`|Opt-ins to serving traffic through YARP with Service Fabric dynamic service discovery
-`YARP.Routes.route1.Path`|`{**catchall}`|Configures a route, named `route1`, that will match requests with any path. Any [ASP .NET Core route template](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/routing?view=aspnetcore-5.0#route-template-reference) is allowed
+`YARP.Routes.route1.Path`|`{**catchall}`|Configures a route, named `route1`, that will match requests with any path. Any [ASP .NET Core route template](https://docs.microsoft.com/aspnet/core/fundamentals/routing#route-template-reference) is allowed
 `YARP.Routes.route1.Hosts`|`example.com`|Configures a route, named `route1`, that will match requests with host name `example.com`. If both `Hosts` and `Path` are added, only requests matching **both** will resolve to this route.
 `YARP.Backend.HealthCheck.Active.*`|`...`|Configures active health checks. YARP will probe each replica of the service at the configured cadence at the provided path.
 
 
-> NOTE: Label values can use the special syntax `[AppParamName]` to reference an application parameter with the name given within square brackets. This is consistent with Service Fabric conventions, see e.g. [using parameters in Service Fabric](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-how-to-specify-port-number-using-parameters).
+> NOTE: Label values can use the special syntax `[AppParamName]` to reference an application parameter with the name given within square brackets. This is consistent with Service Fabric conventions, see e.g. [using parameters in Service Fabric](https://docs.microsoft.com/azure/service-fabric/service-fabric-how-to-specify-port-number-using-parameters).

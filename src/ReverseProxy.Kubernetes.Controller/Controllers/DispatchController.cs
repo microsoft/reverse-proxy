@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Yarp.ReverseProxy.Kubernetes.Controller.Dispatching;
 
 namespace Yarp.ReverseProxy.Kubernetes.Controller.Controllers
@@ -27,7 +25,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Controllers
         [HttpGet("/api/dispatch")]
         public Task<IActionResult> WatchAsync()
         {
-            return new Task<IActionResult>(() => new DispatchActionResult(_dispatcher, HttpContext.RequestAborted));
+            return Task.FromResult<IActionResult>(new DispatchActionResult(_dispatcher));
         }
     }
 }

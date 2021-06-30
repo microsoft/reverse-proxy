@@ -8,14 +8,14 @@ namespace Yarp.Sample
 {
     public static class PrometheusServiceExtensions
     {
-        public static IServiceCollection AddPrometheusProxyMetrics(this IServiceCollection services)
+        public static IServiceCollection AddPrometheusForwarderMetrics(this IServiceCollection services)
         {
             services.AddTelemetryListeners();
-            services.AddSingleton<IProxyMetricsConsumer, PrometheusProxyMetrics>();
+            services.AddSingleton<IForwarderMetricsConsumer, PrometheusForwarderMetrics>();
             return services;
         }
 
-#if NET5_0_OR_GREATER
+#if NET
         public static IServiceCollection AddPrometheusDnsMetrics(this IServiceCollection services)
         {
             services.AddTelemetryListeners();
@@ -47,8 +47,8 @@ namespace Yarp.Sample
 
         public static IServiceCollection AddAllPrometheusMetrics(this IServiceCollection services)
         {
-            services.AddPrometheusProxyMetrics();
-#if NET5_0_OR_GREATER
+            services.AddPrometheusForwarderMetrics();
+#if NET
             services.AddPrometheusDnsMetrics();
             services.AddPrometheusKestrelMetrics();
             services.AddPrometheusOutboundHttpMetrics();

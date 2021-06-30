@@ -7,10 +7,6 @@
       That ensures that if we get up to preview 10, it doesn't sort as between preview 1 and preview 2!
       See https://semver.org/spec/v2.0.0.html for details.
     -->
-    <PreReleaseVersionLabel>preview.11</PreReleaseVersionLabel>
-  </PropertyGroup>
-  <!--Package versions-->
-  <PropertyGroup>
-    <MicrosoftNETCoreAppPackageVersion>5.0.0-rtm.20529.3</MicrosoftNETCoreAppPackageVersion>
+    <PreReleaseVersionLabel>preview.12</PreReleaseVersionLabel>
   </PropertyGroup>
 </Project>

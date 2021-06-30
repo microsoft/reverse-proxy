@@ -3,20 +3,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using Microsoft.Extensions.Logging;
 
 namespace Yarp.ReverseProxy.Telemetry.Consumption
 {
-#if !NET5_0
+#if !NET
     internal interface IKestrelMetricsConsumer { }
 #endif
 
     internal sealed class KestrelEventListenerService : EventListenerService<KestrelEventListenerService, IKestrelTelemetryConsumer, IKestrelMetricsConsumer>
     {
-#if NET5_0
-        private KestrelMetrics _previousMetrics;
+#if NET
+        private KestrelMetrics? _previousMetrics;
         private KestrelMetrics _currentMetrics = new();
         private int _eventCountersCount;
 #endif
@@ -34,7 +35,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
 
             if (eventData.EventId < MinEventId || eventData.EventId > MaxEventId)
             {
-#if NET5_0
+#if NET
                 if (eventData.EventId == -1)
                 {
                     OnEventCounters(eventData);
@@ -49,9 +50,12 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 return;
             }
 
-            var payload = eventData.Payload;
+#pragma warning disable IDE0007 // Use implicit type
+            // Explicit type here to drop the object? signature of payload elements
+            ReadOnlyCollection<object> payload = eventData.Payload!;
+#pragma warning restore IDE0007 // Use implicit type
 
-#if NET5_0
+#if NET
             switch (eventData.EventId)
             {
                 case 3:
@@ -114,7 +118,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
 #endif
         }
 
-#if NET5_0
+#if NET
         private void OnEventCounters(EventWrittenEventArgs eventData)
         {
             if (MetricsConsumers is null)
@@ -122,8 +126,8 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
                 return;
             }
 
-            Debug.Assert(eventData.EventName == "EventCounters" && eventData.Payload.Count == 1);
-            var counters = (IDictionary<string, object>)eventData.Payload[0];
+            Debug.Assert(eventData.EventName == "EventCounters" && eventData.Payload!.Count == 1);
+            var counters = (IDictionary<string, object>)eventData.Payload[0]!;
 
             if (!counters.TryGetValue("Mean", out var valueObj))
             {

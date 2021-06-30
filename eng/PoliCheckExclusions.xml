@@ -1,0 +1,3 @@
+<PoliCheckExclusions>
+	<Exclusion Type="FileName">SWAGGER.JSON</Exclusion>
+</PoliCheckExclusions>
