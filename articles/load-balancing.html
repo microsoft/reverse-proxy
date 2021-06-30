@@ -8,7 +8,7 @@
     <title>Load Balancing </title>
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Load Balancing ">
-    <meta name="generator" content="docfx 2.58.0.0">
+    <meta name="generator" content="docfx 2.52.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -100,14 +100,14 @@ YARP ships with built-in load-balancing algorithms, but also offers extensibilit
 <h4 id="code-example">Code example</h4>
 <pre><code class="lang-C#">var clusters = new[]
 {
-    new ClusterConfig()
+    new Cluster()
     {
-        ClusterId = &quot;cluster1&quot;,
+        Id = &quot;cluster1&quot;,
         LoadBalancingPolicy = LoadBalancingPolicies.RoundRobin,
         Destinations = new Dictionary&lt;string, Destination&gt;(StringComparer.OrdinalIgnoreCase)
         {
-            { &quot;destination1&quot;, new DestinationConfig() { Address = &quot;https://localhost:10000&quot; } },
-            { &quot;destination2&quot;, new DestinationConfig() { Address = &quot;https://localhost:10010&quot; } }
+            { &quot;destination1&quot;, new Destination() { Address = &quot;https://localhost:10000&quot; } },
+            { &quot;destination2&quot;, new Destination() { Address = &quot;https://localhost:10010&quot; } }
         }
     }
 };
@@ -116,7 +116,7 @@ YARP ships with built-in load-balancing algorithms, but also offers extensibilit
 <p>YARP ships with the following built-in policies:</p>
 <ul>
 <li><p><code>First</code></p>
-<p>Select the alphabetically first available destination without considering load. This is useful for dual destination fail-over systems.</p>
+<p>Select the first destination without considering load. This is useful for dual destination fail-over systems.</p>
 </li>
 <li><p><code>Random</code></p>
 <p>Select a destination randomly.</p>
@@ -140,7 +140,7 @@ public sealed class LastLoadBalancingPolicy : ILoadBalancingPolicy
 {
     public string Name =&gt; &quot;Last&quot;;
 
-    public DestinationState PickDestination(HttpContext context, IReadOnlyList&lt;DestinationState&gt; availableDestinations)
+    public DestinationInfo PickDestination(HttpContext context, IReadOnlyList&lt;DestinationInfo&gt; availableDestinations)
     {
         return availableDestinations[^1];
     }
@@ -153,10 +153,10 @@ services.AddSingleton&lt;ILoadBalancingPolicy, LastLoadBalancingPolicy&gt;();
 cluster.LoadBalancingPolicy = &quot;Last&quot;;
 </code></pre>
 <p>Other information that may be necessary to decide on a destination, such as cluster configuration, can be accessed from the <code>HttpContext</code>:</p>
-<pre><code class="lang-c#">public DestinationState PickDestination(HttpContext context, IReadOnlyList&lt;DestinationState&gt; availableDestinations)
+<pre><code class="lang-c#">public DestinationInfo PickDestination(HttpContext context, IReadOnlyList&lt;DestinationInfo&gt; availableDestinations)
 {
-    var proxyFeature = context.GetReverseProxyFeature();
-    var cluster = proxyFeature.Cluster;
+    var proxyFeature = context.Features.Get&lt;IReverseProxyFeature&gt;();
+    var clusterConfig = proxyFeature.ClusterConfig;
     // ...
 }
 </code></pre>
@@ -173,8 +173,7 @@ cluster.LoadBalancingPolicy = &quot;Last&quot;;
                 </ul>
               </div>
               <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
-                <h5>In This Article</h5>
-                <div></div>
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
               </nav>
             </div>
           </div>

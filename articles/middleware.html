@@ -8,7 +8,7 @@
     <title>Middleware </title>
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Middleware ">
-    <meta name="generator" content="docfx 2.58.0.0">
+    <meta name="generator" content="docfx 2.52.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -70,9 +70,9 @@
 <h1 id="middleware">Middleware</h1>
 
 <h2 id="introduction">Introduction</h2>
-<p>ASP.NET Core uses a <a href="https://docs.microsoft.com/aspnet/core/fundamentals/middleware/">middleware pipeline</a> to divide request processing into discrete steps. The app developer can add and order middleware as needed. ASP.NET Core middleware is also used to implement and customize reverse proxy functionality.</p>
+<p>ASP.NET Core uses a <a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/">middleware pipeline</a> to divide request processing into discrete steps. The app developer can add and order middleware as needed. ASP.NET Core middleware is also used to implement and customize reverse proxy functionality.</p>
 <h2 id="defaults">Defaults</h2>
-<p>The <a href="getting-started.html">getting started</a> sample shows the following Configure method. This sets up a middleware pipeline with development tools, routing, and proxy configured endpoints (<code>MapReverseProxy</code>).</p>
+<p>The <a href="getting_started.html">getting started</a> sample shows the following Configure method. This sets up a middleware pipeline with development tools, routing, and proxy configured endpoints (<code>MapReverseProxy</code>).</p>
 <pre><code class="lang-C#">public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 {
     if (env.IsDevelopment())
@@ -89,7 +89,7 @@
     }); 
 } 
 </code></pre>
-<p>The parmeterless <a href="xref:Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions.MapReverseProxy">MapReverseProxy</a> overload includes all standard proxy middleware for <a href="session-affinity.html">session affinity</a>, <a href="load-balancing.html">load balancing</a>, <a href="dests-health-checks.html">passive health checks</a>, and the final proxying of the request. Each of these check the configuration of the matched route, cluster, and destination and perform their task accordingly.</p>
+<p>The parmeterless <a href="xref:Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions.MapReverseProxy">MapReverseProxy</a> overload includes all standard proxy middleware for <a href="session-affinity.html">session affinity</a>, <a href="load-balancing.html">load balancing</a>, <a href="dest-health-checks.md">passive health checks</a>, and the final proxying of the request. Each of these check the configuration of the matched route, cluster, and destination and perform their task accordingly.</p>
 <h2 id="adding-middleware">Adding Middleware</h2>
 <p>Middleware added to your application pipeline will see the request in different states of processing depending on where the middleware is added. Middleware added before <code>UseRouting</code> will see all requests and can manipulate them before any routing takes place. Middleware added between <code>UseRouting</code> and <code>UseEndpoints</code> can call <code>HttpContext.GetEndpoint()</code> to check which endpoint routing matched the request to (if any), and use any metadata that was associated with that endpoint. This is how <a href="authn-authz.html">Authentication, Authorization</a> and <a href="cors.html">CORS</a> are handled.</p>
 <p><a href="xref:Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions.MapReverseProxy">MapReverseProxy</a> provides an overload that lets you build a middleware pipeline that will run only for requests matched to proxy configured routes.</p>
@@ -108,12 +108,12 @@
 </code></pre>
 <p>By default this overload of <code>MapReverseProxy</code> only includes the minimal setup and proxying logic at the start and end of its pipeline. Middleware for session affinity, load balancing, and passive health checks are not included by default so that you can exclude, replace, or control their ordering with any additional middleware.</p>
 <h2 id="custom-proxy-middleware">Custom Proxy Middleware</h2>
-<p>Middlware inside the <code>MapReverseProxy</code> pipeline have access to all of the proxy data and state associated with a request (the route, cluster, destinations, etc.) through the <a class="xref" href="../api/Yarp.ReverseProxy.Model.IReverseProxyFeature.html">IReverseProxyFeature</a>. This is available from <code>HttpContext.Features</code> or the extension method <code>HttpContext.GetReverseProxyFeature()</code>.</p>
+<p>Middlware inside the <code>MapReverseProxy</code> pipeline have access to all of the proxy data and state associated with a request (the route, cluster, destinations, etc.) through the <a class="xref" href="../api/Yarp.ReverseProxy.Middleware.IReverseProxyFeature.html">IReverseProxyFeature</a>. This is available from <code>HttpContext.Features</code> or the extension method <code>HttpContext.GetRequiredProxyFeature()</code>.</p>
 <p>The data in <code>IReverseProxyFeature</code> are snapshotted from the proxy configuration at the start of the proxy pipeline and will not be affected by proxy configuration changes that occur while the request is being processed.</p>
 <pre><code class="lang-C#">proxyPipeline.Use((context, next) =&gt;
 {
-    var proxyFeature = context.GetReverseProxyFeature();
-    var cluster = proxyFeature.Cluster;
+    var proxyFeature = context.GetRequiredProxyFeature();
+    var cluster = proxyFeature.ClusterSnapshot;
     var destinations = proxyFeature.AvailableDestinations;
 
     return next();
@@ -150,7 +150,7 @@
 <p><code>ProxiedDestination</code> is set by the proxy logic at the end of the pipeline to indicate which destination was ultimately used.  If there are no available destinations remaining then a 503 error response is sent.</p>
 <pre><code class="lang-C#">proxyPipeline.Use(async (context, next) =&gt;
 {
-    var proxyFeature = context.GetReverseProxyFeature();
+    var proxyFeature = context.GetRequiredProxyFeature();
     proxyFeature.AvailableDestinations = Filter(proxyFeature.AvailableDestinations);
 
     await next();
@@ -158,15 +158,15 @@
     Report(proxyFeature.ProxiedDestination);
 });
 </code></pre>
-<p><code>DestinationState</code> implements <code>IReadOnlyList&lt;DestinationState&gt;</code> so a single destination can be assigned to <code>AvailableDestinations</code> without creating a new list.</p>
+<p><code>DestinationInfo</code> implements <code>IReadOnlyList&lt;DestinationInfo&gt;</code> so a single destination can be assigned to <code>AvailableDestinations</code> without creating a new list.</p>
 <h3 id="error-handling">Error handling</h3>
 <p>Middleware can wrap the call to <code>await next()</code> in a try/catch block to handle exceptions from later components.</p>
-<p>The proxy logic at the end of the pipeline (<a href="direct-forwarding.html">IHttpForwarder</a>) does not throw exceptions for common request proxy errors. These are captured and reported in the <a class="xref" href="../api/Yarp.ReverseProxy.Forwarder.IForwarderErrorFeature.html">IForwarderErrorFeature</a> available from <code>HttpContext.Features</code> or the <code>HttpContext.GetForwarderErrorFeature()</code> extension method.</p>
+<p>The proxy logic at the end of the pipeline (<a href="direct-proxying.html">IHttpProxy</a>) does not throw exceptions for common request proxy errors. These are captured and reported in the <a class="xref" href="../api/Yarp.ReverseProxy.Service.Proxy.IProxyErrorFeature.html">IProxyErrorFeature</a> available from <code>HttpContext.Features</code> or the <code>HttpContext.GetProxyErrorFeature()</code> extension method.</p>
 <pre><code class="lang-C#">proxyPipeline.Use(async (context, next) =&gt;
 {
     await next();
 
-    var errorFeature = context.GetForwarderErrorFeature();
+    var errorFeature = context.GetProxyErrorFeature();
     if (errorFeature != null)
     {
         Report(errorFeature.Error, errorFeature.Exception);
@@ -192,8 +192,7 @@
                 </ul>
               </div>
               <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
-                <h5>In This Article</h5>
-                <div></div>
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
               </nav>
             </div>
           </div>

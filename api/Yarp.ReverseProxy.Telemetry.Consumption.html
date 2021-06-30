@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Namespace Yarp.ReverseProxy.Telemetry.Consumption
    ">
-    <meta name="generator" content="docfx 2.58.0.0">
+    <meta name="generator" content="docfx 2.52.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -77,9 +77,6 @@
   <div class="markdown level0 remarks"></div>
     <h3 id="classes">Classes
   </h3>
-      <h4><a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.ForwarderMetrics.html">ForwarderMetrics</a></h4>
-      <section><p>Represents metrics reported by the Yarp.ReverseProxy event counters.</p>
-</section>
       <h4><a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.HttpMetrics.html">HttpMetrics</a></h4>
       <section><p>Represents metrics reported by the System.Net.Http event counters.</p>
 </section>
@@ -92,17 +89,14 @@
       <h4><a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.NetSecurityMetrics.html">NetSecurityMetrics</a></h4>
       <section><p>Represents metrics reported by the System.Net.Security event counters.</p>
 </section>
+      <h4><a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.ProxyMetrics.html">ProxyMetrics</a></h4>
+      <section><p>Represents metrics reported by the Yarp.ReverseProxy event counters.</p>
+</section>
       <h4><a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.SocketsMetrics.html">SocketsMetrics</a></h4>
       <section><p>Represents metrics reported by the System.Net.Sockets event counters.</p>
 </section>
     <h3 id="interfaces">Interfaces
   </h3>
-      <h4><a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.IForwarderMetricsConsumer.html">IForwarderMetricsConsumer</a></h4>
-      <section><p>A consumer of <a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.ForwarderMetrics.html">ForwarderMetrics</a>.</p>
-</section>
-      <h4><a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.IForwarderTelemetryConsumer.html">IForwarderTelemetryConsumer</a></h4>
-      <section><p>A consumer of Yarp.ReverseProxy EventSource events.</p>
-</section>
       <h4><a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.IHttpMetricsConsumer.html">IHttpMetricsConsumer</a></h4>
       <section><p>A consumer of <a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.HttpMetrics.html">HttpMetrics</a>.</p>
 </section>
@@ -127,6 +121,12 @@
       <h4><a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.INetSecurityTelemetryConsumer.html">INetSecurityTelemetryConsumer</a></h4>
       <section><p>A consumer of System.Net.Security EventSource events.</p>
 </section>
+      <h4><a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.IProxyMetricsConsumer.html">IProxyMetricsConsumer</a></h4>
+      <section><p>A consumer of <a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.ProxyMetrics.html">ProxyMetrics</a>.</p>
+</section>
+      <h4><a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.html">IProxyTelemetryConsumer</a></h4>
+      <section><p>A consumer of Yarp.ReverseProxy EventSource events.</p>
+</section>
       <h4><a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.ISocketsMetricsConsumer.html">ISocketsMetricsConsumer</a></h4>
       <section><p>A consumer of <a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.SocketsMetrics.html">SocketsMetrics</a>.</p>
 </section>
@@ -135,8 +135,8 @@
 </section>
     <h3 id="enums">Enums
   </h3>
-      <h4><a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.ForwarderStage.html">ForwarderStage</a></h4>
-      <section><p>Stages of forwarding a request.</p>
+      <h4><a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.ProxyStage.html">ProxyStage</a></h4>
+      <section><p>Stages of proxying a request.</p>
 </section>
 </article>
           </div>
@@ -148,8 +148,7 @@
                 </ul>
               </div>
               <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
-                <h5>In This Article</h5>
-                <div></div>
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
               </nav>
             </div>
           </div>

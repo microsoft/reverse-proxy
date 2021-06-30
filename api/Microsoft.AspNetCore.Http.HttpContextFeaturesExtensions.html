@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class HttpContextFeaturesExtensions
    ">
-    <meta name="generator" content="docfx 2.58.0.0">
+    <meta name="generator" content="docfx 2.52.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -81,29 +81,53 @@
     <div class="level0"><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object">Object</a></div>
     <div class="level1"><span class="xref">HttpContextFeaturesExtensions</span></div>
   </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_">Object.Equals(Object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_System_Object_">Object.Equals(Object, Object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gethashcode#System_Object_GetHashCode">Object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gettype#System_Object_GetType">Object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.memberwiseclone#System_Object_MemberwiseClone">Object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.referenceequals#System_Object_ReferenceEquals_System_Object_System_Object_">Object.ReferenceEquals(Object, Object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.tostring#System_Object_ToString">Object.ToString()</a>
+    </div>
+  </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Microsoft.AspNetCore.Http.html">Microsoft.AspNetCore.Http</a></h6>
   <h6><strong>Assembly</strong>: Yarp.ReverseProxy.dll</h6>
   <h5 id="Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static class HttpContextFeaturesExtensions : object</code></pre>
+    <pre><code class="lang-csharp hljs">public static class HttpContextFeaturesExtensions</code></pre>
   </div>
   <h3 id="methods">Methods
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetClusterState_HttpContext_.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetClusterState(HttpContext)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetClusterInfo_Microsoft_AspNetCore_Http_HttpContext_.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetClusterInfo(Microsoft.AspNetCore.Http.HttpContext)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/HttpContextFeaturesExtensions.cs/#L18">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Middleware/HttpContextFeaturesExtensions.cs/#L21">View Source</a>
   </span>
-  <a id="Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetClusterState_" data-uid="Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetClusterState*"></a>
-  <h4 id="Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetClusterState_HttpContext_" data-uid="Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetClusterState(HttpContext)">GetClusterState(HttpContext)</h4>
-  <div class="markdown level1 summary"><p>Retrieves the <a class="xref" href="Yarp.ReverseProxy.Model.ClusterState.html">ClusterState</a> instance associated with the current request.</p>
+  <a id="Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetClusterInfo_" data-uid="Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetClusterInfo*"></a>
+  <h4 id="Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetClusterInfo_Microsoft_AspNetCore_Http_HttpContext_" data-uid="Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetClusterInfo(Microsoft.AspNetCore.Http.HttpContext)">GetClusterInfo(HttpContext)</h4>
+  <div class="markdown level1 summary"><p>Retrieves the ClusterInfo instance associated with the current request.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static ClusterState GetClusterState(this HttpContext context)</code></pre>
+    <pre><code class="lang-csharp hljs">public static ClusterInfo GetClusterInfo(this HttpContext context)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -116,7 +140,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">HttpContext</span></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.http.httpcontext">HttpContext</a></td>
         <td><span class="parametername">context</span></td>
         <td></td>
       </tr>
@@ -132,26 +156,26 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="Yarp.ReverseProxy.Model.ClusterState.html">ClusterState</a></td>
+        <td><a class="xref" href="Yarp.ReverseProxy.RuntimeModel.ClusterInfo.html">ClusterInfo</a></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetForwarderErrorFeature_HttpContext_.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetForwarderErrorFeature(HttpContext)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetProxyErrorFeature_Microsoft_AspNetCore_Http_HttpContext_.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetProxyErrorFeature(Microsoft.AspNetCore.Http.HttpContext)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/HttpContextFeaturesExtensions.cs/#L49">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Middleware/HttpContextFeaturesExtensions.cs/#L52">View Source</a>
   </span>
-  <a id="Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetForwarderErrorFeature_" data-uid="Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetForwarderErrorFeature*"></a>
-  <h4 id="Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetForwarderErrorFeature_HttpContext_" data-uid="Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetForwarderErrorFeature(HttpContext)">GetForwarderErrorFeature(HttpContext)</h4>
-  <div class="markdown level1 summary"><p>Retrieves the <a class="xref" href="Yarp.ReverseProxy.Forwarder.IForwarderErrorFeature.html">IForwarderErrorFeature</a> instance associated with the current request, if any.</p>
+  <a id="Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetProxyErrorFeature_" data-uid="Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetProxyErrorFeature*"></a>
+  <h4 id="Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetProxyErrorFeature_Microsoft_AspNetCore_Http_HttpContext_" data-uid="Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetProxyErrorFeature(Microsoft.AspNetCore.Http.HttpContext)">GetProxyErrorFeature(HttpContext)</h4>
+  <div class="markdown level1 summary"><p>Retrieves the IProxyErrorFeature instance associated with the current request, if any.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IForwarderErrorFeature GetForwarderErrorFeature(this HttpContext context)</code></pre>
+    <pre><code class="lang-csharp hljs">public static IProxyErrorFeature GetProxyErrorFeature(this HttpContext context)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -164,7 +188,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">HttpContext</span></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.http.httpcontext">HttpContext</a></td>
         <td><span class="parametername">context</span></td>
         <td></td>
       </tr>
@@ -180,21 +204,21 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="Yarp.ReverseProxy.Forwarder.IForwarderErrorFeature.html">IForwarderErrorFeature</a></td>
+        <td><a class="xref" href="Yarp.ReverseProxy.Service.Proxy.IProxyErrorFeature.html">IProxyErrorFeature</a></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetReverseProxyFeature_HttpContext_.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetReverseProxyFeature(HttpContext)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetReverseProxyFeature_Microsoft_AspNetCore_Http_HttpContext_.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetReverseProxyFeature(Microsoft.AspNetCore.Http.HttpContext)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/HttpContextFeaturesExtensions.cs/#L41">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Middleware/HttpContextFeaturesExtensions.cs/#L44">View Source</a>
   </span>
   <a id="Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetReverseProxyFeature_" data-uid="Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetReverseProxyFeature*"></a>
-  <h4 id="Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetReverseProxyFeature_HttpContext_" data-uid="Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetReverseProxyFeature(HttpContext)">GetReverseProxyFeature(HttpContext)</h4>
-  <div class="markdown level1 summary"><p>Retrieves the <a class="xref" href="Yarp.ReverseProxy.Model.IReverseProxyFeature.html">IReverseProxyFeature</a> instance associated with the current request.</p>
+  <h4 id="Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetReverseProxyFeature_Microsoft_AspNetCore_Http_HttpContext_" data-uid="Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetReverseProxyFeature(Microsoft.AspNetCore.Http.HttpContext)">GetReverseProxyFeature(HttpContext)</h4>
+  <div class="markdown level1 summary"><p>Retrieves the IReverseProxyFeature instance associated with the current request.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -212,7 +236,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">HttpContext</span></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.http.httpcontext">HttpContext</a></td>
         <td><span class="parametername">context</span></td>
         <td></td>
       </tr>
@@ -228,26 +252,26 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="Yarp.ReverseProxy.Model.IReverseProxyFeature.html">IReverseProxyFeature</a></td>
+        <td><a class="xref" href="Yarp.ReverseProxy.Middleware.IReverseProxyFeature.html">IReverseProxyFeature</a></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetRouteModel_HttpContext_.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetRouteModel(HttpContext)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetRouteConfig_Microsoft_AspNetCore_Http_HttpContext_.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetRouteConfig(Microsoft.AspNetCore.Http.HttpContext)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/HttpContextFeaturesExtensions.cs/#L28">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Middleware/HttpContextFeaturesExtensions.cs/#L31">View Source</a>
   </span>
-  <a id="Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetRouteModel_" data-uid="Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetRouteModel*"></a>
-  <h4 id="Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetRouteModel_HttpContext_" data-uid="Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetRouteModel(HttpContext)">GetRouteModel(HttpContext)</h4>
-  <div class="markdown level1 summary"><p>Retrieves the <a class="xref" href="Yarp.ReverseProxy.Model.RouteModel.html">RouteModel</a> instance associated with the current request.</p>
+  <a id="Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetRouteConfig_" data-uid="Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetRouteConfig*"></a>
+  <h4 id="Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_GetRouteConfig_Microsoft_AspNetCore_Http_HttpContext_" data-uid="Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.GetRouteConfig(Microsoft.AspNetCore.Http.HttpContext)">GetRouteConfig(HttpContext)</h4>
+  <div class="markdown level1 summary"><p>Retrieves the RouteConfig instance associated with the current request.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static RouteModel GetRouteModel(this HttpContext context)</code></pre>
+    <pre><code class="lang-csharp hljs">public static RouteConfig GetRouteConfig(this HttpContext context)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -260,7 +284,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">HttpContext</span></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.http.httpcontext">HttpContext</a></td>
         <td><span class="parametername">context</span></td>
         <td></td>
       </tr>
@@ -276,7 +300,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="Yarp.ReverseProxy.Model.RouteModel.html">RouteModel</a></td>
+        <td><a class="xref" href="Yarp.ReverseProxy.RuntimeModel.RouteConfig.html">RouteConfig</a></td>
         <td></td>
       </tr>
     </tbody>
@@ -292,13 +316,12 @@
                     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/HttpContextFeaturesExtensions.cs/#L13" class="contribution-link">View Source</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Middleware/HttpContextFeaturesExtensions.cs/#L16" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>
               <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
-                <h5>In This Article</h5>
-                <div></div>
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
               </nav>
             </div>
           </div>

@@ -8,7 +8,7 @@
     <title>Session Affinity </title>
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Session Affinity ">
-    <meta name="generator" content="docfx 2.58.0.0">
+    <meta name="generator" content="docfx 2.52.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -69,13 +69,12 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="session-affinity">Session Affinity</h1>
 
-<p>Introduced: preview2
-Updated: preview12</p>
+<p>Introduced: preview2</p>
 <h2 id="concept">Concept</h2>
 <p>Session affinity is a mechanism to bind (affinitize) a causally related request sequence to the destination handled the first request when the load is balanced among several destinations. It is useful in scenarios where the most requests in a sequence work with the same data and the cost of data access differs for different nodes (destinations) handling requests. The most common example is a transient caching (e.g. in-memory) where the first request fetches data from a slower persistent storage into a fast local cache and the others work only with the cached data thus increasing throughput.</p>
 <h2 id="configuration">Configuration</h2>
 <h3 id="services-and-middleware-registration">Services and middleware registration</h3>
-<p>Session affinity services are registered in the DI container automatically by <code>AddReverseProxy()</code>. The middleware <code>UseSessionAffinity()</code> is included by default in the parameterless MapReverseProxy method. If you are customizing the proxy pipeline, place the first middleware <strong>before</strong> adding <code>UseLoadBalancing()</code>.</p>
+<p>Session affinity services are registered in the DI container via <code>AddSessionAffinityProvider()</code> method which is automatically called by <code>AddReverseProxy()</code>. The middleware <code>UseSessionAffinity()</code> is included by default in the parameterless MapReverseProxy method. If you are customizing the proxy pipeline, place the first middleware <strong>before</strong> adding <code>UseLoadBalancing()</code>.</p>
 <p>Example:</p>
 <pre><code class="lang-C#">endpoints.MapReverseProxy(proxyPipeline =&gt;
 {
@@ -90,53 +89,25 @@ Updated: preview12</p>
         &quot;&lt;cluster-name&gt;&quot;: {
             &quot;SessionAffinity&quot;: {
                 &quot;Enabled&quot;: &quot;(true|false)&quot;, // defaults to 'false'
-                &quot;Policy&quot;: &quot;(Cookie|CustomHeader)&quot;, // defaults to 'Cookie'
+                &quot;Mode&quot;: &quot;(Cookie|CustomHeader)&quot;, // defaults to 'Cookie'
                 &quot;FailurePolicy&quot;: &quot;(Redistribute|Return503)&quot;, // defaults to 'Redistribute'
-                &quot;AffinityKeyName&quot;: &quot;Key1&quot;,
-                &quot;Cookie&quot;: {
-                    &quot;Domain&quot;: &quot;localhost&quot;,
-                    &quot;Expiration&quot;: &quot;03:00:00&quot;,
-                    &quot;HttpOnly&quot;: true,
-                    &quot;IsEssential&quot;: true,
-                    &quot;MaxAge&quot;: &quot;1.00:00:00&quot;,
-                    &quot;Path&quot;: &quot;mypath&quot;,
-                    &quot;SameSite&quot;: &quot;Strict&quot;,
-                    &quot;SecurePolicy&quot;: &quot;Always&quot;
+                &quot;Settings&quot; : {
+                    &quot;CustomHeaderName&quot;: &quot;&lt;custom-header-name&gt;&quot; // defaults to 'X-Yarp-Proxy-Affinity`
+                }
             }
         }
     }
 }
 </code></pre>
-<h3 id="policy-specific-configuration">Policy-specific configuration</h3>
-<p>There is currently one policy-specific strongly-typed configuration section implemented.</p>
+<h3 id="provider-specific-options">Provider-specific options</h3>
+<p>There is currently one provider-specific option type available.</p>
 <ul>
-<li><code>SessionAffinityCookieConfig</code> exposes settings to customize cookie properties which will be used by <code>CookieSessionAffinityPolicy</code> for creating new affinity cookies. The properties can be JSON config as show above or in code as shown below:</li>
+<li><code>CookieSessionAffinityProviderOptions</code> exposes <code>CookieBuilder</code> to set default cookie properties which will be used by <code>CookieSessionAffinityProvider</code> for creating new affinity cookies. The properties can be changed via the standard Option API as in the following example:</li>
 </ul>
-<pre><code class="lang-C#">new ClusterConfig
-{
-    ClusterId = &quot;cluster1&quot;,
-    SessionAffinity = new SessionAffinityConfig
-    {
-        Enabled = true,
-        FailurePolicy = &quot;Return503Error&quot;,
-        Policy = &quot;Cookie&quot;,
-        AffinityKeyName = &quot;Key1&quot;,
-        Cookie = new SessionAffinityCookieConfig
-        {
-            Domain = &quot;mydomain&quot;,
-            Expiration = TimeSpan.FromHours(3),
-            HttpOnly = true,
-            IsEssential = true,
-            MaxAge = TimeSpan.FromDays(1),
-            Path = &quot;mypath&quot;,
-            SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
-            SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest
-        }
-    }    
-}
+<pre><code class="lang-C#">services.Configure&lt;CookieSessionAffinityProviderOptions&gt;(o =&gt; o.Cookie.Name = &quot;My-Affinity-Key&quot;);
 </code></pre>
 <h2 id="affinity-key">Affinity Key</h2>
-<p>Request to destination affinity is established via the affinity key identifying the target destination. That key can be stored on different request parts depending on the given session affinity implementation, but each request cannot have more than one such key. The exact key semantics is implementation dependent, in example the both of built-in <code>CookieSessionAffinityPolicy</code> and <code>CustomHeaderAffinityPolicy</code> are currently use <code>DestinationId</code> as the affinity key.</p>
+<p>Request to destination affinity is established via the affinity key identifying the target destination. That key can be stored on different request parts depending on the given session affinity implementation, but each request cannot have more than one such key. The exact key semantics is implementation dependent, in example the both of built-in <code>CookieSessionAffinityProvider</code> and <code>CustomHeaderAffinityProvider</code> are currently use <code>DestinationId</code> as the affinity key.</p>
 <p>The current design doesn't require a key to uniquely identify the single affinitized destination. It's allowed to establish affinity to a destination group. In this case, the exact destination to handle the given request will be determined by the load balancer.</p>
 <h2 id="establishing-a-new-affinity-or-resolution-of-the-existed-one">Establishing a new affinity or resolution of the existed one</h2>
 <p>Once a request arrives and gets routed to a cluster with session affinity enabled, the proxy automatically decides whether a new affinity should be established or an existing one needs to be resolved based on the presence and validity of an affinity key on the request as follows:</p>
@@ -148,12 +119,12 @@ Updated: preview12</p>
 <li><p><strong>Affinity key is invalid or no healthy affinitized destinations found</strong>. It's treated as a failure to be handled by a failure policy explained below</p>
 </li>
 </ol>
-<p>If a new affinity was established for the request, the affinity key gets attached to a response where exact key representation and location depends on the implementation. Currently, there are two built-in policies storing the key on a cookie or custom header. Once the response gets delivered to the client, it's the client responsibility to attach the key to all following requests in the same session. Further, when the next request carrying the key arrives to the proxy, it resolves the existing affinity, but affinity key does not get again attached to the response. Thus, only the first response carries the affinity key.</p>
-<p>There are two built-in affinity policys differing only in how the affinity key is stored on a request. The default policy is <code>Cookie</code>.</p>
+<p>If a new affinity was established for the request, the affinity key gets attached to a response where exact key representation and location depends on the implementation. Currently, there are two built-in providers storing the key on a cookie or custom header. Once the response gets delivered to the client, it's the client responsibility to attach the key to all following requests in the same session. Further, when the next request carrying the key arrives to the proxy, it resolves the existing affinity, but affinity key does not get again attached to the response. Thus, only the first response carries the affinity key.</p>
+<p>There are two built-in affinity modes differing only in how the affinity key is stored on a request. The default mode is <code>Cookie</code>.</p>
 <ol>
-<li><p><code>Cookie</code> - stores the key as a cookie. It expects the request's key to be delivered as a cookie with configured name and sets the same cookie with <code>Set-Cookie</code> header on the first response in an affinitized sequence. This is implemented by <code>CookieSessionAffinityPolicy</code>. Cookie name must be explicitly set via <code>SessionAffinityConfig.AffinityKeyName</code> which is used by <code>CookieSessionAffinityPolicy</code> for this purpose. Other cookie's properties can be configured via <code>SessionAffinityCookieConfig</code>. <strong>Important</strong>: <code>AffinityKeyName</code> must be unique across all clusters with enabled session affinity to avoid conflicts.</p>
+<li><p><code>Cookie</code> - stores the key as a cookie. It expects the request's key to be delivered as a cookie with configured name and sets the same cookie with <code>Set-Cookie</code> header on the first response in an affinitized sequence. This mode is implemented by <code>CookieSessionAffinityProvider</code>. Cookie's options (e.g. name) can be configured via <code>CookieSessionAffinityProviderOptions</code>. The default name is <code>.Yarp.ReverseProxy.Affinity</code></p>
 </li>
-<li><p><code>CustomHeader</code> - stores the key on a header. It expects the affinity key to be delivered in a custom header with configured name and sets the same header on the first response in an affinitized sequence. This is implemented by <code>CustomHeaderSessionAffinityPolicy</code>. The header name must be set via <code>SessionAffinityConfig.AffinityKeyName</code> which is used by <code>CustomHeaderSessionAffinityPolicy</code> for this purpose. <strong>Important</strong>: <code>AffinityKeyName</code> must be unique across all clusters with enabled session affinity to avoid conflicts.</p>
+<li><p><code>CustomHeader</code> - stores the key on a header. It expects the request's key to be delivered in a customer header with configured name and sets the same header on the first response in an affinitized sequence. This mode is implemented by <code>CustomHeaderSessionAffinityProvider</code>. The header name can be set by the setting <code>CustomHeaderName</code> in <code>SessionAffinityOptions.Settings</code> as shown in the example below. The default name is <code>X-Yarp-Proxy-Affinity</code>.</p>
 </li>
 </ol>
 <h2 id="affinity-failure-policy">Affinity failure policy</h2>
@@ -168,7 +139,7 @@ Updated: preview12</p>
 <h2 id="request-pipeline">Request pipeline</h2>
 <p>The session affinity mechanisms are implemented by the services (mentioned above) and the two following middleware:</p>
 <ol>
-<li><p><code>SessionAffinityMiddleware</code> - coordinates the request's affinity resolution process. First, it calls a policy specified for the given cluster on <code>ClusterConfig.SessionAffinity.Policy</code> property. Then, it checks the affinity resolution status returned by the policy, and calls a failure handling policy set on <code>ClusterConfig.SessionAffinity.FailurePolicy</code> in case of failures. It must be added to the pipeline <strong>before</strong> the load balancer.</p>
+<li><p><code>SessionAffinityMiddleware</code> - coordinates the request's affinity resolution process. First, it calls a provider implementing the mode specified for the given cluster on <code>ClusterConfig.SessionAffinity.Mode</code> property. Then, it checks the affinity resolution status returned by the provider, and calls a failure handling policy set on <code>ClusterConfig.SessionAffinity.FailurePolicy</code> in case of failures. It must be added to the pipeline <strong>before</strong> the load balancer.</p>
 </li>
 <li><p><code>AffinitizeTransform</code> - sets the key on the response if a new affinity has been established for the request. Otherwise, if the request follows an existing affinity, it does nothing. This is automatically added as a response transform.</p>
 </li>
@@ -186,8 +157,7 @@ Updated: preview12</p>
                 </ul>
               </div>
               <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
-                <h5>In This Article</h5>
-                <div></div>
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
               </nav>
             </div>
           </div>

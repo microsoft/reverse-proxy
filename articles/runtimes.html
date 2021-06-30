@@ -8,7 +8,7 @@
     <title>Supported Runtimes </title>
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Supported Runtimes ">
-    <meta name="generator" content="docfx 2.58.0.0">
+    <meta name="generator" content="docfx 2.52.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -71,43 +71,6 @@
 
 <p>YARP 1.0 previews support ASP.NET Core 3.1 and 5.0. You can download the .NET 5 SDK from <a href="https://dotnet.microsoft.com/download/dotnet/5.0">https://dotnet.microsoft.com/download/dotnet/5.0</a>. See <a href="https://github.com/microsoft/reverse-proxy/releases">Releases</a> for specific version support.</p>
 <p>YARP is taking advantage of ASP.NET Core 5.0 features and optimizations. This does mean that some features may not be available if you're running on ASP.NET Core 3.1.</p>
-<h2 id="difference-in-features-supported-on-net-core-31-vs-net-50-and-higher">Difference in features supported on .NET Core 3.1 vs .NET 5.0 and higher</h2>
-<h3 id="yarpreverseproxy-package">Yarp.ReverseProxy package</h3>
-<p>The following features are supported on NET 5.0 and higher:</p>
-<ul>
-<li><a href="proxy-httpclient-config.md#HttpClient">EnableMultipleHttp2Connections</a> - enables opening additional HTTP/2 connections to the same server when the maximum number of concurrent streams is reached on all existing connections. Full path: <code>ClusterConfig.HttpClient.EnableMultipleHttp2Connections</code>. Type: <code>bool?</code></li>
-<li><a href="proxy-httpclient-config.md#HttpClient">RequestHeaderEncoding</a> - allows to set a non-ASCII header encoding for outgoing requests. Full path: <code>ClusterConfig.HttpClient.RequestHeaderEncoding</code>. Type: <code>string?</code></li>
-<li><a href="proxy-httpclient-config.md#HttpRequest">VersionPolicy</a> - policy applied to version selection, e.g. whether to prefer downgrades, upgrades or request an exact version. The default is <code>RequestVersionOrLower</code>. Full path: <code>ClusterConfig.HttpRequest.VersionPolicy</code>. Type: <code>HttpVersionPolicy?</code></li>
-</ul>
-<h3 id="yarpreverseproxytelemetryconsumption-package">Yarp.ReverseProxy.Telemetry.Consumption package</h3>
-<p>On .NET Core 3.1 it supports only:</p>
-<ul>
-<li>YARP events and metrics</li>
-<li>Kestrel events</li>
-</ul>
-<p>On .NET 5 and higher it supports events and metrics for:</p>
-<ul>
-<li>YARP</li>
-<li>Kestrel</li>
-<li>HTTP (SocketsHttpHandler)</li>
-<li>NameResolution (DNS)</li>
-<li>NetSecurity (SslStream)</li>
-<li>Sockets</li>
-</ul>
-<h2 id="building-for-net-core-31">Building for .NET Core 3.1</h2>
-<p>YARP can be run on the .Net Core 3.1 runtime, but the .NET 5.0 SDK is still required for this runtime version because YARP APIs use C# 9 language features. Thus, the steps to create a YARP-based application are as follows:</p>
-<ol>
-<li>Install the .NET 5.0 SDK: <a href="https://dotnet.microsoft.com/download/dotnet/5.0">https://dotnet.microsoft.com/download/dotnet/5.0</a></li>
-<li>Add the reference to the YARP package to the application project</li>
-<li>Add the property <code>&lt;LangVersion&gt;9.0&lt;/LangVersion&gt;</code> to the .csproj file</li>
-<li>Add a new <code>IsExternalInit.cs</code> file with the following content to the root of the project.</li>
-</ol>
-<pre><code class="lang-C#">namespace System.Runtime.CompilerServices
-{
-    // Allows &quot;init&quot; properties in .NET Core 3.1.
-    internal static class IsExternalInit { }
-}
-</code></pre>
 <h2 id="related-50-runtime-improvements">Related 5.0 Runtime Improvements</h2>
 <p>These are related improvements in .NET 5.0 or ASP.NET Core 5.0 that YARP is able to take advantage of:</p>
 <ul>
@@ -135,8 +98,7 @@
                 </ul>
               </div>
               <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
-                <h5>In This Article</h5>
-                <div></div>
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
               </nav>
             </div>
           </div>

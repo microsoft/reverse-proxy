@@ -1,0 +1,473 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Interface IProxyTelemetryConsumer
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Interface IProxyTelemetryConsumer
+   ">
+    <meta name="generator" content="docfx 2.52.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer">
+  
+  
+  <h1 id="Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer" data-uid="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer" class="text-break">Interface IProxyTelemetryConsumer
+  </h1>
+  <div class="markdown level0 summary"><p>A consumer of Yarp.ReverseProxy EventSource events.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.html">Yarp.ReverseProxy.Telemetry.Consumption</a></h6>
+  <h6><strong>Assembly</strong>: Yarp.ReverseProxy.Telemetry.Consumption.dll</h6>
+  <h5 id="Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public interface IProxyTelemetryConsumer</code></pre>
+  </div>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnContentTransferred_System_DateTime_System_Boolean_System_Int64_System_Int64_System_TimeSpan_System_TimeSpan_System_TimeSpan_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnContentTransferred(System.DateTime%2CSystem.Boolean%2CSystem.Int64%2CSystem.Int64%2CSystem.TimeSpan%2CSystem.TimeSpan%2CSystem.TimeSpan)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy.TelemetryConsumption/Proxy/IProxyTelemetryConsumer.cs/#L63">View Source</a>
+  </span>
+  <a id="Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnContentTransferred_" data-uid="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnContentTransferred*"></a>
+  <h4 id="Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnContentTransferred_System_DateTime_System_Boolean_System_Int64_System_Int64_System_TimeSpan_System_TimeSpan_System_TimeSpan_" data-uid="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnContentTransferred(System.DateTime,System.Boolean,System.Int64,System.Int64,System.TimeSpan,System.TimeSpan,System.TimeSpan)">OnContentTransferred(DateTime, Boolean, Int64, Int64, TimeSpan, TimeSpan, TimeSpan)</h4>
+  <div class="markdown level1 summary"><p>Called after transferring the request or response content.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">virtual void OnContentTransferred(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime, TimeSpan firstReadTime)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.datetime">DateTime</a></td>
+        <td><span class="parametername">timestamp</span></td>
+        <td><p>Timestamp when the event was fired.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a></td>
+        <td><span class="parametername">isRequest</span></td>
+        <td><p>Indicates whether we transfered the content from the client to the backend or vice-versa.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int64">Int64</a></td>
+        <td><span class="parametername">contentLength</span></td>
+        <td><p>Number of bytes transferred.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int64">Int64</a></td>
+        <td><span class="parametername">iops</span></td>
+        <td><p>Number of read/write pairs performed.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
+        <td><span class="parametername">readTime</span></td>
+        <td><p>Time spent reading from the source.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
+        <td><span class="parametername">writeTime</span></td>
+        <td><p>Time spent writing to the destination.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
+        <td><span class="parametername">firstReadTime</span></td>
+        <td><p>Time spent on the first read of the source.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnContentTransferring_System_DateTime_System_Boolean_System_Int64_System_Int64_System_TimeSpan_System_TimeSpan_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnContentTransferring(System.DateTime%2CSystem.Boolean%2CSystem.Int64%2CSystem.Int64%2CSystem.TimeSpan%2CSystem.TimeSpan)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy.TelemetryConsumption/Proxy/IProxyTelemetryConsumer.cs/#L51">View Source</a>
+  </span>
+  <a id="Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnContentTransferring_" data-uid="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnContentTransferring*"></a>
+  <h4 id="Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnContentTransferring_System_DateTime_System_Boolean_System_Int64_System_Int64_System_TimeSpan_System_TimeSpan_" data-uid="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnContentTransferring(System.DateTime,System.Boolean,System.Int64,System.Int64,System.TimeSpan,System.TimeSpan)">OnContentTransferring(DateTime, Boolean, Int64, Int64, TimeSpan, TimeSpan)</h4>
+  <div class="markdown level1 summary"><p>Called periodically while a content transfer is active.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">virtual void OnContentTransferring(DateTime timestamp, bool isRequest, long contentLength, long iops, TimeSpan readTime, TimeSpan writeTime)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.datetime">DateTime</a></td>
+        <td><span class="parametername">timestamp</span></td>
+        <td><p>Timestamp when the event was fired.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a></td>
+        <td><span class="parametername">isRequest</span></td>
+        <td><p>Indicates whether we are transferring the content from the client to the backend or vice-versa.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int64">Int64</a></td>
+        <td><span class="parametername">contentLength</span></td>
+        <td><p>Number of bytes transferred.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int64">Int64</a></td>
+        <td><span class="parametername">iops</span></td>
+        <td><p>Number of read/write pairs performed.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
+        <td><span class="parametername">readTime</span></td>
+        <td><p>Time spent reading from the source.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
+        <td><span class="parametername">writeTime</span></td>
+        <td><p>Time spent writing to the destination.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnProxyFailed_System_DateTime_Yarp_ReverseProxy_Service_Proxy_ProxyError_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnProxyFailed(System.DateTime%2CYarp.ReverseProxy.Service.Proxy.ProxyError)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy.TelemetryConsumption/Proxy/IProxyTelemetryConsumer.cs/#L33">View Source</a>
+  </span>
+  <a id="Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnProxyFailed_" data-uid="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnProxyFailed*"></a>
+  <h4 id="Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnProxyFailed_System_DateTime_Yarp_ReverseProxy_Service_Proxy_ProxyError_" data-uid="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnProxyFailed(System.DateTime,Yarp.ReverseProxy.Service.Proxy.ProxyError)">OnProxyFailed(DateTime, ProxyError)</h4>
+  <div class="markdown level1 summary"><p>Called before <a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.html#Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnProxyStop_System_DateTime_System_Int32_">OnProxyStop(DateTime, Int32)</a> if proxying the request failed.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">virtual void OnProxyFailed(DateTime timestamp, ProxyError error)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.datetime">DateTime</a></td>
+        <td><span class="parametername">timestamp</span></td>
+        <td><p>Timestamp when the event was fired.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Yarp.ReverseProxy.Service.Proxy.ProxyError.html">ProxyError</a></td>
+        <td><span class="parametername">error</span></td>
+        <td><p><a class="xref" href="Yarp.ReverseProxy.Service.Proxy.ProxyError.html">ProxyError</a> information for the proxy failure.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnProxyInvoke_System_DateTime_System_String_System_String_System_String_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnProxyInvoke(System.DateTime%2CSystem.String%2CSystem.String%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy.TelemetryConsumption/Proxy/IProxyTelemetryConsumer.cs/#L72">View Source</a>
+  </span>
+  <a id="Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnProxyInvoke_" data-uid="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnProxyInvoke*"></a>
+  <h4 id="Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnProxyInvoke_System_DateTime_System_String_System_String_System_String_" data-uid="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnProxyInvoke(System.DateTime,System.String,System.String,System.String)">OnProxyInvoke(DateTime, String, String, String)</h4>
+  <div class="markdown level1 summary"><p>Called before proxying a request.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">virtual void OnProxyInvoke(DateTime timestamp, string clusterId, string routeId, string destinationId)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.datetime">DateTime</a></td>
+        <td><span class="parametername">timestamp</span></td>
+        <td><p>Timestamp when the event was fired.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">clusterId</span></td>
+        <td><p>Cluster ID</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">routeId</span></td>
+        <td><p>Route ID</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">destinationId</span></td>
+        <td><p>Destination ID</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnProxyStage_System_DateTime_Yarp_ReverseProxy_Telemetry_Consumption_ProxyStage_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnProxyStage(System.DateTime%2CYarp.ReverseProxy.Telemetry.Consumption.ProxyStage)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy.TelemetryConsumption/Proxy/IProxyTelemetryConsumer.cs/#L40">View Source</a>
+  </span>
+  <a id="Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnProxyStage_" data-uid="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnProxyStage*"></a>
+  <h4 id="Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnProxyStage_System_DateTime_Yarp_ReverseProxy_Telemetry_Consumption_ProxyStage_" data-uid="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnProxyStage(System.DateTime,Yarp.ReverseProxy.Telemetry.Consumption.ProxyStage)">OnProxyStage(DateTime, ProxyStage)</h4>
+  <div class="markdown level1 summary"><p>Called when reaching a given stage of proxying a request.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">virtual void OnProxyStage(DateTime timestamp, ProxyStage stage)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.datetime">DateTime</a></td>
+        <td><span class="parametername">timestamp</span></td>
+        <td><p>Timestamp when the event was fired.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Yarp.ReverseProxy.Telemetry.Consumption.ProxyStage.html">ProxyStage</a></td>
+        <td><span class="parametername">stage</span></td>
+        <td><p>Stage of the proxy operation.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnProxyStart_System_DateTime_System_String_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnProxyStart(System.DateTime%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy.TelemetryConsumption/Proxy/IProxyTelemetryConsumer.cs/#L19">View Source</a>
+  </span>
+  <a id="Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnProxyStart_" data-uid="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnProxyStart*"></a>
+  <h4 id="Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnProxyStart_System_DateTime_System_String_" data-uid="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnProxyStart(System.DateTime,System.String)">OnProxyStart(DateTime, String)</h4>
+  <div class="markdown level1 summary"><p>Called before proxying a request.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">virtual void OnProxyStart(DateTime timestamp, string destinationPrefix)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.datetime">DateTime</a></td>
+        <td><span class="parametername">timestamp</span></td>
+        <td><p>Timestamp when the event was fired.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">destinationPrefix</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnProxyStop_System_DateTime_System_Int32_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnProxyStop(System.DateTime%2CSystem.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy.TelemetryConsumption/Proxy/IProxyTelemetryConsumer.cs/#L26">View Source</a>
+  </span>
+  <a id="Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnProxyStop_" data-uid="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnProxyStop*"></a>
+  <h4 id="Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer_OnProxyStop_System_DateTime_System_Int32_" data-uid="Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer.OnProxyStop(System.DateTime,System.Int32)">OnProxyStop(DateTime, Int32)</h4>
+  <div class="markdown level1 summary"><p>Called after proxying a request.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">virtual void OnProxyStop(DateTime timestamp, int statusCode)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.datetime">DateTime</a></td>
+        <td><span class="parametername">timestamp</span></td>
+        <td><p>Timestamp when the event was fired.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int32">Int32</a></td>
+        <td><span class="parametername">statusCode</span></td>
+        <td><p>The status code returned in the response.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Telemetry_Consumption_IProxyTelemetryConsumer.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Telemetry.Consumption.IProxyTelemetryConsumer%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy.TelemetryConsumption/Proxy/IProxyTelemetryConsumer.cs/#L12" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>
