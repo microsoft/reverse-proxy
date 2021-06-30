@@ -9,7 +9,7 @@ YARP is designed as a library that provides the core proxy functionality which y
 
 YARP is implemented on top of .NET Core infrastructure and is usable on Windows, Linux or MacOS. Development can be done with the SDK and your favorite editor, [Microsoft Visual Studio](https://visualstudio.microsoft.com/vs/) or [Visual Studio Code](https://code.visualstudio.com/).
 
-YARP 1.0.0 Preview 11 supports ASP.NET Core 3.1 and 5.0. You can download the .NET 5 SDK from https://dotnet.microsoft.com/download/dotnet/5.0.
+YARP 1.0.0 Preview 12 supports ASP.NET Core 3.1 and 5.0. You can download the .NET 5 SDK from https://dotnet.microsoft.com/download/dotnet/5.0.
 Visual Studio support for .NET 5 is included in Visual Studio 2019 v16.8 or newer.
 
 A fully commented variant of the getting started app can be found at [Basic YARP Sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/BasicYarpSample)
@@ -40,7 +40,7 @@ And then add:
  
  ```XML
 <ItemGroup> 
-  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-preview.11.*" />
+  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-preview.12.*" />
 </ItemGroup> 
 ```
 
