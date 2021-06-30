@@ -5,8 +5,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
-using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Service;
+using Yarp.ReverseProxy.Configuration;
 
 
 namespace Yarp.Sample
@@ -16,7 +15,7 @@ namespace Yarp.Sample
     /// </summary>
     public static class InMemoryConfigProviderExtensions
     {
-        public static IReverseProxyBuilder LoadFromMemory(this IReverseProxyBuilder builder, IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
+        public static IReverseProxyBuilder LoadFromMemory(this IReverseProxyBuilder builder, IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
         {
             builder.Services.AddSingleton<IProxyConfigProvider>(new InMemoryConfigProvider(routes, clusters));
             return builder;
@@ -31,7 +30,7 @@ namespace Yarp.Sample
         // Marked as volatile so that updates are atomic
         private volatile InMemoryConfig _config;
 
-        public InMemoryConfigProvider(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
+        public InMemoryConfigProvider(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
         {
             _config = new InMemoryConfig(routes, clusters);
         }
@@ -45,7 +44,7 @@ namespace Yarp.Sample
         /// <summary>
         /// Swaps the config state with a new snapshot of the configuration, then signals the change
         /// </summary>
-        public void Update(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
+        public void Update(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
         {
             var oldConfig = _config;
             _config = new InMemoryConfig(routes, clusters);
@@ -60,7 +59,7 @@ namespace Yarp.Sample
             // Used to implement the change token for the state
             private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
-            public InMemoryConfig(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters)
+            public InMemoryConfig(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
             {
                 Routes = routes;
                 Clusters = clusters;
@@ -70,12 +69,12 @@ namespace Yarp.Sample
             /// <summary>
             /// A snapshot of the list of routes for the proxy
             /// </summary>
-            public IReadOnlyList<ProxyRoute> Routes { get; }
+            public IReadOnlyList<RouteConfig> Routes { get; }
 
             /// <summary>
             /// A snapshot of the list of Clusters which are collections of interchangable destination endpoints
             /// </summary>
-            public IReadOnlyList<Cluster> Clusters { get; }
+            public IReadOnlyList<ClusterConfig> Clusters { get; }
 
             /// <summary>
             /// Fired to indicate the the proxy state has changed, and that this snapshot is now stale

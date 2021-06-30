@@ -5,14 +5,14 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Service;
+using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Health;
 
 namespace Yarp.ReverseProxy.Sample
 {
     public class CustomConfigFilter : IProxyConfigFilter
     {
-        public ValueTask<Cluster> ConfigureClusterAsync(Cluster cluster, CancellationToken cancel)
+        public ValueTask<ClusterConfig> ConfigureClusterAsync(ClusterConfig cluster, CancellationToken cancel)
         {
             // How to use custom metadata to configure clusters
             if (cluster.Metadata?.TryGetValue("CustomHealth", out var customHealth) ?? false
@@ -20,9 +20,9 @@ namespace Yarp.ReverseProxy.Sample
             {
                 cluster = cluster with
                 {
-                    HealthCheck = new HealthCheckOptions
+                    HealthCheck = new HealthCheckConfig
                     {
-                        Active = new ActiveHealthCheckOptions
+                        Active = new ActiveHealthCheckConfig
                         {
                             Enabled = true,
                             Policy = HealthCheckConstants.ActivePolicy.ConsecutiveFailures,
@@ -38,9 +38,9 @@ namespace Yarp.ReverseProxy.Sample
             {
                 cluster = cluster with
                 {
-                    HealthCheck = new HealthCheckOptions
+                    HealthCheck = new HealthCheckConfig
                     {
-                        Active = new ActiveHealthCheckOptions
+                        Active = new ActiveHealthCheckConfig
                         {
                             Enabled = true,
                             Policy = HealthCheckConstants.ActivePolicy.ConsecutiveFailures,
@@ -50,19 +50,19 @@ namespace Yarp.ReverseProxy.Sample
                 };
             }
 
-            return new ValueTask<Cluster>(cluster);
+            return new ValueTask<ClusterConfig>(cluster);
         }
 
-        public ValueTask<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
+        public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, CancellationToken cancel)
         {
             // Do not let config based routes take priority over code based routes.
             // Lower numbers are higher priority. Code routes default to 0.
             if (route.Order.HasValue && route.Order.Value < 1)
             {
-                return new ValueTask<ProxyRoute>(route with { Order = 1 });
+                return new ValueTask<RouteConfig>(route with { Order = 1 });
             }
 
-            return new ValueTask<ProxyRoute>(route);
+            return new ValueTask<RouteConfig>(route);
         }
     }
 }

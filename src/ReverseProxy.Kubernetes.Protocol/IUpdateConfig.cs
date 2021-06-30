@@ -1,13 +1,10 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.ReverseProxy.Kubernetes.Protocol
 {
     public interface IUpdateConfig
     {
-        void Update(IReadOnlyList<ProxyRoute> routes, IReadOnlyList<Cluster> clusters);
+        void Update(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters);
     }
 }

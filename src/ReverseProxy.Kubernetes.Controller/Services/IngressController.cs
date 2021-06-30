@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using k8s;
 using k8s.Models;
 using Microsoft.Extensions.Hosting;
@@ -11,10 +15,6 @@ using Microsoft.Kubernetes.Controller.Informers;
 using Microsoft.Kubernetes.Controller.Queues;
 using Microsoft.Kubernetes.Controller.Rate;
 using Microsoft.Kubernetes.Controller.RateLimiters;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
 using Yarp.ReverseProxy.Kubernetes.Controller.Dispatching;
 

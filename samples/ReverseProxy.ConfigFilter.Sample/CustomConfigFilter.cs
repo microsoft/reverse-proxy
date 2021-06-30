@@ -6,8 +6,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Service;
+using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.Sample
 {
@@ -21,11 +20,11 @@ namespace Yarp.Sample
         //
         // This sample looks at the destination addresses and any of the form {{key}} will be modified, looking up the key
         // as an environment variable. This is useful when hosted in Azure etc, as it enables a simple way to replace
-        // destination addresses via the management console, without using crazy paths to try and poke values into config.
-        public ValueTask<Cluster> ConfigureClusterAsync(Cluster origCluster, CancellationToken cancel)
+        // destination addresses via the management console
+        public ValueTask<ClusterConfig> ConfigureClusterAsync(ClusterConfig origCluster, CancellationToken cancel)
         {
             // Each cluster has a dictionary of destinations, which is read-only, so we'll create a new one with our updates 
-            var newDests = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase);
+            var newDests = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var d in origCluster.Destinations)
             {
@@ -50,19 +49,19 @@ namespace Yarp.Sample
                     newDests.Add(d.Key, d.Value);
                 }
             }
-            return new ValueTask<Cluster>(origCluster with { Destinations = newDests });
+            return new ValueTask<ClusterConfig>(origCluster with { Destinations = newDests });
         }
 
-        public ValueTask<ProxyRoute> ConfigureRouteAsync(ProxyRoute route, CancellationToken cancel)
+        public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, CancellationToken cancel)
         {
             // Example: do not let config based routes take priority over code based routes.
             // Lower numbers are higher priority. Code routes default to 0.
             if (route.Order.HasValue && route.Order.Value < 1)
             {
-                return new ValueTask<ProxyRoute>(route with { Order = 1 });
+                return new ValueTask<RouteConfig>(route with { Order = 1 });
             }
 
-            return new ValueTask<ProxyRoute>(route);
+            return new ValueTask<RouteConfig>(route);
         }
     }
 }

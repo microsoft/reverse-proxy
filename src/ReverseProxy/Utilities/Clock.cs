@@ -11,6 +11,8 @@ namespace Yarp.ReverseProxy.Utilities
     {
         private readonly ValueStopwatch _stopwatch = ValueStopwatch.StartNew();
 
+        public DateTimeOffset GetUtcNow() => DateTimeOffset.UtcNow;
+
         public long TickCount => Environment.TickCount64;
 
         public Task Delay(TimeSpan delay, CancellationToken cancellationToken) =>
