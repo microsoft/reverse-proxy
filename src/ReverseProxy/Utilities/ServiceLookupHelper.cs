@@ -28,7 +28,7 @@ namespace Yarp.ReverseProxy.Utilities
             return result;
         }
 
-        public static T GetRequiredServiceById<T>(this IDictionary<string, T> services, string? id, string defaultId)
+        public static T GetRequiredServiceById<T>(this IDictionary<string, T> services, string id, string defaultId)
         {
             var lookup = id;
             if (string.IsNullOrEmpty(lookup))

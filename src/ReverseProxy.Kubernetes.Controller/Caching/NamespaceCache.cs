@@ -60,7 +60,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Caching
                 }
             }
 
-            var ingressName = ingress.Name();
+            string ingressName = ingress.Name();
             lock (_sync)
             {
                 var serviceNamesPrevious = ImmutableList<string>.Empty;
@@ -142,7 +142,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Caching
                 throw new ArgumentNullException(nameof(endpoints));
             }
 
-            var serviceName = endpoints.Name();
+            string serviceName = endpoints.Name();
             lock (_sync)
             {
                 if (eventType == WatchEventType.Added || eventType == WatchEventType.Modified)

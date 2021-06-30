@@ -176,9 +176,9 @@ namespace Yarp.ReverseProxy.ServiceFabric
         /// Get ID for all partitions of a service. If the partition do not fit in a page, one
         /// page of results is returned as well as a continuation token which can be used to get the next page. Let PartitionFilter to be null because we are getting all partition.
         /// </summary>
-        public async Task<IEnumerable<PartitionWrapper>> GetPartitionListAsync(Uri serviceName, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Guid>> GetPartitionListAsync(Uri serviceName, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var partitionList = new List<PartitionWrapper>();
+            var partitionList = new List<Guid>();
             ServicePartitionList previousResult = null;
 
             // Set up the counter that record the time lapse.
@@ -204,19 +204,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
 
                 foreach (var partition in previousResult)
                 {
-                    var partitionName = string.Empty;
-
-                    if (partition.PartitionInformation is NamedPartitionInformation namedPartition)
-                    {
-                        partitionName = namedPartition.Name;
-                    }
-
-                    partitionList.Add(
-                        new PartitionWrapper
-                        {
-                            Id = partition.PartitionInformation.Id,
-                            Name = partitionName
-                        });
+                    partitionList.Add(partition.PartitionInformation.Id);
                 }
             }
             while (!string.IsNullOrEmpty(previousResult?.ContinuationToken));

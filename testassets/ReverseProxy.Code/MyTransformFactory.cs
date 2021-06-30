@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using Yarp.ReverseProxy.Transforms;
-using Yarp.ReverseProxy.Transforms.Builder;
+using System.Threading.Tasks;
+using Yarp.ReverseProxy.Abstractions.Config;
 
 namespace Yarp.ReverseProxy.Sample
 {

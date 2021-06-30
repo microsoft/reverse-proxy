@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Abstractions;
 
 namespace Yarp.ReverseProxy.Kubernetes.Protocol
 {
@@ -24,9 +24,9 @@ namespace Yarp.ReverseProxy.Kubernetes.Protocol
         public string Key { get; set; }
 
 #pragma warning disable CA2227 // Collection properties should be read only
-        public List<RouteConfig> Routes { get; set; }
+        public List<ProxyRoute> Routes { get; set; }
 
-        public List<ClusterConfig> Cluster { get; set; }
+        public List<Cluster> Cluster { get; set; }
 #pragma warning restore CA2227 // Collection properties should be read only
     }
 }

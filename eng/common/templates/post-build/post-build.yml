@@ -117,7 +117,6 @@ stages:
             pipeline: $(AzDOPipelineId)
             buildId: $(AzDOBuildId)
             artifactName: PackageArtifacts
-            checkDownloadedFiles: true
 
         - task: PowerShell@2
           displayName: Validate
@@ -150,7 +149,6 @@ stages:
             pipeline: $(AzDOPipelineId)
             buildId: $(AzDOBuildId)
             artifactName: PackageArtifacts
-            checkDownloadedFiles: true
             itemPattern: |
               **
               !**/Microsoft.SourceBuild.Intermediate.*.nupkg
@@ -207,7 +205,6 @@ stages:
             pipeline: $(AzDOPipelineId)
             buildId: $(AzDOBuildId)
             artifactName: BlobArtifacts
-            checkDownloadedFiles: true
 
         - task: PowerShell@2
           displayName: Validate

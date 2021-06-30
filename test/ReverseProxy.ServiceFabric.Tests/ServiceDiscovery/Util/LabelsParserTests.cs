@@ -4,12 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Authentication;
+using System.Text;
 using FluentAssertions;
 using Xunit;
-using Yarp.ReverseProxy.Configuration;
-using Yarp.ReverseProxy.LoadBalancing;
-using Yarp.ReverseProxy.Forwarder;
-using Yarp.ReverseProxy.SessionAffinity;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions.ClusterDiscovery.Contract;
+using Yarp.ReverseProxy.Service.Proxy;
 
 namespace Yarp.ReverseProxy.ServiceFabric.Tests
 {
@@ -26,19 +26,11 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Backend.LoadBalancingPolicy", "LeastRequests" },
                 { "YARP.Backend.SessionAffinity.Enabled", "true" },
-                { "YARP.Backend.SessionAffinity.Policy", "Cookie" },
+                { "YARP.Backend.SessionAffinity.Mode", "Cookie" },
                 { "YARP.Backend.SessionAffinity.FailurePolicy", "Return503Error" },
-                { "YARP.Backend.SessionAffinity.AffinityKeyName", "Key1" },
-                { "YARP.Backend.SessionAffinity.Cookie.Domain", "localhost" },
-                { "YARP.Backend.SessionAffinity.Cookie.Expiration", "03:00:00" },
-                { "YARP.Backend.SessionAffinity.Cookie.HttpOnly", "true" },
-                { "YARP.Backend.SessionAffinity.Cookie.IsEssential", "true" },
-                { "YARP.Backend.SessionAffinity.Cookie.MaxAge", "1.00:00:00" },
-                { "YARP.Backend.SessionAffinity.Cookie.Path", "mypath" },
-                { "YARP.Backend.SessionAffinity.Cookie.SameSite", "Strict" },
-                { "YARP.Backend.SessionAffinity.Cookie.SecurePolicy", "SameAsRequest" },
+                { "YARP.Backend.SessionAffinity.Settings.ParameterA", "ValueA" },
+                { "YARP.Backend.SessionAffinity.Settings.ParameterB", "ValueB" },
                 { "YARP.Backend.HttpRequest.Timeout", "00:00:17" },
-                { "YARP.Backend.HttpRequest.AllowResponseBuffering", "true" },
                 { "YARP.Backend.HttpRequest.Version", "1.1" },
 #if NET
                 { "YARP.Backend.HttpRequest.VersionPolicy", "RequestVersionExact" },
@@ -68,40 +60,32 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
-            var expectedCluster = new ClusterConfig
+            var expectedCluster = new Cluster
             {
-                ClusterId = "MyCoolClusterId",
+                Id = "MyCoolClusterId",
                 LoadBalancingPolicy = LoadBalancingPolicies.LeastRequests,
-                SessionAffinity = new SessionAffinityConfig
+                SessionAffinity = new SessionAffinityOptions
                 {
                     Enabled = true,
-                    Policy = SessionAffinityConstants.Policies.Cookie,
-                    FailurePolicy = SessionAffinityConstants.FailurePolicies.Return503Error,
-                    AffinityKeyName = "Key1",
-                    Cookie = new SessionAffinityCookieConfig
+                    Mode = SessionAffinityConstants.Modes.Cookie,
+                    FailurePolicy = SessionAffinityConstants.AffinityFailurePolicies.Return503Error,
+                    Settings = new Dictionary<string, string>
                     {
-                        Domain = "localhost",
-                        Expiration = TimeSpan.FromHours(3),
-                        HttpOnly = true,
-                        IsEssential = true,
-                        MaxAge = TimeSpan.FromDays(1),
-                        Path = "mypath",
-                        SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
-                        SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest
+                        { "ParameterA", "ValueA" },
+                        { "ParameterB", "ValueB" }
                     }
                 },
-                HttpRequest = new ForwarderRequestConfig
+                HttpRequest = new RequestProxyOptions
                 {
                     Timeout = TimeSpan.FromSeconds(17),
                     Version = new Version(1, 1),
-                    AllowResponseBuffering = true,
 #if NET
                     VersionPolicy = System.Net.Http.HttpVersionPolicy.RequestVersionExact
 #endif
                 },
-                HealthCheck = new HealthCheckConfig
+                HealthCheck = new HealthCheckOptions
                 {
-                    Active = new ActiveHealthCheckConfig
+                    Active = new ActiveHealthCheckOptions
                     {
                         Enabled = true,
                         Interval = TimeSpan.FromSeconds(5),
@@ -109,7 +93,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                         Path = "/api/health",
                         Policy = "MyActiveHealthPolicy"
                     },
-                    Passive = new PassiveHealthCheckConfig
+                    Passive = new PassiveHealthCheckOptions
                     {
                         Enabled = true,
                         Policy = "MyPassiveHealthPolicy",
@@ -120,17 +104,17 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 {
                     { "Foo", "Bar" },
                 },
-                HttpClient = new HttpClientConfig
+                HttpClient = new ProxyHttpClientOptions
                 {
                     ActivityContextHeaders = ActivityContextHeaders.BaggageAndCorrelationContext,
                     DangerousAcceptAnyServerCertificate = true,
 #if NET
                     EnableMultipleHttp2Connections = false,
-                    RequestHeaderEncoding = "utf-8",
+                    RequestHeaderEncoding = Encoding.GetEncoding("utf-8"),
 #endif
                     MaxConnectionsPerServer = 1000,
                     SslProtocols = SslProtocols.Tls12,
-                    WebProxy = new WebProxyConfig
+                    WebProxy = new WebProxyOptions
                     {
                         Address = new Uri("https://10.20.30.40"),
                         BypassOnLocal = true,
@@ -147,29 +131,33 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Backend.SessionAffinity.AffinityKeyName", "Key1" }
             };
 
             var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
-            var expectedCluster = new ClusterConfig
+            var expectedCluster = new Cluster
             {
-                ClusterId = "MyCoolClusterId",
-                SessionAffinity = new SessionAffinityConfig
+                Id = "MyCoolClusterId",
+                SessionAffinity = new SessionAffinityOptions
                 {
-                    AffinityKeyName = "Key1",
-                    Cookie = new SessionAffinityCookieConfig()
+                    Enabled = false,
                 },
-                HttpRequest = new ForwarderRequestConfig(),
-                HealthCheck = new HealthCheckConfig
+                HttpRequest = new RequestProxyOptions(),
+                HealthCheck = new HealthCheckOptions
                 {
-                    Active = new ActiveHealthCheckConfig(),
-                    Passive = new PassiveHealthCheckConfig()
+                    Active = new ActiveHealthCheckOptions
+                    {
+                        Enabled = false,
+                    },
+                    Passive = new PassiveHealthCheckOptions
+                    {
+                        Enabled = false,
+                    }
                 },
                 Metadata = new Dictionary<string, string>(),
-                HttpClient = new HttpClientConfig
+                HttpClient = new ProxyHttpClientOptions
                 {
-                    WebProxy = new WebProxyConfig
+                    WebProxy = new WebProxyOptions
                     {
                     }
                 }
@@ -184,9 +172,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
         [InlineData("false", false)]
         [InlineData("False", false)]
         [InlineData("FALSE", false)]
-        [InlineData(null, null)]
-        [InlineData("", null)]
-        public void BuildCluster_HealthCheckOptions_Enabled_Valid(string label, bool? expected)
+        public void BuildCluster_HealthCheckOptions_Enabled_Valid(string label, bool expected)
         {
             var labels = new Dictionary<string, string>()
             {
@@ -200,8 +186,8 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
         }
 
         [Theory]
-        [InlineData("notbool")]
-        [InlineData(" ")]
+        [InlineData(null)]
+        [InlineData("")]
         public void BuildCluster_HealthCheckOptions_Enabled_Invalid(string label)
         {
             var labels = new Dictionary<string, string>()
@@ -229,7 +215,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
-            cluster.ClusterId.Should().Be(_testServiceName.ToString());
+            cluster.Id.Should().Be(_testServiceName.ToString());
         }
 
         [Theory]
@@ -258,7 +244,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 { key, invalidValue },
             };
 
-            Func<ClusterConfig> func = () => LabelsParser.BuildCluster(_testServiceName, labels, null);
+            Func<Cluster> func = () => LabelsParser.BuildCluster(_testServiceName, labels, null);
 
             func.Should().Throw<ConfigException>().WithMessage($"Could not convert label {key}='{invalidValue}' *");
         }
@@ -289,9 +275,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<RouteConfig>
+            var expectedRoutes = new List<ProxyRoute>
             {
-                new RouteConfig
+                new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
                     Match = new RouteMatch
@@ -352,9 +338,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<RouteConfig>
+            var expectedRoutes = new List<ProxyRoute>
             {
-                new RouteConfig
+                new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
                     Match = new RouteMatch
@@ -382,9 +368,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<RouteConfig>
+            var expectedRoutes = new List<ProxyRoute>
             {
-                new RouteConfig
+                new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
                     Match = new RouteMatch
@@ -416,9 +402,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<RouteConfig>
+            var expectedRoutes = new List<ProxyRoute>
             {
-                new RouteConfig
+                new ProxyRoute
                 {
                     RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
                     Match = new RouteMatch
@@ -443,9 +429,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<RouteConfig>
+            var expectedRoutes = new List<ProxyRoute>
             {
-                new RouteConfig
+                new ProxyRoute
                 {
                     RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
                     Match = new RouteMatch
@@ -469,7 +455,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Routes.MyRoute.Order", "this is no number" },
             };
 
-            Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
             func.Should()
                 .Throw<ConfigException>()
@@ -493,9 +479,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<RouteConfig>
+            var expectedRoutes = new List<ProxyRoute>
             {
-                new RouteConfig
+                new ProxyRoute
                 {
                     RouteId = $"MyCoolClusterId:{routeName}",
                     Match = new RouteMatch
@@ -531,7 +517,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             };
             labels[invalidKey] = value;
 
-            Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
             func.Should()
                 .Throw<ConfigException>()
@@ -553,7 +539,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             };
             labels[invalidKey] = value;
 
-            Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
             func.Should()
                 .Throw<ConfigException>()
@@ -577,7 +563,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             labels[invalidKey] = value;
 
             // Act
-            Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
             // Assert
             func.Should()
@@ -600,7 +586,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
             labels[invalidKey] = value;
 
             // Act
-            Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+            Func<List<ProxyRoute>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
             // Assert
             func.Should()
@@ -625,9 +611,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<RouteConfig>
+            var expectedRoutes = new List<ProxyRoute>
             {
-                new RouteConfig
+                new ProxyRoute
                 {
                     RouteId = $"MyCoolClusterId:MyRoute0",
                     Match = new RouteMatch
@@ -675,9 +661,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<RouteConfig>
+            var expectedRoutes = new List<ProxyRoute>
             {
-                new RouteConfig
+                new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
                     Match = new RouteMatch
@@ -713,9 +699,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
 
             var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<RouteConfig>
+            var expectedRoutes = new List<ProxyRoute>
             {
-                new RouteConfig
+                new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:MyRoute",
                     Match = new RouteMatch
@@ -727,7 +713,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string> { { "Foo", "Bar" } },
                 },
-                new RouteConfig
+                new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:CoolRoute",
                     Match = new RouteMatch
@@ -738,7 +724,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     ClusterId = "MyCoolClusterId",
                     Metadata = new Dictionary<string, string>(),
                 },
-                new RouteConfig
+                new ProxyRoute
                 {
                     RouteId = "MyCoolClusterId:EvenCoolerRoute",
                     Match = new RouteMatch

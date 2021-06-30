@@ -8,7 +8,7 @@ namespace Yarp.ReverseProxy.Utilities
 {
     internal static class CaseInsensitiveEqualHelper
     {
-        internal static bool Equals(IReadOnlyList<string>? list1, IReadOnlyList<string>? list2)
+        internal static bool Equals(IReadOnlyList<string> list1, IReadOnlyList<string> list2)
         {
             if (ReferenceEquals(list1, list2))
             {
@@ -36,7 +36,7 @@ namespace Yarp.ReverseProxy.Utilities
             return true;
         }
 
-        internal static bool Equals(IReadOnlyList<IReadOnlyDictionary<string, string>>? dictionaryList1, IReadOnlyList<IReadOnlyDictionary<string, string>>? dictionaryList2)
+        internal static bool Equals(IReadOnlyList<IReadOnlyDictionary<string, string>> dictionaryList1, IReadOnlyList<IReadOnlyDictionary<string, string>> dictionaryList2)
         {
             if (ReferenceEquals(dictionaryList1, dictionaryList2))
             {
@@ -64,7 +64,7 @@ namespace Yarp.ReverseProxy.Utilities
             return true;
         }
 
-        internal static bool Equals(IReadOnlyDictionary<string, string>? dictionary1, IReadOnlyDictionary<string, string>? dictionary2)
+        internal static bool Equals(IReadOnlyDictionary<string, string> dictionary1, IReadOnlyDictionary<string, string> dictionary2)
         {
             return Equals(dictionary1, dictionary2, StringEquals);
         }
@@ -74,7 +74,7 @@ namespace Yarp.ReverseProxy.Utilities
             return string.Equals(value1, value2, StringComparison.OrdinalIgnoreCase);
         }
 
-        internal static bool Equals<T>(IReadOnlyDictionary<string, T>? dictionary1, IReadOnlyDictionary<string, T>? dictionary2, Func<T, T, bool> comparer)
+        internal static bool Equals<T>(IReadOnlyDictionary<string, T> dictionary1, IReadOnlyDictionary<string, T> dictionary2, Func<T, T, bool> comparer)
         {
             if (ReferenceEquals(dictionary1, dictionary2))
             {
@@ -114,13 +114,8 @@ namespace Yarp.ReverseProxy.Utilities
             return true;
         }
 
-        internal static int GetHashCode(IReadOnlyList<string>? values)
+        internal static int GetHashCode(IReadOnlyList<string> values)
         {
-            if (values is null)
-            {
-                return 0;
-            }
-
             var hashCode = new HashCode();
             foreach (var value in values)
             {

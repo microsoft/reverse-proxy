@@ -2,7 +2,7 @@
 
 This document provides a guide on how to release a preview of YARP.
 
-To keep track of the process, open a [release checklist issue](https://github.com/microsoft/reverse-proxy/issues/new?title=Preview%20X%20release%20checklist&body=See%20%5BRelease.md%5D%28https%3A%2F%2Fgithub.com%2Fmicrosoft%2Freverse-proxy%2Fblob%2Fmain%2Fdocs%2Foperations%2FRelease.md%29%20for%20detailed%20instructions.%0A%0A-%20%5B%20%5D%20Ensure%20there%27s%20a%20release%20branch%20created%20%28see%20%5BBranching%5D%28https%3A%2F%2Fgithub.com%2Fmicrosoft%2Freverse-proxy%2Fblob%2Fmain%2Fdocs%2Foperations%2FBranching.md%29%29%0A-%20%5B%20%5D%20Ensure%20the%20%60Version.props%60%20has%20the%20%60PreReleaseVersionLabel%60%20updated%20to%20the%20next%20preview%0A-%20%5B%20%5D%20Identify%20and%20validate%20the%20build%20on%20the%20%60microsoft-reverse-proxy-official%60%20pipeline%0A-%20%5B%20%5D%20Release%20the%20build%0A-%20%5B%20%5D%20Tag%20the%20commit%0A-%20%5B%20%5D%20Draft%20release%20notes%0A-%20%5B%20%5D%20Update%20samples%20to%20use%20updated%20package%20versions%0A-%20%5B%20%5D%20Publish%20the%20docs%0A-%20%5B%20%5D%20Publish%20release%20notes%0A-%20%5B%20%5D%20Close%20the%20%5Bold%20milestone%5D%28https%3A%2F%2Fgithub.com%2Fmicrosoft%2Freverse-proxy%2Fmilestones%29%0A-%20%5B%20%5D%20Announce%20on%20social%20media%0A-%20%5B%20%5D%20Set%20the%20preview%20branch%20to%20protected%0A-%20%5B%20%5D%20Delete%20the%20%5Bprevious%20preview%20branch%5D%28https%3A%2F%2Fgithub.com%2Fmicrosoft%2Freverse-proxy%2Fbranches%29).
+To keep track of the process, open a [release checklist issue](https://github.com/microsoft/reverse-proxy/issues/new?title=Preview%20X%20release%20checklist&body=-%20%5B%20%5D%20Ensure%20there%27s%20a%20release%20branch%20created%20%28see%20%5BBranching%5D%28https%3A%2F%2Fgithub.com%2Fmicrosoft%2Freverse-proxy%2Fblob%2Fmain%2Fdocs%2Foperations%2FBranching.md%29%29%0A-%20%5B%20%5D%20Ensure%20the%20%60Version.props%60%20has%20the%20%60PreReleaseVersionLabel%60%20updated%20to%20the%20next%20preview%0A-%20%5B%20%5D%20Identify%20and%20validate%20the%20build%20on%20the%20%60microsoft-reverse-proxy-official%60%20pipeline%0A-%20%5B%20%5D%20Release%20the%20build%0A-%20%5B%20%5D%20Tag%20the%20commit%0A-%20%5B%20%5D%20Draft%20release%20notes%0A-%20%5B%20%5D%20Publish%20the%20docs%0A-%20%5B%20%5D%20Publish%20release%20notes%0A-%20%5B%20%5D%20Close%20the%20%5Bold%20milestone%5D%28https%3A%2F%2Fgithub.com%2Fmicrosoft%2Freverse-proxy%2Fmilestones%29%0A-%20%5B%20%5D%20Announce%20on%20social%20media%0A-%20%5B%20%5D%20Set%20the%20preview%20branch%20to%20protected%0A-%20%5B%20%5D%20Delete%20the%20%5Bprevious%20preview%20branch%5D%28https%3A%2F%2Fgithub.com%2Fmicrosoft%2Freverse-proxy%2Fbranches%29).
 
 ## Ensure there's a release branch created.
 
@@ -83,11 +83,9 @@ Push the tag change to the upstream repo (**not your fork**)
 
 Create a draft release at https://github.com/microsoft/reverse-proxy/releases using the new tag. See prior releases for the recommended content and format.
 
-## Update samples to use updated package version
-
-Projects in the **samples** folder use `PackageReference` on the release branch and `ProjectReference` on the main branch.
-
-Update all project files in the samples folder on the release branch to use `PackageReference` with the newly-released version. Make sure the samples are buildable after this change.
+## Update references to the package version
+Some samples may include the package version as part of the references in the project file, which makes it easier to clone and run. Those should be updated to the new package version that has just been published. Locations include:
+1. [BasicYarpSample.csproj](../../samples/BasicYarpSample/BasicYarpSample.csproj)
 
 ## Publish the docs
 
@@ -112,38 +110,6 @@ This is to avoid accidental pushes to/deletions of the preview branch.
 ## Delete the previous preview branch
 
 There should only be one [preview branch on the repo](https://github.com/microsoft/reverse-proxy/branches) after this point.
-
-## Request source code archival
-1. Go to the internal https://aka.ms/dpsrequestforms portal
-2. Switch to "Source Code Archival Request Page"
-3. Proceed through steps 1,2 till the step 3 (all prerequisites are already fulfilled)
-4. Fill in the required fields on the steps 3, 4, 5. Please, see the recommended values below.
-5. At the last step, check all the info and and submit the request
-6. Go to "My Request" tab and wait for a new ticket to appear on the list
-7. Copy the ticket link from "Ticket ID" column which will look like `https://prod.******`
-8. Replace the `prod` word to `portal`
-9. Navigate to the fixed link and check that the ticket is actually created
-10. That's all the actions needed to be done immediately. Afterwards, periodically track the ticket progress. It might take many hours.
-11. [Offline] Wait for the archival completion report to arrive. Check that the size and number of archived files match the YARP repo.
-
-### Recommended fields' values for archival request form
-| Field | Value |
-| --- | --- |
-| Team Alias | dotnetrp |
-| Business Group Name | Devdiv |
-| Product Name | YARP |
-| Version | \<release version\> |
-| Production Type | dotNET |
-| Release Type | \<RC or Release\> |
-| Operating System(s) | Cross Platform |
-| Product Language(s) | English |
-| Release Date | \<release date\> |
-| File Count | \<rough number of files in repo\> |
-| Back Up Type | Code Repo(Git URL/AzureDevOps) |
-| Repo URL | \<link to the internal AzDo YARP repo\> |
-| OwnerAlias | dotnetrp |
-| File Collection | Build Scripts, Help Utility Source Code, Source Code |
-| Data Size | \<rough total files size in MB\> |
 
 ## Troubleshooting
 

@@ -1,28 +1,25 @@
 #ReverseProxy.Metrics.Sample
 
-This sample demonstrates how to use the ReverseProxy.Telemetry.Consumption library to listen to telemetry data from YARP.
-In this case it uses the events to create a per-request data structure with detailed timings for each operation that takes place as part of the proxy operation.
+This sample demonstrates how to use the ReverseProxy.Telemetry.Consumption library to listen to telemetry data from YARP. In this case it uses the events to create a per-request data structure with detailed timings for each operation that takes place as part of the proxy operation.
 
-Internally YARP uses EventSource to collect telemetry events and metrics from a number of subsystems that are used to process the requests.
-The YARP telemetry library provides wrapper classes that collect these events metrics and make them available for Consumption.
-To listen for the metrics you register classes with DI that implement an interface for each subsystem.
+Internally YARP uses EventSource to collect telemetry events and metrics from a number of subsystems that are used to process the requests. The YARP telemetry library provides wrapper classes that collect these events metrics and make them available for Consumption. To listen for the metrics you register classes with DI that implement an interface for each subsystem. Event/metric listeners will only be created for the subsystems that you register for, as each registration has performance implications.
 
 The subsystems are:
 - **Proxy** which represents the overall proxy operation, and success or failure. 
 
   Events include:
-    - When proxy requests are started and stopped
-    - When request/response bodies are processed
+    - When the proxy request is started and stopped
+    - When the request/response bodies have been processed
 
   Metrics include:
     - Number of requests started
     - Number of request in flight
     - Number of requests that have failed
 
-- **Kestrel** which is the web server that handles incoming requests.
+- **Kestrel** which is the web server that handles incomming requests. 
 
   Events include:
-    - When requests are started/stopped or fail
+    - When a request is started and stopped
     
   Metrics include:
     - Connection Rate - how many connections are opened a second
@@ -33,10 +30,10 @@ The subsystems are:
 - **Http** which is the HttpClient which makes outgoing requests to the destination servers. 
 
   Events include:
-    - When connections are created
-    - When requests are started/stopped or fail
-    - When headers/contents are sent/received
-    - When requests are dequeued as connections become available
+    - When Http connections are created
+    - When Http requests are queued and dequeued due to a lack of available connections
+    - When Headers are processed
+    - When Content starts being transferred. Stop events are not provided for content as it is async and completion is dependent on the consuming code.
 
   Metrics include:
     - Number of outgoing requests started
@@ -44,11 +41,8 @@ The subsystems are:
     - Number of active requests
     - Number of outbound connections
 
-- **Sockets** which includes events around connection attempts & metrics about the amount of data sent and received
-
-- **NameResolution** which includes events around name resolution attempts & metrics about DNS lookups of destinations
-
-- **NetSecurity** which includes events around SslStream handshakes & metrics about the number and latency of handshakes per protocol
+- **Sockets** which collects metrics about the amount of data sent and received
+- **NameResolution** which collects metrics for DNS lookup of destinations
 
 ## Key Files
 

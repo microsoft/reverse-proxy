@@ -4,7 +4,7 @@
 using System;
 using Xunit;
 
-namespace Yarp.ReverseProxy.Utilities.Tests
+namespace Yarp.ReverseProxy.Utilities
 {
     public class ThreadStaticRandomTests
     {

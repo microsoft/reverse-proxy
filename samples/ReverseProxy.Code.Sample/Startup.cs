@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Yarp.ReverseProxy.Configuration;
-using Yarp.ReverseProxy.Model;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Middleware;
+using Yarp.ReverseProxy.RuntimeModel;
 
 
 namespace Yarp.Sample
@@ -53,11 +54,11 @@ namespace Yarp.Sample
             });
         }
 
-        private RouteConfig[] GetRoutes()
+        private ProxyRoute[] GetRoutes()
         {
             return new[]
             {
-                new RouteConfig()
+                new ProxyRoute()
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
@@ -69,21 +70,21 @@ namespace Yarp.Sample
                 }
             };
         }
-        private ClusterConfig[] GetClusters()
+        private Cluster[] GetClusters()
         {
             var debugMetadata = new Dictionary<string, string>();
             debugMetadata.Add(DEBUG_METADATA_KEY, DEBUG_VALUE);
 
             return new[]
             {
-                new ClusterConfig()
+                new Cluster()
                 {
-                    ClusterId = "cluster1",
-                    SessionAffinity = new SessionAffinityConfig { Enabled = true, Policy = "Cookie", AffinityKeyName = ".Yarp.ReverseProxy.Affinity" },
-                    Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+                    Id = "cluster1",
+                    SessionAffinity = new SessionAffinityOptions { Enabled = true, Mode = "Cookie" },
+                    Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                     {
-                        { "destination1", new DestinationConfig() { Address = "https://example.com" } },
-                        { "debugdestination1", new DestinationConfig() {
+                        { "destination1", new Destination() { Address = "https://example.com" } },
+                        { "debugdestination1", new Destination() {
                             Address = "https://bing.com",
                             Metadata = debugMetadata  }
                         },
@@ -104,7 +105,7 @@ namespace Yarp.Sample
 
             // The context also stores a ReverseProxyFeature which holds proxy specific data such as the cluster, route and destinations
             var availableDestinationsFeature = context.Features.Get<IReverseProxyFeature>();
-            var filteredDestinations = new List<DestinationState>();
+            var filteredDestinations = new List<DestinationInfo>();
 
             // Filter destinations based on criteria
             foreach (var d in availableDestinationsFeature.AvailableDestinations)

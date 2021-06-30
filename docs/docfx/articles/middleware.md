@@ -2,10 +2,10 @@
 
 ## Introduction
 
-ASP.NET Core uses a [middleware pipeline](https://docs.microsoft.com/aspnet/core/fundamentals/middleware/) to divide request processing into discrete steps. The app developer can add and order middleware as needed. ASP.NET Core middleware is also used to implement and customize reverse proxy functionality.
+ASP.NET Core uses a [middleware pipeline](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/) to divide request processing into discrete steps. The app developer can add and order middleware as needed. ASP.NET Core middleware is also used to implement and customize reverse proxy functionality.
 
 ## Defaults
-The [getting started](getting-started.md) sample shows the following Configure method. This sets up a middleware pipeline with development tools, routing, and proxy configured endpoints (`MapReverseProxy`).
+The [getting started](getting_started.md) sample shows the following Configure method. This sets up a middleware pipeline with development tools, routing, and proxy configured endpoints (`MapReverseProxy`).
 
 ```C#
 public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -25,7 +25,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 } 
 ```
 
-The parmeterless [MapReverseProxy](xref:Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions.MapReverseProxy) overload includes all standard proxy middleware for [session affinity](session-affinity.md), [load balancing](load-balancing.md), [passive health checks](dests-health-checks.md), and the final proxying of the request. Each of these check the configuration of the matched route, cluster, and destination and perform their task accordingly.
+The parmeterless [MapReverseProxy](xref:Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions.MapReverseProxy) overload includes all standard proxy middleware for [session affinity](session-affinity.md), [load balancing](load-balancing.md), [passive health checks](dest-health-checks.md), and the final proxying of the request. Each of these check the configuration of the matched route, cluster, and destination and perform their task accordingly.
 
 ## Adding Middleware
 
@@ -52,15 +52,15 @@ By default this overload of `MapReverseProxy` only includes the minimal setup an
 
 ## Custom Proxy Middleware
 
-Middlware inside the `MapReverseProxy` pipeline have access to all of the proxy data and state associated with a request (the route, cluster, destinations, etc.) through the [IReverseProxyFeature](xref:Yarp.ReverseProxy.Model.IReverseProxyFeature). This is available from `HttpContext.Features` or the extension method `HttpContext.GetReverseProxyFeature()`.
+Middlware inside the `MapReverseProxy` pipeline have access to all of the proxy data and state associated with a request (the route, cluster, destinations, etc.) through the [IReverseProxyFeature](xref:Yarp.ReverseProxy.Middleware.IReverseProxyFeature). This is available from `HttpContext.Features` or the extension method `HttpContext.GetRequiredProxyFeature()`.
 
 The data in `IReverseProxyFeature` are snapshotted from the proxy configuration at the start of the proxy pipeline and will not be affected by proxy configuration changes that occur while the request is being processed.
 
 ```C#
 proxyPipeline.Use((context, next) =>
 {
-    var proxyFeature = context.GetReverseProxyFeature();
-    var cluster = proxyFeature.Cluster;
+    var proxyFeature = context.GetRequiredProxyFeature();
+    var cluster = proxyFeature.ClusterSnapshot;
     var destinations = proxyFeature.AvailableDestinations;
 
     return next();
@@ -114,7 +114,7 @@ Middleware like session affinity and load balancing examine the `IReverseProxyFe
 ```C#
 proxyPipeline.Use(async (context, next) =>
 {
-    var proxyFeature = context.GetReverseProxyFeature();
+    var proxyFeature = context.GetRequiredProxyFeature();
     proxyFeature.AvailableDestinations = Filter(proxyFeature.AvailableDestinations);
 
     await next();
@@ -123,20 +123,20 @@ proxyPipeline.Use(async (context, next) =>
 });
 ```
 
-`DestinationState` implements `IReadOnlyList<DestinationState>` so a single destination can be assigned to `AvailableDestinations` without creating a new list.
+`DestinationInfo` implements `IReadOnlyList<DestinationInfo>` so a single destination can be assigned to `AvailableDestinations` without creating a new list.
 
 ### Error handling
 
 Middleware can wrap the call to `await next()` in a try/catch block to handle exceptions from later components.
 
-The proxy logic at the end of the pipeline ([IHttpForwarder](direct-forwarding.md)) does not throw exceptions for common request proxy errors. These are captured and reported in the [IForwarderErrorFeature](xref:Yarp.ReverseProxy.Forwarder.IForwarderErrorFeature) available from `HttpContext.Features` or the `HttpContext.GetForwarderErrorFeature()` extension method.
+The proxy logic at the end of the pipeline ([IHttpProxy](direct-proxying.md)) does not throw exceptions for common request proxy errors. These are captured and reported in the [IProxyErrorFeature](xref:Yarp.ReverseProxy.Service.Proxy.IProxyErrorFeature) available from `HttpContext.Features` or the `HttpContext.GetProxyErrorFeature()` extension method.
 
 ```C#
 proxyPipeline.Use(async (context, next) =>
 {
     await next();
 
-    var errorFeature = context.GetForwarderErrorFeature();
+    var errorFeature = context.GetProxyErrorFeature();
     if (errorFeature != null)
     {
         Report(errorFeature.Error, errorFeature.Exception);

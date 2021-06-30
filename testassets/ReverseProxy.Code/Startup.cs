@@ -7,10 +7,10 @@ using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Yarp.ReverseProxy.Configuration;
-using Yarp.ReverseProxy.Model;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Abstractions.Config;
+using Yarp.ReverseProxy.Middleware;
 using Yarp.ReverseProxy.Telemetry.Consumption;
-using Yarp.ReverseProxy.Transforms;
 
 namespace Yarp.ReverseProxy.Sample
 {
@@ -27,7 +27,7 @@ namespace Yarp.ReverseProxy.Sample
             services.AddControllers();
             var routes = new[]
             {
-                new RouteConfig()
+                new ProxyRoute()
                 {
                     RouteId = "route1",
                     ClusterId = "cluster1",
@@ -39,13 +39,13 @@ namespace Yarp.ReverseProxy.Sample
             };
             var clusters = new[]
             {
-                new ClusterConfig()
+                new Cluster()
                 {
-                    ClusterId = "cluster1",
-                    SessionAffinity = new SessionAffinityConfig { Enabled = true, Policy = "Cookie", AffinityKeyName = ".Yarp.ReverseProxy.Affinity" },
-                    Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+                    Id = "cluster1",
+                    SessionAffinity = new SessionAffinityOptions { Enabled = true, Mode = "Cookie" },
+                    Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
                     {
-                        { "destination1", new DestinationConfig() { Address = "https://localhost:10000" } }
+                        { "destination1", new Destination() { Address = "https://localhost:10000" } }
                     }
                 }
             };
@@ -92,8 +92,8 @@ namespace Yarp.ReverseProxy.Sample
                 });
 
             services.AddHttpContextAccessor();
-            services.AddSingleton<IForwarderMetricsConsumer, ForwarderMetricsConsumer>();
-            services.AddTelemetryConsumer<ForwarderTelemetryConsumer>();
+            services.AddSingleton<IProxyMetricsConsumer, ProxyMetricsConsumer>();
+            services.AddScoped<IProxyTelemetryConsumer, ProxyTelemetryConsumer>();
             services.AddTelemetryListeners();
         }
 

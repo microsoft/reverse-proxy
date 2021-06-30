@@ -4,7 +4,7 @@
 using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Service;
 
 namespace Yarp.ReverseProxy.ServiceFabric
 {

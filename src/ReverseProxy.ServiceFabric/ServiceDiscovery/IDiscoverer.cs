@@ -4,19 +4,19 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Abstractions;
 
 namespace Yarp.ReverseProxy.ServiceFabric
 {
     /// <summary>
     /// Discovers Service Fabric services and builds the corresponding
-    /// <see cref="RouteConfig"/> and <see cref="ClusterConfig"/> instances that represent them.
+    /// <see cref="ProxyRoute"/> and <see cref="Cluster"/> instances that represent them.
     /// </summary>
     internal interface IDiscoverer
     {
         /// <summary>
         /// Execute the discovery and update entities.
         /// </summary>
-        Task<(IReadOnlyList<RouteConfig> Routes, IReadOnlyList<ClusterConfig> Clusters)> DiscoverAsync(CancellationToken cancellation);
+        Task<(IReadOnlyList<ProxyRoute> Routes, IReadOnlyList<Cluster> Clusters)> DiscoverAsync(CancellationToken cancellation);
     }
 }

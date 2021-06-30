@@ -41,7 +41,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
         /// <summary>
         /// Get details for all partitions of a service.
         /// </summary>
-        Task<IEnumerable<PartitionWrapper>> GetPartitionListAsync(Uri serviceName, TimeSpan timeout, CancellationToken cancellationToken);
+        Task<IEnumerable<Guid>> GetPartitionListAsync(Uri serviceName, TimeSpan timeout, CancellationToken cancellationToken);
 
         /// <summary>
         /// Get all the replicas for a specific partition.

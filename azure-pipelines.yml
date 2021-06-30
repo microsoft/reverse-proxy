@@ -14,7 +14,7 @@ variables:
 
     # used for post-build phases, internal builds only
   - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-    - group: YARP-SDLValidation-Params
+    - group: DotNet-AspNet-SDLValidation-Params
 
 # CI and PR triggers
 trigger:
@@ -96,9 +96,10 @@ stages:
             artifactType: Container
             parallel: true
 
-      - job: Ubuntu
+      - job: Ubuntu_16_04
+        displayName: 'Ubuntu 16.04'
         pool:
-          vmImage: ubuntu-latest
+          vmImage: ubuntu-16.04
         variables:
         - name: _SignType
           value: none
@@ -163,7 +164,6 @@ stages:
 - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
   - template: eng\common\templates\post-build\post-build.yml
     parameters:
-      publishingInfraVersion: 3
       # Symbol validation isn't being very reliable lately. This should be enabled back
       # once this issue is resolved: https://github.com/dotnet/arcade/issues/2871
       enableSymbolValidation: false

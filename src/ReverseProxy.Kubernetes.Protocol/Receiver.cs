@@ -1,17 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
-using System.Net.Http;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Kubernetes.Controller.Hosting;
 using Microsoft.Kubernetes.Controller.Rate;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Service;
+using Yarp.ReverseProxy.Kubernetes.Protocol;
 
 namespace Yarp.ReverseProxy.Kubernetes.Protocol
 {
@@ -52,7 +58,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Protocol
 
                 try
                 {
-#if NET
+#if NET5_0
                     using var stream = await client.GetStreamAsync(_options.ControllerUrl, cancellationToken).ConfigureAwait(false);
 #else
                     using var stream = await client.GetStreamAsync(_options.ControllerUrl).ConfigureAwait(false);
