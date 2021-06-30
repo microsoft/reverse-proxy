@@ -10,7 +10,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
     /// </summary>
     public interface IKestrelTelemetryConsumer
     {
-#if NET5_0
+#if NET
         /// <summary>
         /// Called at the start of a request.
         /// </summary>

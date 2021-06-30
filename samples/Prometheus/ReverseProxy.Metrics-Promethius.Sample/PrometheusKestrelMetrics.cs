@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if NET5_0_OR_GREATER
+#if NET
 
 using System;
 using Yarp.ReverseProxy.Telemetry.Consumption;

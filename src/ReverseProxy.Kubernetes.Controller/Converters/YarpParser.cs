@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using k8s.Models;
-using Yarp.ReverseProxy.Abstractions;
+using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
 using Yarp.ReverseProxy.Kubernetes.Controller.Services;
-using static Yarp.ReverseProxy.Kubernetes.Controller.Services.Reconciler;
 
 namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
 {
@@ -38,10 +37,10 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
         {
             foreach (var cluster in context.ClusterTransfers)
             {
-                context.Clusters.Add(new Cluster()
+                context.Clusters.Add(new ClusterConfig()
                 {
                     Destinations = cluster.Value.Destinations,
-                    Id = cluster.Value.ClusterId
+                    ClusterId = cluster.Value.ClusterId
                 });
             }
         }
@@ -78,7 +77,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
 
                     if (!clusters.ContainsKey(key))
                     {
-                        clusters.Add(key, new ClusterTrasfer());
+                        clusters.Add(key, new ClusterTransfer());
                     }
                     var cluster = clusters[key];
                     cluster.ClusterId = key;
@@ -94,7 +93,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
 
                         var protocol = context.Options.Https ? "https" : "http";
                         var uri = $"{protocol}://{address.Ip}:{port.Port}";
-                        cluster.Destinations[uri] = new Destination()
+                        cluster.Destinations[uri] = new DestinationConfig()
                         {
                             Address = uri
                         };
@@ -102,7 +101,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
                         var pathMatch = FixupPathMatch(path);
                         var host = rule.Host;
 
-                        routes.Add(new ProxyRoute()
+                        routes.Add(new RouteConfig()
                         {
                             Match = new RouteMatch()
                             {

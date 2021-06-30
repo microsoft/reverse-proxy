@@ -4,14 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Authentication;
-using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
-using Yarp.ReverseProxy.Abstractions;
-using Yarp.ReverseProxy.Service.Proxy;
+using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.ServiceFabric
 {
@@ -48,6 +49,21 @@ namespace Yarp.ReverseProxy.ServiceFabric
             }
         }
 
+        internal static TimeSpan? GetTimeSpanLabel(Dictionary<string, string> labels, string key, TimeSpan? defaultValue)
+        {
+            if (!labels.TryGetValue(key, out var value) || string.IsNullOrEmpty(value))
+            {
+                return defaultValue;
+            }
+            // Format "c" => [-][d'.']hh':'mm':'ss['.'fffffff]. 
+            // You also can find more info at https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-timespan-format-strings#the-constant-c-format-specifier
+            if (!TimeSpan.TryParseExact(value, "c", CultureInfo.InvariantCulture, out var result))
+            {
+                throw new ConfigException($"Could not convert label {key}='{value}' to type TimeSpan. Use the format '[d.]hh:mm:ss'.");
+            }
+            return result;
+        }
+
         private static TValue ConvertLabelValue<TValue>(string key, string value)
         {
             try
@@ -61,7 +77,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
         }
 
         // TODO: optimize this method
-        internal static List<ProxyRoute> BuildRoutes(Uri serviceName, Dictionary<string, string> labels)
+        internal static List<RouteConfig> BuildRoutes(Uri serviceName, Dictionary<string, string> labels)
         {
             var backendId = GetClusterId(serviceName, labels);
 
@@ -94,7 +110,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
             }
 
             // Build the routes
-            var routes = new List<ProxyRoute>(routesNames.Count);
+            var routes = new List<RouteConfig>(routesNames.Count);
             foreach (var routeNamePair in routesNames)
             {
                 string hosts = null;
@@ -148,7 +164,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                         }
                         else if (propertyName.Equals("Values", StringComparison.Ordinal))
                         {
-#if NET5_0
+#if NET
                             headerMatches[headerIndex].Values = kvp.Value.Split(',', StringSplitOptions.TrimEntries);
 #elif NETCOREAPP3_1
                             headerMatches[headerIndex].Values = kvp.Value.Split(',').Select(val => val.Trim()).ToList();
@@ -210,7 +226,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                     }
                 }
 
-                var route = new ProxyRoute
+                var route = new RouteConfig
                 {
                     RouteId = $"{Uri.EscapeDataString(backendId)}:{Uri.EscapeDataString(routeNamePair.Value)}",
                     Match = new RouteMatch
@@ -236,26 +252,15 @@ namespace Yarp.ReverseProxy.ServiceFabric
             return routes;
         }
 
-        internal static Cluster BuildCluster(Uri serviceName, Dictionary<string, string> labels, IReadOnlyDictionary<string, Destination> destinations)
+        internal static ClusterConfig BuildCluster(Uri serviceName, Dictionary<string, string> labels, IReadOnlyDictionary<string, DestinationConfig> destinations)
         {
             var clusterMetadata = new Dictionary<string, string>();
-            Dictionary<string, string> sessionAffinitySettings = null;
             const string BackendMetadataKeyPrefix = "YARP.Backend.Metadata.";
-            const string SessionAffinitySettingsKeyPrefix = "YARP.Backend.SessionAffinity.Settings.";
             foreach (var item in labels)
             {
                 if (item.Key.StartsWith(BackendMetadataKeyPrefix, StringComparison.Ordinal))
                 {
                     clusterMetadata[item.Key.Substring(BackendMetadataKeyPrefix.Length)] = item.Value;
-                }
-                else if (item.Key.StartsWith(SessionAffinitySettingsKeyPrefix, StringComparison.Ordinal))
-                {
-                    if (sessionAffinitySettings == null)
-                    {
-                        sessionAffinitySettings = new Dictionary<string, string>();
-                    }
-
-                    sessionAffinitySettings[item.Key.Substring(SessionAffinitySettingsKeyPrefix.Length)] = item.Value;
                 }
             }
 
@@ -268,46 +273,58 @@ namespace Yarp.ReverseProxy.ServiceFabric
 
 #if NET
             var versionPolicyLabel = GetLabel<string>(labels, "YARP.Backend.HttpRequest.VersionPolicy", null);
-            var requestHeaderEncodingLabel = GetLabel<string>(labels, "YARP.Backend.HttpClient.RequestHeaderEncoding", null);
 #endif
 
-            var cluster = new Cluster
+            var cluster = new ClusterConfig
             {
-                Id = clusterId,
+                ClusterId = clusterId,
                 LoadBalancingPolicy = GetLabel<string>(labels, "YARP.Backend.LoadBalancingPolicy", null),
-                SessionAffinity = new SessionAffinityOptions
+                SessionAffinity = new SessionAffinityConfig
                 {
-                    Enabled = GetLabel(labels, "YARP.Backend.SessionAffinity.Enabled", false),
-                    Mode = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.Mode", null),
+                    Enabled = GetLabel<bool?>(labels, "YARP.Backend.SessionAffinity.Enabled", null),
+                    Policy = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.Policy", null),
                     FailurePolicy = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.FailurePolicy", null),
-                    Settings = sessionAffinitySettings
+                    AffinityKeyName = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.AffinityKeyName", null),
+                    Cookie = new SessionAffinityCookieConfig
+                    {
+                        Path = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.Cookie.Path", null),
+                        SameSite = GetLabel<SameSiteMode?>(labels, "YARP.Backend.SessionAffinity.Cookie.SameSite", null),
+                        HttpOnly = GetLabel<bool?>(labels, "YARP.Backend.SessionAffinity.Cookie.HttpOnly", null),
+                        MaxAge = GetTimeSpanLabel(labels, "YARP.Backend.SessionAffinity.Cookie.MaxAge", null),
+                        Domain = GetLabel<string>(labels, "YARP.Backend.SessionAffinity.Cookie.Domain", null),
+                        IsEssential = GetLabel<bool?>(labels, "YARP.Backend.SessionAffinity.Cookie.IsEssential", null),
+                        SecurePolicy = GetLabel<CookieSecurePolicy?>(labels, "YARP.Backend.SessionAffinity.Cookie.SecurePolicy", null),
+                        Expiration = GetTimeSpanLabel(labels, "YARP.Backend.SessionAffinity.Cookie.Expiration", null)
+                    }
                 },
-                HttpRequest = new RequestProxyOptions
+                HttpRequest = new ForwarderRequestConfig
                 {
-                    Timeout = GetLabel<TimeSpan?>(labels, "YARP.Backend.HttpRequest.Timeout", null),
+                    Timeout = GetTimeSpanLabel(labels, "YARP.Backend.HttpRequest.Timeout", null),
                     Version = !string.IsNullOrEmpty(versionLabel) ? Version.Parse(versionLabel + (versionLabel.Contains('.') ? "" : ".0")) : null,
+                    AllowResponseBuffering = GetLabel<bool?>(labels, "YARP.Backend.HttpRequest.AllowResponseBuffering", null),
 #if NET
                     VersionPolicy = !string.IsNullOrEmpty(versionLabel) ? Enum.Parse<HttpVersionPolicy>(versionPolicyLabel) : null
 #endif
                 },
-                HealthCheck = new HealthCheckOptions
+                HealthCheck = new HealthCheckConfig
                 {
-                    Active = new ActiveHealthCheckOptions
+                    Active = new ActiveHealthCheckConfig
                     {
-                        Enabled = GetLabel(labels, "YARP.Backend.HealthCheck.Active.Enabled", false),
-                        Interval = GetLabel<TimeSpan?>(labels, "YARP.Backend.HealthCheck.Active.Interval", null),
-                        Timeout = GetLabel<TimeSpan?>(labels, "YARP.Backend.HealthCheck.Active.Timeout", null),
+                        Enabled = GetLabel<bool?>(labels, "YARP.Backend.HealthCheck.Active.Enabled", null),
+                        Interval = GetTimeSpanLabel(labels, "YARP.Backend.HealthCheck.Active.Interval", null),
+                        Timeout = GetTimeSpanLabel(labels, "YARP.Backend.HealthCheck.Active.Timeout", null),
                         Path = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Active.Path", null),
                         Policy = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Active.Policy", null)
                     },
-                    Passive = new PassiveHealthCheckOptions
+                    Passive = new PassiveHealthCheckConfig
                     {
-                        Enabled = GetLabel(labels, "YARP.Backend.HealthCheck.Passive.Enabled", false),
+                        Enabled = GetLabel<bool?>(labels, "YARP.Backend.HealthCheck.Passive.Enabled", null),
                         Policy = GetLabel<string>(labels, "YARP.Backend.HealthCheck.Passive.Policy", null),
-                        ReactivationPeriod = GetLabel<TimeSpan?>(labels, "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", null)
-                    }
+                        ReactivationPeriod = GetTimeSpanLabel(labels, "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", null)
+                    },
+                    AvailableDestinationsPolicy = GetLabel<string>(labels, "YARP.Backend.HealthCheck.AvailableDestinationsPolicy", null)
                 },
-                HttpClient = new ProxyHttpClientOptions
+                HttpClient = new HttpClientConfig
                 {
                     DangerousAcceptAnyServerCertificate = GetLabel<bool?>(labels, "YARP.Backend.HttpClient.DangerousAcceptAnyServerCertificate", null),
                     MaxConnectionsPerServer = GetLabel<int?>(labels, "YARP.Backend.HttpClient.MaxConnectionsPerServer", null),
@@ -315,15 +332,14 @@ namespace Yarp.ReverseProxy.ServiceFabric
                     SslProtocols = !string.IsNullOrEmpty(sslProtocolsLabel) ? Enum.Parse<SslProtocols>(sslProtocolsLabel) : null,
 #if NET
                     EnableMultipleHttp2Connections = GetLabel<bool?>(labels, "YARP.Backend.HttpClient.EnableMultipleHttp2Connections", null),
-                    RequestHeaderEncoding = !string.IsNullOrEmpty(requestHeaderEncodingLabel) ? Encoding.GetEncoding(requestHeaderEncodingLabel) : null,
+                    RequestHeaderEncoding = GetLabel<string>(labels, "YARP.Backend.HttpClient.RequestHeaderEncoding", null),
 #endif
-                    WebProxy = new WebProxyOptions
+                    WebProxy = new WebProxyConfig
                     {
                         Address = GetLabel<Uri>(labels, "YARP.Backend.HttpClient.WebProxy.Address", null),
                         BypassOnLocal = GetLabel<bool?>(labels, "YARP.Backend.HttpClient.WebProxy.BypassOnLocal", null),
                         UseDefaultCredentials = GetLabel<bool?>(labels, "YARP.Backend.HttpClient.WebProxy.UseDefaultCredentials", null),
                     }
-                    //TODO: ClientCertificate =
                 },
                 Metadata = clusterMetadata,
                 Destinations = destinations,

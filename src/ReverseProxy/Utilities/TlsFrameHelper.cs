@@ -10,7 +10,6 @@ using System.Net.Security;
 using System.Security.Authentication;
 using System.Text;
 
-#nullable enable
 namespace Yarp.ReverseProxy.Utilities.Tls
 {
     // SSL3/TLS protocol frames definitions.
@@ -103,10 +102,11 @@ namespace Yarp.ReverseProxy.Utilities.Tls
         [Flags]
         public enum ProcessingOptions
         {
-            All = 0,
             ServerName = 0x1,
             ApplicationProtocol = 0x2,
             Versions = 0x4,
+            CipherSuites = 0x8,
+            All = 0x7FFFFFFF,
         }
 
         [Flags]
@@ -115,18 +115,23 @@ namespace Yarp.ReverseProxy.Utilities.Tls
             None = 0,
             Http11 = 1,
             Http2 = 2,
-            Http3 = 4,
             Other = 128
         }
 
         public struct TlsFrameInfo
         {
+            internal TlsCipherSuite[]? _ciphers;
             public TlsFrameHeader Header;
             public TlsHandshakeType HandshakeType;
             public SslProtocols SupportedVersions;
             public string TargetName;
             public ApplicationProtocolInfo ApplicationProtocols;
             public TlsAlertDescription AlertDescription;
+            public ReadOnlyMemory<TlsCipherSuite> TlsCipherSuites {
+                get {
+                    return _ciphers == null ? ReadOnlyMemory<TlsCipherSuite>.Empty : new ReadOnlyMemory<TlsCipherSuite>(_ciphers) ;
+                }
+            }
 
             public override string ToString()
             {
@@ -162,14 +167,16 @@ namespace Yarp.ReverseProxy.Utilities.Tls
 
         private const int UInt24Size = 3;
         private const int RandomSize = 32;
+        private const int OpaqueType1LengthSize = sizeof(byte);
+        private const int OpaqueType2LengthSize = sizeof(ushort);
         private const int ProtocolVersionMajorOffset = 0;
         private const int ProtocolVersionMinorOffset = 1;
         private const int ProtocolVersionSize = 2;
         private const int ProtocolVersionTlsMajorValue = 3;
 
         // Per spec "AllowUnassigned flag MUST be set". See comment above DecodeString() for more details.
-        private static readonly IdnMapping IdnMapping = new IdnMapping() { AllowUnassigned = true };
-        private static readonly Encoding Utf8Encoding = Encoding.GetEncoding("utf-8", new EncoderExceptionFallback(), new DecoderExceptionFallback());
+        private static readonly IdnMapping s_idnMapping = new IdnMapping() { AllowUnassigned = true };
+        private static readonly Encoding s_encoding = Encoding.GetEncoding("utf-8", new EncoderExceptionFallback(), new DecoderExceptionFallback());
 
         public static bool TryGetFrameHeader(ReadOnlySpan<byte> frame, ref TlsFrameHeader header)
         {
@@ -207,7 +214,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
         {
             if (frame.Length < 5 || frame[1] < 3)
             {
-                return - 1;
+                return -1;
             }
 
             return ((frame[3] << 8) | frame[4]) + HeaderSize;
@@ -398,6 +405,10 @@ namespace Yarp.ReverseProxy.Utilities.Tls
             // Skip SessionID (max size 32 => size fits in 1 byte)
             p = SkipOpaqueType1(p);
 
+            if (options.HasFlag(ProcessingOptions.CipherSuites))
+            {
+                TryGetCipherSuites(p, ref info);
+            }
             // Skip cipher suites (max size 2^16-1 => size fits in 2 bytes)
             p = SkipOpaqueType2(p);
 
@@ -480,8 +491,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
 
                 ReadOnlySpan<byte> extensionData = extensions.Slice(0, extensionLength);
 
-                if (extensionType == ExtensionType.ServerName && (options == ProcessingOptions.All ||
-                   (options & ProcessingOptions.ServerName) == ProcessingOptions.ServerName))
+                if (extensionType == ExtensionType.ServerName && options.HasFlag(ProcessingOptions.ServerName))
                 {
                     if (!TryGetSniFromServerNameList(extensionData, out string? sni))
                     {
@@ -490,8 +500,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
 
                     info.TargetName = sni!;
                 }
-                else if (extensionType == ExtensionType.SupportedVersions && (options == ProcessingOptions.All ||
-                          (options & ProcessingOptions.Versions) == ProcessingOptions.Versions))
+                else if (extensionType == ExtensionType.SupportedVersions && options.HasFlag(ProcessingOptions.Versions))
                 {
                     if (!TryGetSupportedVersionsFromExtension(extensionData, out SslProtocols versions))
                     {
@@ -500,8 +509,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
 
                     info.SupportedVersions |= versions;
                 }
-                else if (extensionType == ExtensionType.ApplicationProtocols && (options == ProcessingOptions.All ||
-                          (options & ProcessingOptions.ApplicationProtocol) == ProcessingOptions.ApplicationProtocol))
+                else if (extensionType == ExtensionType.ApplicationProtocols && options.HasFlag(ProcessingOptions.ApplicationProtocol))
                 {
                     if (!TryGetApplicationProtocolsFromExtension(extensionData, out ApplicationProtocolInfo alpn))
                     {
@@ -566,7 +574,6 @@ namespace Yarp.ReverseProxy.Utilities.Tls
             }
 
             // Following can underflow but it is ok due to equality check below
-            int hostNameStructLength = BinaryPrimitives.ReadUInt16BigEndian(serverName) - sizeof(NameType);
             NameType nameType = (NameType)serverName[NameTypeOffset];
             ReadOnlySpan<byte> hostNameStruct = serverName.Slice(HostNameStructOffset);
             if (nameType != NameType.HostName)
@@ -677,12 +684,6 @@ namespace Yarp.ReverseProxy.Utilities.Tls
                     {
                         alpn |= ApplicationProtocolInfo.Http2;
                     }
-#if NET5
-                    else if (protocol.SequenceEqual(SslApplicationProtocol.Http3.Protocol.Span))
-                    {
-                        alpn |= ApplicationProtocolInfo.Http3;
-                    }
-#endif
                     else
                     {
                         alpn |= ApplicationProtocolInfo.Other;
@@ -699,6 +700,31 @@ namespace Yarp.ReverseProxy.Utilities.Tls
                 }
 
                 alpnList = alpnList.Slice(protocolLength + 1);
+            }
+
+            return true;
+        }
+
+        private static bool TryGetCipherSuites(ReadOnlySpan<byte> bytes, ref TlsFrameInfo info)
+        {
+            if (bytes.Length < OpaqueType2LengthSize)
+            {
+                return false;
+            }
+
+            ushort length = BinaryPrimitives.ReadUInt16BigEndian(bytes);
+            if (bytes.Length < OpaqueType2LengthSize + length)
+            {
+                return false;
+            }
+
+            bytes = bytes.Slice(OpaqueType2LengthSize, length);
+            int count = length / 2;
+
+            info._ciphers = new TlsCipherSuite[count];
+            for (int i = 0; i < count; i++)
+            {
+                info._ciphers[i] = (TlsCipherSuite)BinaryPrimitives.ReadUInt16BigEndian(bytes.Slice(i * 2, 2));
             }
 
             return true;
@@ -740,7 +766,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
             string idnEncodedString;
             try
             {
-                idnEncodedString = Utf8Encoding.GetString(bytes);
+                idnEncodedString = s_encoding.GetString(bytes);
             }
             catch (DecoderFallbackException)
             {
@@ -749,7 +775,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls
 
             try
             {
-                return IdnMapping.GetUnicode(idnEncodedString);
+                return s_idnMapping.GetUnicode(idnEncodedString);
             }
             catch (ArgumentException)
             {
@@ -775,28 +801,26 @@ namespace Yarp.ReverseProxy.Utilities.Tls
         // We will call them SkipOpaqueType`length`
         private static ReadOnlySpan<byte> SkipOpaqueType1(ReadOnlySpan<byte> bytes)
         {
-            const int OpaqueTypeLengthSize = sizeof(byte);
-            if (bytes.Length < OpaqueTypeLengthSize)
+            if (bytes.Length < OpaqueType1LengthSize)
             {
                 return ReadOnlySpan<byte>.Empty;
             }
 
             byte length = bytes[0];
-            int totalBytes = OpaqueTypeLengthSize + length;
+            int totalBytes = OpaqueType1LengthSize + length;
 
             return SkipBytes(bytes, totalBytes);
         }
 
         private static ReadOnlySpan<byte> SkipOpaqueType2(ReadOnlySpan<byte> bytes)
         {
-            const int OpaqueTypeLengthSize = sizeof(ushort);
-            if (bytes.Length < OpaqueTypeLengthSize)
+            if (bytes.Length < OpaqueType2LengthSize)
             {
                 return ReadOnlySpan<byte>.Empty;
             }
 
             ushort length = BinaryPrimitives.ReadUInt16BigEndian(bytes);
-            int totalBytes = OpaqueTypeLengthSize + length;
+            int totalBytes = OpaqueType2LengthSize + length;
 
             return SkipBytes(bytes, totalBytes);
         }
