@@ -82,7 +82,7 @@ namespace Yarp.ReverseProxy.Transforms
                     throw new ArgumentException($"Unexpected parameters for RequestHeader: {string.Join(';', transformValues.Keys)}. Expected 'Set' or 'Append'");
                 }
             }
-            else if (transformValues.TryGetValue(RequestHeaderOriginalHostKey, out var removeHeaderName))
+            else if (transformValues.TryGetValue(RequestHeaderRemoveKey, out var removeHeaderName))
             {
                 TransformHelpers.CheckTooManyParameters(transformValues, expected: 1);
                 context.AddRequestHeaderRemove(removeHeaderName);

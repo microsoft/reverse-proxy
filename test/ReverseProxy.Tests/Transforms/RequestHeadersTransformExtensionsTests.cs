@@ -65,6 +65,15 @@ namespace Yarp.ReverseProxy.Transforms.Tests
             ValidateRequestHeader(append, builderContext);
         }
 
+        [Fact]
+        public void RemoveRequestHeader()
+        {
+            var routeConfig = new RouteConfig();
+            routeConfig = routeConfig.WithTransformRequestHeaderRemove("MyHeader");
+
+            ValidateAndBuild(routeConfig, _factory);   
+        }
+
         private static void ValidateRequestHeader(bool append, TransformBuilderContext builderContext)
         {
             var requestHeaderValueTransform = Assert.Single(builderContext.RequestTransforms.OfType<RequestHeaderValueTransform>().Where(x => x.HeaderName == "name"));
