@@ -156,5 +156,49 @@ namespace Yarp.ReverseProxy.Transforms.Tests
             Assert.Equal(append, responseHeaderValueTransform.Append);
             Assert.Equal(always, responseHeaderValueTransform.Always);
         }
+
+        [Fact]
+        public void WithTransformResponseTrailerRemove()
+        {
+            var routeConfig = new RouteConfig();
+            routeConfig = routeConfig.WithTransformResponseTrailerRemove("MyHeader");
+
+            var builderContext = ValidateAndBuild(routeConfig, _factory);
+            var transform = Assert.Single(builderContext.ResponseTrailersTransforms) as ResponseTrailerRemoveTransform;
+            Assert.Equal("MyHeader", transform.HeaderName);
+        }
+
+        [Fact]
+        public void AddResponseTrailerRemove()
+        {
+            var builderContext = CreateBuilderContext();
+            builderContext.AddResponseTrailerRemove("MyHeader");
+
+            var transform = Assert.Single(builderContext.ResponseTrailersTransforms) as ResponseTrailerRemoveTransform;
+            Assert.Equal("MyHeader", transform.HeaderName);
+        }
+
+        [Fact]
+        public void WithTransformResponseTrailersAllowed()
+        {
+            var routeConfig = new RouteConfig();
+            routeConfig = routeConfig.WithTransformResponseTrailersAllowed("header1", "Header2");
+
+            var builderContext = ValidateAndBuild(routeConfig, _factory);
+            var transform = Assert.Single(builderContext.ResponseTrailersTransforms) as ResponseTrailersAllowedTransform;
+            Assert.Equal(new[] { "header1", "Header2" }, transform.AllowedHeaders);
+            Assert.False(builderContext.CopyResponseTrailers);
+        }
+
+        [Fact]
+        public void AddResponseTrailersAllowed()
+        {
+            var builderContext = CreateBuilderContext();
+            builderContext.AddResponseTrailersAllowed("header1", "Header2");
+
+            var transform = Assert.Single(builderContext.ResponseTrailersTransforms) as ResponseTrailersAllowedTransform;
+            Assert.Equal(new[] { "header1", "Header2" }, transform.AllowedHeaders);
+            Assert.False(builderContext.CopyResponseTrailers);
+        }
     }
 }

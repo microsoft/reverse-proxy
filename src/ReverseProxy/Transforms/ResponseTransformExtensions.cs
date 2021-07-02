@@ -147,5 +147,28 @@ namespace Yarp.ReverseProxy.Transforms
                 transform[ResponseTransformFactory.WhenKey] = when;
             });
         }
+
+        /// <summary>
+        /// Clones the route and adds the transform which will only copy the allowed response trailers. Other transforms
+        /// that modify or append to existing trailers may be affected if not included in the allow list.
+        /// </summary>
+        public static RouteConfig WithTransformResponseTrailersAllowed(this RouteConfig route, params string[] allowedHeaders)
+        {
+            return route.WithTransform(transform =>
+            {
+                transform[ResponseTransformFactory.ResponseTrailersAllowedKey] = string.Join(';', allowedHeaders);
+            });
+        }
+
+        /// <summary>
+        /// Adds the transform which will only copy the allowed response trailers. Other transforms
+        /// that modify or append to existing trailers may be affected if not included in the allow list.
+        /// </summary>
+        public static TransformBuilderContext AddResponseTrailersAllowed(this TransformBuilderContext context, params string[] allowedHeaders)
+        {
+            context.CopyResponseTrailers = false;
+            context.ResponseTrailersTransforms.Add(new ResponseTrailersAllowedTransform(allowedHeaders));
+            return context;
+        }
     }
 }

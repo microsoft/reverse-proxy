@@ -10,7 +10,7 @@ using Microsoft.Extensions.Primitives;
 namespace Yarp.ReverseProxy.Transforms
 {
     /// <summary>
-    /// Removes a request header.
+    /// Copies only allowed request headers.
     /// </summary>
     public class RequestHeadersAllowedTransform : RequestTransform
     {

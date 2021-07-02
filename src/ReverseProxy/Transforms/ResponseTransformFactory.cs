@@ -16,6 +16,7 @@ namespace Yarp.ReverseProxy.Transforms
         internal static readonly string ResponseHeaderRemoveKey = "ResponseHeaderRemove";
         internal static readonly string ResponseTrailerRemoveKey = "ResponseTrailerRemove";
         internal static readonly string ResponseHeadersAllowedKey = "ResponseHeadersAllowed";
+        internal static readonly string ResponseTrailersAllowedKey = "ResponseTrailersAllowed";
         internal static readonly string WhenKey = "When";
         internal static readonly string AlwaysValue = "Always";
         internal static readonly string SuccessValue = "Success";
@@ -111,6 +112,10 @@ namespace Yarp.ReverseProxy.Transforms
                 }
             }
             else if (transformValues.TryGetValue(ResponseHeadersAllowedKey, out var _))
+            {
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
+            }
+            else if (transformValues.TryGetValue(ResponseTrailersAllowedKey, out var _))
             {
                 TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
             }
@@ -225,6 +230,16 @@ namespace Yarp.ReverseProxy.Transforms
 #endif
                     );
                 context.AddResponseHeadersAllowed(headersList);
+            }
+            else if (transformValues.TryGetValue(ResponseTrailersAllowedKey, out var allowedTrailers))
+            {
+                TransformHelpers.CheckTooManyParameters(transformValues, expected: 1);
+                var headersList = allowedTrailers.Split(';', options: StringSplitOptions.RemoveEmptyEntries
+#if NET
+                    | StringSplitOptions.TrimEntries
+#endif
+                    );
+                context.AddResponseTrailersAllowed(headersList);
             }
             else
             {
