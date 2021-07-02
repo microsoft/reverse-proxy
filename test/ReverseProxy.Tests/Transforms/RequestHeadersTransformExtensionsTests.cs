@@ -66,12 +66,47 @@ namespace Yarp.ReverseProxy.Transforms.Tests
         }
 
         [Fact]
-        public void RemoveRequestHeader()
+        public void WithTransformRequestHeaderRemove()
         {
             var routeConfig = new RouteConfig();
             routeConfig = routeConfig.WithTransformRequestHeaderRemove("MyHeader");
 
-            ValidateAndBuild(routeConfig, _factory);   
+            var builderContext = ValidateAndBuild(routeConfig, _factory);
+            var transform = Assert.Single(builderContext.RequestTransforms) as RequestHeaderRemoveTransform;
+            Assert.Equal("MyHeader", transform.HeaderName);
+        }
+
+        [Fact]
+        public void AddRequestHeaderRemove()
+        {
+            var builderContext = CreateBuilderContext();
+            builderContext.AddRequestHeaderRemove("MyHeader");
+
+            var transform = Assert.Single(builderContext.RequestTransforms) as RequestHeaderRemoveTransform;
+            Assert.Equal("MyHeader", transform.HeaderName);
+        }
+
+        [Fact]
+        public void WithTransformRequestHeadersAllowed()
+        {
+            var routeConfig = new RouteConfig();
+            routeConfig = routeConfig.WithTransformRequestHeadersAllowed("header1", "Header2");
+
+            var builderContext = ValidateAndBuild(routeConfig, _factory);
+            var transform = Assert.Single(builderContext.RequestTransforms) as RequestHeadersAllowedTransform;
+            Assert.Equal(new[] { "header1", "Header2" }, transform.AllowedHeaders);
+            Assert.False(builderContext.CopyRequestHeaders);
+        }
+
+        [Fact]
+        public void AddRequestHeadersAllowed()
+        {
+            var builderContext = CreateBuilderContext();
+            builderContext.AddRequestHeadersAllowed("header1", "Header2");
+
+            var transform = Assert.Single(builderContext.RequestTransforms) as RequestHeadersAllowedTransform;
+            Assert.Equal(new[] { "header1", "Header2" }, transform.AllowedHeaders);
+            Assert.False(builderContext.CopyRequestHeaders);
         }
 
         private static void ValidateRequestHeader(bool append, TransformBuilderContext builderContext)

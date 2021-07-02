@@ -62,6 +62,18 @@ namespace Yarp.ReverseProxy.Transforms
         }
 
         /// <summary>
+        /// Clones the route and adds the transform which will only copy the allowed response headers. Other transforms
+        /// that modify or append to existing headers may be affected if not included in the allow list.
+        /// </summary>
+        public static RouteConfig WithTransformResponseHeadersAllowed(this RouteConfig route, params string[] allowedHeaders)
+        {
+            return route.WithTransform(transform =>
+            {
+                transform[ResponseTransformFactory.ResponseHeadersAllowedKey] = string.Join(';', allowedHeaders);
+            });
+        }
+
+        /// <summary>
         /// Adds the transform which will append or set the response header.
         /// </summary>
         public static TransformBuilderContext AddResponseHeader(this TransformBuilderContext context, string headerName, string value, bool append = true, bool always = false)
@@ -76,6 +88,17 @@ namespace Yarp.ReverseProxy.Transforms
         public static TransformBuilderContext AddResponseHeaderRemove(this TransformBuilderContext context, string headerName, bool always = false)
         {
             context.ResponseTransforms.Add(new ResponseHeaderRemoveTransform(headerName, always));
+            return context;
+        }
+
+        /// <summary>
+        /// Adds the transform which will only copy the allowed response headers. Other transforms
+        /// that modify or append to existing headers may be affected if not included in the allow list.
+        /// </summary>
+        public static TransformBuilderContext AddResponseHeadersAllowed(this TransformBuilderContext context, params string[] allowedHeaders)
+        {
+            context.CopyResponseHeaders = false;
+            context.ResponseTransforms.Add(new ResponseHeadersAllowedTransform(allowedHeaders));
             return context;
         }
 
