@@ -522,7 +522,7 @@ X-Forwarded-* headers are a common way to forward information to the destination
 
 This transform is enabled by default even if not specified in the route config.
 
-Set the `X-Forwarded` value to a comma separated list containing the headers you need to enable. All for headers are enabled by default. All can be disabled by specifying an empty value `""`.
+Set the `X-Forwarded` value to a comma separated list containing the headers you need to enable. All for headers are enabled by default. All can be disabled by specifying the value `"Off"`.
 
 The Prefix specifies the header name prefix to use for each header. With the default `X-Forwarded-` prefix the resulting headers will be `X-Forwarded-For`, `X-Forwarded-Proto`, `X-Forwarded-Host`, and `X-Forwarded-Prefix`.
 
