@@ -462,6 +462,39 @@ AnotherHeader: AnotherValue
 
 This removes the named header.
 
+### RequestHeadersAllowed
+
+| Key | Value | Required |
+|-----|-------|----------|
+| RequestHeadersAllowed | A semicolon separated list of allowed header names. | yes |
+
+Config:
+```JSON
+{
+  "RequestHeadersAllowed": "Header1;header2"
+}
+```
+Code:
+```csharp
+routeConfig = routeConfig.WithTransformRequestHeadersAllowed("Header1", "header2");
+```
+```C#
+transformBuilderContext.AddRequestHeadersAllowed("Header1", "header2");
+```
+
+YARP copies most request headers to the proxy request by default (see [RequestHeadersCopy](#RequestHeadersCopy)). Some security models only allow specific headers to be proxied. This transform disables RequestHeadersCopy and only copies the given headers. Other transforms that modify or append to existing headers may be affected if not included in the allow list.
+
+Note that there are some headers YARP does not copy by default since they are connection specific or otherwise security sensitive (e.g. `Connection`, `Alt-Svc`). Putting those header names in the allow list will bypass that restriction but is strongly discouraged as it may negatively affect the functionality of the proxy or cause security vulnerabilities.
+
+Example:
+```
+Header1: value1
+Header2: value2
+AnotherHeader: AnotherValue
+```
+
+Only header1 and header2 are copied to the proxy request.
+
 ### X-Forwarded
 
 | Key | Value | Default | Required |
@@ -710,6 +743,39 @@ This removes the named header.
 
 `When` specifies if the response header should be included for successful responses or for all responses. Any response with a status code less than 400 is considered a success.
 
+### ResponseHeadersAllowed
+
+| Key | Value | Required |
+|-----|-------|----------|
+| ResponseHeadersAllowed | A semicolon separated list of allowed header names. | yes |
+
+Config:
+```JSON
+{
+  "ResponseHeadersAllowed": "Header1;header2"
+}
+```
+Code:
+```csharp
+routeConfig = routeConfig.WithTransformResponseHeadersAllowed("Header1", "header2");
+```
+```C#
+transformBuilderContext.AddResponseHeadersAllowed("Header1", "header2");
+```
+
+YARP copies most response headers from the proxy response by default (see [ResponseHeadersCopy](#ResponseHeadersCopy)). Some security models only allow specific headers to be proxied. This transform disables ResponseHeadersCopy and only copies the given headers. Other transforms that modify or append to existing headers may be affected if not included in the allow list.
+
+Note that there are some headers YARP does not copy by default since they are connection specific or otherwise security sensitive (e.g. `Connection`, `Alt-Svc`). Putting those header names in the allow list will bypass that restriction but is strongly discouraged as it may negatively affect the functionality of the proxy or cause security vulnerabilities.
+
+Example:
+```
+Header1: value1
+Header2: value2
+AnotherHeader: AnotherValue
+```
+
+Only header1 and header2 are copied from the proxy response.
+
 ### ResponseTrailersCopy
 
 | Key | Value | Default | Required |
@@ -792,6 +858,39 @@ AnotherHeader: another-value
 This removes the named trailing header.
 
 ResponseTrailerRemove follows the same structure and guidance as ResponseHeaderRemove.
+
+### ResponseTrailersAllowed
+
+| Key | Value | Required |
+|-----|-------|----------|
+| ResponseTrailersAllowed | A semicolon separated list of allowed header names. | yes |
+
+Config:
+```JSON
+{
+  "ResponseTrailersAllowed": "Header1;header2"
+}
+```
+Code:
+```csharp
+routeConfig = routeConfig.WithTransformResponseTrailersAllowed("Header1", "header2");
+```
+```C#
+transformBuilderContext.AddResponseTrailersAllowed("Header1", "header2");
+```
+
+YARP copies most response trailers from the proxy response by default (see [ResponseTrailersCopy](#ResponseTrailersCopy)). Some security models only allow specific headers to be proxied. This transform disables ResponseTrailersCopy and only copies the given headers. Other transforms that modify or append to existing headers may be affected if not included in the allow list.
+
+Note that there are some headers YARP does not copy by default since they are connection specific or otherwise security sensitive (e.g. `Connection`, `Alt-Svc`). Putting those header names in the allow list will bypass that restriction but is strongly discouraged as it may negatively affect the functionality of the proxy or cause security vulnerabilities.
+
+Example:
+```
+Header1: value1
+Header2: value2
+AnotherHeader: AnotherValue
+```
+
+Only header1 and header2 are copied from the proxy response.
 
 ## Extensibility
 
