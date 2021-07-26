@@ -22,7 +22,7 @@ namespace Yarp.ReverseProxy.LoadBalancing
                 return null;
             }
 
-            var counter = _counters.GetOrCreateValue(context.GetClusterState());
+            var counter = _counters.GetOrCreateValue(cluster);
 
             // Increment returns the new value and we want the first return value to be 0.
             var offset = counter.Increment() - 1;
