@@ -99,7 +99,7 @@ namespace Yarp.ReverseProxy.Health
             Scheduler.Dispose();
         }
 
-        internal EntityActionScheduler<ClusterState> Scheduler { get; private set; }
+        internal EntityActionScheduler<ClusterState> Scheduler { get; }
 
         private async Task ProbeCluster(ClusterState cluster)
         {
