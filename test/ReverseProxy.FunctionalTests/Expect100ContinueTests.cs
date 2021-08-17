@@ -6,6 +6,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -20,23 +21,15 @@ namespace Yarp.ReverseProxy
     public class Expect100ContinueTests
     {
         [Theory]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, false, 200)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, false, 200)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, true, 200)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, true, 200)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, false, 200)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false, false, 200)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, true, 200)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false, true, 200)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, false, 400)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, false, 400)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, true, 400)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, true, 400)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, false, 400)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, false, 400)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, true, 400)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, true, 400)]
-        public async Task PostExpect100_BodyAlwaysUploaded(HttpProtocols proxyProtocol, HttpProtocols destProtocol, bool useContentLength, bool hasResponseBody, int destResponseCode)
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, 200)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, 200)]
+        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, 200)]
+        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false, 200)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, 400)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, 400)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, 400)]
+        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, 400)]
+        public async Task PostExpect100_BodyAlwaysUploaded(HttpProtocols proxyProtocol, HttpProtocols destProtocol, bool useContentLength, int destResponseCode)
         {
             var headerTcs = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
             var bodyTcs = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -66,21 +59,6 @@ namespace Yarp.ReverseProxy
                     }
 
                     context.Response.StatusCode = destResponseCode;
-
-                    if (hasResponseBody)
-                    {
-                        var responseBody = Encoding.UTF8.GetBytes(contentString + "Response");
-                        if (useContentLength)
-                        {
-                            context.Response.Headers.ContentLength = responseBody.Length;
-                        }
-                        else
-                        {
-                            context.Response.Headers[HeaderNames.TransferEncoding] = "chuncked";
-                        }
-
-                        await context.Response.Body.WriteAsync(responseBody.AsMemory());
-                    }
                 },
                 proxyBuilder => {
                     proxyBuilder.Services.RemoveAll(typeof(IForwarderHttpClientFactory));
@@ -104,7 +82,7 @@ namespace Yarp.ReverseProxy
 
             await test.Invoke(async uri =>
             {
-                await ProcessHttpRequest(new Uri(uri), proxyProtocol, contentString, useContentLength, hasResponseBody, destResponseCode);
+                await ProcessHttpRequest(new Uri(uri), proxyProtocol, contentString, useContentLength, destResponseCode, false);
 
                 Assert.True(headerTcs.Task.IsCompleted);
                 var expectHeader = await headerTcs.Task;
@@ -121,6 +99,65 @@ namespace Yarp.ReverseProxy
                 {
                     Assert.False(bodyTcs.Task.IsCompleted);
                 }
+            });
+        }
+
+        [Theory]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, false)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, true)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, false)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, true)]
+        public async Task PostExpect100_ResponseWithPayload(HttpProtocols proxyProtocol, HttpProtocols destProtocol, bool useContentLength, bool cancelResponse)
+        {
+            var requestBodyTcs = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            var contentString = new string('a', 1024 * 1024 * 10);
+            var test = new TestEnvironment(
+                async context =>
+                {
+                    await ReadContent(context, requestBodyTcs, Encoding.UTF8.GetByteCount(contentString));
+
+                    context.Response.StatusCode = 200;
+
+                    var responseBody = Encoding.UTF8.GetBytes(contentString + "Response");
+                    if (useContentLength)
+                    {
+                        context.Response.Headers.ContentLength = responseBody.Length;
+                    }
+
+                    var cts = cancelResponse ? new CancellationTokenSource(1) : new CancellationTokenSource();
+                    await context.Response.Body.WriteAsync(responseBody.AsMemory(), cts.Token);
+                },
+                proxyBuilder => {
+                    proxyBuilder.Services.RemoveAll(typeof(IForwarderHttpClientFactory));
+                    proxyBuilder.Services.TryAddSingleton<IForwarderHttpClientFactory, TestForwarderHttpClientFactory>();
+                },
+                proxyApp => { },
+                proxyProtocol: proxyProtocol,
+                useHttpsOnDestination: true,
+                useHttpsOnProxy: true,
+                configTransformer: (c, r) =>
+                {
+                    c = c with
+                    {
+                        HttpRequest = new ForwarderRequestConfig
+                        {
+                            Version = destProtocol == HttpProtocols.Http2 ? HttpVersion.Version20 : HttpVersion.Version11,
+                        }
+                    };
+                    return (c, r);
+                });
+
+            await test.Invoke(async uri =>
+            {
+                var expectedStatusCode = 200;
+                await ProcessHttpRequest(new Uri(uri), proxyProtocol, contentString, useContentLength, expectedStatusCode, cancelResponse, async response =>
+                {
+                    Assert.Equal(expectedStatusCode, (int)response.StatusCode);
+
+                    var actualResponse = await response.Content.ReadAsStringAsync();
+                    Assert.Equal(contentString + "Response", actualResponse);
+                });
             });
         }
 
@@ -146,7 +183,14 @@ namespace Yarp.ReverseProxy
             }
         }
 
-        private async Task ProcessHttpRequest(Uri proxyHostUri, HttpProtocols protocol, string contentString, bool useContentLength, bool hasResponseBody, int expectedCode)
+        private async Task ProcessHttpRequest(
+            Uri proxyHostUri,
+            HttpProtocols protocol,
+            string contentString,
+            bool useContentLength,
+            int expectedCode,
+            bool cancelResponse,
+            Func<HttpResponseMessage, Task> responseAction = null)
         {
             using var handler = new SocketsHttpHandler() { Expect100ContinueTimeout = TimeSpan.FromSeconds(60) };
             handler.UseProxy = false;
@@ -169,25 +213,29 @@ namespace Yarp.ReverseProxy
                 message.Headers.TransferEncodingChunked = true;
             }
 
-            using var response = await client.SendAsync(message);
-
-            Assert.Equal((int)response.StatusCode, expectedCode);
-            if (expectedCode == 200)
+            if (!cancelResponse)
             {
-                Assert.Equal(content.Length, contentStream.Position);
-                if (hasResponseBody)
+                using var response = await client.SendAsync(message);
+
+                Assert.Equal(expectedCode, (int)response.StatusCode);
+                if (expectedCode == 200)
                 {
-                    var responseBody = await response.Content.ReadAsStringAsync();
-                    Assert.Equal(contentString + "Response", responseBody);
+                    Assert.Equal(content.Length, contentStream.Position);
+                }
+                else
+                {
+                    Assert.Equal(0, contentStream.Position);
+                }
+
+                if (responseAction != null)
+                {
+                    await responseAction(response);
                 }
             }
             else
             {
-                Assert.Equal(0, contentStream.Position);
-                if (hasResponseBody)
-                {
-                    await Assert.ThrowsAsync<HttpRequestException>(() => response.Content.ReadAsStringAsync());
-                }
+                var exception = await Assert.ThrowsAsync<HttpRequestException>(() => client.SendAsync(message));
+                Assert.Equal(typeof(IOException), exception.InnerException.GetType());
             }
         }
 
