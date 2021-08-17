@@ -23,7 +23,6 @@ using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Forwarder.Tests;
 using Yarp.ReverseProxy.Routing;
-using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Management.Tests
 {
@@ -166,6 +165,10 @@ namespace Yarp.ReverseProxy.Management.Tests
 #if NET
                     RequestHeaderEncoding = Encoding.UTF8.WebName
 #endif
+                },
+                HealthCheck = new HealthCheckConfig
+                {
+                    Active = new ActiveHealthCheckConfig { Enabled = true }
                 }
             };
             var route = new RouteConfig
@@ -199,6 +202,8 @@ namespace Yarp.ReverseProxy.Management.Tests
 #if NET
             Assert.Equal(Encoding.UTF8, handler.RequestHeaderEncodingSelector(default, default));
 #endif
+            var activeMonitor = (ActiveHealthCheckMonitor)services.GetRequiredService<IActiveHealthCheckMonitor>();
+            Assert.True(activeMonitor.Scheduler.IsScheduled(clusterState));
         }
 
         [Fact]
@@ -243,6 +248,48 @@ namespace Yarp.ReverseProxy.Management.Tests
 
             Assert.NotNull(readEndpoints1);
             Assert.NotNull(readEndpoints2);
+        }
+
+        [Fact]
+        public async Task ChangeConfig_ActiveHealthCheckIsEnabled_RunInitialCheck()
+        {
+            var endpoints = new List<RouteConfig>() { new RouteConfig() { RouteId = "r1", ClusterId = "c1", Match = new RouteMatch { Path = "/" } } };
+            var clusters = new List<ClusterConfig>() { new ClusterConfig { ClusterId = "c1" } };
+            var services = CreateServices(endpoints, clusters);
+            var inMemoryConfig = (InMemoryConfigProvider)services.GetRequiredService<IProxyConfigProvider>();
+            var configManager = services.GetRequiredService<ProxyConfigManager>();
+            var dataSource = await configManager.InitialLoadAsync();
+
+            var endpoint = Assert.Single(dataSource.Endpoints);
+            var routeConfig = endpoint.Metadata.GetMetadata<RouteModel>();
+            var clusterState = routeConfig.Cluster;
+            var activeMonitor = (ActiveHealthCheckMonitor)services.GetRequiredService<IActiveHealthCheckMonitor>();
+            Assert.False(activeMonitor.Scheduler.IsScheduled(clusterState));
+
+            var signaled = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            var changeToken = dataSource.GetChangeToken();
+            changeToken.RegisterChangeCallback(
+                _ =>
+                {
+                    signaled.SetResult(1);
+                }, null);
+
+            // updating should signal the current change token
+            Assert.False(signaled.Task.IsCompleted);
+            inMemoryConfig.Update(
+                endpoints,
+                new List<ClusterConfig>()
+                {
+                    new ClusterConfig
+                    {
+                        ClusterId = "c1",
+                        HealthCheck = new HealthCheckConfig { Active = new ActiveHealthCheckConfig { Enabled = true } }
+                    }
+                });
+            await signaled.Task.DefaultTimeout();
+
+            Assert.True(activeMonitor.Scheduler.IsScheduled(clusterState));
         }
 
         [Fact]

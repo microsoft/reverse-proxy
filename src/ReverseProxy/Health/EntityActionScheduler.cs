@@ -73,6 +73,10 @@ namespace Yarp.ReverseProxy.Health
             {
                 entry.ChangePeriod((long)newPeriod.TotalMilliseconds, Volatile.Read(ref _isStarted) == 1);
             }
+            else
+            {
+                ScheduleEntity(entity, newPeriod);
+            }
         }
 
         public void UnscheduleEntity(T entity)
