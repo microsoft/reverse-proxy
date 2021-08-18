@@ -58,7 +58,7 @@ namespace Yarp.ReverseProxy.Forwarder
             return _headersToExclude.Contains(headerName);
         }
 
-        private static readonly HashSet<string> _headersToExclude = new(15, StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> _headersToExclude = new(16, StringComparer.OrdinalIgnoreCase)
         {
             HeaderNames.Connection,
             HeaderNames.TransferEncoding,
@@ -73,6 +73,7 @@ namespace Yarp.ReverseProxy.Forwarder
             "Security-Scheme",
             "ALPN",
             "Close",
+            "HTTP2-Settings",
             HeaderNames.TE,
 #if NET
             HeaderNames.AltSvc,
