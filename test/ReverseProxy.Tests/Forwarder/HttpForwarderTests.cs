@@ -1932,6 +1932,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 "ALPN: value",
                 "Close: value",
                 "TE: value",
+                "HTTP2-Settings: value",
 #if NET
                 "Alt-Svc: value",
 #endif
