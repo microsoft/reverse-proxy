@@ -6,10 +6,9 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Xunit;
@@ -29,7 +28,7 @@ namespace Yarp.ReverseProxy
         [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, 400)]
         [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, 400)]
         [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, 400)]
-        public async Task PostExpect100_BodyAlwaysUploaded(HttpProtocols proxyProtocol, HttpProtocols destProtocol, bool useContentLength, int destResponseCode)
+        public async Task PostExpect100_BodyNotUploadedIfFailed(HttpProtocols proxyProtocol, HttpProtocols destProtocol, bool useContentLength, int destResponseCode)
         {
             var headerTcs = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
             var bodyTcs = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -42,6 +41,7 @@ namespace Yarp.ReverseProxy
                         || (context.Request.Protocol == "HTTP/2.0" && destProtocol != HttpProtocols.Http2))
                     {
                         headerTcs.SetException(new Exception($"Unexpected request protocol {context.Request.Protocol}"));
+                        return;
                     }
                     else if (context.Request.Headers.TryGetValue(HeaderNames.Expect, out var expectHeader))
                     {
@@ -50,6 +50,7 @@ namespace Yarp.ReverseProxy
                     else
                     {
                         headerTcs.SetException(new Exception("Missing 'Expect' header in request"));
+                        return;
                     }
 
                     if (destResponseCode == 200)
@@ -61,8 +62,7 @@ namespace Yarp.ReverseProxy
                     context.Response.StatusCode = destResponseCode;
                 },
                 proxyBuilder => {
-                    proxyBuilder.Services.RemoveAll(typeof(IForwarderHttpClientFactory));
-                    proxyBuilder.Services.TryAddSingleton<IForwarderHttpClientFactory, TestForwarderHttpClientFactory>();
+                    proxyBuilder.Services.AddSingleton<IForwarderHttpClientFactory, TestForwarderHttpClientFactory>();
                 },
                 proxyApp => { },
                 proxyProtocol: proxyProtocol,
@@ -107,6 +107,14 @@ namespace Yarp.ReverseProxy
         [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, true)]
         [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, false)]
         [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, true)]
+        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false, false)]
+        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false, true)]
+        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, false)]
+        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, true)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, false, false)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, false, true)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, false)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, true)]
         public async Task PostExpect100_ResponseWithPayload(HttpProtocols proxyProtocol, HttpProtocols destProtocol, bool useContentLength, bool cancelResponse)
         {
             var requestBodyTcs = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -125,12 +133,18 @@ namespace Yarp.ReverseProxy
                         context.Response.Headers.ContentLength = responseBody.Length;
                     }
 
-                    var cts = cancelResponse ? new CancellationTokenSource(1) : new CancellationTokenSource();
-                    await context.Response.Body.WriteAsync(responseBody.AsMemory(), cts.Token);
+                    if (cancelResponse)
+                    {
+                        await context.Response.BodyWriter.WriteAsync(responseBody.AsMemory(0, responseBody.Length/2));
+                        context.Abort();
+                    }
+                    else
+                    {
+                        await context.Response.Body.WriteAsync(responseBody.AsMemory());
+                    }
                 },
                 proxyBuilder => {
-                    proxyBuilder.Services.RemoveAll(typeof(IForwarderHttpClientFactory));
-                    proxyBuilder.Services.TryAddSingleton<IForwarderHttpClientFactory, TestForwarderHttpClientFactory>();
+                    proxyBuilder.Services.AddSingleton<IForwarderHttpClientFactory, TestForwarderHttpClientFactory>();
                 },
                 proxyApp => { },
                 proxyProtocol: proxyProtocol,
@@ -236,6 +250,7 @@ namespace Yarp.ReverseProxy
             {
                 var exception = await Assert.ThrowsAsync<HttpRequestException>(() => client.SendAsync(message));
                 Assert.Equal(typeof(IOException), exception.InnerException.GetType());
+                Assert.Equal(content.Length, contentStream.Position);
             }
         }
 
