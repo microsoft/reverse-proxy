@@ -1933,6 +1933,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 "Close: value",
                 "TE: value",
                 "HTTP2-Settings: value",
+                "Upgrade-Insecure-Requests: value",
 #if NET
                 "Alt-Svc: value",
 #endif
