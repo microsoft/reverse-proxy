@@ -74,6 +74,7 @@ namespace Yarp.ReverseProxy.Forwarder
             "ALPN",
             "Close",
             "HTTP2-Settings",
+            "Upgrade-Insecure-Requests",
             HeaderNames.TE,
 #if NET
             HeaderNames.AltSvc,
