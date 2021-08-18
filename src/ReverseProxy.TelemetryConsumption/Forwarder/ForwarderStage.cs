@@ -6,7 +6,7 @@ namespace Yarp.ReverseProxy.Telemetry.Consumption
     /// <summary>
     /// Stages of forwarding a request.
     /// </summary>
-    public enum ForwarderStage : int
+    public enum ForwarderStage
     {
         SendAsyncStart = 1,
         SendAsyncStop,

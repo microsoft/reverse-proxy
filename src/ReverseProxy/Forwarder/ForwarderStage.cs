@@ -3,7 +3,7 @@
 
 namespace Yarp.ReverseProxy.Forwarder
 {
-    internal enum ForwarderStage : int
+    internal enum ForwarderStage
     {
         SendAsyncStart = 1,
         SendAsyncStop,
