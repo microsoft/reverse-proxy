@@ -62,13 +62,12 @@ namespace Yarp.ReverseProxy.Health
 
         public void ScheduleEntity(T entity, TimeSpan period)
         {
-            var isStarted = Volatile.Read(ref _isStarted);
             var entry = new SchedulerEntry(entity, (long)period.TotalMilliseconds, _timerCallback, _timerFactory);
             var added = _entries.TryAdd(entity, entry);
 
             // Scheduler could have been started while we were adding the new entry.
             // Start timer here to ensure it's not forgotten.
-            if (isStarted == 1 || Volatile.Read(ref _isStarted) == 1)
+            if (Volatile.Read(ref _isStarted) == 1)
             {
                 entry.SetTimer();
             }
