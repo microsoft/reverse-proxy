@@ -3,7 +3,7 @@
 
 using System;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Microsoft.AspNetCore.Http
 {
@@ -12,16 +12,6 @@ namespace Microsoft.AspNetCore.Http
     /// </summary>
     public static class HttpContextFeaturesExtensions
     {
-        /// <summary>
-        /// Retrieves the <see cref="ClusterState"/> instance associated with the current request.
-        /// </summary>
-        public static ClusterState GetClusterState(this HttpContext context)
-        {
-            var route = context.GetRouteModel();
-            var cluster = route.Cluster ?? throw new InvalidOperationException($"The {typeof(RouteModel).FullName} is missing the {typeof(ClusterState).FullName}.");
-            return cluster;
-        }
-
         /// <summary>
         /// Retrieves the <see cref="RouteModel"/> instance associated with the current request.
         /// </summary>
@@ -44,11 +34,11 @@ namespace Microsoft.AspNetCore.Http
         }
 
         /// <summary>
-        /// Retrieves the <see cref="IProxyErrorFeature"/> instance associated with the current request, if any.
+        /// Retrieves the <see cref="IForwarderErrorFeature"/> instance associated with the current request, if any.
         /// </summary>
-        public static IProxyErrorFeature? GetProxyErrorFeature(this HttpContext context)
+        public static IForwarderErrorFeature? GetForwarderErrorFeature(this HttpContext context)
         {
-            return context.Features.Get<IProxyErrorFeature>();
+            return context.Features.Get<IForwarderErrorFeature>();
         }
     }
 }

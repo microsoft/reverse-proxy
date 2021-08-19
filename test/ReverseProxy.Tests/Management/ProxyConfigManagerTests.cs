@@ -20,10 +20,9 @@ using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Configuration.ConfigProvider;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Proxy;
-using Yarp.ReverseProxy.Proxy.Tests;
+using Yarp.ReverseProxy.Forwarder;
+using Yarp.ReverseProxy.Forwarder.Tests;
 using Yarp.ReverseProxy.Routing;
-using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Management.Tests
 {
@@ -166,6 +165,10 @@ namespace Yarp.ReverseProxy.Management.Tests
 #if NET
                     RequestHeaderEncoding = Encoding.UTF8.WebName
 #endif
+                },
+                HealthCheck = new HealthCheckConfig
+                {
+                    Active = new ActiveHealthCheckConfig { Enabled = true }
                 }
             };
             var route = new RouteConfig
@@ -193,12 +196,14 @@ namespace Yarp.ReverseProxy.Management.Tests
             Assert.Equal(Encoding.UTF8.WebName, clusterModel.Config.HttpClient.RequestHeaderEncoding);
 #endif
 
-            var handler = ProxyHttpClientFactoryTests.GetHandler(clusterModel.HttpClient);
+            var handler = ForwarderHttpClientFactoryTests.GetHandler(clusterModel.HttpClient);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, handler.SslOptions.EnabledSslProtocols);
             Assert.Equal(10, handler.MaxConnectionsPerServer);
 #if NET
             Assert.Equal(Encoding.UTF8, handler.RequestHeaderEncodingSelector(default, default));
 #endif
+            var activeMonitor = (ActiveHealthCheckMonitor)services.GetRequiredService<IActiveHealthCheckMonitor>();
+            Assert.True(activeMonitor.Scheduler.IsScheduled(clusterState));
         }
 
         [Fact]
@@ -246,6 +251,48 @@ namespace Yarp.ReverseProxy.Management.Tests
         }
 
         [Fact]
+        public async Task ChangeConfig_ActiveHealthCheckIsEnabled_RunInitialCheck()
+        {
+            var endpoints = new List<RouteConfig>() { new RouteConfig() { RouteId = "r1", ClusterId = "c1", Match = new RouteMatch { Path = "/" } } };
+            var clusters = new List<ClusterConfig>() { new ClusterConfig { ClusterId = "c1" } };
+            var services = CreateServices(endpoints, clusters);
+            var inMemoryConfig = (InMemoryConfigProvider)services.GetRequiredService<IProxyConfigProvider>();
+            var configManager = services.GetRequiredService<ProxyConfigManager>();
+            var dataSource = await configManager.InitialLoadAsync();
+
+            var endpoint = Assert.Single(dataSource.Endpoints);
+            var routeConfig = endpoint.Metadata.GetMetadata<RouteModel>();
+            var clusterState = routeConfig.Cluster;
+            var activeMonitor = (ActiveHealthCheckMonitor)services.GetRequiredService<IActiveHealthCheckMonitor>();
+            Assert.False(activeMonitor.Scheduler.IsScheduled(clusterState));
+
+            var signaled = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            var changeToken = dataSource.GetChangeToken();
+            changeToken.RegisterChangeCallback(
+                _ =>
+                {
+                    signaled.SetResult(1);
+                }, null);
+
+            // updating should signal the current change token
+            Assert.False(signaled.Task.IsCompleted);
+            inMemoryConfig.Update(
+                endpoints,
+                new List<ClusterConfig>()
+                {
+                    new ClusterConfig
+                    {
+                        ClusterId = "c1",
+                        HealthCheck = new HealthCheckConfig { Active = new ActiveHealthCheckConfig { Enabled = true } }
+                    }
+                });
+            await signaled.Task.DefaultTimeout();
+
+            Assert.True(activeMonitor.Scheduler.IsScheduled(clusterState));
+        }
+
+        [Fact]
         public async Task LoadAsync_RequestVersionValidationError_Throws()
         {
             const string TestAddress = "https://localhost:123/";
@@ -257,7 +304,7 @@ namespace Yarp.ReverseProxy.Management.Tests
                 {
                     { "d1", new DestinationConfig { Address = TestAddress } }
                 },
-                HttpRequest = new RequestProxyConfig() { Version = new Version(1, 2) }
+                HttpRequest = new ForwarderRequestConfig() { Version = new Version(1, 2) }
             };
 
             var services = CreateServices(new List<RouteConfig>(), new List<ClusterConfig>() { cluster });

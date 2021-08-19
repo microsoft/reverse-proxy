@@ -15,14 +15,14 @@ namespace Yarp.ReverseProxy.LoadBalancing
 
         public string Name => LoadBalancingPolicies.RoundRobin;
 
-        public DestinationState? PickDestination(HttpContext context, IReadOnlyList<DestinationState> availableDestinations)
+        public DestinationState? PickDestination(HttpContext context, ClusterState cluster, IReadOnlyList<DestinationState> availableDestinations)
         {
             if (availableDestinations.Count == 0)
             {
                 return null;
             }
 
-            var counter = _counters.GetOrCreateValue(context.GetClusterState());
+            var counter = _counters.GetOrCreateValue(cluster);
 
             // Increment returns the new value and we want the first return value to be 0.
             var offset = counter.Increment() - 1;

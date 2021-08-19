@@ -5,16 +5,11 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS publish
 WORKDIR /src
-COPY ["backend.csproj", "backend/"]
-RUN dotnet restore "backend/backend.csproj"
-COPY . backend/
-WORKDIR "backend/"
-RUN dotnet build "backend.csproj" -c Release -o /app/build
-
-FROM build AS publish
-RUN dotnet publish "backend.csproj" -c Release -o /app/publish
+COPY . backend
+WORKDIR "backend"
+RUN dotnet publish -c Release -o /app/publish -f net5.0
 
 FROM base AS final
 WORKDIR /app

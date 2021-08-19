@@ -42,7 +42,7 @@ namespace Yarp.ReverseProxy.Sample
                 new ClusterConfig()
                 {
                     ClusterId = "cluster1",
-                    SessionAffinity = new SessionAffinityConfig { Enabled = true, Mode = "Cookie", AffinityKeyName = ".Yarp.ReverseProxy.Affinity" },
+                    SessionAffinity = new SessionAffinityConfig { Enabled = true, Policy = "Cookie", AffinityKeyName = ".Yarp.ReverseProxy.Affinity" },
                     Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                     {
                         { "destination1", new DestinationConfig() { Address = "https://localhost:10000" } }
@@ -92,8 +92,8 @@ namespace Yarp.ReverseProxy.Sample
                 });
 
             services.AddHttpContextAccessor();
-            services.AddSingleton<IProxyMetricsConsumer, ProxyMetricsConsumer>();
-            services.AddScoped<IProxyTelemetryConsumer, ProxyTelemetryConsumer>();
+            services.AddSingleton<IForwarderMetricsConsumer, ForwarderMetricsConsumer>();
+            services.AddTelemetryConsumer<ForwarderTelemetryConsumer>();
             services.AddTelemetryListeners();
         }
 

@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Configuration.ConfigProvider
 {
@@ -135,6 +135,11 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider
 
         private static RouteConfig CreateRoute(IConfigurationSection section)
         {
+            if (!string.IsNullOrEmpty(section["RouteId"]))
+            { 
+                throw new Exception("The route config format has changed, routes are now objects instead of an array. The route id must be set as the object name, not with the 'RouteId' field.");
+            }
+
             return new RouteConfig
             {
                 RouteId = section.Key,
@@ -206,7 +211,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider
             return new SessionAffinityConfig
             {
                 Enabled = section.ReadBool(nameof(SessionAffinityConfig.Enabled)),
-                Mode = section[nameof(SessionAffinityConfig.Mode)],
+                Policy = section[nameof(SessionAffinityConfig.Policy)],
                 FailurePolicy = section[nameof(SessionAffinityConfig.FailurePolicy)],
                 AffinityKeyName = section[nameof(SessionAffinityConfig.AffinityKeyName)],
                 Cookie = CreateSessionAffinityCookieConfig(section.GetSection(nameof(SessionAffinityConfig.Cookie)))
@@ -326,20 +331,21 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider
             };
         }
 
-        private static RequestProxyConfig? CreateProxyRequestConfig(IConfigurationSection section)
+        private static ForwarderRequestConfig? CreateProxyRequestConfig(IConfigurationSection section)
         {
             if (!section.Exists())
             {
                 return null;
             }
 
-            return new RequestProxyConfig
+            return new ForwarderRequestConfig
             {
-                Timeout = section.ReadTimeSpan(nameof(RequestProxyConfig.Timeout)),
-                Version = section.ReadVersion(nameof(RequestProxyConfig.Version)),
+                Timeout = section.ReadTimeSpan(nameof(ForwarderRequestConfig.Timeout)),
+                Version = section.ReadVersion(nameof(ForwarderRequestConfig.Version)),
 #if NET
-                VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(RequestProxyConfig.VersionPolicy)),
+                VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(ForwarderRequestConfig.VersionPolicy)),
 #endif
+                AllowResponseBuffering = section.ReadBool(nameof(ForwarderRequestConfig.AllowResponseBuffering))
             };
         }
 

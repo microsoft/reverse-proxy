@@ -50,7 +50,7 @@ namespace Yarp.ReverseProxy.LoadBalancing
             else
             {
                 var currentPolicy = _loadBalancingPolicies.GetRequiredServiceById(proxyFeature.Cluster.Config.LoadBalancingPolicy, LoadBalancingPolicies.PowerOfTwoChoices);
-                destination = currentPolicy.PickDestination(context, destinations);
+                destination = currentPolicy.PickDestination(context, proxyFeature.Route.Cluster!, destinations);
             }
 
             if (destination == null)

@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using Yarp.ReverseProxy.LoadBalancing;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
 {
@@ -68,14 +68,15 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
                                 Timeout = TimeSpan.FromSeconds(6),
                                 Policy = "Any5xxResponse",
                                 Path = "healthCheckPath"
-                            }
+                            },
+                            AvailableDestinationsPolicy = "HealthyOrPanic"
                         },
                         LoadBalancingPolicy = LoadBalancingPolicies.Random,
                         SessionAffinity = new SessionAffinityConfig
                         {
                             Enabled = true,
                             FailurePolicy = "Return503Error",
-                            Mode = "Cookie",
+                            Policy = "Cookie",
                             AffinityKeyName = "Key1",
                             Cookie = new SessionAffinityCookieConfig
                             {
@@ -99,13 +100,14 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
                             EnableMultipleHttp2Connections = true,
 #endif
                         },
-                        HttpRequest = new RequestProxyConfig()
+                        HttpRequest = new ForwarderRequestConfig()
                         {
                             Timeout = TimeSpan.FromSeconds(60),
                             Version = Version.Parse("1.0"),
 #if NET
                             VersionPolicy = HttpVersionPolicy.RequestVersionExact,
 #endif
+                            AllowResponseBuffering = true
                         },
                         Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
                     }
@@ -186,7 +188,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
             ""LoadBalancingPolicy"": ""Random"",
             ""SessionAffinity"": {
                 ""Enabled"": true,
-                ""Mode"": ""Cookie"",
+                ""Policy"": ""Cookie"",
                 ""FailurePolicy"": ""Return503Error"",
                 ""AffinityKeyName"": ""Key1"",
                 ""Cookie"": {
@@ -221,15 +223,6 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
                     ""Tls12""
                 ],
                 ""DangerousAcceptAnyServerCertificate"": true,
-                ""ClientCertificate"": {
-                    ""Path"": ""mycert.pfx"",
-                    ""KeyPath"": null,
-                    ""Password"": ""myPassword1234"",
-                    ""Subject"": null,
-                    ""Store"": null,
-                    ""Location"": null,
-                    ""AllowInvalid"": null
-                },
                 ""MaxConnectionsPerServer"": 10,
                 ""EnableMultipleHttp2Connections"": true,
                 ""ActivityContextHeaders"": ""Baggage"",
@@ -243,7 +236,8 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
             ""HttpRequest"": {
                 ""Timeout"": ""00:01:00"",
                 ""Version"": ""1"",
-                ""VersionPolicy"": ""RequestVersionExact""
+                ""VersionPolicy"": ""RequestVersionExact"",
+                ""AllowResponseBuffering"": ""true""
             },
             ""Destinations"": {
                 ""destinationA"": {
@@ -481,6 +475,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
             Assert.Equal(cluster1.Destinations["destinationB"].Address, abstractCluster1.Destinations["destinationB"].Address);
             Assert.Equal(cluster1.Destinations["destinationB"].Health, abstractCluster1.Destinations["destinationB"].Health);
             Assert.Equal(cluster1.Destinations["destinationB"].Metadata, abstractCluster1.Destinations["destinationB"].Metadata);
+            Assert.Equal(cluster1.HealthCheck.AvailableDestinationsPolicy, abstractCluster1.HealthCheck.AvailableDestinationsPolicy);
             Assert.Equal(cluster1.HealthCheck.Passive.Enabled, abstractCluster1.HealthCheck.Passive.Enabled);
             Assert.Equal(cluster1.HealthCheck.Passive.Policy, abstractCluster1.HealthCheck.Passive.Policy);
             Assert.Equal(cluster1.HealthCheck.Passive.ReactivationPeriod, abstractCluster1.HealthCheck.Passive.ReactivationPeriod);
@@ -492,7 +487,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
             Assert.Equal(LoadBalancingPolicies.Random, abstractCluster1.LoadBalancingPolicy);
             Assert.Equal(cluster1.SessionAffinity.Enabled, abstractCluster1.SessionAffinity.Enabled);
             Assert.Equal(cluster1.SessionAffinity.FailurePolicy, abstractCluster1.SessionAffinity.FailurePolicy);
-            Assert.Equal(cluster1.SessionAffinity.Mode, abstractCluster1.SessionAffinity.Mode);
+            Assert.Equal(cluster1.SessionAffinity.Policy, abstractCluster1.SessionAffinity.Policy);
             Assert.Equal(cluster1.SessionAffinity.AffinityKeyName, abstractCluster1.SessionAffinity.AffinityKeyName);
             Assert.Equal(cluster1.SessionAffinity.Cookie.Domain, abstractCluster1.SessionAffinity.Cookie.Domain);
             Assert.Equal(cluster1.SessionAffinity.Cookie.Expiration, abstractCluster1.SessionAffinity.Cookie.Expiration);
@@ -514,6 +509,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
 #if NET
             Assert.Equal(cluster1.HttpRequest.VersionPolicy, abstractCluster1.HttpRequest.VersionPolicy);
 #endif
+            Assert.Equal(cluster1.HttpRequest.AllowResponseBuffering, abstractCluster1.HttpRequest.AllowResponseBuffering);
             Assert.Equal(cluster1.HttpClient.DangerousAcceptAnyServerCertificate, abstractCluster1.HttpClient.DangerousAcceptAnyServerCertificate);
             Assert.Equal(cluster1.Metadata, abstractCluster1.Metadata);
 

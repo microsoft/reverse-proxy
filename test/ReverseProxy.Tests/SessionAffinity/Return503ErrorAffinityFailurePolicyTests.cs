@@ -18,9 +18,9 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             var policy = new Return503ErrorAffinityFailurePolicy();
             var context = new DefaultHttpContext();
 
-            Assert.Equal(SessionAffinityConstants.AffinityFailurePolicies.Return503Error, policy.Name);
+            Assert.Equal(SessionAffinityConstants.FailurePolicies.Return503Error, policy.Name);
 
-            Assert.False(await policy.Handle(context, default, status));
+            Assert.False(await policy.Handle(context, cluster: null, affinityStatus: status));
             Assert.Equal(503, context.Response.StatusCode);
         }
 
@@ -32,7 +32,7 @@ namespace Yarp.ReverseProxy.SessionAffinity.Tests
             var policy = new Return503ErrorAffinityFailurePolicy();
             var context = new DefaultHttpContext();
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => policy.Handle(context, default, status));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => policy.Handle(context, cluster: null, affinityStatus: status));
         }
     }
 }

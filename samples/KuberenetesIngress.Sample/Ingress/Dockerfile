@@ -5,20 +5,18 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS publish
 WORKDIR /src
-COPY ["samples/KuberenetesIngress.Sample/Ingress/Yarp.ReverseProxy.Kubernetes.Ingress.csproj", "samples/KuberenetesIngress.Sample/Ingress/"]
-COPY ["src/ReverseProxy/Yarp.ReverseProxy.csproj", "src/ReverseProxy/"]
-COPY ["src/OperatorFramework/src/Controller/Microsoft.Kubernetes.Controller.csproj", "src/OperatorFramework/src/Controller/"]
-COPY ["src/OperatorFramework/src/Core/Microsoft.Kubernetes.Core.csproj", "src/OperatorFramework/src/Core/"]
-COPY ["src/ReverseProxy.Kubernetes.Protocol/Yarp.ReverseProxy.Kubernetes.Protocol.csproj", "src/ReverseProxy.Kubernetes.Protocol/"]
-RUN dotnet restore "samples/KuberenetesIngress.Sample/Ingress/Yarp.ReverseProxy.Kubernetes.Ingress.csproj"
-COPY . .
-# WORKDIR /samples/KuberenetesIngress.Sample/Ingress/
-RUN dotnet build "samples/KuberenetesIngress.Sample/Ingress/Yarp.ReverseProxy.Kubernetes.Ingress.csproj" -c Release -o /app/build -f net5.0
+COPY ["src/OperatorFramework/src/Controller", "OperatorFramework/src/Controller"]
+COPY ["src/OperatorFramework/src/Core", "OperatorFramework/src/Core"]
+COPY ["src/ReverseProxy", "ReverseProxy"]
+COPY ["src/ReverseProxy.Kubernetes.Protocol", "ReverseProxy.Kubernetes.Protocol"]
 
-FROM build AS publish
-RUN dotnet publish "samples/KuberenetesIngress.Sample/Ingress/Yarp.ReverseProxy.Kubernetes.Ingress.csproj" -c Release -o /app/publish -f net5.0
+WORKDIR /samples
+COPY ["samples/KuberenetesIngress.Sample/Ingress", "KuberenetesIngress.Sample/Ingress"]
+
+WORKDIR KuberenetesIngress.Sample/Ingress/
+RUN dotnet publish -c Release -o /app/publish -f net5.0
 
 FROM base AS final
 WORKDIR /app

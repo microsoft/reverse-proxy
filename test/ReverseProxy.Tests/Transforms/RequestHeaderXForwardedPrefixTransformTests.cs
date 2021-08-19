@@ -13,30 +13,34 @@ namespace Yarp.ReverseProxy.Transforms.Tests
     {
         [Theory]
         // Using ";" to represent multi-line headers
-        [InlineData("", "", false, "")]
-        [InlineData("", "", true, "")]
-        [InlineData("", "/", false, "/")]
-        [InlineData("", "/", true, "/")]
-        [InlineData("", "/base", false, "/base")]
-        [InlineData("", "/base", true, "/base")]
-        [InlineData("", "/base/value", false, "/base/value")]
-        [InlineData("", "/base/value", true, "/base/value")]
-        [InlineData("", "/base本", false, "/base%E6%9C%AC")]
-        [InlineData("existing,Header", "", false, "")]
-        [InlineData("existing;Header", "", false, "")]
-        [InlineData("existing,Header", "", true, "existing,Header")]
-        [InlineData("existing;Header", "", true, "existing;Header")]
-        [InlineData("existing,Header", "/base", false, "/base")]
-        [InlineData("existing;Header", "/base", false, "/base")]
-        [InlineData("existing,Header", "/base", true, "existing,Header;/base")]
-        [InlineData("existing;Header", "/base", true, "existing;Header;/base")]
-        public async Task PathBase_Added(string startValue, string pathBase, bool append, string expected)
+        [InlineData("", "", ForwardedTransformActions.Set, "")]
+        [InlineData("", "", ForwardedTransformActions.Append, "")]
+        [InlineData("", "", ForwardedTransformActions.Remove, "")]
+        [InlineData("", "/", ForwardedTransformActions.Set, "/")]
+        [InlineData("", "/", ForwardedTransformActions.Append, "/")]
+        [InlineData("", "/base", ForwardedTransformActions.Set, "/base")]
+        [InlineData("", "/base", ForwardedTransformActions.Append, "/base")]
+        [InlineData("", "/base", ForwardedTransformActions.Remove, "")]
+        [InlineData("", "/base/value", ForwardedTransformActions.Set, "/base/value")]
+        [InlineData("", "/base/value", ForwardedTransformActions.Append, "/base/value")]
+        [InlineData("", "/base本", ForwardedTransformActions.Set, "/base%E6%9C%AC")]
+        [InlineData("existing,Header", "", ForwardedTransformActions.Set, "")]
+        [InlineData("existing;Header", "", ForwardedTransformActions.Set, "")]
+        [InlineData("existing,Header", "", ForwardedTransformActions.Append, "existing,Header")]
+        [InlineData("existing;Header", "", ForwardedTransformActions.Append, "existing;Header")]
+        [InlineData("existing;Header", "", ForwardedTransformActions.Remove, "")]
+        [InlineData("existing,Header", "/base", ForwardedTransformActions.Set, "/base")]
+        [InlineData("existing;Header", "/base", ForwardedTransformActions.Set, "/base")]
+        [InlineData("existing,Header", "/base", ForwardedTransformActions.Append, "existing,Header;/base")]
+        [InlineData("existing;Header", "/base", ForwardedTransformActions.Append, "existing;Header;/base")]
+        [InlineData("existing;Header", "/base", ForwardedTransformActions.Remove, "")]
+        public async Task PathBase_Added(string startValue, string pathBase, ForwardedTransformActions action, string expected)
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Request.PathBase = string.IsNullOrEmpty(pathBase) ? new PathString() : new PathString(pathBase);
             var proxyRequest = new HttpRequestMessage();
             proxyRequest.Headers.Add("name", startValue.Split(";", StringSplitOptions.RemoveEmptyEntries));
-            var transform = new RequestHeaderXForwardedPrefixTransform("name", append);
+            var transform = new RequestHeaderXForwardedPrefixTransform("name", action);
             await transform.ApplyAsync(new RequestTransformContext()
             {
                 HttpContext = httpContext,

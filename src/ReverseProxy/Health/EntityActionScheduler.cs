@@ -49,21 +49,29 @@ namespace Yarp.ReverseProxy.Health
 
         public void Start()
         {
-            if (Interlocked.CompareExchange(ref _isStarted, 1, 0) != 0)
+            if (Interlocked.Exchange(ref _isStarted, 1) == 1)
             {
                 return;
             }
 
             foreach (var entry in _entries.Values)
             {
-                entry.Timer.Change(entry.Period, Timeout.Infinite);
+                entry.SetTimer();
             }
         }
 
         public void ScheduleEntity(T entity, TimeSpan period)
         {
-            var entry = new SchedulerEntry(entity, (long)period.TotalMilliseconds, _timerCallback, Volatile.Read(ref _isStarted) == 1, _timerFactory);
+            var entry = new SchedulerEntry(entity, (long)period.TotalMilliseconds, _timerCallback, _timerFactory);
             var added = _entries.TryAdd(entity, entry);
+
+            // Scheduler could have been started while we were adding the new entry.
+            // Start timer here to ensure it's not forgotten.
+            if (Volatile.Read(ref _isStarted) == 1)
+            {
+                entry.SetTimer();
+            }
+
             Debug.Assert(added);
         }
 
@@ -72,6 +80,10 @@ namespace Yarp.ReverseProxy.Health
             if (_entries.TryGetValue(entity, out var entry))
             {
                 entry.ChangePeriod((long)newPeriod.TotalMilliseconds, Volatile.Read(ref _isStarted) == 1);
+            }
+            else
+            {
+                ScheduleEntity(entity, newPeriod);
             }
         }
 
@@ -110,11 +122,11 @@ namespace Yarp.ReverseProxy.Health
         {
             private long _period;
 
-            public SchedulerEntry(T entity, long period, TimerCallback timerCallback, bool autoStart, ITimerFactory timerFactory)
+            public SchedulerEntry(T entity, long period, TimerCallback timerCallback, ITimerFactory timerFactory)
             {
                 Entity = entity;
                 _period = period;
-                Timer = timerFactory.CreateTimer(timerCallback, this, autoStart ? period : Timeout.Infinite, Timeout.Infinite);
+                Timer = timerFactory.CreateTimer(timerCallback, this, Timeout.Infinite, Timeout.Infinite);
             }
 
             public T Entity { get; }

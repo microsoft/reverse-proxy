@@ -9,7 +9,7 @@ The reverse proxy can be used to authenticate and authorize requests before they
 No authentication or authorization is performed on requests unless enabled in the route or application configuration.
 
 ## Configuration
-Authorization policies can be specified per route via [RouteConfig.AuthorizationPolicy](xref:Yarp.ReverseProxy.Abstractions.RouteConfig) and can be bound from the `Routes` sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.
+Authorization policies can be specified per route via [RouteConfig.AuthorizationPolicy](xref:Yarp.ReverseProxy.Configuration.RouteConfig) and can be bound from the `Routes` sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.
 
 Example:
 ```JSON
@@ -37,7 +37,7 @@ Example:
 }
 ```
 
-[Authorization policies](https://docs.microsoft.com/en-us/aspnet/core/security/authorization/policies) are an ASP.NET Core concept that the proxy utilizes. The proxy provides the above configuration to specify a policy per route and the rest is handled by existing ASP.NET Core authentication and authorization components.
+[Authorization policies](https://docs.microsoft.com/aspnet/core/security/authorization/policies) are an ASP.NET Core concept that the proxy utilizes. The proxy provides the above configuration to specify a policy per route and the rest is handled by existing ASP.NET Core authentication and authorization components.
 
 Authorization policies can be configured in Startup.ConfigureServices as follows:
 ```
@@ -68,7 +68,7 @@ public void Configure(IApplicationBuilder app)
 }
 ```
 
-See the [Authentication](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/) docs for setting up your preferred kind of authentication.
+See the [Authentication](https://docs.microsoft.com/aspnet/core/security/authentication/) docs for setting up your preferred kind of authentication.
 
 ### Special values:
 
@@ -76,7 +76,7 @@ In addition to custom policy names, there are two special values that can be spe
 
 #### DefaultPolicy
 
-Specifying the value `default` in a route's authorization parameter means that route will use the policy defined in [AuthorizationOptions.DefaultPolicy](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authorization.authorizationoptions.defaultpolicy?#Microsoft_AspNetCore_Authorization_AuthorizationOptions_DefaultPolicy). That policy is pre-configured to require authenticated users.
+Specifying the value `default` in a route's authorization parameter means that route will use the policy defined in [AuthorizationOptions.DefaultPolicy](https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.authorization.authorizationoptions.defaultpolicy?#Microsoft_AspNetCore_Authorization_AuthorizationOptions_DefaultPolicy). That policy is pre-configured to require authenticated users.
 
 #### Anonymous
 
@@ -84,7 +84,7 @@ Specifying the value `anonymous` in a route's authorization parameter means that
 
 #### FallbackPolicy
 
-[AuthorizationOptions.FallbackPolicy](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authorization.authorizationoptions.fallbackpolicy) is the policy that will be used for any request or route that was not configured with a policy. FallbackPolicy does not have a value by default, any request will be allowed.
+[AuthorizationOptions.FallbackPolicy](https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.authorization.authorizationoptions.fallbackpolicy) is the policy that will be used for any request or route that was not configured with a policy. FallbackPolicy does not have a value by default, any request will be allowed.
 
 ## Flowing Credentials
 
@@ -104,7 +104,7 @@ These authentication types are often bound to a specific connection. They are no
 
 ### Client Certificates
 
-Client certificates are a TLS feature and are negotiated as part of a connection. See [these docs](https://docs.microsoft.com/en-us/aspnet/core/security/authentication/certauth) for additional information. The certificate can be forwarded to the destination server as an HTTP header using the [ClientCert](transforms.md#clientcert) transform.
+Client certificates are a TLS feature and are negotiated as part of a connection. See [these docs](https://docs.microsoft.com/aspnet/core/security/authentication/certauth) for additional information. The certificate can be forwarded to the destination server as an HTTP header using the [ClientCert](transforms.md#clientcert) transform.
 
 ### Swapping authentication types
 

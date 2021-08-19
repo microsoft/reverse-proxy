@@ -67,6 +67,5 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
                 throw;
             }
         }
-
     }
 }

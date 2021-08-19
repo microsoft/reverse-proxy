@@ -35,7 +35,7 @@ namespace Yarp.ReverseProxy.Health
 
             var policy = _policies.GetRequiredServiceById(options.Policy, HealthCheckConstants.PassivePolicy.TransportFailureRate);
             var cluster = context.GetRouteModel().Cluster!;
-            policy.RequestProxied(cluster, proxyFeature.ProxiedDestination, context);
+            policy.RequestProxied(context, cluster, proxyFeature.ProxiedDestination);
         }
     }
 }

@@ -23,7 +23,9 @@ namespace Microsoft.Extensions.Configuration
 
         internal static TimeSpan? ReadTimeSpan(this IConfiguration configuration, string name)
         {
-            return configuration[name] is string value ? TimeSpan.Parse(value, CultureInfo.InvariantCulture) : null;
+            // Format "c" => [-][d'.']hh':'mm':'ss['.'fffffff]. 
+            // You also can find more info at https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-timespan-format-strings#the-constant-c-format-specifier
+            return configuration[name] is string value ? TimeSpan.ParseExact(value, "c", CultureInfo.InvariantCulture) : null;
         }
 
         internal static Uri? ReadUri(this IConfiguration configuration, string name)

@@ -15,11 +15,11 @@ namespace Yarp.ReverseProxy.SessionAffinity
     /// </summary>
     internal sealed class AffinitizeTransform : ResponseTransform
     {
-        private readonly ISessionAffinityProvider _sessionAffinityProvider;
+        private readonly ISessionAffinityPolicy _sessionAffinityPolicy;
 
-        public AffinitizeTransform(ISessionAffinityProvider sessionAffinityProvider)
+        public AffinitizeTransform(ISessionAffinityPolicy sessionAffinityPolicy)
         {
-            _sessionAffinityProvider = sessionAffinityProvider ?? throw new ArgumentNullException(nameof(sessionAffinityProvider));
+            _sessionAffinityPolicy = sessionAffinityPolicy ?? throw new ArgumentNullException(nameof(sessionAffinityPolicy));
         }
 
         public override ValueTask ApplyAsync(ResponseTransformContext context)
@@ -29,7 +29,7 @@ namespace Yarp.ReverseProxy.SessionAffinity
             // The transform should only be added to routes that have affinity enabled.
             Debug.Assert(options?.Enabled ?? true, "Session affinity is not enabled");
             var selectedDestination = proxyFeature.ProxiedDestination!;
-            _sessionAffinityProvider.AffinitizeRequest(context.HttpContext, options!, selectedDestination);
+            _sessionAffinityPolicy.AffinitizeResponse(context.HttpContext, proxyFeature.Route.Cluster!, options!, selectedDestination);
             return default;
         }
     }

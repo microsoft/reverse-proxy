@@ -13,7 +13,7 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Xunit;
 using Yarp.ReverseProxy.Common;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy
 {
@@ -28,7 +28,7 @@ namespace Yarp.ReverseProxy
             var encoding = Encoding.GetEncoding(encodingName);
             var tcs = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            IProxyErrorFeature proxyError = null;
+            IForwarderErrorFeature proxyError = null;
             Exception unhandledError = null;
 
             var test = new TestEnvironment(
@@ -56,7 +56,7 @@ namespace Yarp.ReverseProxy
                             Assert.Equal(headerValue, value);
 
                             await next();
-                            proxyError = context.Features.Get<IProxyErrorFeature>();
+                            proxyError = context.Features.Get<IForwarderErrorFeature>();
                         }
                         catch (Exception ex)
                         {
@@ -150,7 +150,7 @@ namespace Yarp.ReverseProxy
                 await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
             });
 
-            IProxyErrorFeature proxyError = null;
+            IForwarderErrorFeature proxyError = null;
             Exception unhandledError = null;
 
             using var proxy = TestEnvironment.CreateProxy(HttpProtocols.Http1, false, encoding, "cluster1", $"http://{tcpListener.LocalEndpoint}",
@@ -162,7 +162,7 @@ namespace Yarp.ReverseProxy
                         try
                         {
                             await next();
-                            proxyError = context.Features.Get<IProxyErrorFeature>();
+                            proxyError = context.Features.Get<IForwarderErrorFeature>();
                         }
                         catch (Exception ex)
                         {
@@ -180,7 +180,7 @@ namespace Yarp.ReverseProxy
                 using var response = await httpClient.GetAsync(proxy.GetAddress());
 
                 Assert.NotNull(proxyError);
-                Assert.Equal(ProxyError.ResponseHeaders, proxyError.Error);
+                Assert.Equal(ForwarderError.ResponseHeaders, proxyError.Error);
                 var ioe = Assert.IsType<InvalidOperationException>(proxyError.Exception);
                 Assert.StartsWith("Invalid non-ASCII or control character in header: ", ioe.Message);
                 Assert.Null(unhandledError);

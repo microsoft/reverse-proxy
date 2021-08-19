@@ -9,7 +9,7 @@ using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.LoadBalancing;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Routing;
 using Yarp.ReverseProxy.SessionAffinity;
 using Yarp.ReverseProxy.Transforms;
@@ -54,9 +54,9 @@ namespace Yarp.ReverseProxy.Management
 
         public static IReverseProxyBuilder AddProxy(this IReverseProxyBuilder builder)
         {
-            builder.Services.TryAddSingleton<IProxyHttpClientFactory, ProxyHttpClientFactory>();
+            builder.Services.TryAddSingleton<IForwarderHttpClientFactory, ForwarderHttpClientFactory>();
 
-            builder.Services.AddHttpProxy();
+            builder.Services.AddHttpForwarder();
             return builder;
         }
 
@@ -75,15 +75,15 @@ namespace Yarp.ReverseProxy.Management
             return builder;
         }
 
-        public static IReverseProxyBuilder AddSessionAffinityProvider(this IReverseProxyBuilder builder)
+        public static IReverseProxyBuilder AddSessionAffinityPolicies(this IReverseProxyBuilder builder)
         {
             builder.Services.TryAddEnumerable(new[] {
                 ServiceDescriptor.Singleton<IAffinityFailurePolicy, RedistributeAffinityFailurePolicy>(),
                 ServiceDescriptor.Singleton<IAffinityFailurePolicy, Return503ErrorAffinityFailurePolicy>()
             });
             builder.Services.TryAddEnumerable(new[] {
-                ServiceDescriptor.Singleton<ISessionAffinityProvider, CookieSessionAffinityProvider>(),
-                ServiceDescriptor.Singleton<ISessionAffinityProvider, CustomHeaderSessionAffinityProvider>()
+                ServiceDescriptor.Singleton<ISessionAffinityPolicy, CookieSessionAffinityPolicy>(),
+                ServiceDescriptor.Singleton<ISessionAffinityPolicy, CustomHeaderSessionAffinityPolicy>()
             });
             builder.AddTransforms<AffinitizeTransformProvider>();
 

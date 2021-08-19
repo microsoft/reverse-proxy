@@ -83,7 +83,7 @@ These are the supported parameters:
 - `YARP.EnableDynamicOverrides` - indicates whether application parameters replacement is enabled on the service. Default `false`
 - `YARP.Backend.LoadBalancingPolicy` - configures YARP load balancing policy. Optional parameter
 - `YARP.Backend.SessionAffinity.*` - configures YARP session affinity. Available parameters and their meanings are provided on [the respective documentation page](session-affinity.md). Optional parameter
-- `YARP.Backend.HttpRequest.*` - sets proxied HTTP request properties. Available parameters and their meanings are provided on [the respective documentation page](proxyhttpclientconfig.md) in 'HttpRequest' section. Optional parameter
+- `YARP.Backend.HttpRequest.*` - sets proxied HTTP request properties. Available parameters and their meanings are provided on [the respective documentation page](proxy-httpclient-config.md) in 'HttpRequest' section. Optional parameter
 - `YARP.Backend.HealthCheck.Active.*` - configures YARP active health checks to be run against the given service. Available parameters and their meanings are provided on [the respective documentation page](dests-health-checks.md). There is one label in this group `YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName` which is not covered by that document because it's SF specific. Its purpose is explained below. Optional parameter
 - `YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName` - sets an explicit listener name for the health probing endpoint for each replica/instance that is used to probe replica/instance health state and is stored on the `Destination.Health` property in YARP's model. Optional parameter
 - `YARP.Backend.HealthCheck.Passive.*` - configures YARP passive health checks to be run against the given service. Available parameters and their meanings are provided on [the respective documentation page](dests-health-checks.md). Optional parameter
@@ -92,12 +92,12 @@ These are the supported parameters:
 - `YARP.Backend.ServiceFabric.ListenerName` - sets an explicit listener name for the main service's endpoint for each replica/instance that is used to route client requests to and is stored on the `Destination.Address` property in YARP's model. Optional parameter
 - `YARP.Backend.ServiceFabric.StatefulReplicaSelectionMode` - sets statefull replica selection mode. Supported values `All`, `PrimaryOnly`, `SecondaryOnly`. Values `All` and `SecondaryOnly` mean that the active secondary replicas will also be eligible for getting all kinds of client requests including writes. Default value `All`
 
-> NOTE: Label values can use the special syntax `[AppParamName]` to reference an application parameter with the name given within square brackets. This is consistent with Service Fabric conventions, see e.g. [using parameters in Service Fabric](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-how-to-specify-port-number-using-parameters).
+> NOTE: Label values can use the special syntax `[AppParamName]` to reference an application parameter with the name given within square brackets. This is consistent with Service Fabric conventions, see e.g. [using parameters in Service Fabric](https://docs.microsoft.com/azure/service-fabric/service-fabric-how-to-specify-port-number-using-parameters).
 
 ### Route definitions
 Multiple routes can be defined in an SF service configuration with the following parameters:
-- `YARP.Routes.<routeName>.Path` - configures path-based route matching. The value directly assigned to [RouteMatch.Path](xref:Yarp.ReverseProxy.Abstractions.RouteMatch) property and the standard route matching logic will be applied. `{**catch-all}` path may be used to route all requests.
-- `YARP.Routes.<routeName>.Hosts` - configures `Host` header based route matching. Multiple hosts should be separated by comma `,`. The value is split into a list of host names which is then directly assigned to [RouteMatch.Hosts](xref:Yarp.ReverseProxy.Abstractions.RouteMatch) property and the standard route matching logic will be applied.
+- `YARP.Routes.<routeName>.Path` - configures path-based route matching. The value directly assigned to [RouteMatch.Path](xref:Yarp.ReverseProxy.Configuration.RouteMatch) property and the standard route matching logic will be applied. `{**catch-all}` path may be used to route all requests.
+- `YARP.Routes.<routeName>.Hosts` - configures `Host` header based route matching. Multiple hosts should be separated by comma `,`. The value is split into a list of host names which is then directly assigned to [RouteMatch.Hosts](xref:Yarp.ReverseProxy.Configuration.RouteMatch) property and the standard route matching logic will be applied.
 - `<routeName>` can contain an ASCII letter, a number, or '_' and '-' symbols.
 
 Each route requires a `Path` or `Host` (or both). If both of them are specified, then a request is matched to the route only when both of them are matched.
@@ -144,19 +144,19 @@ Service Type | n/a
 Named Service Instance | Cluster (ClusterId=ServiceName)
 Partition | *TBD later*
 Replica / Instance (one endpoint only) | Destination (Address=instance' or replica's endpoint)
-YARP.Routes.<routeName>.* in ServiceManifest | ProxyRoute (id=ServiceName+routeName, Match=Hosts,Path extracted from the labels)
+YARP.Routes.<routeName>.* in ServiceManifest | RouteConfig (id=ServiceName+routeName, Match=Hosts,Path extracted from the labels)
 
 ## Testing SF integration locally
-While developing a new YARP-based application with enabled SF integration, it's helpful to test how everything works locally on a dev machine before deploying it to the cloud. This can be done by following the steps explained in [Prepare your development environment on Windows](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-get-started) guide.
+While developing a new YARP-based application with enabled SF integration, it's helpful to test how everything works locally on a dev machine before deploying it to the cloud. This can be done by following the steps explained in [Prepare your development environment on Windows](https://docs.microsoft.com/azure/service-fabric/service-fabric-get-started) guide.
 
-There is also the [step-by-step guide](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-tutorial-create-dotnet-app#create-an-aspnet-web-api-service-as-a-reliable-service) on how to create a sample SF service and deploy it to the local SF cluster. Once the sample SF project is created, the 'YARP-preview' section shown in the 'Service extension example' above must be added into `ServiceManifest.xml` to enable YARP.ServiceFabric.
+There is also the [step-by-step guide](https://docs.microsoft.com/azure/service-fabric/service-fabric-tutorial-create-dotnet-app#create-an-aspnet-web-api-service-as-a-reliable-service) on how to create a sample SF service and deploy it to the local SF cluster. Once the sample SF project is created, the 'YARP-preview' section shown in the 'Service extension example' above must be added into `ServiceManifest.xml` to enable YARP.ServiceFabric.
 
 ## Known limitations
 Limitations of the current Service Fabric to YARP configuration model conversion implementation:
 - Partitioning is not supported. Partitions are enumerated to retrieve all of the nested replicas/instances, but the partitioning key is not handled in any way. Specifically, depending on how YARP routing is configured, it's possible to route a request having one partition key (e.g 'A') to a replica of another partition (e.g. 'B').
-- Only one endpoint per each SF service's replica/instance is considered and gets converted to a [DestinationConfig](xref:Yarp.ReverseProxy.Abstractions.DestinationConfig).
+- Only one endpoint per each SF service's replica/instance is considered and gets converted to a [DestinationConfig](xref:Yarp.ReverseProxy.Configuration.DestinationConfig).
 - All statefull service replica roles are treated equally. No special differentiation logic is applied. Depending on the configuration, active secondary replicas can also be converted to destinations and directly receive client requests.
-- Each of the named service instances get converted to separate YARP [ClustersConfig](xref:Yarp.ReverseProxy.Abstractions.ClusterConfig) which are completely unrelated to each other.
+- Each of the named service instances get converted to separate YARP [ClustersConfig](xref:Yarp.ReverseProxy.Configuration.ClusterConfig) which are completely unrelated to each other.
 - Limited error handling. Most failures are logged and suppressed. Some errors will prevent the proxy config from being updated.
 
 ## Replica/instance endpoint selection
@@ -175,7 +175,7 @@ Service Fabric to YARP model conversion starts by enumerating all SF application
 
 Once a `ClusterConfig` and all its `DestinationConfig`'s have been built, `IDiscoverer` calls `IConfigValidator` to check validity of the produced YARP configuration. The validation is performed incrementally on each completed `ClusterConfig` before starting building the next one. In case of validation errors or other service conversion failures, the `Cluster`'s construction gets aborted and a health report gets sent to SF cluster indicating that the respective service is 'unhealthy'. A failure in conversion of one SF service doesn't fail the whole process, so all remaining services in the same SF application will be considered.
 
-If the `ClusterConfig` has been successfully validated, `IDiscoverer` proceeds to the final conversion step where it calls `LabelsParser` to create [RouteConfig](xref:Yarp.ReverseProxy.Abstractions.RouteConfig) from `YARP.Routes.*` extension labels. New `RouteConfig`'s are also passed down to `IConfigValidator` to ensure their validity. A failure in `ProxyRoute` construction is communicated to SF cluster in form of a service health report similar to other service conversion failures.
+If the `ClusterConfig` has been successfully validated, `IDiscoverer` proceeds to the final conversion step where it calls `LabelsParser` to create [RouteConfig](xref:Yarp.ReverseProxy.Configuration.RouteConfig) from `YARP.Routes.*` extension labels. New `RouteConfig`'s are also passed down to `IConfigValidator` to ensure their validity. A failure in `RouteConfig` construction is communicated to SF cluster in form of a service health report similar to other service conversion failures.
 
 After all applications and their services have been processed and a new complete YARP configuration has been constructed, `ServiceFabricConfigProvier` updates [IProxyConfig](xref:Yarp.ReverseProxy.Service.IProxyConfig) and notifies the rest of YARP about a configuration change.
 

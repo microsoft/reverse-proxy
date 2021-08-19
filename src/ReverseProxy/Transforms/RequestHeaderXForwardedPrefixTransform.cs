@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 
@@ -12,8 +13,7 @@ namespace Yarp.ReverseProxy.Transforms
     /// </summary>
     public class RequestHeaderXForwardedPrefixTransform : RequestTransform
     {
-        public RequestHeaderXForwardedPrefixTransform
-            (string headerName, bool append)
+        public RequestHeaderXForwardedPrefixTransform(string headerName, ForwardedTransformActions action)
         {
             if (string.IsNullOrEmpty(headerName))
             {
@@ -21,43 +21,60 @@ namespace Yarp.ReverseProxy.Transforms
             }
 
             HeaderName = headerName;
-            Append = append;
+            Debug.Assert(action != ForwardedTransformActions.Off);
+            TransformAction = action;
         }
 
         internal string HeaderName { get; }
-        internal bool Append { get; }
+        internal ForwardedTransformActions TransformAction { get; }
 
         /// <inheritdoc/>
         public override ValueTask ApplyAsync(RequestTransformContext context)
         {
             if (context is null)
             {
-                throw new System.ArgumentNullException(nameof(context));
+                throw new ArgumentNullException(nameof(context));
             }
-
-            var existingValues = TakeHeader(context, HeaderName);
 
             var pathBase = context.HttpContext.Request.PathBase;
 
+            switch (TransformAction)
+            {
+                case ForwardedTransformActions.Set:
+                    RemoveHeader(context, HeaderName);
+                    if (pathBase.HasValue)
+                    {
+                        AddHeader(context, HeaderName, pathBase.ToUriComponent());
+                    }
+                    break;
+                case ForwardedTransformActions.Append:
+                    Append(context, pathBase);
+                    break;
+                case ForwardedTransformActions.Remove:
+                    RemoveHeader(context, HeaderName);
+                    break;
+                default:
+                    throw new NotImplementedException(TransformAction.ToString());
+            }
+
+            return default;
+        }
+
+        private void Append(RequestTransformContext context, Microsoft.AspNetCore.Http.PathString pathBase)
+        {
+            var existingValues = TakeHeader(context, HeaderName);
             if (!pathBase.HasValue)
             {
-                if (Append && !string.IsNullOrEmpty(existingValues))
+                if (!string.IsNullOrEmpty(existingValues))
                 {
                     AddHeader(context, HeaderName, existingValues);
                 }
             }
-            else if (Append)
+            else
             {
                 var values = StringValues.Concat(existingValues, pathBase.ToUriComponent());
                 AddHeader(context, HeaderName, values);
             }
-            else
-            {
-                // Set
-                AddHeader(context, HeaderName, pathBase.ToUriComponent());
-            }
-
-            return default;
         }
     }
 }

@@ -220,7 +220,7 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
                 },
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
-                    {  "X-Forwarded", "" }
+                    {  "X-Forwarded", "Off" }
                 },
             };
 
@@ -253,7 +253,7 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
             // Disable default forwarders
             transforms.Add(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
-                {  "X-Forwarded", "" }
+                {  "X-Forwarded", "Off" }
             });
             if (useOriginalHost.HasValue)
             {
@@ -333,7 +333,7 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
             // Disable default forwarders
             transforms.Add(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
-                {  "X-Forwarded", "" }
+                {  "X-Forwarded", "Off" }
             });
             transforms.Add(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {

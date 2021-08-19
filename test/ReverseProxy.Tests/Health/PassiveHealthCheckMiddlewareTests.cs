@@ -9,7 +9,7 @@ using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Proxy;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Health.Tests
 {
@@ -31,7 +31,7 @@ namespace Yarp.ReverseProxy.Health.Tests
             await middleware.Invoke(context0);
 
             Assert.True(nextInvoked);
-            policies[0].Verify(p => p.RequestProxied(cluster0, cluster0.DestinationsState.AllDestinations[1], context0), Times.Once);
+            policies[0].Verify(p => p.RequestProxied(context0, cluster0, cluster0.DestinationsState.AllDestinations[1]), Times.Once);
             policies[0].VerifyGet(p => p.Name, Times.Once);
             policies[0].VerifyNoOtherCalls();
             policies[1].VerifyGet(p => p.Name, Times.Once);
@@ -39,12 +39,12 @@ namespace Yarp.ReverseProxy.Health.Tests
 
             nextInvoked = false;
 
-            var error = new ProxyErrorFeature(ProxyError.Request, null);
+            var error = new ForwarderErrorFeature(ForwarderError.Request, null);
             var context1 = GetContext(cluster1, selectedDestination: 0, error);
             await middleware.Invoke(context1);
 
             Assert.True(nextInvoked);
-            policies[1].Verify(p => p.RequestProxied(cluster1, cluster1.DestinationsState.AllDestinations[0], context1), Times.Once);
+            policies[1].Verify(p => p.RequestProxied(context1, cluster1, cluster1.DestinationsState.AllDestinations[0]), Times.Once);
             policies[1].VerifyNoOtherCalls();
             policies[0].VerifyNoOtherCalls();
         }
@@ -92,7 +92,7 @@ namespace Yarp.ReverseProxy.Health.Tests
             policies[1].VerifyNoOtherCalls();
         }
 
-        private HttpContext GetContext(ClusterState cluster, int selectedDestination, IProxyErrorFeature error)
+        private HttpContext GetContext(ClusterState cluster, int selectedDestination, IForwarderErrorFeature error)
         {
             var context = new DefaultHttpContext();
             context.Features.Set(GetProxyFeature(cluster, cluster.DestinationsState.AllDestinations[selectedDestination]));
