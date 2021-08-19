@@ -1,9 +1,9 @@
-# Header Transforms
+# Request and Response Transforms
 
 Introduced: preview2
 
 ## Introduction
-When proxying a request it's common to modify parts of the request or response headers to adapt to the destination server's requirements or to flow additional data such as the client's original IP address. This process is implemented via Transforms. Types of transforms are defined globally for the application and then individual routes supply the parameters to enable and configure those transforms. The original request objects are not modified by these transforms, only the proxy requests.
+When proxying a request it's common to modify parts of the request or response to adapt to the destination server's requirements or to flow additional data such as the client's original IP address. This process is implemented via Transforms. Types of transforms are defined globally for the application and then individual routes supply the parameters to enable and configure those transforms. The original request objects are not modified by these transforms, only the proxy requests.
 
 Request and response body transforms are not provided by YARP but you can write middleware to do this.
 
@@ -36,6 +36,10 @@ X-Forwarded-Host: IncomingHost:5000
 ## Transform Categories
 
 Transforms fall into a few categories: request, response, and response trailers.  Request trailers are not supported because they are not supported by the underlying HttpClient.
+Transforms can be added to routes either through configuration or programmatically.
+
+## Adding transforms
+
 Transforms can be added to routes either through configuration or programmatically.
 
 ### From Configuration
