@@ -100,16 +100,16 @@ namespace Yarp.ReverseProxy.Health.Tests
             healthUpdater.VerifyNoOtherCalls();
 
             // Successful requests
-            for (var i = 0; i < 4; i++)
+            for (var i = 0; i < 2; i++)
             {
                 policy.RequestProxied(new DefaultHttpContext(), cluster, cluster.Destinations.Values.First());
                 policy.RequestProxied(new DefaultHttpContext(), cluster, cluster.Destinations.Values.Skip(1).First());
-                clock.AdvanceClockBy(TimeSpan.FromMilliseconds(5000));
+                clock.AdvanceClockBy(TimeSpan.FromMilliseconds(10000));
             }
 
-            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.First(), DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(4));
+            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.First(), DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(2));
             healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(2));
-            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Unhealthy, TimeSpan.FromSeconds(60)), Times.Exactly(4));
+            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Unhealthy, TimeSpan.FromSeconds(60)), Times.Exactly(2));
             healthUpdater.VerifyNoOtherCalls();
 
             // Failed requests
@@ -120,16 +120,23 @@ namespace Yarp.ReverseProxy.Health.Tests
             }
 
             healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(3));
-            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Unhealthy, TimeSpan.FromSeconds(60)), Times.Exactly(5));
+            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Unhealthy, TimeSpan.FromSeconds(60)), Times.Exactly(3));
             healthUpdater.VerifyNoOtherCalls();
 
             // Shift the detection window to the future
             clock.AdvanceClockBy(TimeSpan.FromMilliseconds(10998));
 
+            // New successful requests
+            for (var i = 0; i < 2; i++)
+            {
+                policy.RequestProxied(new DefaultHttpContext(), cluster, cluster.Destinations.Values.Skip(1).First());
+                clock.AdvanceClockBy(TimeSpan.FromMilliseconds(1));
+            }
+
             // New failed request, but 2 oldest failures have moved out of the detection window
             policy.RequestProxied(GetFailedRequestContext(ForwarderError.RequestTimedOut), cluster, cluster.Destinations.Values.Skip(1).First());
 
-            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(4));
+            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(6));
             healthUpdater.VerifyNoOtherCalls();
         }
 
