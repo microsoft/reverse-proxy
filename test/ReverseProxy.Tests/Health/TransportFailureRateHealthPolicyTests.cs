@@ -134,6 +134,40 @@ namespace Yarp.ReverseProxy.Health.Tests
         }
 
         [Fact]
+        public void RequestProxied_FailedAndReactivationLessDetection_ReactivateDestinationAndMarkHealthy()
+        {
+            var options = Options.Create(
+                new TransportFailureRateHealthPolicyOptions { DefaultFailureRateLimit = 0.5, DetectionWindowSize = TimeSpan.FromSeconds(30), MinimalTotalCountThreshold = 1 });
+            var clock = new ManualClock(TimeSpan.FromMilliseconds(10000));
+            var healthUpdater = new Mock<IDestinationHealthUpdater>();
+            var policy = new TransportFailureRateHealthPolicy(options, clock, healthUpdater.Object);
+
+            var cluster = GetClusterInfo("cluster0", destinationCount: 2, reactivationPeriod: TimeSpan.FromSeconds(10));
+
+            // Initial failed requests
+            for (var i = 0; i < 2; i++)
+            {
+                policy.RequestProxied(GetFailedRequestContext(ForwarderError.RequestTimedOut), cluster, cluster.Destinations.Values.Skip(1).First());
+                clock.AdvanceClockBy(TimeSpan.FromMilliseconds(1000));
+            }
+
+            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Unhealthy, TimeSpan.FromSeconds(10)), Times.Exactly(2));
+            healthUpdater.VerifyNoOtherCalls();
+
+            // Simulate a reactivation
+            clock.AdvanceClockBy(TimeSpan.FromMilliseconds(11000));
+            cluster.Destinations.Values.Skip(1).First().Health.Passive = DestinationHealth.Unknown;
+
+            // One successful request to the reactivated destination
+            policy.RequestProxied(new DefaultHttpContext(), cluster, cluster.Destinations.Values.Skip(1).First());
+            clock.AdvanceClockBy(TimeSpan.FromMilliseconds(100));
+
+            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Healthy, TimeSpan.FromSeconds(10)), Times.Exactly(1));
+            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Unhealthy, TimeSpan.FromSeconds(10)), Times.Exactly(2));
+            healthUpdater.VerifyNoOtherCalls();
+        }
+
+        [Fact]
         public void RequestProxied_MultipleConcurrentRequests_MarkDestinationUnhealthyAndHealthyAgain()
         {
             var options = Options.Create(

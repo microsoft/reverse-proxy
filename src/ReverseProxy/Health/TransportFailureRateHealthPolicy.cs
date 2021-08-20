@@ -64,7 +64,12 @@ namespace Yarp.ReverseProxy.Health
                     (long)_policyOptions.DetectionWindowSize.TotalMilliseconds,
                     _policyOptions.MinimalTotalCountThreshold,
                     failed);
-                return failureRate < rateLimit ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
+                var newHealthState =  failureRate < rateLimit ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
+                if (newHealthState == DestinationHealth.Unhealthy)
+                {
+                    history.Clear();
+                }
+                return newHealthState;
             }
         }
 
@@ -118,6 +123,16 @@ namespace Yarp.ReverseProxy.Health
                 }
 
                 return _totalCount < totalCountThreshold || _totalCount == 0 ? 0.0 : _failedCount / _totalCount;
+            }
+
+            public void Clear()
+            {
+                _records.Clear();
+                _failedCount = 0;
+                _totalCount = 0;
+                _nextRecordCreatedAt = 0;
+                _nextRecordTotalCount = 0;
+                _nextRecordFailedCount = 0;
             }
 
             private readonly struct HistoryRecord
