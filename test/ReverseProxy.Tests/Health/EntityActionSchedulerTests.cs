@@ -198,7 +198,7 @@ namespace Yarp.ReverseProxy.Health.Tests
         }
 
         [Fact]
-        public void ChangePeriod_TimerStartedPeriodChangedAfterFirstCall_PeriodChangedBeforeNextCall()
+        public void ChangePeriod_TimerStartedPeriodChangedAfterFirstCall_PeriodChangedAfterNextCall()
         {
             var entity = new Entity { Id = "entity0" };
             Entity lastInvokedEntity = null;
@@ -213,10 +213,14 @@ namespace Yarp.ReverseProxy.Health.Tests
             timerFactory.VerifyTimer(0, Period0);
 
             timerFactory.FireTimer(0);
+            timerFactory.VerifyTimer(0, Period0);
+            Assert.Same(entity, lastInvokedEntity);
 
             var newPeriod = TimeSpan.FromMilliseconds(Period1);
             scheduler.ChangePeriod(entity, newPeriod);
+            timerFactory.VerifyTimer(0, Period0);
 
+            timerFactory.FireTimer(0);
             timerFactory.VerifyTimer(0, Period1);
             Assert.Same(entity, lastInvokedEntity);
         }

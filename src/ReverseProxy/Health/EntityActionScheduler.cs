@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,62 +25,80 @@ namespace Yarp.ReverseProxy.Health
     internal sealed class EntityActionScheduler<T> : IDisposable where T : notnull
     {
         private readonly ConcurrentDictionary<T, SchedulerEntry> _entries = new();
+        private readonly WeakReference<EntityActionScheduler<T>> _weakThisRef;
         private readonly Func<T, Task> _action;
         private readonly bool _runOnce;
         private readonly ITimerFactory _timerFactory;
-        private readonly TimerCallback _timerCallback;
-        private int _isStarted;
+
+        private const int Status_NotStarted = 0;
+        private const int Status_Started = 1;
+        private const int Status_Disposed = 2;
+        private int _status;
 
         public EntityActionScheduler(Func<T, Task> action, bool autoStart, bool runOnce, ITimerFactory timerFactory)
         {
             _action = action ?? throw new ArgumentNullException(nameof(action));
             _runOnce = runOnce;
             _timerFactory = timerFactory ?? throw new ArgumentNullException(nameof(timerFactory));
-            _timerCallback = async o => await Run(o!);
-            _isStarted = autoStart ? 1 : 0;
+            _status = autoStart ? Status_Started : Status_NotStarted;
+            _weakThisRef = new WeakReference<EntityActionScheduler<T>>(this);
         }
 
         public void Dispose()
         {
+            Volatile.Write(ref _status, Status_Disposed);
+
             foreach(var entry in _entries.Values)
             {
-                entry.Timer.Dispose();
+                entry.Dispose();
             }
         }
 
         public void Start()
         {
-            if (Interlocked.Exchange(ref _isStarted, 1) == 1)
+            if (Interlocked.CompareExchange(ref _status, Status_Started, Status_NotStarted) != Status_NotStarted)
             {
                 return;
             }
 
             foreach (var entry in _entries.Values)
             {
-                entry.SetTimer();
+                entry.EnsureStarted();
             }
         }
 
         public void ScheduleEntity(T entity, TimeSpan period)
         {
-            var entry = new SchedulerEntry(entity, (long)period.TotalMilliseconds, _timerCallback, _timerFactory);
-            var added = _entries.TryAdd(entity, entry);
+            // Ensure the Timer has a weak reference to this scheduler; otherwise,
+            // EntityActionScheduler can be rooted by the Timer implementation.
+            var entry = new SchedulerEntry(_weakThisRef, entity, (long)period.TotalMilliseconds, _timerFactory);
 
-            // Scheduler could have been started while we were adding the new entry.
-            // Start timer here to ensure it's not forgotten.
-            if (Volatile.Read(ref _isStarted) == 1)
+            if (_entries.TryAdd(entity, entry))
             {
-                entry.SetTimer();
+                // Scheduler could have been started while we were adding the new entry.
+                // Start timer here to ensure it's not forgotten.
+                if (Volatile.Read(ref _status) == Status_Started)
+                {
+                    entry.EnsureStarted();
+                }
             }
-
-            Debug.Assert(added);
+            else
+            {
+                entry.Dispose();
+            }
         }
 
         public void ChangePeriod(T entity, TimeSpan newPeriod)
         {
+            Debug.Assert(!_runOnce, "Calling ChangePeriod on a RunOnce scheduler may cause the callback to fire twice");
+
             if (_entries.TryGetValue(entity, out var entry))
             {
-                entry.ChangePeriod((long)newPeriod.TotalMilliseconds, Volatile.Read(ref _isStarted) == 1);
+                entry.ChangePeriod((long)newPeriod.TotalMilliseconds);
+                if (Volatile.Read(ref _status) == Status_Started)
+                {
+                    entry.EnsureStarted();
+                }
             }
             else
             {
@@ -91,7 +110,7 @@ namespace Yarp.ReverseProxy.Health
         {
             if (_entries.TryRemove(entity, out var entry))
             {
-                entry.Timer.Dispose();
+                entry.Dispose();
             }
         }
 
@@ -100,61 +119,119 @@ namespace Yarp.ReverseProxy.Health
             return _entries.ContainsKey(entity);
         }
 
-        private async Task Run(object entryObj)
+        private class SchedulerEntry : IDisposable
         {
-            var entry = (SchedulerEntry)entryObj;
-
-            if (_runOnce)
+            private static readonly TimerCallback _timerCallback = static async state =>
             {
-                UnscheduleEntity(entry.Entity);
-            }
+                var entry = (SchedulerEntry)state!;
 
-            await _action(entry.Entity);
-
-            // Check if the entity is still scheduled.
-            if (_entries.ContainsKey(entry.Entity))
-            {
-                entry.SetTimer();
-            }
-        }
-
-        private class SchedulerEntry
-        {
-            private long _period;
-
-            public SchedulerEntry(T entity, long period, TimerCallback timerCallback, ITimerFactory timerFactory)
-            {
-                Entity = entity;
-                _period = period;
-                Timer = timerFactory.CreateTimer(timerCallback, this, Timeout.Infinite, Timeout.Infinite);
-            }
-
-            public T Entity { get; }
-
-            public long Period => _period;
-
-            public ITimer Timer { get; }
-
-            public void ChangePeriod(long newPeriod, bool resetTimer)
-            {
-                Interlocked.Exchange(ref _period, newPeriod);
-                if (resetTimer)
+                if (!entry._scheduler.TryGetTarget(out var scheduler))
                 {
-                    SetTimer();
+                    return;
+                }
+
+                var pair = new KeyValuePair<T, SchedulerEntry>(entry._entity, entry);
+
+                if (scheduler._runOnce && scheduler._entries.TryRemove(pair))
+                {
+                    entry.Dispose();
+                }
+
+                try
+                {
+                    await scheduler._action(entry._entity);
+
+                    if (!scheduler._runOnce && scheduler._entries.Contains(pair))
+                    {
+                        // This entry has not been unscheduled - set the timer again
+                        entry.SetTimer(isRestart: true);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // We are running on the ThreadPool, don't propagate excetions
+                    Debug.Fail(ex.ToString()); // TODO: Log
+                    if (scheduler._entries.TryRemove(pair))
+                    {
+                        entry.Dispose();
+                    }
+                    return;
+                }
+            };
+
+            private readonly WeakReference<EntityActionScheduler<T>> _scheduler;
+            private readonly T _entity;
+            private readonly ITimer _timer;
+            private long _period;
+            private bool _running;
+
+            public SchedulerEntry(WeakReference<EntityActionScheduler<T>> scheduler, T entity, long period, ITimerFactory timerFactory)
+            {
+                _scheduler = scheduler;
+                _entity = entity;
+                _period = period;
+
+                // Don't capture the current ExecutionContext and its AsyncLocals onto the timer causing them to live forever
+                var restoreFlow = false;
+                try
+                {
+                    if (!ExecutionContext.IsFlowSuppressed())
+                    {
+                        ExecutionContext.SuppressFlow();
+                        restoreFlow = true;
+                    }
+
+                    _timer = timerFactory.CreateTimer(_timerCallback, this, Timeout.Infinite, Timeout.Infinite);
+                }
+                finally
+                {
+                    if (restoreFlow)
+                    {
+                        ExecutionContext.RestoreFlow();
+                    }
                 }
             }
 
-            public void SetTimer()
+            public void ChangePeriod(long newPeriod) => Volatile.Write(ref _period, newPeriod);
+
+            public void EnsureStarted() => SetTimer(isRestart: false);
+
+            private void SetTimer(bool isRestart)
             {
+                long period;
+
+                lock (this)
+                {
+                    period = Volatile.Read(ref _period);
+
+                    if (isRestart)
+                    {
+                        Debug.Assert(_running);
+                        _running = false;
+                    }
+
+                    if (period == Timeout.Infinite || _running)
+                    {
+                        return;
+                    }
+
+                    _running = true;
+                }
+
                 try
                 {
-                    Timer.Change(Interlocked.Read(ref _period), Timeout.Infinite);
+                    _timer.Change(period, Timeout.Infinite);
                 }
                 catch (ObjectDisposedException)
                 {
                     // It can be thrown if the timer has been already disposed.
                     // Just suppress it.
                 }
+            }
+
+            public void Dispose()
+            {
+                _timer.Dispose();
             }
         }
     }
