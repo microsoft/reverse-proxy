@@ -82,7 +82,7 @@ namespace Yarp.ReverseProxy
 
             await test.Invoke(async uri =>
             {
-                await ProcessHttpRequest(new Uri(uri), proxyProtocol, contentString, useContentLength, destResponseCode, false);
+                await ProcessHttpRequest(new Uri(uri), proxyProtocol, contentString, useContentLength, destResponseCode, false, destResponseCode == 200);
 
                 Assert.True(headerTcs.Task.IsCompleted);
                 var expectHeader = await headerTcs.Task;
@@ -103,19 +103,22 @@ namespace Yarp.ReverseProxy
         }
 
         [Theory]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, false)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, true)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, false)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, true)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false, false)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false, true)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, false)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, true)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, false, false)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, false, true)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, false)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, true)]
-        public async Task PostExpect100_ResponseWithPayload(HttpProtocols proxyProtocol, HttpProtocols destProtocol, bool useContentLength, bool cancelResponse)
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, true, 200)]
+        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, true, 200)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, true, 200)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, false, 400)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, true, 400)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, false, 400)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, true, 400)]
+        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false, false, 400)]
+        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false, true, 400)]
+        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, false, 400)]
+        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, true, 400)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, false, false, 400)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, false, true, 400)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, false, 400)]
+        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, true, 400)]
+        public async Task PostExpect100_ResponseWithPayload(HttpProtocols proxyProtocol, HttpProtocols destProtocol, bool useContentLength, bool cancelResponse, int responseCode)
         {
             var requestBodyTcs = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -125,7 +128,7 @@ namespace Yarp.ReverseProxy
                 {
                     await ReadContent(context, requestBodyTcs, Encoding.UTF8.GetByteCount(contentString));
 
-                    context.Response.StatusCode = 200;
+                    context.Response.StatusCode = responseCode;
 
                     var responseBody = Encoding.UTF8.GetBytes(contentString + "Response");
                     if (useContentLength)
@@ -164,10 +167,9 @@ namespace Yarp.ReverseProxy
 
             await test.Invoke(async uri =>
             {
-                var expectedStatusCode = 200;
-                await ProcessHttpRequest(new Uri(uri), proxyProtocol, contentString, useContentLength, expectedStatusCode, cancelResponse, async response =>
+                await ProcessHttpRequest(new Uri(uri), proxyProtocol, contentString, useContentLength, responseCode, cancelResponse, true, async response =>
                 {
-                    Assert.Equal(expectedStatusCode, (int)response.StatusCode);
+                    Assert.Equal(responseCode, (int)response.StatusCode);
 
                     var actualResponse = await response.Content.ReadAsStringAsync();
                     Assert.Equal(contentString + "Response", actualResponse);
@@ -204,6 +206,7 @@ namespace Yarp.ReverseProxy
             bool useContentLength,
             int expectedCode,
             bool cancelResponse,
+            bool contentRead,
             Func<HttpResponseMessage, Task> responseAction = null)
         {
             using var handler = new SocketsHttpHandler() { Expect100ContinueTimeout = TimeSpan.FromSeconds(60) };
@@ -232,7 +235,7 @@ namespace Yarp.ReverseProxy
                 using var response = await client.SendAsync(message);
 
                 Assert.Equal(expectedCode, (int)response.StatusCode);
-                if (expectedCode == 200)
+                if (contentRead)
                 {
                     Assert.Equal(content.Length, contentStream.Position);
                 }
