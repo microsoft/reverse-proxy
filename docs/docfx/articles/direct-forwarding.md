@@ -76,8 +76,8 @@ public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
     });
 }
 ```
-C#
-```
+
+```C#
 private class CustomTransformer : HttpTransformer
 {
     public override async Task TransformRequestAsync(HttpContext httpContext,
