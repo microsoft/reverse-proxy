@@ -119,7 +119,7 @@ namespace Yarp.ReverseProxy.Health
             return _entries.ContainsKey(entity);
         }
 
-        private class SchedulerEntry : IDisposable
+        private sealed class SchedulerEntry : IDisposable
         {
             private static readonly TimerCallback _timerCallback = static async state =>
             {
