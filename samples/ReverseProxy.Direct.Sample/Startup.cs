@@ -51,7 +51,7 @@ namespace Yarp.Sample
                 endpoints.Map("/test/{**catch-all}", async httpContext =>
                 {
                     var error = await forwarder.SendAsync(httpContext, "https://example.com", httpClient, requestOptions,
-                        (context, proxyRequest) =>
+                        static (context, proxyRequest) =>
                         {
                             // Customize the query string:
                             var queryContext = new QueryTransformContext(context.Request);
