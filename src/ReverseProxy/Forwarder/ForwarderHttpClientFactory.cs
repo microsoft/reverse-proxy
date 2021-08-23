@@ -128,7 +128,7 @@ namespace Yarp.ReverseProxy.Forwarder
         /// </summary>
         protected virtual HttpMessageHandler WrapHandler(ForwarderHttpClientContext context, HttpMessageHandler handler)
         {
-            var activityContextHeaders = context.NewConfig.ActivityContextHeaders.GetValueOrDefault(ActivityContextHeaders.BaggageAndCorrelationContext);
+            var activityContextHeaders = context.NewConfig.ActivityContextHeaders.GetValueOrDefault(ActivityContextHeaders.CorrelationContext);
             if (activityContextHeaders != ActivityContextHeaders.None)
             {
                 handler = new ActivityPropagationHandler(activityContextHeaders, handler);
