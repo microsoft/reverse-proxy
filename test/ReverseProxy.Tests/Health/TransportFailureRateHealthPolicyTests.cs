@@ -100,16 +100,16 @@ namespace Yarp.ReverseProxy.Health.Tests
             healthUpdater.VerifyNoOtherCalls();
 
             // Successful requests
-            for (var i = 0; i < 2; i++)
+            for (var i = 0; i < 4; i++)
             {
                 policy.RequestProxied(new DefaultHttpContext(), cluster, cluster.Destinations.Values.First());
                 policy.RequestProxied(new DefaultHttpContext(), cluster, cluster.Destinations.Values.Skip(1).First());
-                clock.AdvanceClockBy(TimeSpan.FromMilliseconds(10000));
+                clock.AdvanceClockBy(TimeSpan.FromMilliseconds(5000));
             }
 
-            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.First(), DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(2));
+            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.First(), DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(4));
             healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(2));
-            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Unhealthy, TimeSpan.FromSeconds(60)), Times.Exactly(2));
+            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Unhealthy, TimeSpan.FromSeconds(60)), Times.Exactly(4));
             healthUpdater.VerifyNoOtherCalls();
 
             // Failed requests
@@ -120,7 +120,7 @@ namespace Yarp.ReverseProxy.Health.Tests
             }
 
             healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Healthy, TimeSpan.FromSeconds(60)), Times.Exactly(3));
-            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Unhealthy, TimeSpan.FromSeconds(60)), Times.Exactly(3));
+            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Unhealthy, TimeSpan.FromSeconds(60)), Times.Exactly(5));
             healthUpdater.VerifyNoOtherCalls();
 
             // Shift the detection window to the future
@@ -141,7 +141,7 @@ namespace Yarp.ReverseProxy.Health.Tests
         }
 
         [Fact]
-        public void RequestProxied_FailedAndReactivationLessDetection_ReactivateDestinationAndMarkHealthy()
+        public void RequestProxied_FailedAndReactivationLessDetection_UseDetectionPeriodForReactivation()
         {
             var options = Options.Create(
                 new TransportFailureRateHealthPolicyOptions { DefaultFailureRateLimit = 0.5, DetectionWindowSize = TimeSpan.FromSeconds(30), MinimalTotalCountThreshold = 1 });
@@ -158,19 +158,19 @@ namespace Yarp.ReverseProxy.Health.Tests
                 clock.AdvanceClockBy(TimeSpan.FromMilliseconds(1000));
             }
 
-            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Unhealthy, TimeSpan.FromSeconds(10)), Times.Exactly(2));
+            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Unhealthy, TimeSpan.FromSeconds(30)), Times.Exactly(2));
             healthUpdater.VerifyNoOtherCalls();
 
             // Simulate a reactivation
-            clock.AdvanceClockBy(TimeSpan.FromMilliseconds(11000));
+            clock.AdvanceClockBy(TimeSpan.FromMilliseconds(31000));
             cluster.Destinations.Values.Skip(1).First().Health.Passive = DestinationHealth.Unknown;
 
             // One successful request to the reactivated destination
             policy.RequestProxied(new DefaultHttpContext(), cluster, cluster.Destinations.Values.Skip(1).First());
             clock.AdvanceClockBy(TimeSpan.FromMilliseconds(100));
 
-            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Healthy, TimeSpan.FromSeconds(10)), Times.Exactly(1));
-            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Unhealthy, TimeSpan.FromSeconds(10)), Times.Exactly(2));
+            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Healthy, TimeSpan.FromSeconds(30)), Times.Exactly(1));
+            healthUpdater.Verify(u => u.SetPassive(cluster, cluster.Destinations.Values.Skip(1).First(), DestinationHealth.Unhealthy, TimeSpan.FromSeconds(30)), Times.Exactly(2));
             healthUpdater.VerifyNoOtherCalls();
         }
 
@@ -181,7 +181,7 @@ namespace Yarp.ReverseProxy.Health.Tests
                 new TransportFailureRateHealthPolicyOptions { DefaultFailureRateLimit = 0.5, DetectionWindowSize = TimeSpan.FromSeconds(30), MinimalTotalCountThreshold = 1 });
             var clock = new ManualClock(TimeSpan.FromMilliseconds(10000));
             var healthUpdater = new Mock<IDestinationHealthUpdater>();
-            var reactivationPeriod = TimeSpan.FromSeconds(15);
+            var reactivationPeriod = TimeSpan.FromSeconds(40);
             var policy = new TransportFailureRateHealthPolicy(options, clock, healthUpdater.Object);
 
             var cluster = GetClusterInfo("cluster0", destinationCount: 2, reactivationPeriod: reactivationPeriod);
