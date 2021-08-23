@@ -30,9 +30,9 @@ namespace Yarp.ReverseProxy.Health
         private readonly bool _runOnce;
         private readonly ITimerFactory _timerFactory;
 
-        private const int Status_NotStarted = 0;
-        private const int Status_Started = 1;
-        private const int Status_Disposed = 2;
+        private const int NotStarted = 0;
+        private const int Started = 1;
+        private const int Disposed = 2;
         private int _status;
 
         public EntityActionScheduler(Func<T, Task> action, bool autoStart, bool runOnce, ITimerFactory timerFactory)
@@ -40,13 +40,13 @@ namespace Yarp.ReverseProxy.Health
             _action = action ?? throw new ArgumentNullException(nameof(action));
             _runOnce = runOnce;
             _timerFactory = timerFactory ?? throw new ArgumentNullException(nameof(timerFactory));
-            _status = autoStart ? Status_Started : Status_NotStarted;
+            _status = autoStart ? Started : NotStarted;
             _weakThisRef = new WeakReference<EntityActionScheduler<T>>(this);
         }
 
         public void Dispose()
         {
-            Volatile.Write(ref _status, Status_Disposed);
+            Volatile.Write(ref _status, Disposed);
 
             foreach(var entry in _entries.Values)
             {
@@ -56,7 +56,7 @@ namespace Yarp.ReverseProxy.Health
 
         public void Start()
         {
-            if (Interlocked.CompareExchange(ref _status, Status_Started, Status_NotStarted) != Status_NotStarted)
+            if (Interlocked.CompareExchange(ref _status, Started, NotStarted) != NotStarted)
             {
                 return;
             }
@@ -77,7 +77,7 @@ namespace Yarp.ReverseProxy.Health
             {
                 // Scheduler could have been started while we were adding the new entry.
                 // Start timer here to ensure it's not forgotten.
-                if (Volatile.Read(ref _status) == Status_Started)
+                if (Volatile.Read(ref _status) == Started)
                 {
                     entry.EnsureStarted();
                 }
@@ -95,7 +95,7 @@ namespace Yarp.ReverseProxy.Health
             if (_entries.TryGetValue(entity, out var entry))
             {
                 entry.ChangePeriod((long)newPeriod.TotalMilliseconds);
-                if (Volatile.Read(ref _status) == Status_Started)
+                if (Volatile.Read(ref _status) == Started)
                 {
                     entry.EnsureStarted();
                 }
