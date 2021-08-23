@@ -35,6 +35,7 @@ namespace Yarp.ReverseProxy.Health.Tests
             Assert.Equal(DestinationHealth.Unhealthy, destination.Health.Passive);
 
             timerFactory.FireAll();
+            GC.KeepAlive(updater); // The timer does not keep a strong reference to the scheduler
 
             Assert.Equal(DestinationHealth.Healthy, destination.Health.Active);
             Assert.Equal(DestinationHealth.Unknown, destination.Health.Passive);

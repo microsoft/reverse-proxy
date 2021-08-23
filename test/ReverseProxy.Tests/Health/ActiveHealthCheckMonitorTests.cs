@@ -116,6 +116,8 @@ namespace Yarp.ReverseProxy.Health.Tests
             timerFactory.VerifyTimer(1, Interval1);
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 1), ("https://localhost:20001/cluster0/api/health/", 1) }, policyCallTimes: 1);
             VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) }, policyCallTimes: 1);
+
+            GC.KeepAlive(monitor); // The timer does not keep a strong reference to the scheduler
         }
 
         [Fact]
@@ -158,6 +160,8 @@ namespace Yarp.ReverseProxy.Health.Tests
 
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 2), ("https://localhost:20001/cluster0/api/health/", 2) }, policyCallTimes: 2);
             VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) }, policyCallTimes: 1);
+
+            GC.KeepAlive(monitor); // The timer does not keep a strong reference to the scheduler
         }
 
         [Fact]
@@ -198,6 +202,8 @@ namespace Yarp.ReverseProxy.Health.Tests
             timerFactory.VerifyTimer(1, Interval1);
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 2), ("https://localhost:20001/cluster0/api/health/", 2) }, policyCallTimes: 2);
             VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) }, policyCallTimes: 1);
+
+            GC.KeepAlive(monitor); // The timer does not keep a strong reference to the scheduler
         }
 
         [Fact]
@@ -247,6 +253,8 @@ namespace Yarp.ReverseProxy.Health.Tests
             timerFactory.VerifyTimer(1, Interval1);
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 2), ("https://localhost:20001/cluster0/api/health/", 2) }, policyCallTimes: 2);
             VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:10000/cluster2/api/health/", 1), ("https://localhost:10001/cluster2/api/health/", 1) }, policyCallTimes: 2);
+
+            GC.KeepAlive(monitor); // The timer does not keep a strong reference to the scheduler
         }
 
         [Fact]
@@ -299,6 +307,8 @@ namespace Yarp.ReverseProxy.Health.Tests
 
             timerFactory.AssertTimerDisposed(1);
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 2), ("https://localhost:20001/cluster0/api/health/", 2) }, policyCallTimes: 2);
+
+            GC.KeepAlive(monitor); // The timer does not keep a strong reference to the scheduler
         }
 
         [Fact]
@@ -336,6 +346,8 @@ namespace Yarp.ReverseProxy.Health.Tests
                 Times.Once);
             policy.Verify(p => p.Name);
             policy.VerifyNoOtherCalls();
+
+            GC.KeepAlive(monitor); // The timer does not keep a strong reference to the scheduler
 
             async Task<HttpResponseMessage> GetResponse(HttpRequestMessage m, CancellationToken t)
             {
