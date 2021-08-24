@@ -5,9 +5,8 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Yarp.ReverseProxy.Forwarder;
 
-namespace Yarp.Sample
+namespace Yarp.ReverseProxy.Forwarder
 {
     internal class RequestTransformer : HttpTransformer
     {
