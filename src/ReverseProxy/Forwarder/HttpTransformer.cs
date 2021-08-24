@@ -41,8 +41,7 @@ namespace Yarp.ReverseProxy.Forwarder
             {
                 var headerName = header.Key;
                 var headerValue = header.Value;
-                if (StringValues.IsNullOrEmpty(headerValue)
-                    || RequestUtilities.ShouldSkipRequestHeader(headerName))
+                if (RequestUtilities.ShouldSkipRequestHeader(headerName))
                 {
                     continue;
                 }
@@ -110,7 +109,11 @@ namespace Yarp.ReverseProxy.Forwarder
                 }
 
                 Debug.Assert(header.Value is string[]);
-                destination.Append(headerName, header.Value as string[] ?? header.Value.ToArray());
+                var values = header.Value as string[] ?? header.Value.ToArray();
+                // We want to append to any prior values, if any.
+                // Not using Append here because it skips empty headers.
+                values = StringValues.Concat(destination[headerName], values);
+                destination[headerName] = values;
             }
         }
     }
