@@ -49,6 +49,7 @@ namespace Yarp.ReverseProxy.Health
             var error = context.Features.Get<IForwarderErrorFeature>();
             var newHealth = EvaluateProxiedRequest(cluster, destination, error != null);
             var clusterReactivationPeriod = cluster.Model.Config.HealthCheck?.Passive?.ReactivationPeriod ?? _defaultReactivationPeriod;
+            // Avoid reactivating until the history has expired so that it does not affect future health assessments.
             var reactivationPeriod = clusterReactivationPeriod >= _policyOptions.DetectionWindowSize ? clusterReactivationPeriod : _policyOptions.DetectionWindowSize;
             _healthUpdater.SetPassive(cluster, destination, newHealth, reactivationPeriod);
         }
