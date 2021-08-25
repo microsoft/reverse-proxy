@@ -117,60 +117,6 @@ namespace Yarp.ReverseProxy.Health
 
         private sealed class SchedulerEntry : IDisposable
         {
-            // Timer.Change is racy as the callback could already be scheduled while we are starting the timer again.
-            // Avoid running the callback multiple times concurrently by using the _runningCallback flag.
-            private static readonly TimerCallback _timerCallback = static async state =>
-            {
-                var entry = (SchedulerEntry)state!;
-
-                lock (entry)
-                {
-                    if (entry._runningCallback)
-                    {
-                        return;
-                    }
-
-                    entry._runningCallback = true;
-                }
-
-                if (!entry._scheduler.TryGetTarget(out var scheduler))
-                {
-                    return;
-                }
-
-                var pair = new KeyValuePair<T, SchedulerEntry>(entry._entity, entry);
-
-                if (scheduler._runOnce && scheduler._entries.TryRemove(pair))
-                {
-                    entry.Dispose();
-                }
-
-                try
-                {
-                    await scheduler._action(entry._entity);
-
-                    if (!scheduler._runOnce && scheduler._entries.Contains(pair))
-                    {
-                        // This entry has not been unscheduled - set the timer again
-                        lock (entry)
-                        {
-                            entry._runningCallback = false;
-                            entry.SetTimer();
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // We are running on the ThreadPool, don't propagate excetions
-                    Debug.Fail(ex.ToString()); // TODO: Log
-                    if (scheduler._entries.TryRemove(pair))
-                    {
-                        entry.Dispose();
-                    }
-                    return;
-                }
-            };
-
             private readonly WeakReference<EntityActionScheduler<T>> _scheduler;
             private readonly T _entity;
             private readonly ITimer _timer;
@@ -194,7 +140,7 @@ namespace Yarp.ReverseProxy.Health
                         restoreFlow = true;
                     }
 
-                    _timer = timerFactory.CreateTimer(_timerCallback, this, Timeout.Infinite, Timeout.Infinite);
+                    _timer = timerFactory.CreateTimer(static s => _ = TimerCallback(s), this, Timeout.Infinite, Timeout.Infinite);
                 }
                 finally
                 {
@@ -249,6 +195,60 @@ namespace Yarp.ReverseProxy.Health
             public void Dispose()
             {
                 _timer.Dispose();
+            }
+
+            // Timer.Change is racy as the callback could already be scheduled while we are starting the timer again.
+            // Avoid running the callback multiple times concurrently by using the _runningCallback flag.
+            private static async Task TimerCallback(object? state)
+            {
+                var entry = (SchedulerEntry)state!;
+
+                lock (entry)
+                {
+                    if (entry._runningCallback)
+                    {
+                        return;
+                    }
+
+                    entry._runningCallback = true;
+                }
+
+                if (!entry._scheduler.TryGetTarget(out var scheduler))
+                {
+                    return;
+                }
+
+                var pair = new KeyValuePair<T, SchedulerEntry>(entry._entity, entry);
+
+                if (scheduler._runOnce && scheduler._entries.TryRemove(pair))
+                {
+                    entry.Dispose();
+                }
+
+                try
+                {
+                    await scheduler._action(entry._entity);
+
+                    if (!scheduler._runOnce && scheduler._entries.Contains(pair))
+                    {
+                        // This entry has not been unscheduled - set the timer again
+                        lock (entry)
+                        {
+                            entry._runningCallback = false;
+                            entry.SetTimer();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // We are running on the ThreadPool, don't propagate excetions
+                    Debug.Fail(ex.ToString()); // TODO: Log
+                    if (scheduler._entries.TryRemove(pair))
+                    {
+                        entry.Dispose();
+                    }
+                    return;
+                }
             }
         }
     }
