@@ -198,7 +198,7 @@ namespace Yarp.ReverseProxy.Health.Tests
         }
 
         [Fact]
-        public void ChangePeriod_TimerStartedPeriodChangedAfterFirstCall_PeriodChangedAfterNextCall()
+        public void ChangePeriod_TimerStartedPeriodChangedAfterFirstCall_PeriodChangedBeforeNextCall()
         {
             var entity = new Entity { Id = "entity0" };
             Entity lastInvokedEntity = null;
