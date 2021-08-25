@@ -183,7 +183,7 @@ namespace Yarp.ReverseProxy.Health
 
                 try
                 {
-                    _timer.Change(Volatile.Read(ref _period), Timeout.Infinite);
+                    _timer.Change(_period, Timeout.Infinite);
                 }
                 catch (ObjectDisposedException)
                 {
