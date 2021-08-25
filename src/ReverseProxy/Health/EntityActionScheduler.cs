@@ -48,7 +48,7 @@ namespace Yarp.ReverseProxy.Health
         {
             Volatile.Write(ref _status, Disposed);
 
-            foreach(var entry in _entries.Values)
+            foreach (var entry in _entries.Values)
             {
                 entry.Dispose();
             }
@@ -95,10 +95,6 @@ namespace Yarp.ReverseProxy.Health
             if (_entries.TryGetValue(entity, out var entry))
             {
                 entry.ChangePeriod((long)newPeriod.TotalMilliseconds);
-                if (Volatile.Read(ref _status) == Started)
-                {
-                    entry.EnsureStarted();
-                }
             }
             else
             {
@@ -121,9 +117,21 @@ namespace Yarp.ReverseProxy.Health
 
         private sealed class SchedulerEntry : IDisposable
         {
+            // Timer.Change is racy as the callback could already be scheduled while we are starting the timer again.
+            // Avoid running the callback multiple times concurrently by using the _runningCallback flag.
             private static readonly TimerCallback _timerCallback = static async state =>
             {
                 var entry = (SchedulerEntry)state!;
+
+                lock (entry)
+                {
+                    if (entry._runningCallback)
+                    {
+                        return;
+                    }
+
+                    entry._runningCallback = true;
+                }
 
                 if (!entry._scheduler.TryGetTarget(out var scheduler))
                 {
@@ -144,7 +152,11 @@ namespace Yarp.ReverseProxy.Health
                     if (!scheduler._runOnce && scheduler._entries.Contains(pair))
                     {
                         // This entry has not been unscheduled - set the timer again
-                        entry.SetTimer(isRestart: true);
+                        lock (entry)
+                        {
+                            entry._runningCallback = false;
+                            entry.SetTimer();
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -163,7 +175,8 @@ namespace Yarp.ReverseProxy.Health
             private readonly T _entity;
             private readonly ITimer _timer;
             private long _period;
-            private bool _running;
+            private bool _timerStarted;
+            private bool _runningCallback;
 
             public SchedulerEntry(WeakReference<EntityActionScheduler<T>> scheduler, T entity, long period, ITimerFactory timerFactory)
             {
@@ -192,35 +205,39 @@ namespace Yarp.ReverseProxy.Health
                 }
             }
 
-            public void ChangePeriod(long newPeriod) => Volatile.Write(ref _period, newPeriod);
-
-            public void EnsureStarted() => SetTimer(isRestart: false);
-
-            private void SetTimer(bool isRestart)
+            public void ChangePeriod(long newPeriod)
             {
-                long period;
-
                 lock (this)
                 {
-                    period = Volatile.Read(ref _period);
-
-                    if (isRestart)
+                    _period = newPeriod;
+                    if (_timerStarted && !_runningCallback)
                     {
-                        Debug.Assert(_running);
-                        _running = false;
+                        SetTimer();
                     }
-
-                    if (period == Timeout.Infinite || _running)
-                    {
-                        return;
-                    }
-
-                    _running = true;
                 }
+            }
+
+            public void EnsureStarted()
+            {
+                lock (this)
+                {
+                    if (!_timerStarted)
+                    {
+                        SetTimer();
+                    }
+                }
+            }
+
+            private void SetTimer()
+            {
+                Debug.Assert(Monitor.IsEntered(this));
+                Debug.Assert(!_runningCallback);
+
+                _timerStarted = true;
 
                 try
                 {
-                    _timer.Change(period, Timeout.Infinite);
+                    _timer.Change(Volatile.Read(ref _period), Timeout.Infinite);
                 }
                 catch (ObjectDisposedException)
                 {

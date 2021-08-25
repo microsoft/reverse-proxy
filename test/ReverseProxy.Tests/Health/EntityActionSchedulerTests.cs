@@ -213,14 +213,10 @@ namespace Yarp.ReverseProxy.Health.Tests
             timerFactory.VerifyTimer(0, Period0);
 
             timerFactory.FireTimer(0);
-            timerFactory.VerifyTimer(0, Period0);
-            Assert.Same(entity, lastInvokedEntity);
 
             var newPeriod = TimeSpan.FromMilliseconds(Period1);
             scheduler.ChangePeriod(entity, newPeriod);
-            timerFactory.VerifyTimer(0, Period0);
 
-            timerFactory.FireTimer(0);
             timerFactory.VerifyTimer(0, Period1);
             Assert.Same(entity, lastInvokedEntity);
         }
