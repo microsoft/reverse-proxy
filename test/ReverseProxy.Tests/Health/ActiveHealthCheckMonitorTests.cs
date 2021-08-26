@@ -491,7 +491,7 @@ namespace Yarp.ReverseProxy.Health.Tests
         {
             var policy = new Mock<IActiveHealthCheckPolicy>();
             policy.SetupGet(p => p.Name).Returns("policy0");
-            var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromMilliseconds(1) });
+            var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(1) });
             var clusters = new List<ClusterState>();
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
 
