@@ -112,6 +112,9 @@ namespace Yarp.ReverseProxy
                 "OnHandshakeStart",
                 "OnHandshakeStop",
                 "OnConnectionEstablished",
+#if NET6_0_OR_GREATER
+                "OnRequestLeftQueue",
+#endif
                 "OnRequestHeadersStart",
                 "OnRequestHeadersStop",
                 "OnResponseHeadersStart",
@@ -159,6 +162,9 @@ namespace Yarp.ReverseProxy
                 "OnConnectStart",
                 "OnConnectStop",
                 "OnConnectionEstablished",
+#if NET6_0_OR_GREATER
+                "OnRequestLeftQueue",
+#endif
                 "OnRequestHeadersStart",
                 "OnRequestHeadersStop",
                 "OnResponseHeadersStart",
