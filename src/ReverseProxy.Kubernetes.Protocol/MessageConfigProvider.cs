@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Configuration;
@@ -22,7 +23,11 @@ namespace Yarp.ReverseProxy.Kubernetes.Protocol
         public void Update(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
         {
             var oldConfig = _config;
-            _config = new MessageConfig(routes, clusters);
+
+            var newRoutes = routes.Union(oldConfig.Routes.Where(or => !routes.Any(r => r.RouteId == or.RouteId))).ToList();
+            var newClusters = clusters.Union(oldConfig.Clusters.Where(oc => !clusters.Any(r => r.ClusterId == oc.ClusterId))).ToList();
+
+            _config = new MessageConfig(newRoutes, newClusters);
             oldConfig.SignalChange();
         }
 
