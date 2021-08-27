@@ -24,10 +24,17 @@ namespace Yarp.ReverseProxy.Kubernetes.Protocol
         {
             var oldConfig = _config;
 
-            var newRoutes = routes.Union(oldConfig.Routes.Where(or => !routes.Any(r => r.RouteId == or.RouteId))).ToList();
-            var newClusters = clusters.Union(oldConfig.Clusters.Where(oc => !clusters.Any(r => r.ClusterId == oc.ClusterId))).ToList();
+            if (oldConfig.Routes != null)
+            {
+                routes = routes.Union(oldConfig.Routes.Where(or => !routes.Any(r => r.RouteId == or.RouteId))).ToList();
+            }
 
-            _config = new MessageConfig(newRoutes, newClusters);
+            if (oldConfig.Clusters != null)
+            {
+                clusters = clusters.Union(oldConfig.Clusters?.Where(oc => !clusters.Any(r => r.ClusterId == oc.ClusterId))).ToList();
+            }
+
+            _config = new MessageConfig(routes, clusters);
             oldConfig.SignalChange();
         }
 
