@@ -495,12 +495,18 @@ namespace Yarp.ReverseProxy.Health.Tests
             var clusters = new List<ClusterState>();
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
 
-            var tcs0 = new TaskCompletionSource<HttpResponseMessage>();
+            var assertsCompletedMre = new ManualResetEventSlim(false);
+
+            var tcs0 = new TaskCompletionSource<HttpResponseMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
             var httpClient0 = GetHttpClient(tcs0.Task);
             var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, destinationCount: 1);
             clusters.Add(cluster0);
-            var tcs1 = new TaskCompletionSource<HttpResponseMessage>();
-            var httpClient1 = GetHttpClient(tcs1.Task, () => tcs1.SetCanceled());
+            var tcs1 = new TaskCompletionSource<HttpResponseMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var httpClient1 = GetHttpClient(tcs1.Task, () =>
+            {
+                assertsCompletedMre.Wait();
+                tcs1.SetCanceled();
+            });
             var cluster1 = GetClusterInfo("cluster1", "policy0", true, httpClient1.Object, destinationCount: 1);
             clusters.Add(cluster1);
 
@@ -515,6 +521,8 @@ namespace Yarp.ReverseProxy.Health.Tests
 
             Assert.False(healthCheckTask.IsCompleted);
             Assert.False(monitor.InitialProbeCompleted);
+
+            assertsCompletedMre.Set();
 
             // Never set result to the second destination for it to time out.
 
