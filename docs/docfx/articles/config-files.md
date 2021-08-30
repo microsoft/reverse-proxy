@@ -156,7 +156,7 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
             "Health" : "https://10.20.30.40:12345/test" // override for active health checks
           }
         },
-        "LoadBalancingPolicy" : "PowerOfTwoChoices", // Alternatively "First", "Random", "RoundRobin", "LeastRequests"
+        "LoadBalancingPolicy" : "PowerOfTwoChoices", // Alternatively "FirstAlphabetical", "Random", "RoundRobin", "LeastRequests"
         "SessionAffinity": {
           "Enabled": true, // Defaults to 'false'
           "Policy": "Cookie", // Default, alternatively "CustomHeader"
