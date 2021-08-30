@@ -97,21 +97,21 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
                         {
                             Address = uri
                         };
-
-                        var pathMatch = FixupPathMatch(path);
-                        var host = rule.Host;
-
-                        routes.Add(new RouteConfig()
-                        {
-                            Match = new RouteMatch()
-                            {
-                                Hosts = host != null ? new[] { host } : Array.Empty<string>(),
-                                Path = pathMatch
-                            },
-                            ClusterId = cluster.ClusterId,
-                            RouteId = $"{context.Ingress.Metadata.Name}:{path.Path}"
-                        });
                     }
+
+                    var pathMatch = FixupPathMatch(path);
+                    var host = rule.Host;
+
+                    routes.Add(new RouteConfig()
+                    {
+                        Match = new RouteMatch()
+                        {
+                            Hosts = host != null ? new[] { host } : Array.Empty<string>(),
+                            Path = pathMatch
+                        },
+                        ClusterId = cluster.ClusterId,
+                        RouteId = $"{context.Ingress.Metadata.Name}:{path.Path}"
+                    });
                 }
             }
         }
