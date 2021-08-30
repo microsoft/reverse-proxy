@@ -109,7 +109,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
                                 Path = pathMatch
                             },
                             ClusterId = cluster.ClusterId,
-                            RouteId = path.Path
+                            RouteId = $"{context.Ingress.Metadata.Name}:{path.Path}"
                         });
                     }
                 }
