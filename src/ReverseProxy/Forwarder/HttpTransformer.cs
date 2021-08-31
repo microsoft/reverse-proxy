@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
@@ -62,6 +63,27 @@ namespace Yarp.ReverseProxy.Forwarder
                 && httpContext.Request.Headers.ContainsKey(HeaderNames.ContentLength))
             {
                 proxyRequest.Content?.Headers.Remove(HeaderNames.ContentLength);
+            }
+
+            // https://datatracker.ietf.org/doc/html/rfc7540#section-8.1.2.2
+            // The only exception to this is the TE header field, which MAY be
+            // present in an HTTP/2 request; when it is, it MUST NOT contain any
+            // value other than "trailers".
+            if (ProtocolHelper.IsHttp2OrGreater(httpContext.Request.Protocol))
+            {
+                var te = httpContext.Request.Headers.GetCommaSeparatedValues(HeaderNames.TE);
+                if (te != null)
+                {
+                    for (var i = 0; i < te.Length; i++)
+                    {
+                        if (string.Equals(te[i], "trailers", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var added = proxyRequest.Headers.TryAddWithoutValidation(HeaderNames.TE, te[i]);
+                            Debug.Assert(added);
+                            break;
+                        }
+                    }
+                }
             }
 
             return default;

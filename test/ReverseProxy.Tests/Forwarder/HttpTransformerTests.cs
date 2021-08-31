@@ -60,6 +60,25 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
+        public async Task TransformRequestAsync_TETrailers_Copied()
+        {
+            var transformer = HttpTransformer.Default;
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Protocol = "HTTP/2";
+            var proxyRequest = new HttpRequestMessage();
+
+            httpContext.Request.Headers[HeaderNames.TE] = "traiLers";
+
+            await transformer.TransformRequestAsync(httpContext, proxyRequest, "prefix");
+
+            Assert.True(proxyRequest.Headers.TryGetValues(HeaderNames.TE, out var values));
+            var value = Assert.Single(values);
+            Assert.Equal("traiLers", value);
+
+            Assert.Null(proxyRequest.Content);
+        }
+
+        [Fact]
         public async Task TransformRequestAsync_ContentLengthAndTransferEncoding_ContentLengthRemoved()
         {
             var transformer = HttpTransformer.Default;
