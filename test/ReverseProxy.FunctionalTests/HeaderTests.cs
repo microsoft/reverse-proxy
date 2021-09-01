@@ -17,9 +17,9 @@ using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy
 {
-#if NET
-    public class HeaderEncodingTests
+    public class HeaderTests
     {
+#if NET
         [Theory]
         [InlineData("http://www.ěščřžýáíé.com", "utf-8")]
         [InlineData("http://www.çáéôîèñøæ.com", "iso-8859-1")]
@@ -199,6 +199,84 @@ namespace Yarp.ReverseProxy
                 tcpListener.Stop();
             }
         }
-    }
 #endif
+
+        [Fact]
+        public async Task ContentLengthAndTransferEncoding_ContentLengthRemoved()
+        {
+            var proxyTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var appTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            var test = new TestEnvironment(
+                context =>
+                {
+                    try
+                    {
+                        Assert.Null(context.Request.ContentLength);
+                        Assert.Equal("chunked", context.Request.Headers[HeaderNames.TransferEncoding]);
+                        appTcs.SetResult(0);
+                    }
+                    catch (Exception ex)
+                    {
+                        appTcs.SetException(ex);
+                    }
+                    return Task.CompletedTask;
+                },
+                proxyBuilder => { },
+                proxyApp =>
+                {
+                    proxyApp.Use(async (context, next) =>
+                    {
+                        try
+                        {
+                            Assert.Equal(11, context.Request.ContentLength);
+                            Assert.Equal("chunked", context.Request.Headers[HeaderNames.TransferEncoding]);
+                            proxyTcs.SetResult(0);
+                        }
+                        catch (Exception ex)
+                        {
+                            proxyTcs.SetException(ex);
+                        }
+
+                        await next();
+                    });
+                },
+                proxyProtocol: HttpProtocols.Http1);
+
+            await test.Invoke(async proxyUri =>
+            {
+                var proxyHostUri = new Uri(proxyUri);
+
+                using var tcpClient = new TcpClient(proxyHostUri.Host, proxyHostUri.Port);
+                await using var stream = tcpClient.GetStream();
+                await stream.WriteAsync(Encoding.ASCII.GetBytes("GET / HTTP/1.1\r\n"));
+                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Host: {proxyHostUri.Host}:{proxyHostUri.Port}\r\n"));
+                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Content-Length: 11\r\n"));
+                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Transfer-Encoding: chunked\r\n"));
+                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Connection: close\r\n"));
+                await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
+                await stream.WriteAsync(Encoding.ASCII.GetBytes($"b\r\n"));
+                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Hello World\r\n"));
+                await stream.WriteAsync(Encoding.ASCII.GetBytes($"0\r\n"));
+                await stream.WriteAsync(Encoding.ASCII.GetBytes($"\r\n"));
+                var buffer = new byte[4096];
+                var responseBuilder = new StringBuilder();
+                while (true)
+                {
+                    var count = await stream.ReadAsync(buffer);
+                    if (count == 0)
+                    {
+                        break;
+                    }
+                    responseBuilder.Append(Encoding.ASCII.GetString(buffer, 0, count));
+                }
+                var response = responseBuilder.ToString();
+
+                await proxyTcs.Task;
+                await appTcs.Task;
+
+                Assert.StartsWith("HTTP/1.1 200 OK", response);
+            });
+        }
+    }
 }
