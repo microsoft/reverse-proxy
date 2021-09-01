@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
 
 namespace Yarp.ReverseProxy.Forwarder
 {
@@ -49,6 +51,41 @@ namespace Yarp.ReverseProxy.Forwarder
                 RequestUtilities.AddHeader(proxyRequest, headerName, headerValue);
             }
 
+            // https://datatracker.ietf.org/doc/html/rfc7230#section-3.3.3
+            // If a message is received with both a Transfer-Encoding and a
+            // Content-Length header field, the Transfer-Encoding overrides the
+            // Content-Length.  Such a message might indicate an attempt to
+            // perform request smuggling (Section 9.5) or response splitting
+            // (Section 9.4) and ought to be handled as an error.  A sender MUST
+            // remove the received Content-Length field prior to forwarding such
+            // a message downstream.
+            if (httpContext.Request.Headers.ContainsKey(HeaderNames.TransferEncoding)
+                && httpContext.Request.Headers.ContainsKey(HeaderNames.ContentLength))
+            {
+                proxyRequest.Content?.Headers.Remove(HeaderNames.ContentLength);
+            }
+
+            // https://datatracker.ietf.org/doc/html/rfc7540#section-8.1.2.2
+            // The only exception to this is the TE header field, which MAY be
+            // present in an HTTP/2 request; when it is, it MUST NOT contain any
+            // value other than "trailers".
+            if (ProtocolHelper.IsHttp2OrGreater(httpContext.Request.Protocol))
+            {
+                var te = httpContext.Request.Headers.GetCommaSeparatedValues(HeaderNames.TE);
+                if (te != null)
+                {
+                    for (var i = 0; i < te.Length; i++)
+                    {
+                        if (string.Equals(te[i], "trailers", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var added = proxyRequest.Headers.TryAddWithoutValidation(HeaderNames.TE, te[i]);
+                            Debug.Assert(added);
+                            break;
+                        }
+                    }
+                }
+            }
+
             return default;
         }
 
@@ -70,6 +107,21 @@ namespace Yarp.ReverseProxy.Forwarder
             if (proxyResponse.Content != null)
             {
                 CopyResponseHeaders(proxyResponse.Content.Headers, responseHeaders);
+            }
+
+            // https://datatracker.ietf.org/doc/html/rfc7230#section-3.3.3
+            // If a message is received with both a Transfer-Encoding and a
+            // Content-Length header field, the Transfer-Encoding overrides the
+            // Content-Length.  Such a message might indicate an attempt to
+            // perform request smuggling (Section 9.5) or response splitting
+            // (Section 9.4) and ought to be handled as an error.  A sender MUST
+            // remove the received Content-Length field prior to forwarding such
+            // a message downstream.
+            if (proxyResponse.Content != null
+                && proxyResponse.Headers.TryGetValues(HeaderNames.TransferEncoding, out var _)
+                && proxyResponse.Content.Headers.TryGetValues(HeaderNames.ContentLength, out var _))
+            {
+                httpContext.Response.Headers.Remove(HeaderNames.ContentLength);
             }
 
             return new ValueTask<bool>(true);
