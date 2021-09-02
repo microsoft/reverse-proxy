@@ -36,7 +36,6 @@ X-Forwarded-Host: IncomingHost:5000
 ## Transform Categories
 
 Transforms fall into a few categories: request, response, and response trailers.  Request trailers are not supported because they are not supported by the underlying HttpClient.
-Transforms can be added to routes either through configuration or programmatically.
 
 ## Adding transforms
 
