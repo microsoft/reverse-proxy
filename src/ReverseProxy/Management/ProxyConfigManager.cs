@@ -209,8 +209,8 @@ namespace Yarp.ReverseProxy.Management
         // Throws for validation failures
         private async Task<bool> ApplyConfigAsync(IProxyConfig config)
         {
-            var (configuredRoutes, routeErrors) = await VerifyRoutesAsync(config.Routes, cancellation: default);
             var (configuredClusters, clusterErrors) = await VerifyClustersAsync(config.Clusters, cancellation: default);
+            var (configuredRoutes, routeErrors) = await VerifyRoutesAsync(config.Routes, configuredClusters, cancellation: default);
 
             if (routeErrors.Count > 0 || clusterErrors.Count > 0)
             {
@@ -223,7 +223,7 @@ namespace Yarp.ReverseProxy.Management
             return routesChanged;
         }
 
-        private async Task<(IList<RouteConfig>, IList<Exception>)> VerifyRoutesAsync(IReadOnlyList<RouteConfig> routes, CancellationToken cancellation)
+        private async Task<(IList<RouteConfig>, IList<Exception>)> VerifyRoutesAsync(IReadOnlyList<RouteConfig> routes, IList<ClusterConfig> clusters, CancellationToken cancellation)
         {
             if (routes == null)
             {
@@ -233,6 +233,16 @@ namespace Yarp.ReverseProxy.Management
             var seenRouteIds = new HashSet<string>();
             var configuredRoutes = new List<RouteConfig>(routes.Count);
             var errors = new List<Exception>();
+
+            Dictionary<string, ClusterConfig>? clusterDictionary = null;
+            if (_filters.Length != 0)
+            {
+                clusterDictionary = new Dictionary<string, ClusterConfig>();
+                foreach (var cluster in clusters)
+                {
+                    clusterDictionary.Add(cluster.ClusterId, cluster);
+                }
+            }
 
             foreach (var r in routes)
             {
@@ -246,9 +256,13 @@ namespace Yarp.ReverseProxy.Management
 
                 try
                 {
-                    foreach (var filter in _filters)
+                    if (_filters.Length != 0)
                     {
-                        route = await filter.ConfigureRouteAsync(route, cancellation);
+                        clusterDictionary!.TryGetValue(route.ClusterId!, out var cluster);
+                        foreach (var filter in _filters)
+                        {
+                            route = await filter.ConfigureRouteAsync(route, cluster, cancellation);
+                        }
                     }
                 }
                 catch (Exception ex)

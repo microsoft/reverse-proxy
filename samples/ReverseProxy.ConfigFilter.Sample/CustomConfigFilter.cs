@@ -52,7 +52,7 @@ namespace Yarp.Sample
             return new ValueTask<ClusterConfig>(origCluster with { Destinations = newDests });
         }
 
-        public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, CancellationToken cancel)
+        public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, ClusterConfig cluster, CancellationToken cancel)
         {
             // Example: do not let config based routes take priority over code based routes.
             // Lower numbers are higher priority. Code routes default to 0.
