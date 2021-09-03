@@ -39,7 +39,7 @@ If you're having trouble building the project, or developing in Visual Studio, p
 
 # Roadmap
 
-Coming Soon
+see [docs/roadmap.md](/docs/roadmap.md)
 
 # Reporting security issues and bugs
 
