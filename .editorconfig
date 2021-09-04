@@ -231,7 +231,7 @@ csharp_using_directive_placement = outside_namespace:error
 
 # New-line options
 # https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-formatting-conventions?view=vs-2019#new-line-options
-csharp_new_line_before_open_brace = methods, properties, control_blocks, types, anonymous_methods, lambdas, object_collection_array_initializers
+csharp_new_line_before_open_brace = methods, properties, control_blocks, types, anonymous_methods, lambdas, object_collection_array_initializers, accessors
 csharp_new_line_before_else = true
 csharp_new_line_before_catch = true
 csharp_new_line_before_finally = true
