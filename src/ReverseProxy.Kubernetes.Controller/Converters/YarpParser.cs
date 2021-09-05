@@ -50,43 +50,44 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
             var http = rule.Http;
             foreach (var path in http.Paths ?? Enumerable.Empty<V1HTTPIngressPath>())
             {
-                HandleIngressRulePath(context, endpoints, defaultSubsets, rule, path);
+                var service = context.Services.SingleOrDefault(s => s.Metadata.Name == path.Backend.Service.Name);
+                var servicePort = service.Spec.Ports.SingleOrDefault(p => MatchesPort(p, path.Backend.Service.Port));
+                HandleIngressRulePath(context, servicePort, endpoints, defaultSubsets, rule, path);
             }
         }
 
-        private static void HandleIngressRulePath(YarpIngressContext context, List<Endpoints> endpoints, IList<V1EndpointSubset> defaultSubsets, V1IngressRule rule, V1HTTPIngressPath path)
+        private static void HandleIngressRulePath(YarpIngressContext context, V1ServicePort servicePort, List<Endpoints> endpoints, IList<V1EndpointSubset> defaultSubsets, V1IngressRule rule, V1HTTPIngressPath path)
         {
             var backend = path.Backend;
-            var service = backend.Service;
+            var ingressServiceBackend = backend.Service;
             var subsets = defaultSubsets;
 
             var clusters = context.ClusterTransfers;
             var routes = context.Routes;
 
-            if (!string.IsNullOrEmpty(service?.Name))
+            if (!string.IsNullOrEmpty(ingressServiceBackend?.Name))
             {
-                subsets = endpoints.SingleOrDefault(x => x.Name == service?.Name).Subsets;
+                subsets = endpoints.SingleOrDefault(x => x.Name == ingressServiceBackend?.Name).Subsets;
             }
+
+            // Each ingress rule path can only be for one service
+            var key = ingressServiceBackend.Port.Number.HasValue ? $"{ingressServiceBackend?.Name}:{ingressServiceBackend?.Port.Number}" : $"{ingressServiceBackend?.Name}:{ingressServiceBackend?.Port.Name}";
+            if (!clusters.ContainsKey(key))
+            {
+                clusters.Add(key, new ClusterTransfer());
+            }
+
+            var cluster = clusters[key];
+            cluster.ClusterId = key;
 
             // make sure cluster is present
             foreach (var subset in subsets ?? Enumerable.Empty<V1EndpointSubset>())
             {
                 foreach (var port in subset.Ports ?? Enumerable.Empty<V1EndpointPort>())
                 {
-                    var key = $"{service?.Name}:{port.Port}";
-
-                    if (!clusters.ContainsKey(key))
-                    {
-                        clusters.Add(key, new ClusterTransfer());
-                    }
-                    var cluster = clusters[key];
-                    cluster.ClusterId = key;
-
                     foreach (var address in subset.Addresses ?? Enumerable.Empty<V1EndpointAddress>())
                     {
-                        var ip = address.Ip;
-
-                        if (!MatchesPort(port, service?.Port))
+                        if (!MatchesPort(port, servicePort.TargetPort))
                         {
                             continue;
                         }
@@ -164,7 +165,24 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
             return options;
         }
 
-        private static bool MatchesPort(V1EndpointPort port1, V1ServiceBackendPort port2)
+        private static bool MatchesPort(V1EndpointPort port1, IntstrIntOrString port2)
+        {
+            if (port1 == null || port2 == null)
+            {
+                return false;
+            }
+            if (int.TryParse(port2, out var port2Number) && port2Number == port1.Port)
+            {
+                return true;
+            }
+            if (string.Equals(port2, port1.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private static bool MatchesPort(V1ServicePort port1, V1ServiceBackendPort port2)
         {
             if (port1 == null || port2 == null)
             {

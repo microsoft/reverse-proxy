@@ -49,7 +49,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
                     MessageType = MessageType.Update,
                     Key = $"{key.Namespace}:{key.Name}"
                 };
-                var context = new YarpIngressContext(data.Ingress, data.EndpointsList);
+                var context = new YarpIngressContext(data.Ingress, data.ServiceList, data.EndpointsList);
                 YarpParser.CovertFromKubernetesIngress(context);
 
                 message.Cluster = context.Clusters;

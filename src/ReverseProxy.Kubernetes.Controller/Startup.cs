@@ -31,6 +31,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller
 
             // Register the necessary Kubernetes resource informers
             services.RegisterResourceInformer<V1Ingress>();
+            services.RegisterResourceInformer<V1Service>();
             services.RegisterResourceInformer<V1Endpoints>();
 
             // Add ASP.NET Core controller support

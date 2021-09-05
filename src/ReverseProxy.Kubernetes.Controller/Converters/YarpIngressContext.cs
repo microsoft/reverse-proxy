@@ -9,9 +9,10 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
 {
     internal sealed class YarpIngressContext
     {
-        public YarpIngressContext(IngressData ingress, List<Endpoints> endpoints)
+        public YarpIngressContext(IngressData ingress, List<ServiceData> services, List<Endpoints> endpoints)
         {
             Ingress = ingress;
+            Services = services;
             Endpoints = endpoints;
         }
 
@@ -20,6 +21,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
         public List<RouteConfig> Routes { get; set; } = new List<RouteConfig>();
         public List<ClusterConfig> Clusters { get; set; } = new List<ClusterConfig>();
         public IngressData Ingress { get; }
+        public List<ServiceData> Services { get; }
         public List<Endpoints> Endpoints { get; }
     }
 }

@@ -22,6 +22,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Caching
         private readonly Dictionary<string, ImmutableList<string>> _ingressToServiceNames = new Dictionary<string, ImmutableList<string>>();
         private readonly Dictionary<string, ImmutableList<string>> _serviceToIngressNames = new Dictionary<string, ImmutableList<string>>();
         private readonly Dictionary<string, IngressData> _ingressData = new Dictionary<string, IngressData>();
+        private readonly Dictionary<string, ServiceData> _serviceData = new Dictionary<string, ServiceData>();
         private readonly Dictionary<string, Endpoints> _endpointsData = new Dictionary<string, Endpoints>();
 
         public void Update(WatchEventType eventType, V1Ingress ingress)
@@ -119,6 +120,27 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Caching
             }
         }
 
+        public void Update(WatchEventType eventType, V1Service service)
+        {
+            if (service is null)
+            {
+                throw new ArgumentNullException(nameof(service));
+            }
+
+            var serviceName = service.Name();
+            lock (_sync)
+            {
+                if (eventType == WatchEventType.Added || eventType == WatchEventType.Modified)
+                {
+                    _serviceData[serviceName] = new ServiceData(service);
+                }
+                else if (eventType == WatchEventType.Deleted)
+                {
+                    _serviceData.Remove(serviceName);
+                }
+            }
+        }
+
         public void GetKeys(string ns, List<NamespacedName> keys)
         {
             if (keys is null)
@@ -168,25 +190,39 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Caching
         public bool TryLookup(NamespacedName key, out ReconcileData data)
         {
             var endspointsList = new List<Endpoints>();
+            var servicesList = new List<ServiceData>();
+
             lock (_sync)
             {
                 if (!_ingressData.TryGetValue(key.Name, out var ingress))
                 {
-                    ingress = default;
+                    data = default;
+                    return false;
                 }
 
                 if (_ingressToServiceNames.TryGetValue(key.Name, out var serviceNames))
                 {
                     foreach (var serviceName in serviceNames)
                     {
-                        if (_endpointsData.TryGetValue(serviceName, out var serviceData))
+                        if (_serviceData.TryGetValue(serviceName, out var serviceData))
                         {
-                            endspointsList.Add(serviceData);
+                            servicesList.Add(serviceData);
+                        }
+
+                        if (_endpointsData.TryGetValue(serviceName, out var endpoints))
+                        {
+                            endspointsList.Add(endpoints);
                         }
                     }
                 }
 
-                data = new ReconcileData(ingress, endspointsList);
+                if (_serviceData.Count == 0)
+                {
+                    data = default;
+                    return false;
+                }
+
+                data = new ReconcileData(ingress, servicesList, endspointsList);
                 return true;
             }
         }

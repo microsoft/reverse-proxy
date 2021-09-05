@@ -23,10 +23,11 @@ namespace IngressController.Tests
         [InlineData("multiple-endpoints-ports")]
         [InlineData("https")]
         [InlineData("exact-match")]
+        [InlineData("mapped-port")]
         public async Task ParsingTests(string name)
         {
-            var (ingress, endpoints) = await GetKubernetesInfo(name).ConfigureAwait(false);
-            var context = new YarpIngressContext(ingress, endpoints);
+            var (ingress, services, endpoints) = await GetKubernetesInfo(name).ConfigureAwait(false);
+            var context = new YarpIngressContext(ingress, services, endpoints);
 
             YarpParser.CovertFromKubernetesIngress(context);
 
@@ -51,14 +52,16 @@ namespace IngressController.Tests
             Assert.True(JToken.DeepEquals(JToken.Parse(json), JToken.Parse(other)));
         }
 
-        private async Task<(IngressData, List<Endpoints>)> GetKubernetesInfo(string name)
+        private async Task<(IngressData, List<ServiceData>, List<Endpoints>)> GetKubernetesInfo(string name)
         {
             var typeMap = new Dictionary<string, Type>();
             typeMap.Add("networking.k8s.io/v1/Ingress", typeof(V1Ingress));
+            typeMap.Add("v1/Service", typeof(V1Service));
             typeMap.Add("v1/Endpoints", typeof(V1Endpoints));
 
             var kubeObjects = await Yaml.LoadAllFromFileAsync(Path.Combine("testassets", name, "ingress.yaml"), typeMap).ConfigureAwait(false);
             IngressData ingressData = default;
+            var serviceList = new List<ServiceData>();
             var endpointList = new List<Endpoints>();
             foreach (var obj in kubeObjects)
             {
@@ -66,13 +69,17 @@ namespace IngressController.Tests
                 {
                     ingressData = new IngressData(ingress);
                 }
+                else if (obj is V1Service service)
+                {
+                    serviceList.Add(new ServiceData(service));
+                }
                 else if (obj is V1Endpoints endpoints)
                 {
                     endpointList.Add(new Endpoints(endpoints));
                 }
             }
 
-            return (ingressData, endpointList);
+            return (ingressData, serviceList, endpointList);
         }
     }
 }
