@@ -440,7 +440,7 @@ namespace Yarp.ReverseProxy.Management.Tests
             Assert.NotNull(dataSource);
             Assert.Equal(2, dataSource.Endpoints.Count);
 
-            var endpoint1 = dataSource.Endpoints[0];
+            var endpoint1 = Assert.Single(dataSource.Endpoints.Where(x => x.DisplayName == "route1"));
             var routeConfig1 = endpoint1.Metadata.GetMetadata<RouteModel>();
             Assert.Equal(47, routeConfig1.Config.Order);
             var clusterState1 = routeConfig1.Cluster;
@@ -450,7 +450,7 @@ namespace Yarp.ReverseProxy.Management.Tests
             var destination = Assert.Single(clusterState1.DestinationsState.AllDestinations);
             Assert.Equal("http://localhost", destination.Model.Config.Address);
 
-            var endpoint2 = dataSource.Endpoints[1];
+            var endpoint2 = Assert.Single(dataSource.Endpoints.Where(x => x.DisplayName == "route2"));
             var routeConfig2 = endpoint2.Metadata.GetMetadata<RouteModel>();
             Assert.Equal(12, routeConfig2.Config.Order);
         }
