@@ -53,7 +53,7 @@ namespace Yarp.ReverseProxy.Sample
             return new ValueTask<ClusterConfig>(cluster);
         }
 
-        public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, CancellationToken cancel)
+        public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, ClusterConfig cluster, CancellationToken cancel)
         {
             // Do not let config based routes take priority over code based routes.
             // Lower numbers are higher priority. Code routes default to 0.

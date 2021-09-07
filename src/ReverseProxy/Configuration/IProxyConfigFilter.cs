@@ -21,6 +21,7 @@ namespace Yarp.ReverseProxy.Configuration
         /// Allows modification of a route configuration.
         /// </summary>
         /// <param name="route">The <see cref="RouteConfig"/> instance to configure.</param>
-        ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, CancellationToken cancel);
+        /// <param name="cluster">The <see cref="ClusterConfig"/> instance related to <see cref="RouteConfig"/>.</param>
+        ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, ClusterConfig? cluster, CancellationToken cancel);
     }
 }
