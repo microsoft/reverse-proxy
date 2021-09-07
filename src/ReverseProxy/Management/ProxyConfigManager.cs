@@ -251,7 +251,12 @@ namespace Yarp.ReverseProxy.Management
                 {
                     if (_filters.Length != 0)
                     {
-                        clusters.TryGetValue(route.ClusterId!, out var cluster);
+                        ClusterConfig? cluster = null;
+                        if (route.ClusterId != null)
+                        {
+                            clusters.TryGetValue(route.ClusterId, out cluster);
+                        }
+
                         foreach (var filter in _filters)
                         {
                             route = await filter.ConfigureRouteAsync(route, cluster, cancellation);
