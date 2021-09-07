@@ -10,7 +10,7 @@ We try to release previews on approximatly a monthly cadence, but will adjust th
 
 ## Release Candidates
 
-The next stage in YARPs progress will be Release Candidates (RC). The key difference between RCs and preview releases is that we need to be considered feature complete before we go to RC. We are very unlikely to add additional functionality between RC's and the numbered release - changes will be primarily for bugs or broken behavior.
+The next stage in YARP's progress will be Release Candidates (RC). The key difference between RCs and preview releases is that we need to be considered feature complete before we go to RC. We are very unlikely to add additional functionality between RCs and the numbered release - changes will be primarily for bugs or broken behavior.
 
 The remaining feature work for YARP is tracked with the [YARP 1.0.0 Milestone](https://github.com/microsoft/reverse-proxy/milestone/3). [Contributions](https://github.com/microsoft/reverse-proxy/blob/main/contributing.md) are always welcome.
 
