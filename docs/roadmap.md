@@ -47,7 +47,7 @@ restore.cmd
 build.cmd -c release
 ```
 
-This will produce the `Yarp.ReverseProxy.dll` into `artifacts/bin/Yarp.ReverseProxy/Release/net5.0`, and a peer folder for .NET 3.1. If you need to build a nuget package, that can be done with: 
+This will produce the `Yarp.ReverseProxy.dll` into `artifacts/bin/Yarp.ReverseProxy/Release/net5.0`, and a peer folder for .NET Core 3.1. If you need to build a nuget package, that can be done with: 
 
 ```shell
 pack.cmd -c release
