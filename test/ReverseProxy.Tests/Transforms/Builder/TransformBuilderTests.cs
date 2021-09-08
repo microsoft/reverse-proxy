@@ -393,7 +393,14 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
             Assert.Empty(errors);
 
             var results = transformBuilder.BuildInternal(route, new ClusterConfig());
-            var transform = Assert.Single(results.RequestTransforms);
+            Assert.Equal(5, results.RequestTransforms.Count);
+            Assert.All(
+                results.RequestTransforms.Skip(1).Select(t => (dynamic)t),
+                t => {
+                    Assert.StartsWith("X-Forwarded-", t.HeaderName);
+                    Assert.Equal(ForwardedTransformActions.Remove, t.TransformAction);
+                });
+            var transform = results.RequestTransforms[0];
             var forwardedTransform = Assert.IsType<RequestHeaderForwardedTransform>(transform);
             Assert.True(forwardedTransform.ProtoEnabled);
         }

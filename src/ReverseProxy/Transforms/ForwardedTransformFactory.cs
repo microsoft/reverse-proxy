@@ -175,6 +175,13 @@ namespace Yarp.ReverseProxy.Transforms
                 context.AddXForwardedPrefix(prefix + PrefixKey, xPrefixAction);
                 context.AddXForwardedHost(prefix + HostKey, xHostAction);
                 context.AddXForwardedProto(prefix + ProtoKey, xProtoAction);
+
+                if (xForAction != ForwardedTransformActions.Off || xPrefixAction != ForwardedTransformActions.Off
+                    || xHostAction != ForwardedTransformActions.Off || xProtoAction != ForwardedTransformActions.Off)
+                {
+                    //Remove the Forwarded header when an X-Forwarded transform is enabled
+                    context.RequestTransforms.Add(new RequestHeaderForwardedTransform(_randomFactory, NodeFormat.Random, NodeFormat.Random, false, false, ForwardedTransformActions.Remove));
+                }
             }
             else if (transformValues.TryGetValue(ForwardedKey, out var forwardedHeader))
             {
@@ -242,6 +249,13 @@ namespace Yarp.ReverseProxy.Transforms
                 {
                     // Not using the extension to avoid resolving the random factory each time.
                     context.RequestTransforms.Add(new RequestHeaderForwardedTransform(_randomFactory, forFormat, byFormat, useHost, useProto, headerAction));
+
+                    //Remove the X-Forwarded headers when an Forwarded transform is enabled
+                    var prefix = "X-Forwarded-";
+                    context.AddXForwardedFor(prefix + ForKey, ForwardedTransformActions.Remove);
+                    context.AddXForwardedPrefix(prefix + PrefixKey, ForwardedTransformActions.Remove);
+                    context.AddXForwardedHost(prefix + HostKey, ForwardedTransformActions.Remove);
+                    context.AddXForwardedProto(prefix + ProtoKey, ForwardedTransformActions.Remove);
                 }
             }
             else if (transformValues.TryGetValue(ClientCertKey, out var clientCertHeader))
