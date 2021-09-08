@@ -119,6 +119,10 @@ namespace Yarp.ReverseProxy.Transforms
             context.AddXForwardedPrefix(action: action);
             context.AddXForwardedHost(action: action);
             context.AddXForwardedProto(action: action);
+
+            // Remove the Forwarded header when an X-Forwarded transform is enabled
+            var random = context.Services.GetRequiredService<IRandomFactory>();
+            TransformHelpers.RemoveForwadedHeader(context, random);
             return context;
         }
 
@@ -186,6 +190,9 @@ namespace Yarp.ReverseProxy.Transforms
                 var random = context.Services.GetRequiredService<IRandomFactory>();
                 context.RequestTransforms.Add(new RequestHeaderForwardedTransform(random,
                     forFormat, byFormat, useHost, useProto, action));
+
+                // Remove the X-Forwarded headers when an Forwarded transform is enabled
+                TransformHelpers.RemoveAllXForwardedHeaders(context, ForwardedTransformFactory.DefaultXForwardedPrefix);
             }
             return context;
         }

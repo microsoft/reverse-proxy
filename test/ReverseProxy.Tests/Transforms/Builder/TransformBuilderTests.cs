@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Transforms.Builder.Tests
 {
@@ -50,7 +51,7 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
             Assert.Empty(results.ResponseTransforms);
             Assert.Empty(results.ResponseTrailerTransforms);
 
-            Assert.Equal(5, results.RequestTransforms.Count);
+            Assert.Equal(6, results.RequestTransforms.Count);
             var hostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderOriginalHostTransform>());
             Assert.False(hostTransform.UseOriginalHost);
             var forTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
@@ -61,6 +62,9 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
             Assert.Equal("X-Forwarded-Prefix", prefixTransform.HeaderName);
             var protoTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedProtoTransform>());
             Assert.Equal(ForwardedHeadersDefaults.XForwardedProtoHeaderName, protoTransform.HeaderName);
+
+            var removeForwardedTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderForwardedTransform>());
+            Assert.Equal(ForwardedTransformActions.Remove, removeForwardedTransform.TransformAction);
         }
 
         [Fact]
@@ -90,7 +94,7 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
             Assert.Empty(results.ResponseTransforms);
             Assert.Empty(results.ResponseTrailerTransforms);
 
-            Assert.Equal(5, results.RequestTransforms.Count);
+            Assert.Equal(6, results.RequestTransforms.Count);
             var hostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderOriginalHostTransform>());
             Assert.False(hostTransform.UseOriginalHost);
             var forTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
@@ -101,6 +105,9 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
             Assert.Equal("X-Forwarded-Prefix", prefixTransform.HeaderName);
             var protoTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedProtoTransform>());
             Assert.Equal(ForwardedHeadersDefaults.XForwardedProtoHeaderName, protoTransform.HeaderName);
+
+            var removeForwardedTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderForwardedTransform>());
+            Assert.Equal(ForwardedTransformActions.Remove, removeForwardedTransform.TransformAction);
         }
 
         [Fact]
@@ -156,7 +163,7 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
             var factory1 = new TestTransformFactory("1");
             var factory2 = new TestTransformFactory("2");
             var factory3 = new TestTransformFactory("3");
-            var builder = new TransformBuilder(new ServiceCollection().BuildServiceProvider(),
+            var builder = new TransformBuilder(GetServiceProviderWithRandom(),
                 new[] { factory1, factory2, factory3 }, Array.Empty<ITransformProvider>());
 
             var route = new RouteConfig().WithTransform(transform =>
@@ -183,7 +190,7 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
             var provider1 = new TestTransformProvider();
             var provider2 = new TestTransformProvider();
             var provider3 = new TestTransformProvider();
-            var builder = new TransformBuilder(new ServiceCollection().BuildServiceProvider(),
+            var builder = new TransformBuilder(GetServiceProviderWithRandom(),
                 Array.Empty<ITransformFactory>(), new[] { provider1, provider2, provider3 });
 
             var route = new RouteConfig();
@@ -408,10 +415,16 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
         private static TransformBuilder CreateTransformBuilder()
         {
             var serviceCollection = new ServiceCollection();
+            serviceCollection.AddSingleton(new Moq.Mock<IRandomFactory>().Object);
             serviceCollection.AddLogging();
             serviceCollection.AddReverseProxy();
-            using var services = serviceCollection.BuildServiceProvider();
+            var services = serviceCollection.BuildServiceProvider();
             return (TransformBuilder)services.GetRequiredService<ITransformBuilder>();
+        }
+
+        private ServiceProvider GetServiceProviderWithRandom()
+        {
+            return new ServiceCollection().AddSingleton(new Moq.Mock<IRandomFactory>().Object).BuildServiceProvider();
         }
 
         private class TestTransformFactory : ITransformFactory
