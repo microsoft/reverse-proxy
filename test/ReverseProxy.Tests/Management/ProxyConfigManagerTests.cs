@@ -360,12 +360,12 @@ namespace Yarp.ReverseProxy.Management.Tests
 
         private class FixRouteHostFilter : IProxyConfigFilter
         {
-            public ValueTask<ClusterConfig> ConfigureClusterAsync(ClusterConfig cluster, CancellationToken cancel)
+            public ValueTask<ClusterConfig> ConfigureClusterAsync(ClusterConfig cluster)
             {
                 return new ValueTask<ClusterConfig>(cluster);
             }
 
-            public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, ClusterConfig cluster, CancellationToken cancel)
+            public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, ClusterConfig cluster)
             {
                 return new ValueTask<RouteConfig>(route with
                 {
@@ -376,7 +376,7 @@ namespace Yarp.ReverseProxy.Management.Tests
 
         private class ClusterAndRouteFilter : IProxyConfigFilter
         {
-            public ValueTask<ClusterConfig> ConfigureClusterAsync(ClusterConfig cluster, CancellationToken cancel)
+            public ValueTask<ClusterConfig> ConfigureClusterAsync(ClusterConfig cluster)
             {
                 return new ValueTask<ClusterConfig>(cluster with
                 {
@@ -387,7 +387,7 @@ namespace Yarp.ReverseProxy.Management.Tests
                 });
             }
 
-            public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, ClusterConfig cluster, CancellationToken cancel)
+            public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, ClusterConfig cluster)
             {
                 string order;
                 if (cluster != null)
@@ -457,12 +457,12 @@ namespace Yarp.ReverseProxy.Management.Tests
 
         private class ClusterAndRouteThrows : IProxyConfigFilter
         {
-            public ValueTask<ClusterConfig> ConfigureClusterAsync(ClusterConfig cluster, CancellationToken cancel)
+            public ValueTask<ClusterConfig> ConfigureClusterAsync(ClusterConfig cluster)
             {
                 throw new NotFiniteNumberException("Test exception");
             }
 
-            public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, ClusterConfig cluster, CancellationToken cancel)
+            public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, ClusterConfig cluster)
             {
                 throw new NotFiniteNumberException("Test exception");
             }

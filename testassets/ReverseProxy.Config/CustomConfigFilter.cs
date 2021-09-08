@@ -12,7 +12,7 @@ namespace Yarp.ReverseProxy.Sample
 {
     public class CustomConfigFilter : IProxyConfigFilter
     {
-        public ValueTask<ClusterConfig> ConfigureClusterAsync(ClusterConfig cluster, CancellationToken cancel)
+        public ValueTask<ClusterConfig> ConfigureClusterAsync(ClusterConfig cluster)
         {
             // How to use custom metadata to configure clusters
             if (cluster.Metadata?.TryGetValue("CustomHealth", out var customHealth) ?? false
@@ -53,7 +53,7 @@ namespace Yarp.ReverseProxy.Sample
             return new ValueTask<ClusterConfig>(cluster);
         }
 
-        public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, ClusterConfig cluster, CancellationToken cancel)
+        public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, ClusterConfig cluster)
         {
             // Do not let config based routes take priority over code based routes.
             // Lower numbers are higher priority. Code routes default to 0.

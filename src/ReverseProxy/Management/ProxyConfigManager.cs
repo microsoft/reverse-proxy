@@ -212,8 +212,8 @@ namespace Yarp.ReverseProxy.Management
         // Throws for validation failures
         private async Task<bool> ApplyConfigAsync(IProxyConfig config)
         {
-            var (configuredClusters, clusterErrors) = await VerifyClustersAsync(config.Clusters, cancellation: default);
-            var (configuredRoutes, routeErrors) = await VerifyRoutesAsync(config.Routes, configuredClusters, cancellation: default);
+            var (configuredClusters, clusterErrors) = await VerifyClustersAsync(config.Clusters);
+            var (configuredRoutes, routeErrors) = await VerifyRoutesAsync(config.Routes, configuredClusters);
 
             if (routeErrors.Count > 0 || clusterErrors.Count > 0)
             {
@@ -226,7 +226,7 @@ namespace Yarp.ReverseProxy.Management
             return routesChanged;
         }
 
-        private async Task<(IList<RouteConfig>, IList<Exception>)> VerifyRoutesAsync(IReadOnlyList<RouteConfig> routes, IReadOnlyDictionary<string, ClusterConfig> clusters, CancellationToken cancellation)
+        private async Task<(IList<RouteConfig>, IList<Exception>)> VerifyRoutesAsync(IReadOnlyList<RouteConfig> routes, IReadOnlyDictionary<string, ClusterConfig> clusters)
         {
             if (routes == null)
             {
@@ -259,7 +259,7 @@ namespace Yarp.ReverseProxy.Management
 
                         foreach (var filter in _filters)
                         {
-                            route = await filter.ConfigureRouteAsync(route, cluster, cancellation);
+                            route = await filter.ConfigureRouteAsync(route, cluster);
                         }
                     }
                 }
@@ -287,7 +287,7 @@ namespace Yarp.ReverseProxy.Management
             return (configuredRoutes, errors);
         }
 
-        private async Task<(IReadOnlyDictionary<string, ClusterConfig>, IList<Exception>)> VerifyClustersAsync(IReadOnlyList<ClusterConfig> clusters, CancellationToken cancellation)
+        private async Task<(IReadOnlyDictionary<string, ClusterConfig>, IList<Exception>)> VerifyClustersAsync(IReadOnlyList<ClusterConfig> clusters)
         {
             if (clusters == null)
             {
@@ -312,7 +312,7 @@ namespace Yarp.ReverseProxy.Management
 
                     foreach (var filter in _filters)
                     {
-                        cluster = await filter.ConfigureClusterAsync(cluster, cancellation);
+                        cluster = await filter.ConfigureClusterAsync(cluster);
                     }
 
                     var clusterErrors = await _configValidator.ValidateClusterAsync(cluster);
