@@ -175,7 +175,14 @@ namespace Yarp.ReverseProxy.Transforms.Tests
 
             if (byFormat != NodeFormat.None|| forFormat != NodeFormat.None || useHost || useProto)
             {
-                var transform = Assert.Single(builderContext.RequestTransforms);
+                Assert.Equal(5, builderContext.RequestTransforms.Count);
+                Assert.All(
+                    builderContext.RequestTransforms.Skip(1).Select(t => (dynamic) t),
+                    t => {
+                        Assert.StartsWith("X-Forwarded-", t.HeaderName);
+                        Assert.Equal(ForwardedTransformActions.Remove, t.TransformAction);
+                    });
+                var transform = builderContext.RequestTransforms[0];
                 var requestHeaderForwardedTransform = Assert.IsType<RequestHeaderForwardedTransform>(transform);
                 Assert.Equal(action, requestHeaderForwardedTransform.TransformAction);
                 Assert.Equal(useHost, requestHeaderForwardedTransform.HostEnabled);
