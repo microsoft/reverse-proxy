@@ -33,9 +33,9 @@ namespace Yarp.ReverseProxy.Transforms.Builder
             context.AddXForwardedProto(prefix + ForwardedTransformFactory.ProtoKey, ForwardedTransformActions.Remove);
         }
 
-        internal static void RemoveForwadedHeader(TransformBuilderContext context, IRandomFactory randomFactory)
+        internal static void RemoveForwadedHeader(TransformBuilderContext context)
         {
-            context.RequestTransforms.Add(new RequestHeaderForwardedTransform(randomFactory, NodeFormat.Random, NodeFormat.Random, false, false, ForwardedTransformActions.Remove));
+            context.RequestTransforms.Add(RequestHeaderForwardedTransform.RemoveTransform);
         }
     }
 }

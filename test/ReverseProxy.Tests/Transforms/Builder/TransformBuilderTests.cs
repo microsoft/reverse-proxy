@@ -163,7 +163,7 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
             var factory1 = new TestTransformFactory("1");
             var factory2 = new TestTransformFactory("2");
             var factory3 = new TestTransformFactory("3");
-            var builder = new TransformBuilder(GetServiceProviderWithRandom(),
+            var builder = new TransformBuilder(new ServiceCollection().BuildServiceProvider(),
                 new[] { factory1, factory2, factory3 }, Array.Empty<ITransformProvider>());
 
             var route = new RouteConfig().WithTransform(transform =>
@@ -190,7 +190,7 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
             var provider1 = new TestTransformProvider();
             var provider2 = new TestTransformProvider();
             var provider3 = new TestTransformProvider();
-            var builder = new TransformBuilder(GetServiceProviderWithRandom(),
+            var builder = new TransformBuilder(new ServiceCollection().BuildServiceProvider(),
                 Array.Empty<ITransformFactory>(), new[] { provider1, provider2, provider3 });
 
             var route = new RouteConfig();
@@ -415,16 +415,10 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
         private static TransformBuilder CreateTransformBuilder()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddSingleton(new Moq.Mock<IRandomFactory>().Object);
             serviceCollection.AddLogging();
             serviceCollection.AddReverseProxy();
-            var services = serviceCollection.BuildServiceProvider();
+            using var services = serviceCollection.BuildServiceProvider();
             return (TransformBuilder)services.GetRequiredService<ITransformBuilder>();
-        }
-
-        private ServiceProvider GetServiceProviderWithRandom()
-        {
-            return new ServiceCollection().AddSingleton(new Moq.Mock<IRandomFactory>().Object).BuildServiceProvider();
         }
 
         private class TestTransformFactory : ITransformFactory

@@ -121,8 +121,7 @@ namespace Yarp.ReverseProxy.Transforms
             context.AddXForwardedProto(action: action);
 
             // Remove the Forwarded header when an X-Forwarded transform is enabled
-            var random = context.Services.GetRequiredService<IRandomFactory>();
-            TransformHelpers.RemoveForwadedHeader(context, random);
+            TransformHelpers.RemoveForwadedHeader(context);
             return context;
         }
 
