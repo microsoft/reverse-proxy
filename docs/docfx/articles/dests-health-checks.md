@@ -151,6 +151,12 @@ public class FirstUnsuccessfulResponseHealthPolicy : IActiveHealthCheckPolicy
 #### IProbingRequestFactory
 [IProbingRequestFactory](xref:Yarp.ReverseProxy.Health.IProbingRequestFactory) creates active health probing requests to be sent to destination health endpoints. It can take into account `ActiveHealthCheckOptions.Path`, `DestinationConfig.Health`, and other configuration settings to construct probing requests.
 
+The default `IProbingRequestFactory` uses the same `HttpRequest` configuration as proxy requests, to customize that implement your own `IProbingRequestFactory` and register it in DI like the below.
+
+```C#
+services.AddSingleton<IProbingRequestFactory, CustomProbingRequestFactory>();
+```
+
 The below is a simple example of a customer `IProbingRequestFactory` concatenating `DestinationConfig.Address` and a fixed health probe path to create the probing request URI.
 
 ```C#
