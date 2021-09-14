@@ -37,6 +37,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
             ICache cache,
             IReconciler reconciler,
             IResourceInformer<V1Ingress> ingressInformer,
+            IResourceInformer<V1Service> serviceInformer,
             IResourceInformer<V1Endpoints> endpointsInformer,
             IHostApplicationLifetime hostApplicationLifetime,
             ILogger<IngressController> logger)
@@ -45,6 +46,11 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
             if (ingressInformer is null)
             {
                 throw new ArgumentNullException(nameof(ingressInformer));
+            }
+
+            if (serviceInformer is null)
+            {
+                throw new ArgumentNullException(nameof(serviceInformer));
             }
 
             if (endpointsInformer is null)
@@ -65,6 +71,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
             _registrations = new[]
             {
                 ingressInformer.Register(Notification),
+                serviceInformer.Register(Notification),
                 endpointsInformer.Register(Notification),
             };
 
@@ -133,6 +140,17 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
         /// </summary>
         /// <param name="eventType">Indicates if the resource new, updated, or deleted.</param>
         /// <param name="resource">The information as provided by the Kubernets API server.</param>
+        private void Notification(WatchEventType eventType, V1Service resource)
+        {
+            _cache.Update(eventType, resource);
+            _queue.Add(new QueueItem(NamespacedName.From(resource), null));
+        }
+
+        /// <summary>
+        /// Called by the informer with real-time resource updates.
+        /// </summary>
+        /// <param name="eventType">Indicates if the resource new, updated, or deleted.</param>
+        /// <param name="resource">The information as provided by the Kubernets API server.</param>
         private void Notification(WatchEventType eventType, V1Endpoints resource)
         {
             var ingressNames = _cache.Update(eventType, resource);
@@ -178,7 +196,6 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
                         Logger.LogInformation("Processing {IngressNamespace} {IngressName}", item.NamespacedName.Namespace, item.NamespacedName.Name);
 #pragma warning restore CA1303 // Do not pass literals as localized parameters
 
-                        // Pass the information to the reconciler to process and dispatch
                         await _reconciler.ProcessAsync(item.DispatchTarget, item.NamespacedName, data, cancellationToken).ConfigureAwait(false);
                     }
 

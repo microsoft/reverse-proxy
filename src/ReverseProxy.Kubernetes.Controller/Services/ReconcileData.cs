@@ -14,13 +14,15 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
     public struct ReconcileData
 #pragma warning restore CA1815 // Override equals and operator equals on value types
     {
-        public ReconcileData(IngressData ingress, List<Endpoints> endpoints)
+        public ReconcileData(IngressData ingress, List<ServiceData> services, List<Endpoints> endpoints)
         {
             Ingress = ingress;
+            ServiceList = services;
             EndpointsList = endpoints;
         }
 
         public IngressData Ingress { get; }
+        public List<ServiceData> ServiceList { get; }
         public List<Endpoints> EndpointsList { get; }
     }
 }

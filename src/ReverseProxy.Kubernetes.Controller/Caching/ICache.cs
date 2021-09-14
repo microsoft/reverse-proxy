@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using k8s;
@@ -17,6 +17,7 @@ namespace Yarp.ReverseProxy.Kubernetes.Controller.Caching
     public interface ICache
     {
         void Update(WatchEventType eventType, V1Ingress ingress);
+        void Update(WatchEventType eventType, V1Service service);
         ImmutableList<string> Update(WatchEventType eventType, V1Endpoints endpoints);
         bool TryGetReconcileData(NamespacedName key, out ReconcileData data);
         void GetKeys(List<NamespacedName> keys);
