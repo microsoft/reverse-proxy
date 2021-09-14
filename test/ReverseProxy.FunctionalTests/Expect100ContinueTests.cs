@@ -177,6 +177,7 @@ namespace Yarp.ReverseProxy
             });
         }
 
+        // Fix was implemented in https://github.com/dotnet/runtime/pull/58548
 #if NET7_0_OR_GREATER
         [Theory]
         [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false)]
