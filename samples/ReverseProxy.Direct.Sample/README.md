@@ -1,8 +1,8 @@
 # YARP Direct Proxy Example
 
-Some customers who have an existing custom proxy for HTTP/1.1 are looking at YARP for a solution to handle more complex requests, such as HTTP/2, gRPC, WebSockets in future QUIC and HTTP/3. These applications have their own means of routing, load balancing, affinity, etc. and only need to forward a specific request to a specific destination. To make it easier to integrate YARP into these scenarios, the component that proxies requests is exposed via IHttpProxy which can be called directly, and has few dependencies on the rest of YARP's infrastructure. 
+Some customers who have an existing custom proxy for HTTP/1.1 are looking at YARP for a solution to handle more complex requests, such as HTTP/2, gRPC, WebSockets in future QUIC and HTTP/3. These applications have their own means of routing, load balancing, affinity, etc. and only need to forward a specific request to a specific destination. To make it easier to integrate YARP into these scenarios, the component that proxies requests is exposed via IHttpForwarder which can be called directly, and has few dependencies on the rest of YARP's infrastructure. 
 
-This example shows how to use IHTTPProxy to proxy a request to/from a specified destination.
+This example shows how to use IHttpForwarder to proxy a request to/from a specified destination.
 
 
 The operation of the proxy can be thought of as:
@@ -35,9 +35,9 @@ Normal proxying comprises the following steps:
 | 9 | Copy response trailer headers and finish response | Client ◄-- Proxy ◄-- Destination |
 | 10 | Wait for completion of step 2: copying request body | Client --► Proxy --► Destination |
 
-To enable control over mapping request and response fields and headers between the client and destination (steps 4 and 7 above), the HttpProxy.ProxyAsync method takes a HttpTransformer. Your implementation can modify the request url, method, protocol version, response status code, or decide which headers are copied, modify them, or insert additional headers as required.
+To enable control over mapping request and response fields and headers between the client and destination (steps 4 and 7 above), the HttpForwarder.ProxyAsync method takes a HttpTransformer. Your implementation can modify the request url, method, protocol version, response status code, or decide which headers are copied, modify them, or insert additional headers as required.
 
-**Note:** When using the HttpProxy class directly there are no transforms included by default, you have full control of the transforms in your HttpTransformer implementation. The alternate YARP pipeline model (see BasicYarpSample), has some [default header transforms](https://microsoft.github.io/reverse-proxy/articles/transforms.html), such as adding ```X-Forwarded-For``` and removing the original Host header.
+**Note:** When using the HttpForwarder class directly there are some [header transforms](https://microsoft.github.io/reverse-proxy/articles/transforms.html) included by default, such as adding ```X-Forwarded-For``` and removing the original Host header. The same set of transforms is by default included into the alternate YARP pipeline model (see BasicYarpSample).
 
 ## Files
 
