@@ -18,8 +18,8 @@ namespace Yarp.ReverseProxy.Forwarder
     public class HttpTransformer
     {
         /// <summary>
-        /// A default set of transforms that copies all request and response fields and headers, except for some
-        /// protocol specific values.
+        /// A default set of transforms that adds X-Forwarded-* headers, removes the original Host value and
+        /// copies all other request and response fields and headers, except for some protocol specific values.
         /// </summary>
         public static readonly HttpTransformer Default;
 
