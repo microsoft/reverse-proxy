@@ -181,7 +181,7 @@ namespace Yarp.ReverseProxy.Transforms
                     || xHostAction != ForwardedTransformActions.Off || xProtoAction != ForwardedTransformActions.Off)
                 {
                     // Remove the Forwarded header when an X-Forwarded transform is enabled
-                    TransformHelpers.RemoveForwadedHeader(context);
+                    TransformHelpers.RemoveForwardedHeader(context);
                 }
             }
             else if (transformValues.TryGetValue(ForwardedKey, out var forwardedHeader))
