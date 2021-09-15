@@ -17,15 +17,12 @@ namespace Microsoft.Kubernetes.CustomResources
         public const string KubeGroup = "test-group";
         public const string KubeKind = "Typical";
 
-        /// <inheritdoc/>
         [JsonProperty("apiVersion")]
         public string ApiVersion { get; set; }
 
-        /// <inheritdoc/>
         [JsonProperty("kind")]
         public string Kind { get; set; }
 
-        /// <inheritdoc/>
         [JsonProperty("metadata")]
         public V1ObjectMeta Metadata { get; set; }
 

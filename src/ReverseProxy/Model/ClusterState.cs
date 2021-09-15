@@ -41,7 +41,7 @@ namespace Yarp.ReverseProxy.Model
         /// <summary>
         /// All of the destinations associated with this cluster. This collection is populated by the configuration system
         /// and should only be directly modified in a test environment.
-        /// Call <see cref="IClusterDestinationsUpdater"/> after modifying this collection.
+        /// Call <see cref="Health.IClusterDestinationsUpdater"/> after modifying this collection.
         /// </summary>
         public ConcurrentDictionary<string, DestinationState> Destinations { get; } = new(StringComparer.OrdinalIgnoreCase);
 

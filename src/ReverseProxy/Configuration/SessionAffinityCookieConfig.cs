@@ -26,7 +26,7 @@ namespace Yarp.ReverseProxy.Configuration
         /// <summary>
         /// Indicates whether a cookie is accessible by client-side script.
         /// </summary>
-        /// <remarks>Defaults to <see cref="true"/>.</remarks>
+        /// <remarks>Defaults to "true".</remarks>
         public bool? HttpOnly { get; init; }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace Yarp.ReverseProxy.Configuration
         /// Indicates if this cookie is essential for the application to function correctly. If true then
         /// consent policy checks may be bypassed.
         /// </summary>
-        /// <remarks>Defaults to <see cref="false"/>.</remarks>
+        /// <remarks>Defaults to "false".</remarks>
         public bool? IsEssential { get; init; }
 
         public bool Equals(SessionAffinityCookieConfig? other)

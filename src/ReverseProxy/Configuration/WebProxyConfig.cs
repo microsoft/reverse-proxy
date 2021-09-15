@@ -27,7 +27,6 @@ namespace Yarp.ReverseProxy.Configuration
         /// </summary>
         public bool? UseDefaultCredentials { get; init; }
 
-        /// <inheritdoc/>
         public bool Equals(WebProxyConfig? other)
         {
             if (other == null)
@@ -40,7 +39,6 @@ namespace Yarp.ReverseProxy.Configuration
                 && UseDefaultCredentials == other.UseDefaultCredentials;
         }
 
-        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return HashCode.Combine(

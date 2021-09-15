@@ -38,7 +38,6 @@ namespace Yarp.ReverseProxy.Configuration
         /// </summary>
         public bool IsCaseSensitive { get; init; }
 
-        /// <inheritdoc />
         public bool Equals(RouteHeader? other)
         {
             if (other == null)
@@ -54,7 +53,6 @@ namespace Yarp.ReverseProxy.Configuration
                     : CaseInsensitiveEqualHelper.Equals(Values, other.Values));
         }
 
-        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashCode.Combine(Mode, IsCaseSensitive,

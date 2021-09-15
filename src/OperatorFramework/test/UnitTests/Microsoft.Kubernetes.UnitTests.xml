@@ -9,15 +9,6 @@
             TypicalResource doc comment
             </summary>
         </member>
-        <member name="P:Microsoft.Kubernetes.CustomResources.TypicalResource.ApiVersion">
-            <inheritdoc/>
-        </member>
-        <member name="P:Microsoft.Kubernetes.CustomResources.TypicalResource.Kind">
-            <inheritdoc/>
-        </member>
-        <member name="P:Microsoft.Kubernetes.CustomResources.TypicalResource.Metadata">
-            <inheritdoc/>
-        </member>
         <member name="P:Microsoft.Kubernetes.CustomResources.TypicalResource.Spec">
             <summary>
             Spec doc comment

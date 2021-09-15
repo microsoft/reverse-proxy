@@ -28,7 +28,6 @@ namespace Yarp.ReverseProxy.Configuration
         /// </summary>
         public IReadOnlyDictionary<string, string>? Metadata { get; init; }
 
-        /// <inheritdoc />
         public bool Equals(DestinationConfig? other)
         {
             if (other == null)
@@ -41,7 +40,6 @@ namespace Yarp.ReverseProxy.Configuration
                 && CaseInsensitiveEqualHelper.Equals(Metadata, other.Metadata);
         }
 
-        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashCode.Combine(

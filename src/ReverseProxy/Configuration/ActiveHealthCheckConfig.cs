@@ -35,7 +35,6 @@ namespace Yarp.ReverseProxy.Configuration
         /// </summary>
         public string? Path { get; init; }
 
-        /// <inheritdoc />
         public bool Equals(ActiveHealthCheckConfig? other)
         {
             if (other == null)
@@ -50,7 +49,6 @@ namespace Yarp.ReverseProxy.Configuration
                 && string.Equals(Path, other.Path, StringComparison.OrdinalIgnoreCase);
         }
 
-        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashCode.Combine(Enabled,

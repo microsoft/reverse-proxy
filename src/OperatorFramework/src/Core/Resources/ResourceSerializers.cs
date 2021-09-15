@@ -44,7 +44,6 @@ namespace Microsoft.Kubernetes.Resources
             };
         }
 
-        /// <inheritdoc/>
         public T DeserializeYaml<T>(string yaml)
         {
             var resource = _yamlDeserializer.Deserialize<object>(yaml);
@@ -52,19 +51,16 @@ namespace Microsoft.Kubernetes.Resources
             return Convert<T>(resource);
         }
 
-        /// <inheritdoc/>
         public T DeserializeJson<T>(string json)
         {
             return SafeJsonConvert.DeserializeObject<T>(json);
         }
 
-        /// <inheritdoc/>
         public string SerializeJson(object resource)
         {
             return SafeJsonConvert.SerializeObject(resource, _serializationSettings);
         }
 
-        /// <inheritdoc/>
         public TResource Convert<TResource>(object resource)
         {
             var json = SafeJsonConvert.SerializeObject(resource, _serializationSettings);
@@ -74,7 +70,6 @@ namespace Microsoft.Kubernetes.Resources
 
         private class NonStringScalarTypeResolver : INodeTypeResolver
         {
-            /// <inheritdoc/>
             bool INodeTypeResolver.Resolve(NodeEvent nodeEvent, ref Type currentType)
             {
                 if (currentType == typeof(object) && nodeEvent is Scalar)

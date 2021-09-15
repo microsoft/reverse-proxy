@@ -57,7 +57,6 @@ namespace Microsoft.Kubernetes.Client
             }
         }
 
-        /// <inheritdoc/>
         public async Task<HttpOperationResponse<KubernetesList<TResource>>> ListClusterAnyResourceKindWithHttpMessagesAsync<TResource>(string group, string version, string plural, string continueParameter = null, string fieldSelector = null, string labelSelector = null, int? limit = null, string resourceVersion = null, int? timeoutSeconds = null, bool? watch = null, string pretty = null, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default) where TResource : IKubernetesObject
         {
             if (group == null)
@@ -241,7 +240,7 @@ namespace Microsoft.Kubernetes.Client
             return _result;
         }
 
-        /// <inheritdoc/>
+        
         public async Task<HttpOperationResponse<object>> CreateAnyResourceKindWithHttpMessagesAsync<TResource>(TResource body, string group, string version, string namespaceParameter, string plural, string dryRun = default(string), string fieldManager = default(string), string pretty = default(string), Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken)) where TResource : IKubernetesObject
         {
             if (body == null)
@@ -407,7 +406,7 @@ namespace Microsoft.Kubernetes.Client
             return _result;
         }
 
-        /// <inheritdoc/>
+        
         public async Task<HttpOperationResponse<object>> PatchAnyResourceKindWithHttpMessagesAsync(V1Patch body, string group, string version, string namespaceParameter, string plural, string name, string dryRun = default(string), string fieldManager = default(string), bool? force = default(bool?), Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (body == null)
@@ -579,7 +578,7 @@ namespace Microsoft.Kubernetes.Client
             return _result;
         }
 
-        /// <inheritdoc/>
+        
         public async Task<HttpOperationResponse<object>> DeleteAnyResourceKindWithHttpMessagesAsync(string group, string version, string namespaceParameter, string plural, string name, V1DeleteOptions body = default(V1DeleteOptions), int? gracePeriodSeconds = default(int?), bool? orphanDependents = default(bool?), string propagationPolicy = default(string), string dryRun = default(string), Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (group == null)
