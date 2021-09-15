@@ -22,10 +22,8 @@ namespace Microsoft.Kubernetes.Controller.Hosting
         /// <param name="service">The service interface to delegate onto.</param>
         public HostedServiceAdapter(TService service) => _service = service;
 
-        /// <inheritdoc/>
         public Task StartAsync(CancellationToken cancellationToken) => _service.StartAsync(cancellationToken);
 
-        /// <inheritdoc/>
         public Task StopAsync(CancellationToken cancellationToken) => _service.StopAsync(cancellationToken);
     }
 }

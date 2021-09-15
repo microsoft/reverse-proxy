@@ -33,7 +33,6 @@ namespace Yarp.ReverseProxy.Configuration
         /// </summary>
         public IReadOnlyList<RouteHeader>? Headers { get; init; }
 
-        /// <inheritdoc />
         public bool Equals(RouteMatch? other)
         {
             if (other == null)
@@ -76,7 +75,6 @@ namespace Yarp.ReverseProxy.Configuration
             return true;
         }
 
-        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashCode.Combine(

@@ -58,11 +58,10 @@ namespace Yarp.ReverseProxy.Configuration
         public IReadOnlyDictionary<string, string>? Metadata { get; init; }
 
         /// <summary>
-        /// Parameters used to transform the request and response. See <see cref="Service.ITransformBuilder"/>.
+        /// Parameters used to transform the request and response. See <see cref="Transforms.Builder.ITransformBuilder"/>.
         /// </summary>
         public IReadOnlyList<IReadOnlyDictionary<string, string>>? Transforms { get; init; }
 
-        /// <inheritdoc />
         public bool Equals(RouteConfig? other)
         {
             if (other == null)
@@ -80,7 +79,6 @@ namespace Yarp.ReverseProxy.Configuration
                 && CaseInsensitiveEqualHelper.Equals(Transforms, other.Transforms);
         }
 
-        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashCode.Combine(Order,

@@ -25,13 +25,13 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 } 
 ```
 
-The parmeterless [MapReverseProxy](xref:Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions.MapReverseProxy) overload includes all standard proxy middleware for [session affinity](session-affinity.md), [load balancing](load-balancing.md), [passive health checks](dests-health-checks.md), and the final proxying of the request. Each of these check the configuration of the matched route, cluster, and destination and perform their task accordingly.
+The parmeterless `MapReverseProxy()` in [ReverseProxyIEndpointRouteBuilderExtensions](xref:Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions) overload includes all standard proxy middleware for [session affinity](session-affinity.md), [load balancing](load-balancing.md), [passive health checks](dests-health-checks.md), and the final proxying of the request. Each of these check the configuration of the matched route, cluster, and destination and perform their task accordingly.
 
 ## Adding Middleware
 
 Middleware added to your application pipeline will see the request in different states of processing depending on where the middleware is added. Middleware added before `UseRouting` will see all requests and can manipulate them before any routing takes place. Middleware added between `UseRouting` and `UseEndpoints` can call `HttpContext.GetEndpoint()` to check which endpoint routing matched the request to (if any), and use any metadata that was associated with that endpoint. This is how [Authentication, Authorization](authn-authz.md) and [CORS](cors.md) are handled.
 
-[MapReverseProxy](xref:Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions.MapReverseProxy) provides an overload that lets you build a middleware pipeline that will run only for requests matched to proxy configured routes.
+[ReverseProxyIEndpointRouteBuilderExtensions](xref:Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions) provides an overload of `MapReverseProxy` that lets you build a middleware pipeline that will run only for requests matched to proxy configured routes.
 
 ```
 endpoints.MapReverseProxy(proxyPipeline =>

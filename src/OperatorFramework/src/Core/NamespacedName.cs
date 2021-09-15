@@ -104,19 +104,16 @@ namespace Microsoft.Kubernetes
                 ownerReference.Name);
         }
 
-        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return obj is NamespacedName name && Equals(name);
         }
 
-        /// <inheritdoc/>
         public bool Equals([AllowNull] NamespacedName other)
         {
             return Namespace == other.Namespace && Name == other.Name;
         }
 
-        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return HashCode.Combine(Namespace, Name);

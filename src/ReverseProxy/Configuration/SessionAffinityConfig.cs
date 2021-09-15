@@ -43,7 +43,6 @@ namespace Yarp.ReverseProxy.Configuration
         /// </summary>
         public SessionAffinityCookieConfig? Cookie { get; init; }
 
-        /// <inheritdoc />
         public bool Equals(SessionAffinityConfig? other)
         {
             if (other == null)
@@ -58,7 +57,6 @@ namespace Yarp.ReverseProxy.Configuration
                 && Cookie == other.Cookie;
         }
 
-        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashCode.Combine(Enabled,

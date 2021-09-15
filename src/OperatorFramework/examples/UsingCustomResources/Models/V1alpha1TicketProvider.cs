@@ -29,15 +29,12 @@ namespace UsingCustomResources.Models
         /// </summary>
         public const string KubeKind = "TicketProvider";
 
-        /// <inheritdoc/>
         [JsonProperty("apiVersion")]
         public string ApiVersion { get; set; }
 
-        /// <inheritdoc/>
         [JsonProperty("kind")]
         public string Kind { get; set; }
 
-        /// <inheritdoc/>
         [JsonProperty("metadata")]
         public V1ObjectMeta Metadata { get; set; }
 

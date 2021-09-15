@@ -113,7 +113,7 @@ Developers that want to integrate their custom transforms with the `Transforms` 
 
 Transforms can be added to routes programmatically by calling the [AddTransforms](xref:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions) method.
 
-`AddTransforms` can be called from `Startup.ConfigureServices` to provide a callback for configuring transforms. This callback is invoked each time a route is built or rebuilt and allows the developer to inspect the [RouteConfig](xref:Yarp.ReverseProxy.Abstractions.RouteConfig) information and conditionally add transforms for it.
+`AddTransforms` can be called from `Startup.ConfigureServices` to provide a callback for configuring transforms. This callback is invoked each time a route is built or rebuilt and allows the developer to inspect the [RouteConfig](xref:Yarp.ReverseProxy.Configuration.RouteConfig) information and conditionally add transforms for it.
 
 The `AddTransforms` callback provides a [TransformBuilderContext](xref:Yarp.ReverseProxy.Transforms.Builder.TransformBuilderContext) where transforms can be added or configured. Most transforms provide `TransformBuilderContext` extension methods to make them easier to add. These are extensions documented below with the individual transform descriptions.
 
@@ -511,7 +511,7 @@ routeConfig = routeConfig.WithTransformRequestHeadersAllowed("Header1", "header2
 transformBuilderContext.AddRequestHeadersAllowed("Header1", "header2");
 ```
 
-YARP copies most request headers to the proxy request by default (see [RequestHeadersCopy](#RequestHeadersCopy)). Some security models only allow specific headers to be proxied. This transform disables RequestHeadersCopy and only copies the given headers. Other transforms that modify or append to existing headers may be affected if not included in the allow list.
+YARP copies most request headers to the proxy request by default (see [RequestHeadersCopy](transforms.md#requestheaderscopy)). Some security models only allow specific headers to be proxied. This transform disables RequestHeadersCopy and only copies the given headers. Other transforms that modify or append to existing headers may be affected if not included in the allow list.
 
 Note that there are some headers YARP does not copy by default since they are connection specific or otherwise security sensitive (e.g. `Connection`, `Alt-Svc`). Putting those header names in the allow list will bypass that restriction but is strongly discouraged as it may negatively affect the functionality of the proxy or cause security vulnerabilities.
 
@@ -804,7 +804,7 @@ routeConfig = routeConfig.WithTransformResponseHeadersAllowed("Header1", "header
 transformBuilderContext.AddResponseHeadersAllowed("Header1", "header2");
 ```
 
-YARP copies most response headers from the proxy response by default (see [ResponseHeadersCopy](#ResponseHeadersCopy)). Some security models only allow specific headers to be proxied. This transform disables ResponseHeadersCopy and only copies the given headers. Other transforms that modify or append to existing headers may be affected if not included in the allow list.
+YARP copies most response headers from the proxy response by default (see [ResponseHeadersCopy](transforms.md#responseheaderscopy)). Some security models only allow specific headers to be proxied. This transform disables ResponseHeadersCopy and only copies the given headers. Other transforms that modify or append to existing headers may be affected if not included in the allow list.
 
 Note that there are some headers YARP does not copy by default since they are connection specific or otherwise security sensitive (e.g. `Connection`, `Alt-Svc`). Putting those header names in the allow list will bypass that restriction but is strongly discouraged as it may negatively affect the functionality of the proxy or cause security vulnerabilities.
 
@@ -871,7 +871,7 @@ HeaderName: value
 
 Response trailers are headers sent at the end of the response body. Support for trailers is uncommon in HTTP/1.1 implementations but is becoming common in HTTP/2 implementations. Check your client and server for support.
 
-ResponseTrailer follows the same structure and guidance as [ResponseHeader](#ResponseHeader).
+ResponseTrailer follows the same structure and guidance as [ResponseHeader](transforms.md#responseheader).
 
 ### ResponseTrailerRemove
 
@@ -904,7 +904,7 @@ AnotherHeader: another-value
 
 This removes the named trailing header.
 
-ResponseTrailerRemove follows the same structure and guidance as [ResponseHeaderRemove](#ResponseHeaderRemove).
+ResponseTrailerRemove follows the same structure and guidance as [ResponseHeaderRemove](transforms.md#responseheaderremove).
 
 ### ResponseTrailersAllowed
 
@@ -926,7 +926,7 @@ routeConfig = routeConfig.WithTransformResponseTrailersAllowed("Header1", "heade
 transformBuilderContext.AddResponseTrailersAllowed("Header1", "header2");
 ```
 
-YARP copies most response trailers from the proxy response by default (see [ResponseTrailersCopy](#ResponseTrailersCopy)). Some security models only allow specific headers to be proxied. This transform disables ResponseTrailersCopy and only copies the given headers. Other transforms that modify or append to existing headers may be affected if not included in the allow list.
+YARP copies most response trailers from the proxy response by default (see [ResponseTrailersCopy](transforms.md#responsetrailerscopy)). Some security models only allow specific headers to be proxied. This transform disables ResponseTrailersCopy and only copies the given headers. Other transforms that modify or append to existing headers may be affected if not included in the allow list.
 
 Note that there are some headers YARP does not copy by default since they are connection specific or otherwise security sensitive (e.g. `Connection`, `Alt-Svc`). Putting those header names in the allow list will bypass that restriction but is strongly discouraged as it may negatively affect the functionality of the proxy or cause security vulnerabilities.
 
@@ -967,7 +967,7 @@ All response trailers transforms must derive from the abstract base class [Respo
 
 ### ITransformProvider
 
-[ITransformProvider](xref:Yarp.ReverseProxy.Transforms.ITransformProvider) provides the functionality of `AddTransforms` described above as well as DI integration and validation support.
+[ITransformProvider](xref:Yarp.ReverseProxy.Transforms.Builder.ITransformProvider) provides the functionality of `AddTransforms` described above as well as DI integration and validation support.
 
 `ITransformProvider`'s can be registered in DI by calling [AddTransforms&lt;T&gt;()](xref:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions). Multiple `ITransformProvider` implementations can be registered and all will be run.
 
@@ -1021,7 +1021,7 @@ internal class MyTransformProvider : ITransformProvider
 
 ### ITransformFactory
 
-Developers that want to integrate their custom transforms with the `Transforms` section of configuration can implement an [ITransformFactory](xref:Yarp.ReverseProxy.Transforms.ITransformFactory). This should be registered in DI using the `AddTransformFactory<T>()` method. Multiple factories can be registered and all will be used.
+Developers that want to integrate their custom transforms with the `Transforms` section of configuration can implement an [ITransformFactory](xref:Yarp.ReverseProxy.Transforms.Builder.ITransformFactory). This should be registered in DI using the `AddTransformFactory<T>()` method. Multiple factories can be registered and all will be used.
 
 `ITransformFactory` provides two methods, `Validate` and `Build`. These process one set of transform values at a time, represented by a `IReadOnlyDictionary<string, string>`.
 

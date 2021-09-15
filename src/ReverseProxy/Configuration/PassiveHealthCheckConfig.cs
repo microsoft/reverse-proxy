@@ -25,7 +25,6 @@ namespace Yarp.ReverseProxy.Configuration
         /// </summary>
         public TimeSpan? ReactivationPeriod { get; init; }
 
-        /// <inheritdoc />
         public bool Equals(PassiveHealthCheckConfig? other)
         {
             if (other == null)
@@ -38,7 +37,6 @@ namespace Yarp.ReverseProxy.Configuration
                 && ReactivationPeriod == other.ReactivationPeriod;
         }
 
-        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashCode.Combine(Enabled,

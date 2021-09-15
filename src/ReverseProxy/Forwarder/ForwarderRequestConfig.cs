@@ -43,7 +43,6 @@ namespace Yarp.ReverseProxy.Forwarder
         /// </summary>
         public bool? AllowResponseBuffering { get; init; }
 
-        /// <inheritdoc />
         public bool Equals(ForwarderRequestConfig? other)
         {
             if (other == null)
@@ -59,7 +58,6 @@ namespace Yarp.ReverseProxy.Forwarder
                 && AllowResponseBuffering == other.AllowResponseBuffering;
         }
 
-        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashCode.Combine(Timeout,

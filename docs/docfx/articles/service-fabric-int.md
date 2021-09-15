@@ -83,7 +83,7 @@ These are the supported parameters:
 - `YARP.EnableDynamicOverrides` - indicates whether application parameters replacement is enabled on the service. Default `false`
 - `YARP.Backend.LoadBalancingPolicy` - configures YARP load balancing policy. Optional parameter
 - `YARP.Backend.SessionAffinity.*` - configures YARP session affinity. Available parameters and their meanings are provided on [the respective documentation page](session-affinity.md). Optional parameter
-- `YARP.Backend.HttpRequest.*` - sets proxied HTTP request properties. Available parameters and their meanings are provided on [the respective documentation page](proxy-httpclient-config.md) in 'HttpRequest' section. Optional parameter
+- `YARP.Backend.HttpRequest.*` - sets proxied HTTP request properties. Available parameters and their meanings are provided on [the respective documentation page](http-client-config.md) in 'HttpRequest' section. Optional parameter
 - `YARP.Backend.HealthCheck.Active.*` - configures YARP active health checks to be run against the given service. Available parameters and their meanings are provided on [the respective documentation page](dests-health-checks.md). There is one label in this group `YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName` which is not covered by that document because it's SF specific. Its purpose is explained below. Optional parameter
 - `YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName` - sets an explicit listener name for the health probing endpoint for each replica/instance that is used to probe replica/instance health state and is stored on the `Destination.Health` property in YARP's model. Optional parameter
 - `YARP.Backend.HealthCheck.Passive.*` - configures YARP passive health checks to be run against the given service. Available parameters and their meanings are provided on [the respective documentation page](dests-health-checks.md). Optional parameter
@@ -177,7 +177,7 @@ Once a `ClusterConfig` and all its `DestinationConfig`'s have been built, `IDisc
 
 If the `ClusterConfig` has been successfully validated, `IDiscoverer` proceeds to the final conversion step where it calls `LabelsParser` to create [RouteConfig](xref:Yarp.ReverseProxy.Configuration.RouteConfig) from `YARP.Routes.*` extension labels. New `RouteConfig`'s are also passed down to `IConfigValidator` to ensure their validity. A failure in `RouteConfig` construction is communicated to SF cluster in form of a service health report similar to other service conversion failures.
 
-After all applications and their services have been processed and a new complete YARP configuration has been constructed, `ServiceFabricConfigProvier` updates [IProxyConfig](xref:Yarp.ReverseProxy.Service.IProxyConfig) and notifies the rest of YARP about a configuration change.
+After all applications and their services have been processed and a new complete YARP configuration has been constructed, `ServiceFabricConfigProvier` updates [IProxyConfig](xref:Yarp.ReverseProxy.Configuration.IProxyConfig) and notifies the rest of YARP about a configuration change.
 
 The above process is regularly repeated with the period set in `DiscoveryPeriod` parameter.
 
