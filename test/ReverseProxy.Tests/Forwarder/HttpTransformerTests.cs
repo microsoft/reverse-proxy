@@ -42,7 +42,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         {
             var transformer = HttpTransformer.Default;
             var httpContext = new DefaultHttpContext();
-            var proxyRequest = new HttpRequestMessage();
+            var proxyRequest = new HttpRequestMessage(HttpMethod.Get, "https://localhost");
 
             foreach (var header in RestrictedHeaders)
             {
@@ -65,7 +65,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             var transformer = HttpTransformer.Default;
             var httpContext = new DefaultHttpContext();
             httpContext.Request.Protocol = "HTTP/2";
-            var proxyRequest = new HttpRequestMessage();
+            var proxyRequest = new HttpRequestMessage(HttpMethod.Get, "https://localhost");
 
             httpContext.Request.Headers[HeaderNames.TE] = "traiLers";
 
@@ -83,7 +83,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         {
             var transformer = HttpTransformer.Default;
             var httpContext = new DefaultHttpContext();
-            var proxyRequest = new HttpRequestMessage()
+            var proxyRequest = new HttpRequestMessage(HttpMethod.Get, "https://localhost")
             {
                 Content = new ByteArrayContent(Array.Empty<byte>())
             };

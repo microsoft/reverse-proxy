@@ -153,7 +153,7 @@ namespace Yarp.ReverseProxy.Transforms.Builder
             return CreateTransformer(context);
         }
 
-        private static StructuredTransformer CreateTransformer(TransformBuilderContext context)
+        internal static StructuredTransformer CreateTransformer(TransformBuilderContext context)
         {
             // RequestHeaderOriginalHostKey defaults to false, and CopyRequestHeaders defaults to true.
             // If RequestHeaderOriginalHostKey was not specified then we need to make sure the transform gets

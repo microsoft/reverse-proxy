@@ -74,7 +74,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                     Assert.Equal(HttpMethod.Post, request.Method);
                     Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
                     Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
-                    Assert.Equal("example.com:3456", request.Headers.Host);
+                    Assert.Null(request.Headers.Host);
                     Assert.False(request.Headers.TryGetValues(":authority", out var value));
 
                     Assert.NotNull(request.Content);
@@ -340,7 +340,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                     Assert.Equal(HttpMethod.Get, request.Method);
                     Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
                     Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
-                    Assert.Equal("example.com:3456", request.Headers.Host);
+                    Assert.Null(request.Headers.Host);
                     Assert.False(request.Headers.TryGetValues(":authority", out var value));
 
                     Assert.Null(request.Content);
