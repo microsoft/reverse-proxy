@@ -16,8 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ReverseProxy.ServiceFabric\Yarp.ReverseProxy.ServiceFabric.csproj" />
-    <ProjectReference Include="..\ReverseProxy.Tests.Common\Yarp.ReverseProxy.Tests.Common.csproj" />
+    <ProjectReference Include="..\..\src\ServiceFabric\Yarp.ReverseProxy.ServiceFabric.csproj" />
+    <ProjectReference Include="..\Tests.Common\Yarp.ReverseProxy.Tests.Common.csproj" />
   </ItemGroup>
 
 </Project>

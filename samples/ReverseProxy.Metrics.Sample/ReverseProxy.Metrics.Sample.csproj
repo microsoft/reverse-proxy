@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ReverseProxy.TelemetryConsumption\Yarp.Telemetry.Consumption.csproj" />
+    <ProjectReference Include="..\..\src\TelemetryConsumption\Yarp.Telemetry.Consumption.csproj" />
   </ItemGroup>
 
   <ItemGroup>

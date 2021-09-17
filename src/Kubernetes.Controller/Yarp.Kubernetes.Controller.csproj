@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
     <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
@@ -9,7 +9,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\OperatorFramework\src\Controller\Microsoft.Kubernetes.Controller.csproj" />
-      <ProjectReference Include="..\ReverseProxy.Kubernetes.Protocol\Yarp.Kubernetes.Protocol.csproj" />
+      <ProjectReference Include="..\Kubernetes.Protocol\Yarp.Kubernetes.Protocol.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ReverseProxy.Kubernetes.Controller\Yarp.Kubernetes.Controller.csproj" />
+    <ProjectReference Include="..\..\src\Kubernetes.Controller\Yarp.Kubernetes.Controller.csproj" />
     <ProjectReference Include="..\..\src\OperatorFramework\src\Controller\Microsoft.Kubernetes.Controller.csproj" />
   </ItemGroup>
 
