@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using Yarp.ReverseProxy.Telemetry.Consumption;
+using Yarp.Telemetry.Consumption;
 
 namespace Yarp.ReverseProxy.Sample
 {

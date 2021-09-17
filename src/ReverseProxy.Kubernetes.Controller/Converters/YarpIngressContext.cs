@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using Yarp.ReverseProxy.Configuration;
-using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
+using Yarp.Kubernetes.Controller.Caching;
 
-namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
+namespace Yarp.Kubernetes.Controller.Services
 {
     internal sealed class YarpIngressContext
     {

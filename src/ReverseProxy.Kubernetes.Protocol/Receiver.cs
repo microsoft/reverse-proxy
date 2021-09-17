@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Kubernetes.Controller.Hosting;
 using Microsoft.Kubernetes.Controller.Rate;
 
-namespace Yarp.ReverseProxy.Kubernetes.Protocol
+namespace Yarp.Kubernetes.Protocol
 {
     public class Receiver : BackgroundHostedService
     {

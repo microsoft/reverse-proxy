@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Kubernetes;
-using Yarp.ReverseProxy.Kubernetes.Controller.Dispatching;
+using Yarp.Kubernetes.Controller.Dispatching;
 
-namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
+namespace Yarp.Kubernetes.Controller.Services
 {
     /// <summary>
     /// QueueItem acts as the "Key" for the _queue to manage items.

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
+namespace Yarp.Kubernetes.Controller.Services
 {
     internal sealed class YarpIngressOptions
     {

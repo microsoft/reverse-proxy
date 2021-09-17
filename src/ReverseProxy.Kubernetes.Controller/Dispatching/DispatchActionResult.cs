@@ -8,9 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Yarp.ReverseProxy.Kubernetes.Protocol;
+using Yarp.Kubernetes.Protocol;
 
-namespace Yarp.ReverseProxy.Kubernetes.Controller.Dispatching
+namespace Yarp.Kubernetes.Controller.Dispatching
 {
     /// <summary>
     /// DispatchActionResult is an IActionResult which registers itself as

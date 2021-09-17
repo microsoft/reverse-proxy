@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net6.0;net5.0;netcoreapp3.1</TargetFrameworks>
@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ReverseProxy\Yarp.ReverseProxy.csproj" />
-    <ProjectReference Include="..\..\src\ReverseProxy.TelemetryConsumption\Yarp.ReverseProxy.Telemetry.Consumption.csproj" />
+    <ProjectReference Include="..\..\src\ReverseProxy.TelemetryConsumption\Yarp.Telemetry.Consumption.csproj" />
     <ProjectReference Include="..\ReverseProxy.Tests.Common\Yarp.ReverseProxy.Tests.Common.csproj" />
   </ItemGroup>
 

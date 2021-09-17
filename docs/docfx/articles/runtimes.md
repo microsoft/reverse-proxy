@@ -17,7 +17,7 @@ The following features are supported on NET 5.0 and higher:
 - [RequestHeaderEncoding](http-client-config.md#httpclient) - allows to set a non-ASCII header encoding for outgoing requests. Full path: `ClusterConfig.HttpClient.RequestHeaderEncoding`. Type: `string?`
 - [VersionPolicy](http-client-config.md#httprequest) - policy applied to version selection, e.g. whether to prefer downgrades, upgrades or request an exact version. The default is `RequestVersionOrLower`. Full path: `ClusterConfig.HttpRequest.VersionPolicy`. Type: `HttpVersionPolicy?`
 
-### Yarp.ReverseProxy.Telemetry.Consumption package
+### Yarp.Telemetry.Consumption package
 On .NET Core 3.1 it supports only:
 - YARP events and metrics
 - Kestrel events

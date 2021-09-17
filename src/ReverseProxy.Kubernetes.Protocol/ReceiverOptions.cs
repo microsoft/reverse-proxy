@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Yarp.ReverseProxy.Kubernetes.Protocol
+namespace Yarp.Kubernetes.Protocol
 {
     public class ReceiverOptions
     {

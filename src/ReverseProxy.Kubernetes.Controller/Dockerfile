@@ -19,4 +19,4 @@ RUN dotnet publish -c Release -o /app/publish -f net5.0
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Yarp.ReverseProxy.Kubernetes.Controller.dll"]
+ENTRYPOINT ["dotnet", "Yarp.Kubernetes.Controller.dll"]

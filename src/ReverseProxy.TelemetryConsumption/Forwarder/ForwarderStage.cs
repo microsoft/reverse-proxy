@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Yarp.ReverseProxy.Telemetry.Consumption
+namespace Yarp.Telemetry.Consumption
 {
     /// <summary>
     /// Stages of forwarding a request.

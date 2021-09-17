@@ -9,7 +9,7 @@ using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 using System.Threading.Tasks;
 
-namespace Yarp.ReverseProxy.Kubernetes.Controller
+namespace Yarp.Kubernetes.Controller
 {
     public static class Program
     {

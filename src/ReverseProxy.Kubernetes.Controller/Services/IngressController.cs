@@ -15,10 +15,10 @@ using Microsoft.Kubernetes.Controller.Informers;
 using Microsoft.Kubernetes.Controller.Queues;
 using Microsoft.Kubernetes.Controller.Rate;
 using Microsoft.Kubernetes.Controller.RateLimiters;
-using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
-using Yarp.ReverseProxy.Kubernetes.Controller.Dispatching;
+using Yarp.Kubernetes.Controller.Caching;
+using Yarp.Kubernetes.Controller.Dispatching;
 
-namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
+namespace Yarp.Kubernetes.Controller.Services
 {
     /// <summary>
     /// Controller receives notifications from informers. The data which is needed for processing is

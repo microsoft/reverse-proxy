@@ -7,9 +7,9 @@ using Microsoft.Kubernetes;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Yarp.ReverseProxy.Kubernetes.Controller.Services;
+using Yarp.Kubernetes.Controller.Services;
 
-namespace Yarp.ReverseProxy.Kubernetes.Controller.Caching
+namespace Yarp.Kubernetes.Controller.Caching
 {
     /// <summary>
     /// ICache service interface holds onto least amount of data necessary

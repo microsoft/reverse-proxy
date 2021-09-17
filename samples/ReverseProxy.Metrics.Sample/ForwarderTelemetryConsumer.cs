@@ -3,7 +3,7 @@
 
 using System;
 using Yarp.ReverseProxy.Forwarder;
-using Yarp.ReverseProxy.Telemetry.Consumption;
+using Yarp.Telemetry.Consumption;
 
 namespace Yarp.Sample
 {

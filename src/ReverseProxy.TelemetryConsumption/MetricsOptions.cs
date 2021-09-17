@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Yarp.ReverseProxy.Telemetry.Consumption
+namespace Yarp.Telemetry.Consumption
 {
     internal static class MetricsOptions
     {

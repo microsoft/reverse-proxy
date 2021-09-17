@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using Microsoft.Extensions.Logging;
 
-namespace Yarp.ReverseProxy.Telemetry.Consumption
+namespace Yarp.Telemetry.Consumption
 {
     internal sealed class NameResolutionEventListenerService : EventListenerService<NameResolutionEventListenerService, INameResolutionTelemetryConsumer, INameResolutionMetricsConsumer>
     {

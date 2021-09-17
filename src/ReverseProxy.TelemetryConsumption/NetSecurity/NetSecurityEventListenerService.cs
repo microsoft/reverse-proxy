@@ -9,7 +9,7 @@ using System.Diagnostics.Tracing;
 using System.Security.Authentication;
 using Microsoft.Extensions.Logging;
 
-namespace Yarp.ReverseProxy.Telemetry.Consumption
+namespace Yarp.Telemetry.Consumption
 {
     internal sealed class NetSecurityEventListenerService : EventListenerService<NetSecurityEventListenerService, INetSecurityTelemetryConsumer, INetSecurityMetricsConsumer>
     {

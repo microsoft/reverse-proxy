@@ -6,7 +6,7 @@ using System.Threading;
 using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Configuration;
 
-namespace Yarp.ReverseProxy.Kubernetes.Protocol
+namespace Yarp.Kubernetes.Protocol
 {
     public class MessageConfigProvider : IProxyConfigProvider, IUpdateConfig
     {

@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Yarp.ReverseProxy.Kubernetes.Controller": {
+    "Yarp.Kubernetes.Controller": {
       "commandName": "Project",
       "launchUrl": "api/dispatch",
       "environmentVariables": {

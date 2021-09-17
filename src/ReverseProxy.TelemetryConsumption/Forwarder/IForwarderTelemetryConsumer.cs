@@ -4,7 +4,7 @@
 using System;
 using Yarp.ReverseProxy.Forwarder;
 
-namespace Yarp.ReverseProxy.Telemetry.Consumption
+namespace Yarp.Telemetry.Consumption
 {
     /// <summary>
     /// A consumer of Yarp.ReverseProxy EventSource events.

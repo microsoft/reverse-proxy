@@ -5,7 +5,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Yarp.ReverseProxy.Configuration;
 
-namespace Yarp.ReverseProxy.Kubernetes.Protocol
+namespace Yarp.Kubernetes.Protocol
 {
     public static class MessageConfigProviderExtensions
     {

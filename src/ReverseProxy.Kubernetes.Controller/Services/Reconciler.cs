@@ -7,11 +7,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Kubernetes;
-using Yarp.ReverseProxy.Kubernetes.Controller.Converters;
-using Yarp.ReverseProxy.Kubernetes.Controller.Dispatching;
-using Yarp.ReverseProxy.Kubernetes.Protocol;
+using Yarp.Kubernetes.Controller.Converters;
+using Yarp.Kubernetes.Controller.Dispatching;
+using Yarp.Kubernetes.Protocol;
 
-namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
+namespace Yarp.Kubernetes.Controller.Services
 {
     /// <summary>
     /// IReconciler is a service interface called by the <see cref="IngressController"/> to process

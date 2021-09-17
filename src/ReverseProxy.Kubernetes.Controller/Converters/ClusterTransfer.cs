@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Yarp.ReverseProxy.Configuration;
 
-namespace Yarp.ReverseProxy.Kubernetes.Controller.Services
+namespace Yarp.Kubernetes.Controller.Services
 {
     internal sealed class ClusterTransfer
     {

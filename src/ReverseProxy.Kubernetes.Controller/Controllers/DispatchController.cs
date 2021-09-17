@@ -3,9 +3,9 @@
 
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Yarp.ReverseProxy.Kubernetes.Controller.Dispatching;
+using Yarp.Kubernetes.Controller.Dispatching;
 
-namespace Yarp.ReverseProxy.Kubernetes.Controller.Controllers
+namespace Yarp.Kubernetes.Controller.Controllers
 {
     /// <summary>
     /// DispatchController provides API used by callers to begin streaming

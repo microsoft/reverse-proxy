@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Yarp.ReverseProxy.Telemetry.Consumption
+namespace Yarp.Telemetry.Consumption
 {
     /// <summary>
     /// Represents metrics reported by the System.Net.NameResolution event counters.

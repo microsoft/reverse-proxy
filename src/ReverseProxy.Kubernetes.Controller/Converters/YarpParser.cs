@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using k8s.Models;
 using Yarp.ReverseProxy.Configuration;
-using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
-using Yarp.ReverseProxy.Kubernetes.Controller.Services;
+using Yarp.Kubernetes.Controller.Caching;
+using Yarp.Kubernetes.Controller.Services;
 
-namespace Yarp.ReverseProxy.Kubernetes.Controller.Converters
+namespace Yarp.Kubernetes.Controller.Converters
 {
     internal static class YarpParser
     {

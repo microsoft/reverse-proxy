@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Yarp.ReverseProxy.Telemetry.Consumption;
+using Yarp.Telemetry.Consumption;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

@@ -9,7 +9,7 @@ using System.Diagnostics.Tracing;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Forwarder;
 
-namespace Yarp.ReverseProxy.Telemetry.Consumption
+namespace Yarp.Telemetry.Consumption
 {
     internal sealed class ForwarderEventListenerService : EventListenerService<ForwarderEventListenerService, IForwarderTelemetryConsumer, IForwarderMetricsConsumer>
     {

@@ -10,9 +10,9 @@ using k8s;
 using k8s.Models;
 using Newtonsoft.Json.Linq;
 using Xunit;
-using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
-using Yarp.ReverseProxy.Kubernetes.Controller.Converters;
-using Yarp.ReverseProxy.Kubernetes.Controller.Services;
+using Yarp.Kubernetes.Controller.Caching;
+using Yarp.Kubernetes.Controller.Converters;
+using Yarp.Kubernetes.Controller.Services;
 
 namespace IngressController.Tests
 {

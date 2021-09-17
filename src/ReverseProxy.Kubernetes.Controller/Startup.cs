@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Yarp.ReverseProxy.Kubernetes.Controller.Caching;
-using Yarp.ReverseProxy.Kubernetes.Controller.Dispatching;
-using Yarp.ReverseProxy.Kubernetes.Controller.Services;
+using Yarp.Kubernetes.Controller.Caching;
+using Yarp.Kubernetes.Controller.Dispatching;
+using Yarp.Kubernetes.Controller.Services;
 
-namespace Yarp.ReverseProxy.Kubernetes.Controller
+namespace Yarp.Kubernetes.Controller
 {
     public class Startup
     {

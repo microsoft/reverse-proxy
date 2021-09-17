@@ -5,7 +5,7 @@ using k8s.Models;
 using System;
 using System.Collections.Generic;
 
-namespace Yarp.ReverseProxy.Kubernetes.Controller.Caching
+namespace Yarp.Kubernetes.Controller.Caching
 {
     /// <summary>
     /// Holds data needed from a <see cref="V1Endpoints"/> resource.
