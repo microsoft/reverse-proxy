@@ -30,14 +30,15 @@ public class IngressCache : ICache
         Namespace(ingress.Namespace()).Update(eventType, ingress);
     }
 
-    public void Update(WatchEventType eventType, V1Service service)
+
+    public ImmutableList<string> Update(WatchEventType eventType, V1Service service)
     {
         if (service is null)
         {
             throw new ArgumentNullException(nameof(service));
         }
 
-        Namespace(service.Namespace()).Update(eventType, service);
+        return Namespace(service.Namespace()).Update(eventType, service);
     }
 
     public ImmutableList<string> Update(WatchEventType eventType, V1Endpoints endpoints)
@@ -61,6 +62,20 @@ public class IngressCache : ICache
         }
     }
 
+    public IEnumerable<IngressData> GetIngresses()
+    {
+        var ingresses = new List<IngressData>();
+
+        lock (_sync)
+        {
+            foreach (var ns in _namespaceCaches)
+            {
+                ingresses.AddRange(ns.Value.GetIngresses());
+            }
+        }
+
+        return ingresses;
+    }
 
     private NamespaceCache Namespace(string key)
     {

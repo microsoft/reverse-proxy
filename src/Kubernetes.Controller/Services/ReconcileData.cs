@@ -8,7 +8,7 @@ namespace Yarp.Kubernetes.Controller.Services;
 
 /// <summary>
 /// ReconcileData is the information returned from <see cref="ICache.TryGetReconcileData(Microsoft.Kubernetes.NamespacedName, out ReconcileData)"/>
-/// and needed by <see cref="IReconciler.ProcessAsync(Dispatching.IDispatchTarget, Microsoft.Kubernetes.NamespacedName, ReconcileData, System.Threading.CancellationToken)"/>.
+/// and needed by <see cref="IReconciler.ProcessAsync(System.Threading.CancellationToken)"/>.
 /// </summary>
 #pragma warning disable CA1815 // Override equals and operator equals on value types
 public struct ReconcileData

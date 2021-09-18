@@ -4,10 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using k8s;
 using k8s.Models;
+using Microsoft.Kubernetes;
 using Newtonsoft.Json.Linq;
 using Xunit;
 using Yarp.Kubernetes.Controller.Caching;
@@ -24,15 +26,26 @@ public class IngressControllerTests
     [InlineData("https")]
     [InlineData("exact-match")]
     [InlineData("mapped-port")]
+    [InlineData("hostname-routing")]
+    [InlineData("multiple-ingresses")]
+    [InlineData("multiple-ingresses-one-svc")]
     public async Task ParsingTests(string name)
     {
-        var (ingress, services, endpoints) = await GetKubernetesInfo(name).ConfigureAwait(false);
-        var context = new YarpIngressContext(ingress, services, endpoints);
+        var cache = await GetKubernetesInfo(name).ConfigureAwait(false);
+        var configContext = new YarpConfigContext();
+        var ingresses = cache.GetIngresses().ToArray();
 
-        YarpParser.CovertFromKubernetesIngress(context);
+        foreach (var ingress in ingresses)
+        {
+            if (cache.TryGetReconcileData(new NamespacedName(ingress.Metadata.NamespaceProperty, ingress.Metadata.Name), out var data))
+            {
+                var ingressContext = new YarpIngressContext(ingress, data.ServiceList, data.EndpointsList);
+                YarpParser.ConvertFromKubernetesIngress(ingressContext, configContext);
+            }
+        }
 
-        VerifyClusters(JsonSerializer.Serialize(context.Clusters), name);
-        VerifyRoutes(JsonSerializer.Serialize(context.Routes), name);
+        VerifyClusters(JsonSerializer.Serialize(configContext.BuildClusterConfig()), name);
+        VerifyRoutes(JsonSerializer.Serialize(configContext.Routes), name);
     }
 
     private static void VerifyClusters(string clusterJson, string name)
@@ -52,33 +65,32 @@ public class IngressControllerTests
         Assert.True(JToken.DeepEquals(JToken.Parse(json), JToken.Parse(other)));
     }
 
-    private async Task<(IngressData, List<ServiceData>, List<Endpoints>)> GetKubernetesInfo(string name)
+    private async Task<ICache> GetKubernetesInfo(string name)
     {
+        var cache = new IngressCache();
+
         var typeMap = new Dictionary<string, Type>();
         typeMap.Add("networking.k8s.io/v1/Ingress", typeof(V1Ingress));
         typeMap.Add("v1/Service", typeof(V1Service));
         typeMap.Add("v1/Endpoints", typeof(V1Endpoints));
 
         var kubeObjects = await Yaml.LoadAllFromFileAsync(Path.Combine("testassets", name, "ingress.yaml"), typeMap).ConfigureAwait(false);
-        IngressData ingressData = default;
-        var serviceList = new List<ServiceData>();
-        var endpointList = new List<Endpoints>();
         foreach (var obj in kubeObjects)
         {
             if (obj is V1Ingress ingress)
             {
-                ingressData = new IngressData(ingress);
+                cache.Update(WatchEventType.Added, ingress);
             }
             else if (obj is V1Service service)
             {
-                serviceList.Add(new ServiceData(service));
+                cache.Update(WatchEventType.Added, service);
             }
             else if (obj is V1Endpoints endpoints)
             {
-                endpointList.Add(new Endpoints(endpoints));
+                cache.Update(WatchEventType.Added, endpoints);
             }
         }
 
-        return (ingressData, serviceList, endpointList);
+        return cache;
     }
 }

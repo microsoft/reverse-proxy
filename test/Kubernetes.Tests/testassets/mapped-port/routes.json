@@ -1,6 +1,6 @@
 [
   {
-    "RouteId": "/foo",
+    "RouteId": "mapped-port:/foo",
     "Match": {
       "Methods": null,
       "Hosts": [],

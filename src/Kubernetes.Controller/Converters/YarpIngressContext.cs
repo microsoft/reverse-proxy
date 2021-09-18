@@ -17,9 +17,6 @@ internal sealed class YarpIngressContext
     }
 
     public YarpIngressOptions Options { get; set; } = new YarpIngressOptions();
-    public Dictionary<string, ClusterTransfer> ClusterTransfers { get; set; } = new Dictionary<string, ClusterTransfer>();
-    public List<RouteConfig> Routes { get; set; } = new List<RouteConfig>();
-    public List<ClusterConfig> Clusters { get; set; } = new List<ClusterConfig>();
     public IngressData Ingress { get; }
     public List<ServiceData> Services { get; }
     public List<Endpoints> Endpoints { get; }

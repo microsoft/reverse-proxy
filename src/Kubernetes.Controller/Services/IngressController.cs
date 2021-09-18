@@ -13,8 +13,6 @@ using Microsoft.Kubernetes;
 using Microsoft.Kubernetes.Controller.Hosting;
 using Microsoft.Kubernetes.Controller.Informers;
 using Microsoft.Kubernetes.Controller.Queues;
-using Microsoft.Kubernetes.Controller.Rate;
-using Microsoft.Kubernetes.Controller.RateLimiters;
 using Yarp.Kubernetes.Controller.Caching;
 using Yarp.Kubernetes.Controller.Dispatching;
 
@@ -29,9 +27,10 @@ namespace Yarp.Kubernetes.Controller.Services;
 public class IngressController : BackgroundHostedService
 {
     private readonly IResourceInformerRegistration[] _registrations;
-    private readonly IRateLimitingQueue<QueueItem> _queue;
+    private readonly IWorkQueue<QueueItem> _queue;
     private readonly ICache _cache;
     private readonly IReconciler _reconciler;
+    private readonly QueueItem _ingressChangeQueueItem;
 
     public IngressController(
         ICache cache,
@@ -70,23 +69,18 @@ public class IngressController : BackgroundHostedService
 
         _registrations = new[]
         {
-                ingressInformer.Register(Notification),
-                serviceInformer.Register(Notification),
-                endpointsInformer.Register(Notification),
-            };
+            ingressInformer.Register(Notification),
+            serviceInformer.Register(Notification),
+            endpointsInformer.Register(Notification),
+        };
 
-        _queue = new RateLimitingQueue<QueueItem>(new MaxOfRateLimiter<QueueItem>(
-            new BucketRateLimiter<QueueItem>(
-                limiter: new Limiter(
-                    limit: new Limit(perSecond: 10),
-                    burst: 100)),
-            new ItemExponentialFailureRateLimiter<QueueItem>(
-                baseDelay: TimeSpan.FromMilliseconds(5),
-                maxDelay: TimeSpan.FromSeconds(10))));
+        _queue = new ProcessingRateLimitedQueue<QueueItem>(0.5, 1);
 
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         _reconciler = reconciler ?? throw new ArgumentNullException(nameof(reconciler));
         _reconciler.OnAttach(TargetAttached);
+
+        _ingressChangeQueueItem = new QueueItem("Ingress Change", null);
     }
 
     /// <summary>
@@ -118,9 +112,9 @@ public class IngressController : BackgroundHostedService
     {
         var keys = new List<NamespacedName>();
         _cache.GetKeys(keys);
-        foreach (var key in keys)
+        if (keys.Count > 0)
         {
-            _queue.Add(new QueueItem(key, target));
+            _queue.Add(new QueueItem("Target Attached", target));
         }
     }
 
@@ -132,7 +126,7 @@ public class IngressController : BackgroundHostedService
     private void Notification(WatchEventType eventType, V1Ingress resource)
     {
         _cache.Update(eventType, resource);
-        _queue.Add(new QueueItem(NamespacedName.From(resource), null));
+        _queue.Add(_ingressChangeQueueItem);
     }
 
     /// <summary>
@@ -142,8 +136,11 @@ public class IngressController : BackgroundHostedService
     /// <param name="resource">The information as provided by the Kubernets API server.</param>
     private void Notification(WatchEventType eventType, V1Service resource)
     {
-        _cache.Update(eventType, resource);
-        _queue.Add(new QueueItem(NamespacedName.From(resource), null));
+        var ingressNames = _cache.Update(eventType, resource);
+        if (ingressNames.Count > 0)
+        {
+            _queue.Add(_ingressChangeQueueItem);
+        }
     }
 
     /// <summary>
@@ -154,9 +151,9 @@ public class IngressController : BackgroundHostedService
     private void Notification(WatchEventType eventType, V1Endpoints resource)
     {
         var ingressNames = _cache.Update(eventType, resource);
-        foreach (var ingressName in ingressNames)
+        if (ingressNames.Count > 0)
         {
-            _queue.Add(new QueueItem(new NamespacedName(resource.Namespace(), ingressName), null));
+            _queue.Add(_ingressChangeQueueItem);
         }
     }
 
@@ -189,37 +186,22 @@ public class IngressController : BackgroundHostedService
 
             try
             {
-                // Fetch the currently known information about this Ingress
-                if (_cache.TryGetReconcileData(item.NamespacedName, out var data))
-                {
-#pragma warning disable CA1303 // Do not pass literals as localized parameters
-                    Logger.LogInformation("Processing {IngressNamespace} {IngressName}", item.NamespacedName.Namespace, item.NamespacedName.Name);
-#pragma warning restore CA1303 // Do not pass literals as localized parameters
+                await _reconciler.ProcessAsync(cancellationToken).ConfigureAwait(false);
 
-                    await _reconciler.ProcessAsync(item.DispatchTarget, item.NamespacedName, data, cancellationToken).ConfigureAwait(false);
-                }
-
-                // Tell the queue to forget any exponential backoff details like attempt count
-                _queue.Forget(item);
+                // calling Done after GetAsync informs the queue
+                // that the item is no longer being actively processed
+                _queue.Done(item);
             }
 #pragma warning disable CA1031 // Do not catch general exception types
             catch
 #pragma warning restore CA1031 // Do not catch general exception types
             {
 #pragma warning disable CA1303 // Do not pass literals as localized parameters
-                Logger.LogInformation("Rescheduling {IngressNamespace} {IngressName}", item.NamespacedName.Namespace, item.NamespacedName.Name);
+                Logger.LogInformation("Rescheduling {Change}", item.Change);
 #pragma warning restore CA1303 // Do not pass literals as localized parameters
 
-                // Any failure to process this item results in being re-queued after
-                // a per-item exponential backoff delay combined with
-                // and an overall retry rate of 10 per second
-                _queue.AddRateLimited(item);
-            }
-            finally
-            {
-                // calling Done after GetAsync informs the queue
-                // that the item is no longer being actively processed
-                _queue.Done(item);
+                // Any failure to process this item results in being re-queued
+                _queue.Add(item);
             }
         }
     }

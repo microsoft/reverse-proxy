@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Kubernetes;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,5 +15,5 @@ namespace Yarp.Kubernetes.Controller.Services;
 public interface IReconciler
 {
     void OnAttach(Action<IDispatchTarget> attached);
-    Task ProcessAsync(IDispatchTarget target, NamespacedName key, ReconcileData data, CancellationToken cancellationToken);
+    Task ProcessAsync(CancellationToken cancellationToken);
 }

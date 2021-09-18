@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 
 #pragma warning disable CA2213 // Disposable fields should be disposed
 
-
 namespace Microsoft.Kubernetes.Controller.Queues;
 
 /// <summary>
@@ -78,6 +77,8 @@ public class WorkQueue<TItem> : IWorkQueue<TItem>
             try
             {
                 await _semaphore.WaitAsync(linkedTokenSource.Token);
+
+                await OnGetAsync(cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -172,5 +173,15 @@ public class WorkQueue<TItem> : IWorkQueue<TItem>
 
             _disposedValue = true;
         }
+    }
+
+    /// <summary>
+    /// Called in GetAsync BEFORE the items is dequeued to allow rate-limiting of processing.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation</param>
+    /// <returns>A task.</returns>
+    protected virtual Task OnGetAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
     }
 }

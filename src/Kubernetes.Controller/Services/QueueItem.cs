@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Kubernetes;
 using Yarp.Kubernetes.Controller.Dispatching;
 
 namespace Yarp.Kubernetes.Controller.Services;
@@ -13,16 +12,16 @@ namespace Yarp.Kubernetes.Controller.Services;
 /// </summary>
 public struct QueueItem : IEquatable<QueueItem>
 {
-    public QueueItem(NamespacedName namespacedName, IDispatchTarget dispatchTarget)
+    public QueueItem(string change, IDispatchTarget dispatchTarget)
     {
-        NamespacedName = namespacedName;
+        Change = change;
         DispatchTarget = dispatchTarget;
     }
 
     /// <summary>
     /// This identifies an Ingress which must be dispatched because it, or a related resource, has changed.
     /// </summary>
-    public NamespacedName NamespacedName { get; }
+    public string Change { get; }
 
     /// <summary>
     /// This idenitifies a single target if the work item is caused by a new connection, otherwise null
@@ -37,13 +36,13 @@ public struct QueueItem : IEquatable<QueueItem>
 
     public bool Equals(QueueItem other)
     {
-        return NamespacedName.Equals(other.NamespacedName) &&
+        return Change.Equals(other.Change, StringComparison.Ordinal) &&
                EqualityComparer<IDispatchTarget>.Default.Equals(DispatchTarget, other.DispatchTarget);
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(NamespacedName, DispatchTarget);
+        return HashCode.Combine(Change, DispatchTarget);
     }
 
     public static bool operator ==(QueueItem left, QueueItem right)
