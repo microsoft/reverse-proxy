@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Tests\Common\TestResources.cs" Link="Common\TestResources.cs" />
+    <Compile Include="..\ReverseProxy.Tests\Common\TestResources.cs" Link="Common\TestResources.cs" />
   </ItemGroup>
 
 </Project>
