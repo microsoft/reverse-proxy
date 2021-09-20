@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy", "src\ReverseProxy\Yarp.ReverseProxy.csproj", "{568EF8AE-7624-490D-A19F-C25D076FF091}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.Tests", "test\Tests\Yarp.ReverseProxy.Tests.csproj", "{3B188E4C-C926-4BED-94F3-0E83668FBAB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.Tests", "test\ReverseProxy.Tests\Yarp.ReverseProxy.Tests.csproj", "{3B188E4C-C926-4BED-94F3-0E83668FBAB0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleServer", "samples\SampleServer\SampleServer.csproj", "{11D098B2-7116-4F37-817A-E496B8F15C76}"
 EndProject
@@ -28,7 +28,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "docfx", "docs\docfx\docfx.c
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Auth.Sample", "samples\ReverseProxy.Auth.Sample\ReverseProxy.Auth.Sample.csproj", "{354F2755-A090-4735-A657-726FB6DA92CD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.FunctionalTests", "test\FunctionalTests\Yarp.ReverseProxy.FunctionalTests.csproj", "{31089146-71DA-45C2-ACA6-EA1E2C916FD0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.FunctionalTests", "test\ReverseProxy.FunctionalTests\Yarp.ReverseProxy.FunctionalTests.csproj", "{31089146-71DA-45C2-ACA6-EA1E2C916FD0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Code.Sample", "samples\ReverseProxy.Code.Sample\ReverseProxy.Code.Sample.csproj", "{F2547357-FB2F-4944-842F-D33D1E7A17FC}"
 EndProject
