@@ -36,7 +36,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Direct.Sample"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.ServiceFabric", "src\ServiceFabric\Yarp.ReverseProxy.ServiceFabric.csproj", "{D7D077C7-CE13-42C3-A26A-DE5F940CBF3D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.Tests.Common", "test\Tests.Common\Yarp.ReverseProxy.Tests.Common.csproj", "{A6F5DAB3-C9B6-402D-A637-131D56D3AD5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.Tests.Common", "test\Tests.Common\Yarp.Tests.Common.csproj", "{A6F5DAB3-C9B6-402D-A637-131D56D3AD5E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.ServiceFabric.Tests", "test\ServiceFabric.Tests\Yarp.ReverseProxy.ServiceFabric.Tests.csproj", "{FC33B6BC-E328-45CD-8589-AF3A5D9450EE}"
 EndProject
