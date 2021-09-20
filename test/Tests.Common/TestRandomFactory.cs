@@ -4,7 +4,7 @@
 using System;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.Common.Tests
+namespace Yarp.Tests.Common
 {
     public class TestRandomFactory : IRandomFactory
     {

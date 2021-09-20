@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.Common.Tests
+namespace Yarp.Tests.Common
 {
     /// <summary>
     /// Simulates passage of time, used for testing.

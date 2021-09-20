@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Yarp.Common.Tests
+namespace Yarp.Tests.Common
 {
     internal class MockHttpHandler : HttpMessageHandler
     {

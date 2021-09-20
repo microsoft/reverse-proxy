@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
-namespace Yarp.Common.Tests
+namespace Yarp.Tests.Common
 {
 
     public class TestLogger : ILogger

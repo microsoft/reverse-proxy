@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Yarp.Common.Tests
+namespace Yarp.Tests.Common
 {
     public class TestRandom : Random
     {

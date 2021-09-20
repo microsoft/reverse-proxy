@@ -3,7 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace Yarp.Common.Tests
+namespace Yarp.Tests.Common
 {
     public class TestLoggerFactory : ILoggerFactory
     {

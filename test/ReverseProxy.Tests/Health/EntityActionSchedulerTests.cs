@@ -5,7 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using Yarp.Common.Tests;
+using Yarp.Tests.Common;
 
 namespace Yarp.ReverseProxy.Health.Tests
 {
