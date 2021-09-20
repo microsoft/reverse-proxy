@@ -8,7 +8,7 @@ using System.Linq;
 using Xunit;
 using Yarp.ReverseProxy.Forwarder;
 
-namespace Yarp.ReverseProxy.Common.Tests
+namespace Yarp.Common.Tests
 {
     internal static class EventAssertExtensions
     {

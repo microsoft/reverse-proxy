@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using Xunit;
-using Yarp.ReverseProxy.Common.Tests;
+using Yarp.Common.Tests;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
 

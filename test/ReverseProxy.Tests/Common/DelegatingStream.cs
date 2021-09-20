@@ -7,7 +7,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Yarp.ReverseProxy.Common.Tests
+namespace Yarp.Common.Tests
 {
     // Forwards all calls to an inner stream except where overridden in a derived class.
     internal abstract class DelegatingStream : Stream

@@ -5,7 +5,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace Yarp.ReverseProxy.Common.Tests
+namespace Yarp.Common.Tests
 {
     public class XunitLogger<TCategoryName> : ILogger<TCategoryName>
     {

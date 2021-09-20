@@ -6,7 +6,7 @@ using Autofac.Core;
 using Autofac.Extras.Moq;
 using Moq;
 
-namespace Yarp.ReverseProxy.Common.Tests
+namespace Yarp.Common.Tests
 {
     /// <summary>
     /// Automatically generates mocks for interfaces on the Class under test.

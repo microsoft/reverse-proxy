@@ -16,7 +16,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 using Xunit.Abstractions;
-using Yarp.ReverseProxy.Common.Tests;
+using Yarp.Common.Tests;
 using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.ReverseProxy.ServiceFabric.Tests

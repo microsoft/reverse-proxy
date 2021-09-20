@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using Xunit;
-using Yarp.ReverseProxy.Common.Tests;
+using Yarp.Common.Tests;
 
 namespace Yarp.ReverseProxy.ServiceFabric.Tests
 {
