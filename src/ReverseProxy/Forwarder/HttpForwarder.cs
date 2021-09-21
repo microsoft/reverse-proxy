@@ -131,16 +131,23 @@ namespace Yarp.ReverseProxy.Forwarder
                 }
                 catch (OperationCanceledException canceledException)
                 {
+                    ForwarderError error;
                     if (!requestAborted.IsCancellationRequested && requestTimeoutToken.IsCancellationRequested)
                     {
                         ReportProxyError(context, ForwarderError.RequestTimedOut, canceledException);
                         context.Response.StatusCode = StatusCodes.Status504GatewayTimeout;
-                        return ForwarderError.RequestTimedOut;
+                        error = ForwarderError.RequestTimedOut;
+                    }
+                    else
+                    {
+                        ReportProxyError(context, ForwarderError.RequestCanceled, canceledException);
+                        context.Response.StatusCode = StatusCodes.Status502BadGateway;
+                        error = ForwarderError.RequestCanceled;
                     }
 
-                    ReportProxyError(context, ForwarderError.RequestCanceled, canceledException);
-                    context.Response.StatusCode = StatusCodes.Status502BadGateway;
-                    return ForwarderError.RequestCanceled;
+                    await transformer.TransformResponseAsync(context, null);
+
+                    return error;
                 }
                 catch (Exception requestException)
                 {
