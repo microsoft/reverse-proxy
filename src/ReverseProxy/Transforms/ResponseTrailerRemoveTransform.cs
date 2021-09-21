@@ -37,7 +37,9 @@ namespace Yarp.ReverseProxy.Transforms
                 throw new ArgumentNullException(nameof(context));
             }
 
-            if (context.ProxyResponse != null && (Always || Success(context)))
+            Debug.Assert(context.ProxyResponse != null);
+
+            if (Always || Success(context))
             {
                 var responseTrailersFeature = context.HttpContext.Features.Get<IHttpResponseTrailersFeature>();
                 var responseTrailers = responseTrailersFeature.Trailers;
