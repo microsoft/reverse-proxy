@@ -576,7 +576,7 @@ namespace Yarp.ReverseProxy.Forwarder
                 var (secondResult, secondException) = await secondTask;
                 if (secondResult != StreamCopyResult.Success)
                 {
-                    error = ReportResult(context, requestFinishedFirst, secondResult, secondException!);
+                    error = ReportResult(context, !requestFinishedFirst, secondResult, secondException!);
                 }
                 else
                 {
