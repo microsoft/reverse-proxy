@@ -60,6 +60,25 @@ namespace Yarp.ReverseProxy.Transforms.Tests
             Assert.Equal(expectedHeaders, trailerFeature.Trailers.Select(h => h.Key));
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task RemoveTrailerFromFeature_ResponseNull_DoNothing(bool always)
+        {
+            var httpContext = new DefaultHttpContext();
+            httpContext.Response.StatusCode = 502;
+            var trailerFeature = new TestTrailersFeature();
+            httpContext.Features.Set<IHttpResponseTrailersFeature>(trailerFeature);
+
+            var transform = new ResponseTrailerRemoveTransform("header1", always);
+            await transform.ApplyAsync(new ResponseTrailersTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyResponse = null,
+                HeadersCopied = false,
+            });
+        }
+
         private class TestTrailersFeature : IHttpResponseTrailersFeature
         {
             public IHeaderDictionary Trailers { get; set; } = new HeaderDictionary();

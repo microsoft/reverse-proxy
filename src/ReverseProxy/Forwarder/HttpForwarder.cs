@@ -144,7 +144,7 @@ namespace Yarp.ReverseProxy.Forwarder
                 }
                 catch (Exception requestException)
                 {
-                    return await HandleRequestFailureAsync(context, requestContent, requestException);
+                    return await HandleRequestFailureAsync(context, requestContent, requestException, transformer);
                 }
                 finally
                 {
@@ -457,7 +457,7 @@ namespace Yarp.ReverseProxy.Forwarder
             return requestBodyError;
         }
 
-        private async ValueTask<ForwarderError> HandleRequestFailureAsync(HttpContext context, StreamCopyHttpContent? requestContent, Exception requestException)
+        private async ValueTask<ForwarderError> HandleRequestFailureAsync(HttpContext context, StreamCopyHttpContent? requestContent, Exception requestException, HttpTransformer transformer)
         {
             // Check for request body errors, these may have triggered the response error.
             if (requestContent?.ConsumptionTask.IsCompleted == true)
@@ -473,6 +473,8 @@ namespace Yarp.ReverseProxy.Forwarder
             // We couldn't communicate with the destination.
             ReportProxyError(context, ForwarderError.Request, requestException);
             context.Response.StatusCode = StatusCodes.Status502BadGateway;
+
+            await transformer.TransformResponseAsync(context, null);
 
             return ForwarderError.Request;
         }

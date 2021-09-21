@@ -71,6 +71,21 @@ namespace Yarp.ReverseProxy.Transforms.Tests
             Assert.Equal(new[] { "value1" }, proxyResponse.TrailingHeaders.GetValues("name"));
         }
 
+        [Fact]
+        public void TakeHeader_ResponseNull_ReturnsNothing()
+        {
+            var httpContext = new DefaultHttpContext();
+            var trailerFeature = new TestTrailersFeature();
+            httpContext.Features.Set<IHttpResponseTrailersFeature>(trailerFeature);
+            var result = ResponseTrailersTransform.TakeHeader(new ResponseTrailersTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyResponse = null,
+                HeadersCopied = false,
+            }, "name");
+            Assert.Equal(StringValues.Empty, result);
+        }
+
         private class TestTrailersFeature : IHttpResponseTrailersFeature
         {
             public IHeaderDictionary Trailers { get; set; } = new HeaderDictionary();

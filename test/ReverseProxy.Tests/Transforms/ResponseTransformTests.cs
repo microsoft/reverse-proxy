@@ -82,5 +82,18 @@ namespace Yarp.ReverseProxy.Transforms.Tests
             }, "name");
             Assert.Equal(StringValues.Empty, result);
         }
+
+        [Fact]
+        public void TakeHeader_ResponseNull_ReturnsNothing()
+        {
+            var httpContext = new DefaultHttpContext();
+            var result = ResponseTransform.TakeHeader(new ResponseTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyResponse = null,
+                HeadersCopied = false,
+            }, "name");
+            Assert.Equal(StringValues.Empty, result);
+        }
     }
 }

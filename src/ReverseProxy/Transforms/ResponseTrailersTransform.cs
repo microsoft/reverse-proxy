@@ -41,6 +41,12 @@ namespace Yarp.ReverseProxy.Transforms
             }
 
             var existingValues = StringValues.Empty;
+
+            if (context.ProxyResponse == null)
+            {
+                return existingValues;
+            }
+
             var responseTrailersFeature = context.HttpContext.Features.Get<IHttpResponseTrailersFeature>();
             var responseTrailers = responseTrailersFeature.Trailers;
             // Support should have already been checked by the caller.

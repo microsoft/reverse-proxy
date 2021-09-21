@@ -35,7 +35,7 @@ namespace Yarp.ReverseProxy.Transforms
                 throw new ArgumentNullException(nameof(context));
             }
 
-            if (Always || Success(context))
+            if (context.ProxyResponse != null && (Always || Success(context)))
             {
                 context.HttpContext.Response.Headers.Remove(HeaderName);
             }

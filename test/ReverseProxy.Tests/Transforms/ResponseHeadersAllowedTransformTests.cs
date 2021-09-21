@@ -122,5 +122,21 @@ namespace Yarp.ReverseProxy.Transforms.Tests
                 Assert.Contains(header.Key, allowed, StringComparer.OrdinalIgnoreCase);
             }
         }
+
+        [Fact]
+        public async Task ProxyResponseNull_DoNothing()
+        {
+            var httpContext = new DefaultHttpContext();
+            httpContext.Response.StatusCode = 502;
+
+            var transform = new ResponseHeadersAllowedTransform(new[] { "header1" });
+            var transformContext = new ResponseTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyResponse = null,
+                HeadersCopied = false,
+            };
+            await transform.ApplyAsync(transformContext);
+        }
     }
 }

@@ -106,8 +106,13 @@ namespace Yarp.ReverseProxy.Forwarder
         /// <returns>A bool indicating if the response should be proxied to the client or not. A derived implementation 
         /// that returns false may send an alternate response inline or return control to the caller for it to retry, respond, 
         /// etc.</returns>
-        public virtual ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+        public virtual ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage? proxyResponse)
         {
+            if (proxyResponse == null)
+            {
+                return new ValueTask<bool>(false);
+            }
+
             var responseHeaders = httpContext.Response.Headers;
             CopyResponseHeaders(proxyResponse.Headers, responseHeaders);
             if (proxyResponse.Content != null)

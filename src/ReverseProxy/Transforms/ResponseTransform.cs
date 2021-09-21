@@ -39,6 +39,12 @@ namespace Yarp.ReverseProxy.Transforms
             }
 
             var existingValues = StringValues.Empty;
+
+            if (context.ProxyResponse == null)
+            {
+                return existingValues;
+            }
+
             if (context.HttpContext.Response.Headers.TryGetValue(headerName, out var responseValues))
             {
                 context.HttpContext.Response.Headers.Remove(headerName);

@@ -85,6 +85,23 @@ namespace Yarp.ReverseProxy.Transforms.Tests
             }
         }
 
+        [Fact]
+        public async Task ProxyResponseNull_DoNothing()
+        {
+            var httpContext = new DefaultHttpContext();
+            var trailerFeature = new TestTrailersFeature();
+            httpContext.Features.Set<IHttpResponseTrailersFeature>(trailerFeature);
+
+            var transform = new ResponseTrailersAllowedTransform(new[] { "header1" });
+            var transformContext = new ResponseTrailersTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyResponse = null,
+                HeadersCopied = false,
+            };
+            await transform.ApplyAsync(transformContext);
+        }
+
         private class TestTrailersFeature : IHttpResponseTrailersFeature
         {
             public IHeaderDictionary Trailers { get; set; } = new HeaderDictionary();

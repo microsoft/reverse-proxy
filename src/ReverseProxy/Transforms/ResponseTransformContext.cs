@@ -19,7 +19,7 @@ namespace Yarp.ReverseProxy.Transforms
         /// <summary>
         /// The incoming proxy response.
         /// </summary>
-        public HttpResponseMessage ProxyResponse { get; init; } = default!;
+        public HttpResponseMessage? ProxyResponse { get; init; }
 
         /// <summary>
         /// Gets or sets if the response headers have been copied from the HttpResponseMessage and HttpContent
