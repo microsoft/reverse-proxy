@@ -1,0 +1,18 @@
+{
+  "profiles": {
+    "Yarp.Kubernetes.Controller": {
+      "commandName": "Project",
+      "launchUrl": "api/dispatch",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:5011;http://localhost:5010"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/api/dispatch",
+      "publishAllPorts": true,
+      "useSSL": true
+    }
+  }
+}

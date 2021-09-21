@@ -10,7 +10,7 @@ using System.Security.Authentication;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Xunit;
-using Yarp.ReverseProxy.Common.Tests;
+using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.ReverseProxy.Forwarder.Tests

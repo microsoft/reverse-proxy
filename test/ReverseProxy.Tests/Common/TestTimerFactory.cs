@@ -7,7 +7,7 @@ using System.Threading;
 using Xunit;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Common.Tests
+namespace Yarp.Tests.Common
 {
     internal class TestTimerFactory : ITimerFactory, IDisposable
     {

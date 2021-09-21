@@ -3,7 +3,7 @@
 
 #if NET
 
-using Yarp.ReverseProxy.Telemetry.Consumption;
+using Yarp.Telemetry.Consumption;
 using Prometheus;
 
 namespace Yarp.Sample

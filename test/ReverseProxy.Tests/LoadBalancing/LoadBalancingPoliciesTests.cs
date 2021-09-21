@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Xunit;
-using Yarp.ReverseProxy.Common.Tests;
+using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Forwarder;

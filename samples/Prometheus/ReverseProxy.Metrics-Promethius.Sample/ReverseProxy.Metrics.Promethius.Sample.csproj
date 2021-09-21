@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\ReverseProxy.TelemetryConsumption\Yarp.ReverseProxy.Telemetry.Consumption.csproj" />
+    <ProjectReference Include="..\..\..\src\TelemetryConsumption\Yarp.Telemetry.Consumption.csproj" />
   </ItemGroup>
 
   <ItemGroup>

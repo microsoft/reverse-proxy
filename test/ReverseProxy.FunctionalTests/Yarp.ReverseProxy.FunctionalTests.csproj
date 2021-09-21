@@ -12,8 +12,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ReverseProxy\Yarp.ReverseProxy.csproj" />
-    <ProjectReference Include="..\..\src\ReverseProxy.TelemetryConsumption\Yarp.ReverseProxy.Telemetry.Consumption.csproj" />
-    <ProjectReference Include="..\ReverseProxy.Tests.Common\Yarp.ReverseProxy.Tests.Common.csproj" />
+    <ProjectReference Include="..\..\src\TelemetryConsumption\Yarp.Telemetry.Consumption.csproj" />
+    <ProjectReference Include="..\Tests.Common\Yarp.Tests.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

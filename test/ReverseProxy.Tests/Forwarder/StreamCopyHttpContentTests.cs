@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using Xunit;
-using Yarp.ReverseProxy.Common.Tests;
+using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Forwarder.Tests
