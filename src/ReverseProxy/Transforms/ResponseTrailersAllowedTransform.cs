@@ -41,6 +41,7 @@ namespace Yarp.ReverseProxy.Transforms
                 throw new ArgumentNullException(nameof(context));
             }
 
+            Debug.Assert(context.ProxyResponse != null);
             Debug.Assert(!context.HeadersCopied);
 
             // See https://github.com/microsoft/reverse-proxy/blob/51d797986b1fea03500a1ad173d13a1176fb5552/src/ReverseProxy/Forwarder/HttpTransformer.cs#L85-L99

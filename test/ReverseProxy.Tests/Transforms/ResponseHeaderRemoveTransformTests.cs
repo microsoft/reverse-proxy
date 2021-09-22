@@ -56,5 +56,22 @@ namespace Yarp.ReverseProxy.Transforms.Tests
             var expectedHeaders = expected.Split("; ", StringSplitOptions.RemoveEmptyEntries);
             Assert.Equal(expectedHeaders, httpContext.Response.Headers.Select(h => h.Key));
         }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task RemoveHeader_ResponseNull_DoNothing(bool always)
+        {
+            var httpContext = new DefaultHttpContext();
+            httpContext.Response.StatusCode = 502;
+
+            var transform = new ResponseHeaderRemoveTransform("header1", always);
+            await transform.ApplyAsync(new ResponseTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyResponse = null,
+                HeadersCopied = false,
+            });
+        }
     }
 }
