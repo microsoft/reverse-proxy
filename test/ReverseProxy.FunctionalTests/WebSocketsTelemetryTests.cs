@@ -165,9 +165,7 @@ namespace Yarp.ReverseProxy
                     await webSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "Bye");
                 }
 
-                if (behavior == Behavior.SendsClose_ClosesConnection ||
-                    behavior == Behavior.WaitsForClose_ClosesConnection ||
-                    behavior == Behavior.ClosesConnection)
+                if (behavior.HasFlag(Behavior.ClosesConnection))
                 {
                     client?.Abort();
 
@@ -285,7 +283,7 @@ namespace Yarp.ReverseProxy
             await test.Invoke(async uri =>
             {
                 var webSocketsTarget = uri.Replace("https://", "wss://").Replace("http://", "ws://");
-                var webSocketsUri = new Uri(new Uri(webSocketsTarget, UriKind.Absolute), "websockets");
+                var webSocketsUri = new Uri(webSocketsTarget, UriKind.Absolute);
 
                 await requestDelegate(webSocketsUri);
             });
