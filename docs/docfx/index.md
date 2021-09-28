@@ -21,4 +21,4 @@ Eventually we expect YARP to ship as a library, project template, and a single-f
 
 YARP is designed with customizability as a primary scenario rather than requiring you to break out to script or rebuild the library from source.
 
-See the [Getting Started](xref:getting-started.md) guide for a brief tutorial, or [Basic Sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/BasicYarpSample) for a fully commented sample showing how to use the YARP library to implement a fairly well featured proxy.
+See the [Getting Started](https://microsoft.github.io/reverse-proxy/articles/getting-started) guide for a brief tutorial, or [Basic Sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/BasicYarpSample) for a fully commented sample showing how to use the YARP library to implement a fairly well featured proxy.
