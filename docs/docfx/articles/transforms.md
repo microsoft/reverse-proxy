@@ -360,19 +360,19 @@ Example:
 | QueryRemoveParameter | `foo` |
 | Result | `?a=b` |
 
-### HttpMethod
+### HttpMethodChange
 
 **Changes the http method used in the request**
 
 | Key | Value | Required |
 |-----|-------|----------|
-| HttpMethod | The http method to replace | yes |
+| HttpMethodChange | The http method to replace | yes |
 | Set | The new http method | yes |
 
 Config:
 ```JSON
 {
-  "HttpMethod": "PUT",
+  "HttpMethodChange": "PUT",
   "Set": "POST",
 }
 ```
