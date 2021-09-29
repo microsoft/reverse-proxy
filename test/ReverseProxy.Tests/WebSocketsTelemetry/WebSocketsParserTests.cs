@@ -53,11 +53,11 @@ namespace Yarp.ReverseProxy.WebSocketsTelemetry.Tests
             return header;
         }
 
-        private ReadOnlySpan<byte> GetCloseFrame() => GetHeader(opcode: 8, length: 0);
+        private ReadOnlySpan<byte> GetCloseFrame(int length = 0) => GetBinaryMessageFrame(Encoding.UTF8.GetBytes(new string('a', length)), opcode: 8);
 
-        private ReadOnlySpan<byte> GetPingFrame() => GetHeader(opcode: 9, length: 0);
+        private ReadOnlySpan<byte> GetPingFrame(int length = 0) => GetBinaryMessageFrame(Encoding.UTF8.GetBytes(new string('a', length)), opcode: 9);
 
-        private ReadOnlySpan<byte> GetPongFrame() => GetHeader(opcode: 10, length: 0);
+        private ReadOnlySpan<byte> GetPongFrame(int length = 0) => GetBinaryMessageFrame(Encoding.UTF8.GetBytes(new string('a', length)), opcode: 10);
 
         private ReadOnlySpan<byte> GetTextMessageFrame(string message, bool continuation = false, bool endOfMessage = true)
         {
@@ -71,9 +71,9 @@ namespace Yarp.ReverseProxy.WebSocketsTelemetry.Tests
             return frame;
         }
 
-        private ReadOnlySpan<byte> GetBinaryMessageFrame(ReadOnlySpan<byte> message, bool continuation = false, bool endOfMessage = true)
+        private ReadOnlySpan<byte> GetBinaryMessageFrame(ReadOnlySpan<byte> message, bool continuation = false, bool endOfMessage = true, int opcode = 2)
         {
-            var header = GetHeader(opcode: continuation ? 0 : 2, length: message.Length, endOfMessage);
+            var header = GetHeader(opcode: continuation ? 0 : opcode, length: message.Length, endOfMessage);
 
             var frame = new byte[header.Length + message.Length];
             header.CopyTo(frame);
@@ -201,9 +201,19 @@ namespace Yarp.ReverseProxy.WebSocketsTelemetry.Tests
             Assert.Equal(500, parser.MessageCount);
 
 
-            // Close frame is not counted
+            // Control frames are not counted
+            parser.Consume(GetPingFrame());
+            parser.Consume(GetPingFrame(length: 10));
+            parser.Consume(GetPongFrame());
+            parser.Consume(GetPongFrame(length: 10));
             parser.Consume(GetCloseFrame());
+            parser.Consume(GetCloseFrame(length: 10));
             Assert.Equal(500, parser.MessageCount);
+
+
+            // Messages are still counted after a close frame
+            parser.Consume(GetTextMessageFrame("Foo"));
+            Assert.Equal(501, parser.MessageCount);
 
             static void ConsumeInFragments(ref WebSocketsParser parser, ReadOnlySpan<byte> message)
             {
