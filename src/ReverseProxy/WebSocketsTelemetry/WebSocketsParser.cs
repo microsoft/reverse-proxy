@@ -22,7 +22,7 @@ namespace Yarp.ReverseProxy.WebSocketsTelemetry
 
         public long MessageCount { get; private set; }
 
-        public DateTime? CloseTime => _closeTime == 0 ? null : new DateTime(_closeTime);
+        public DateTime? CloseTime => _closeTime == 0 ? null : new DateTime(_closeTime, DateTimeKind.Utc);
 
         public WebSocketsParser(IClock clock, bool isServer)
         {
