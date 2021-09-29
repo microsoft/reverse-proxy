@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.WebSocketsTelemetry
 {
@@ -16,18 +17,21 @@ namespace Yarp.ReverseProxy.WebSocketsTelemetry
         private readonly byte _minHeaderSize;
         private byte _leftover;
         private ulong _bytesToSkip;
+        private long _closeTime;
+        private readonly IClock _clock;
 
         public long MessageCount { get; private set; }
 
-        public DateTime? CloseTime { get; private set; }
+        public DateTime? CloseTime => _closeTime == 0 ? null : new DateTime(_closeTime);
 
-        public WebSocketsParser(bool isServer)
+        public WebSocketsParser(IClock clock, bool isServer)
         {
             _minHeaderSize = (byte)(MinHeaderSize + (isServer ? MaskLength : 0));
             _leftover = 0;
             _bytesToSkip = 0;
+            _closeTime = 0;
+            _clock = clock;
             MessageCount = 0;
-            CloseTime = null;
         }
 
         // The WebSocket Protocol: https://datatracker.ietf.org/doc/html/rfc6455#section-5.2
@@ -100,15 +104,21 @@ namespace Yarp.ReverseProxy.WebSocketsTelemetry
                 Debug.Assert(leftover < headerSize);
                 bytesToSkip = length;
 
-                int header = leftover > 0 ? _leftoverBuffer[0] : buffer[0];
+                const int NonReservedBitsMask = 0b_1000_1111;
+                var header = (leftover > 0 ? _leftoverBuffer[0] : buffer[0]) & NonReservedBitsMask;
 
-                if ((header & 0xF) == 0x8) // CLOSE
+                // Don't count control frames under MessageCount
+                if ((uint)(header - 0x80) <= 0x02)
                 {
-                    CloseTime ??= DateTime.UtcNow;
-                }
-                else if ((header & 0x80) != 0) // FIN
-                {
+                    // Has FIN (0x80) and is a Continuation (0x00) / Text (0x01) / Binary (0x02) opcode
                     MessageCount++;
+                }
+                else if ((header & 0xF) == 0x8) // CLOSE
+                {
+                    if (_closeTime == 0)
+                    {
+                        _closeTime = _clock.GetUtcNow().Ticks;
+                    }
                 }
 
                 // Advance the buffer by the number of bytes read for the header,

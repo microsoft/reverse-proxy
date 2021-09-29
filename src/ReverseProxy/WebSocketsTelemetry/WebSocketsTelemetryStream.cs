@@ -19,12 +19,12 @@ namespace Yarp.ReverseProxy.WebSocketsTelemetry
         public long MessagesRead => _readParser.MessageCount;
         public long MessagesWritten => _writeParser.MessageCount;
 
-        public WebSocketsTelemetryStream(Stream innerStream)
+        public WebSocketsTelemetryStream(IClock clock, Stream innerStream)
             : base(innerStream)
         {
-            EstablishedTime = DateTime.UtcNow;
-            _readParser = new WebSocketsParser(isServer: true);
-            _writeParser = new WebSocketsParser(isServer: false);
+            EstablishedTime = clock.GetUtcNow().UtcDateTime;
+            _readParser = new WebSocketsParser(clock, isServer: true);
+            _writeParser = new WebSocketsParser(clock, isServer: false);
         }
 
         public WebSocketCloseReason GetCloseReason(HttpContext context)
@@ -79,10 +79,8 @@ namespace Yarp.ReverseProxy.WebSocketsTelemetry
                 _readParser.Consume(buffer.Span.Slice(0, read));
                 return new ValueTask<int>(read);
             }
-            else
-            {
-                return Core(buffer, readTask);
-            }
+
+            return Core(buffer, readTask);
 
             async ValueTask<int> Core(Memory<byte> buffer, ValueTask<int> readTask)
             {

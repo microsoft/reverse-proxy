@@ -165,6 +165,7 @@ namespace Yarp.ReverseProxy
                         builder.Map("/post", Post);
                     });
                 },
+                proxyServices => { },
                 proxyBuilder => { },
                 proxyApp =>
                 {

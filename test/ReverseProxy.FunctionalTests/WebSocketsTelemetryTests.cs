@@ -13,7 +13,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Yarp.ReverseProxy.Common;
+using Yarp.ReverseProxy.Utilities;
 using Yarp.Telemetry.Consumption;
+using Yarp.Tests.Common;
 
 namespace Yarp.ReverseProxy
 {
@@ -44,8 +46,6 @@ namespace Yarp.ReverseProxy
         [InlineData(2, 3, 100_000)]
         public async Task MessagesExchanged_CorrectNumberReported(int read, int written, int messageSize)
         {
-            var startTime = DateTime.UtcNow;
-
             var telemetry = await TestAsync(
                 async uri =>
                 {
@@ -62,10 +62,11 @@ namespace Yarp.ReverseProxy
                     await Task.WhenAll(
                         SendMessagesAndCloseAsync(webSocket, written, messageSize),
                         ReceiveAllMessagesAsync(webSocket));
-                });
+                },
+                new ManualClock(new TimeSpan(42)));
 
             Assert.NotNull(telemetry);
-            Assert.InRange(telemetry!.EstablishedTime, startTime, telemetry.Timestamp);
+            Assert.Equal(42, telemetry!.EstablishedTime.Ticks);
             Assert.Contains(telemetry.CloseReason, new[] { WebSocketCloseReason.ClientGracefulClose, WebSocketCloseReason.ServerGracefulClose });
             Assert.Equal(read, telemetry!.MessagesRead);
             Assert.Equal(written, telemetry.MessagesWritten);
@@ -178,6 +179,53 @@ namespace Yarp.ReverseProxy
             }
         }
 
+        [Theory]
+        [InlineData(100, 200, WebSocketCloseReason.ClientGracefulClose)]
+        [InlineData(200, 100, WebSocketCloseReason.ServerGracefulClose)]
+        [InlineData(100, 100, WebSocketCloseReason.ServerGracefulClose)] // Implementation detail
+        public async Task ConnectionClosed_BlameReliesOnCloseTimes(long clientCloseTime, long serverCloseTime, WebSocketCloseReason expectedCloseReason)
+        {
+            var clock = new ManualClock(new TimeSpan(1));
+
+            var telemetry = await TestAsync(
+                async uri =>
+                {
+                    using var client = new ClientWebSocket();
+                    await client.ConnectAsync(uri, CancellationToken.None);
+                    var webSocket = new WebSocketAdapter(client);
+
+                    await ProcessAsync(webSocket, clock, clientCloseTime, sendCloseFirst: clientCloseTime <= serverCloseTime);
+                },
+                async (context, webSocket) =>
+                {
+                    await ProcessAsync(webSocket, clock, serverCloseTime, sendCloseFirst: serverCloseTime < clientCloseTime);
+                },
+                clock);
+
+            Assert.NotNull(telemetry);
+            Assert.Equal(1, telemetry!.EstablishedTime.Ticks);
+            Assert.Equal(expectedCloseReason, telemetry.CloseReason);
+
+            static async Task ProcessAsync(WebSocketAdapter webSocket, ManualClock clock, long closeTime, bool sendCloseFirst)
+            {
+                var receiveTask = ReceiveAllMessagesAsync(webSocket);
+
+                if (!sendCloseFirst)
+                {
+                    await receiveTask;
+                }
+
+                lock (clock)
+                {
+                    clock.AdvanceClockTo(TimeSpan.FromTicks(closeTime));
+                }
+
+                await webSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "Bye", CancellationToken.None);
+
+                await receiveTask;
+            }
+        }
+
         private static async Task ReceiveAllMessagesAsync(WebSocketAdapter webSocket)
         {
             Memory<byte> buffer = new byte[1024];
@@ -251,7 +299,7 @@ namespace Yarp.ReverseProxy
             }
         }
 
-        private static async Task<WebSocketsTelemetry?> TestAsync(Func<Uri, Task> requestDelegate, Func<HttpContext, WebSocketAdapter, Task> destinationDelegate)
+        private static async Task<WebSocketsTelemetry?> TestAsync(Func<Uri, Task> requestDelegate, Func<HttpContext, WebSocketAdapter, Task> destinationDelegate, IClock? clock = null)
         {
             var telemetryConsumer = new TelemetryConsumer();
 
@@ -270,6 +318,13 @@ namespace Yarp.ReverseProxy
                             await destinationDelegate(context, new WebSocketAdapter(server: webSocket));
                         }
                     });
+                },
+                proxyServices =>
+                {
+                    if (clock is not null)
+                    {
+                        proxyServices.AddSingleton(clock);
+                    }
                 },
                 proxyBuilder =>
                 {

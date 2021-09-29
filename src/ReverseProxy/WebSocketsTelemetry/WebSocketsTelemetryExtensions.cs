@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using Yarp.ReverseProxy.Utilities;
 using Yarp.ReverseProxy.WebSocketsTelemetry;
 
 namespace Microsoft.AspNetCore.Builder
@@ -16,7 +19,12 @@ namespace Microsoft.AspNetCore.Builder
         /// </summary>
         public static IApplicationBuilder UseWebSocketsTelemetry(this IApplicationBuilder app)
         {
-            return app.UseMiddleware<WebSocketsTelemetryMiddleware>();
+            return app.Use(next =>
+            {
+                // Avoid exposing another extension method (AddWebSocketsTelemetry) just because of IClock
+                var clock = app.ApplicationServices.GetServices<IClock>().FirstOrDefault() ?? new Clock();
+                return new WebSocketsTelemetryMiddleware(next, clock).InvokeAsync;
+            });
         }
     }
 }

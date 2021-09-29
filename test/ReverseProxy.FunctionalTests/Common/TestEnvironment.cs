@@ -22,6 +22,7 @@ namespace Yarp.ReverseProxy.Common
     {
         private readonly Action<IServiceCollection> _configureDestinationServices;
         private readonly Action<IApplicationBuilder> _configureDestinationApp;
+        private readonly Action<IServiceCollection> _configureProxyServices;
         private readonly Action<IReverseProxyBuilder> _configureProxy;
         private readonly Action<IApplicationBuilder> _configureProxyApp;
         private readonly HttpProtocols _proxyProtocol;
@@ -44,6 +45,7 @@ namespace Yarp.ReverseProxy.Common
                   {
                       destinationApp.Run(destinationGetDelegate);
                   },
+                  configureProxyServices: null,
                   configureProxy,
                   configureProxyApp,
                   proxyProtocol,
@@ -55,7 +57,7 @@ namespace Yarp.ReverseProxy.Common
 
         public TestEnvironment(
             Action<IServiceCollection> configureDestinationServices, Action<IApplicationBuilder> configureDestinationApp,
-            Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp,
+            Action<IServiceCollection> configureProxyServices, Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp,
             HttpProtocols proxyProtocol = HttpProtocols.Http1AndHttp2, bool useHttpsOnDestination = false,
             bool useHttpsOnProxy = false, Encoding headerEncoding = null,
             Func<ClusterConfig, RouteConfig, (ClusterConfig Cluster, RouteConfig Route)> configTransformer = null)
@@ -64,6 +66,7 @@ namespace Yarp.ReverseProxy.Common
             _configureDestinationApp = configureDestinationApp;
             _configureProxy = configureProxy;
             _configureProxyApp = configureProxyApp;
+            _configureProxyServices = configureProxyServices ?? (_ => { });
             _proxyProtocol = proxyProtocol;
             _useHttpsOnDestination = useHttpsOnDestination;
             _useHttpsOnProxy = useHttpsOnProxy;
@@ -76,7 +79,7 @@ namespace Yarp.ReverseProxy.Common
             using var destination = CreateHost(HttpProtocols.Http1AndHttp2, _useHttpsOnDestination, _headerEncoding, _configureDestinationServices, _configureDestinationApp);
             await destination.StartAsync(cancellationToken);
 
-            using var proxy = CreateProxy(_proxyProtocol, _useHttpsOnDestination, _useHttpsOnProxy, _headerEncoding, ClusterId, destination.GetAddress(), _configureProxy, _configureProxyApp, _configTransformer);
+            using var proxy = CreateProxy(_proxyProtocol, _useHttpsOnDestination, _useHttpsOnProxy, _headerEncoding, ClusterId, destination.GetAddress(), _configureProxyServices, _configureProxy, _configureProxyApp, _configTransformer);
             await proxy.StartAsync(cancellationToken);
 
             try
@@ -91,11 +94,13 @@ namespace Yarp.ReverseProxy.Common
         }
 
         public static IHost CreateProxy(HttpProtocols protocols, bool useHttpsOnDestination, bool httpsOnProxy, Encoding requestHeaderEncoding, string clusterId, string destinationAddress,
-            Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp, Func<ClusterConfig, RouteConfig, (ClusterConfig Cluster, RouteConfig Route)> configTransformer)
+            Action<IServiceCollection> configureServices, Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp, Func<ClusterConfig, RouteConfig, (ClusterConfig Cluster, RouteConfig Route)> configTransformer)
         {
             return CreateHost(protocols, httpsOnProxy, requestHeaderEncoding,
                 services =>
                 {
+                    configureServices(services);
+
                     var route = new RouteConfig
                     {
                         RouteId = "route1",
