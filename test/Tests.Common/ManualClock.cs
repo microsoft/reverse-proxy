@@ -29,7 +29,7 @@ namespace Yarp.Tests.Common
         private TimeSpan _currentTime;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="VirtualMonotonicTimer" /> class.
+        /// Initializes a new instance of the <see cref="ManualClock" /> class.
         /// </summary>
         /// <param name="initialTime">Initial value for current time. Zero if not specified.</param>
         public ManualClock(TimeSpan? initialTime = null)
@@ -69,7 +69,7 @@ namespace Yarp.Tests.Common
             _currentTime = targetTime;
         }
 
-        public DateTimeOffset GetUtcNow() => DateTimeOffset.UtcNow;
+        public DateTimeOffset GetUtcNow() => new DateTime(_currentTime.Ticks, DateTimeKind.Utc);
 
         public TimeSpan GetStopwatchTime() => _currentTime;
 

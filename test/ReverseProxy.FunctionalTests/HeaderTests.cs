@@ -340,6 +340,7 @@ namespace Yarp.ReverseProxy
             Exception unhandledError = null;
 
             using var proxy = TestEnvironment.CreateProxy(HttpProtocols.Http1, false, false, encoding, "cluster1", $"http://{tcpListener.LocalEndpoint}",
+                proxyServices => { },
                 proxyBuilder => { },
                 proxyApp =>
                 {

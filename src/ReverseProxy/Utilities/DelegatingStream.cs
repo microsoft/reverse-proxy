@@ -1,5 +1,5 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Diagnostics;
@@ -7,8 +7,9 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Yarp.Tests.Common
+namespace Yarp.ReverseProxy.Utilities
 {
+    // Taken from https://github.com/dotnet/runtime/blob/00f37bc13b4edbba1afca9e98d74432a94f5192f/src/libraries/Common/src/System/IO/DelegatingStream.cs
     // Forwards all calls to an inner stream except where overridden in a derived class.
     internal abstract class DelegatingStream : Stream
     {
@@ -113,9 +114,9 @@ namespace Yarp.Tests.Common
             return _innerStream.ReadAsync(buffer, cancellationToken);
         }
 
-        public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+        public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state)
         {
-            return _innerStream.BeginRead(buffer, offset, count, callback, state);
+            return _innerStream.BeginRead(buffer, offset, count, callback!, state);
         }
 
         public override int EndRead(IAsyncResult asyncResult)
@@ -167,9 +168,9 @@ namespace Yarp.Tests.Common
             return _innerStream.WriteAsync(buffer, cancellationToken);
         }
 
-        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state)
         {
-            return _innerStream.BeginWrite(buffer, offset, count, callback, state);
+            return _innerStream.BeginWrite(buffer, offset, count, callback!, state);
         }
 
         public override void EndWrite(IAsyncResult asyncResult)

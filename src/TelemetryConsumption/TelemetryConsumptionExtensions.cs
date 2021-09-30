@@ -11,15 +11,16 @@ namespace Microsoft.Extensions.DependencyInjection
     {
 #if NET
         /// <summary>
-        /// Registers all telemetry listeners (Proxy, Kestrel, Http, NameResolution, NetSecurity and Sockets).
+        /// Registers all telemetry listeners (Forwarder, Kestrel, Http, NameResolution, NetSecurity, Sockets and WebSockets).
         /// </summary>
 #else
         /// <summary>
-        /// Registers all telemetry listeners (Proxy and Kestrel).
+        /// Registers all telemetry listeners (Forwarder, Kestrel and WebSockets).
         /// </summary>
 #endif
         public static IServiceCollection AddTelemetryListeners(this IServiceCollection services)
         {
+            services.AddHostedService<WebSocketsEventListenerService>();
             services.AddHostedService<ForwarderEventListenerService>();
             services.AddHostedService<KestrelEventListenerService>();
 #if NET
@@ -38,40 +39,46 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var implementsAny = false;
 
-            if (consumer is IForwarderTelemetryConsumer)
+            if (consumer is IWebSocketsTelemetryConsumer webSocketsTelemetryConsumer)
             {
-                services.TryAddEnumerable(new ServiceDescriptor(typeof(IForwarderTelemetryConsumer), consumer));
+                services.TryAddEnumerable(ServiceDescriptor.Singleton(webSocketsTelemetryConsumer));
                 implementsAny = true;
             }
 
-            if (consumer is IKestrelTelemetryConsumer)
+            if (consumer is IForwarderTelemetryConsumer forwarderTelemetryConsumer)
             {
-                services.TryAddEnumerable(new ServiceDescriptor(typeof(IKestrelTelemetryConsumer), consumer));
+                services.TryAddEnumerable(ServiceDescriptor.Singleton(forwarderTelemetryConsumer));
+                implementsAny = true;
+            }
+
+            if (consumer is IKestrelTelemetryConsumer kestrelTelemetryConsumer)
+            {
+                services.TryAddEnumerable(ServiceDescriptor.Singleton(kestrelTelemetryConsumer));
                 implementsAny = true;
             }
 
 #if NET
-            if (consumer is IHttpTelemetryConsumer)
+            if (consumer is IHttpTelemetryConsumer httpTelemetryConsumer)
             {
-                services.TryAddEnumerable(new ServiceDescriptor(typeof(IHttpTelemetryConsumer), consumer));
+                services.TryAddEnumerable(ServiceDescriptor.Singleton(httpTelemetryConsumer));
                 implementsAny = true;
             }
 
-            if (consumer is INameResolutionTelemetryConsumer)
+            if (consumer is INameResolutionTelemetryConsumer nameResolutionTelemetryConsumer)
             {
-                services.TryAddEnumerable(new ServiceDescriptor(typeof(INameResolutionTelemetryConsumer), consumer));
+                services.TryAddEnumerable(ServiceDescriptor.Singleton(nameResolutionTelemetryConsumer));
                 implementsAny = true;
             }
 
-            if (consumer is INetSecurityTelemetryConsumer)
+            if (consumer is INetSecurityTelemetryConsumer netSecurityTelemetryConsumer)
             {
-                services.TryAddEnumerable(new ServiceDescriptor(typeof(INetSecurityTelemetryConsumer), consumer));
+                services.TryAddEnumerable(ServiceDescriptor.Singleton(netSecurityTelemetryConsumer));
                 implementsAny = true;
             }
 
-            if (consumer is ISocketsTelemetryConsumer)
+            if (consumer is ISocketsTelemetryConsumer socketsTelemetryConsumer)
             {
-                services.TryAddEnumerable(new ServiceDescriptor(typeof(ISocketsTelemetryConsumer), consumer));
+                services.TryAddEnumerable(ServiceDescriptor.Singleton(socketsTelemetryConsumer));
                 implementsAny = true;
             }
 #endif
@@ -93,6 +100,12 @@ namespace Microsoft.Extensions.DependencyInjection
             where TConsumer : class
         {
             var implementsAny = false;
+
+            if (typeof(IWebSocketsTelemetryConsumer).IsAssignableFrom(typeof(TConsumer)))
+            {
+                services.AddSingleton(services => (IWebSocketsTelemetryConsumer)services.GetRequiredService<TConsumer>());
+                implementsAny = true;
+            }
 
             if (typeof(IForwarderTelemetryConsumer).IsAssignableFrom(typeof(TConsumer)))
             {
