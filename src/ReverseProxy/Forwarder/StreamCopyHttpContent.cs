@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -41,16 +42,43 @@ namespace Yarp.ReverseProxy.Forwarder
         private readonly bool _autoFlushHttpClientOutgoingStream;
         private readonly IClock _clock;
         // Note this is the long token that should only be canceled in the event of an error, not timed out.
-        private readonly CancellationToken _cancellation;
+        private readonly CancellationToken _contentCancellation;
         private readonly TaskCompletionSource<(StreamCopyResult, Exception?)> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
         private int _started;
 
-        public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IClock clock, CancellationToken cancellation)
+#if NETCOREAPP3_1
+        /// <summary>
+        /// When using HTTP/2 with a custom HttpContent, SocketsHttpHandler will assume duplex communication and
+        /// SerializeToStreamAsync may still be executing when SendAsync returns.
+        /// In 5.0+, a CancellationToken overload of SerializeToStreamAsync is available and SocketsHttpHandler will
+        /// cancel that token in case of an error that resuls in SendAsync throwing.
+        /// Since there is no such overload in 3.1, we create a Linked CTS we use to cancel the operations manually in case of an error.
+        /// </summary>
+        private readonly CancellationTokenSource _net31Http2ForceCancelCTS;
+#else
+        /// <summary>
+        /// The CancellationToken passed to SendAsync.
+        /// On HTTP/1.1, it is the same token that is passed to SerializeToStreamAsync, so we can use it to determine if HTTP/1.1 is used.
+        /// <see cref="_requestCancellation"/> is a linked HttpContext.RequestAborted + Request Timeout token,
+        /// where as the <see cref="_contentCancellation"/> is just HttpContext.RequestAborted.
+        /// As the request token is a superset of the content token, we can safely ignore the content token.
+        /// </summary>
+        private readonly CancellationToken _requestCancellation;
+#endif
+
+        public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IClock clock, CancellationToken contentCancellation, CancellationToken requestCancellation)
         {
             _source = source ?? throw new ArgumentNullException(nameof(source));
             _autoFlushHttpClientOutgoingStream = autoFlushHttpClientOutgoingStream;
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
-            _cancellation = cancellation;
+
+#if NETCOREAPP3_1
+            _net31Http2ForceCancelCTS = CancellationTokenSource.CreateLinkedTokenSource(contentCancellation);
+            _contentCancellation = _net31Http2ForceCancelCTS.Token;
+#else
+            _contentCancellation = contentCancellation;
+            _requestCancellation = requestCancellation;
+#endif
         }
 
         /// <summary>
@@ -70,6 +98,15 @@ namespace Yarp.ReverseProxy.Forwarder
         /// completes, even when using <see cref="HttpCompletionOption.ResponseHeadersRead"/>.
         /// </remarks>
         public bool Started => Volatile.Read(ref _started) == 1;
+
+        public void Net31Cancel()
+        {
+            Debug.Assert(Started);
+
+#if NETCOREAPP3_1
+            _net31Http2ForceCancelCTS.Cancel();
+#endif
+        }
 
         /// <summary>
         /// Copies bytes from the stream provided in our constructor into the target <paramref name="stream"/>.
@@ -113,15 +150,40 @@ namespace Yarp.ReverseProxy.Forwarder
         /// we have full control over pumping bytes to the target stream for all protocols
         /// (except Web Sockets, which is handled separately).
         /// </remarks>
-        // Note we do not need to implement the SerializeToStreamAsync(Stream stream, TransportContext context, CancellationToken token) overload
-        // because the token it provides is the short request token, not the long body token passed from the constructor. Using the short token
-        // would break bidirectional streaming scenarios.
-        protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context)
+        protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context)
+        {
+            return SerializeToStreamAsync(stream, context, CancellationToken.None);
+        }
+
+#if NET
+        protected override
+#else
+        private
+#endif
+            async Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
         {
             if (Interlocked.Exchange(ref _started, 1) == 1)
             {
                 throw new InvalidOperationException("Stream was already consumed.");
             }
+
+            // The cancellationToken that is passed to this method is:
+            // On HTTP/1.1: Linked HttpContext.RequestAborted + Request Timeout
+            // On HTTP/2.0: SocketsHttpHandler error / the server wants us to stop sending content / H2 connection closed
+            // The _contentCancellation is HttpContext.RequestAborted, so on HTTP/1.1 we don't have to combine the tokens
+            CancellationTokenSource? http2Cts = null;
+
+#if NETCOREAPP3_1
+            // On .NET Core 3.1, cancellationToken will always be CancellationToken.None
+            Debug.Assert(!cancellationToken.CanBeCanceled);
+            cancellationToken = _contentCancellation;
+#else
+            if (_requestCancellation != cancellationToken)
+            {
+                http2Cts = CancellationTokenSource.CreateLinkedTokenSource(_contentCancellation, cancellationToken);
+                cancellationToken = http2Cts.Token;
+            }
+#endif
 
             if (_autoFlushHttpClientOutgoingStream)
             {
@@ -137,21 +199,26 @@ namespace Yarp.ReverseProxy.Forwarder
             // https://github.com/dotnet/corefx/issues/39586#issuecomment-516210081
             try
             {
-                await stream.FlushAsync(_cancellation);
+                await stream.FlushAsync(cancellationToken);
             }
             catch (OperationCanceledException oex)
             {
+                http2Cts?.Dispose();
                 _tcs.TrySetResult((StreamCopyResult.Canceled, oex));
                 return;
             }
             catch (Exception ex)
             {
+                http2Cts?.Dispose();
                 _tcs.TrySetResult((StreamCopyResult.OutputError, ex));
                 return;
             }
 
-            var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, _clock, _cancellation);
+            var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, _clock, cancellationToken);
             _tcs.TrySetResult((result, error));
+
+            http2Cts?.Dispose();
+
             // Check for errors that weren't the result of the destination failing.
             // We have to throw something here so the transport knows the body is incomplete.
             // We can't re-throw the original exception since that would cause concurrency issues.
@@ -178,6 +245,13 @@ namespace Yarp.ReverseProxy.Forwarder
             // We can't know the length of the content being pushed to the output stream.
             length = -1;
             return false;
+        }
+
+        public void Net31Dispose()
+        {
+#if NETCOREAPP3_1
+            _net31Http2ForceCancelCTS.Dispose();
+#endif
         }
     }
 }

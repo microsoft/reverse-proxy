@@ -17,6 +17,23 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 {
     public class StreamCopyHttpContentTests
     {
+        private static StreamCopyHttpContent CreateContent(Stream source = null, bool autoFlushHttpClientOutgoingStream = false, IClock clock = null, CancellationToken contentCancellation = default, CancellationToken requestCancellation = default)
+        {
+            source ??= new MemoryStream();
+            clock ??= new Clock();
+
+            if (!contentCancellation.CanBeCanceled)
+            {
+                contentCancellation = new CancellationTokenSource().Token;
+            }
+            if (!requestCancellation.CanBeCanceled)
+            {
+                requestCancellation = new CancellationTokenSource().Token;
+            }
+
+            return new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream, clock, contentCancellation, requestCancellation);
+        }
+
         [Fact]
         public async Task CopyToAsync_InvokesStreamCopier()
         {
@@ -26,7 +43,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             var source = new MemoryStream(sourceBytes);
             var destination = new MemoryStream();
 
-            var sut = new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream: false, new Clock(), CancellationToken.None);
+            var sut = CreateContent(source);
 
             Assert.False(sut.ConsumptionTask.IsCompleted);
             Assert.False(sut.Started);
@@ -60,7 +77,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             var destination = new MemoryStream();
             var flushCountingDestination = new FlushCountingStream(destination);
 
-            var sut = new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream: autoFlush, new Clock(), CancellationToken.None);
+            var sut = CreateContent(source, autoFlushHttpClientOutgoingStream: autoFlush);
 
             Assert.False(sut.ConsumptionTask.IsCompleted);
             Assert.False(sut.Started);
@@ -80,7 +97,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             source.Setup(s => s.ReadAsync(It.IsAny<Memory<byte>>(), It.IsAny<CancellationToken>())).Returns(() => new ValueTask<int>(tcs.Task));
             var destination = new MemoryStream();
 
-            var sut = new StreamCopyHttpContent(source.Object, autoFlushHttpClientOutgoingStream: false, new Clock(), CancellationToken.None);
+            var sut = CreateContent(source.Object);
 
             Assert.False(sut.ConsumptionTask.IsCompleted);
             Assert.False(sut.Started);
@@ -97,9 +114,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         [Fact]
         public Task ReadAsStreamAsync_Throws()
         {
-            var source = new MemoryStream();
-            var destination = new MemoryStream();
-            var sut = new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream: false, new Clock(), CancellationToken.None);
+            var sut = CreateContent();
 
             Func<Task> func = () => sut.ReadAsStreamAsync();
 
@@ -109,8 +124,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         [Fact]
         public void AllowDuplex_ReturnsTrue()
         {
-            var source = new MemoryStream();
-            var sut = new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream: false, new Clock(), CancellationToken.None);
+            var sut = CreateContent();
 
             // This is an internal property that HttpClient and friends use internally and which must be true
             // to support duplex channels.This test helps detect regressions or changes in undocumented behavior
@@ -120,6 +134,94 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             var allowDuplex = (bool)allowDuplexProperty.GetValue(sut);
             Assert.True(allowDuplex);
         }
+
+        [Fact]
+        public async Task SerializeToStreamAsync_RespectsContentCancellation()
+        {
+            var tcs = new TaskCompletionSource<byte>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            var source = new ReadDelegatingStream(new MemoryStream(), async (buffer, cancellation) =>
+            {
+                Assert.False(cancellation.IsCancellationRequested);
+                await tcs.Task;
+                Assert.True(cancellation.IsCancellationRequested);
+                return 0;
+            });
+
+            var contentCts = new CancellationTokenSource();
+
+            var sut = CreateContent(source, contentCancellation: contentCts.Token);
+
+            var copyToTask = sut.CopyToAsync(new MemoryStream());
+            contentCts.Cancel();
+            tcs.SetResult(0);
+
+            await copyToTask;
+        }
+
+        [Fact]
+        public async Task SerializeToStreamAsync_CanBeCanceledExternally()
+        {
+            var tcs = new TaskCompletionSource<byte>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            var source = new ReadDelegatingStream(new MemoryStream(), async (buffer, cancellation) =>
+            {
+                Assert.False(cancellation.IsCancellationRequested);
+                await tcs.Task;
+                Assert.True(cancellation.IsCancellationRequested);
+                return 0;
+            });
+
+            var sut = CreateContent(source);
+
+            // NET 5.0+ uses the CancellationToken overload of SerializeToStreamAsync.
+            // On 3.1, we workaround this by exposing a Cancel method on the content.
+#if NETCOREAPP3_1
+            var copyToTask = sut.CopyToAsync(new MemoryStream());
+            sut.Net31Cancel();
+#else
+            var cts = new CancellationTokenSource();
+            var copyToTask = sut.CopyToAsync(new MemoryStream(), cts.Token);
+            cts.Cancel();
+#endif
+
+            tcs.SetResult(0);
+
+            await copyToTask;
+        }
+
+#if NET
+        [Fact]
+        public async Task SerializeToStreamAsync_IgnoresContentCancellationForHttp11()
+        {
+            var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            var source = new ReadDelegatingStream(new MemoryStream(), async (buffer, cancellation) =>
+            {
+                Assert.False(cancellation.IsCancellationRequested);
+                await tcs.Task;
+                // Note the cancellation is not canceled after contentCts has been canceled
+                Assert.False(cancellation.IsCancellationRequested);
+                return 0;
+            });
+
+            // HttpForwarder will always pass (HttpContext.RequestAborted + Request Timeout) for request cancellation
+            // and HttpContext.RequestAborted for content cancellation.
+            // On HTTP/1.1, the request cancellation will be passed down to SerializeToStreamAsync as-is.
+            // As an optimization, StreamCopyHttpContent will ignore contentCancellation in this case.
+
+            var contentCts = new CancellationTokenSource();
+            var requestCts = new CancellationTokenSource();
+
+            var sut = CreateContent(source, contentCancellation: contentCts.Token, requestCancellation: requestCts.Token);
+
+            var copyToTask = sut.CopyToAsync(new MemoryStream(), requestCts.Token);
+            contentCts.Cancel();
+            tcs.SetResult();
+
+            await copyToTask;
+        }
+#endif
 
         private class FlushCountingStream : DelegatingStream
         {
@@ -133,6 +235,22 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             {
                 await base.FlushAsync(cancellationToken);
                 NumFlushes++;
+            }
+        }
+
+        private sealed class ReadDelegatingStream : DelegatingStream
+        {
+            private readonly Func<Memory<byte>, CancellationToken, ValueTask<int>> _readAsync;
+
+            public ReadDelegatingStream(Stream stream, Func<Memory<byte>, CancellationToken, ValueTask<int>> readAsync)
+                : base(stream)
+            {
+                _readAsync = readAsync;
+            }
+
+            public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+            {
+                return _readAsync(buffer, cancellationToken);
             }
         }
     }
