@@ -4,7 +4,8 @@ When we are ready to branch our code, we first need to create the branch:
 
 1. In a local clone, run `git checkout main` and `git pull origin main` to make sure you have the latest `main`
 2. Run `git checkout -b release/1.0.0-previewX` where `X` is the YARP preview number.
-3. Run `git push origin release/1.0.0-previewX` to push the branch to the server.
+3. Update the branch to use 1ES servicing pools (see [example PR](https://github.com/microsoft/reverse-proxy/pull/1265))
+4. Run `git push origin release/1.0.0-previewX` to push the branch to the server.
 
 Update branding in `main`:
 
