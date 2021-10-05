@@ -69,12 +69,13 @@ namespace Yarp.ReverseProxy.Routing.Tests
                 {
                     new HeaderMatcher("header", new string[0], HeaderMatchMode.Exists, isCaseSensitive: true),
                     new HeaderMatcher("header", new[] { "abc" }, HeaderMatchMode.HeaderPrefix, isCaseSensitive: true),
+                    new HeaderMatcher("header", new[] { "cbcabc" }, HeaderMatchMode.Contains, isCaseSensitive: true),
                     new HeaderMatcher("header", new[] { "abc" }, HeaderMatchMode.ExactHeader, isCaseSensitive: true)
                 })),
 
                 (1, CreateEndpoint(new[]
                 {
-                    new HeaderMatcher("header", new[] { "abc" }, HeaderMatchMode.HeaderPrefix, isCaseSensitive: true),
+                    new HeaderMatcher("header", new[] { "cbcabc" }, HeaderMatchMode.Contains, isCaseSensitive: true),
                     new HeaderMatcher("header", new[] { "abc" }, HeaderMatchMode.ExactHeader, isCaseSensitive: true)
                 })),
                 (1, CreateEndpoint(new[]
@@ -207,6 +208,17 @@ namespace Yarp.ReverseProxy.Routing.Tests
         [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "abcd", true)]
         [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "aBCd", false)]
         [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "ab", false)]
+        [InlineData("abc", HeaderMatchMode.Contains, false, "", false)]
+        [InlineData("abc", HeaderMatchMode.Contains, false, "ababc", true)]
+        [InlineData("abc", HeaderMatchMode.Contains, false, "zaBCz", true)]
+        [InlineData("abc", HeaderMatchMode.Contains, false, "dcbaabcd", true)]
+        [InlineData("abc", HeaderMatchMode.Contains, false, "ababab", false)]
+        [InlineData("abc", HeaderMatchMode.Contains, true, "", false)]
+        [InlineData("abc", HeaderMatchMode.Contains, true, "abcc", true)]
+        [InlineData("abc", HeaderMatchMode.Contains, true, "aaaBC", false)]
+        [InlineData("abc", HeaderMatchMode.Contains, true, "bbabcdb", true)]
+        [InlineData("abc", HeaderMatchMode.Contains, true, "aBCcba", false)]
+        [InlineData("abc", HeaderMatchMode.Contains, true, "baab", false)]
         public async Task ApplyAsync_MatchingScenarios_OneHeaderValue(
             string headerValue,
             HeaderMatchMode headerValueMatchMode,
@@ -265,6 +277,25 @@ namespace Yarp.ReverseProxy.Routing.Tests
         [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "def", true)]
         [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "DEFg", false)]
         [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "aabc", false)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, false, null, false)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, false, "", false)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, false, "aabc", true)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, false, "baBc", true)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, false, "ababcd", true)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, false, "dcabcD", true)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, false, "fdeff", true)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, false, "edeF", true)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, false, "adefg", true)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, false, "abdefG", true)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, false, "ddaabc", true)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, true, null, false)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, true, "", false)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, true, "cabca", true)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, true, "aBCa", false)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, true, "CaBCdd", false)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, true, "DEFdef", true)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, true, "defDEFg", true)]
+        [InlineData("abc", "def", HeaderMatchMode.Contains, true, "bbaabc", true)]
         public async Task ApplyAsync_MatchingScenarios_TwoHeaderValues(
             string header1Value,
             string header2Value,

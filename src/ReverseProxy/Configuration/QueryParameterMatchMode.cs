@@ -16,13 +16,6 @@ namespace Yarp.ReverseProxy.Configuration
         Exact,
 
         /// <summary>
-        /// ANY one of the values for the query parameter key must be present. Key must have a value matched.
-        /// Subject to case sensitivity settings.
-        /// Only single query parameter name supported. If there are multiple query parameters with the same name then the match fails.
-        /// </summary>
-        AnyValues,
-
-        /// <summary>
         /// Query string key must be present and substring must match for each of the respective query string values.
         /// Subject to case sensitivity settings.
         /// Only single query parameter name supported. If there are multiple query parameters with the same name then the match fails.
@@ -30,18 +23,11 @@ namespace Yarp.ReverseProxy.Configuration
         Contains,
 
         /// <summary>
-        /// ALL of the values of the query parameter key must NOT be present.
+        /// Query string key must be present and prefix must match for each of the respective query string values.
         /// Subject to case sensitivity settings.
         /// Only single query parameter name supported. If there are multiple query parameters with the same name then the match fails.
         /// </summary>
-        NotContains,
-
-        /// <summary>
-        /// Query key must be present. ANY one of the values for the query key must be present as substring.
-        /// Subject to case sensitivity settings.
-        /// Only single query parameter name supported. If there are multiple query parameters with the same name then the match fails.
-        /// </summary>
-        AnyContains,
+        Prefix,
 
         /// <summary>
         /// The header must exist and contain any non-empty value.
