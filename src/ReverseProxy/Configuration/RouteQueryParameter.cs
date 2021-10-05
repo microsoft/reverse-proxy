@@ -24,13 +24,13 @@ namespace Yarp.ReverseProxy.Configuration
         public IReadOnlyList<string>? Values { get; init; }
 
         /// <summary>
-        /// Specifies how header values should be compared (e.g. exact matches Vs. contains).
+        /// Specifies how query parameter values should be compared (e.g. exact matches Vs. contains).
         /// Defaults to <see cref="QueryParameterMatchMode.ExactHeader"/>.
         /// </summary>
         public QueryParameterMatchMode Mode { get; init; }
 
         /// <summary>
-        /// Specifies whether header value comparisons should ignore case.
+        /// Specifies whether query parameter value comparisons should ignore case.
         /// When <c>true</c>, <see cref="StringComparison.Ordinal" /> is used.
         /// When <c>false</c>, <see cref="StringComparison.OrdinalIgnoreCase" /> is used.
         /// Defaults to <c>false</c>.

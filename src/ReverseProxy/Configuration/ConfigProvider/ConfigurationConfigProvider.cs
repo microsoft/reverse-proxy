@@ -177,6 +177,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider
                 Hosts = section.GetSection(nameof(RouteMatch.Hosts)).ReadStringArray(),
                 Path = section[nameof(RouteMatch.Path)],
                 Headers = CreateRouteHeaders(section.GetSection(nameof(RouteMatch.Headers))),
+                QueryParameters = CreateRouteQueryParameters(section.GetSection(nameof(RouteMatch.QueryParameters)))
             };
         }
 
@@ -198,6 +199,27 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider
                 Values = section.GetSection(nameof(RouteHeader.Values)).ReadStringArray(),
                 Mode = section.ReadEnum<HeaderMatchMode>(nameof(RouteHeader.Mode)) ?? HeaderMatchMode.ExactHeader,
                 IsCaseSensitive = section.ReadBool(nameof(RouteHeader.IsCaseSensitive)) ?? false,
+            };
+        }
+
+        private static IReadOnlyList<RouteQueryParameter>? CreateRouteQueryParameters(IConfigurationSection section)
+        {
+            if (!section.Exists())
+            {
+                return null;
+            }
+
+            return section.GetChildren().Select(data => CreateRouteQueryParameter(data)).ToArray();
+        }
+
+        private static RouteQueryParameter CreateRouteQueryParameter(IConfigurationSection section)
+        {
+            return new RouteQueryParameter()
+            {
+                Name = section[nameof(RouteQueryParameter.Name)],
+                Values = section.GetSection(nameof(RouteQueryParameter.Values)).ReadStringArray(),
+                Mode = section.ReadEnum<QueryParameterMatchMode>(nameof(RouteQueryParameter.Mode)) ?? QueryParameterMatchMode.Exact,
+                IsCaseSensitive = section.ReadBool(nameof(RouteQueryParameter.IsCaseSensitive)) ?? false,
             };
         }
 
