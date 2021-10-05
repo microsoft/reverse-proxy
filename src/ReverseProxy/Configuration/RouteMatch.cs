@@ -29,6 +29,11 @@ namespace Yarp.ReverseProxy.Configuration
         public string? Path { get; init; }
 
         /// <summary>
+        /// Only match requests with the given Query Parameters pattern.
+        /// </summary>
+        public string? QueryParameter { get; init; }
+
+        /// <summary>
         /// Only match requests that contain all of these headers.
         /// </summary>
         public IReadOnlyList<RouteHeader>? Headers { get; init; }
