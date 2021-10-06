@@ -17,7 +17,7 @@ namespace Yarp.ReverseProxy.Routing
     {
         /// <inheritdoc/>
         // Run after HttpMethodMatcherPolicy (-1000) and HostMatcherPolicy (-100), but before default (0)
-        public override int Order => -50;
+        public override int Order => -49;
 
         /// <inheritdoc/>
         public IComparer<Endpoint> Comparer => new QueryParameterMetadataEndpointComparer();
@@ -87,19 +87,31 @@ namespace Yarp.ReverseProxy.Routing
                         // Note a single entry may also contain multiple values, we don't distinguish, we only match on the whole query parameter.
                         else if (requestQueryParameterValues.Count == 1)
                         {
-                            var requestHeaderValue = requestQueryParameterValues.ToString();
+                            var requestQueryParameterValue = requestQueryParameterValues.ToString();
+                            var notContains = 0;
                             for (var j = 0; j < expectedQueryParameterValues.Count; j++)
                             {
-                                if (MatchQueryParameter(matcher.Mode, requestHeaderValue, expectedQueryParameterValues[j], matcher.IsCaseSensitive))
+                                if (matcher.Mode == QueryParameterMatchMode.NotContains && MatchQueryParameter(matcher.Mode, requestQueryParameterValue, expectedQueryParameterValues[j], matcher.IsCaseSensitive))
                                 {
-                                    matched = true;
-                                    break;
+                                    notContains++;
+                                    if (notContains == expectedQueryParameterValues.Count)
+                                    {
+                                        matched = true;
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+
+                                    if (MatchQueryParameter(matcher.Mode, requestQueryParameterValue, expectedQueryParameterValues[j], matcher.IsCaseSensitive))
+                                    {
+                                        matched = true;
+                                        break;
+                                    }
                                 }
                             }
+                            
                         }
-
-                        //todo - add rest of mode matches here
-
                     }
 
                     // All rules must match
@@ -124,6 +136,8 @@ namespace Yarp.ReverseProxy.Routing
                     && MemoryExtensions.StartsWith(requestQueryParameterValue, metadataQueryParameterValue, comparison),
                 QueryParameterMatchMode.Contains => requestQueryParameterValue != null && metadataQueryParameterValue != null
                     && MemoryExtensions.Contains(requestQueryParameterValue, metadataQueryParameterValue, comparison),
+                QueryParameterMatchMode.NotContains => requestQueryParameterValue != null && metadataQueryParameterValue != null
+                    && !MemoryExtensions.Contains(requestQueryParameterValue, metadataQueryParameterValue, comparison),
                 _ => throw new NotImplementedException(matchMode.ToString()),
             };
         }

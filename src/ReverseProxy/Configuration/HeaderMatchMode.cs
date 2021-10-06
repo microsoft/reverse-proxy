@@ -31,6 +31,12 @@ namespace Yarp.ReverseProxy.Configuration
         /// </summary>
         Contains,
 
+        // <summary>
+        /// The header must not match, subject to case sensitivity settings.
+        /// Only single headers are supported. If there are multiple headers with the same name then the match fails.
+        /// </summary>
+        NotContains,
+
         /// <summary>
         /// The header must exist and contain any non-empty value.
         /// </summary>

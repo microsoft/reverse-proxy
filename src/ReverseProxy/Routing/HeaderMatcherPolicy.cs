@@ -88,12 +88,25 @@ namespace Yarp.ReverseProxy.Routing
                         else if (requestHeaderValues.Count == 1)
                         {
                             var requestHeaderValue = requestHeaderValues.ToString();
+                            var notContains = 0;
                             for (var j = 0; j < expectedHeaderValues.Count; j++)
                             {
-                                if (MatchHeader(matcher.Mode, requestHeaderValue, expectedHeaderValues[j], matcher.IsCaseSensitive))
+                                if (matcher.Mode == HeaderMatchMode.NotContains && MatchHeader(matcher.Mode, requestHeaderValue, expectedHeaderValues[j], matcher.IsCaseSensitive))
                                 {
-                                    matched = true;
-                                    break;
+                                    notContains++;
+                                    if (notContains == expectedHeaderValues.Count)
+                                    {
+                                        matched = true;
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    if (MatchHeader(matcher.Mode, requestHeaderValue, expectedHeaderValues[j], matcher.IsCaseSensitive))
+                                    {
+                                        matched = true;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -121,6 +134,8 @@ namespace Yarp.ReverseProxy.Routing
                     && MemoryExtensions.StartsWith(requestHeaderValue, metadataHeaderValue, comparison),
                 HeaderMatchMode.Contains => requestHeaderValue != null && metadataHeaderValue != null
                 && MemoryExtensions.Contains(requestHeaderValue, metadataHeaderValue, comparison),
+                HeaderMatchMode.NotContains => requestHeaderValue != null && metadataHeaderValue != null
+               && !MemoryExtensions.Contains(requestHeaderValue, metadataHeaderValue, comparison),
                 _ => throw new NotImplementedException(matchMode.ToString()),
             };
         }
