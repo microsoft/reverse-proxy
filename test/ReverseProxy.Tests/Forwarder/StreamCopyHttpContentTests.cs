@@ -178,7 +178,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             // On 3.1, we workaround this by exposing a Cancel method on the content.
 #if NETCOREAPP3_1
             var copyToTask = sut.CopyToAsync(new MemoryStream());
-            sut.Net31Cancel();
+            sut.Cancel();
 #else
             var cts = new CancellationTokenSource();
             var copyToTask = sut.CopyToAsync(new MemoryStream(), cts.Token);

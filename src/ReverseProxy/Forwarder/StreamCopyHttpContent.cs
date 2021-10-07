@@ -46,16 +46,7 @@ namespace Yarp.ReverseProxy.Forwarder
         private readonly TaskCompletionSource<(StreamCopyResult, Exception?)> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
         private int _started;
 
-#if NETCOREAPP3_1
-        /// <summary>
-        /// When using HTTP/2 with a custom HttpContent, SocketsHttpHandler will assume duplex communication and
-        /// SerializeToStreamAsync may still be executing when SendAsync returns.
-        /// In 5.0+, a CancellationToken overload of SerializeToStreamAsync is available and SocketsHttpHandler will
-        /// cancel that token in case of an error that resuls in SendAsync throwing.
-        /// Since there is no such overload in 3.1, we create a Linked CTS we use to cancel the operations manually in case of an error.
-        /// </summary>
-        private readonly CancellationTokenSource _net31Http2ForceCancelCTS;
-#else
+#if NET
         /// <summary>
         /// The CancellationToken passed to SendAsync.
         /// On HTTP/1.1, it is the same token that is passed to SerializeToStreamAsync, so we can use it to determine if HTTP/1.1 is used.
@@ -64,6 +55,15 @@ namespace Yarp.ReverseProxy.Forwarder
         /// As the request token is a superset of the content token, we can safely ignore the content token.
         /// </summary>
         private readonly CancellationToken _requestCancellation;
+#else
+        /// <summary>
+        /// When using HTTP/2 with a custom HttpContent, SocketsHttpHandler will assume duplex communication and
+        /// SerializeToStreamAsync may still be executing when SendAsync returns.
+        /// In 5.0+, a CancellationToken overload of SerializeToStreamAsync is available and SocketsHttpHandler will
+        /// cancel that token in case of an error that resuls in SendAsync throwing.
+        /// Since there is no such overload in 3.1, we create a Linked CTS we use to cancel the operations manually in case of an error.
+        /// </summary>
+        private readonly CancellationTokenSource _forceCancelCTS;
 #endif
 
         public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IClock clock, CancellationToken contentCancellation, CancellationToken requestCancellation)
@@ -72,12 +72,12 @@ namespace Yarp.ReverseProxy.Forwarder
             _autoFlushHttpClientOutgoingStream = autoFlushHttpClientOutgoingStream;
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
-#if NETCOREAPP3_1
-            _net31Http2ForceCancelCTS = CancellationTokenSource.CreateLinkedTokenSource(contentCancellation);
-            _contentCancellation = _net31Http2ForceCancelCTS.Token;
-#else
+#if NET
             _contentCancellation = contentCancellation;
             _requestCancellation = requestCancellation;
+#else
+            _forceCancelCTS = CancellationTokenSource.CreateLinkedTokenSource(contentCancellation);
+            _contentCancellation = _forceCancelCTS.Token;
 #endif
         }
 
@@ -99,14 +99,13 @@ namespace Yarp.ReverseProxy.Forwarder
         /// </remarks>
         public bool Started => Volatile.Read(ref _started) == 1;
 
-        public void Net31Cancel()
+#if !NET
+        public void Cancel()
         {
             Debug.Assert(Started);
-
-#if NETCOREAPP3_1
-            _net31Http2ForceCancelCTS.Cancel();
-#endif
+            _forceCancelCTS.Cancel();
         }
+#endif
 
         /// <summary>
         /// Copies bytes from the stream provided in our constructor into the target <paramref name="stream"/>.
@@ -171,65 +170,68 @@ namespace Yarp.ReverseProxy.Forwarder
             // On HTTP/1.1: Linked HttpContext.RequestAborted + Request Timeout
             // On HTTP/2.0: SocketsHttpHandler error / the server wants us to stop sending content / H2 connection closed
             // The _contentCancellation is HttpContext.RequestAborted, so on HTTP/1.1 we don't have to combine the tokens
-            CancellationTokenSource? http2Cts = null;
+            CancellationTokenSource? linkedCts = null;
 
-#if NETCOREAPP3_1
+#if NET
+            if (_requestCancellation != cancellationToken)
+            {
+                linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_contentCancellation, cancellationToken);
+                cancellationToken = linkedCts.Token;
+            }
+#else
             // On .NET Core 3.1, cancellationToken will always be CancellationToken.None
             Debug.Assert(!cancellationToken.CanBeCanceled);
             cancellationToken = _contentCancellation;
-#else
-            if (_requestCancellation != cancellationToken)
-            {
-                http2Cts = CancellationTokenSource.CreateLinkedTokenSource(_contentCancellation, cancellationToken);
-                cancellationToken = http2Cts.Token;
-            }
 #endif
 
-            if (_autoFlushHttpClientOutgoingStream)
-            {
-                // HttpClient's machinery keeps an internal buffer that doesn't get flushed to the socket on every write.
-                // Some protocols (e.g. gRPC) may rely on specific bytes being sent, and HttpClient's buffering would prevent it.
-                // AutoFlushingStream delegates to the provided stream, adding calls to FlushAsync on every WriteAsync.
-                // Note that HttpClient does NOT call Flush on the underlying socket, so the perf impact of this is expected to be small.
-                // This statement is based on current knowledge as of .NET Core 3.1.201.
-                stream = new AutoFlushingStream(stream);
-            }
-
-            // Immediately flush request stream to send headers
-            // https://github.com/dotnet/corefx/issues/39586#issuecomment-516210081
             try
             {
-                await stream.FlushAsync(cancellationToken);
-            }
-            catch (OperationCanceledException oex)
-            {
-                http2Cts?.Dispose();
-                _tcs.TrySetResult((StreamCopyResult.Canceled, oex));
-                return;
-            }
-            catch (Exception ex)
-            {
-                http2Cts?.Dispose();
-                _tcs.TrySetResult((StreamCopyResult.OutputError, ex));
-                return;
-            }
+                if (_autoFlushHttpClientOutgoingStream)
+                {
+                    // HttpClient's machinery keeps an internal buffer that doesn't get flushed to the socket on every write.
+                    // Some protocols (e.g. gRPC) may rely on specific bytes being sent, and HttpClient's buffering would prevent it.
+                    // AutoFlushingStream delegates to the provided stream, adding calls to FlushAsync on every WriteAsync.
+                    // Note that HttpClient does NOT call Flush on the underlying socket, so the perf impact of this is expected to be small.
+                    // This statement is based on current knowledge as of .NET Core 3.1.201.
+                    stream = new AutoFlushingStream(stream);
+                }
 
-            var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, _clock, cancellationToken);
-            _tcs.TrySetResult((result, error));
+                // Immediately flush request stream to send headers
+                // https://github.com/dotnet/corefx/issues/39586#issuecomment-516210081
+                try
+                {
+                    await stream.FlushAsync(cancellationToken);
+                }
+                catch (OperationCanceledException oex)
+                {
+                    _tcs.TrySetResult((StreamCopyResult.Canceled, oex));
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    _tcs.TrySetResult((StreamCopyResult.OutputError, ex));
+                    return;
+                }
 
-            http2Cts?.Dispose();
+                var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, _clock, cancellationToken);
+                _tcs.TrySetResult((result, error));
 
-            // Check for errors that weren't the result of the destination failing.
-            // We have to throw something here so the transport knows the body is incomplete.
-            // We can't re-throw the original exception since that would cause concurrency issues.
-            // We need to wrap it.
-            if (result == StreamCopyResult.InputError)
-            {
-                throw new IOException("An error occurred when reading the request body from the client.", error);
+                // Check for errors that weren't the result of the destination failing.
+                // We have to throw something here so the transport knows the body is incomplete.
+                // We can't re-throw the original exception since that would cause concurrency issues.
+                // We need to wrap it.
+                if (result == StreamCopyResult.InputError)
+                {
+                    throw new IOException("An error occurred when reading the request body from the client.", error);
+                }
+                if (result == StreamCopyResult.Canceled)
+                {
+                    throw new OperationCanceledException("The request body copy was canceled.", error);
+                }
             }
-            if (result == StreamCopyResult.Canceled)
+            finally
             {
-                throw new OperationCanceledException("The request body copy was canceled.", error);
+                linkedCts?.Dispose();
             }
         }
 
@@ -247,11 +249,11 @@ namespace Yarp.ReverseProxy.Forwarder
             return false;
         }
 
+#if !NET
         public void Net31Dispose()
         {
-#if NETCOREAPP3_1
-            _net31Http2ForceCancelCTS.Dispose();
-#endif
+            _forceCancelCTS.Dispose();
         }
+#endif
     }
 }

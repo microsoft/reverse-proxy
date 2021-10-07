@@ -257,7 +257,9 @@ namespace Yarp.ReverseProxy.Forwarder
             }
             finally
             {
+#if !NET
                 requestContent?.Net31Dispose();
+#endif
                 ForwarderTelemetry.Log.ForwarderStop(context.Response.StatusCode);
             }
 
@@ -509,7 +511,9 @@ namespace Yarp.ReverseProxy.Forwarder
             {
                 if (requestContent is not null && requestContent.Started)
                 {
-                    requestContent.Net31Cancel();
+#if !NET
+                    requestContent.Cancel();
+#endif
                     await requestContent.ConsumptionTask;
                 }
 
@@ -624,7 +628,6 @@ namespace Yarp.ReverseProxy.Forwarder
                 }
             }
 
-            abortTokenSource.Dispose();
             return error;
 
             ForwarderError ReportResult(HttpContext context, bool reqeuest, StreamCopyResult result, Exception exception)
