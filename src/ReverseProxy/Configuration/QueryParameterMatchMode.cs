@@ -9,7 +9,7 @@ namespace Yarp.ReverseProxy.Configuration
     public enum QueryParameterMatchMode
     {
         /// <summary>
-        /// The query parameter must match in its entirety,
+        /// Query string must match in its entirety,
         /// Subject to case sensitivity settings.
         /// Only single query parameter name supported. If there are multiple query parameters with the same name then the match fails.
         /// </summary>
@@ -25,6 +25,7 @@ namespace Yarp.ReverseProxy.Configuration
         /// <summary>
         /// Query string key must be present and value must not match for each of the respective query string values.
         /// Subject to case sensitivity settings.
+        /// If there are multiple values then it needs to not contain ANY of the values 
         /// Only single query parameter name supported. If there are multiple query parameters with the same name then the match fails.
         /// </summary>
         NotContains,
@@ -37,7 +38,7 @@ namespace Yarp.ReverseProxy.Configuration
         Prefix,
 
         /// <summary>
-        /// The header must exist and contain any non-empty value.
+        /// Query string key must exist and contain any non-empty value.
         /// </summary>
         Exists
     }

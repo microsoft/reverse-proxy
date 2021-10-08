@@ -38,7 +38,7 @@ namespace Yarp.ReverseProxy.Routing
         }
 
         /// <summary>
-        /// Name of the header to look for.
+        /// Name of the query parameter to look for.
         /// </summary>
         public string Name { get; }
 

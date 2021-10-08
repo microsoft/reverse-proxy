@@ -241,7 +241,7 @@ The header name to check for on the request. A non-empty value is required. This
 
 ### Values
 
-A list of possible values to search for. The header must match at least one of these values according to the specified `Mode`. At least one value is required unless `Mode` is set to `Exists`.
+A list of possible values to search for. The header must match at least one of these values according to the specified `Mode` except for the 'NotContains'. At least one value is required unless `Mode` is set to `Exists`.
 
 ### Mode
 
@@ -249,8 +249,8 @@ A list of possible values to search for. The header must match at least one of t
 - ExactHeader - The header must match in its entirety, subject to the value of `IsCaseSensitive`. Only single headers are supported. If there are multiple headers with the same name then the match fails.
 - HeaderPrefix - The header must match by prefix, subject to the value of `IsCaseSensitive`. Only single headers are supported. If there are multiple headers with the same name then the match fails.
 - Exists - The header must exist and contain any non-empty value.
-- Contains - The header must exist and contains the non-empty value.
-- NotContains - The header must exist and not contain the non-empty value.
+- Contains - The header must contain the value for a match, subject to the value of `IsCaseSensitive`. Only single headers are supported. If there are multiple headers with the same name then the match fails.
+- NotContains - The header must not contain the value for a match, subject to the value of `IsCaseSensitive`. If there are multiple values, all must not contain for a match. Only single headers are supported. If there are multiple headers with the same name then the match fails.
 
 ### IsCaseSensitive
 

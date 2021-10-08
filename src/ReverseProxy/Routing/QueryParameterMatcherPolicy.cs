@@ -16,8 +16,8 @@ namespace Yarp.ReverseProxy.Routing
     internal sealed class QueryParameterMatcherPolicy : MatcherPolicy, IEndpointComparerPolicy, IEndpointSelectorPolicy
     {
         /// <inheritdoc/>
-        // Run after HttpMethodMatcherPolicy (-1000) and HostMatcherPolicy (-100), but before default (0)
-        public override int Order => -49;
+        // Run after HttpMethodMatcherPolicy (-1000) and HostMatcherPolicy (-100), and HeaderMatcherPolicy (-50), but before default (0)
+        public override int Order => -25;
 
         /// <inheritdoc/>
         public IComparer<Endpoint> Comparer => new QueryParameterMetadataEndpointComparer();
@@ -84,30 +84,30 @@ namespace Yarp.ReverseProxy.Routing
                             matched = true;
                         }
                         // Multi-value query parameters are not supported.
-                        // Note a single entry may also contain multiple values, we don't distinguish, we only match on the whole query parameter.
                         else if (requestQueryParameterValues.Count == 1)
                         {
                             var requestQueryParameterValue = requestQueryParameterValues.ToString();
-                            var notContains = 0;
                             for (var j = 0; j < expectedQueryParameterValues.Count; j++)
                             {
-                                if (matcher.Mode == QueryParameterMatchMode.NotContains && MatchQueryParameter(matcher.Mode, requestQueryParameterValue, expectedQueryParameterValues[j], matcher.IsCaseSensitive))
+                                if (MatchQueryParameter(matcher.Mode, requestQueryParameterValue, expectedQueryParameterValues[j], matcher.IsCaseSensitive))
                                 {
-                                    notContains++;
-                                    if (notContains == expectedQueryParameterValues.Count)
+                                    if (matcher.Mode == QueryParameterMatchMode.NotContains)
+                                    {
+                                        if (j + 1 == expectedQueryParameterValues.Count)
+                                        {
+                                            // None of the NotContains values were found
+                                            matched = true;
+                                        }
+                                    }
+                                    else
                                     {
                                         matched = true;
                                         break;
                                     }
                                 }
-                                else
+                                else if (matcher.Mode == QueryParameterMatchMode.NotContains)
                                 {
-
-                                    if (MatchQueryParameter(matcher.Mode, requestQueryParameterValue, expectedQueryParameterValues[j], matcher.IsCaseSensitive))
-                                    {
-                                        matched = true;
-                                        break;
-                                    }
+                                    break;
                                 }
                             }
                             
@@ -133,11 +133,11 @@ namespace Yarp.ReverseProxy.Routing
             {
                 QueryParameterMatchMode.Exact => MemoryExtensions.Equals(requestQueryParameterValue, metadataQueryParameterValue, comparison),
                 QueryParameterMatchMode.Prefix => requestQueryParameterValue != null && metadataQueryParameterValue != null
-                    && MemoryExtensions.StartsWith(requestQueryParameterValue, metadataQueryParameterValue, comparison),
+                && MemoryExtensions.StartsWith(requestQueryParameterValue, metadataQueryParameterValue, comparison),
                 QueryParameterMatchMode.Contains => requestQueryParameterValue != null && metadataQueryParameterValue != null
-                    && MemoryExtensions.Contains(requestQueryParameterValue, metadataQueryParameterValue, comparison),
+                && MemoryExtensions.Contains(requestQueryParameterValue, metadataQueryParameterValue, comparison),
                 QueryParameterMatchMode.NotContains => requestQueryParameterValue != null && metadataQueryParameterValue != null
-                    && !MemoryExtensions.Contains(requestQueryParameterValue, metadataQueryParameterValue, comparison),
+                && !MemoryExtensions.Contains(requestQueryParameterValue, metadataQueryParameterValue, comparison),
                 _ => throw new NotImplementedException(matchMode.ToString()),
             };
         }

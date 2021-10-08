@@ -109,13 +109,15 @@ namespace Yarp.ReverseProxy.Configuration
 
             return true;
         }
+
         public override int GetHashCode()
         {
             return HashCode.Combine(
                 Path?.GetHashCode(StringComparison.OrdinalIgnoreCase),
                 CaseInsensitiveEqualHelper.GetHashCode(Hosts),
                 CaseInsensitiveEqualHelper.GetHashCode(Methods),
-                Headers);
+                Headers,
+                QueryParameters);
         }
     }
 }

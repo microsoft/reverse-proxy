@@ -8,13 +8,13 @@ using Yarp.ReverseProxy.Utilities;
 namespace Yarp.ReverseProxy.Configuration
 {
     /// <summary>
-    /// Route criteria for query parameter that must be present on the incoming request.
+    /// Route criteria for a query parameter that must be present on the incoming request.
     /// </summary>
     public sealed record RouteQueryParameter
     {
         /// <summary>
         /// Name of the query parameter to look for.
-        /// This field is required.
+        /// This field is case insensitive and required.
         /// </summary>
         public string Name { get; init; } = default!;
 
@@ -25,7 +25,7 @@ namespace Yarp.ReverseProxy.Configuration
 
         /// <summary>
         /// Specifies how query parameter values should be compared (e.g. exact matches Vs. contains).
-        /// Defaults to <see cref="QueryParameterMatchMode.ExactHeader"/>.
+        /// Defaults to <see cref="QueryParameterMatchMode.Exact"/>.
         /// </summary>
         public QueryParameterMatchMode Mode { get; init; }
 

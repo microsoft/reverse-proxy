@@ -14,7 +14,7 @@ namespace Yarp.ReverseProxy.Configuration
     {
         /// <summary>
         /// Name of the header to look for.
-        /// This field is required.
+        /// This field is case insensitive and required.
         /// </summary>
         public string Name { get; init; } = default!;
 

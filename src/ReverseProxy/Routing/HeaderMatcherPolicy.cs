@@ -88,25 +88,27 @@ namespace Yarp.ReverseProxy.Routing
                         else if (requestHeaderValues.Count == 1)
                         {
                             var requestHeaderValue = requestHeaderValues.ToString();
-                            var notContains = 0;
                             for (var j = 0; j < expectedHeaderValues.Count; j++)
                             {
-                                if (matcher.Mode == HeaderMatchMode.NotContains && MatchHeader(matcher.Mode, requestHeaderValue, expectedHeaderValues[j], matcher.IsCaseSensitive))
+                                if (MatchHeader(matcher.Mode, requestHeaderValue, expectedHeaderValues[j], matcher.IsCaseSensitive))
                                 {
-                                    notContains++;
-                                    if (notContains == expectedHeaderValues.Count)
+                                    if (matcher.Mode == HeaderMatchMode.NotContains)
+                                    {
+                                        if (j + 1 == expectedHeaderValues.Count)
+                                        {
+                                            // None of the NotContains values were found
+                                            matched = true;
+                                        }
+                                    }
+                                    else
                                     {
                                         matched = true;
                                         break;
                                     }
                                 }
-                                else
+                                else if (matcher.Mode == HeaderMatchMode.NotContains)
                                 {
-                                    if (MatchHeader(matcher.Mode, requestHeaderValue, expectedHeaderValues[j], matcher.IsCaseSensitive))
-                                    {
-                                        matched = true;
-                                        break;
-                                    }
+                                    break;
                                 }
                             }
                         }
@@ -131,11 +133,11 @@ namespace Yarp.ReverseProxy.Routing
             {
                 HeaderMatchMode.ExactHeader => MemoryExtensions.Equals(requestHeaderValue, metadataHeaderValue, comparison),
                 HeaderMatchMode.HeaderPrefix => requestHeaderValue != null && metadataHeaderValue != null
-                    && MemoryExtensions.StartsWith(requestHeaderValue, metadataHeaderValue, comparison),
+                && MemoryExtensions.StartsWith(requestHeaderValue, metadataHeaderValue, comparison),
                 HeaderMatchMode.Contains => requestHeaderValue != null && metadataHeaderValue != null
                 && MemoryExtensions.Contains(requestHeaderValue, metadataHeaderValue, comparison),
                 HeaderMatchMode.NotContains => requestHeaderValue != null && metadataHeaderValue != null
-               && !MemoryExtensions.Contains(requestHeaderValue, metadataHeaderValue, comparison),
+                && !MemoryExtensions.Contains(requestHeaderValue, metadataHeaderValue, comparison),
                 _ => throw new NotImplementedException(matchMode.ToString()),
             };
         }
