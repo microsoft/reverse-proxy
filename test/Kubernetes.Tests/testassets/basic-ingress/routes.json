@@ -5,7 +5,8 @@
       "Methods": null,
       "Hosts": [],
       "Path": "/foo/{**catch-all}",
-      "Headers": null
+      "Headers": null,
+      "QueryParameters": null
     },
     "Order": null,
     "ClusterId": "frontend:80",

@@ -30,6 +30,7 @@ namespace Yarp.ReverseProxy.Management
             builder.AddTransformFactory<RequestHeadersTransformFactory>();
             builder.AddTransformFactory<ResponseTransformFactory>();
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<MatcherPolicy, HeaderMatcherPolicy>());
+            builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<MatcherPolicy, QueryParameterMatcherPolicy>());
             return builder;
         }
 

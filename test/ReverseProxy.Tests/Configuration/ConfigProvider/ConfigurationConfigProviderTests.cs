@@ -148,6 +148,16 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
                                 IsCaseSensitive = true,
                                 Mode = HeaderMatchMode.HeaderPrefix
                             }
+                        },
+                        QueryParameters = new[]
+                        {
+                            new RouteQueryParameter
+                            {
+                                Name = "queryparam1",
+                                Values = new[] { "value1" },
+                                IsCaseSensitive = true,
+                                Mode = QueryParameterMatchMode.Contains
+                            }
                         }
                     },
                     Transforms = new[]
@@ -174,6 +184,16 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
                                 Values = new[] { "value2" },
                                 IsCaseSensitive = false,
                                 Mode = HeaderMatchMode.ExactHeader
+                            }
+                        },
+                        QueryParameters = new[]
+                        {
+                            new RouteQueryParameter
+                            {
+                                Name = "queryparam2",
+                                Values = new[] { "value2" },
+                                IsCaseSensitive = true,
+                                Mode = QueryParameterMatchMode.Contains
                             }
                         }
                     }
@@ -302,6 +322,14 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
                     ""IsCaseSensitive"": true,
                     ""Mode"": ""HeaderPrefix""
                   }
+                ],
+                ""QueryParameters"": [
+                  {
+                    ""Name"": ""queryparam1"",
+                    ""Values"": [ ""value1"" ],
+                    ""IsCaseSensitive"": true,
+                    ""Mode"": ""Contains""
+                  }
                 ]
             },
             ""Order"": -1,
@@ -335,6 +363,14 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
                   {
                     ""Name"": ""header2"",
                     ""Values"": [ ""value2"" ]
+                  }
+                ],
+                ""QueryParameters"": [
+                  {
+                    ""Name"": ""queryparam2"",
+                    ""Values"": [ ""value2"" ],
+                    ""IsCaseSensitive"": true,
+                    ""Mode"": ""Contains""
                   }
                 ]
             },
@@ -543,6 +579,13 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
             Assert.Equal(header.Name, expectedHeader.Name);
             Assert.Equal(header.Mode, expectedHeader.Mode);
             Assert.Equal(header.IsCaseSensitive, expectedHeader.IsCaseSensitive);
+
+            var queryparam = route.Match.QueryParameters.Single();
+            var expectedQueryParam = abstractRoute.Match.QueryParameters.Single();
+            Assert.Equal(queryparam.Name, expectedQueryParam.Name);
+            Assert.Equal(queryparam.Mode, expectedQueryParam.Mode);
+            Assert.Equal(queryparam.IsCaseSensitive, expectedQueryParam.IsCaseSensitive);
+
             // Skipping header.Value/s because it's a fuzzy match
             Assert.Equal(route.Transforms, abstractRoute.Transforms);
         }

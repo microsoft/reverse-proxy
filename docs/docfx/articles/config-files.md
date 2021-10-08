@@ -117,14 +117,22 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
           "Path": "/something/{**remainder}", // The path to match using ASP.NET syntax. 
           "Hosts" : [ "www.aaaaa.com", "www.bbbbb.com"], // The host names to match, unspecified is any
           "Methods" : [ "GET", "PUT" ], // The HTTP methods that match, uspecified is all
-          "Headers" : [ // The headers to match, unspecified is any
+          "Headers": [ // The headers to match, unspecified is any
             {
-              "Name" : "MyCustomHeader", // Name of the header
-              "Values" : ["value1", "value2", "another value"], // Matches are against any of these values
-              "Mode" : "ExactHeader", // or "HeaderPrefix", "Exists"
-              "IsCaseSensitive" : true
+              "Name": "MyCustomHeader", // Name of the header
+              "Values": [ "value1", "value2", "another value" ], // Matches are against any of these values
+              "Mode": "ExactHeader", // or "HeaderPrefix", "Exists" , "Contains", "NotContains"
+              "IsCaseSensitive": true
             }
           ],
+          "QueryParameters": [ // The query parameters to match, unspecified is any
+            {
+              "Name": "MyQueryParameter", // Name of the query parameter
+              "Values": [ "value1", "value2", "another value" ], // Matches are against any of these values
+              "Mode": "Exact", // or "Prefix", "Exists" , "Contains", "NotContains"
+              "IsCaseSensitive": true
+            }
+          ]
         },
         "MetaData" : { // List of key value pairs that can be used by custom extensions
           "MyName" : "MyValue"

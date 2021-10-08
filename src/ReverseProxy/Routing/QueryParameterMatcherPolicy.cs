@@ -13,14 +13,14 @@ using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.ReverseProxy.Routing
 {
-    internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPolicy, IEndpointSelectorPolicy
+    internal sealed class QueryParameterMatcherPolicy : MatcherPolicy, IEndpointComparerPolicy, IEndpointSelectorPolicy
     {
         /// <inheritdoc/>
-        // Run after HttpMethodMatcherPolicy (-1000) and HostMatcherPolicy (-100), but before default (0)
-        public override int Order => -50;
+        // Run after HttpMethodMatcherPolicy (-1000) and HostMatcherPolicy (-100), and HeaderMatcherPolicy (-50), but before default (0)
+        public override int Order => -25;
 
         /// <inheritdoc/>
-        public IComparer<Endpoint> Comparer => new HeaderMetadataEndpointComparer();
+        public IComparer<Endpoint> Comparer => new QueryParameterMetadataEndpointComparer();
 
         /// <inheritdoc/>
         bool IEndpointSelectorPolicy.AppliesToEndpoints(IReadOnlyList<Endpoint> endpoints)
@@ -40,7 +40,7 @@ namespace Yarp.ReverseProxy.Routing
         {
             return endpoints.Any(e =>
             {
-                var metadata = e.Metadata.GetMetadata<IHeaderMetadata>();
+                var metadata = e.Metadata.GetMetadata<IQueryParameterMetadata>();
                 return metadata?.Matchers?.Count > 0;
             });
         }
@@ -58,7 +58,7 @@ namespace Yarp.ReverseProxy.Routing
                     continue;
                 }
 
-                var matchers = candidates[i].Endpoint.Metadata.GetMetadata<IHeaderMetadata>()?.Matchers;
+                var matchers = candidates[i].Endpoint.Metadata.GetMetadata<IQueryParameterMetadata>()?.Matchers;
 
                 if (matchers == null)
                 {
@@ -68,33 +68,32 @@ namespace Yarp.ReverseProxy.Routing
                 for (var m = 0; m < matchers.Count; m++)
                 {
                     var matcher = matchers[m];
-                    var expectedHeaderName = matcher.Name;
-                    var expectedHeaderValues = matcher.Values;
+                    var expectedQueryParameterName = matcher.Name;
+                    var expectedQueryParameterValues = matcher.Values;
 
                     var matched = false;
-                    if (httpContext.Request.Headers.TryGetValue(expectedHeaderName, out var requestHeaderValues))
+                    if (httpContext.Request.Query.TryGetValue(expectedQueryParameterName, out var requestQueryParameterValues))
                     {
-                        if (StringValues.IsNullOrEmpty(requestHeaderValues))
+                        if (StringValues.IsNullOrEmpty(requestQueryParameterValues))
                         {
                             // A non-empty value is required for a match.
                         }
-                        else if (matcher.Mode == HeaderMatchMode.Exists)
+                        else if (matcher.Mode == QueryParameterMatchMode.Exists)
                         {
-                            // We were asked to match as long as the header exists, and it *does* exist
+                            // We were asked to match as long as the query parameter exists, and it *does* exist
                             matched = true;
                         }
-                        // Multi-value headers are not supported.
-                        // Note a single entry may also contain multiple values, we don't distinguish, we only match on the whole header.
-                        else if (requestHeaderValues.Count == 1)
+                        // Multi-value query parameters are not supported.
+                        else if (requestQueryParameterValues.Count == 1)
                         {
-                            var requestHeaderValue = requestHeaderValues.ToString();
-                            for (var j = 0; j < expectedHeaderValues.Count; j++)
+                            var requestQueryParameterValue = requestQueryParameterValues.ToString();
+                            for (var j = 0; j < expectedQueryParameterValues.Count; j++)
                             {
-                                if (MatchHeader(matcher.Mode, requestHeaderValue, expectedHeaderValues[j], matcher.IsCaseSensitive))
+                                if (MatchQueryParameter(matcher.Mode, requestQueryParameterValue, expectedQueryParameterValues[j], matcher.IsCaseSensitive))
                                 {
-                                    if (matcher.Mode == HeaderMatchMode.NotContains)
+                                    if (matcher.Mode == QueryParameterMatchMode.NotContains)
                                     {
-                                        if (j + 1 == expectedHeaderValues.Count)
+                                        if (j + 1 == expectedQueryParameterValues.Count)
                                         {
                                             // None of the NotContains values were found
                                             matched = true;
@@ -106,11 +105,12 @@ namespace Yarp.ReverseProxy.Routing
                                         break;
                                     }
                                 }
-                                else if (matcher.Mode == HeaderMatchMode.NotContains)
+                                else if (matcher.Mode == QueryParameterMatchMode.NotContains)
                                 {
                                     break;
                                 }
                             }
+                            
                         }
                     }
 
@@ -126,25 +126,25 @@ namespace Yarp.ReverseProxy.Routing
             return Task.CompletedTask;
         }
 
-        private static bool MatchHeader(HeaderMatchMode matchMode, string requestHeaderValue, string metadataHeaderValue, bool isCaseSensitive)
+        private static bool MatchQueryParameter(QueryParameterMatchMode matchMode, string requestQueryParameterValue, string metadataQueryParameterValue, bool isCaseSensitive)
         {
             var comparison = isCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
             return matchMode switch
             {
-                HeaderMatchMode.ExactHeader => MemoryExtensions.Equals(requestHeaderValue, metadataHeaderValue, comparison),
-                HeaderMatchMode.HeaderPrefix => requestHeaderValue != null && metadataHeaderValue != null
-                    && MemoryExtensions.StartsWith(requestHeaderValue, metadataHeaderValue, comparison),
-                HeaderMatchMode.Contains => requestHeaderValue != null && metadataHeaderValue != null
-                    && MemoryExtensions.Contains(requestHeaderValue, metadataHeaderValue, comparison),
-                HeaderMatchMode.NotContains => requestHeaderValue != null && metadataHeaderValue != null
-                    && !MemoryExtensions.Contains(requestHeaderValue, metadataHeaderValue, comparison),
+                QueryParameterMatchMode.Exact => MemoryExtensions.Equals(requestQueryParameterValue, metadataQueryParameterValue, comparison),
+                QueryParameterMatchMode.Prefix => requestQueryParameterValue != null && metadataQueryParameterValue != null
+                    && MemoryExtensions.StartsWith(requestQueryParameterValue, metadataQueryParameterValue, comparison),
+                QueryParameterMatchMode.Contains => requestQueryParameterValue != null && metadataQueryParameterValue != null
+                    && MemoryExtensions.Contains(requestQueryParameterValue, metadataQueryParameterValue, comparison),
+                QueryParameterMatchMode.NotContains => requestQueryParameterValue != null && metadataQueryParameterValue != null
+                    && !MemoryExtensions.Contains(requestQueryParameterValue, metadataQueryParameterValue, comparison),
                 _ => throw new NotImplementedException(matchMode.ToString()),
             };
         }
 
-        private class HeaderMetadataEndpointComparer : EndpointMetadataComparer<IHeaderMetadata>
+        private class QueryParameterMetadataEndpointComparer : EndpointMetadataComparer<IQueryParameterMetadata>
         {
-            protected override int CompareMetadata(IHeaderMetadata? x, IHeaderMetadata? y)
+            protected override int CompareMetadata(IQueryParameterMetadata? x, IQueryParameterMetadata? y)
             {
                 var xCount = x?.Matchers?.Count ?? 0;
                 var yCount = y?.Matchers?.Count ?? 0;

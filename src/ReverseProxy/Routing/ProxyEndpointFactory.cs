@@ -60,6 +60,17 @@ namespace Yarp.ReverseProxy.Routing
                 endpointBuilder.Metadata.Add(new HeaderMetadata(matchers));
             }
 
+            if (match.QueryParameters != null && match.QueryParameters.Count > 0)
+            {
+                var matchers = new List<QueryParameterMatcher>(match.QueryParameters.Count);
+                foreach (var queryparam in match.QueryParameters)
+                {
+                    matchers.Add(new QueryParameterMatcher(queryparam.Name, queryparam.Values, queryparam.Mode, queryparam.IsCaseSensitive));
+                }
+
+                endpointBuilder.Metadata.Add(new QueryParameterMetadata(matchers));
+            }
+
             bool acceptCorsPreflight;
             if (string.Equals(CorsConstants.Default, config.CorsPolicy, StringComparison.OrdinalIgnoreCase))
             {

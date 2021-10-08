@@ -8,37 +8,36 @@ using Yarp.ReverseProxy.Utilities;
 namespace Yarp.ReverseProxy.Configuration
 {
     /// <summary>
-    /// Route criteria for a header that must be present on the incoming request.
+    /// Route criteria for a query parameter that must be present on the incoming request.
     /// </summary>
-    public sealed record RouteHeader
+    public sealed record RouteQueryParameter
     {
         /// <summary>
-        /// Name of the header to look for.
+        /// Name of the query parameter to look for.
         /// This field is case insensitive and required.
         /// </summary>
         public string Name { get; init; } = default!;
 
         /// <summary>
-        /// A collection of acceptable header values used during routing. Only one value must match.
-        /// The list must not be empty unless using <see cref="HeaderMatchMode.Exists"/>.
+        /// A collection of acceptable query parameter values used during routing.
         /// </summary>
         public IReadOnlyList<string>? Values { get; init; }
 
         /// <summary>
-        /// Specifies how header values should be compared (e.g. exact matches Vs. by prefix).
-        /// Defaults to <see cref="HeaderMatchMode.ExactHeader"/>.
+        /// Specifies how query parameter values should be compared (e.g. exact matches Vs. contains).
+        /// Defaults to <see cref="QueryParameterMatchMode.Exact"/>.
         /// </summary>
-        public HeaderMatchMode Mode { get; init; }
+        public QueryParameterMatchMode Mode { get; init; }
 
         /// <summary>
-        /// Specifies whether header value comparisons should ignore case.
+        /// Specifies whether query parameter value comparisons should ignore case.
         /// When <c>true</c>, <see cref="StringComparison.Ordinal" /> is used.
         /// When <c>false</c>, <see cref="StringComparison.OrdinalIgnoreCase" /> is used.
         /// Defaults to <c>false</c>.
         /// </summary>
         public bool IsCaseSensitive { get; init; }
 
-        public bool Equals(RouteHeader? other)
+        public bool Equals(RouteQueryParameter? other)
         {
             if (other == null)
             {

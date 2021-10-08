@@ -9,7 +9,7 @@ Proxy routes specified in [config](config-files.md) or via [code](config-provide
 
 ### Precedence
 
-The default route match precedence order is 1) path, 2) method, 3) host, 4) headers. That means a route which specifies methods and no headers will match before a route which specifies headers and no methods. This can be overridden by setting the `Order` property on a route.
+The default route match precedence order is 1) path, 2) method, 3) host, 4) headers 5) query parameters. That means a route which specifies methods and no headers will match before a route which specifies headers and no methods. This can be overridden by setting the `Order` property on a route.
 
 ## Configuration
 
@@ -70,6 +70,40 @@ Configuration:
         },
         {
           "Name": "header5",
+          "Mode": "Exists"
+        }
+      ]
+    }
+  },
+  "route5" : {
+    "ClusterId": "cluster1",
+    "Match": {
+      "Path": "{**catch-all}",
+      "Headers": [
+        {
+          "Name": "header5",
+          "Values": [ "value1", "value2" ],
+          "Mode": "Contains"
+        },
+        {
+          "Name": "header6",
+          "Mode": "Exists"
+        }
+      ]
+    }
+  },
+   "route6" : {
+    "ClusterId": "cluster1",
+    "Match": {
+      "Path": "{**catch-all}",
+      "Headers": [
+        {
+          "Name": "header6",
+          "Values": [ "value1", "value2" ],
+          "Mode": "NotContains"
+        },
+        {
+          "Name": "header7",
           "Mode": "Exists"
         }
       ]
@@ -157,6 +191,42 @@ var routes = new[]
                 }
             }
         }
+    },
+    new RouteConfig()
+    {
+        RouteId = "route5",
+        ClusterId = "cluster1",
+        Match = new RouteMatch
+        {
+            Path = "{**catch-all}",
+            Headers = new[]
+            {
+                new RouteHeader()
+                {
+                    Name = "Header5",
+                    Values = new[] { "value1", "value2" },
+                    Mode = HeaderMatchMode.Contains
+                }
+            }
+        }
+    },
+    new RouteConfig()
+    {
+        RouteId = "route6",
+        ClusterId = "cluster1",
+        Match = new RouteMatch
+        {
+            Path = "{**catch-all}",
+            Headers = new[]
+            {
+                new RouteHeader()
+                {
+                     Name = "Header6",
+                    Values = new[] { "value1", "value2" },
+                    Mode = HeaderMatchMode.NotContains
+                }
+            }
+        }
     }
 };
 ```
@@ -171,7 +241,7 @@ The header name to check for on the request. A non-empty value is required. This
 
 ### Values
 
-A list of possible values to search for. The header must match at least one of these values according to the specified `Mode`. At least one value is required unless `Mode` is set to `Exists`.
+A list of possible values to search for. The header must match at least one of these values according to the specified `Mode` except for the 'NotContains'. At least one value is required unless `Mode` is set to `Exists`.
 
 ### Mode
 
@@ -179,6 +249,8 @@ A list of possible values to search for. The header must match at least one of t
 - ExactHeader - The header must match in its entirety, subject to the value of `IsCaseSensitive`. Only single headers are supported. If there are multiple headers with the same name then the match fails.
 - HeaderPrefix - The header must match by prefix, subject to the value of `IsCaseSensitive`. Only single headers are supported. If there are multiple headers with the same name then the match fails.
 - Exists - The header must exist and contain any non-empty value.
+- Contains - The header must contain the value for a match, subject to the value of `IsCaseSensitive`. Only single headers are supported. If there are multiple headers with the same name then the match fails.
+- NotContains - The header must not contain any of the match values, subject to the value of `IsCaseSensitive`. Only single headers are supported. If there are multiple headers with the same name then the match fails.
 
 ### IsCaseSensitive
 
