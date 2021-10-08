@@ -133,11 +133,11 @@ namespace Yarp.ReverseProxy.Routing
             {
                 QueryParameterMatchMode.Exact => MemoryExtensions.Equals(requestQueryParameterValue, metadataQueryParameterValue, comparison),
                 QueryParameterMatchMode.Prefix => requestQueryParameterValue != null && metadataQueryParameterValue != null
-                && MemoryExtensions.StartsWith(requestQueryParameterValue, metadataQueryParameterValue, comparison),
+                    && MemoryExtensions.StartsWith(requestQueryParameterValue, metadataQueryParameterValue, comparison),
                 QueryParameterMatchMode.Contains => requestQueryParameterValue != null && metadataQueryParameterValue != null
-                && MemoryExtensions.Contains(requestQueryParameterValue, metadataQueryParameterValue, comparison),
+                    && MemoryExtensions.Contains(requestQueryParameterValue, metadataQueryParameterValue, comparison),
                 QueryParameterMatchMode.NotContains => requestQueryParameterValue != null && metadataQueryParameterValue != null
-                && !MemoryExtensions.Contains(requestQueryParameterValue, metadataQueryParameterValue, comparison),
+                    && !MemoryExtensions.Contains(requestQueryParameterValue, metadataQueryParameterValue, comparison),
                 _ => throw new NotImplementedException(matchMode.ToString()),
             };
         }

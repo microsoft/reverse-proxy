@@ -250,7 +250,7 @@ A list of possible values to search for. The query parameter must match at least
 - Prefix - The query parameter must match by prefix, subject to the value of `IsCaseSensitive`. Only single query parameters are supported. If there are multiple query parameters with the same name then the match fails.
 - Exists - The query parameter must exist and contain any non-empty value.
 - Contains - The query parameter must contain the value for a match, subject to the value of `IsCaseSensitive`. Only single query parameters are supported. If there are multiple query parameters with the same name then the match fails.
-- NotContains - The query parameter must not contain the value for a match, subject to the value of `IsCaseSensitive`. If there are multiple values, all must not contain for a match. Only single query parameters are supported. If there are multiple query parameters with the same name then the match fails.
+- NotContains - The query parameter must not contain any of the match values, subject to the value of `IsCaseSensitive`. Only single query parameters are supported. If there are multiple query parameters with the same name then the match fails.
 
 ### IsCaseSensitive
 
@@ -335,7 +335,8 @@ The following is an example that will match route3.
 
 An empty query parameter will _not_ match.
 ```
-?QueryParam3=:
+?QueryParam3
+?QueryParam3=
 ```
 
 This mode does support query parameters with multiple values and multiple query parameters with the same name since it does not look at the query parameter contents. The following will match.

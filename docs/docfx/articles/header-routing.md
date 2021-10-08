@@ -250,7 +250,7 @@ A list of possible values to search for. The header must match at least one of t
 - HeaderPrefix - The header must match by prefix, subject to the value of `IsCaseSensitive`. Only single headers are supported. If there are multiple headers with the same name then the match fails.
 - Exists - The header must exist and contain any non-empty value.
 - Contains - The header must contain the value for a match, subject to the value of `IsCaseSensitive`. Only single headers are supported. If there are multiple headers with the same name then the match fails.
-- NotContains - The header must not contain the value for a match, subject to the value of `IsCaseSensitive`. If there are multiple values, all must not contain for a match. Only single headers are supported. If there are multiple headers with the same name then the match fails.
+- NotContains - The header must not contain any of the match values, subject to the value of `IsCaseSensitive`. Only single headers are supported. If there are multiple headers with the same name then the match fails.
 
 ### IsCaseSensitive
 

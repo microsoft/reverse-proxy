@@ -54,7 +54,10 @@ namespace Yarp.ReverseProxy.Configuration
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Name, Mode, IsCaseSensitive,
+            return HashCode.Combine(
+                Name?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+                Mode,
+                IsCaseSensitive,
                 IsCaseSensitive
                     ? CaseSensitiveEqualHelper.GetHashCode(Values)
                     : CaseInsensitiveEqualHelper.GetHashCode(Values));

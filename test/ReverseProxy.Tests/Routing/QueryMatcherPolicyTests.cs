@@ -158,7 +158,6 @@ namespace Yarp.ReverseProxy.Routing.Tests
         [InlineData(null, false)]
         [InlineData("", false)]
         [InlineData("abc", true)]
-        [InlineData("val%20ue", true)]
         public async Task ApplyAsync_MatchingScenarios_AnyQueryParamValue(string incomingQueryParamValue, bool shouldMatch)
         {
             var context = new DefaultHttpContext();
@@ -204,6 +203,8 @@ namespace Yarp.ReverseProxy.Routing.Tests
         [InlineData("abc", QueryParameterMatchMode.Exact, true, "aBC", false)]
         [InlineData("abc", QueryParameterMatchMode.Exact, true, "abcd", false)]
         [InlineData("abc", QueryParameterMatchMode.Exact, true, "ab", false)]
+        [InlineData("val ue", QueryParameterMatchMode.Contains, false, "val%20ue", true)]
+        [InlineData("value", QueryParameterMatchMode.Contains, false, "val%20ue", false)]
         [InlineData("abc", QueryParameterMatchMode.Contains, false, "", false)]
         [InlineData("abc", QueryParameterMatchMode.Contains, false, "aabc", true)]
         [InlineData("abc", QueryParameterMatchMode.Contains, false, "zaBCz", true)]
@@ -296,6 +297,8 @@ namespace Yarp.ReverseProxy.Routing.Tests
         [InlineData("abc", "def", QueryParameterMatchMode.Prefix, true, "def", true)]
         [InlineData("abc", "def", QueryParameterMatchMode.Prefix, true, "DEFg", false)]
         [InlineData("abc", "def", QueryParameterMatchMode.Prefix, true, "abcc", true)]
+        [InlineData("val ue", "def", QueryParameterMatchMode.Contains, false, "val%20ue&aabb", true)]
+        [InlineData("value", "def", QueryParameterMatchMode.Contains, false, "val%20ue&aabb", false)]
         [InlineData("abc", "def", QueryParameterMatchMode.Contains, false, null, false)]
         [InlineData("abc", "def", QueryParameterMatchMode.Contains, false, "", false)]
         [InlineData("abc", "def", QueryParameterMatchMode.Contains, false, "aaaabc", true)]

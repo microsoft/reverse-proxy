@@ -133,11 +133,11 @@ namespace Yarp.ReverseProxy.Routing
             {
                 HeaderMatchMode.ExactHeader => MemoryExtensions.Equals(requestHeaderValue, metadataHeaderValue, comparison),
                 HeaderMatchMode.HeaderPrefix => requestHeaderValue != null && metadataHeaderValue != null
-                && MemoryExtensions.StartsWith(requestHeaderValue, metadataHeaderValue, comparison),
+                    && MemoryExtensions.StartsWith(requestHeaderValue, metadataHeaderValue, comparison),
                 HeaderMatchMode.Contains => requestHeaderValue != null && metadataHeaderValue != null
-                && MemoryExtensions.Contains(requestHeaderValue, metadataHeaderValue, comparison),
+                    && MemoryExtensions.Contains(requestHeaderValue, metadataHeaderValue, comparison),
                 HeaderMatchMode.NotContains => requestHeaderValue != null && metadataHeaderValue != null
-                && !MemoryExtensions.Contains(requestHeaderValue, metadataHeaderValue, comparison),
+                    && !MemoryExtensions.Contains(requestHeaderValue, metadataHeaderValue, comparison),
                 _ => throw new NotImplementedException(matchMode.ToString()),
             };
         }
