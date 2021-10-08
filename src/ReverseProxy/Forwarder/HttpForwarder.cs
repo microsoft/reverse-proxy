@@ -165,24 +165,33 @@ namespace Yarp.ReverseProxy.Forwarder
 
                     if (!copyBody)
                     {
+                        // The transforms callback decided that the response body should be discarded.
+                        destinationResponse.Dispose();
+
                         if (requestContent is not null && requestContent.Started)
                         {
+#if !NET
+                            requestContent.Cancel();
+#endif
                             await requestContent.ConsumptionTask;
                         }
 
-                        // The transforms callback decided that the response body should be discarded.
-                        destinationResponse.Dispose();
                         return ForwarderError.None;
                     }
                 }
                 catch (Exception ex)
                 {
+
+                    destinationResponse.Dispose();
+
                     if (requestContent is not null && requestContent.Started)
                     {
+#if !NET
+                        requestContent.Cancel();
+#endif
                         await requestContent.ConsumptionTask;
                     }
 
-                    destinationResponse.Dispose();
                     ReportProxyError(context, ForwarderError.ResponseHeaders, ex);
                     // Clear the response since status code, reason and some headers might have already been copied and we want clean 502 response.
                     context.Response.Clear();
