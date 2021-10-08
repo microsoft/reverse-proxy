@@ -134,18 +134,12 @@ namespace Yarp.ReverseProxy.Forwarder
 
             // Check if any escaping is required.
             var value = path.Value!;
-            var i = 0;
-            for (; i < value.Length; i++)
+            for (var i = 0; i < value.Length; i++)
             {
                 if (!IsValidPathChar(value[i]))
                 {
-                    break;
+                    return EncodePath(value, i);
                 }
-            }
-
-            if (i < value.Length)
-            {
-                return EncodePath(value, i);
             }
 
             return value;
