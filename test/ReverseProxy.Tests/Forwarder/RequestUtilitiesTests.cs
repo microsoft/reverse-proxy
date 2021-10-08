@@ -93,10 +93,65 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         [InlineData("http://localhost/base", "/path", "?query", "http://localhost/base/path?query")]
         [InlineData("http://localhost/base/", "/path", "?query", "http://localhost/base/path?query")]
         [InlineData("http://localhost/base/", "/path/", "?query", "http://localhost/base/path/?query")]
+        [InlineData("http://localhost/base/", "/path/你好", "?query%E4%BD%A0%E5%A5%BD", "http://localhost/base/path/%E4%BD%A0%E5%A5%BD?query%E4%BD%A0%E5%A5%BD")]
+        // pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
+        // unreserved    = ALPHA / DIGIT / "-" / "." / "_" / "~"
+        // sub-delims    = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+        [InlineData("http://localhost/base/", "/path/!$&'()*+,;=:@/%?#[]", "?query", "http://localhost/base/path/!$&'()*+,;=:@/%25%3F%23%5B%5D?query")]
+        // #if NET6.0 [InlineData("http://localhost/base/", "/path/", "?query%4A", "http://localhost/base/path/?query%4A")] // https://github.com/dotnet/runtime/issues/58057
+        // PathString should be fully un-escaped to start with and QueryString should be fully escaped.
+        [InlineData("http://localhost/base/", "/path/%2F%20", "?query%20", "http://localhost/base/path/%252F%2520?query%20")]
         public void MakeDestinationAddress(string destinationPrefix, string path, string query, string expected)
         {
             var uri = RequestUtilities.MakeDestinationAddress(destinationPrefix, new PathString(path), new QueryString(query));
             Assert.Equal(expected, uri.AbsoluteUri);
+        }
+
+        // https://datatracker.ietf.org/doc/html/rfc3986/#appendix-A
+        // pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
+        // pct-encoded   = "%" HEXDIG HEXDIG
+        // unreserved    = ALPHA / DIGIT / "-" / "." / "_" / "~"
+        // reserved      = gen-delims / sub-delims
+        // gen-delims    = ":" / "/" / "?" / "#" / "[" / "]" / "@"
+        // sub-delims    = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+
+        [Fact]
+        public void ValidPathCharacters()
+        {
+            var valids = new char[]
+            {
+                 '!', '$', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/',
+                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                ':', ';', '=', '@',
+                'A', 'B', 'C', 'D', 'E', 'F','G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+                '_',
+                'a', 'b', 'c', 'd', 'e', 'f','g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+                '~'
+            };
+            foreach (var c in valids)
+            {
+                var isValid = RequestUtilities.IsValidPathChar(c);
+
+                Assert.True(isValid, c.ToString());
+            }
+        }
+
+        [Fact]
+        public void InvalidPathCharacters()
+        {
+            var invalids = new char[]
+            {
+                // Controls
+                (char)0x00, (char)0x01, (char)0x02, (char)0x03, (char)0x04, (char)0x05, (char)0x06, (char)0x00, (char)0x07, (char)0x08, (char)0x09, (char)0x0A, (char)0x0B, (char)0x0C, (char)0x0D, (char)0x0E, (char)0x0F,
+                (char)0x10, (char)0x11, (char)0x02, (char)0x13, (char)0x14, (char)0x15, (char)0x16, (char)0x10, (char)0x17, (char)0x18, (char)0x19, (char)0x1A, (char)0x1B, (char)0x1C, (char)0x1D, (char)0x1E, (char)0x1F,
+                ' ', '"', '#', '%', '<', '>', '?', '[', '\\', ']', '^', '`', '{', '|', '}'
+            };
+            foreach (var c in invalids)
+            {
+                var isValid = RequestUtilities.IsValidPathChar(c);
+
+                Assert.False(isValid, c.ToString());
+            }
         }
     }
 }
