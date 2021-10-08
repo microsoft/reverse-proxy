@@ -473,42 +473,38 @@ namespace Yarp.ReverseProxy.Forwarder
 
         private async ValueTask<ForwarderError> HandleRequestFailureAsync(HttpContext context, StreamCopyHttpContent? requestContent, Exception requestException, HttpTransformer transformer, CancellationTokenSource requestTimeoutSource)
         {
-            try
+            if (requestException is OperationCanceledException)
             {
-                if (requestException is OperationCanceledException canceledException)
+                if (!context.RequestAborted.IsCancellationRequested && requestTimeoutSource.IsCancellationRequested)
                 {
-                    if (!context.RequestAborted.IsCancellationRequested && requestTimeoutSource.IsCancellationRequested)
-                    {
-                        ReportProxyError(context, ForwarderError.RequestTimedOut, canceledException);
-                        context.Response.StatusCode = StatusCodes.Status504GatewayTimeout;
-                        return ForwarderError.RequestTimedOut;
-                    }
-                    else
-                    {
-                        ReportProxyError(context, ForwarderError.RequestCanceled, canceledException);
-                        context.Response.StatusCode = StatusCodes.Status502BadGateway;
-                        return ForwarderError.RequestCanceled;
-                    }
+                    return await ReportErrorAsync(ForwarderError.RequestTimedOut, StatusCodes.Status504GatewayTimeout);
                 }
-
-                // Check for request body errors, these may have triggered the response error.
-                if (requestContent?.ConsumptionTask.IsCompleted == true)
+                else
                 {
-                    var (requestBodyCopyResult, requestBodyException) = requestContent.ConsumptionTask.Result;
-
-                    if (requestBodyCopyResult != StreamCopyResult.Success)
-                    {
-                        return HandleRequestBodyFailure(context, requestBodyCopyResult, requestBodyException!, requestException);
-                    }
+                    return await ReportErrorAsync(ForwarderError.RequestCanceled, StatusCodes.Status502BadGateway);
                 }
-
-                // We couldn't communicate with the destination.
-                ReportProxyError(context, ForwarderError.Request, requestException);
-                context.Response.StatusCode = StatusCodes.Status502BadGateway;
-                return ForwarderError.Request;
             }
-            finally
+
+            // Check for request body errors, these may have triggered the response error.
+            if (requestContent?.ConsumptionTask.IsCompleted == true)
             {
+                var (requestBodyCopyResult, requestBodyException) = requestContent.ConsumptionTask.Result;
+
+                if (requestBodyCopyResult != StreamCopyResult.Success)
+                {
+                    await transformer.TransformResponseAsync(context, null);
+                    return HandleRequestBodyFailure(context, requestBodyCopyResult, requestBodyException!, requestException);
+                }
+            }
+
+            // We couldn't communicate with the destination.
+            return await ReportErrorAsync(ForwarderError.Request, StatusCodes.Status502BadGateway);
+
+            async ValueTask<ForwarderError> ReportErrorAsync(ForwarderError error, int statusCode)
+            {
+                ReportProxyError(context, error, requestException);
+                context.Response.StatusCode = statusCode;
+
                 if (requestContent is not null && requestContent.Started)
                 {
 #if !NET
@@ -518,6 +514,7 @@ namespace Yarp.ReverseProxy.Forwarder
                 }
 
                 await transformer.TransformResponseAsync(context, null);
+                return error;
             }
         }
 
