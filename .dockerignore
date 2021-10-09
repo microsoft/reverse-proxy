@@ -23,3 +23,7 @@
 **/values.dev.yaml
 LICENSE
 README.md
+**/ingress.yaml
+**/ingress-controller.yaml
+**/backend.yaml
+**/ingress-sample.yaml

@@ -5,15 +5,18 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS publish
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS publish
 WORKDIR /src
-COPY ["src/OperatorFramework/src/Controller", "OperatorFramework/src/Controller"]
-COPY ["src/OperatorFramework/src/Core", "OperatorFramework/src/Core"]
-COPY ["src/ReverseProxy.Kubernetes.Controller", "ReverseProxy.Kubernetes.Controller"]
-COPY ["src/ReverseProxy.Kubernetes.Protocol", "ReverseProxy.Kubernetes.Protocol"]
-COPY ["src/ReverseProxy", "ReverseProxy"]
+COPY ["src/OperatorFramework/src/Controller", "src/OperatorFramework/src/Controller"]
+COPY ["src/OperatorFramework/src/Core", "src/OperatorFramework/src/Core"]
+COPY ["src/Kubernetes.Controller", "src/Kubernetes.Controller"]
+COPY ["src/Kubernetes.Protocol", "src/Kubernetes.Protocol"]
+COPY ["src/", "src/"]
+COPY ["Directory.Build.*", ""]
+COPY ["global.json", ""]
+COPY ["NuGet.config", ""]
 
-WORKDIR ReverseProxy.Kubernetes.Controller
+WORKDIR src/Kubernetes.Controller
 RUN dotnet publish -c Release -o /app/publish -f net5.0
 
 FROM base AS final

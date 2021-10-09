@@ -124,8 +124,8 @@ spec:
     spec:
       containers:
       - name: yarp-controller
-        imagePullPolicy: Always
-        image: <REGISTRY_NAME>/yarp-controller:<TAG>
+        imagePullPolicy: IfNotPresent
+        image: yarp/yarp-controller
         ports:
         - containerPort: 8000
           name: api

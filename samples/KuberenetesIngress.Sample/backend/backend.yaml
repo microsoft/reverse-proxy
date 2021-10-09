@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
       - name: backend
-        image: <REGISTRY_NAME>/backend:<TAG>
+        image: yarp/backend
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
 ---
