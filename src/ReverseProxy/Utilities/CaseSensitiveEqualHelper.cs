@@ -30,7 +30,7 @@ namespace Yarp.ReverseProxy.Utilities
 
         internal static int GetHashCode(IReadOnlyDictionary<string, string>? dictionary)
         {
-            return CollectionEqualityHelper.GetHashCode(dictionary);
+            return CollectionEqualityHelper.GetHashCode(dictionary, StringComparer.Ordinal);
         }
 
         internal static int GetHashCode(IReadOnlyList<IReadOnlyDictionary<string, string>>? dictionaryList)

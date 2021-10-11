@@ -126,18 +126,38 @@ namespace Yarp.ReverseProxy.Utilities
             return hashCode.ToHashCode();
         }
 
-        public static int GetHashCode<T>(IReadOnlyDictionary<string, T>? dictionary)
+        public static int GetHashCode<T>(IReadOnlyDictionary<string, T>? dictionary, IEqualityComparer<T>? valueComparer = null)
         {
             if (dictionary is null)
             {
                 return 0;
             }
 
-            // We don't know what comparer the dictionary was created with, so we can't reliably create correct hash codes based on keys
-            return dictionary.Count;
+            if (dictionary.Count == 0)
+            {
+                return 42;
+            }
+
+            // We don't know what comparer the dictionary was created with, so we assume it's Ordinal/OrdinalIgnoreCase
+            // If a culture-sensitive comparer was used, this may result in GetHashCode returning different values for "equal" strings
+            // If that comes up as a realistic scenario, we can consider ignoring keys in the future
+            var keyComparer = StringComparer.OrdinalIgnoreCase;
+            valueComparer ??= EqualityComparer<T>.Default;
+
+            // Dictionaries are unordered collections and HashCode uses an order-sensitive algorithm (xxHash), so we have to sort the elements
+            var keys = dictionary.Keys.ToArray();
+            Array.Sort(keys, keyComparer);
+
+            var hashCode = new HashCode();
+            foreach (var key in keys)
+            {
+                hashCode.Add(key, keyComparer);
+                hashCode.Add(dictionary[key], valueComparer);
+            }
+            return hashCode.ToHashCode();
         }
 
-        public static int GetHashCode<T>(IReadOnlyList<IReadOnlyDictionary<string, T>>? dictionaryList)
+        public static int GetHashCode<T>(IReadOnlyList<IReadOnlyDictionary<string, T>>? dictionaryList, IEqualityComparer<T>? valueComparer = null)
         {
             if (dictionaryList is null)
             {
@@ -147,7 +167,7 @@ namespace Yarp.ReverseProxy.Utilities
             var hashCode = new HashCode();
             foreach (var dictionary in dictionaryList)
             {
-                hashCode.Add(GetHashCode(dictionary));
+                hashCode.Add(GetHashCode(dictionary, valueComparer));
             }
             return hashCode.ToHashCode();
         }
