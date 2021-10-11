@@ -154,7 +154,7 @@ namespace Yarp.ReverseProxy.Forwarder
                         // The transforms callback decided that the response body should be discarded.
                         destinationResponse.Dispose();
 
-                        if (requestContent is not null && requestContent.Started)
+                        if (requestContent is not null && requestContent.InProgress)
                         {
                             requestCancellationSource.Cancel();
                             await requestContent.ConsumptionTask;
@@ -167,7 +167,7 @@ namespace Yarp.ReverseProxy.Forwarder
                 {
                     destinationResponse.Dispose();
 
-                    if (requestContent is not null && requestContent.Started)
+                    if (requestContent is not null && requestContent.InProgress)
                     {
                         requestCancellationSource.Cancel();
                         await requestContent.ConsumptionTask;
@@ -202,7 +202,7 @@ namespace Yarp.ReverseProxy.Forwarder
 
                 if (responseBodyCopyResult != StreamCopyResult.Success)
                 {
-                    return await HandleResponseBodyErrorAsync(context, requestContent, responseBodyCopyResult, responseBodyException!);
+                    return await HandleResponseBodyErrorAsync(context, requestContent, responseBodyCopyResult, responseBodyException!, requestCancellationSource);
                 }
 
                 // :: Step 8: Copy response trailer headers and finish response Client ◄-- Proxy ◄-- Destination
@@ -492,7 +492,7 @@ namespace Yarp.ReverseProxy.Forwarder
                 ReportProxyError(context, error, requestException);
                 context.Response.StatusCode = statusCode;
 
-                if (requestContent is not null && requestContent.Started)
+                if (requestContent is not null && requestContent.InProgress)
                 {
                     requestCancellationSource.Cancel();
                     await requestContent.ConsumptionTask;
@@ -642,11 +642,16 @@ namespace Yarp.ReverseProxy.Forwarder
             return (StreamCopyResult.Success, null);
         }
 
-        private async ValueTask<ForwarderError> HandleResponseBodyErrorAsync(HttpContext context, StreamCopyHttpContent? requestContent, StreamCopyResult responseBodyCopyResult, Exception responseBodyException)
+        private async ValueTask<ForwarderError> HandleResponseBodyErrorAsync(HttpContext context, StreamCopyHttpContent? requestContent, StreamCopyResult responseBodyCopyResult, Exception responseBodyException, CancellationTokenSource requestCancellationSource)
         {
             if (requestContent is not null && requestContent.Started)
             {
                 var alreadyFinished = requestContent.ConsumptionTask.IsCompleted == true;
+
+                if (!alreadyFinished)
+                {
+                    requestCancellationSource.Cancel();
+                }
 
                 var (requestBodyCopyResult, requestBodyError) = await requestContent.ConsumptionTask;
 

@@ -73,6 +73,8 @@ namespace Yarp.ReverseProxy.Forwarder
         /// </remarks>
         public bool Started => Volatile.Read(ref _started) == 1;
 
+        public bool InProgress => Started && !ConsumptionTask.IsCompleted;
+
         /// <summary>
         /// Copies bytes from the stream provided in our constructor into the target <paramref name="stream"/>.
         /// </summary>
