@@ -41,44 +41,18 @@ namespace Yarp.ReverseProxy.Forwarder
         private readonly Stream _source;
         private readonly bool _autoFlushHttpClientOutgoingStream;
         private readonly IClock _clock;
-        // Note this is the long token that should only be canceled in the event of an error, not timed out.
-        private readonly CancellationToken _contentCancellation;
+        private readonly CancellationToken _cancellation;
         private readonly TaskCompletionSource<(StreamCopyResult, Exception?)> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
         private int _started;
 
-#if NET
-        /// <summary>
-        /// The CancellationToken passed to SendAsync.
-        /// On HTTP/1.1, it is the same token that is passed to SerializeToStreamAsync, so we can use it to determine if HTTP/1.1 is used.
-        /// <see cref="_requestCancellation"/> is a linked HttpContext.RequestAborted + Request Timeout token,
-        /// where as the <see cref="_contentCancellation"/> is just HttpContext.RequestAborted.
-        /// As the request token is a superset of the content token, we can safely ignore the content token.
-        /// </summary>
-        private readonly CancellationToken _requestCancellation;
-#else
-        /// <summary>
-        /// When using HTTP/2 with a custom HttpContent, SocketsHttpHandler will assume duplex communication and
-        /// SerializeToStreamAsync may still be executing when SendAsync returns.
-        /// In 5.0+, a CancellationToken overload of SerializeToStreamAsync is available and SocketsHttpHandler will
-        /// cancel that token in case of an error that resuls in SendAsync throwing.
-        /// Since there is no such overload in 3.1, we create a Linked CTS we use to cancel the operations manually in case of an error.
-        /// </summary>
-        private readonly CancellationTokenSource _forceCancelCTS;
-#endif
-
-        public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IClock clock, CancellationToken contentCancellation, CancellationToken requestCancellation)
+        public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IClock clock, CancellationToken cancellation)
         {
             _source = source ?? throw new ArgumentNullException(nameof(source));
             _autoFlushHttpClientOutgoingStream = autoFlushHttpClientOutgoingStream;
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
-#if NET
-            _contentCancellation = contentCancellation;
-            _requestCancellation = requestCancellation;
-#else
-            _forceCancelCTS = CancellationTokenSource.CreateLinkedTokenSource(contentCancellation);
-            _contentCancellation = _forceCancelCTS.Token;
-#endif
+            Debug.Assert(cancellation.CanBeCanceled);
+            _cancellation = cancellation;
         }
 
         /// <summary>
@@ -98,14 +72,6 @@ namespace Yarp.ReverseProxy.Forwarder
         /// completes, even when using <see cref="HttpCompletionOption.ResponseHeadersRead"/>.
         /// </remarks>
         public bool Started => Volatile.Read(ref _started) == 1;
-
-#if !NET
-        public void Cancel()
-        {
-            Debug.Assert(Started);
-            _forceCancelCTS.Cancel();
-        }
-#endif
 
         /// <summary>
         /// Copies bytes from the stream provided in our constructor into the target <paramref name="stream"/>.
@@ -169,20 +135,20 @@ namespace Yarp.ReverseProxy.Forwarder
             // The cancellationToken that is passed to this method is:
             // On HTTP/1.1: Linked HttpContext.RequestAborted + Request Timeout
             // On HTTP/2.0: SocketsHttpHandler error / the server wants us to stop sending content / H2 connection closed
-            // The _contentCancellation is HttpContext.RequestAborted, so on HTTP/1.1 we don't have to combine the tokens
+            // _cancellation will be the same as cancellationToken for HTTP/1.1, so we can avoid the overhead of linking them
             CancellationTokenSource? linkedCts = null;
 
 #if NET
-            if (_requestCancellation != cancellationToken)
+            if (_cancellation != cancellationToken)
             {
                 Debug.Assert(cancellationToken.CanBeCanceled);
-                linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_contentCancellation, cancellationToken);
+                linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_cancellation, cancellationToken);
                 cancellationToken = linkedCts.Token;
             }
 #else
             // On .NET Core 3.1, cancellationToken will always be CancellationToken.None
             Debug.Assert(!cancellationToken.CanBeCanceled);
-            cancellationToken = _contentCancellation;
+            cancellationToken = _cancellation;
 #endif
 
             try
@@ -249,12 +215,5 @@ namespace Yarp.ReverseProxy.Forwarder
             length = -1;
             return false;
         }
-
-#if !NET
-        public void Net31Dispose()
-        {
-            _forceCancelCTS.Dispose();
-        }
-#endif
     }
 }

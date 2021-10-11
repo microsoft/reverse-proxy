@@ -17,7 +17,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 {
     public class StreamCopyHttpContentTests
     {
-        private static StreamCopyHttpContent CreateContent(Stream source = null, bool autoFlushHttpClientOutgoingStream = false, IClock clock = null, CancellationToken contentCancellation = default, CancellationToken requestCancellation = default)
+        private static StreamCopyHttpContent CreateContent(Stream source = null, bool autoFlushHttpClientOutgoingStream = false, IClock clock = null, CancellationToken contentCancellation = default)
         {
             source ??= new MemoryStream();
             clock ??= new Clock();
@@ -26,12 +26,8 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             {
                 contentCancellation = new CancellationTokenSource().Token;
             }
-            if (!requestCancellation.CanBeCanceled)
-            {
-                requestCancellation = new CancellationTokenSource().Token;
-            }
 
-            return new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream, clock, contentCancellation, requestCancellation);
+            return new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream, clock, contentCancellation);
         }
 
         [Fact]
@@ -159,6 +155,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             await copyToTask;
         }
 
+#if NET
         [Fact]
         public async Task SerializeToStreamAsync_CanBeCanceledExternally()
         {
@@ -174,50 +171,10 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 
             var sut = CreateContent(source);
 
-            // NET 5.0+ uses the CancellationToken overload of SerializeToStreamAsync.
-            // On 3.1, we workaround this by exposing a Cancel method on the content.
-#if NET
             var cts = new CancellationTokenSource();
             var copyToTask = sut.CopyToAsync(new MemoryStream(), cts.Token);
             cts.Cancel();
-#else
-            var copyToTask = sut.CopyToAsync(new MemoryStream());
-            sut.Cancel();
-#endif
-
             tcs.SetResult(0);
-
-            await copyToTask;
-        }
-
-#if NET
-        [Fact]
-        public async Task SerializeToStreamAsync_IgnoresContentCancellationForHttp11()
-        {
-            var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-
-            var source = new ReadDelegatingStream(new MemoryStream(), async (buffer, cancellation) =>
-            {
-                Assert.False(cancellation.IsCancellationRequested);
-                await tcs.Task;
-                // Note the cancellation is not canceled after contentCts has been canceled
-                Assert.False(cancellation.IsCancellationRequested);
-                return 0;
-            });
-
-            // HttpForwarder will always pass (HttpContext.RequestAborted + Request Timeout) for request cancellation
-            // and HttpContext.RequestAborted for content cancellation.
-            // On HTTP/1.1, the request cancellation will be passed down to SerializeToStreamAsync as-is.
-            // As an optimization, StreamCopyHttpContent will ignore contentCancellation in this case.
-
-            var contentCts = new CancellationTokenSource();
-            var requestCts = new CancellationTokenSource();
-
-            var sut = CreateContent(source, contentCancellation: contentCts.Token, requestCancellation: requestCts.Token);
-
-            var copyToTask = sut.CopyToAsync(new MemoryStream(), requestCts.Token);
-            contentCts.Cancel();
-            tcs.SetResult();
 
             await copyToTask;
         }
