@@ -84,7 +84,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                     var capturedRequestContent = new MemoryStream();
 
                     // Use CopyToAsync as this is what HttpClient and friends use internally
-                    await request.Content.CopyToAsync(capturedRequestContent);
+                    await request.Content.CopyToWithCancellationAsync(capturedRequestContent);
                     capturedRequestContent.Position = 0;
                     var capturedContentText = StreamToString(capturedRequestContent);
                     Assert.Equal("request content", capturedContentText);
@@ -183,7 +183,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                     var capturedRequestContent = new MemoryStream();
 
                     // Use CopyToAsync as this is what HttpClient and friends use internally
-                    await request.Content.CopyToAsync(capturedRequestContent);
+                    await request.Content.CopyToWithCancellationAsync(capturedRequestContent);
                     capturedRequestContent.Position = 0;
                     var capturedContentText = StreamToString(capturedRequestContent);
                     Assert.Equal("request content", capturedContentText);
@@ -267,7 +267,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                     var capturedRequestContent = new MemoryStream();
 
                     // Use CopyToAsync as this is what HttpClient and friends use internally
-                    await request.Content.CopyToAsync(capturedRequestContent);
+                    await request.Content.CopyToWithCancellationAsync(capturedRequestContent);
                     capturedRequestContent.Position = 0;
                     var capturedContentText = StreamToString(capturedRequestContent);
                     Assert.Equal("request content", capturedContentText);
@@ -559,7 +559,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                     Assert.NotNull(request.Content);
 
                     // Must consume the body
-                    await request.Content.CopyToAsync(Stream.Null);
+                    await request.Content.CopyToWithCancellationAsync(Stream.Null);
 
                     return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
                 });
@@ -622,7 +622,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                     Assert.NotNull(request.Content);
 
                     // Must consume the body
-                    await request.Content.CopyToAsync(Stream.Null);
+                    await request.Content.CopyToWithCancellationAsync(Stream.Null);
 
                     return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
                 });
@@ -1032,7 +1032,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     // Should throw.
-                    await request.Content.CopyToAsync(Stream.Null);
+                    await request.Content.CopyToWithCancellationAsync(Stream.Null);
                     return new HttpResponseMessage();
                 });
 
@@ -1072,7 +1072,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     // Doesn't throw for destination errors
-                    await request.Content.CopyToAsync(new ThrowStream());
+                    await request.Content.CopyToWithCancellationAsync(new ThrowStream());
                     throw new HttpRequestException();
                 });
 
@@ -1115,7 +1115,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                     // should throw
                     try
                     {
-                        await request.Content.CopyToAsync(new MemoryStream());
+                        await request.Content.CopyToWithCancellationAsync(new MemoryStream());
                     }
                     catch (OperationCanceledException) { }
                     throw new HttpRequestException();
@@ -1439,7 +1439,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     // Background copy
-                    _ = request.Content.CopyToAsync(new MemoryStream());
+                    _ = request.Content.CopyToWithCancellationAsync(new MemoryStream());
                     // Make sure the request isn't canceled until the response finishes copying.
                     return Task.FromResult(new HttpResponseMessage()
                     {
@@ -1485,7 +1485,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     // Background copy
-                    _ = request.Content.CopyToAsync(new MemoryStream());
+                    _ = request.Content.CopyToWithCancellationAsync(new MemoryStream());
                     // Make sure the request isn't canceled until the response finishes copying.
                     return Task.FromResult(new HttpResponseMessage()
                     {
@@ -1527,7 +1527,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     // Background copy
-                    _ = request.Content.CopyToAsync(new StallStream(waitTcs.Task));
+                    _ = request.Content.CopyToWithCancellationAsync(new StallStream(waitTcs.Task));
                     // Make sure the request isn't canceled until the response finishes copying.
                     return Task.FromResult(new HttpResponseMessage()
                     {

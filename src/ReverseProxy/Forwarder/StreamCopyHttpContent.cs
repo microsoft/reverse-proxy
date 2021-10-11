@@ -175,6 +175,7 @@ namespace Yarp.ReverseProxy.Forwarder
 #if NET
             if (_requestCancellation != cancellationToken)
             {
+                Debug.Assert(cancellationToken.CanBeCanceled);
                 linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_contentCancellation, cancellationToken);
                 cancellationToken = linkedCts.Token;
             }

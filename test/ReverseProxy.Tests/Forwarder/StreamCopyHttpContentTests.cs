@@ -47,7 +47,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 
             Assert.False(sut.ConsumptionTask.IsCompleted);
             Assert.False(sut.Started);
-            await sut.CopyToAsync(destination);
+            await sut.CopyToWithCancellationAsync(destination);
 
             Assert.True(sut.Started);
             Assert.True(sut.ConsumptionTask.IsCompleted);
@@ -81,7 +81,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 
             Assert.False(sut.ConsumptionTask.IsCompleted);
             Assert.False(sut.Started);
-            await sut.CopyToAsync(flushCountingDestination);
+            await sut.CopyToWithCancellationAsync(flushCountingDestination);
 
             Assert.True(sut.Started);
             Assert.True(sut.ConsumptionTask.IsCompleted);
@@ -101,7 +101,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 
             Assert.False(sut.ConsumptionTask.IsCompleted);
             Assert.False(sut.Started);
-            var task = sut.CopyToAsync(destination);
+            var task = sut.CopyToWithCancellationAsync(destination);
 
             Assert.True(sut.Started); // This should happen synchronously
             Assert.False(sut.ConsumptionTask.IsCompleted); // This cannot happen until the tcs releases it
@@ -152,7 +152,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 
             var sut = CreateContent(source, contentCancellation: contentCts.Token);
 
-            var copyToTask = sut.CopyToAsync(new MemoryStream());
+            var copyToTask = sut.CopyToWithCancellationAsync(new MemoryStream());
             contentCts.Cancel();
             tcs.SetResult(0);
 
@@ -176,13 +176,13 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 
             // NET 5.0+ uses the CancellationToken overload of SerializeToStreamAsync.
             // On 3.1, we workaround this by exposing a Cancel method on the content.
-#if NETCOREAPP3_1
-            var copyToTask = sut.CopyToAsync(new MemoryStream());
-            sut.Cancel();
-#else
+#if NET
             var cts = new CancellationTokenSource();
             var copyToTask = sut.CopyToAsync(new MemoryStream(), cts.Token);
             cts.Cancel();
+#else
+            var copyToTask = sut.CopyToAsync(new MemoryStream());
+            sut.Cancel();
 #endif
 
             tcs.SetResult(0);
