@@ -6,13 +6,13 @@ using Yarp.Telemetry.Consumption;
 
 namespace Yarp.Sample
 {
-    public sealed class ForwarderMetricsConsumer : IForwarderMetricsConsumer
+    public sealed class ForwarderMetricsConsumer : IMetricsConsumer<ForwarderMetrics>
     {
-        public void OnForwarderMetrics(ForwarderMetrics oldMetrics, ForwarderMetrics newMetrics)
+        public void OnMetrics(ForwarderMetrics previous, ForwarderMetrics current)
         {
-            var elapsed = newMetrics.Timestamp - oldMetrics.Timestamp;
-            var newRequests = newMetrics.RequestsStarted - oldMetrics.RequestsStarted;
-            Console.Title = $"Forwarded {newMetrics.RequestsStarted} requests ({newRequests} in the last {(int)elapsed.TotalMilliseconds} ms)";
+            var elapsed = current.Timestamp - previous.Timestamp;
+            var newRequests = current.RequestsStarted - previous.RequestsStarted;
+            Console.Title = $"Forwarded {current.RequestsStarted} requests ({newRequests} in the last {(int)elapsed.TotalMilliseconds} ms)";
         }
     }
 }

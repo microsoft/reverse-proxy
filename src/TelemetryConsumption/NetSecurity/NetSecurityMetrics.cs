@@ -10,6 +10,8 @@ namespace Yarp.Telemetry.Consumption
     /// </summary>
     public sealed class NetSecurityMetrics
     {
+        public NetSecurityMetrics() => Timestamp = DateTime.UtcNow;
+
         /// <summary>
         /// Timestamp of when this <see cref="NetSecurityMetrics"/> instance was created.
         /// </summary>
@@ -84,7 +86,5 @@ namespace Yarp.Telemetry.Consumption
         /// Average duration of all TLS 1.3 handshakes completed in the last metrics interval.
         /// </summary>
         public TimeSpan Tls13HandshakeDuration { get; internal set; }
-
-        internal NetSecurityMetrics() { }
     }
 }

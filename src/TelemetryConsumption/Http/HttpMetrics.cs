@@ -10,6 +10,8 @@ namespace Yarp.Telemetry.Consumption
     /// </summary>
     public sealed class HttpMetrics
     {
+        public HttpMetrics() => Timestamp = DateTime.UtcNow;
+
         /// <summary>
         /// Timestamp of when this <see cref="KestrelMetrics"/> instance was created.
         /// </summary>
@@ -59,7 +61,5 @@ namespace Yarp.Telemetry.Consumption
         /// Average time spent on queue for HTTP 2.0 requests that hit the MAX_CONCURRENT_STREAMS limit on the connection in the last metrics interval.
         /// </summary>
         public TimeSpan Http20RequestsQueueDuration { get; internal set; }
-
-        internal HttpMetrics() { }
     }
 }

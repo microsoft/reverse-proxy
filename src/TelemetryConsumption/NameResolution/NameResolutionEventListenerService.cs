@@ -10,38 +10,18 @@ using Microsoft.Extensions.Logging;
 
 namespace Yarp.Telemetry.Consumption
 {
-    internal sealed class NameResolutionEventListenerService : EventListenerService<NameResolutionEventListenerService, INameResolutionTelemetryConsumer, INameResolutionMetricsConsumer>
+    internal sealed class NameResolutionEventListenerService : EventListenerService<NameResolutionEventListenerService, INameResolutionTelemetryConsumer, NameResolutionMetrics>
     {
-        private NameResolutionMetrics? _previousMetrics;
-        private NameResolutionMetrics _currentMetrics = new();
-        private int _eventCountersCount;
-
         protected override string EventSourceName => "System.Net.NameResolution";
 
-        public NameResolutionEventListenerService(ILogger<NameResolutionEventListenerService> logger, IEnumerable<INameResolutionTelemetryConsumer> telemetryConsumers, IEnumerable<INameResolutionMetricsConsumer> metricsConsumers)
+        protected override int NumberOfMetrics => 2;
+
+        public NameResolutionEventListenerService(ILogger<NameResolutionEventListenerService> logger, IEnumerable<INameResolutionTelemetryConsumer> telemetryConsumers, IEnumerable<IMetricsConsumer<NameResolutionMetrics>> metricsConsumers)
             : base(logger, telemetryConsumers, metricsConsumers)
         { }
 
-        protected override void OnEventWritten(EventWrittenEventArgs eventData)
+        protected override void OnEvent(INameResolutionTelemetryConsumer[] consumers, EventWrittenEventArgs eventData)
         {
-            const int MinEventId = 1;
-            const int MaxEventId = 3;
-
-            if (eventData.EventId < MinEventId || eventData.EventId > MaxEventId)
-            {
-                if (eventData.EventId == -1)
-                {
-                    OnEventCounters(eventData);
-                }
-
-                return;
-            }
-
-            if (TelemetryConsumers is null)
-            {
-                return;
-            }
-
 #pragma warning disable IDE0007 // Use implicit type
             // Explicit type here to drop the object? signature of payload elements
             ReadOnlyCollection<object> payload = eventData.Payload!;
@@ -53,7 +33,7 @@ namespace Yarp.Telemetry.Consumption
                     Debug.Assert(eventData.EventName == "ResolutionStart" && payload.Count == 1);
                     {
                         var hostNameOrAddress = (string)payload[0];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnResolutionStart(eventData.TimeStamp, hostNameOrAddress);
                         }
@@ -63,7 +43,7 @@ namespace Yarp.Telemetry.Consumption
                 case 2:
                     Debug.Assert(eventData.EventName == "ResolutionStop" && payload.Count == 0);
                     {
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnResolutionStop(eventData.TimeStamp);
                         }
@@ -73,7 +53,7 @@ namespace Yarp.Telemetry.Consumption
                 case 3:
                     Debug.Assert(eventData.EventName == "ResolutionFailed" && payload.Count == 0);
                     {
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnResolutionFailed(eventData.TimeStamp);
                         }
@@ -82,25 +62,9 @@ namespace Yarp.Telemetry.Consumption
             }
         }
 
-        private void OnEventCounters(EventWrittenEventArgs eventData)
+        protected override bool TrySaveMetric(NameResolutionMetrics metrics, string name, double value)
         {
-            if (MetricsConsumers is null)
-            {
-                return;
-            }
-
-            Debug.Assert(eventData.EventName == "EventCounters" && eventData.Payload!.Count == 1);
-            var counters = (IDictionary<string, object>)eventData.Payload[0]!;
-
-            if (!counters.TryGetValue("Mean", out var valueObj))
-            {
-                valueObj = counters["Increment"];
-            }
-
-            var value = (double)valueObj;
-            var metrics = _currentMetrics;
-
-            switch ((string)counters["Name"])
+            switch (name)
             {
                 case "dns-lookups-requested":
                     metrics.DnsLookupsRequested = (long)value;
@@ -111,39 +75,10 @@ namespace Yarp.Telemetry.Consumption
                     break;
 
                 default:
-                    return;
+                    return false;
             }
 
-            const int TotalEventCounters = 2;
-
-            if (++_eventCountersCount == TotalEventCounters)
-            {
-                _eventCountersCount = 0;
-
-                metrics.Timestamp = DateTime.UtcNow;
-
-                var previous = _previousMetrics;
-                _previousMetrics = metrics;
-                _currentMetrics = new NameResolutionMetrics();
-
-                if (previous is null)
-                {
-                    return;
-                }
-
-                try
-                {
-                    foreach (var consumer in MetricsConsumers)
-                    {
-                        consumer.OnNameResolutionMetrics(previous, metrics);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // We can't let an uncaught exception propagate as that would crash the process
-                    Logger.LogError(ex, $"Uncaught exception occured while processing {nameof(NameResolutionMetrics)}.");
-                }
-            }
+            return true;
         }
     }
 }

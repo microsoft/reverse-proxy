@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -10,46 +9,18 @@ using Microsoft.Extensions.Logging;
 
 namespace Yarp.Telemetry.Consumption
 {
-#if !NET
-    internal interface IKestrelMetricsConsumer { }
-#endif
-
-    internal sealed class KestrelEventListenerService : EventListenerService<KestrelEventListenerService, IKestrelTelemetryConsumer, IKestrelMetricsConsumer>
+    internal sealed class KestrelEventListenerService : EventListenerService<KestrelEventListenerService, IKestrelTelemetryConsumer, KestrelMetrics>
     {
-#if NET
-        private KestrelMetrics? _previousMetrics;
-        private KestrelMetrics _currentMetrics = new();
-        private int _eventCountersCount;
-#endif
-
         protected override string EventSourceName => "Microsoft-AspNetCore-Server-Kestrel";
 
-        public KestrelEventListenerService(ILogger<KestrelEventListenerService> logger, IEnumerable<IKestrelTelemetryConsumer> telemetryConsumers, IEnumerable<IKestrelMetricsConsumer> metricsConsumers)
+        protected override int NumberOfMetrics => 10;
+
+        public KestrelEventListenerService(ILogger<KestrelEventListenerService> logger, IEnumerable<IKestrelTelemetryConsumer> telemetryConsumers, IEnumerable<IMetricsConsumer<KestrelMetrics>> metricsConsumers)
             : base(logger, telemetryConsumers, metricsConsumers)
         { }
 
-        protected override void OnEventWritten(EventWrittenEventArgs eventData)
+        protected override void OnEvent(IKestrelTelemetryConsumer[] consumers, EventWrittenEventArgs eventData)
         {
-            const int MinEventId = 3;
-            const int MaxEventId = 4;
-
-            if (eventData.EventId < MinEventId || eventData.EventId > MaxEventId)
-            {
-#if NET
-                if (eventData.EventId == -1)
-                {
-                    OnEventCounters(eventData);
-                }
-#endif
-
-                return;
-            }
-
-            if (TelemetryConsumers is null)
-            {
-                return;
-            }
-
 #pragma warning disable IDE0007 // Use implicit type
             // Explicit type here to drop the object? signature of payload elements
             ReadOnlyCollection<object> payload = eventData.Payload!;
@@ -66,7 +37,7 @@ namespace Yarp.Telemetry.Consumption
                         var httpVersion = (string)payload[2];
                         var path = (string)payload[3];
                         var method = (string)payload[4];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnRequestStart(eventData.TimeStamp, connectionId, requestId, httpVersion, path, method);
                         }
@@ -81,7 +52,7 @@ namespace Yarp.Telemetry.Consumption
                         var httpVersion = (string)payload[2];
                         var path = (string)payload[3];
                         var method = (string)payload[4];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnRequestStop(eventData.TimeStamp, connectionId, requestId, httpVersion, path, method);
                         }
@@ -96,7 +67,7 @@ namespace Yarp.Telemetry.Consumption
                     {
                         var connectionId = (string)payload[0];
                         var requestId = (string)payload[1];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnRequestStart(eventData.TimeStamp, connectionId, requestId);
                         }
@@ -108,7 +79,7 @@ namespace Yarp.Telemetry.Consumption
                     {
                         var connectionId = (string)payload[0];
                         var requestId = (string)payload[1];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnRequestStop(eventData.TimeStamp, connectionId, requestId);
                         }
@@ -118,102 +89,57 @@ namespace Yarp.Telemetry.Consumption
 #endif
         }
 
-#if NET
-        private void OnEventCounters(EventWrittenEventArgs eventData)
+        protected override bool TrySaveMetric(KestrelMetrics metrics, string name, double value)
         {
-            if (MetricsConsumers is null)
-            {
-                return;
-            }
+            var longValue = (long)value;
 
-            Debug.Assert(eventData.EventName == "EventCounters" && eventData.Payload!.Count == 1);
-            var counters = (IDictionary<string, object>)eventData.Payload[0]!;
-
-            if (!counters.TryGetValue("Mean", out var valueObj))
-            {
-                valueObj = counters["Increment"];
-            }
-
-            var value = (long)(double)valueObj;
-            var metrics = _currentMetrics;
-
-            switch ((string)counters["Name"])
+            switch (name)
             {
                 case "connections-per-second":
-                    metrics.ConnectionRate = value;
+                    metrics.ConnectionRate = longValue;
                     break;
 
                 case "total-connections":
-                    metrics.TotalConnections = value;
+                    metrics.TotalConnections = longValue;
                     break;
 
                 case "tls-handshakes-per-second":
-                    metrics.TlsHandshakeRate = value;
+                    metrics.TlsHandshakeRate = longValue;
                     break;
 
                 case "total-tls-handshakes":
-                    metrics.TotalTlsHandshakes = value;
+                    metrics.TotalTlsHandshakes = longValue;
                     break;
 
                 case "current-tls-handshakes":
-                    metrics.CurrentTlsHandshakes = value;
+                    metrics.CurrentTlsHandshakes = longValue;
                     break;
 
                 case "failed-tls-handshakes":
-                    metrics.FailedTlsHandshakes = value;
+                    metrics.FailedTlsHandshakes = longValue;
                     break;
 
                 case "current-connections":
-                    metrics.CurrentConnections = value;
+                    metrics.CurrentConnections = longValue;
                     break;
 
                 case "connection-queue-length":
-                    metrics.ConnectionQueueLength = value;
+                    metrics.ConnectionQueueLength = longValue;
                     break;
 
                 case "request-queue-length":
-                    metrics.RequestQueueLength = value;
+                    metrics.RequestQueueLength = longValue;
                     break;
 
                 case "current-upgraded-requests":
-                    metrics.CurrentUpgradedRequests = value;
+                    metrics.CurrentUpgradedRequests = longValue;
                     break;
 
                 default:
-                    return;
+                    return false;
             }
 
-            const int TotalEventCounters = 10;
-
-            if (++_eventCountersCount == TotalEventCounters)
-            {
-                _eventCountersCount = 0;
-
-                metrics.Timestamp = DateTime.UtcNow;
-
-                var previous = _previousMetrics;
-                _previousMetrics = metrics;
-                _currentMetrics = new KestrelMetrics();
-
-                if (previous is null)
-                {
-                    return;
-                }
-
-                try
-                {
-                    foreach (var consumer in MetricsConsumers)
-                    {
-                        consumer.OnKestrelMetrics(previous, metrics);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // We can't let an uncaught exception propagate as that would crash the process
-                    Logger.LogError(ex, $"Uncaught exception occured while processing {nameof(KestrelMetrics)}.");
-                }
-            }
+            return true;
         }
-#endif
     }
 }
