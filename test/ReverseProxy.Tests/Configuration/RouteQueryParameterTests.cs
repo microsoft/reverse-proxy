@@ -7,26 +7,30 @@ namespace Yarp.ReverseProxy.Configuration.Tests
 {
     public class RouteQueryParameterTests
     {
-        [Fact]
-        public void Equals_Positive()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Equals_Positive(bool isCaseSensitive)
         {
             var a = new RouteQueryParameter()
             {
                 Name = "foo",
                 Mode = QueryParameterMatchMode.Exists,
                 Values = new[] { "v1", "v2" },
-                IsCaseSensitive = true,
+                IsCaseSensitive = isCaseSensitive,
             };
             var b = new RouteQueryParameter()
             {
-                Name = "foo",
+                Name = "Foo",
                 Mode = QueryParameterMatchMode.Exists,
                 Values = new[] { "v1", "v2" },
-                IsCaseSensitive = true,
+                IsCaseSensitive = isCaseSensitive,
             };
             var c = a with { }; // Clone
             Assert.True(a.Equals(b));
             Assert.True(a.Equals(c));
+            Assert.Equal(a.GetHashCode(), b.GetHashCode());
+            Assert.Equal(a.GetHashCode(), c.GetHashCode());
         }
 
         [Fact]

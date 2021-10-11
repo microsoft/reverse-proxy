@@ -48,66 +48,8 @@ namespace Yarp.ReverseProxy.Configuration
             return string.Equals(Path, other.Path, StringComparison.OrdinalIgnoreCase)
                 && CaseInsensitiveEqualHelper.Equals(Hosts, other.Hosts)
                 && CaseInsensitiveEqualHelper.Equals(Methods, other.Methods)
-                && HeadersEqual(Headers, other.Headers)
-                && QueryParametersEqual(QueryParameters, other.QueryParameters);
-        }
-
-        // Order sensitive to reduce complexity
-        private static bool HeadersEqual(IReadOnlyList<RouteHeader>? headers1, IReadOnlyList<RouteHeader>? headers2)
-        {
-            if (ReferenceEquals(headers1, headers2))
-            {
-                return true;
-            }
-
-            if (headers1 == null || headers2 == null)
-            {
-                return false;
-            }
-
-            if (headers1.Count != headers2.Count)
-            {
-                return false;
-            }
-
-            for (var i = 0; i < headers1.Count; i++)
-            {
-                if (!headers1[i].Equals(headers2[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        // Order sensitive to reduce complexity
-        private static bool QueryParametersEqual(IReadOnlyList<RouteQueryParameter>? queryparam1, IReadOnlyList<RouteQueryParameter>? queryparam2)
-        {
-            if (ReferenceEquals(queryparam1, queryparam2))
-            {
-                return true;
-            }
-
-            if (queryparam1 == null || queryparam2 == null)
-            {
-                return false;
-            }
-
-            if (queryparam1.Count != queryparam2.Count)
-            {
-                return false;
-            }
-
-            for (var i = 0; i < queryparam1.Count; i++)
-            {
-                if (!queryparam1[i].Equals(queryparam2[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+                && CollectionEqualityHelper.Equals(Headers, other.Headers)
+                && CollectionEqualityHelper.Equals(QueryParameters, other.QueryParameters);
         }
 
         public override int GetHashCode()
@@ -116,8 +58,8 @@ namespace Yarp.ReverseProxy.Configuration
                 Path?.GetHashCode(StringComparison.OrdinalIgnoreCase),
                 CaseInsensitiveEqualHelper.GetHashCode(Hosts),
                 CaseInsensitiveEqualHelper.GetHashCode(Methods),
-                Headers,
-                QueryParameters);
+                CollectionEqualityHelper.GetHashCode(Headers),
+                CollectionEqualityHelper.GetHashCode(QueryParameters));
         }
     }
 }

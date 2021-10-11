@@ -62,7 +62,7 @@ namespace Yarp.ReverseProxy.Configuration
             }
 
             return EqualsExcludingDestinations(other)
-                && CaseInsensitiveEqualHelper.Equals(Destinations, other.Destinations, (a, b) => a == b);
+                && CollectionEqualityHelper.Equals(Destinations, other.Destinations);
         }
 
         internal bool EqualsExcludingDestinations(ClusterConfig other)
@@ -79,7 +79,7 @@ namespace Yarp.ReverseProxy.Configuration
                 && HealthCheck == other.HealthCheck
                 && HttpClient == other.HttpClient
                 && HttpRequest == other.HttpRequest
-                && CaseInsensitiveEqualHelper.Equals(Metadata, other.Metadata);
+                && CaseSensitiveEqualHelper.Equals(Metadata, other.Metadata);
         }
 
         public override int GetHashCode()
@@ -91,8 +91,8 @@ namespace Yarp.ReverseProxy.Configuration
                 HealthCheck,
                 HttpClient,
                 HttpRequest,
-                Destinations,
-                Metadata);
+                CollectionEqualityHelper.GetHashCode(Destinations),
+                CaseSensitiveEqualHelper.GetHashCode(Metadata));
         }
     }
 }

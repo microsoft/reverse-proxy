@@ -46,7 +46,7 @@ namespace Yarp.ReverseProxy.Configuration
                 && Interval == other.Interval
                 && Timeout == other.Timeout
                 && string.Equals(Policy, other.Policy, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(Path, other.Path, StringComparison.OrdinalIgnoreCase);
+                && string.Equals(Path, other.Path, StringComparison.Ordinal);
         }
 
         public override int GetHashCode()
@@ -55,7 +55,7 @@ namespace Yarp.ReverseProxy.Configuration
                 Interval,
                 Timeout,
                 Policy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
-                Path?.GetHashCode(StringComparison.OrdinalIgnoreCase));
+                Path?.GetHashCode(StringComparison.Ordinal));
         }
     }
 }

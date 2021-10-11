@@ -42,16 +42,16 @@ namespace Yarp.ReverseProxy.Configuration.Tests
             };
             var b = new RouteConfig()
             {
-                AuthorizationPolicy = "a",
-                ClusterId = "c",
-                CorsPolicy = "co",
+                AuthorizationPolicy = "A",
+                ClusterId = "C",
+                CorsPolicy = "Co",
                 Match = new RouteMatch()
                 {
                     Headers = new[]
                     {
                         new RouteHeader()
                         {
-                            Name = "Hi",
+                            Name = "hi",
                             Values = new[] { "v1", "v2" },
                             IsCaseSensitive = true,
                             Mode = HeaderMatchMode.HeaderPrefix,
@@ -59,19 +59,21 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                     },
                     Hosts = new[] { "foo:90" },
                     Methods = new[] { "GET", "POST" },
-                    Path = "/p"
+                    Path = "/P"
                 },
                 Metadata = new Dictionary<string, string>()
                 {
                     { "m", "m1" }
                 },
                 Order = 1,
-                RouteId = "R",
+                RouteId = "r",
             };
             var c = b with { }; // Clone
 
             Assert.True(a.Equals(b));
             Assert.True(a.Equals(c));
+            Assert.Equal(a.GetHashCode(), b.GetHashCode());
+            Assert.Equal(a.GetHashCode(), c.GetHashCode());
         }
 
         [Fact]

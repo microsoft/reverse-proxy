@@ -21,13 +21,14 @@ namespace Yarp.ReverseProxy.Configuration.Tests
             var options2 = new PassiveHealthCheckConfig
             {
                 Enabled = true,
-                Policy = "Passive",
+                Policy = "passive",
                 ReactivationPeriod = TimeSpan.FromSeconds(5),
             };
 
             var equals = options1.Equals(options2);
 
             Assert.True(equals);
+            Assert.Equal(options1.GetHashCode(), options2.GetHashCode());
         }
 
         [Fact]

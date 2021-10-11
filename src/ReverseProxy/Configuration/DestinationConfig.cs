@@ -37,7 +37,7 @@ namespace Yarp.ReverseProxy.Configuration
 
             return string.Equals(Address, other.Address, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(Health, other.Health, StringComparison.OrdinalIgnoreCase)
-                && CaseInsensitiveEqualHelper.Equals(Metadata, other.Metadata);
+                && CaseSensitiveEqualHelper.Equals(Metadata, other.Metadata);
         }
 
         public override int GetHashCode()
@@ -45,7 +45,7 @@ namespace Yarp.ReverseProxy.Configuration
             return HashCode.Combine(
                 Address?.GetHashCode(StringComparison.OrdinalIgnoreCase),
                 Health?.GetHashCode(StringComparison.OrdinalIgnoreCase),
-                Metadata);
+                CaseSensitiveEqualHelper.GetHashCode(Metadata));
         }
     }
 }
