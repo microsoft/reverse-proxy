@@ -39,7 +39,10 @@ namespace Yarp.ReverseProxy.Configuration
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Passive, Active, AvailableDestinationsPolicy);
+            return HashCode.Combine(
+                Passive,
+                Active,
+                AvailableDestinationsPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
         }
     }
 }

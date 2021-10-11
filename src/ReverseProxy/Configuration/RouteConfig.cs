@@ -75,8 +75,8 @@ namespace Yarp.ReverseProxy.Configuration
                 && string.Equals(AuthorizationPolicy, other.AuthorizationPolicy, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(CorsPolicy, other.CorsPolicy, StringComparison.OrdinalIgnoreCase)
                 && Match == other.Match
-                && CaseInsensitiveEqualHelper.Equals(Metadata, other.Metadata)
-                && CaseInsensitiveEqualHelper.Equals(Transforms, other.Transforms);
+                && CaseSensitiveEqualHelper.Equals(Metadata, other.Metadata)
+                && CaseSensitiveEqualHelper.Equals(Transforms, other.Transforms);
         }
 
         public override int GetHashCode()
@@ -87,8 +87,8 @@ namespace Yarp.ReverseProxy.Configuration
                 AuthorizationPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
                 CorsPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
                 Match,
-                Metadata,
-                Transforms);
+                CaseSensitiveEqualHelper.GetHashCode(Metadata),
+                CaseSensitiveEqualHelper.GetHashCode(Transforms));
         }
     }
 }

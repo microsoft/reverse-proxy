@@ -32,7 +32,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                 {
                     new RouteHeader()
                     {
-                        Name = "Hi",
+                        Name = "hi",
                         Values = new[] { "v1", "v2" },
                         IsCaseSensitive = true,
                         Mode = HeaderMatchMode.HeaderPrefix,
@@ -40,12 +40,14 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                 },
                 Hosts = new[] { "foo:90" },
                 Methods = new[] { "GET", "POST" },
-                Path = "/p",
+                Path = "/P",
             };
             var c = b with { }; // Clone
 
             Assert.True(a.Equals(b));
             Assert.True(a.Equals(c));
+            Assert.Equal(a.GetHashCode(), b.GetHashCode());
+            Assert.Equal(a.GetHashCode(), c.GetHashCode());
         }
 
         [Fact]

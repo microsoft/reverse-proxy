@@ -182,11 +182,12 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                 Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
             };
 
-            var equals = config1.Equals(config2);
+            var config3 = config1 with { }; // Clone
 
-            Assert.True(equals);
-
-            Assert.True(config1.Equals(config1 with { })); // Clone
+            Assert.True(config1.Equals(config2));
+            Assert.True(config1.Equals(config3));
+            Assert.Equal(config1.GetHashCode(), config2.GetHashCode());
+            Assert.Equal(config1.GetHashCode(), config3.GetHashCode());
         }
 
         [Fact]

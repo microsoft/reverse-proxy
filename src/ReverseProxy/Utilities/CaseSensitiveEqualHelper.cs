@@ -10,35 +10,32 @@ namespace Yarp.ReverseProxy.Utilities
     {
         internal static bool Equals(IReadOnlyList<string>? list1, IReadOnlyList<string>? list2)
         {
-            if (ReferenceEquals(list1, list2))
-            {
-                return true;
-            }
+            return CollectionEqualityHelper.Equals(list1, list2, StringComparer.Ordinal);
+        }
 
-            if (list1 == null || list2 == null)
-            {
-                return false;
-            }
+        internal static bool Equals(IReadOnlyDictionary<string, string>? dictionary1, IReadOnlyDictionary<string, string>? dictionary2)
+        {
+            return CollectionEqualityHelper.Equals(dictionary1, dictionary2, StringComparer.Ordinal);
+        }
 
-            if (list1.Count != list2.Count)
-            {
-                return false;
-            }
-
-            for (var i = 0; i < list1.Count; i++)
-            {
-                if (!string.Equals(list1[i], list2[i], StringComparison.Ordinal))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+        internal static bool Equals(IReadOnlyList<IReadOnlyDictionary<string, string>>? dictionaryList1, IReadOnlyList<IReadOnlyDictionary<string, string>>? dictionaryList2)
+        {
+            return CollectionEqualityHelper.Equals(dictionaryList1, dictionaryList2, StringComparer.Ordinal);
         }
 
         internal static int GetHashCode(IReadOnlyList<string>? values)
         {
-            return values?.GetHashCode() ?? 0;
+            return CollectionEqualityHelper.GetHashCode(values, StringComparer.Ordinal);
+        }
+
+        internal static int GetHashCode(IReadOnlyDictionary<string, string>? dictionary)
+        {
+            return CollectionEqualityHelper.GetHashCode(dictionary, StringComparer.Ordinal);
+        }
+
+        internal static int GetHashCode(IReadOnlyList<IReadOnlyDictionary<string, string>>? dictionaryList)
+        {
+            return CollectionEqualityHelper.GetHashCode(dictionaryList);
         }
     }
 }
