@@ -68,6 +68,35 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 }
 ```
 
+For example:
+
+```Console
+info: Microsoft.AspNetCore.HttpLogging.HttpLoggingMiddleware[1]
+      Request:
+      Protocol: HTTP/1.1
+      Method: GET
+      Scheme: http
+      PathBase:
+      Path: /
+      Accept: */*
+      Host: localhost:5000
+      User-Agent: curl/7.55.1
+info: Microsoft.AspNetCore.HttpLogging.HttpLoggingMiddleware[2]
+      Response:
+      StatusCode: 200
+      Content-Type: text/html; charset=utf-8
+      Date: Tue, 12 Oct 2021 23:29:20 GMT
+      Server: ECS,(sec/97A5)
+      Age: 113258
+      Cache-Control: [Redacted]
+      ETag: [Redacted]
+      Expires: Tue, 19 Oct 2021 23:29:20 GMT
+      Last-Modified: Thu, 17 Oct 2019 07:18:26 GMT
+      Vary: [Redacted]
+      Content-Length: 1256
+      X-Cache: [Redacted]
+```
+
 ## Using Telemetry Events
 
 The [Metrics sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/ReverseProxy.Metrics.Sample) Shows how to listen to events from the different providers that collect telemetry as part of YARP. The most important from a diagnostics perspective are:
