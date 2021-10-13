@@ -9,7 +9,7 @@ YARP is designed as a library that provides the core proxy functionality which y
 
 YARP is implemented on top of .NET Core infrastructure and is usable on Windows, Linux or MacOS. Development can be done with the SDK and your favorite editor, [Microsoft Visual Studio](https://visualstudio.microsoft.com/vs/) or [Visual Studio Code](https://code.visualstudio.com/).
 
-YARP 1.0.0 Preview 12 supports ASP.NET Core 3.1, 5.0. & 6.0. You can download the .NET SDK from https://dotnet.microsoft.com/download/dotnet/
+YARP 1.0.0 Preview 12 supports ASP.NET Core 3.1, 5.0 & 6.0. You can download the .NET SDK from https://dotnet.microsoft.com/download/dotnet/
 
 Visual Studio support for .NET 5 is included in Visual Studio 2019 v16.8 or newer.
 
@@ -93,7 +93,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
  
 ## .NET 6 support
 
-In addition to supporting the style of startup used by .NET 5, .NET 6 introduces the ability to have [top level statements](https://docs.microsoft.com/en-us/dotnet/csharp/fundamentals/program-structure/top-level-statements) in your app. This combined with [additional glue in ASP.NET](https://devblogs.microsoft.com/aspnet/asp-net-core-updates-in-net-6-preview-4/#introducing-minimal-apis) has signifcantly reduced the complexity of the basic ASP.NET project template, and the additions for YARP.
+In addition to supporting the style of startup used by .NET 5, .NET 6 introduces the ability to have [top level statements](https://docs.microsoft.com/dotnet/csharp/fundamentals/program-structure/top-level-statements) in your app. This combined with [additional glue in ASP.NET](https://devblogs.microsoft.com/aspnet/asp-net-core-updates-in-net-6-preview-4/#introducing-minimal-apis) has significantly reduced the code for a basic ASP.NET project template, and the additions for YARP.
 
 A complete version of the project built using the steps below can be found at [Minimal YARP Sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/ReverseProxy.Minimal.Sample)
 
