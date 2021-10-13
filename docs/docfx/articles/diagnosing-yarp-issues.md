@@ -1,10 +1,10 @@
 # Diagnosing YARP-based proxies
 
-When using a reverse proxy, there is an additional hop from the client to the proxy, and then from the proxy to destination for things to go wrong. This topic should provide some hints and tips for how to debug and diagnose issues when they occur. It assumes that the proxy is already running, and so does not include problems at startup such as log configuration errors.
+When using a reverse proxy, there is an additional hop from the client to the proxy, and then from the proxy to destination for things to go wrong. This topic should provide some hints and tips for how to debug and diagnose issues when they occur. It assumes that the proxy is already running, and so does not include problems at startup such as configuration errors.
 
 ## Logging
 
-The first step to being able to tell what is going on with YARP is to turn on logging. This is a configuration flag so can be changed on the fly. YARP is implemented as a middleware component for ASP.NET Core, so you need to enable logging for both YARP and ASP.NET to get the complete picture of what is going on.
+The first step to being able to tell what is going on with YARP is to turn on [logging](Link to https://docs.microsoft.com/aspnet/core/fundamentals/logging/#configure-logging-1). This is a configuration flag so can be changed on the fly. YARP is implemented as a middleware component for ASP.NET Core, so you need to enable logging for both YARP and ASP.NET to get the complete picture of what is going on.
 
 By default ASP.NET will log to the console, and the configuration file can be used to control the level of logging.
 
@@ -21,25 +21,25 @@ By default ASP.NET will log to the console, and the configuration file can be us
   },
 ```
 
-You want logging infomation from the "Microsoft.AspNetCore.*" and "Yarp.ReverseProxy.*" providers. The example above will emit "Information" level events from both providers to the Console. Changing the level to "Debug" will show additional entries. YARP implements change detection for configuration files, so you can edit the appsettings.json file while the project is running and observe changes to the log output.
+You want logging infomation from the "Microsoft.AspNetCore.*" and "Yarp.ReverseProxy.*" providers. The example above will emit "Information" level events from both providers to the Console. Changing the level to "Debug" will show additional entries. ASP.NET implements change detection for configuration files, so you can edit the appsettings.json file while the project is running and observe changes to the log output.
 
 ### Understanding Log entries
 
-The logging output is directly tied to the way that ASP.NET Core processes requests. Its important to realize that as middleware, YARP is relying on much of the ASP.NET functionality to process the requests, for example the following is for the processing of a request with "Debug" mode enabled:
+The logging output is directly tied to the way that ASP.NET Core processes requests. It's important to realize that as middleware, YARP is relying on much of the ASP.NET functionality to process the requests, for example the following is for the processing of a request with "Debug" mode enabled:
 
 | Level | Log Message | Description |
 | ----- | ----------- | ----------- |
 | dbug | Microsoft.AspNetCore.Server.Kestrel.Connections[39]<br>Connection id "0HMCD0JK7K51U" accepted.| Connections are independent of requests, so this is a new connection |
 | dbug | Microsoft.AspNetCore.Server.Kestrel.Connections[1]<br>Connection id "0HMCD0JK7K51U" started. | |
 | info | Microsoft.AspNetCore.Hosting.Diagnostics[1]<br>Request starting HTTP/1.1 GET http://localhost:5000/ - - | This is the incomming request to ASP.NET |
-| dbug | Microsoft.AspNetCore.HostFiltering.HostFilteringMiddleware[0]<br>Wildcard detected, all requests with hosts will be allowed. | My configuation does not tie endpoints to a specific IP |
+| dbug | Microsoft.AspNetCore.HostFiltering.HostFilteringMiddleware[0]<br>Wildcard detected, all requests with hosts will be allowed. | My configuation does not tie endpoints to specific hostnames |
 | dbug | Microsoft.AspNetCore.Routing.Matching.DfaMatcher[1001]<br>1 candidate(s) found for the request path '/' | This shows what possible matches there are for the route |
 | dbug | Microsoft.AspNetCore.Routing.Matching.DfaMatcher[1005]<br>      Endpoint 'minimumroute' with route pattern '{**catch-all}' is valid for the request path '/' | The mimimum route from YARPs configuration has matched|
 | dbug | Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[1]<br>     Request matched endpoint 'minimumroute' | |
 | info | Microsoft.AspNetCore.Routing.EndpointMiddleware[0]<br>      Executing endpoint 'minimumroute' | |
 | info | Yarp.ReverseProxy.Forwarder.HttpForwarder[9]<br>      Proxying to http://www.example.com/ | YARP is proxying the request to example.com |
 | info | Microsoft.AspNetCore.Routing.EndpointMiddleware[1]<br>      Executed endpoint 'minimumroute' | |
-| dbug | Microsoft.AspNetCore.Server.Kestrel.Connections[9]<br>      Connection id "0HMCD0JK7K51U" completed keep alive response. | Incomming request is finished, but connection can be kept alive. |
+| dbug | Microsoft.AspNetCore.Server.Kestrel.Connections[9]<br>      Connection id "0HMCD0JK7K51U" completed keep alive response. | The response is finished, but connection can be kept alive. |
 | info | Microsoft.AspNetCore.Hosting.Diagnostics[2]<br>Request finished HTTP/1.1 GET http://localhost:5000/ - - - 200 1256 text/html;+charset=utf-8 12.7797ms| Request completed with status code 200, responding with 1256 bytes as text/html in ~13ms. |
 | dbug | Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets[6]<br>      Connection id "0HMCD0JK7K51U" received FIN. | Diagnostic information about the connection to determine who closed it and how cleanly |
 | dbug | Microsoft.AspNetCore.Server.Kestrel.Connections[10]<br>      Connection id "0HMCD0JK7K51U" disconnecting. | |
@@ -48,9 +48,9 @@ The logging output is directly tied to the way that ASP.NET Core processes reque
 
 The above gives general information about the request and how it was processed.
 
-### Using ASP.NET 6 Logging
+### Using ASP.NET 6 Request Logging
 
-If running on .NET 6, then ASP.NET includes an additional middleware component that can be used to provide more details about the headers of the request and response. The `UseHttpLogging` component can be added to the request pipeline. It will add additional entries to the log detailing the incomming and outgoing request headers.
+If running on .NET 6, then ASP.NET includes an additional middleware component that can be used to provide more details about the request and response. The `UseHttpLogging` component can be added to the request pipeline. It will add additional entries to the log detailing the incoming and outgoing request headers.
 
 ``` C#
 // This method gets called by the runtime. Use this method to configure the HTTP request 
@@ -99,12 +99,12 @@ info: Microsoft.AspNetCore.HttpLogging.HttpLoggingMiddleware[2]
 
 ## Using Telemetry Events
 
-The [Metrics sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/ReverseProxy.Metrics.Sample) Shows how to listen to events from the different providers that collect telemetry as part of YARP. The most important from a diagnostics perspective are:
+The [Metrics sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/ReverseProxy.Metrics.Sample) shows how to listen to events from the different providers that collect telemetry as part of YARP. The most important from a diagnostics perspective are:
 
 * ForwarderTelemetryConsumer
 * HttpClientTelemetryConsumer
 
-To use eithe of these you create a class implementing IForewarderTelemetryConsumer, such as:
+To use either of these you create a class implementing IForwarderTelemetryConsumer, such as:
 
 ```C#
 public class ForwarderTelemetry : IForwarderTelemetryConsumer
@@ -179,7 +179,7 @@ Forwarder Telemetry [06:41:00.530] => OnForwarderStage :: Stage: ResponseContent
 Forwarder Telemetry [06:41:03.655] => OnForwarderStop :: Status: 200
 ```
 
-The events for Telemetry are fired as they occur, so you can [fish out the HttpContext](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/http-context?view=aspnetcore-5.0#use-httpcontext-from-custom-components) and the YARP feature from it:
+The events for Telemetry are fired as they occur, so you can [fish out the HttpContext](https://docs.microsoft.com/aspnet/core/fundamentals/http-context#use-httpcontext-from-custom-components) and the YARP feature from it:
 
 ``` C#
 public void ConfigureServices(IServiceCollection services)
@@ -240,7 +240,7 @@ public Task MyCustomProxyStep(HttpContext context, Func<Task> next)
 }
 ```
 
-You can also use [ASP.NET middleware](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/write?view=aspnetcore-5.0) within Configure that will enable you to inspect the request before the proxy pipeline.
+You can also use [ASP.NET middleware](https://docs.microsoft.com/aspnet/core/fundamentals/middleware/write) within Configure that will enable you to inspect the request before the proxy pipeline.
 
 > **Note:** The proxy will stream the response from the destination server back to the client, so the response headers and body are not readily accessible via middleware.
 
