@@ -299,7 +299,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
                 },
                 HttpRequest = new ForwarderRequestConfig
                 {
-                    Timeout = GetTimeSpanLabel(labels, "YARP.Backend.HttpRequest.Timeout", null),
+                    ActivityTimeout = GetTimeSpanLabel(labels, "YARP.Backend.HttpRequest.ActivityTimeout", null),
                     Version = !string.IsNullOrEmpty(versionLabel) ? Version.Parse(versionLabel + (versionLabel.Contains('.') ? "" : ".0")) : null,
                     AllowResponseBuffering = GetLabel<bool?>(labels, "YARP.Backend.HttpRequest.AllowResponseBuffering", null),
 #if NET

@@ -92,7 +92,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                 },
                 HttpRequest = new ForwarderRequestConfig
                 {
-                    Timeout = TimeSpan.FromSeconds(60),
+                    ActivityTimeout = TimeSpan.FromSeconds(60),
                     Version = Version.Parse("1.0"),
 #if NET
                     VersionPolicy = HttpVersionPolicy.RequestVersionExact,
@@ -173,7 +173,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                 },
                 HttpRequest = new ForwarderRequestConfig
                 {
-                    Timeout = TimeSpan.FromSeconds(60),
+                    ActivityTimeout = TimeSpan.FromSeconds(60),
                     Version = Version.Parse("1.0"),
 #if NET
                     VersionPolicy = HttpVersionPolicy.RequestVersionExact,
@@ -262,7 +262,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                 },
                 HttpRequest = new ForwarderRequestConfig
                 {
-                    Timeout = TimeSpan.FromSeconds(60),
+                    ActivityTimeout = TimeSpan.FromSeconds(60),
                     Version = Version.Parse("1.0"),
 #if NET
                     VersionPolicy = HttpVersionPolicy.RequestVersionExact,
@@ -380,7 +380,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                 },
                 HttpRequest = new ForwarderRequestConfig
                 {
-                    Timeout = TimeSpan.FromSeconds(60),
+                    ActivityTimeout = TimeSpan.FromSeconds(60),
                     Version = Version.Parse("1.0"),
 #if NET
                     VersionPolicy = HttpVersionPolicy.RequestVersionExact,

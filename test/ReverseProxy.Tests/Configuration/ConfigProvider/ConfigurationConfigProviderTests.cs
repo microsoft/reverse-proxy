@@ -102,7 +102,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
                         },
                         HttpRequest = new ForwarderRequestConfig()
                         {
-                            Timeout = TimeSpan.FromSeconds(60),
+                            ActivityTimeout = TimeSpan.FromSeconds(60),
                             Version = Version.Parse("1.0"),
 #if NET
                             VersionPolicy = HttpVersionPolicy.RequestVersionExact,
@@ -254,7 +254,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
                 }
             },
             ""HttpRequest"": {
-                ""Timeout"": ""00:01:00"",
+                ""ActivityTimeout"": ""00:01:00"",
                 ""Version"": ""1"",
                 ""VersionPolicy"": ""RequestVersionExact"",
                 ""AllowResponseBuffering"": ""true""
@@ -540,7 +540,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
 #endif
             Assert.Equal(cluster1.HttpClient.ActivityContextHeaders, abstractCluster1.HttpClient.ActivityContextHeaders);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);
-            Assert.Equal(cluster1.HttpRequest.Timeout, abstractCluster1.HttpRequest.Timeout);
+            Assert.Equal(cluster1.HttpRequest.ActivityTimeout, abstractCluster1.HttpRequest.ActivityTimeout);
             Assert.Equal(HttpVersion.Version10, abstractCluster1.HttpRequest.Version);
 #if NET
             Assert.Equal(cluster1.HttpRequest.VersionPolicy, abstractCluster1.HttpRequest.VersionPolicy);

@@ -362,7 +362,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider
 
             return new ForwarderRequestConfig
             {
-                Timeout = section.ReadTimeSpan(nameof(ForwarderRequestConfig.Timeout)),
+                ActivityTimeout = section.ReadTimeSpan(nameof(ForwarderRequestConfig.ActivityTimeout)),
                 Version = section.ReadVersion(nameof(ForwarderRequestConfig.Version)),
 #if NET
                 VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(ForwarderRequestConfig.VersionPolicy)),

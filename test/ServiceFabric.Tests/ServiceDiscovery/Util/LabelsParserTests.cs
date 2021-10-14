@@ -92,7 +92,7 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 },
                 HttpRequest = new ForwarderRequestConfig
                 {
-                    Timeout = TimeSpan.FromSeconds(17),
+                    ActivityTimeout = TimeSpan.FromSeconds(17),
                     Version = new Version(1, 1),
                     AllowResponseBuffering = true,
 #if NET
