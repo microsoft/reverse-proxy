@@ -32,3 +32,5 @@
   href: service-fabric-int.md
 - name: Packages references
   href: packages-refs.md
+- name: Diagnosing proxy issues
+  href: diagnosing-yarp-issues.md
