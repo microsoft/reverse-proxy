@@ -373,6 +373,43 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             events.AssertContainProxyStages(upgrade: true);
         }
 
+        [Fact]
+        public async Task NonUpgradableRequestReturns101_Aborted()
+        {
+            var events = TestEventListener.Collect();
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+
+            DuplexStream upstreamStream = null;
+
+            var destinationPrefix = "https://localhost:123/a/b/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    await Task.Yield();
+
+                    Assert.Equal(new Version(2, 0), request.Version);
+                    Assert.Equal(HttpMethod.Get, request.Method);
+                    Assert.Null(request.Content);
+
+                    var response = new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
+                    upstreamStream = new DuplexStream(
+                        readStream: StringToStream("response content"),
+                        writeStream: new MemoryStream());
+                    response.Content = new RawStreamContent(upstreamStream);
+                    return response;
+                });
+
+            await sut.SendAsync(httpContext, destinationPrefix, client);
+
+            Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
+
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, ForwarderError.UpgradeResponseDestination);
+            events.AssertContainProxyStages(upgrade: true, hasRequestContent: false, hasResponseContent: false);
+        }
+
         // Tests proxying an upgradeable request where the destination refused to upgrade.
         // We should still proxy back the response.
         [Fact]

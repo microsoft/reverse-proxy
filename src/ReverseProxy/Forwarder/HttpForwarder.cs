@@ -558,17 +558,18 @@ namespace Yarp.ReverseProxy.Forwarder
                 throw new InvalidOperationException("A response content is required for upgrades.");
             }
 
-            RestoreUpgradeHeaders(context, destinationResponse);
-
             // :: Step 7-A-1: Upgrade the client channel. This will also send response headers.
             var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
             if (upgradeFeature == null)
             {
                 var ex = new InvalidOperationException("Invalid 101 response when upgrades aren't supported.");
                 destinationResponse.Dispose();
+                context.Response.StatusCode = StatusCodes.Status502BadGateway;
                 ReportProxyError(context, ForwarderError.UpgradeResponseDestination, ex);
                 return ForwarderError.UpgradeResponseDestination;
             }
+
+            RestoreUpgradeHeaders(context, destinationResponse);
 
             Stream upgradeResult;
             try
