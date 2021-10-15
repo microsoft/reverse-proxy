@@ -49,7 +49,7 @@ namespace Yarp.ReverseProxy.Forwarder
         /// Takes inspiration from
         /// <see href="https://github.com/grpc/grpc-dotnet/blob/3ce9b104524a4929f5014c13cd99ba9a1c2431d4/src/Shared/CommonGrpcProtocolHelpers.cs#L26"/>.
         /// </summary>
-        public static bool IsGrpcContentType(string contentType)
+        public static bool IsGrpcContentType(string? contentType)
         {
             if (contentType == null)
             {

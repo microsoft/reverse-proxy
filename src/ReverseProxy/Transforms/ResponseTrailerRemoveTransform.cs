@@ -42,7 +42,7 @@ namespace Yarp.ReverseProxy.Transforms
             if (Always || Success(context))
             {
                 var responseTrailersFeature = context.HttpContext.Features.Get<IHttpResponseTrailersFeature>();
-                var responseTrailers = responseTrailersFeature.Trailers;
+                var responseTrailers = responseTrailersFeature?.Trailers;
                 // Support should have already been checked by the caller.
                 Debug.Assert(responseTrailers != null);
                 Debug.Assert(!responseTrailers.IsReadOnly);
