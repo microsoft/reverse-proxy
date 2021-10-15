@@ -139,13 +139,13 @@ namespace Yarp.ReverseProxy.Forwarder
             // On HTTP/1.1: Linked HttpContext.RequestAborted + Request Timeout
             // On HTTP/2.0: SocketsHttpHandler error / the server wants us to stop sending content / H2 connection closed
             // _cancellation will be the same as cancellationToken for HTTP/1.1, so we can avoid the overhead of linking them
-            IDisposable? registration = null;
+            CancellationTokenRegistration registration = default;
 
 #if NET
             if (_activityToken.Token != cancellationToken)
             {
                 Debug.Assert(cancellationToken.CanBeCanceled);
-                registration = cancellationToken.Register(obj =>
+                registration = cancellationToken.Register(static obj =>
                 {
                     var activityToken = (CancellationTokenSource)obj!;
                     activityToken.Cancel();
@@ -205,7 +205,7 @@ namespace Yarp.ReverseProxy.Forwarder
             }
             finally
             {
-                registration?.Dispose();
+                registration.Dispose();
             }
         }
 

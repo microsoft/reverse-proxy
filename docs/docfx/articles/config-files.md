@@ -196,9 +196,10 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
           "RequestHeaderEncoding" : "Latin1" // How to interpret non ASCII characters in header values
         },
         "HttpRequest" : { // Options for sending request to destination
-          "Timeout" : "00:02:00",
+          "ActivityTimeout" : "00:02:00",
           "Version" : "2",
-          "VersionPolicy" : "RequestVersionOrLower"
+          "VersionPolicy" : "RequestVersionOrLower",
+          "AllowResponseBuffering" : "false"
         },
         "MetaData" : { // Custom Key value pairs
           "TransportFailureRateHealthPolicy.RateLimit": "0.5", // Used by Passive health policy
