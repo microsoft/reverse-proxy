@@ -777,9 +777,9 @@ namespace Yarp.ReverseProxy.Forwarder
                 if (logger.IsEnabled(LogLevel.Information))
                 {
 #if NET
-                    var versionInfo = $"http{msg.Version} {msg.VersionPolicy}";
+                    var versionInfo = $"http/{msg.Version} {msg.VersionPolicy}";
 #else
-                    var versionInfo = $"http {msg.Version}";
+                    var versionInfo = $"http/{msg.Version}";
 #endif
                     _proxying(logger, msg.RequestUri!.AbsoluteUri, versionInfo, (isStreamingRequest) ? "streaming" : "no-streaming", null);
                 }
