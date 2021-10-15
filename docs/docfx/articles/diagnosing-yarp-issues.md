@@ -39,8 +39,8 @@ The logging output is directly tied to the way that ASP.NET Core processes reque
 | info | Microsoft.AspNetCore.Routing.EndpointMiddleware[0]<br>      Executing endpoint 'minimumroute' | |
 | info | Yarp.ReverseProxy.Forwarder.HttpForwarder[9]<br>      Proxying to http://www.example.com/ | YARP is proxying the request to example.com |
 | info | Microsoft.AspNetCore.Routing.EndpointMiddleware[1]<br>      Executed endpoint 'minimumroute' | |
-| dbug | Microsoft.AspNetCore.Server.Kestrel.Connections[9]<br>      Connection id "0HMCD0JK7K51U" completed keep alive response. | The response is finished, but connection can be kept alive. |
-| info | Microsoft.AspNetCore.Hosting.Diagnostics[2]<br>Request finished HTTP/1.1 GET http://localhost:5000/ - - - 200 1256 text/html;+charset=utf-8 12.7797ms| Request completed with status code 200, responding with 1256 bytes as text/html in ~13ms. |
+| dbug | Microsoft.AspNetCore.Server.Kestrel.Connections[9]<br>      Connection id "0HMCD0JK7K51U" completed keep alive response. | The response has finished, but connection can be kept alive. |
+| info | Microsoft.AspNetCore.Hosting.Diagnostics[2]<br>Request finished HTTP/1.1 GET http://localhost:5000/ - - - 200 1256 text/html;+charset=utf-8 12.7797ms| The response completed with status code 200, responding with 1256 bytes as text/html in ~13ms. |
 | dbug | Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets[6]<br>      Connection id "0HMCD0JK7K51U" received FIN. | Diagnostic information about the connection to determine who closed it and how cleanly |
 | dbug | Microsoft.AspNetCore.Server.Kestrel.Connections[10]<br>      Connection id "0HMCD0JK7K51U" disconnecting. | |
 | dbug | Microsoft.AspNetCore.Server.Kestrel.Connections[2]<br>      Connection id "0HMCD0JK7K51U" stopped. | |
