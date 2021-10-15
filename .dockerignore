@@ -27,3 +27,5 @@ README.md
 **/ingress-controller.yaml
 **/backend.yaml
 **/ingress-sample.yaml
+.dotnet
+TestResults
