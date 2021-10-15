@@ -51,14 +51,14 @@ namespace Yarp.ReverseProxy.Sample
             // or var transformer = new CustomTransformer();
             // or var transformer = HttpTransformer.Default;
 
-            var requestOptions = new ForwarderRequestConfig { Timeout = TimeSpan.FromSeconds(100) };
+            var requestConfig = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
 
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.Map("/{**catch-all}", async httpContext =>
                 {
-                    await httpProxy.SendAsync(httpContext, "https://example.com", httpClient, requestOptions, transformer);
+                    await httpProxy.SendAsync(httpContext, "https://example.com", httpClient, requestConfig, transformer);
                     var errorFeature = httpContext.GetForwarderErrorFeature();
                     if (errorFeature != null)
                     {

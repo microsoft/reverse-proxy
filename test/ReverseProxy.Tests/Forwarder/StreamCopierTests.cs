@@ -28,7 +28,10 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             var source = new MemoryStream(sourceBytes);
             var destination = new MemoryStream();
 
-            await StreamCopier.CopyAsync(isRequest, source, destination, new Clock(), CancellationToken.None);
+            using var cts = new CancellationTokenSource();
+            await StreamCopier.CopyAsync(isRequest, source, destination, new Clock(), cts, TimeSpan.FromSeconds(10));
+
+            Assert.False(cts.Token.IsCancellationRequested);
 
             Assert.Equal(sourceBytes, destination.ToArray());
 
@@ -47,7 +50,8 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             var source = new SlowStream(new ThrowStream(), clock, sourceWaitTime);
             var destination = new MemoryStream();
 
-            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, clock, CancellationToken.None);
+            using var cts = new CancellationTokenSource();
+            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, clock, cts, TimeSpan.FromSeconds(10));
             Assert.Equal(StreamCopyResult.InputError, result);
             Assert.IsAssignableFrom<IOException>(error);
 
@@ -75,7 +79,8 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             var source = new SlowStream(new MemoryStream(new byte[SourceSize]), clock, sourceWaitTime) { MaxBytesPerRead = BytesPerRead };
             var destination = new SlowStream(new ThrowStream(), clock, destinationWaitTime);
 
-            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, clock, CancellationToken.None);
+            using var cts = new CancellationTokenSource();
+            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, clock, cts, TimeSpan.FromSeconds(10));
             Assert.Equal(StreamCopyResult.OutputError, result);
             Assert.IsAssignableFrom<IOException>(error);
 
@@ -97,7 +102,9 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             var source = new MemoryStream(new byte[10]);
             var destination = new MemoryStream();
 
-            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, new Clock(), new CancellationToken(canceled: true));
+            using var cts = new CancellationTokenSource();
+            cts.Cancel();
+            var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, new Clock(), cts, TimeSpan.FromSeconds(10));
             Assert.Equal(StreamCopyResult.Canceled, result);
             Assert.IsAssignableFrom<OperationCanceledException>(error);
 
@@ -125,12 +132,14 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             var sourceWaitTime = TimeSpan.FromMilliseconds(12345);
             var destinationWaitTime = TimeSpan.FromMilliseconds(42);
 
+            using var cts = new CancellationTokenSource();
             await StreamCopier.CopyAsync(
                 isRequest,
                 new SlowStream(source, clock, sourceWaitTime),
                 new SlowStream(destination, clock, destinationWaitTime),
                 clock,
-                CancellationToken.None);
+                cts,
+                TimeSpan.FromSeconds(10));
 
             Assert.Equal(sourceBytes, destination.ToArray());
 
@@ -160,12 +169,14 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             const int BytesPerRead = 3;
             var contentReads = (int)Math.Ceiling((double)SourceSize / BytesPerRead);
 
+            using var cts = new CancellationTokenSource();
             await StreamCopier.CopyAsync(
                 isRequest,
                 new SlowStream(source, clock, sourceWaitTime) { MaxBytesPerRead = BytesPerRead },
                 new SlowStream(destination, clock, destinationWaitTime),
                 clock,
-                CancellationToken.None);
+                cts,
+                TimeSpan.FromSeconds(10));
 
             Assert.Equal(sourceBytes, destination.ToArray());
 

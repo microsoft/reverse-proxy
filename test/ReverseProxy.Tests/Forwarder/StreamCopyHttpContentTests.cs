@@ -17,17 +17,14 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 {
     public class StreamCopyHttpContentTests
     {
-        private static StreamCopyHttpContent CreateContent(Stream source = null, bool autoFlushHttpClientOutgoingStream = false, IClock clock = null, CancellationToken contentCancellation = default)
+        private static StreamCopyHttpContent CreateContent(Stream source = null, bool autoFlushHttpClientOutgoingStream = false, IClock clock = null, CancellationTokenSource contentCancellation = null)
         {
             source ??= new MemoryStream();
             clock ??= new Clock();
 
-            if (!contentCancellation.CanBeCanceled)
-            {
-                contentCancellation = new CancellationTokenSource().Token;
-            }
+            contentCancellation ??= new CancellationTokenSource();
 
-            return new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream, clock, contentCancellation);
+            return new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream, clock, contentCancellation, TimeSpan.FromSeconds(10));
         }
 
         [Fact]
@@ -146,7 +143,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 
             var contentCts = new CancellationTokenSource();
 
-            var sut = CreateContent(source, contentCancellation: contentCts.Token);
+            var sut = CreateContent(source, contentCancellation: contentCts);
 
             var copyToTask = sut.CopyToWithCancellationAsync(new MemoryStream());
             contentCts.Cancel();

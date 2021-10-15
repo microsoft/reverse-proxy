@@ -41,18 +41,19 @@ namespace Yarp.ReverseProxy.Forwarder
         private readonly Stream _source;
         private readonly bool _autoFlushHttpClientOutgoingStream;
         private readonly IClock _clock;
-        private readonly CancellationToken _cancellation;
+        private readonly CancellationTokenSource _activityToken;
+        private readonly TimeSpan _activityTimeout;
         private readonly TaskCompletionSource<(StreamCopyResult, Exception?)> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
         private int _started;
 
-        public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IClock clock, CancellationToken cancellation)
+        public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IClock clock, CancellationTokenSource activityToken, TimeSpan activityTimeout)
         {
             _source = source ?? throw new ArgumentNullException(nameof(source));
             _autoFlushHttpClientOutgoingStream = autoFlushHttpClientOutgoingStream;
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
-            Debug.Assert(cancellation.CanBeCanceled);
-            _cancellation = cancellation;
+            _activityToken = activityToken;
+            _activityTimeout = activityTimeout;
         }
 
         /// <summary>
@@ -138,19 +139,23 @@ namespace Yarp.ReverseProxy.Forwarder
             // On HTTP/1.1: Linked HttpContext.RequestAborted + Request Timeout
             // On HTTP/2.0: SocketsHttpHandler error / the server wants us to stop sending content / H2 connection closed
             // _cancellation will be the same as cancellationToken for HTTP/1.1, so we can avoid the overhead of linking them
-            CancellationTokenSource? linkedCts = null;
+            CancellationTokenRegistration registration = default;
 
 #if NET
-            if (_cancellation != cancellationToken)
+            if (_activityToken.Token != cancellationToken)
             {
                 Debug.Assert(cancellationToken.CanBeCanceled);
-                linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_cancellation, cancellationToken);
-                cancellationToken = linkedCts.Token;
+                registration = cancellationToken.Register(static obj =>
+                {
+                    var activityToken = (CancellationTokenSource)obj!;
+                    activityToken.Cancel();
+                }, _activityToken);
+                cancellationToken = _activityToken.Token;
             }
 #else
             // On .NET Core 3.1, cancellationToken will always be CancellationToken.None
             Debug.Assert(!cancellationToken.CanBeCanceled);
-            cancellationToken = _cancellation;
+            cancellationToken = _activityToken.Token;
 #endif
 
             try
@@ -182,7 +187,7 @@ namespace Yarp.ReverseProxy.Forwarder
                     return;
                 }
 
-                var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, _clock, cancellationToken);
+                var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, _clock, _activityToken, _activityTimeout);
                 _tcs.TrySetResult((result, error));
 
                 // Check for errors that weren't the result of the destination failing.
@@ -200,7 +205,7 @@ namespace Yarp.ReverseProxy.Forwarder
             }
             finally
             {
-                linkedCts?.Dispose();
+                registration.Dispose();
             }
         }
 

@@ -43,7 +43,7 @@ namespace Yarp.Sample
 
             // Setup our own request transform class
             var transformer = new CustomTransformer(); // or HttpTransformer.Default;
-            var requestOptions = new ForwarderRequestConfig { Timeout = TimeSpan.FromSeconds(100) };
+            var requestOptions = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
 
             app.UseRouting();
             app.UseEndpoints(endpoints =>

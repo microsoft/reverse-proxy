@@ -17,10 +17,12 @@ namespace Yarp.ReverseProxy.Forwarder
         public static ForwarderRequestConfig Empty { get; } = new();
 
         /// <summary>
-        /// The time allowed to send the request and receive the response headers. This may include
-        /// the time needed to send the request body. The default is 100 seconds.
+        /// How long a request is allowed to remain idle between any operation completing, after which it will be canceled.
+        /// The default is 100 seconds. The timeout will reset when response headers are received or after successfully reading or
+        /// writing any request, response, or streaming data like gRPC or WebSockets. TCP keep-alives and HTTP/2 protocol pings will
+        /// not reset the timeout, but WebSocket pings will.
         /// </summary>
-        public TimeSpan? Timeout { get; init; }
+        public TimeSpan? ActivityTimeout { get; init; }
 
         /// <summary>
         /// Preferred version of the outgoing request.
@@ -50,7 +52,7 @@ namespace Yarp.ReverseProxy.Forwarder
                 return false;
             }
 
-            return Timeout == other.Timeout
+            return ActivityTimeout == other.ActivityTimeout
 #if NET
                 && VersionPolicy == other.VersionPolicy
 #endif
@@ -60,7 +62,7 @@ namespace Yarp.ReverseProxy.Forwarder
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Timeout,
+            return HashCode.Combine(ActivityTimeout,
 #if NET
                 VersionPolicy,
 #endif
