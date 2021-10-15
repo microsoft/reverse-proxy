@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>Service Fabric integration for Yarp.ReverseProxy</Description>
-    <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net6.0;net5.0;netcoreapp3.1</TargetFrameworks>
     <OutputType>Library</OutputType>
     <RootNamespace>Yarp.ReverseProxy.ServiceFabric</RootNamespace>
     <PlatformTarget>x64</PlatformTarget>
