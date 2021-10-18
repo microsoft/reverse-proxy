@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
 
 namespace Yarp.ReverseProxy.Transforms
@@ -36,7 +37,10 @@ namespace Yarp.ReverseProxy.Transforms
                 throw new ArgumentNullException(nameof(context));
             }
 
-            var routeValues = context.HttpContext.Request.RouteValues;
+            // TemplateBinder.BindValues will modify the RouteValueDictionary
+            // We make a copy so that the original request is not modified by the transform
+            var routeValues = new RouteValueDictionary(context.HttpContext.Request.RouteValues);
+
             // Route values that are not considered defaults will be appended as query parameters. Make them all defaults.
             var binder = _binderFactory.Create(Template, defaults: routeValues);
             context.Path = binder.BindValues(acceptedValues: routeValues);
