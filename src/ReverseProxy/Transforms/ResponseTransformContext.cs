@@ -17,7 +17,7 @@ namespace Yarp.ReverseProxy.Transforms
         public HttpContext HttpContext { get; init; } = default!;
 
         /// <summary>
-        /// The incoming proxy response.
+        /// The proxy response. This can be null if the destination did not respond.
         /// </summary>
         public HttpResponseMessage? ProxyResponse { get; init; }
 

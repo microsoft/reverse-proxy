@@ -724,7 +724,7 @@ This sets if all proxy response headers are copied to the client response. This 
 |-----|-------|---------|----------|
 | ResponseHeader | The header name | (none) | yes |
 | Set/Append | The header value | (none) | yes |
-| When | Success/Always | Success | no |
+| When | Success/Always/Failure | Success | no |
 
 Config:
 ```JSON
@@ -736,10 +736,10 @@ Config:
 ```
 Code:
 ```csharp
-routeConfig = routeConfig.WithTransformResponseHeader(headerName: "HeaderName", value: "value", append: true, always: false);
+routeConfig = routeConfig.WithTransformResponseHeader(headerName: "HeaderName", value: "value", append: true, ResponseCondition.Success);
 ```
 ```C#
-transformBuilderContext.AddResponseHeader(headerName: "HeaderName", value: "value", append: true, always: false);
+transformBuilderContext.AddResponseHeader(headerName: "HeaderName", value: "value", append: true, always: ResponseCondition.Success);
 ```
 Example:
 ```
@@ -749,7 +749,7 @@ HeaderName: value
 This sets or appends the value for the named response header. Set replaces any existing header. Append adds an additional header with the given value.
 Note: setting "" as a header value is not recommended and can cause an undefined behavior.
 
-`When` specifies if the response header should be included for successful responses or for all responses. Any response with a status code less than 400 is considered a success.
+`When` specifies if the response header should be included for all, successful, or failure responses. Any response with a status code less than 400 is considered a success.
 
 ### ResponseHeaderRemove
 
@@ -758,7 +758,7 @@ Note: setting "" as a header value is not recommended and can cause an undefined
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
 | ResponseHeaderRemove | The header name | (none) | yes |
-| When | Success/Always | Success | no |
+| When | Success/Always/Failure | Success | no |
 
 Config:
 ```JSON
@@ -769,10 +769,10 @@ Config:
 ```
 Code:
 ```csharp
-routeConfig = routeConfig.WithTransformResponseHeaderRemove(headerName: "HeaderName", always: false);
+routeConfig = routeConfig.WithTransformResponseHeaderRemove(headerName: "HeaderName", ResponseCondition.Success);
 ```
 ```C#
-transformBuilderContext.AddResponseHeaderRemove(headerName: "HeaderName", always: false);
+transformBuilderContext.AddResponseHeaderRemove(headerName: "HeaderName", ResponseCondition.Success);
 ```
 Example:
 ```
@@ -782,7 +782,7 @@ AnotherHeader: another-value
 
 This removes the named response header.
 
-`When` specifies if the response header should be included for successful responses or for all responses. Any response with a status code less than 400 is considered a success.
+`When` specifies if the response header should be removed for all, successful, or failure responses. Any response with a status code less than 400 is considered a success.
 
 ### ResponseHeadersAllowed
 
@@ -847,7 +847,7 @@ This sets if all proxy response trailers are copied to the client response. This
 |-----|-------|---------|----------|
 | ResponseTrailer | The header name | (none) | yes |
 | Set/Append | The header value | (none) | yes |
-| When | Success/Always | Success | no |
+| When | Success/Always/Failure | Success | no |
 
 Config:
 ```JSON
@@ -859,10 +859,10 @@ Config:
 ```
 Code:
 ```csharp
-routeConfig = routeConfig.WithTransformResponseTrailer(headerName: "HeaderName", value: "value", append: true, always: false);
+routeConfig = routeConfig.WithTransformResponseTrailer(headerName: "HeaderName", value: "value", append: true, ResponseCondition.Success);
 ```
 ```C#
-transformBuilderContext.AddResponseTrailer(headerName: "HeaderName", value: "value", append: true, always: false);
+transformBuilderContext.AddResponseTrailer(headerName: "HeaderName", value: "value", append: true, ResponseCondition.Success);
 ```
 Example:
 ```
@@ -880,7 +880,7 @@ ResponseTrailer follows the same structure and guidance as [ResponseHeader](tran
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
 | ResponseTrailerRemove | The header name | (none) | yes |
-| When | Success/Always | Success | no |
+| When | Success/Always/Failure | Success | no |
 
 Config:
 ```JSON
@@ -891,10 +891,10 @@ Config:
 ```
 Code:
 ```csharp
-routeConfig = routeConfig.WithTransformResponseTrailerRemove(headerName: "HeaderName", always: false);
+routeConfig = routeConfig.WithTransformResponseTrailerRemove(headerName: "HeaderName", ResponseCondition.Success);
 ```
 ```C#
-transformBuilderContext.AddResponseTrailerRemove(headerName: "HeaderName", always: false);
+transformBuilderContext.AddResponseTrailerRemove(headerName: "HeaderName", ResponseCondition.Success);
 ```
 Example:
 ```

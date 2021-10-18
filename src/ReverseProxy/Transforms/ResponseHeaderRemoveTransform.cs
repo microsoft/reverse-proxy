@@ -11,7 +11,7 @@ namespace Yarp.ReverseProxy.Transforms
     /// </summary>
     public class ResponseHeaderRemoveTransform : ResponseTransform
     {
-        public ResponseHeaderRemoveTransform(string headerName, bool always)
+        public ResponseHeaderRemoveTransform(string headerName, ResponseCondition condition)
         {
             if (string.IsNullOrEmpty(headerName))
             {
@@ -19,12 +19,12 @@ namespace Yarp.ReverseProxy.Transforms
             }
 
             HeaderName = headerName;
-            Always = always;
+            Condition = condition;
         }
 
         internal string HeaderName { get; }
 
-        internal bool Always { get; }
+        internal ResponseCondition Condition { get; }
 
         // Assumes the response status code has been set on the HttpContext already.
         /// <inheritdoc/>
@@ -35,7 +35,8 @@ namespace Yarp.ReverseProxy.Transforms
                 throw new ArgumentNullException(nameof(context));
             }
 
-            if (Always || Success(context))
+            if (Condition == ResponseCondition.Always
+                || Success(context) == (Condition == ResponseCondition.Success))
             {
                 context.HttpContext.Response.Headers.Remove(HeaderName);
             }
