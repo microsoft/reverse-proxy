@@ -756,10 +756,10 @@ namespace Yarp.ReverseProxy.Forwarder
                 EventIds.HttpDowngradeDetected,
                 "The request was downgraded from HTTP/2.");
 
-            private static readonly Action<ILogger, string, string, string, Exception?> _proxying = LoggerMessage.Define<string, string, string>(
+            private static readonly Action<ILogger, string, string, string, string, Exception?> _proxying = LoggerMessage.Define<string, string, string, string>(
                 LogLevel.Information,
                 EventIds.Forwarding,
-                "Proxying to {targetUrl} - {verson} {isStreaming}");
+                "Proxying to {targetUrl} {version} {versionPolicy} {isStreaming}");
 
             private static readonly Action<ILogger, ForwarderError, string, Exception> _proxyError = LoggerMessage.Define<ForwarderError, string>(
                 LogLevel.Information,
@@ -776,12 +776,14 @@ namespace Yarp.ReverseProxy.Forwarder
                 // Avoid computing the AbsoluteUri unless logging is enabled
                 if (logger.IsEnabled(LogLevel.Information))
                 {
+                    var streaming = isStreamingRequest ? "streaming" : "no-streaming";
+                    var version = ProtocolHelper.GetHttpProtocol(msg.Version);
 #if NET
-                    var versionInfo = $"http/{msg.Version} {msg.VersionPolicy}";
+                    var versionPolicy = ProtocolHelper.GetVersionPolicy(msg.VersionPolicy);
 #else
-                    var versionInfo = $"http/{msg.Version}";
+                    var versionPolicy = "RequestVersionOrLower";
 #endif
-                    _proxying(logger, msg.RequestUri!.AbsoluteUri, versionInfo, (isStreamingRequest) ? "streaming" : "no-streaming", null);
+                    _proxying(logger, msg.RequestUri!.AbsoluteUri, version, versionPolicy, streaming, null);
                 }
             }
 
