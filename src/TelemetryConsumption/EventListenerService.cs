@@ -129,7 +129,7 @@ namespace Yarp.Telemetry.Consumption
                     !(counters.TryGetValue("Mean", out var valueObj) || counters.TryGetValue("Increment", out valueObj)) ||
                     valueObj is not double value)
                 {
-                    _logger?.LogDebug("Failed to parse EventCounters event from {EventSourceName}", EventSourceName);
+                    _logger.LogDebug("Failed to parse EventCounters event from {EventSourceName}", EventSourceName);
                     return;
                 }
 
@@ -163,7 +163,7 @@ namespace Yarp.Telemetry.Consumption
                             }
                             catch (Exception ex)
                             {
-                                _logger?.LogError(ex, "Uncaught exception occured while processing metrics for EventSource {EventSourceName}", EventSourceName);
+                                _logger.LogError(ex, "Uncaught exception occured while processing metrics for EventSource {EventSourceName}", EventSourceName);
                             }
                         }
                     }
@@ -171,11 +171,11 @@ namespace Yarp.Telemetry.Consumption
             }
             else if (eventData.EventId == 0)
             {
-                _logger?.LogError("Received an error message from EventSource {EventSourceName}: {Message}", EventSourceName, eventData.Message);
+                _logger.LogError("Received an error message from EventSource {EventSourceName}: {Message}", EventSourceName, eventData.Message);
             }
             else
             {
-                _logger?.LogDebug("Received an unknown event from EventSource {EventSourceName}: {EventId}", EventSourceName, eventData.EventId);
+                _logger.LogDebug("Received an unknown event from EventSource {EventSourceName}: {EventId}", EventSourceName, eventData.EventId);
             }
         }
 
