@@ -41,19 +41,17 @@ namespace Yarp.ReverseProxy.Forwarder
         private readonly Stream _source;
         private readonly bool _autoFlushHttpClientOutgoingStream;
         private readonly IClock _clock;
-        private readonly CancellationTokenSource _activityToken;
-        private readonly TimeSpan _activityTimeout;
+        private readonly ActivityCancellationTokenSource _activityToken;
         private readonly TaskCompletionSource<(StreamCopyResult, Exception?)> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
         private int _started;
 
-        public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IClock clock, CancellationTokenSource activityToken, TimeSpan activityTimeout)
+        public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IClock clock, ActivityCancellationTokenSource activityToken)
         {
             _source = source ?? throw new ArgumentNullException(nameof(source));
             _autoFlushHttpClientOutgoingStream = autoFlushHttpClientOutgoingStream;
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
             _activityToken = activityToken;
-            _activityTimeout = activityTimeout;
         }
 
         /// <summary>
@@ -145,17 +143,11 @@ namespace Yarp.ReverseProxy.Forwarder
             if (_activityToken.Token != cancellationToken)
             {
                 Debug.Assert(cancellationToken.CanBeCanceled);
-                registration = cancellationToken.Register(static obj =>
-                {
-                    var activityToken = (CancellationTokenSource)obj!;
-                    activityToken.Cancel();
-                }, _activityToken);
-                cancellationToken = _activityToken.Token;
+                registration = cancellationToken.UnsafeRegister(ActivityCancellationTokenSource.LinkedTokenCancelDelegate, _activityToken);
             }
 #else
             // On .NET Core 3.1, cancellationToken will always be CancellationToken.None
             Debug.Assert(!cancellationToken.CanBeCanceled);
-            cancellationToken = _activityToken.Token;
 #endif
 
             try
@@ -174,7 +166,7 @@ namespace Yarp.ReverseProxy.Forwarder
                 // https://github.com/dotnet/corefx/issues/39586#issuecomment-516210081
                 try
                 {
-                    await stream.FlushAsync(cancellationToken);
+                    await stream.FlushAsync(_activityToken.Token);
                 }
                 catch (OperationCanceledException oex)
                 {
@@ -187,7 +179,7 @@ namespace Yarp.ReverseProxy.Forwarder
                     return;
                 }
 
-                var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, _clock, _activityToken, _activityTimeout);
+                var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, _clock, _activityToken);
                 _tcs.TrySetResult((result, error));
 
                 // Check for errors that weren't the result of the destination failing.

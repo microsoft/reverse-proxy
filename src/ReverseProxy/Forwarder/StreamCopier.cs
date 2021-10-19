@@ -25,7 +25,7 @@ namespace Yarp.ReverseProxy.Forwarder
         /// Based on <c>Microsoft.AspNetCore.Http.StreamCopyOperationInternal.CopyToAsync</c>.
         /// See: <see href="https://github.com/dotnet/aspnetcore/blob/080660967b6043f731d4b7163af9e9e6047ef0c4/src/Http/Shared/StreamCopyOperationInternal.cs"/>.
         /// </remarks>
-        public static async ValueTask<(StreamCopyResult, Exception?)> CopyAsync(bool isRequest, Stream input, Stream output, IClock clock, CancellationTokenSource activityToken, TimeSpan activityTimeout)
+        public static async ValueTask<(StreamCopyResult, Exception?)> CopyAsync(bool isRequest, Stream input, Stream output, IClock clock, ActivityCancellationTokenSource activityToken)
         {
             _ = input ?? throw new ArgumentNullException(nameof(input));
             _ = output ?? throw new ArgumentNullException(nameof(output));
@@ -69,7 +69,7 @@ namespace Yarp.ReverseProxy.Forwarder
                         read = await input.ReadAsync(buffer.AsMemory(), cancellation);
 
                         // Success, reset the activity monitor.
-                        activityToken.CancelAfter(activityTimeout);
+                        activityToken.ResetTimeout();
                     }
                     finally
                     {
@@ -106,7 +106,7 @@ namespace Yarp.ReverseProxy.Forwarder
                         await output.WriteAsync(buffer.AsMemory(0, read), cancellation);
 
                         // Success, reset the activity monitor.
-                        activityToken.CancelAfter(activityTimeout);
+                        activityToken.ResetTimeout();
                     }
                     finally
                     {
