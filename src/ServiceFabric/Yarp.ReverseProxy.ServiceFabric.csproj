@@ -6,6 +6,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Yarp.ReverseProxy.ServiceFabric</RootNamespace>
     <PlatformTarget>x64</PlatformTarget>
+    <IsPackable>$('System.TeamProject') != 'internal'</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
