@@ -261,7 +261,7 @@ namespace Yarp.ReverseProxy.Forwarder
             // "http://a".Length = 8
             if (destinationPrefix == null || destinationPrefix.Length < 8)
             {
-                throw new ArgumentException(nameof(destinationPrefix));
+                throw new ArgumentException("Invalid destination prefix.", nameof(destinationPrefix));
             }
 
             var destinationRequest = new HttpRequestMessage();
@@ -481,8 +481,9 @@ namespace Yarp.ReverseProxy.Forwarder
 
                 if (requestBodyCopyResult != StreamCopyResult.Success)
                 {
-                    await transformer.TransformResponseAsync(context, null);
-                    return HandleRequestBodyFailure(context, requestBodyCopyResult, requestBodyException!, requestException);
+                    var error = HandleRequestBodyFailure(context, requestBodyCopyResult, requestBodyException!, requestException);
+                    await transformer.TransformResponseAsync(context, proxyResponse: null);
+                    return error;
                 }
             }
 

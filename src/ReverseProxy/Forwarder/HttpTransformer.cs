@@ -102,7 +102,7 @@ namespace Yarp.ReverseProxy.Forwarder
         /// `Transfer-Encoding: chunked`.
         /// </summary>
         /// <param name="httpContext">The incoming request.</param>
-        /// <param name="proxyResponse">The response from the destination.</param>
+        /// <param name="proxyResponse">The response from the destination. This can be null if the destination did not respond.</param>
         /// <returns>A bool indicating if the response should be proxied to the client or not. A derived implementation 
         /// that returns false may send an alternate response inline or return control to the caller for it to retry, respond, 
         /// etc.</returns>

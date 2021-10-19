@@ -38,41 +38,45 @@ namespace Yarp.ReverseProxy.Transforms.Tests
         }
 
         [Theory]
-        [InlineData(false, false)]
-        [InlineData(false, true)]
-        [InlineData(true, false)]
-        [InlineData(true, true)]
-        public void WithTransformResponseHeader(bool append, bool always)
+        [InlineData(false, ResponseCondition.Success)]
+        [InlineData(false, ResponseCondition.Always)]
+        [InlineData(false, ResponseCondition.Failure)]
+        [InlineData(true, ResponseCondition.Success)]
+        [InlineData(true, ResponseCondition.Always)]
+        [InlineData(true, ResponseCondition.Failure)]
+        public void WithTransformResponseHeader(bool append, ResponseCondition condition)
         {
             var routeConfig = new RouteConfig();
-            routeConfig = routeConfig.WithTransformResponseHeader("name", "value", append, always);
+            routeConfig = routeConfig.WithTransformResponseHeader("name", "value", append, condition);
 
             var builderContext = ValidateAndBuild(routeConfig, _factory);
 
-            ValidateResponseHeader(builderContext, append, always);
+            ValidateResponseHeader(builderContext, append, condition);
         }
 
         [Theory]
-        [InlineData(false, false)]
-        [InlineData(false, true)]
-        [InlineData(true, false)]
-        [InlineData(true, true)]
-        public void AddResponseHeader(bool append, bool always)
+        [InlineData(false, ResponseCondition.Success)]
+        [InlineData(false, ResponseCondition.Always)]
+        [InlineData(false, ResponseCondition.Failure)]
+        [InlineData(true, ResponseCondition.Success)]
+        [InlineData(true, ResponseCondition.Always)]
+        [InlineData(true, ResponseCondition.Failure)]
+        public void AddResponseHeader(bool append, ResponseCondition condition)
         {
             var builderContext = CreateBuilderContext();
-            builderContext.AddResponseHeader("name", "value", append, always);
+            builderContext.AddResponseHeader("name", "value", append, condition);
 
-            ValidateResponseHeader(builderContext, append, always);
+            ValidateResponseHeader(builderContext, append, condition);
         }
 
-        private static void ValidateResponseHeader(TransformBuilderContext builderContext, bool append, bool always)
+        private static void ValidateResponseHeader(TransformBuilderContext builderContext, bool append, ResponseCondition condition)
         {
             var responseTransform = Assert.Single(builderContext.ResponseTransforms);
             var responseHeaderValueTransform = Assert.IsType<ResponseHeaderValueTransform>(responseTransform);
             Assert.Equal("name", responseHeaderValueTransform.HeaderName);
             Assert.Equal("value", responseHeaderValueTransform.Value);
             Assert.Equal(append, responseHeaderValueTransform.Append);
-            Assert.Equal(always, responseHeaderValueTransform.Always);
+            Assert.Equal(condition, responseHeaderValueTransform.Condition);
         }
 
         [Fact]
@@ -120,41 +124,45 @@ namespace Yarp.ReverseProxy.Transforms.Tests
         }
 
         [Theory]
-        [InlineData(false, false)]
-        [InlineData(false, true)]
-        [InlineData(true, false)]
-        [InlineData(true, true)]
-        public void WithTransformResponseTrailer(bool append, bool always)
+        [InlineData(false, ResponseCondition.Success)]
+        [InlineData(false, ResponseCondition.Always)]
+        [InlineData(false, ResponseCondition.Failure)]
+        [InlineData(true, ResponseCondition.Success)]
+        [InlineData(true, ResponseCondition.Always)]
+        [InlineData(true, ResponseCondition.Failure)]
+        public void WithTransformResponseTrailer(bool append, ResponseCondition condition)
         {
             var routeConfig = new RouteConfig();
-            routeConfig = routeConfig.WithTransformResponseTrailer("name", "value", append, always);
+            routeConfig = routeConfig.WithTransformResponseTrailer("name", "value", append, condition);
 
             var builderContext = ValidateAndBuild(routeConfig, _factory);
 
-            ValidateResponseTrailer(builderContext, append, always);
+            ValidateResponseTrailer(builderContext, append, condition);
         }
 
         [Theory]
-        [InlineData(false, false)]
-        [InlineData(false, true)]
-        [InlineData(true, false)]
-        [InlineData(true, true)]
-        public void AddResponseTrailer(bool append, bool always)
+        [InlineData(false, ResponseCondition.Success)]
+        [InlineData(false, ResponseCondition.Always)]
+        [InlineData(false, ResponseCondition.Failure)]
+        [InlineData(true, ResponseCondition.Success)]
+        [InlineData(true, ResponseCondition.Always)]
+        [InlineData(true, ResponseCondition.Failure)]
+        public void AddResponseTrailer(bool append, ResponseCondition condition)
         {
             var builderContext = CreateBuilderContext();
-            builderContext.AddResponseTrailer("name", "value", append, always);
+            builderContext.AddResponseTrailer("name", "value", append, condition);
 
-            ValidateResponseTrailer(builderContext, append, always);
+            ValidateResponseTrailer(builderContext, append, condition);
         }
 
-        private static void ValidateResponseTrailer(TransformBuilderContext builderContext, bool append, bool always)
+        private static void ValidateResponseTrailer(TransformBuilderContext builderContext, bool append, ResponseCondition condition)
         {
             var responseTransform = Assert.Single(builderContext.ResponseTrailersTransforms);
             var responseHeaderValueTransform = Assert.IsType<ResponseTrailerValueTransform>(responseTransform);
             Assert.Equal("name", responseHeaderValueTransform.HeaderName);
             Assert.Equal("value", responseHeaderValueTransform.Value);
             Assert.Equal(append, responseHeaderValueTransform.Append);
-            Assert.Equal(always, responseHeaderValueTransform.Always);
+            Assert.Equal(condition, responseHeaderValueTransform.Condition);
         }
 
         [Fact]

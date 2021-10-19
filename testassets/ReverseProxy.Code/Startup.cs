@@ -82,7 +82,7 @@ namespace Yarp.ReverseProxy.Sample
                     {
                         // Suppress the response body from errors.
                         // The status code was already copied.
-                        if (!context.ProxyResponse.IsSuccessStatusCode)
+                        if (context.ProxyResponse?.IsSuccessStatusCode == false)
                         {
                             context.SuppressResponseBody = true;
                         }
