@@ -3,8 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -114,49 +112,23 @@ namespace Yarp.ReverseProxy.Health
 
             var policy = _policies.GetRequiredServiceById(config.Policy, HealthCheckConstants.ActivePolicy.ConsecutiveFailures);
             var allDestinations = cluster.DestinationsState.AllDestinations;
-            var probeTasks = new List<(Task<HttpResponseMessage> Task, CancellationTokenSource Cts)>(allDestinations.Count);
+            var timeout = config.Timeout ?? _monitorOptions.DefaultTimeout;
+            var probeTasks = new Task<DestinationProbingResult>[allDestinations.Count];
+            var probeResults = new DestinationProbingResult[probeTasks.Length];
+
+            for (var i = 0; i < probeTasks.Length; i++)
+            {
+                probeTasks[i] = ProbeDestinationAsync(cluster, allDestinations[i], timeout);
+            }
+
+            for (var i = 0; i < probeResults.Length; i++)
+            {
+                probeResults[i] = await probeTasks[i];
+            }
+
             try
             {
-                foreach (var destination in allDestinations)
-                {
-                    var timeout = config.Timeout ?? _monitorOptions.DefaultTimeout;
-                    var cts = new CancellationTokenSource(timeout);
-                    try
-                    {
-                        var request = _probingRequestFactory.CreateRequest(clusterModel, destination.Model);
-
-                        Log.SendingHealthProbeToEndpointOfDestination(_logger, request.RequestUri, destination.DestinationId, cluster.ClusterId);
-
-                        probeTasks.Add((clusterModel.HttpClient.SendAsync(request, cts.Token), cts));
-                    }
-                    catch (Exception ex)
-                    {
-                        // Log and suppress an exception to give a chance for all destinations to be probed.
-                        Log.ActiveHealthProbeConstructionFailedOnCluster(_logger, destination.DestinationId, cluster.ClusterId, ex);
-
-                        cts.Dispose();
-                    }
-                }
-
-                var probingResults = new DestinationProbingResult[probeTasks.Count];
-                for (var i = 0; i < probeTasks.Count; i++)
-                {
-                    HttpResponseMessage? response = null;
-                    ExceptionDispatchInfo? edi = null;
-                    try
-                    {
-                        response = await probeTasks[i].Task;
-                        Log.DestinationProbingCompleted(_logger, allDestinations[i].DestinationId, cluster.ClusterId, (int)response.StatusCode);
-                    }
-                    catch (Exception ex)
-                    {
-                        edi = ExceptionDispatchInfo.Capture(ex);
-                        Log.DestinationProbingFailed(_logger, allDestinations[i].DestinationId, cluster.ClusterId, ex);
-                    }
-                    probingResults[i] = new DestinationProbingResult(allDestinations[i], response, edi?.SourceException);
-                }
-
-                policy.ProbingCompleted(cluster, probingResults);
+                policy.ProbingCompleted(cluster, probeResults);
             }
             catch (Exception ex)
             {
@@ -164,37 +136,43 @@ namespace Yarp.ReverseProxy.Health
             }
             finally
             {
-                foreach (var probeTask in probeTasks)
-                {
-                    try
-                    {
-                        try
-                        {
-                            probeTask.Cts.Cancel();
-                        }
-                        catch (Exception ex)
-                        {
-                            // Suppress exceptions to ensure the task will be awaited.
-                            Log.ErrorOccuredDuringActiveHealthProbingShutdownOnCluster(_logger, cluster.ClusterId, ex);
-                        }
+                Log.StoppedActiveHealthProbingOnCluster(_logger, cluster.ClusterId);
+            }
+        }
 
-                        var response = await probeTask.Task;
-                        response.Dispose();
-                    }
-                    catch (Exception ex)
-                    {
-                        // Suppress exceptions to ensure all responses get a chance to be disposed.
-                        Log.ErrorOccuredDuringActiveHealthProbingShutdownOnCluster(_logger, cluster.ClusterId, ex);
-                    }
-                    finally
-                    {
-                        // Dispose CancellationTokenSource even if the response task threw an exception.
-                        // Dispose() is not expected to throw here.
-                        probeTask.Cts.Dispose();
-                    }
+        private async Task<DestinationProbingResult> ProbeDestinationAsync(ClusterState cluster, DestinationState destination, TimeSpan timeout)
+        {
+            var cts = new CancellationTokenSource(timeout);
+            var waitingForSendAsync = false;
+            try
+            {
+                var request = _probingRequestFactory.CreateRequest(cluster.Model, destination.Model);
+                Log.SendingHealthProbeToEndpointOfDestination(_logger, request.RequestUri, destination.DestinationId, cluster.ClusterId);
+
+                var responseTask = cluster.Model.HttpClient.SendAsync(request, cts.Token);
+                waitingForSendAsync = true;
+
+                var response = await responseTask;
+                Log.DestinationProbingCompleted(_logger, destination.DestinationId, cluster.ClusterId, (int)response.StatusCode);
+
+                return new DestinationProbingResult(destination, response, null);
+            }
+            catch (Exception ex)
+            {
+                if (waitingForSendAsync)
+                {
+                    Log.DestinationProbingFailed(_logger, destination.DestinationId, cluster.ClusterId, ex);
+                }
+                else
+                {
+                    Log.ActiveHealthProbeConstructionFailedOnCluster(_logger, destination.DestinationId, cluster.ClusterId, ex);
                 }
 
-                Log.StoppedActiveHealthProbingOnCluster(_logger, cluster.ClusterId);
+                return new DestinationProbingResult(destination, null, ex);
+            }
+            finally
+            {
+                cts.Dispose();
             }
         }
     }

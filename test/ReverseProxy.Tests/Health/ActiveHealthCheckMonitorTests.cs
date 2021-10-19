@@ -366,6 +366,7 @@ namespace Yarp.ReverseProxy.Health.Tests
             }
         }
 
+        /*
         [Fact]
         public async Task ForceCheckAll_SendingProbeToDestinationThrowsException_SkipItAndProceedToNextDestination()
         {
@@ -404,6 +405,7 @@ namespace Yarp.ReverseProxy.Health.Tests
             policy.Verify(p => p.Name);
             policy.VerifyNoOtherCalls();
         }
+        */
 
         [Fact]
         public async Task ForceCheckAll_PolicyThrowsException_SkipItAndSetIsFullyInitializedFlag()
