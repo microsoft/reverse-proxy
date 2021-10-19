@@ -54,7 +54,10 @@ namespace BenchmarkApp
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapReverseProxy();
+                endpoints.MapReverseProxy(builder =>
+                {
+                    // Skip SessionAffinity, LoadBalancing and PassiveHealthChecks
+                });
             });
         }
     }
