@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Xunit;
 
 namespace Yarp.ReverseProxy.Utilities.Tests
@@ -19,7 +18,6 @@ namespace Yarp.ReverseProxy.Utilities.Tests
 
             // Validate.
             Assert.NotNull(random);
-            Assert.IsType<Random>(random);
 
             // Validate functionality
             var num = random.Next(5);
