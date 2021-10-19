@@ -10,31 +10,20 @@ using Microsoft.Extensions.Logging;
 
 namespace Yarp.Telemetry.Consumption
 {
-    internal interface IWebSocketsMetricsConsumer { }
+    internal sealed class WebSocketsMetrics { }
 
-    internal sealed class WebSocketsEventListenerService : EventListenerService<WebSocketsEventListenerService, IWebSocketsTelemetryConsumer, IWebSocketsMetricsConsumer>
+    internal sealed class WebSocketsEventListenerService : EventListenerService<WebSocketsEventListenerService, IWebSocketsTelemetryConsumer, WebSocketsMetrics>
     {
         protected override string EventSourceName => "Yarp.ReverseProxy.WebSockets";
 
-        public WebSocketsEventListenerService(ILogger<WebSocketsEventListenerService> logger, IEnumerable<IWebSocketsTelemetryConsumer> telemetryConsumers, IEnumerable<IWebSocketsMetricsConsumer> metricsConsumers)
+        protected override int NumberOfMetrics => 0;
+
+        public WebSocketsEventListenerService(ILogger<WebSocketsEventListenerService> logger, IEnumerable<IWebSocketsTelemetryConsumer> telemetryConsumers, IEnumerable<IMetricsConsumer<WebSocketsMetrics>> metricsConsumers)
             : base(logger, telemetryConsumers, metricsConsumers)
         { }
 
-        protected override void OnEventWritten(EventWrittenEventArgs eventData)
+        protected override void OnEvent(IWebSocketsTelemetryConsumer[] consumers, EventWrittenEventArgs eventData)
         {
-            const int MinEventId = 1;
-            const int MaxEventId = 1;
-
-            if (eventData.EventId < MinEventId || eventData.EventId > MaxEventId)
-            {
-                return;
-            }
-
-            if (TelemetryConsumers is null)
-            {
-                return;
-            }
-
 #pragma warning disable IDE0007 // Use implicit type
             // Explicit type here to drop the object? signature of payload elements
             ReadOnlyCollection<object> payload = eventData.Payload!;
@@ -49,13 +38,18 @@ namespace Yarp.Telemetry.Consumption
                         var closeReason = (WebSocketCloseReason)payload[1];
                         var messagesRead = (long)payload[2];
                         var messagesWritten = (long)payload[3];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnWebSocketClosed(eventData.TimeStamp, establishedTime, closeReason, messagesRead, messagesWritten);
                         }
                     }
                     break;
             }
+        }
+
+        protected override bool TrySaveMetric(WebSocketsMetrics metrics, string name, double value)
+        {
+            return false;
         }
     }
 }

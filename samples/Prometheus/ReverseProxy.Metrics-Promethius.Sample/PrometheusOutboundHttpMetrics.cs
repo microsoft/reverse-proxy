@@ -12,7 +12,7 @@ namespace Yarp.Sample
     /// <summary>
     /// Collects outbound http metrics and exposes them using prometheus-net
     /// </summary>
-    public sealed class PrometheusOutboundHttpMetrics: IHttpMetricsConsumer
+    public sealed class PrometheusOutboundHttpMetrics : IMetricsConsumer<HttpMetrics>
     {
         private static readonly double CUBE_ROOT_10 = Math.Pow(10, (1.0 / 3));
 
@@ -57,15 +57,15 @@ namespace Yarp.Sample
                 Buckets = Histogram.ExponentialBuckets(10, CUBE_ROOT_10, 10)
             });
 
-        public void OnHttpMetrics(HttpMetrics oldMetrics, HttpMetrics newMetrics)
+        public void OnMetrics(HttpMetrics previous, HttpMetrics current)
         {
-            _outboundRequestsStarted.IncTo(newMetrics.RequestsStarted);
-            _outboundRequestsFailed.IncTo(newMetrics.RequestsFailed);
-            _outboundCurrentRequests.Set(newMetrics.CurrentRequests);
-            _outboundCurrentHttp11Connections.Set(newMetrics.CurrentHttp11Connections);
-            _outboundCurrentHttp20Connections.Set(newMetrics.CurrentHttp20Connections);
-            _outboundHttp11RequestQueueDuration.Observe(newMetrics.Http11RequestsQueueDuration.TotalMilliseconds);
-            _outboundHttp20RequestQueueDuration.Observe(newMetrics.Http20RequestsQueueDuration.TotalMilliseconds);
+            _outboundRequestsStarted.IncTo(current.RequestsStarted);
+            _outboundRequestsFailed.IncTo(current.RequestsFailed);
+            _outboundCurrentRequests.Set(current.CurrentRequests);
+            _outboundCurrentHttp11Connections.Set(current.CurrentHttp11Connections);
+            _outboundCurrentHttp20Connections.Set(current.CurrentHttp20Connections);
+            _outboundHttp11RequestQueueDuration.Observe(current.Http11RequestsQueueDuration.TotalMilliseconds);
+            _outboundHttp20RequestQueueDuration.Observe(current.Http20RequestsQueueDuration.TotalMilliseconds);
         }
     }
 }

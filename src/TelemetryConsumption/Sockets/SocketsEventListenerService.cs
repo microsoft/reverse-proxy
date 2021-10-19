@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -11,38 +10,18 @@ using Microsoft.Extensions.Logging;
 
 namespace Yarp.Telemetry.Consumption
 {
-    internal sealed class SocketsEventListenerService : EventListenerService<SocketsEventListenerService, ISocketsTelemetryConsumer, ISocketsMetricsConsumer>
+    internal sealed class SocketsEventListenerService : EventListenerService<SocketsEventListenerService, ISocketsTelemetryConsumer, SocketsMetrics>
     {
-        private SocketsMetrics? _previousMetrics;
-        private SocketsMetrics _currentMetrics = new();
-        private int _eventCountersCount;
-
         protected override string EventSourceName => "System.Net.Sockets";
 
-        public SocketsEventListenerService(ILogger<SocketsEventListenerService> logger, IEnumerable<ISocketsTelemetryConsumer> telemetryConsumers, IEnumerable<ISocketsMetricsConsumer> metricsConsumers)
+        protected override int NumberOfMetrics => 6;
+
+        public SocketsEventListenerService(ILogger<SocketsEventListenerService> logger, IEnumerable<ISocketsTelemetryConsumer> telemetryConsumers, IEnumerable<IMetricsConsumer<SocketsMetrics>> metricsConsumers)
             : base(logger, telemetryConsumers, metricsConsumers)
         { }
 
-        protected override void OnEventWritten(EventWrittenEventArgs eventData)
+        protected override void OnEvent(ISocketsTelemetryConsumer[] consumers, EventWrittenEventArgs eventData)
         {
-            const int MinEventId = 1;
-            const int MaxEventId = 3;
-
-            if (eventData.EventId < MinEventId || eventData.EventId > MaxEventId)
-            {
-                if (eventData.EventId == -1)
-                {
-                    OnEventCounters(eventData);
-                }
-
-                return;
-            }
-
-            if (TelemetryConsumers is null)
-            {
-                return;
-            }
-
 #pragma warning disable IDE0007 // Use implicit type
             // Explicit type here to drop the object? signature of payload elements
             ReadOnlyCollection<object> payload = eventData.Payload!;
@@ -54,7 +33,7 @@ namespace Yarp.Telemetry.Consumption
                     Debug.Assert(eventData.EventName == "ConnectStart" && payload.Count == 1);
                     {
                         var address = (string)payload[0];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnConnectStart(eventData.TimeStamp, address);
                         }
@@ -64,7 +43,7 @@ namespace Yarp.Telemetry.Consumption
                 case 2:
                     Debug.Assert(eventData.EventName == "ConnectStop" && payload.Count == 0);
                     {
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnConnectStop(eventData.TimeStamp);
                         }
@@ -76,7 +55,7 @@ namespace Yarp.Telemetry.Consumption
                     {
                         var error = (SocketError)payload[0];
                         var exceptionMessage = (string)payload[1];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnConnectFailed(eventData.TimeStamp, error, exceptionMessage);
                         }
@@ -85,84 +64,41 @@ namespace Yarp.Telemetry.Consumption
             }
         }
 
-        private void OnEventCounters(EventWrittenEventArgs eventData)
+        protected override bool TrySaveMetric(SocketsMetrics metrics, string name, double value)
         {
-            if (MetricsConsumers is null)
-            {
-                return;
-            }
+            var longValue = (long)value;
 
-            Debug.Assert(eventData.EventName == "EventCounters" && eventData.Payload!.Count == 1);
-            var counters = (IDictionary<string, object>)eventData.Payload[0]!;
-
-            if (!counters.TryGetValue("Mean", out var valueObj))
-            {
-                valueObj = counters["Increment"];
-            }
-
-            var value = (long)(double)valueObj;
-            var metrics = _currentMetrics;
-
-            switch ((string)counters["Name"])
+            switch (name)
             {
                 case "outgoing-connections-established":
-                    metrics.OutgoingConnectionsEstablished = value;
+                    metrics.OutgoingConnectionsEstablished = longValue;
                     break;
 
                 case "incoming-connections-established":
-                    metrics.IncomingConnectionsEstablished = value;
+                    metrics.IncomingConnectionsEstablished = longValue;
                     break;
 
                 case "bytes-received":
-                    metrics.BytesReceived = value;
+                    metrics.BytesReceived = longValue;
                     break;
 
                 case "bytes-sent":
-                    metrics.BytesSent = value;
+                    metrics.BytesSent = longValue;
                     break;
 
                 case "datagrams-received":
-                    metrics.DatagramsReceived = value;
+                    metrics.DatagramsReceived = longValue;
                     break;
 
                 case "datagrams-sent":
-                    metrics.DatagramsSent = value;
+                    metrics.DatagramsSent = longValue;
                     break;
 
                 default:
-                    return;
+                    return false;
             }
 
-            const int TotalEventCounters = 6;
-
-            if (++_eventCountersCount == TotalEventCounters)
-            {
-                _eventCountersCount = 0;
-
-                metrics.Timestamp = DateTime.UtcNow;
-
-                var previous = _previousMetrics;
-                _previousMetrics = metrics;
-                _currentMetrics = new SocketsMetrics();
-
-                if (previous is null)
-                {
-                    return;
-                }
-
-                try
-                {
-                    foreach (var consumer in MetricsConsumers)
-                    {
-                        consumer.OnSocketsMetrics(previous, metrics);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // We can't let an uncaught exception propagate as that would crash the process
-                    Logger.LogError(ex, $"Uncaught exception occured while processing {nameof(SocketsMetrics)}.");
-                }
-            }
+            return true;
         }
     }
 }

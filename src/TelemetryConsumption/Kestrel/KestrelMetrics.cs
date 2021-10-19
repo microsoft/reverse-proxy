@@ -8,8 +8,15 @@ namespace Yarp.Telemetry.Consumption
     /// <summary>
     /// Represents metrics reported by the Microsoft-AspNetCore-Server-Kestrel event counters.
     /// </summary>
-    public sealed class KestrelMetrics
+#if NET
+    public
+#else
+    internal
+#endif
+        sealed class KestrelMetrics
     {
+        public KestrelMetrics() => Timestamp = DateTime.UtcNow;
+
         /// <summary>
         /// Timestamp of when this <see cref="KestrelMetrics"/> instance was created.
         /// </summary>
@@ -64,7 +71,5 @@ namespace Yarp.Telemetry.Consumption
         /// Number of currently upgraded requests (number of webSocket connections).
         /// </summary>
         public long CurrentUpgradedRequests { get; internal set; }
-
-        internal KestrelMetrics() { }
     }
 }

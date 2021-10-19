@@ -268,13 +268,13 @@ namespace Yarp.ReverseProxy
                 {
                     var services = proxyBuilder.Services;
 
-                    services.AddSingleton<IForwarderMetricsConsumer>(consumer);
+                    services.AddSingleton<IMetricsConsumer<ForwarderMetrics>>(consumer);
 #if NET
-                    services.AddSingleton<IKestrelMetricsConsumer>(consumer);
-                    services.AddSingleton<IHttpMetricsConsumer>(consumer);
-                    services.AddSingleton<ISocketsMetricsConsumer>(consumer);
-                    services.AddSingleton<INetSecurityMetricsConsumer>(consumer);
-                    services.AddSingleton<INameResolutionMetricsConsumer>(consumer);
+                    services.AddSingleton<IMetricsConsumer<KestrelMetrics>>(consumer);
+                    services.AddSingleton<IMetricsConsumer<HttpMetrics>>(consumer);
+                    services.AddSingleton<IMetricsConsumer<SocketsMetrics>>(consumer);
+                    services.AddSingleton<IMetricsConsumer<NetSecurityMetrics>>(consumer);
+                    services.AddSingleton<IMetricsConsumer<NameResolutionMetrics>>(consumer);
 #endif
 
                     services.AddTelemetryListeners();
@@ -337,14 +337,14 @@ namespace Yarp.ReverseProxy
         }
 
         private sealed class MetricsConsumer :
-            IForwarderMetricsConsumer
+            IMetricsConsumer<ForwarderMetrics>
 #if NET
             ,
-            IKestrelMetricsConsumer,
-            IHttpMetricsConsumer,
-            INameResolutionMetricsConsumer,
-            INetSecurityMetricsConsumer,
-            ISocketsMetricsConsumer
+            IMetricsConsumer<KestrelMetrics>,
+            IMetricsConsumer<HttpMetrics>,
+            IMetricsConsumer<NameResolutionMetrics>,
+            IMetricsConsumer<NetSecurityMetrics>,
+            IMetricsConsumer<SocketsMetrics>
 #endif
         {
             public readonly ConcurrentQueue<ForwarderMetrics> ProxyMetrics = new ConcurrentQueue<ForwarderMetrics>();
@@ -356,13 +356,13 @@ namespace Yarp.ReverseProxy
             public readonly ConcurrentQueue<NameResolutionMetrics> NameResolutionMetrics = new();
 #endif
 
-            public void OnForwarderMetrics(ForwarderMetrics oldMetrics, ForwarderMetrics newMetrics) => ProxyMetrics.Enqueue(newMetrics);
+            public void OnMetrics(ForwarderMetrics previous, ForwarderMetrics current) => ProxyMetrics.Enqueue(current);
 #if NET
-            public void OnKestrelMetrics(KestrelMetrics oldMetrics, KestrelMetrics newMetrics) => KestrelMetrics.Enqueue(newMetrics);
-            public void OnSocketsMetrics(SocketsMetrics oldMetrics, SocketsMetrics newMetrics) => SocketsMetrics.Enqueue(newMetrics);
-            public void OnNetSecurityMetrics(NetSecurityMetrics oldMetrics, NetSecurityMetrics newMetrics) => NetSecurityMetrics.Enqueue(newMetrics);
-            public void OnNameResolutionMetrics(NameResolutionMetrics oldMetrics, NameResolutionMetrics newMetrics) => NameResolutionMetrics.Enqueue(newMetrics);
-            public void OnHttpMetrics(HttpMetrics oldMetrics, HttpMetrics newMetrics) => HttpMetrics.Enqueue(newMetrics);
+            public void OnMetrics(KestrelMetrics previous, KestrelMetrics current) => KestrelMetrics.Enqueue(current);
+            public void OnMetrics(SocketsMetrics previous, SocketsMetrics current) => SocketsMetrics.Enqueue(current);
+            public void OnMetrics(NetSecurityMetrics previous, NetSecurityMetrics current) => NetSecurityMetrics.Enqueue(current);
+            public void OnMetrics(NameResolutionMetrics previous, NameResolutionMetrics current) => NameResolutionMetrics.Enqueue(current);
+            public void OnMetrics(HttpMetrics previous, HttpMetrics current) => HttpMetrics.Enqueue(current);
 #endif
         }
     }

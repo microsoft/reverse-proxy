@@ -11,38 +11,18 @@ using Microsoft.Extensions.Logging;
 
 namespace Yarp.Telemetry.Consumption
 {
-    internal sealed class NetSecurityEventListenerService : EventListenerService<NetSecurityEventListenerService, INetSecurityTelemetryConsumer, INetSecurityMetricsConsumer>
+    internal sealed class NetSecurityEventListenerService : EventListenerService<NetSecurityEventListenerService, INetSecurityTelemetryConsumer, NetSecurityMetrics>
     {
-        private NetSecurityMetrics? _previousMetrics;
-        private NetSecurityMetrics _currentMetrics = new();
-        private int _eventCountersCount;
-
         protected override string EventSourceName => "System.Net.Security";
 
-        public NetSecurityEventListenerService(ILogger<NetSecurityEventListenerService> logger, IEnumerable<INetSecurityTelemetryConsumer> telemetryConsumers, IEnumerable<INetSecurityMetricsConsumer> metricsConsumers)
+        protected override int NumberOfMetrics => 14;
+
+        public NetSecurityEventListenerService(ILogger<NetSecurityEventListenerService> logger, IEnumerable<INetSecurityTelemetryConsumer> telemetryConsumers, IEnumerable<IMetricsConsumer<NetSecurityMetrics>> metricsConsumers)
             : base(logger, telemetryConsumers, metricsConsumers)
         { }
 
-        protected override void OnEventWritten(EventWrittenEventArgs eventData)
+        protected override void OnEvent(INetSecurityTelemetryConsumer[] consumers, EventWrittenEventArgs eventData)
         {
-            const int MinEventId = 1;
-            const int MaxEventId = 3;
-
-            if (eventData.EventId < MinEventId || eventData.EventId > MaxEventId)
-            {
-                if (eventData.EventId == -1)
-                {
-                    OnEventCounters(eventData);
-                }
-
-                return;
-            }
-
-            if (TelemetryConsumers is null)
-            {
-                return;
-            }
-
 #pragma warning disable IDE0007 // Use implicit type
             // Explicit type here to drop the object? signature of payload elements
             ReadOnlyCollection<object> payload = eventData.Payload!;
@@ -55,7 +35,7 @@ namespace Yarp.Telemetry.Consumption
                     {
                         var isServer = (bool)payload[0];
                         var targetHost = (string)payload[1];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnHandshakeStart(eventData.TimeStamp, isServer, targetHost);
                         }
@@ -66,7 +46,7 @@ namespace Yarp.Telemetry.Consumption
                     Debug.Assert(eventData.EventName == "HandshakeStop" && payload.Count == 1);
                     {
                         var protocol = (SslProtocols)payload[0];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnHandshakeStop(eventData.TimeStamp, protocol);
                         }
@@ -79,7 +59,7 @@ namespace Yarp.Telemetry.Consumption
                         var isServer = (bool)payload[0];
                         var elapsed = TimeSpan.FromMilliseconds((double)payload[1]);
                         var exceptionMessage = (string)payload[2];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnHandshakeFailed(eventData.TimeStamp, isServer, elapsed, exceptionMessage);
                         }
@@ -88,25 +68,9 @@ namespace Yarp.Telemetry.Consumption
             }
         }
 
-        private void OnEventCounters(EventWrittenEventArgs eventData)
+        protected override bool TrySaveMetric(NetSecurityMetrics metrics, string name, double value)
         {
-            if (MetricsConsumers is null)
-            {
-                return;
-            }
-
-            Debug.Assert(eventData.EventName == "EventCounters" && eventData.Payload!.Count == 1);
-            var counters = (IDictionary<string, object>)eventData.Payload[0]!;
-
-            if (!counters.TryGetValue("Mean", out var valueObj))
-            {
-                valueObj = counters["Increment"];
-            }
-
-            var value = (double)valueObj;
-            var metrics = _currentMetrics;
-
-            switch ((string)counters["Name"])
+            switch (name)
             {
                 case "tls-handshake-rate":
                     metrics.TlsHandshakeRate = (long)value;
@@ -165,39 +129,10 @@ namespace Yarp.Telemetry.Consumption
                     break;
 
                 default:
-                    return;
+                    return false;
             }
 
-            const int TotalEventCounters = 14;
-
-            if (++_eventCountersCount == TotalEventCounters)
-            {
-                _eventCountersCount = 0;
-
-                metrics.Timestamp = DateTime.UtcNow;
-
-                var previous = _previousMetrics;
-                _previousMetrics = metrics;
-                _currentMetrics = new NetSecurityMetrics();
-
-                if (previous is null)
-                {
-                    return;
-                }
-
-                try
-                {
-                    foreach (var consumer in MetricsConsumers)
-                    {
-                        consumer.OnNetSecurityMetrics(previous, metrics);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // We can't let an uncaught exception propagate as that would crash the process
-                    Logger.LogError(ex, $"Uncaught exception occured while processing {nameof(NetSecurityMetrics)}.");
-                }
-            }
+            return true;
         }
     }
 }

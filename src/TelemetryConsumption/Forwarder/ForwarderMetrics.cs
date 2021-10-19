@@ -10,6 +10,8 @@ namespace Yarp.Telemetry.Consumption
     /// </summary>
     public sealed class ForwarderMetrics
     {
+        public ForwarderMetrics() => Timestamp = DateTime.UtcNow;
+
         /// <summary>
         /// Timestamp of when this <see cref="ForwarderMetrics"/> instance was created.
         /// </summary>
@@ -34,7 +36,5 @@ namespace Yarp.Telemetry.Consumption
         /// Number of active proxy requests that have started but not yet completed or failed.
         /// </summary>
         public long CurrentRequests { get; internal set; }
-
-        internal ForwarderMetrics() { }
     }
 }

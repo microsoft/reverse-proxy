@@ -8,7 +8,7 @@ using Prometheus;
 
 namespace Yarp.Sample
 {
-    public sealed class PrometheusDnsMetrics : INameResolutionMetricsConsumer
+    public sealed class PrometheusDnsMetrics : IMetricsConsumer<NameResolutionMetrics>
     {
         private static readonly Counter _dnsLookupsRequested = Metrics.CreateCounter(
             "yarp_dns_lookups_requested",
@@ -20,10 +20,10 @@ namespace Yarp.Sample
             "Average DNS lookup duration"
             );
 
-        public void OnNameResolutionMetrics(NameResolutionMetrics oldMetrics, NameResolutionMetrics newMetrics)
+        public void OnMetrics(NameResolutionMetrics previous, NameResolutionMetrics current)
         {
-            _dnsLookupsRequested.IncTo(newMetrics.DnsLookupsRequested);
-            _averageLookupDuration.Set(newMetrics.AverageLookupDuration.TotalMilliseconds);
+            _dnsLookupsRequested.IncTo(current.DnsLookupsRequested);
+            _averageLookupDuration.Set(current.AverageLookupDuration.TotalMilliseconds);
         }
     }
 }

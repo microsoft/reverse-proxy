@@ -11,38 +11,18 @@ using Microsoft.Extensions.Logging;
 
 namespace Yarp.Telemetry.Consumption
 {
-    internal sealed class HttpEventListenerService : EventListenerService<HttpEventListenerService, IHttpTelemetryConsumer, IHttpMetricsConsumer>
+    internal sealed class HttpEventListenerService : EventListenerService<HttpEventListenerService, IHttpTelemetryConsumer, HttpMetrics>
     {
-        private HttpMetrics? _previousMetrics;
-        private HttpMetrics _currentMetrics = new();
-        private int _eventCountersCount;
-
         protected override string EventSourceName => "System.Net.Http";
 
-        public HttpEventListenerService(ILogger<HttpEventListenerService> logger, IEnumerable<IHttpTelemetryConsumer> telemetryConsumers, IEnumerable<IHttpMetricsConsumer> metricsConsumers)
+        protected override int NumberOfMetrics => 9;
+
+        public HttpEventListenerService(ILogger<HttpEventListenerService> logger, IEnumerable<IHttpTelemetryConsumer> telemetryConsumers, IEnumerable<IMetricsConsumer<HttpMetrics>> metricsConsumers)
             : base(logger, telemetryConsumers, metricsConsumers)
         { }
 
-        protected override void OnEventWritten(EventWrittenEventArgs eventData)
+        protected override void OnEvent(IHttpTelemetryConsumer[] consumers, EventWrittenEventArgs eventData)
         {
-            const int MinEventId = 1;
-            const int MaxEventId = 12;
-
-            if (eventData.EventId < MinEventId || eventData.EventId > MaxEventId)
-            {
-                if (eventData.EventId == -1)
-                {
-                    OnEventCounters(eventData);
-                }
-
-                return;
-            }
-
-            if (TelemetryConsumers is null)
-            {
-                return;
-            }
-
 #pragma warning disable IDE0007 // Use implicit type
             // Explicit type here to drop the object? signature of payload elements
             ReadOnlyCollection<object> payload = eventData.Payload!;
@@ -60,7 +40,7 @@ namespace Yarp.Telemetry.Consumption
                         var versionMajor = (int)(byte)payload[4];
                         var versionMinor = (int)(byte)payload[5];
                         var versionPolicy = (HttpVersionPolicy)payload[6];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnRequestStart(eventData.TimeStamp, scheme, host, port, pathAndQuery, versionMajor, versionMinor, versionPolicy);
                         }
@@ -70,7 +50,7 @@ namespace Yarp.Telemetry.Consumption
                 case 2:
                     Debug.Assert(eventData.EventName == "RequestStop" && payload.Count == 0);
                     {
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnRequestStop(eventData.TimeStamp);
                         }
@@ -80,7 +60,7 @@ namespace Yarp.Telemetry.Consumption
                 case 3:
                     Debug.Assert(eventData.EventName == "RequestFailed" && payload.Count == 0);
                     {
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnRequestFailed(eventData.TimeStamp);
                         }
@@ -92,7 +72,7 @@ namespace Yarp.Telemetry.Consumption
                     {
                         var versionMajor = (int)(byte)payload[0];
                         var versionMinor = (int)(byte)payload[1];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnConnectionEstablished(eventData.TimeStamp, versionMajor, versionMinor);
                         }
@@ -109,7 +89,7 @@ namespace Yarp.Telemetry.Consumption
                         var timeOnQueue = TimeSpan.FromMilliseconds((double)payload[0]);
                         var versionMajor = (int)(byte)payload[1];
                         var versionMinor = (int)(byte)payload[2];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnRequestLeftQueue(eventData.TimeStamp, timeOnQueue, versionMajor, versionMinor);
                         }
@@ -119,7 +99,7 @@ namespace Yarp.Telemetry.Consumption
                 case 7:
                     Debug.Assert(eventData.EventName == "RequestHeadersStart" && payload.Count == 0);
                     {
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnRequestHeadersStart(eventData.TimeStamp);
                         }
@@ -129,7 +109,7 @@ namespace Yarp.Telemetry.Consumption
                 case 8:
                     Debug.Assert(eventData.EventName == "RequestHeadersStop" && payload.Count == 0);
                     {
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnRequestHeadersStop(eventData.TimeStamp);
                         }
@@ -139,7 +119,7 @@ namespace Yarp.Telemetry.Consumption
                 case 9:
                     Debug.Assert(eventData.EventName == "RequestContentStart" && payload.Count == 0);
                     {
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnRequestContentStart(eventData.TimeStamp);
                         }
@@ -150,7 +130,7 @@ namespace Yarp.Telemetry.Consumption
                     Debug.Assert(eventData.EventName == "RequestContentStop" && payload.Count == 1);
                     {
                         var contentLength = (long)payload[0];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnRequestContentStop(eventData.TimeStamp, contentLength);
                         }
@@ -160,7 +140,7 @@ namespace Yarp.Telemetry.Consumption
                 case 11:
                     Debug.Assert(eventData.EventName == "ResponseHeadersStart" && payload.Count == 0);
                     {
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnResponseHeadersStart(eventData.TimeStamp);
                         }
@@ -170,7 +150,7 @@ namespace Yarp.Telemetry.Consumption
                 case 12:
                     Debug.Assert(eventData.EventName == "ResponseHeadersStop" && payload.Count == 0);
                     {
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnResponseHeadersStop(eventData.TimeStamp);
                         }
@@ -179,25 +159,9 @@ namespace Yarp.Telemetry.Consumption
             }
         }
 
-        private void OnEventCounters(EventWrittenEventArgs eventData)
+        protected override bool TrySaveMetric(HttpMetrics metrics, string name, double value)
         {
-            if (MetricsConsumers is null)
-            {
-                return;
-            }
-
-            Debug.Assert(eventData.EventName == "EventCounters" && eventData.Payload!.Count == 1);
-            var counters = (IDictionary<string, object>)eventData.Payload[0]!;
-
-            if (!counters.TryGetValue("Mean", out var valueObj))
-            {
-                valueObj = counters["Increment"];
-            }
-
-            var value = (double)valueObj;
-            var metrics = _currentMetrics;
-
-            switch ((string)counters["Name"])
+            switch (name)
             {
                 case "requests-started":
                     metrics.RequestsStarted = (long)value;
@@ -236,39 +200,10 @@ namespace Yarp.Telemetry.Consumption
                     break;
 
                 default:
-                    return;
+                    return false;
             }
 
-            const int TotalEventCounters = 9;
-
-            if (++_eventCountersCount == TotalEventCounters)
-            {
-                _eventCountersCount = 0;
-
-                metrics.Timestamp = DateTime.UtcNow;
-
-                var previous = _previousMetrics;
-                _previousMetrics = metrics;
-                _currentMetrics = new HttpMetrics();
-
-                if (previous is null)
-                {
-                    return;
-                }
-
-                try
-                {
-                    foreach (var consumer in MetricsConsumers)
-                    {
-                        consumer.OnHttpMetrics(previous, metrics);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // We can't let an uncaught exception propagate as that would crash the process
-                    Logger.LogError(ex, $"Uncaught exception occured while processing {nameof(HttpMetrics)}.");
-                }
-            }
+            return true;
         }
     }
 }

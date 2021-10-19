@@ -10,6 +10,8 @@ namespace Yarp.Telemetry.Consumption
     /// </summary>
     public sealed class SocketsMetrics
     {
+        public SocketsMetrics() => Timestamp = DateTime.UtcNow;
+
         /// <summary>
         /// Timestamp of when this <see cref="SocketsMetrics"/> instance was created.
         /// </summary>
@@ -44,7 +46,5 @@ namespace Yarp.Telemetry.Consumption
         /// Number of datagrams sent since telemetry was enabled.
         /// </summary>
         public long DatagramsSent { get; internal set; }
-
-        internal SocketsMetrics() { }
     }
 }

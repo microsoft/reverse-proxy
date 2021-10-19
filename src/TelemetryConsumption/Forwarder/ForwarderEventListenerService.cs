@@ -11,38 +11,18 @@ using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.Telemetry.Consumption
 {
-    internal sealed class ForwarderEventListenerService : EventListenerService<ForwarderEventListenerService, IForwarderTelemetryConsumer, IForwarderMetricsConsumer>
+    internal sealed class ForwarderEventListenerService : EventListenerService<ForwarderEventListenerService, IForwarderTelemetryConsumer, ForwarderMetrics>
     {
-        private ForwarderMetrics? _previousMetrics;
-        private ForwarderMetrics _currentMetrics = new();
-        private int _eventCountersCount;
-
         protected override string EventSourceName => "Yarp.ReverseProxy";
 
-        public ForwarderEventListenerService(ILogger<ForwarderEventListenerService> logger, IEnumerable<IForwarderTelemetryConsumer> telemetryConsumers, IEnumerable<IForwarderMetricsConsumer> metricsConsumers)
+        protected override int NumberOfMetrics => 4;
+
+        public ForwarderEventListenerService(ILogger<ForwarderEventListenerService> logger, IEnumerable<IForwarderTelemetryConsumer> telemetryConsumers, IEnumerable<IMetricsConsumer<ForwarderMetrics>> metricsConsumers)
             : base(logger, telemetryConsumers, metricsConsumers)
         { }
 
-        protected override void OnEventWritten(EventWrittenEventArgs eventData)
+        protected override void OnEvent(IForwarderTelemetryConsumer[] consumers, EventWrittenEventArgs eventData)
         {
-            const int MinEventId = 1;
-            const int MaxEventId = 7;
-
-            if (eventData.EventId < MinEventId || eventData.EventId > MaxEventId)
-            {
-                if (eventData.EventId == -1)
-                {
-                    OnEventCounters(eventData);
-                }
-
-                return;
-            }
-
-            if (TelemetryConsumers is null)
-            {
-                return;
-            }
-
 #pragma warning disable IDE0007 // Use implicit type
             // Explicit type here to drop the object? signature of payload elements
             ReadOnlyCollection<object> payload = eventData.Payload!;
@@ -54,7 +34,7 @@ namespace Yarp.Telemetry.Consumption
                     Debug.Assert(eventData.EventName == "ForwarderStart" && payload.Count == 1);
                     {
                         var destinationPrefix = (string)payload[0];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnForwarderStart(eventData.TimeStamp, destinationPrefix);
                         }
@@ -65,7 +45,7 @@ namespace Yarp.Telemetry.Consumption
                     Debug.Assert(eventData.EventName == "ForwarderStop" && payload.Count == 1);
                     {
                         var statusCode = (int)payload[0];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnForwarderStop(eventData.TimeStamp, statusCode);
                         }
@@ -76,7 +56,7 @@ namespace Yarp.Telemetry.Consumption
                     Debug.Assert(eventData.EventName == "ForwarderFailed" && payload.Count == 1);
                     {
                         var error = (ForwarderError)payload[0];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnForwarderFailed(eventData.TimeStamp, error);
                         }
@@ -87,7 +67,7 @@ namespace Yarp.Telemetry.Consumption
                     Debug.Assert(eventData.EventName == "ForwarderStage" && payload.Count == 1);
                     {
                         var proxyStage = (ForwarderStage)payload[0];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnForwarderStage(eventData.TimeStamp, proxyStage);
                         }
@@ -102,7 +82,7 @@ namespace Yarp.Telemetry.Consumption
                         var iops = (long)payload[2];
                         var readTime = new TimeSpan((long)payload[3]);
                         var writeTime = new TimeSpan((long)payload[4]);
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnContentTransferring(eventData.TimeStamp, isRequest, contentLength, iops, readTime, writeTime);
                         }
@@ -118,7 +98,7 @@ namespace Yarp.Telemetry.Consumption
                         var readTime = new TimeSpan((long)payload[3]);
                         var writeTime = new TimeSpan((long)payload[4]);
                         var firstReadTime = new TimeSpan((long)payload[5]);
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnContentTransferred(eventData.TimeStamp, isRequest, contentLength, iops, readTime, writeTime, firstReadTime);
                         }
@@ -131,7 +111,7 @@ namespace Yarp.Telemetry.Consumption
                         var clusterId = (string)payload[0];
                         var routeId = (string)payload[1];
                         var destinationId = (string)payload[2];
-                        foreach (var consumer in TelemetryConsumers)
+                        foreach (var consumer in consumers)
                         {
                             consumer.OnForwarderInvoke(eventData.TimeStamp, clusterId, routeId, destinationId);
                         }
@@ -140,76 +120,33 @@ namespace Yarp.Telemetry.Consumption
             }
         }
 
-        private void OnEventCounters(EventWrittenEventArgs eventData)
+        protected override bool TrySaveMetric(ForwarderMetrics metrics, string name, double value)
         {
-            if (MetricsConsumers is null)
-            {
-                return;
-            }
+            var longValue = (long)value;
 
-            Debug.Assert(eventData.EventName == "EventCounters" && eventData.Payload!.Count == 1);
-            var counters = (IDictionary<string, object>)eventData.Payload[0]!;
-
-            if (!counters.TryGetValue("Mean", out var valueObj))
-            {
-                valueObj = counters["Increment"];
-            }
-
-            var value = (long)(double)valueObj;
-            var metrics = _currentMetrics;
-
-            switch ((string)counters["Name"])
+            switch (name)
             {
                 case "requests-started":
-                    metrics.RequestsStarted = value;
+                    metrics.RequestsStarted = longValue;
                     break;
 
                 case "requests-started-rate":
-                    metrics.RequestsStartedRate = value;
+                    metrics.RequestsStartedRate = longValue;
                     break;
 
                 case "requests-failed":
-                    metrics.RequestsFailed = value;
+                    metrics.RequestsFailed = longValue;
                     break;
 
                 case "current-requests":
-                    metrics.CurrentRequests = value;
+                    metrics.CurrentRequests = longValue;
                     break;
 
                 default:
-                    return;
+                    return false;
             }
 
-            const int TotalEventCounters = 4;
-
-            if (++_eventCountersCount == TotalEventCounters)
-            {
-                _eventCountersCount = 0;
-
-                metrics.Timestamp = DateTime.UtcNow;
-
-                var previous = _previousMetrics;
-                _previousMetrics = metrics;
-                _currentMetrics = new ForwarderMetrics();
-
-                if (previous is null)
-                {
-                    return;
-                }
-
-                try
-                {
-                    foreach (var consumer in MetricsConsumers)
-                    {
-                        consumer.OnForwarderMetrics(previous, metrics);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // We can't let an uncaught exception propagate as that would crash the process
-                    Logger.LogError(ex, $"Uncaught exception occured while processing {nameof(ForwarderMetrics)}.");
-                }
-            }
+            return true;
         }
     }
 }
