@@ -303,7 +303,7 @@ namespace Yarp.ReverseProxy.Forwarder
             var request = context.Request;
             destinationRequest.RequestUri ??= RequestUtilities.MakeDestinationAddress(destinationPrefix, request.Path, request.QueryString);
 
-            Log.Proxying(_logger, destinationRequest.RequestUri);
+            Log.Proxying(_logger, destinationRequest, isStreamingRequest);
 
             if (requestConfig?.AllowResponseBuffering != true)
             {
@@ -766,10 +766,10 @@ namespace Yarp.ReverseProxy.Forwarder
                 EventIds.HttpDowngradeDetected,
                 "The request was downgraded from HTTP/2.");
 
-            private static readonly Action<ILogger, string, Exception?> _proxying = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, string, string, string, Exception?> _proxying = LoggerMessage.Define<string, string, string, string>(
                 LogLevel.Information,
                 EventIds.Forwarding,
-                "Proxying to {targetUrl}");
+                "Proxying to {targetUrl} {version} {versionPolicy} {isStreaming}");
 
             private static readonly Action<ILogger, ForwarderError, string, Exception> _proxyError = LoggerMessage.Define<ForwarderError, string>(
                 LogLevel.Information,
@@ -781,12 +781,19 @@ namespace Yarp.ReverseProxy.Forwarder
                 _httpDowngradeDetected(logger, null);
             }
 
-            public static void Proxying(ILogger logger, Uri targetUrl)
+            public static void Proxying(ILogger logger, HttpRequestMessage msg, bool isStreamingRequest)
             {
                 // Avoid computing the AbsoluteUri unless logging is enabled
                 if (logger.IsEnabled(LogLevel.Information))
                 {
-                    _proxying(logger, targetUrl.AbsoluteUri, null);
+                    var streaming = isStreamingRequest ? "streaming" : "no-streaming";
+                    var version = ProtocolHelper.GetHttpProtocol(msg.Version);
+#if NET
+                    var versionPolicy = ProtocolHelper.GetVersionPolicy(msg.VersionPolicy);
+#else
+                    var versionPolicy = "RequestVersionOrLower";
+#endif
+                    _proxying(logger, msg.RequestUri!.AbsoluteUri, version, versionPolicy, streaming, null);
                 }
             }
 
