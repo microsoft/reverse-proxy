@@ -95,7 +95,6 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
                             SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                             MaxConnectionsPerServer = 10,
                             DangerousAcceptAnyServerCertificate = true,
-                            ActivityContextHeaders = ActivityContextHeaders.Baggage,
 #if NET
                             EnableMultipleHttp2Connections = true,
 #endif
@@ -245,7 +244,6 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
                 ""DangerousAcceptAnyServerCertificate"": true,
                 ""MaxConnectionsPerServer"": 10,
                 ""EnableMultipleHttp2Connections"": true,
-                ""ActivityContextHeaders"": ""Baggage"",
                 ""RequestHeaderEncoding"": ""utf-8"",
                 ""WebProxy"": {
                     ""Address"": ""http://localhost:8080"",
@@ -538,7 +536,6 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider.Tests
             Assert.Equal(cluster1.HttpClient.EnableMultipleHttp2Connections, abstractCluster1.HttpClient.EnableMultipleHttp2Connections);
             Assert.Equal(Encoding.UTF8.WebName, abstractCluster1.HttpClient.RequestHeaderEncoding);
 #endif
-            Assert.Equal(cluster1.HttpClient.ActivityContextHeaders, abstractCluster1.HttpClient.ActivityContextHeaders);
             Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);
             Assert.Equal(cluster1.HttpRequest.ActivityTimeout, abstractCluster1.HttpRequest.ActivityTimeout);
             Assert.Equal(HttpVersion.Version10, abstractCluster1.HttpRequest.Version);

@@ -56,7 +56,6 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.HttpClient.DangerousAcceptAnyServerCertificate", "true" },
                 { "YARP.Backend.HttpClient.MaxConnectionsPerServer", "1000" },
                 { "YARP.Backend.HttpClient.SslProtocols", "Tls12" },
-                { "YARP.Backend.HttpClient.ActivityContextHeaders", "BaggageAndCorrelationContext" },
 #if NET
                 { "YARP.Backend.HttpClient.EnableMultipleHttp2Connections", "false" },
                 { "YARP.Backend.HttpClient.RequestHeaderEncoding", "utf-8" },
@@ -122,7 +121,6 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 },
                 HttpClient = new HttpClientConfig
                 {
-                    ActivityContextHeaders = ActivityContextHeaders.BaggageAndCorrelationContext,
                     DangerousAcceptAnyServerCertificate = true,
 #if NET
                     EnableMultipleHttp2Connections = false,

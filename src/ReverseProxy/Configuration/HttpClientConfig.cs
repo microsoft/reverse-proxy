@@ -33,11 +33,6 @@ namespace Yarp.ReverseProxy.Configuration
         public int? MaxConnectionsPerServer { get; init; }
 
         /// <summary>
-        /// Specifies the activity correlation headers for outgoing requests.
-        /// </summary>
-        public ActivityContextHeaders? ActivityContextHeaders { get; init; }
-
-        /// <summary>
         /// Optional web proxy used when communicating with the destination server. 
         /// </summary>
         public WebProxyConfig? WebProxy { get; init; }
@@ -71,7 +66,6 @@ namespace Yarp.ReverseProxy.Configuration
                    // Comparing by reference is fine here since Encoding.GetEncoding returns the same instance for each encoding.
                    && RequestHeaderEncoding == other.RequestHeaderEncoding
 #endif
-                   && ActivityContextHeaders == other.ActivityContextHeaders
                    && WebProxy == other.WebProxy;
         }
 
@@ -84,7 +78,6 @@ namespace Yarp.ReverseProxy.Configuration
                 EnableMultipleHttp2Connections,
                 RequestHeaderEncoding,
 #endif
-                ActivityContextHeaders,
                 WebProxy);
         }
     }

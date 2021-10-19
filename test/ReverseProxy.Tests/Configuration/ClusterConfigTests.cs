@@ -85,7 +85,6 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                     SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
                     DangerousAcceptAnyServerCertificate = true,
-                    ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
 #if NET
                     RequestHeaderEncoding = Encoding.UTF8.WebName
 #endif
@@ -166,7 +165,6 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                     SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
                     DangerousAcceptAnyServerCertificate = true,
-                    ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
 #if NET
                     RequestHeaderEncoding = Encoding.UTF8.WebName
 #endif
@@ -258,7 +256,6 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                     SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
                     DangerousAcceptAnyServerCertificate = true,
-                    ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
                 },
                 HttpRequest = new ForwarderRequestConfig
                 {
@@ -303,7 +300,6 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                     SslProtocols = SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
                     DangerousAcceptAnyServerCertificate = true,
-                    ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
                 }
             }));
             Assert.False(config1.Equals(config1 with { HttpRequest = new ForwarderRequestConfig() { } }));
@@ -370,7 +366,6 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                     SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
                     DangerousAcceptAnyServerCertificate = true,
-                    ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
                     WebProxy = new WebProxyConfig
                     {
                         Address = new Uri("http://proxy"),
