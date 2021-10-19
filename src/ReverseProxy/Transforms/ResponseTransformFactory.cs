@@ -18,8 +18,6 @@ namespace Yarp.ReverseProxy.Transforms
         internal static readonly string ResponseHeadersAllowedKey = "ResponseHeadersAllowed";
         internal static readonly string ResponseTrailersAllowedKey = "ResponseTrailersAllowed";
         internal static readonly string WhenKey = "When";
-        internal static readonly string AlwaysValue = "Always";
-        internal static readonly string SuccessValue = "Success";
         internal static readonly string AppendKey = "Append";
         internal static readonly string SetKey = "Set";
 
