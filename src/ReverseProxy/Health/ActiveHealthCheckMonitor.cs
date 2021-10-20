@@ -159,7 +159,6 @@ namespace Yarp.ReverseProxy.Health
             try
             {
                 request = _probingRequestFactory.CreateRequest(cluster.Model, destination.Model);
-                Log.SendingHealthProbeToEndpointOfDestination(_logger, request.RequestUri, destination.DestinationId, cluster.ClusterId);
             }
             catch (Exception ex)
             {
@@ -171,6 +170,7 @@ namespace Yarp.ReverseProxy.Health
             var cts = new CancellationTokenSource(timeout);
             try
             {
+                Log.SendingHealthProbeToEndpointOfDestination(_logger, request.RequestUri, destination.DestinationId, cluster.ClusterId);
                 var response = await cluster.Model.HttpClient.SendAsync(request, cts.Token);
                 Log.DestinationProbingCompleted(_logger, destination.DestinationId, cluster.ClusterId, (int)response.StatusCode);
 
