@@ -26,5 +26,12 @@ namespace Yarp.Telemetry.Consumption
         /// Average DNS lookup duration in the last metrics interval.
         /// </summary>
         public TimeSpan AverageLookupDuration { get; internal set; }
+
+#if NET6_0_OR_GREATER
+        /// <summary>
+        /// Number of DNS lookups that have started but not yet completed or failed.
+        /// </summary>
+        public long CurrentDnsLookups { get; internal set; }
+#endif
     }
 }

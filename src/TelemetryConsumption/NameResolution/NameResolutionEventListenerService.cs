@@ -14,7 +14,11 @@ namespace Yarp.Telemetry.Consumption
     {
         protected override string EventSourceName => "System.Net.NameResolution";
 
+#if NET6_0_OR_GREATER
+        protected override int NumberOfMetrics => 3;
+#else
         protected override int NumberOfMetrics => 2;
+#endif
 
         public NameResolutionEventListenerService(ILogger<NameResolutionEventListenerService> logger, IEnumerable<INameResolutionTelemetryConsumer> telemetryConsumers, IEnumerable<IMetricsConsumer<NameResolutionMetrics>> metricsConsumers)
             : base(logger, telemetryConsumers, metricsConsumers)
@@ -73,6 +77,12 @@ namespace Yarp.Telemetry.Consumption
                 case "dns-lookups-duration":
                     metrics.AverageLookupDuration = TimeSpan.FromMilliseconds(value);
                     break;
+
+#if NET6_0_OR_GREATER
+                case "current-dns-lookups":
+                    metrics.CurrentDnsLookups = (long)value;
+                    break;
+#endif
 
                 default:
                     return false;
