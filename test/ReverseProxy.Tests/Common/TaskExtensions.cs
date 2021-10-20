@@ -49,7 +49,16 @@ namespace Yarp.Tests.Common
             {
                 return await task;
             }
-
+#if NET6_0_OR_GREATER
+            try
+            {
+                return await task.WaitAsync(timeout);
+            }
+            catch (TimeoutException ex) when (ex.Source == typeof(TaskExtensions).Namespace)
+            {
+                throw new TimeoutException(CreateMessage(timeout, filePath, lineNumber));
+            }
+#else
             var cts = new CancellationTokenSource();
             if (task == await Task.WhenAny(task, Task.Delay(timeout, cts.Token)))
             {
@@ -60,6 +69,7 @@ namespace Yarp.Tests.Common
             {
                 throw new TimeoutException(CreateMessage(timeout, filePath, lineNumber));
             }
+#endif
         }
 
         private static async Task TimeoutAfter(this Task task, TimeSpan timeout,
