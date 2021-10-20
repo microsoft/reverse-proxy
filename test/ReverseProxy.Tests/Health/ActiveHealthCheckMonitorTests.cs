@@ -367,45 +367,6 @@ namespace Yarp.ReverseProxy.Health.Tests
         }
 
         [Fact]
-        public async Task ForceCheckAll_SendingProbeToDestinationThrowsException_SkipItAndProceedToNextDestination()
-        {
-            var policy = new Mock<IActiveHealthCheckPolicy>();
-            policy.SetupGet(p => p.Name).Returns("policy0");
-            var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
-            var clusters = new List<ClusterState>();
-            var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
-
-            var httpClient = new Mock<HttpMessageInvoker>(() => new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
-            httpClient.Setup(c => c.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((HttpRequestMessage m, CancellationToken t) =>
-                {
-                    switch (m.RequestUri.AbsoluteUri)
-                    {
-                        case "https://localhost:20001/cluster0/api/health/":
-                            throw new InvalidOperationException();
-                        default:
-                            return new HttpResponseMessage(HttpStatusCode.OK) { Version = m.Version };
-                    }
-                });
-            var cluster = GetClusterInfo("cluster0", "policy0", true, httpClient.Object, destinationCount: 3);
-            clusters.Add(cluster);
-
-            Assert.False(monitor.InitialProbeCompleted);
-
-            await monitor.CheckHealthAsync(clusters);
-
-            Assert.True(monitor.InitialProbeCompleted);
-
-            policy.Verify(
-                p => p.ProbingCompleted(
-                    cluster,
-                    It.Is<IReadOnlyList<DestinationProbingResult>>(r => r.Count == 2 && r.All(i => i.Response.StatusCode == HttpStatusCode.OK && i.Exception == null))),
-                Times.Once);
-            policy.Verify(p => p.Name);
-            policy.VerifyNoOtherCalls();
-        }
-
-        [Fact]
         public async Task ForceCheckAll_PolicyThrowsException_SkipItAndSetIsFullyInitializedFlag()
         {
             var policy = new Mock<IActiveHealthCheckPolicy>();
