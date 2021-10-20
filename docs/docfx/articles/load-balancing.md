@@ -62,7 +62,7 @@ var clusters = new[]
 ## Built-in policies
 
 YARP ships with the following built-in policies:
-- `First`
+- `FirstAlphabetical`
 
     Select the alphabetically first available destination without considering load. This is useful for dual destination fail-over systems.
 - `Random`

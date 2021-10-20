@@ -35,7 +35,6 @@ namespace Yarp.ReverseProxy.Configuration
         /// </summary>
         public string? Path { get; init; }
 
-        /// <inheritdoc />
         public bool Equals(ActiveHealthCheckConfig? other)
         {
             if (other == null)
@@ -47,17 +46,16 @@ namespace Yarp.ReverseProxy.Configuration
                 && Interval == other.Interval
                 && Timeout == other.Timeout
                 && string.Equals(Policy, other.Policy, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(Path, other.Path, StringComparison.OrdinalIgnoreCase);
+                && string.Equals(Path, other.Path, StringComparison.Ordinal);
         }
 
-        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashCode.Combine(Enabled,
                 Interval,
                 Timeout,
                 Policy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
-                Path?.GetHashCode(StringComparison.OrdinalIgnoreCase));
+                Path?.GetHashCode(StringComparison.Ordinal));
         }
     }
 }

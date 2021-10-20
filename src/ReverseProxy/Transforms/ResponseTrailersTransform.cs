@@ -41,8 +41,11 @@ namespace Yarp.ReverseProxy.Transforms
             }
 
             var existingValues = StringValues.Empty;
+
+            Debug.Assert(context.ProxyResponse != null);
+
             var responseTrailersFeature = context.HttpContext.Features.Get<IHttpResponseTrailersFeature>();
-            var responseTrailers = responseTrailersFeature.Trailers;
+            var responseTrailers = responseTrailersFeature?.Trailers;
             // Support should have already been checked by the caller.
             Debug.Assert(responseTrailers != null);
             Debug.Assert(!responseTrailers.IsReadOnly);
@@ -67,7 +70,7 @@ namespace Yarp.ReverseProxy.Transforms
         public static void SetHeader(ResponseTrailersTransformContext context, string headerName, StringValues values)
         {
             var responseTrailersFeature = context.HttpContext.Features.Get<IHttpResponseTrailersFeature>();
-            var responseTrailers = responseTrailersFeature.Trailers;
+            var responseTrailers = responseTrailersFeature?.Trailers;
             // Support should have already been checked by the caller.
             Debug.Assert(responseTrailers != null);
             Debug.Assert(!responseTrailers.IsReadOnly);

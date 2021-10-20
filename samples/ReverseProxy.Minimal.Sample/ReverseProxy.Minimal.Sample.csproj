@@ -2,10 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-preview.12.21451.3" />
+    <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-rc.1.21520.4" />
   </ItemGroup>
 
 </Project>

@@ -92,7 +92,22 @@ namespace Yarp.ReverseProxy.Routing
                             {
                                 if (MatchHeader(matcher.Mode, requestHeaderValue, expectedHeaderValues[j], matcher.IsCaseSensitive))
                                 {
-                                    matched = true;
+                                    if (matcher.Mode == HeaderMatchMode.NotContains)
+                                    {
+                                        if (j + 1 == expectedHeaderValues.Count)
+                                        {
+                                            // None of the NotContains values were found
+                                            matched = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        matched = true;
+                                        break;
+                                    }
+                                }
+                                else if (matcher.Mode == HeaderMatchMode.NotContains)
+                                {
                                     break;
                                 }
                             }
@@ -119,6 +134,10 @@ namespace Yarp.ReverseProxy.Routing
                 HeaderMatchMode.ExactHeader => MemoryExtensions.Equals(requestHeaderValue, metadataHeaderValue, comparison),
                 HeaderMatchMode.HeaderPrefix => requestHeaderValue != null && metadataHeaderValue != null
                     && MemoryExtensions.StartsWith(requestHeaderValue, metadataHeaderValue, comparison),
+                HeaderMatchMode.Contains => requestHeaderValue != null && metadataHeaderValue != null
+                    && MemoryExtensions.Contains(requestHeaderValue, metadataHeaderValue, comparison),
+                HeaderMatchMode.NotContains => requestHeaderValue != null && metadataHeaderValue != null
+                    && !MemoryExtensions.Contains(requestHeaderValue, metadataHeaderValue, comparison),
                 _ => throw new NotImplementedException(matchMode.ToString()),
             };
         }

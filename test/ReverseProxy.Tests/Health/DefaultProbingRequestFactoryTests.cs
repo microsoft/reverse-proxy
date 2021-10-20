@@ -81,7 +81,7 @@ namespace Yarp.ReverseProxy.Health.Tests
                     },
                     HttpRequest = new ForwarderRequestConfig
                     {
-                        Timeout = TimeSpan.FromSeconds(60),
+                        ActivityTimeout = TimeSpan.FromSeconds(60),
                         Version = version,
 #if NET
                         VersionPolicy = versionPolicy,

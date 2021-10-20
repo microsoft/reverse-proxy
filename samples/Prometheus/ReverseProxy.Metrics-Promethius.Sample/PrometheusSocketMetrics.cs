@@ -3,13 +3,12 @@
 
 #if NET
 
-using Yarp.ReverseProxy.Telemetry.Consumption;
+using Yarp.Telemetry.Consumption;
 using Prometheus;
 
 namespace Yarp.Sample
 {
-
-    public sealed class PrometheusSocketMetrics : ISocketsMetricsConsumer
+    public sealed class PrometheusSocketMetrics : IMetricsConsumer<SocketsMetrics>
     {
         private static readonly Counter _outgoingConnectionsEstablished = Metrics.CreateCounter(
             "yarp_sockets_outgoing_connections_established",
@@ -42,14 +41,14 @@ namespace Yarp.Sample
             "Number of datagrams Sent"
             );
 
-        public void OnSocketsMetrics(SocketsMetrics oldMetrics, SocketsMetrics newMetrics)
+        public void OnMetrics(SocketsMetrics previous, SocketsMetrics current)
         {
-            _outgoingConnectionsEstablished.IncTo(newMetrics.OutgoingConnectionsEstablished);
-            _incomingConnectionsEstablished.IncTo(newMetrics.IncomingConnectionsEstablished);
-            _bytesReceived.IncTo(newMetrics.BytesReceived);
-            _bytesSent.IncTo(newMetrics.BytesSent);
-            _datagramsReceived.IncTo(newMetrics.DatagramsReceived);
-            _datagramsSent.IncTo(newMetrics.DatagramsSent);
+            _outgoingConnectionsEstablished.IncTo(current.OutgoingConnectionsEstablished);
+            _incomingConnectionsEstablished.IncTo(current.IncomingConnectionsEstablished);
+            _bytesReceived.IncTo(current.BytesReceived);
+            _bytesSent.IncTo(current.BytesSent);
+            _datagramsReceived.IncTo(current.DatagramsReceived);
+            _datagramsSent.IncTo(current.DatagramsSent);
         }
     }
 }

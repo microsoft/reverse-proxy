@@ -13,8 +13,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Yarp.ReverseProxy.Common.Tests;
+using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace Yarp.ReverseProxy.Common
 {
@@ -22,43 +24,56 @@ namespace Yarp.ReverseProxy.Common
     {
         private readonly Action<IServiceCollection> _configureDestinationServices;
         private readonly Action<IApplicationBuilder> _configureDestinationApp;
+        private readonly Action<IServiceCollection> _configureProxyServices;
         private readonly Action<IReverseProxyBuilder> _configureProxy;
         private readonly Action<IApplicationBuilder> _configureProxyApp;
         private readonly HttpProtocols _proxyProtocol;
         private readonly bool _useHttpsOnDestination;
+        private readonly bool _useHttpsOnProxy;
         private readonly Encoding _headerEncoding;
+        private readonly Func<ClusterConfig, RouteConfig, (ClusterConfig Cluster, RouteConfig Route)> _configTransformer;
 
         public string ClusterId { get; set; } = "cluster1";
 
         public TestEnvironment(
             RequestDelegate destinationGetDelegate,
             Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp,
-            HttpProtocols proxyProtocol = HttpProtocols.Http1AndHttp2, bool useHttpsOnDestination = false, Encoding headerEncoding = null)
+            HttpProtocols proxyProtocol = HttpProtocols.Http1AndHttp2, bool useHttpsOnDestination = false,
+            bool useHttpsOnProxy = false, Encoding headerEncoding = null,
+            Func<ClusterConfig, RouteConfig, (ClusterConfig Cluster, RouteConfig Route)> configTransformer = null)
             : this(
                   destinationServices => { },
                   destinationApp =>
                   {
                       destinationApp.Run(destinationGetDelegate);
                   },
+                  configureProxyServices: null,
                   configureProxy,
                   configureProxyApp,
                   proxyProtocol,
                   useHttpsOnDestination,
-                  headerEncoding)
+                  useHttpsOnProxy,
+                  headerEncoding,
+                  configTransformer)
         { }
 
         public TestEnvironment(
             Action<IServiceCollection> configureDestinationServices, Action<IApplicationBuilder> configureDestinationApp,
-            Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp,
-            HttpProtocols proxyProtocol = HttpProtocols.Http1AndHttp2, bool useHttpsOnDestination = false, Encoding headerEncoding = null)
+            Action<IServiceCollection> configureProxyServices, Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp,
+            HttpProtocols proxyProtocol = HttpProtocols.Http1AndHttp2, bool useHttpsOnDestination = false,
+            bool useHttpsOnProxy = false, Encoding headerEncoding = null,
+            Func<ClusterConfig, RouteConfig, (ClusterConfig Cluster, RouteConfig Route)> configTransformer = null)
         {
             _configureDestinationServices = configureDestinationServices;
             _configureDestinationApp = configureDestinationApp;
             _configureProxy = configureProxy;
             _configureProxyApp = configureProxyApp;
+            _configureProxyServices = configureProxyServices ?? (_ => { });
             _proxyProtocol = proxyProtocol;
             _useHttpsOnDestination = useHttpsOnDestination;
+            _useHttpsOnProxy = useHttpsOnProxy;
             _headerEncoding = headerEncoding;
+            _configTransformer = configTransformer ?? ((ClusterConfig c, RouteConfig r) => (c, r));
         }
 
         public async Task Invoke(Func<string, Task> clientFunc, CancellationToken cancellationToken = default)
@@ -66,7 +81,7 @@ namespace Yarp.ReverseProxy.Common
             using var destination = CreateHost(HttpProtocols.Http1AndHttp2, _useHttpsOnDestination, _headerEncoding, _configureDestinationServices, _configureDestinationApp);
             await destination.StartAsync(cancellationToken);
 
-            using var proxy = CreateProxy(_proxyProtocol, _useHttpsOnDestination, _headerEncoding, ClusterId, destination.GetAddress(), _configureProxy, _configureProxyApp);
+            using var proxy = CreateProxy(_proxyProtocol, _useHttpsOnDestination, _useHttpsOnProxy, _headerEncoding, ClusterId, destination.GetAddress(), _configureProxyServices, _configureProxy, _configureProxyApp, _configTransformer);
             await proxy.StartAsync(cancellationToken);
 
             try
@@ -80,13 +95,15 @@ namespace Yarp.ReverseProxy.Common
             }
         }
 
-        public static IHost CreateProxy(HttpProtocols protocols, bool useHttps, Encoding requestHeaderEncoding, string clusterId, string destinationAddress,
-            Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp)
+        public static IHost CreateProxy(HttpProtocols protocols, bool useHttpsOnDestination, bool httpsOnProxy, Encoding requestHeaderEncoding, string clusterId, string destinationAddress,
+            Action<IServiceCollection> configureServices, Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp, Func<ClusterConfig, RouteConfig, (ClusterConfig Cluster, RouteConfig Route)> configTransformer)
         {
-            return CreateHost(protocols, false, requestHeaderEncoding,
+            return CreateHost(protocols, httpsOnProxy, requestHeaderEncoding,
                 services =>
                 {
-                    var proxyRoute = new RouteConfig
+                    configureServices(services);
+
+                    var route = new RouteConfig
                     {
                         RouteId = "route1",
                         ClusterId = clusterId,
@@ -102,14 +119,14 @@ namespace Yarp.ReverseProxy.Common
                         },
                         HttpClient = new HttpClientConfig
                         {
-                            DangerousAcceptAnyServerCertificate = useHttps,
+                            DangerousAcceptAnyServerCertificate = useHttpsOnDestination,
 #if NET
                             RequestHeaderEncoding = requestHeaderEncoding?.WebName,
 #endif
                         }
                     };
-
-                    var proxyBuilder = services.AddReverseProxy().LoadFromMemory(new[] { proxyRoute }, new[] { cluster });
+                    (cluster, route) = configTransformer(cluster, route);
+                    var proxyBuilder = services.AddReverseProxy().LoadFromMemory(new[] { route }, new[] { cluster });
                     configureProxy(proxyBuilder);
                 },
                 app =>
@@ -127,6 +144,18 @@ namespace Yarp.ReverseProxy.Common
             Action<IServiceCollection> configureServices, Action<IApplicationBuilder> configureApp)
         {
             return new HostBuilder()
+                .ConfigureAppConfiguration(config =>
+                {
+                    config.AddInMemoryCollection(new Dictionary<string, string>()
+                    {
+                        { "Logging:LogLevel:Microsoft.AspNetCore.Hosting.Diagnostics", "Information" }
+                    });
+                })
+                .ConfigureLogging((hostingContext, loggingBuilder) =>
+                {
+                    loggingBuilder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                    loggingBuilder.AddEventSourceLogger();
+                })
                 .ConfigureWebHost(webHostBuilder =>
                 {
                     webHostBuilder

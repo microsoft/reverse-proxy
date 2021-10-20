@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
@@ -10,16 +11,22 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
+using Yarp.ReverseProxy.Transforms.Builder;
 
 namespace Yarp.ReverseProxy.Forwarder
 {
     public class HttpTransformer
     {
         /// <summary>
-        /// A default set of transforms that copies all request and response fields and headers, except for some
-        /// protocol specific values.
+        /// A default set of transforms that adds X-Forwarded-* headers, removes the original Host value and
+        /// copies all other request and response fields and headers, except for some protocol specific values.
         /// </summary>
-        public static readonly HttpTransformer Default = new HttpTransformer();
+        public static readonly HttpTransformer Default;
+
+        static HttpTransformer()
+        {
+            Default = TransformBuilder.CreateTransformer(new TransformBuilderContext());
+        }
 
         /// <summary>
         /// Used to create derived instances.
@@ -42,8 +49,7 @@ namespace Yarp.ReverseProxy.Forwarder
             {
                 var headerName = header.Key;
                 var headerValue = header.Value;
-                if (StringValues.IsNullOrEmpty(headerValue)
-                    || RequestUtilities.ShouldSkipRequestHeader(headerName))
+                if (RequestUtilities.ShouldSkipRequestHeader(headerName))
                 {
                     continue;
                 }
@@ -65,6 +71,27 @@ namespace Yarp.ReverseProxy.Forwarder
                 proxyRequest.Content?.Headers.Remove(HeaderNames.ContentLength);
             }
 
+            // https://datatracker.ietf.org/doc/html/rfc7540#section-8.1.2.2
+            // The only exception to this is the TE header field, which MAY be
+            // present in an HTTP/2 request; when it is, it MUST NOT contain any
+            // value other than "trailers".
+            if (ProtocolHelper.IsHttp2OrGreater(httpContext.Request.Protocol))
+            {
+                var te = httpContext.Request.Headers.GetCommaSeparatedValues(HeaderNames.TE);
+                if (te != null)
+                {
+                    for (var i = 0; i < te.Length; i++)
+                    {
+                        if (string.Equals(te[i], "trailers", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var added = proxyRequest.Headers.TryAddWithoutValidation(HeaderNames.TE, te[i]);
+                            Debug.Assert(added);
+                            break;
+                        }
+                    }
+                }
+            }
+
             return default;
         }
 
@@ -75,12 +102,17 @@ namespace Yarp.ReverseProxy.Forwarder
         /// `Transfer-Encoding: chunked`.
         /// </summary>
         /// <param name="httpContext">The incoming request.</param>
-        /// <param name="proxyResponse">The response from the destination.</param>
+        /// <param name="proxyResponse">The response from the destination. This can be null if the destination did not respond.</param>
         /// <returns>A bool indicating if the response should be proxied to the client or not. A derived implementation 
         /// that returns false may send an alternate response inline or return control to the caller for it to retry, respond, 
         /// etc.</returns>
-        public virtual ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+        public virtual ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage? proxyResponse)
         {
+            if (proxyResponse == null)
+            {
+                return new ValueTask<bool>(false);
+            }
+
             var responseHeaders = httpContext.Response.Headers;
             CopyResponseHeaders(proxyResponse.Headers, responseHeaders);
             if (proxyResponse.Content != null)
@@ -140,7 +172,11 @@ namespace Yarp.ReverseProxy.Forwarder
                 }
 
                 Debug.Assert(header.Value is string[]);
-                destination.Append(headerName, header.Value as string[] ?? header.Value.ToArray());
+                var values = header.Value as string[] ?? header.Value.ToArray();
+                // We want to append to any prior values, if any.
+                // Not using Append here because it skips empty headers.
+                values = StringValues.Concat(destination[headerName], values);
+                destination[headerName] = values;
             }
         }
     }

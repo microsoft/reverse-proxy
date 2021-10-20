@@ -58,11 +58,10 @@ namespace Yarp.ReverseProxy.Configuration
         public IReadOnlyDictionary<string, string>? Metadata { get; init; }
 
         /// <summary>
-        /// Parameters used to transform the request and response. See <see cref="Service.ITransformBuilder"/>.
+        /// Parameters used to transform the request and response. See <see cref="Transforms.Builder.ITransformBuilder"/>.
         /// </summary>
         public IReadOnlyList<IReadOnlyDictionary<string, string>>? Transforms { get; init; }
 
-        /// <inheritdoc />
         public bool Equals(RouteConfig? other)
         {
             if (other == null)
@@ -76,11 +75,10 @@ namespace Yarp.ReverseProxy.Configuration
                 && string.Equals(AuthorizationPolicy, other.AuthorizationPolicy, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(CorsPolicy, other.CorsPolicy, StringComparison.OrdinalIgnoreCase)
                 && Match == other.Match
-                && CaseInsensitiveEqualHelper.Equals(Metadata, other.Metadata)
-                && CaseInsensitiveEqualHelper.Equals(Transforms, other.Transforms);
+                && CaseSensitiveEqualHelper.Equals(Metadata, other.Metadata)
+                && CaseSensitiveEqualHelper.Equals(Transforms, other.Transforms);
         }
 
-        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashCode.Combine(Order,
@@ -89,8 +87,8 @@ namespace Yarp.ReverseProxy.Configuration
                 AuthorizationPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
                 CorsPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
                 Match,
-                Metadata,
-                Transforms);
+                CaseSensitiveEqualHelper.GetHashCode(Metadata),
+                CaseSensitiveEqualHelper.GetHashCode(Transforms));
         }
     }
 }

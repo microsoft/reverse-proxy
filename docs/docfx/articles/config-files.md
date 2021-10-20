@@ -117,14 +117,22 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
           "Path": "/something/{**remainder}", // The path to match using ASP.NET syntax. 
           "Hosts" : [ "www.aaaaa.com", "www.bbbbb.com"], // The host names to match, unspecified is any
           "Methods" : [ "GET", "PUT" ], // The HTTP methods that match, uspecified is all
-          "Headers" : [ // The headers to match, unspecified is any
+          "Headers": [ // The headers to match, unspecified is any
             {
-              "Name" : "MyCustomHeader", // Name of the header
-              "Values" : ["value1", "value2", "another value"], // Matches are against any of these values
-              "Mode" : "ExactHeader", // or "HeaderPrefix", "Exists"
-              "IsCaseSensitive" : true
+              "Name": "MyCustomHeader", // Name of the header
+              "Values": [ "value1", "value2", "another value" ], // Matches are against any of these values
+              "Mode": "ExactHeader", // or "HeaderPrefix", "Exists" , "Contains", "NotContains"
+              "IsCaseSensitive": true
             }
           ],
+          "QueryParameters": [ // The query parameters to match, unspecified is any
+            {
+              "Name": "MyQueryParameter", // Name of the query parameter
+              "Values": [ "value1", "value2", "another value" ], // Matches are against any of these values
+              "Mode": "Exact", // or "Prefix", "Exists" , "Contains", "NotContains"
+              "IsCaseSensitive": true
+            }
+          ]
         },
         "MetaData" : { // List of key value pairs that can be used by custom extensions
           "MyName" : "MyValue"
@@ -156,7 +164,7 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
             "Health" : "https://10.20.30.40:12345/test" // override for active health checks
           }
         },
-        "LoadBalancingPolicy" : "PowerOfTwoChoices", // Alternatively "First", "Random", "RoundRobin", "LeastRequests"
+        "LoadBalancingPolicy" : "PowerOfTwoChoices", // Alternatively "FirstAlphabetical", "Random", "RoundRobin", "LeastRequests"
         "SessionAffinity": {
           "Enabled": true, // Defaults to 'false'
           "Policy": "Cookie", // Default, alternatively "CustomHeader"
@@ -183,14 +191,14 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
           "SSLProtocols" : "Tls13",
           "DangerousAcceptAnyServerCertificate" : false,
           "MaxConnectionsPerServer" : 1024,
-          "ActivityContextHeaders" : "None", // Or "Baggage", "CorrelationContext", "BaggageAndCorrelationContext"
           "EnableMultipleHttp2Connections" : true,
           "RequestHeaderEncoding" : "Latin1" // How to interpret non ASCII characters in header values
         },
         "HttpRequest" : { // Options for sending request to destination
-          "Timeout" : "00:02:00",
+          "ActivityTimeout" : "00:02:00",
           "Version" : "2",
-          "VersionPolicy" : "RequestVersionOrLower"
+          "VersionPolicy" : "RequestVersionOrLower",
+          "AllowResponseBuffering" : "false"
         },
         "MetaData" : { // Custom Key value pairs
           "TransportFailureRateHealthPolicy.RateLimit": "0.5", // Used by Passive health policy

@@ -59,11 +59,9 @@ namespace Yarp.ReverseProxy.Model
 
         internal AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
 
-        /// <inheritdoc/>
         DestinationState IReadOnlyList<DestinationState>.this[int index]
             => index == 0 ? this : throw new IndexOutOfRangeException();
 
-        /// <inheritdoc/>
         int IReadOnlyCollection<DestinationState>.Count => 1;
 
         private Enumerator GetEnumerator()
@@ -71,13 +69,11 @@ namespace Yarp.ReverseProxy.Model
             return new Enumerator(this);
         }
 
-        /// <inheritdoc/>
         IEnumerator<DestinationState> IEnumerable<DestinationState>.GetEnumerator()
         {
             return GetEnumerator();
         }
 
-        /// <inheritdoc/>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

@@ -7,35 +7,36 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Xunit;
-using Yarp.ReverseProxy.Common.Tests;
-using Yarp.ReverseProxy.Utilities.Tests;
+using Yarp.Tests.Common;
 
 namespace Yarp.ReverseProxy.Transforms.Tests
 {
     public class ResponseHeaderRemoveTransformTests
     {
         [Theory]
-        [InlineData("header1", "value1", 200, false, "header1", "")]
-        [InlineData("header1", "value1", 404, false, "header1", "header1")]
-        [InlineData("header1", "value1", 200, true, "header1", "")]
-        [InlineData("header1", "value1", 404, true, "header1", "")]
-        [InlineData("header1", "value1", 200, false, "headerX", "header1")]
-        [InlineData("header1", "value1", 404, false, "headerX", "header1")]
-        [InlineData("header1", "value1", 200, true, "headerX", "header1")]
-        [InlineData("header1", "value1", 404, true, "headerX", "header1")]
-        [InlineData("header1; header2; header3", "value1, value2, value3", 200, false, "header2", "header1; header3")]
-        [InlineData("header1; header2; header3", "value1, value2, value3", 404, false, "header2", "header1; header2; header3")]
-        [InlineData("header1; header2; header3", "value1, value2, value3", 200, true, "header2", "header1; header3")]
-        [InlineData("header1; header2; header3", "value1, value2, value3", 404, true, "header2", "header1; header3")]
-        [InlineData("header1; header2; header3", "value1, value2, value3", 200, false, "headerX", "header1; header2; header3")]
-        [InlineData("header1; header2; header3", "value1, value2, value3", 404, false, "headerX", "header1; header2; header3")]
-        [InlineData("header1; header2; header3", "value1, value2, value3", 200, true, "headerX", "header1; header2; header3")]
-        [InlineData("header1; header2; header3", "value1, value2, value3", 404, true, "headerX", "header1; header2; header3")]
-        [InlineData("header1; header2; header2; header3", "value1, value2-1, value2-2, value3", 200, false, "header2", "header1; header3")]
-        [InlineData("header1; header2; header2; header3", "value1, value2-1, value2-2, value3", 404, false, "header2", "header1; header2; header3")]
-        [InlineData("header1; header2; header2; header3", "value1, value2-1, value2-2, value3", 200, true, "header2", "header1; header3")]
-        [InlineData("header1; header2; header2; header3", "value1, value2-1, value2-2, value3", 404, true, "header2", "header1; header3")]
-        public async Task RemoveHeader_Success(string names, string values, int status, bool always, string removedHeader, string expected)
+        [InlineData("header1", "value1", 200, ResponseCondition.Success, "header1", "")]
+        [InlineData("header1", "value1", 404, ResponseCondition.Success, "header1", "header1")]
+        [InlineData("header1", "value1", 200, ResponseCondition.Failure, "header1", "header1")]
+        [InlineData("header1", "value1", 404, ResponseCondition.Failure, "header1", "")]
+        [InlineData("header1", "value1", 200, ResponseCondition.Always, "header1", "")]
+        [InlineData("header1", "value1", 404, ResponseCondition.Always, "header1", "")]
+        [InlineData("header1", "value1", 200, ResponseCondition.Success, "headerX", "header1")]
+        [InlineData("header1", "value1", 404, ResponseCondition.Success, "headerX", "header1")]
+        [InlineData("header1", "value1", 200, ResponseCondition.Always, "headerX", "header1")]
+        [InlineData("header1", "value1", 404, ResponseCondition.Always, "headerX", "header1")]
+        [InlineData("header1; header2; header3", "value1, value2, value3", 200, ResponseCondition.Success, "header2", "header1; header3")]
+        [InlineData("header1; header2; header3", "value1, value2, value3", 404, ResponseCondition.Success, "header2", "header1; header2; header3")]
+        [InlineData("header1; header2; header3", "value1, value2, value3", 200, ResponseCondition.Always, "header2", "header1; header3")]
+        [InlineData("header1; header2; header3", "value1, value2, value3", 404, ResponseCondition.Always, "header2", "header1; header3")]
+        [InlineData("header1; header2; header3", "value1, value2, value3", 200, ResponseCondition.Success, "headerX", "header1; header2; header3")]
+        [InlineData("header1; header2; header3", "value1, value2, value3", 404, ResponseCondition.Success, "headerX", "header1; header2; header3")]
+        [InlineData("header1; header2; header3", "value1, value2, value3", 200, ResponseCondition.Always, "headerX", "header1; header2; header3")]
+        [InlineData("header1; header2; header3", "value1, value2, value3", 404, ResponseCondition.Always, "headerX", "header1; header2; header3")]
+        [InlineData("header1; header2; header2; header3", "value1, value2-1, value2-2, value3", 200, ResponseCondition.Success, "header2", "header1; header3")]
+        [InlineData("header1; header2; header2; header3", "value1, value2-1, value2-2, value3", 404, ResponseCondition.Success, "header2", "header1; header2; header3")]
+        [InlineData("header1; header2; header2; header3", "value1, value2-1, value2-2, value3", 200, ResponseCondition.Always, "header2", "header1; header3")]
+        [InlineData("header1; header2; header2; header3", "value1, value2-1, value2-2, value3", 404, ResponseCondition.Always, "header2", "header1; header3")]
+        public async Task RemoveHeader_Success(string names, string values, int status, ResponseCondition condition, string removedHeader, string expected)
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Response.StatusCode = status;
@@ -45,7 +46,7 @@ namespace Yarp.ReverseProxy.Transforms.Tests
                 httpContext.Response.Headers.Add(pair.Name, pair.Values);
             }
 
-            var transform = new ResponseHeaderRemoveTransform(removedHeader, always);
+            var transform = new ResponseHeaderRemoveTransform(removedHeader, condition);
             await transform.ApplyAsync(new ResponseTransformContext()
             {
                 HttpContext = httpContext,
@@ -55,6 +56,24 @@ namespace Yarp.ReverseProxy.Transforms.Tests
 
             var expectedHeaders = expected.Split("; ", StringSplitOptions.RemoveEmptyEntries);
             Assert.Equal(expectedHeaders, httpContext.Response.Headers.Select(h => h.Key));
+        }
+
+        [Theory]
+        [InlineData(ResponseCondition.Always)]
+        [InlineData(ResponseCondition.Success)]
+        [InlineData(ResponseCondition.Failure)]
+        public async Task RemoveHeader_ResponseNull_DoNothing(ResponseCondition condition)
+        {
+            var httpContext = new DefaultHttpContext();
+            httpContext.Response.StatusCode = 502;
+
+            var transform = new ResponseHeaderRemoveTransform("header1", condition);
+            await transform.ApplyAsync(new ResponseTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyResponse = null,
+                HeadersCopied = false,
+            });
         }
     }
 }

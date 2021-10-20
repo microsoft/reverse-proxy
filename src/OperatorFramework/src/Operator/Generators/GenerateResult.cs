@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace Microsoft.Kubernetes.Operator.Generators
 {
     /// <summary>
-    /// Class GenerateResult is returned from <see cref="IOperatorGenerator.Generate(TResource)"/>
+    /// Class GenerateResult is returned from "IOperatorGenerator.GenerateAsync"/>
     /// to determine how the operator should proceed.
     /// </summary>
     public class GenerateResult

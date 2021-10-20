@@ -94,7 +94,7 @@ namespace Yarp.ReverseProxy.Transforms.Builder
                 transformContext.DestinationPrefix, transformContext.Path, transformContext.Query.QueryString);
         }
 
-        public override async ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+        public override async ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage? proxyResponse)
         {
             if (ShouldCopyResponseHeaders.GetValueOrDefault(true))
             {

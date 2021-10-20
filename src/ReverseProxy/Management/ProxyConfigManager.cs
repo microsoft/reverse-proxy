@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -15,9 +16,9 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Routing;
 using Yarp.ReverseProxy.Transforms.Builder;
 
@@ -34,6 +35,8 @@ namespace Yarp.ReverseProxy.Management
     /// </remarks>
     internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
     {
+        private static readonly IReadOnlyDictionary<string, ClusterConfig> _emptyClusterDictionary = new ReadOnlyDictionary<string, ClusterConfig>(new Dictionary<string, ClusterConfig>());
+
         private readonly object _syncRoot = new object();
         private readonly ILogger<ProxyConfigManager> _logger;
         private readonly IProxyConfigProvider _provider;
@@ -209,8 +212,8 @@ namespace Yarp.ReverseProxy.Management
         // Throws for validation failures
         private async Task<bool> ApplyConfigAsync(IProxyConfig config)
         {
-            var (configuredRoutes, routeErrors) = await VerifyRoutesAsync(config.Routes, cancellation: default);
             var (configuredClusters, clusterErrors) = await VerifyClustersAsync(config.Clusters, cancellation: default);
+            var (configuredRoutes, routeErrors) = await VerifyRoutesAsync(config.Routes, configuredClusters, cancellation: default);
 
             if (routeErrors.Count > 0 || clusterErrors.Count > 0)
             {
@@ -218,12 +221,12 @@ namespace Yarp.ReverseProxy.Management
             }
 
             // Update clusters first because routes need to reference them.
-            UpdateRuntimeClusters(configuredClusters);
+            UpdateRuntimeClusters(configuredClusters.Values);
             var routesChanged = UpdateRuntimeRoutes(configuredRoutes);
             return routesChanged;
         }
 
-        private async Task<(IList<RouteConfig>, IList<Exception>)> VerifyRoutesAsync(IReadOnlyList<RouteConfig> routes, CancellationToken cancellation)
+        private async Task<(IList<RouteConfig>, IList<Exception>)> VerifyRoutesAsync(IReadOnlyList<RouteConfig> routes, IReadOnlyDictionary<string, ClusterConfig> clusters, CancellationToken cancellation)
         {
             if (routes == null)
             {
@@ -246,9 +249,18 @@ namespace Yarp.ReverseProxy.Management
 
                 try
                 {
-                    foreach (var filter in _filters)
+                    if (_filters.Length != 0)
                     {
-                        route = await filter.ConfigureRouteAsync(route, cancellation);
+                        ClusterConfig? cluster = null;
+                        if (route.ClusterId != null)
+                        {
+                            clusters.TryGetValue(route.ClusterId, out cluster);
+                        }
+
+                        foreach (var filter in _filters)
+                        {
+                            route = await filter.ConfigureRouteAsync(route, cluster, cancellation);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -275,28 +287,25 @@ namespace Yarp.ReverseProxy.Management
             return (configuredRoutes, errors);
         }
 
-        private async Task<(IList<ClusterConfig>, IList<Exception>)> VerifyClustersAsync(IReadOnlyList<ClusterConfig> clusters, CancellationToken cancellation)
+        private async Task<(IReadOnlyDictionary<string, ClusterConfig>, IList<Exception>)> VerifyClustersAsync(IReadOnlyList<ClusterConfig> clusters, CancellationToken cancellation)
         {
             if (clusters == null)
             {
-                return (Array.Empty<ClusterConfig>(), Array.Empty<Exception>());
+                return (_emptyClusterDictionary, Array.Empty<Exception>());
             }
 
-            var seenClusterIds = new HashSet<string>(clusters.Count, StringComparer.OrdinalIgnoreCase);
-            var configuredClusters = new List<ClusterConfig>(clusters.Count);
+            var configuredClusters = new Dictionary<string, ClusterConfig>(clusters.Count, StringComparer.OrdinalIgnoreCase);
             var errors = new List<Exception>();
             // The IProxyConfigProvider provides a fresh snapshot that we need to reconfigure each time.
             foreach (var c in clusters)
             {
                 try
                 {
-                    if (seenClusterIds.Contains(c.ClusterId))
+                    if (configuredClusters.ContainsKey(c.ClusterId))
                     {
                         errors.Add(new ArgumentException($"Duplicate cluster '{c.ClusterId}'."));
                         continue;
                     }
-
-                    seenClusterIds.Add(c.ClusterId);
 
                     // Don't modify the original
                     var cluster = c;
@@ -313,7 +322,7 @@ namespace Yarp.ReverseProxy.Management
                         continue;
                     }
 
-                    configuredClusters.Add(cluster);
+                    configuredClusters.Add(cluster.ClusterId, cluster);
                 }
                 catch (Exception ex)
                 {
@@ -323,13 +332,13 @@ namespace Yarp.ReverseProxy.Management
 
             if (errors.Count > 0)
             {
-                return (Array.Empty<ClusterConfig>(), errors);
+                return (_emptyClusterDictionary, errors);
             }
 
             return (configuredClusters, errors);
         }
 
-        private void UpdateRuntimeClusters(IList<ClusterConfig> incomingClusters)
+        private void UpdateRuntimeClusters(IEnumerable<ClusterConfig> incomingClusters)
         {
             var desiredClusters = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 

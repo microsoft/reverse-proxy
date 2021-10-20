@@ -15,6 +15,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
     {
         private static readonly string[] RestrictedHeaders = new[]
         {
+            HeaderNames.Connection,
             HeaderNames.TransferEncoding,
             HeaderNames.KeepAlive,
             HeaderNames.Upgrade,
@@ -27,11 +28,20 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             "Security-Scheme",
             "ALPN",
             "Close",
+            "HTTP2-Settings",
+            HeaderNames.UpgradeInsecureRequests,
             HeaderNames.TE,
 #if NET
             HeaderNames.AltSvc,
 #else
             "Alt-Svc",
+#endif
+#if NET6_0_OR_GREATER
+            HeaderNames.TraceParent,
+            HeaderNames.RequestId,
+            HeaderNames.TraceState,
+            HeaderNames.Baggage,
+            HeaderNames.CorrelationContext,
 #endif
         };
 
@@ -40,7 +50,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         {
             var transformer = HttpTransformer.Default;
             var httpContext = new DefaultHttpContext();
-            var proxyRequest = new HttpRequestMessage();
+            var proxyRequest = new HttpRequestMessage(HttpMethod.Get, "https://localhost");
 
             foreach (var header in RestrictedHeaders)
             {
@@ -58,11 +68,30 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
+        public async Task TransformRequestAsync_TETrailers_Copied()
+        {
+            var transformer = HttpTransformer.Default;
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Protocol = "HTTP/2";
+            var proxyRequest = new HttpRequestMessage(HttpMethod.Get, "https://localhost");
+
+            httpContext.Request.Headers[HeaderNames.TE] = "traiLers";
+
+            await transformer.TransformRequestAsync(httpContext, proxyRequest, "prefix");
+
+            Assert.True(proxyRequest.Headers.TryGetValues(HeaderNames.TE, out var values));
+            var value = Assert.Single(values);
+            Assert.Equal("traiLers", value);
+
+            Assert.Null(proxyRequest.Content);
+        }
+
+        [Fact]
         public async Task TransformRequestAsync_ContentLengthAndTransferEncoding_ContentLengthRemoved()
         {
             var transformer = HttpTransformer.Default;
             var httpContext = new DefaultHttpContext();
-            var proxyRequest = new HttpRequestMessage()
+            var proxyRequest = new HttpRequestMessage(HttpMethod.Get, "https://localhost")
             {
                 Content = new ByteArrayContent(Array.Empty<byte>())
             };

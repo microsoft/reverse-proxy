@@ -41,7 +41,6 @@ namespace Microsoft.Kubernetes.Controller.Queues
         /// <summary>
         /// Shuts down.
         /// </summary>
-        /// <inheritdoc />
         public override void ShutDown()
         {
             _shuttingDown.Cancel();

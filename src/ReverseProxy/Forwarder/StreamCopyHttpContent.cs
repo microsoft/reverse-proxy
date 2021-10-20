@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -40,17 +41,17 @@ namespace Yarp.ReverseProxy.Forwarder
         private readonly Stream _source;
         private readonly bool _autoFlushHttpClientOutgoingStream;
         private readonly IClock _clock;
-        // Note this is the long token that should only be canceled in the event of an error, not timed out.
-        private readonly CancellationToken _cancellation;
+        private readonly ActivityCancellationTokenSource _activityToken;
         private readonly TaskCompletionSource<(StreamCopyResult, Exception?)> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
         private int _started;
 
-        public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IClock clock, CancellationToken cancellation)
+        public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IClock clock, ActivityCancellationTokenSource activityToken)
         {
             _source = source ?? throw new ArgumentNullException(nameof(source));
             _autoFlushHttpClientOutgoingStream = autoFlushHttpClientOutgoingStream;
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
-            _cancellation = cancellation;
+
+            _activityToken = activityToken;
         }
 
         /// <summary>
@@ -70,6 +71,8 @@ namespace Yarp.ReverseProxy.Forwarder
         /// completes, even when using <see cref="HttpCompletionOption.ResponseHeadersRead"/>.
         /// </remarks>
         public bool Started => Volatile.Read(ref _started) == 1;
+
+        public bool InProgress => Started && !ConsumptionTask.IsCompleted;
 
         /// <summary>
         /// Copies bytes from the stream provided in our constructor into the target <paramref name="stream"/>.
@@ -113,56 +116,88 @@ namespace Yarp.ReverseProxy.Forwarder
         /// we have full control over pumping bytes to the target stream for all protocols
         /// (except Web Sockets, which is handled separately).
         /// </remarks>
-        // Note we do not need to implement the SerializeToStreamAsync(Stream stream, TransportContext context, CancellationToken token) overload
-        // because the token it provides is the short request token, not the long body token passed from the constructor. Using the short token
-        // would break bidirectional streaming scenarios.
-        protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context)
+        protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context)
+        {
+            return SerializeToStreamAsync(stream, context, CancellationToken.None);
+        }
+
+#if NET
+        protected override
+#else
+        private
+#endif
+            async Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
         {
             if (Interlocked.Exchange(ref _started, 1) == 1)
             {
                 throw new InvalidOperationException("Stream was already consumed.");
             }
 
-            if (_autoFlushHttpClientOutgoingStream)
-            {
-                // HttpClient's machinery keeps an internal buffer that doesn't get flushed to the socket on every write.
-                // Some protocols (e.g. gRPC) may rely on specific bytes being sent, and HttpClient's buffering would prevent it.
-                // AutoFlushingStream delegates to the provided stream, adding calls to FlushAsync on every WriteAsync.
-                // Note that HttpClient does NOT call Flush on the underlying socket, so the perf impact of this is expected to be small.
-                // This statement is based on current knowledge as of .NET Core 3.1.201.
-                stream = new AutoFlushingStream(stream);
-            }
+            // The cancellationToken that is passed to this method is:
+            // On HTTP/1.1: Linked HttpContext.RequestAborted + Request Timeout
+            // On HTTP/2.0: SocketsHttpHandler error / the server wants us to stop sending content / H2 connection closed
+            // _cancellation will be the same as cancellationToken for HTTP/1.1, so we can avoid the overhead of linking them
+            CancellationTokenRegistration registration = default;
 
-            // Immediately flush request stream to send headers
-            // https://github.com/dotnet/corefx/issues/39586#issuecomment-516210081
+#if NET
+            if (_activityToken.Token != cancellationToken)
+            {
+                Debug.Assert(cancellationToken.CanBeCanceled);
+                registration = _activityToken.LinkTo(cancellationToken);
+            }
+#else
+            // On .NET Core 3.1, cancellationToken will always be CancellationToken.None
+            Debug.Assert(!cancellationToken.CanBeCanceled);
+#endif
+
             try
             {
-                await stream.FlushAsync(_cancellation);
-            }
-            catch (OperationCanceledException oex)
-            {
-                _tcs.TrySetResult((StreamCopyResult.Canceled, oex));
-                return;
-            }
-            catch (Exception ex)
-            {
-                _tcs.TrySetResult((StreamCopyResult.OutputError, ex));
-                return;
-            }
+                if (_autoFlushHttpClientOutgoingStream)
+                {
+                    // HttpClient's machinery keeps an internal buffer that doesn't get flushed to the socket on every write.
+                    // Some protocols (e.g. gRPC) may rely on specific bytes being sent, and HttpClient's buffering would prevent it.
+                    // AutoFlushingStream delegates to the provided stream, adding calls to FlushAsync on every WriteAsync.
+                    // Note that HttpClient does NOT call Flush on the underlying socket, so the perf impact of this is expected to be small.
+                    // This statement is based on current knowledge as of .NET Core 3.1.201.
+                    stream = new AutoFlushingStream(stream);
+                }
 
-            var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, _clock, _cancellation);
-            _tcs.TrySetResult((result, error));
-            // Check for errors that weren't the result of the destination failing.
-            // We have to throw something here so the transport knows the body is incomplete.
-            // We can't re-throw the original exception since that would cause concurrency issues.
-            // We need to wrap it.
-            if (result == StreamCopyResult.InputError)
-            {
-                throw new IOException("An error occurred when reading the request body from the client.", error);
+                // Immediately flush request stream to send headers
+                // https://github.com/dotnet/corefx/issues/39586#issuecomment-516210081
+                try
+                {
+                    await stream.FlushAsync(_activityToken.Token);
+                }
+                catch (OperationCanceledException oex)
+                {
+                    _tcs.TrySetResult((StreamCopyResult.Canceled, oex));
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    _tcs.TrySetResult((StreamCopyResult.OutputError, ex));
+                    return;
+                }
+
+                var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, _clock, _activityToken);
+                _tcs.TrySetResult((result, error));
+
+                // Check for errors that weren't the result of the destination failing.
+                // We have to throw something here so the transport knows the body is incomplete.
+                // We can't re-throw the original exception since that would cause concurrency issues.
+                // We need to wrap it.
+                if (result == StreamCopyResult.InputError)
+                {
+                    throw new IOException("An error occurred when reading the request body from the client.", error);
+                }
+                if (result == StreamCopyResult.Canceled)
+                {
+                    throw new OperationCanceledException("The request body copy was canceled.", error);
+                }
             }
-            if (result == StreamCopyResult.Canceled)
+            finally
             {
-                throw new OperationCanceledException("The request body copy was canceled.", error);
+                registration.Dispose();
             }
         }
 

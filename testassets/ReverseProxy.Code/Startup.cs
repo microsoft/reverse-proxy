@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Telemetry.Consumption;
+using Yarp.Telemetry.Consumption;
 using Yarp.ReverseProxy.Transforms;
 
 namespace Yarp.ReverseProxy.Sample
@@ -82,7 +82,7 @@ namespace Yarp.ReverseProxy.Sample
                     {
                         // Suppress the response body from errors.
                         // The status code was already copied.
-                        if (!context.ProxyResponse.IsSuccessStatusCode)
+                        if (context.ProxyResponse?.IsSuccessStatusCode == false)
                         {
                             context.SuppressResponseBody = true;
                         }
@@ -92,7 +92,7 @@ namespace Yarp.ReverseProxy.Sample
                 });
 
             services.AddHttpContextAccessor();
-            services.AddSingleton<IForwarderMetricsConsumer, ForwarderMetricsConsumer>();
+            services.AddSingleton<IMetricsConsumer<ForwarderMetrics>, ForwarderMetricsConsumer>();
             services.AddTelemetryConsumer<ForwarderTelemetryConsumer>();
             services.AddTelemetryListeners();
         }

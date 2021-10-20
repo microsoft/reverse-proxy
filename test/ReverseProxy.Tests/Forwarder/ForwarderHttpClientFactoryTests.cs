@@ -10,7 +10,7 @@ using System.Security.Authentication;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Xunit;
-using Yarp.ReverseProxy.Common.Tests;
+using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.ReverseProxy.Forwarder.Tests
@@ -91,18 +91,6 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
         }
 
         [Fact]
-        public void CreateClient_ApplyPropagateActivityContext_Success()
-        {
-            var factory = new ForwarderHttpClientFactory(Mock<ILogger<ForwarderHttpClientFactory>>().Object);
-            var options = new HttpClientConfig { ActivityContextHeaders = ActivityContextHeaders.None };
-            var client = factory.CreateClient(new ForwarderHttpClientContext { NewConfig = options });
-
-            var handler = GetHandler(client, expectActivityPropagationHandler: false);
-
-            Assert.NotNull(handler);
-        }
-
-        [Fact]
         public void CreateClient_ApplyWebProxy_Success()
         {
             var factory = new ForwarderHttpClientFactory(Mock<ILogger<ForwarderHttpClientFactory>>().Object);
@@ -153,7 +141,6 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                 DangerousAcceptAnyServerCertificate = true,
                 MaxConnectionsPerServer = 10,
-                ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
 #if NET
                 RequestHeaderEncoding = Encoding.Latin1.WebName,
 #endif
@@ -209,14 +196,12 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = null,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                     new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = null,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                 },
                 new object[] {
@@ -225,14 +210,12 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = null,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                     new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = false,
                         MaxConnectionsPerServer = null,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                 },
                 new object[] {
@@ -241,14 +224,12 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = null,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                     new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = false,
                         MaxConnectionsPerServer = null,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                 },
                 new object[] {
@@ -257,14 +238,12 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = null,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                     new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = false,
                         MaxConnectionsPerServer = null,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                 },
                 new object[] {
@@ -273,14 +252,12 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = null,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                     new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = 10,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                 },
                 new object[] {
@@ -289,14 +266,12 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = 10,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                     new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = null,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                 },
                 new object[] {
@@ -305,62 +280,12 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = 10,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                     new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = 20,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
-                    },
-                },
-                new object[] {
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = 10,
-                        ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
-                    },
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = 10,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
-                    },
-                },
-                new object[] {
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = 10,
-                        ActivityContextHeaders = ActivityContextHeaders.Baggage,
-                    },
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = 10,
-                        ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
-                    },
-                },
-                new object[] {
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = 10,
-                        ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
-                    },
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = 10,
-                        ActivityContextHeaders = ActivityContextHeaders.BaggageAndCorrelationContext,
                     },
                 },
 #if NET
@@ -370,7 +295,6 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = 10,
-                        ActivityContextHeaders = ActivityContextHeaders.Baggage,
                         EnableMultipleHttp2Connections = true
                     },
                     new HttpClientConfig
@@ -378,7 +302,6 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = 10,
-                        ActivityContextHeaders = ActivityContextHeaders.Baggage,
                         EnableMultipleHttp2Connections = false
                     },
                 },
@@ -388,14 +311,12 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = 10,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
                     },
                     new HttpClientConfig
                     {
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = 10,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
                         RequestHeaderEncoding = Encoding.UTF8.WebName,
                     },
                 },
@@ -405,7 +326,6 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = 10,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
                         RequestHeaderEncoding = Encoding.UTF8.WebName,
                     },
                     new HttpClientConfig
@@ -413,7 +333,6 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                         SslProtocols = SslProtocols.Tls11,
                         DangerousAcceptAnyServerCertificate = true,
                         MaxConnectionsPerServer = 10,
-                        ActivityContextHeaders = ActivityContextHeaders.None,
                         RequestHeaderEncoding = Encoding.Latin1.WebName,
                     },
                 }
@@ -421,18 +340,10 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             };
         }
 
-        public static SocketsHttpHandler GetHandler(HttpMessageInvoker client, bool expectActivityPropagationHandler = true)
+        public static SocketsHttpHandler GetHandler(HttpMessageInvoker client)
         {
             var handlerFieldInfo = typeof(HttpMessageInvoker).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Single(f => f.Name == "_handler");
             var handler = handlerFieldInfo.GetValue(client);
-
-            if (handler is ActivityPropagationHandler diagnosticsHandler)
-            {
-                Assert.True(expectActivityPropagationHandler);
-                return (SocketsHttpHandler)diagnosticsHandler.InnerHandler;
-            }
-
-            Assert.False(expectActivityPropagationHandler);
             return (SocketsHttpHandler)handler;
         }
 

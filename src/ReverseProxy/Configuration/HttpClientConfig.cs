@@ -33,11 +33,6 @@ namespace Yarp.ReverseProxy.Configuration
         public int? MaxConnectionsPerServer { get; init; }
 
         /// <summary>
-        /// Specifies the activity correlation headers for outgoing requests.
-        /// </summary>
-        public ActivityContextHeaders? ActivityContextHeaders { get; init; }
-
-        /// <summary>
         /// Optional web proxy used when communicating with the destination server. 
         /// </summary>
         public WebProxyConfig? WebProxy { get; init; }
@@ -45,8 +40,8 @@ namespace Yarp.ReverseProxy.Configuration
 #if NET
         /// <summary>
         /// Gets or sets a value that indicates whether additional HTTP/2 connections can
-        //  be established to the same server when the maximum number of concurrent streams
-        //  is reached on all existing connections.
+        /// be established to the same server when the maximum number of concurrent streams
+        /// is reached on all existing connections.
         /// </summary>
         public bool? EnableMultipleHttp2Connections { get; init; }
 
@@ -56,7 +51,6 @@ namespace Yarp.ReverseProxy.Configuration
         public string? RequestHeaderEncoding { get; init; }
 #endif
 
-        /// <inheritdoc />
         public bool Equals(HttpClientConfig? other)
         {
             if (other == null)
@@ -72,11 +66,9 @@ namespace Yarp.ReverseProxy.Configuration
                    // Comparing by reference is fine here since Encoding.GetEncoding returns the same instance for each encoding.
                    && RequestHeaderEncoding == other.RequestHeaderEncoding
 #endif
-                   && ActivityContextHeaders == other.ActivityContextHeaders
                    && WebProxy == other.WebProxy;
         }
 
-        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashCode.Combine(SslProtocols,
@@ -86,7 +78,6 @@ namespace Yarp.ReverseProxy.Configuration
                 EnableMultipleHttp2Connections,
                 RequestHeaderEncoding,
 #endif
-                ActivityContextHeaders,
                 WebProxy);
         }
     }

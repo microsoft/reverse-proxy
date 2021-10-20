@@ -269,6 +269,35 @@ namespace Yarp.ReverseProxy.Configuration.Tests
         }
 
         [Fact]
+        public async Task Accepts_RouteQueryParameter()
+        {
+            var route = new RouteConfig
+            {
+                RouteId = "route1",
+                Match = new RouteMatch
+                {
+                    Path = "/",
+                    QueryParameters = new[]
+                    {
+                        new RouteQueryParameter()
+                        {
+                            Name = "queryparam1",
+                            Values = new[] { "value1" },
+                        }
+                    },
+                },
+                ClusterId = "cluster1",
+            };
+
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var result = await validator.ValidateRouteAsync(route);
+
+            Assert.Empty(result);
+        }
+
+        [Fact]
         public async Task Accepts_RouteHeader_ExistsWithNoValue()
         {
             var route = new RouteConfig
@@ -283,6 +312,35 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                         {
                             Name = "header1",
                             Mode = HeaderMatchMode.Exists
+                        }
+                    },
+                },
+                ClusterId = "cluster1",
+            };
+
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var result = await validator.ValidateRouteAsync(route);
+
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task Accepts_RouteQueryParameter_ExistsWithNoValue()
+        {
+            var route = new RouteConfig
+            {
+                RouteId = "route1",
+                Match = new RouteMatch
+                {
+                    Path = "/",
+                    QueryParameters = new[]
+                    {
+                        new RouteQueryParameter()
+                        {
+                            Name = "queryparam1",
+                            Mode = QueryParameterMatchMode.Exists
                         }
                     },
                 },
@@ -320,6 +378,29 @@ namespace Yarp.ReverseProxy.Configuration.Tests
             Assert.Contains("A null route header has been set for route", ex.Message);
         }
 
+        [Fact]
+        public async Task Rejects_NullRouteQueryParameter()
+        {
+            var route = new RouteConfig
+            {
+                RouteId = "route1",
+                Match = new RouteMatch
+                {
+                    Path = "/",
+                    QueryParameters = new RouteQueryParameter[] { null },
+                },
+                ClusterId = "cluster1",
+            };
+
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var result = await validator.ValidateRouteAsync(route);
+
+            var ex = Assert.Single(result);
+            Assert.Contains("A null route query parameter has been set for route", ex.Message);
+        }
+
         [Theory]
         [InlineData("", "v1", HeaderMatchMode.ExactHeader, "A null or empty route header name has been set for route")]
         [InlineData("h1", null, HeaderMatchMode.ExactHeader, "No header values were set on route header")]
@@ -340,6 +421,39 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                 {
                     Path = "/",
                     Headers = new[] { routeHeader },
+                },
+                ClusterId = "cluster1",
+            };
+
+            var services = CreateServices();
+            var validator = services.GetRequiredService<IConfigValidator>();
+
+            var result = await validator.ValidateRouteAsync(route);
+
+            var ex = Assert.Single(result);
+            Assert.Contains(error, ex.Message);
+        }
+
+        [Theory]
+        [InlineData("", "v1", QueryParameterMatchMode.Exact, "A null or empty route query parameter name has been set for route")]
+        [InlineData("h1", null, QueryParameterMatchMode.Exact, "No query parameter values were set on route query parameter")]
+        [InlineData("h1", "v1", QueryParameterMatchMode.Exists, "Query parameter values where set when using mode 'Exists'")]
+        public async Task Rejects_InvalidRouteQueryParameter(string name, string value, QueryParameterMatchMode mode, string error)
+        {
+            var routeQueryParameter = new RouteQueryParameter()
+            {
+                Name = name,
+                Mode = mode,
+                Values = value == null ? null : new[] { value },
+            };
+
+            var route = new RouteConfig
+            {
+                RouteId = "route1",
+                Match = new RouteMatch
+                {
+                    Path = "/",
+                    QueryParameters = new[] { routeQueryParameter },
                 },
                 ClusterId = "cluster1",
             };

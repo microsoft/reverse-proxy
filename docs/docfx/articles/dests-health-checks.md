@@ -151,6 +151,12 @@ public class FirstUnsuccessfulResponseHealthPolicy : IActiveHealthCheckPolicy
 #### IProbingRequestFactory
 [IProbingRequestFactory](xref:Yarp.ReverseProxy.Health.IProbingRequestFactory) creates active health probing requests to be sent to destination health endpoints. It can take into account `ActiveHealthCheckOptions.Path`, `DestinationConfig.Health`, and other configuration settings to construct probing requests.
 
+The default `IProbingRequestFactory` uses the same `HttpRequest` configuration as proxy requests, to customize that implement your own `IProbingRequestFactory` and register it in DI like the below.
+
+```C#
+services.AddSingleton<IProbingRequestFactory, CustomProbingRequestFactory>();
+```
+
 The below is a simple example of a customer `IProbingRequestFactory` concatenating `DestinationConfig.Address` and a fixed health probe path to create the probing request URI.
 
 ```C#
@@ -227,7 +233,7 @@ var clusters = new[]
 ### Configuration
 Passive health check settings are specified on the cluster level in `Cluster/HealthCheck/Passive` section. Alternatively, they can be defined in code via the corresponding types in [Yarp.ReverseProxy.Configuration](xref:Yarp.ReverseProxy.Configuration) namespace mirroring the configuration contract.
 
-Passive health checks require the `PassiveHealthCheckMiddleware` added into the pipeline for them to work. The default `MapReverseProxy(this IEndpointRouteBuilder endpoints)` method does it automatically, but in case of a manual pipeline construction the [UsePassiveHealthChecks](xref:Microsoft.AspNetCore.Builder.ProxyMiddlewareAppBuilderExtensions) method must be called to add that middleware as shown in the example below.
+Passive health checks require the `PassiveHealthCheckMiddleware` added into the pipeline for them to work. The default `MapReverseProxy(this IEndpointRouteBuilder endpoints)` method does it automatically, but in case of a manual pipeline construction the [UsePassiveHealthChecks](xref:Microsoft.AspNetCore.Builder.AppBuilderHealthExtensions) method must be called to add that middleware as shown in the example below.
 
 ```C#
 endpoints.MapReverseProxy(proxyPipeline =>

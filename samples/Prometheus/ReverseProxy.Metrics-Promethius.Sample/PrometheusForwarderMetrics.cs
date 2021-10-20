@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Yarp.ReverseProxy.Telemetry.Consumption;
+using Yarp.Telemetry.Consumption;
 using Prometheus;
 
 namespace Yarp.Sample
 {
-    public sealed class PrometheusForwarderMetrics : IForwarderMetricsConsumer
+    public sealed class PrometheusForwarderMetrics : IMetricsConsumer<ForwarderMetrics>
     {
         private static readonly Counter _requestsStarted = Metrics.CreateCounter(
             "yarp_proxy_requests_started",
@@ -23,11 +23,11 @@ namespace Yarp.Sample
             "Number of active proxy requests that have started but not yet completed or failed"
             );
 
-        public void OnForwarderMetrics(ForwarderMetrics oldMetrics, ForwarderMetrics newMetrics)
+        public void OnMetrics(ForwarderMetrics previous, ForwarderMetrics current)
         {
-            _requestsStarted.IncTo(newMetrics.RequestsStarted);
-            _requestsFailed.IncTo(newMetrics.RequestsFailed);
-            _CurrentRequests.Set(newMetrics.CurrentRequests);
+            _requestsStarted.IncTo(current.RequestsStarted);
+            _requestsFailed.IncTo(current.RequestsFailed);
+            _CurrentRequests.Set(current.CurrentRequests);
         }
     }
 }

@@ -13,6 +13,7 @@ namespace Yarp.ReverseProxy.Transforms
         internal static readonly string RequestHeaderOriginalHostKey = "RequestHeaderOriginalHost";
         internal static readonly string RequestHeaderKey = "RequestHeader";
         internal static readonly string RequestHeaderRemoveKey = "RequestHeaderRemove";
+        internal static readonly string RequestHeadersAllowedKey = "RequestHeadersAllowed";
         internal static readonly string AppendKey = "Append";
         internal static readonly string SetKey = "Set";
 
@@ -43,6 +44,10 @@ namespace Yarp.ReverseProxy.Transforms
                 }
             }
             else if (transformValues.TryGetValue(RequestHeaderRemoveKey, out var _))
+            {
+                TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
+            }
+            else if (transformValues.TryGetValue(RequestHeadersAllowedKey, out var _))
             {
                 TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
             }
@@ -82,10 +87,20 @@ namespace Yarp.ReverseProxy.Transforms
                     throw new ArgumentException($"Unexpected parameters for RequestHeader: {string.Join(';', transformValues.Keys)}. Expected 'Set' or 'Append'");
                 }
             }
-            else if (transformValues.TryGetValue(RequestHeaderOriginalHostKey, out var removeHeaderName))
+            else if (transformValues.TryGetValue(RequestHeaderRemoveKey, out var removeHeaderName))
             {
                 TransformHelpers.CheckTooManyParameters(transformValues, expected: 1);
                 context.AddRequestHeaderRemove(removeHeaderName);
+            }
+            else if (transformValues.TryGetValue(RequestHeadersAllowedKey, out var allowedHeaders))
+            {
+                TransformHelpers.CheckTooManyParameters(transformValues, expected: 1);
+                var headersList = allowedHeaders.Split(';', options: StringSplitOptions.RemoveEmptyEntries
+#if NET
+                    | StringSplitOptions.TrimEntries
+#endif
+                    );
+                context.AddRequestHeadersAllowed(headersList);
             }
             else
             {

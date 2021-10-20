@@ -85,6 +85,7 @@ namespace Yarp.ReverseProxy.Configuration
             ValidatePath(errors, route.Match.Path, route.RouteId);
             ValidateMethods(errors, route.Match.Methods, route.RouteId);
             ValidateHeaders(errors, route.Match.Headers, route.RouteId);
+            ValidateQueryParameters(errors, route.Match.QueryParameters, route.RouteId);
 
             return errors;
         }
@@ -203,6 +204,40 @@ namespace Yarp.ReverseProxy.Configuration
                 if (header.Mode == HeaderMatchMode.Exists && header.Values?.Count > 0)
                 {
                     errors.Add(new ArgumentException($"Header values where set when using mode '{nameof(HeaderMatchMode.Exists)}' on route header '{header.Name}' for route '{routeId}'."));
+                }
+            }
+        }
+
+        private static void ValidateQueryParameters(List<Exception> errors, IReadOnlyList<RouteQueryParameter>? queryparams, string routeId)
+        {
+            // Query Parameters are optional
+            if (queryparams == null)
+            {
+                return;
+            }
+
+            foreach (var queryparam in queryparams)
+            {
+                if (queryparam == null)
+                {
+                    errors.Add(new ArgumentException($"A null route query parameter has been set for route '{routeId}'."));
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(queryparam.Name))
+                {
+                    errors.Add(new ArgumentException($"A null or empty route query parameter name has been set for route '{routeId}'."));
+                }
+
+                if (queryparam.Mode != QueryParameterMatchMode.Exists
+                    && (queryparam.Values == null || queryparam.Values.Count == 0))
+                {
+                    errors.Add(new ArgumentException($"No query parameter values were set on route query parameter '{queryparam.Name}' for route '{routeId}'."));
+                }
+
+                if (queryparam.Mode == QueryParameterMatchMode.Exists && queryparam.Values?.Count > 0)
+                {
+                    errors.Add(new ArgumentException($"Query parameter values where set when using mode '{nameof(QueryParameterMatchMode.Exists)}' on route query parameter '{queryparam.Name}' for route '{routeId}'."));
                 }
             }
         }

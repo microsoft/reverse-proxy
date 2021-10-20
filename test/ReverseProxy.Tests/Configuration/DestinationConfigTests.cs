@@ -20,16 +20,17 @@ namespace Yarp.ReverseProxy.Configuration.Tests
 
             var options2 = new DestinationConfig
             {
-                Address = "https://localhost:10000/destA",
-                Health = "https://localhost:20000/destA",
+                Address = "https://localhost:10000/DestA",
+                Health = "https://localhost:20000/DestA",
                 Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } }
             };
 
-            var equals = options1.Equals(options2);
+            var options3 = options1 with { }; // Clone
 
-            Assert.True(equals);
-
-            Assert.True(options1.Equals(options1 with { })); // Clone
+            Assert.True(options1.Equals(options2));
+            Assert.True(options1.Equals(options3));
+            Assert.Equal(options1.GetHashCode(), options2.GetHashCode());
+            Assert.Equal(options1.GetHashCode(), options3.GetHashCode());
         }
 
         [Fact]

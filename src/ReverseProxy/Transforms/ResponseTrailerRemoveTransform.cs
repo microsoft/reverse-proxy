@@ -13,7 +13,7 @@ namespace Yarp.ReverseProxy.Transforms
     /// </summary>
     public class ResponseTrailerRemoveTransform : ResponseTrailersTransform
     {
-        public ResponseTrailerRemoveTransform(string headerName, bool always)
+        public ResponseTrailerRemoveTransform(string headerName, ResponseCondition condition)
         {
             if (string.IsNullOrEmpty(headerName))
             {
@@ -21,12 +21,12 @@ namespace Yarp.ReverseProxy.Transforms
             }
 
             HeaderName = headerName;
-            Always = always;
+            Condition = condition;
         }
 
         internal string HeaderName { get; }
 
-        internal bool Always { get; }
+        internal ResponseCondition Condition { get; }
 
         // Assumes the response status code has been set on the HttpContext already.
         /// <inheritdoc/>
@@ -37,10 +37,13 @@ namespace Yarp.ReverseProxy.Transforms
                 throw new ArgumentNullException(nameof(context));
             }
 
-            if (Always || Success(context))
+            Debug.Assert(context.ProxyResponse != null);
+
+            if (Condition == ResponseCondition.Always
+                || Success(context) == (Condition == ResponseCondition.Success))
             {
                 var responseTrailersFeature = context.HttpContext.Features.Get<IHttpResponseTrailersFeature>();
-                var responseTrailers = responseTrailersFeature.Trailers;
+                var responseTrailers = responseTrailersFeature?.Trailers;
                 // Support should have already been checked by the caller.
                 Debug.Assert(responseTrailers != null);
                 Debug.Assert(!responseTrailers.IsReadOnly);

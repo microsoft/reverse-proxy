@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Yarp.ReverseProxy.Kubernetes.Protocol;
+using Yarp.Kubernetes.Protocol;
 
-namespace Yarp.ReverseProxy.Kubernetes.Ingress
+namespace Yarp.Kubernetes.Ingress
 {
     public class Startup
     {

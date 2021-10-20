@@ -3,6 +3,8 @@
 
 using System;
 using System.Net;
+using System.Net.Http;
+using Microsoft.AspNetCore.Http;
 
 namespace Yarp.ReverseProxy.Forwarder
 {
@@ -42,6 +44,39 @@ namespace Yarp.ReverseProxy.Forwarder
 #endif
         }
 
+        public static string GetHttpProtocol(Version version)
+        {
+#if NET
+            return HttpProtocol.GetHttpProtocol(version);
+#else
+            if (version == null)
+            {
+                throw new ArgumentNullException(nameof(version));
+            }
+
+            return version switch
+            {
+                { Major: 3, Minor: 0 } => "HTTP/3",
+                { Major: 2, Minor: 0 } => "HTTP/2",
+                { Major: 1, Minor: 1 } => "HTTP/1.1",
+                { Major: 1, Minor: 0 } => "HTTP/1.0",
+                { Major: 0, Minor: 9 } => "HTTP/0.9",
+                _ => throw new ArgumentOutOfRangeException(nameof(version), "Version doesn't map to a known HTTP protocol.")
+            };
+#endif
+        }
+#if NET
+        public static string GetVersionPolicy(HttpVersionPolicy policy)
+        {
+            return policy switch
+            {
+                HttpVersionPolicy.RequestVersionOrLower => "RequestVersionOrLower",
+                HttpVersionPolicy.RequestVersionOrHigher => "RequestVersionOrHigher",
+                HttpVersionPolicy.RequestVersionExact => "RequestVersionExact",
+                _ => throw new NotImplementedException(policy.ToString()),
+            };
+        }
+#endif
         // NOTE: When https://github.com/dotnet/aspnetcore/issues/21265 is addressed,
         // this can be replaced with `MediaTypeHeaderValue.IsSubsetOf(...)`.
         /// <summary>
@@ -49,7 +84,7 @@ namespace Yarp.ReverseProxy.Forwarder
         /// Takes inspiration from
         /// <see href="https://github.com/grpc/grpc-dotnet/blob/3ce9b104524a4929f5014c13cd99ba9a1c2431d4/src/Shared/CommonGrpcProtocolHelpers.cs#L26"/>.
         /// </summary>
-        public static bool IsGrpcContentType(string contentType)
+        public static bool IsGrpcContentType(string? contentType)
         {
             if (contentType == null)
             {

@@ -40,6 +40,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
             Assert.True(equals);
             Assert.True(options1 == options2);
             Assert.False(options1 != options2);
+            Assert.Equal(options1.GetHashCode(), options2.GetHashCode());
         }
 
         [Fact]

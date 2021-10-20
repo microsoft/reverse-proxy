@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Xunit;
-using Yarp.ReverseProxy.Common.Tests;
+using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Forwarder;
@@ -135,7 +135,8 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
 
             var context = new DefaultHttpContext();
 
-            var routeConfig = new RouteModel(new RouteConfig(), new ClusterState("cluster1"), HttpTransformer.Default);
+            var cluster = new ClusterState("cluster1");
+            var routeConfig = new RouteModel(new RouteConfig(), cluster, HttpTransformer.Default);
             var feature = new ReverseProxyFeature()
             {
                 Route = routeConfig,
@@ -146,7 +147,7 @@ namespace Yarp.ReverseProxy.LoadBalancing.Tests
 
             for (var i = 0; i < 10; i++)
             {
-                var result = loadBalancer.PickDestination(context, cluster: null, availableDestinations: destinations);
+                var result = loadBalancer.PickDestination(context, cluster, availableDestinations: destinations);
                 Assert.Same(destinations[i % destinations.Length], result);
                 result.ConcurrentRequestCount++;
             }

@@ -8,35 +8,36 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Xunit;
-using Yarp.ReverseProxy.Common.Tests;
-using Yarp.ReverseProxy.Utilities.Tests;
+using Yarp.Tests.Common;
 
 namespace Yarp.ReverseProxy.Transforms.Tests
 {
     public class ResponseTrailerRemoveTransformTests
     {
         [Theory]
-        [InlineData("header1", "value1", 200, false, "header1", "")]
-        [InlineData("header1", "value1", 404, false, "header1", "header1")]
-        [InlineData("header1", "value1", 200, true, "header1", "")]
-        [InlineData("header1", "value1", 404, true, "header1", "")]
-        [InlineData("header1", "value1", 200, false, "headerX", "header1")]
-        [InlineData("header1", "value1", 404, false, "headerX", "header1")]
-        [InlineData("header1", "value1", 200, true, "headerX", "header1")]
-        [InlineData("header1", "value1", 404, true, "headerX", "header1")]
-        [InlineData("header1; header2; header3", "value1, value2, value3", 200, false, "header2", "header1; header3")]
-        [InlineData("header1; header2; header3", "value1, value2, value3", 404, false, "header2", "header1; header2; header3")]
-        [InlineData("header1; header2; header3", "value1, value2, value3", 200, true, "header2", "header1; header3")]
-        [InlineData("header1; header2; header3", "value1, value2, value3", 404, true, "header2", "header1; header3")]
-        [InlineData("header1; header2; header3", "value1, value2, value3", 200, false, "headerX", "header1; header2; header3")]
-        [InlineData("header1; header2; header3", "value1, value2, value3", 404, false, "headerX", "header1; header2; header3")]
-        [InlineData("header1; header2; header3", "value1, value2, value3", 200, true, "headerX", "header1; header2; header3")]
-        [InlineData("header1; header2; header3", "value1, value2, value3", 404, true, "headerX", "header1; header2; header3")]
-        [InlineData("header1; header2; header2; header3", "value1, value2-1, value2-2, value3", 200, false, "header2", "header1; header3")]
-        [InlineData("header1; header2; header2; header3", "value1, value2-1, value2-2, value3", 404, false, "header2", "header1; header2; header3")]
-        [InlineData("header1; header2; header2; header3", "value1, value2-1, value2-2, value3", 200, true, "header2", "header1; header3")]
-        [InlineData("header1; header2; header2; header3", "value1, value2-1, value2-2, value3", 404, true, "header2", "header1; header3")]
-        public async Task RemoveTrailerFromFeature_Success(string names, string values, int status, bool always, string removedHeader, string expected)
+        [InlineData("header1", "value1", 200, ResponseCondition.Success, "header1", "")]
+        [InlineData("header1", "value1", 404, ResponseCondition.Success, "header1", "header1")]
+        [InlineData("header1", "value1", 200, ResponseCondition.Failure, "header1", "header1")]
+        [InlineData("header1", "value1", 404, ResponseCondition.Failure, "header1", "")]
+        [InlineData("header1", "value1", 200, ResponseCondition.Always, "header1", "")]
+        [InlineData("header1", "value1", 404, ResponseCondition.Always, "header1", "")]
+        [InlineData("header1", "value1", 200, ResponseCondition.Success, "headerX", "header1")]
+        [InlineData("header1", "value1", 404, ResponseCondition.Success, "headerX", "header1")]
+        [InlineData("header1", "value1", 200, ResponseCondition.Always, "headerX", "header1")]
+        [InlineData("header1", "value1", 404, ResponseCondition.Always, "headerX", "header1")]
+        [InlineData("header1; header2; header3", "value1, value2, value3", 200, ResponseCondition.Success, "header2", "header1; header3")]
+        [InlineData("header1; header2; header3", "value1, value2, value3", 404, ResponseCondition.Success, "header2", "header1; header2; header3")]
+        [InlineData("header1; header2; header3", "value1, value2, value3", 200, ResponseCondition.Always, "header2", "header1; header3")]
+        [InlineData("header1; header2; header3", "value1, value2, value3", 404, ResponseCondition.Always, "header2", "header1; header3")]
+        [InlineData("header1; header2; header3", "value1, value2, value3", 200, ResponseCondition.Success, "headerX", "header1; header2; header3")]
+        [InlineData("header1; header2; header3", "value1, value2, value3", 404, ResponseCondition.Success, "headerX", "header1; header2; header3")]
+        [InlineData("header1; header2; header3", "value1, value2, value3", 200, ResponseCondition.Always, "headerX", "header1; header2; header3")]
+        [InlineData("header1; header2; header3", "value1, value2, value3", 404, ResponseCondition.Always, "headerX", "header1; header2; header3")]
+        [InlineData("header1; header2; header2; header3", "value1, value2-1, value2-2, value3", 200, ResponseCondition.Success, "header2", "header1; header3")]
+        [InlineData("header1; header2; header2; header3", "value1, value2-1, value2-2, value3", 404, ResponseCondition.Success, "header2", "header1; header2; header3")]
+        [InlineData("header1; header2; header2; header3", "value1, value2-1, value2-2, value3", 200, ResponseCondition.Always, "header2", "header1; header3")]
+        [InlineData("header1; header2; header2; header3", "value1, value2-1, value2-2, value3", 404, ResponseCondition.Always, "header2", "header1; header3")]
+        public async Task RemoveTrailerFromFeature_Success(string names, string values, int status, ResponseCondition condition, string removedHeader, string expected)
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Response.StatusCode = status;
@@ -48,7 +49,7 @@ namespace Yarp.ReverseProxy.Transforms.Tests
                 trailerFeature.Trailers.Add(pair.Name, pair.Values);
             }
 
-            var transform = new ResponseTrailerRemoveTransform(removedHeader, always);
+            var transform = new ResponseTrailerRemoveTransform(removedHeader, condition);
             await transform.ApplyAsync(new ResponseTrailersTransformContext()
             {
                 HttpContext = httpContext,

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
-namespace Yarp.ReverseProxy.Kubernetes.Ingress
+namespace Yarp.Kubernetes.Ingress
 {
     public static class Program
     {

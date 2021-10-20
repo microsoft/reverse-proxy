@@ -3,12 +3,12 @@
 Introduced: preview4
 
 ## Introduction
-The [Basic Yarp Sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/BasicYarpSample) show proxy confuguration being loaded from appsettings.json. Instead proxy configuration can be loaded programmatically from the source of your choosing. You do this by providing a couple of classes implementing [IProxyConfigProvider](xref:Yarp.ReverseProxy.Service.IProxyConfigProvider) and [IProxyConfig](xref:Yarp.ReverseProxy.Service.IProxyConfig).
+The [Basic Yarp Sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/BasicYarpSample) show proxy confuguration being loaded from appsettings.json. Instead proxy configuration can be loaded programmatically from the source of your choosing. You do this by providing a couple of classes implementing [IProxyConfigProvider](xref:Yarp.ReverseProxy.Configuration.IProxyConfigProvider) and [IProxyConfig](xref:Yarp.ReverseProxy.Configuration.IProxyConfig).
 
 See [ReverseProxy.Code.Sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/ReverseProxy.Code.Sample) for an example of a custom configuration provider.
 
 ## Structure
-[IProxyConfigProvider](xref:Yarp.ReverseProxy.Service.IProxyConfigProvider) has a single method `GetConfig()` that should return an [IProxyConfig](xref:Yarp.ReverseProxy.Service.IProxyConfig) instance. The IProxyConfig has lists of the current routes and clusters, as well as an `IChangeToken` to notify the proxy when this information is out of date and should be reloaded, which will cause `GetConfig()` to be called again.
+[IProxyConfigProvider](xref:Yarp.ReverseProxy.Configuration.IProxyConfigProvider) has a single method `GetConfig()` that should return an [IProxyConfig](xref:Yarp.ReverseProxy.Configuration.IProxyConfig) instance. The IProxyConfig has lists of the current routes and clusters, as well as an `IChangeToken` to notify the proxy when this information is out of date and should be reloaded, which will cause `GetConfig()` to be called again.
 
 ### Routes
 The routes section is an unordered collection of named routes. A route contains matches and their associated configuration. A route requires at least the following fields:
@@ -16,14 +16,14 @@ The routes section is an unordered collection of named routes. A route contains 
 - ClusterId - refers to the name of an entry in the clusters section.
 - Match - contains either a Hosts array or a Path pattern string. Path is an ASP.NET Core route template that can be defined as [explained here](https://docs.microsoft.com/aspnet/core/fundamentals/routing#route-template-reference).
 
-[Headers](header-routing.md), [Authorization](authn-authz.md), [CORS](cors.md), and other route based policies can be configured on each route entry. For additional fields see [RouteConfig](xref:Yarp.ReverseProxy.Abstractions.RouteConfig).
+[Headers](header-routing.md), [Authorization](authn-authz.md), [CORS](cors.md), and other route based policies can be configured on each route entry. For additional fields see [RouteConfig](xref:Yarp.ReverseProxy.Configuration.RouteConfig).
 
 The proxy will apply the given matching criteria and policies, and then pass off the request to the specified cluster.
 
 ### Clusters
 The clusters section is an unordered collection of named clusters. A cluster primarily contains a collection of named destinations and their addresses, any of which is considered capable of handling requests for a given route. The proxy will process the request according to the route and cluster configuration in order to select a destination.
 
-For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Abstractions.ClusterConfig).
+For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.ClusterConfig).
 
 ## Lifecycle
 
@@ -33,7 +33,7 @@ The `IProxyConfigProvider` should be registered in the DI container as a singlet
 - Synchronously block while it loads the configuraiton. This will block the application from starting until valid route data is available.
 - Or, it may choose to return an empty `IProxyConfig` instance while it loads the configuration in the background. The provider will need to trigger the `IChangeToken` when the configuration is available.
 
-The proxy will validate the given configuration and if it's invalid, an exception will be thrown that prevents the application from starting. The provider can avoid this by using the [IConfigValidator](xref:Yarp.ReverseProxy.Service.IConfigValidator) to pre-validate routes and clusters and take whatever action it deems appropriate such as excluding invalid entries.
+The proxy will validate the given configuration and if it's invalid, an exception will be thrown that prevents the application from starting. The provider can avoid this by using the [IConfigValidator](xref:Yarp.ReverseProxy.Configuration.IConfigValidator) to pre-validate routes and clusters and take whatever action it deems appropriate such as excluding invalid entries.
 
 ### Atomicity
 
@@ -46,7 +46,7 @@ When the provider wants to provide new configuration to the proxy it should:
 - load that configuration in the background. 
   - Route and cluster objects are immutable, so new instances have be created for any new data.
   - Objects for unchanged routes and clusters can be re-used, or new instances can be created - changes will be detected by diffing them.
-- optionally validate the configuration using the [IConfigValidator](xref:Yarp.ReverseProxy.Service.IConfigValidator), and only then signal the `IChangeToken` from the prior `IProxyConfig` instance that new data is available. The proxy will call `GetConfig()` again to retrieve the new data.
+- optionally validate the configuration using the [IConfigValidator](xref:Yarp.ReverseProxy.Configuration.IConfigValidator), and only then signal the `IChangeToken` from the prior `IProxyConfig` instance that new data is available. The proxy will call `GetConfig()` again to retrieve the new data.
 
 There are important differences when reloading configuration vs the first configuration load.
 - The new configuration will be diffed against the current one and only modified routes or clusters will be updated. The update will be applied atomically and will only affect new requests, not requests currently in progress.

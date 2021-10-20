@@ -13,16 +13,6 @@ namespace Microsoft.AspNetCore.Http
     public static class HttpContextFeaturesExtensions
     {
         /// <summary>
-        /// Retrieves the <see cref="ClusterState"/> instance associated with the current request.
-        /// </summary>
-        public static ClusterState GetClusterState(this HttpContext context)
-        {
-            var route = context.GetRouteModel();
-            var cluster = route.Cluster ?? throw new InvalidOperationException($"The {typeof(RouteModel).FullName} is missing the {typeof(ClusterState).FullName}.");
-            return cluster;
-        }
-
-        /// <summary>
         /// Retrieves the <see cref="RouteModel"/> instance associated with the current request.
         /// </summary>
         public static RouteModel GetRouteModel(this HttpContext context)

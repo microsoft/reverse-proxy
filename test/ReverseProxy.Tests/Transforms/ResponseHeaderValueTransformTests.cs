@@ -12,27 +12,33 @@ namespace Yarp.ReverseProxy.Transforms.Tests
     {
         [Theory]
         // Using ";" to represent multi-line headers
-        [InlineData("", 400, "new", false, false, "")]
-        [InlineData("", 200, "new", false, false, "new")]
-        [InlineData("", 400, "new", false, true, "new")]
-        [InlineData("", 200, "new", false, true, "new")]
-        [InlineData("start", 400, "new", false, false, "start")]
-        [InlineData("start", 200, "new", false, false, "new")]
-        [InlineData("start", 400, "new", false, true, "new")]
-        [InlineData("start", 200, "new", false, true, "new")]
-        [InlineData("start", 400, "new", true, false, "start")]
-        [InlineData("start", 200, "new", true, false, "start;new")]
-        [InlineData("start", 400, "new", true, true, "start;new")]
-        [InlineData("start", 200, "new", true, true, "start;new")]
-        [InlineData("start,value", 400, "new", true, false, "start,value")]
-        [InlineData("start,value", 200, "new", true, false, "start,value;new")]
-        [InlineData("start,value", 400, "new", true, true, "start,value;new")]
-        [InlineData("start,value", 200, "new", true, true, "start,value;new")]
-        [InlineData("start;value", 400, "new", true, false, "start;value")]
-        [InlineData("start;value", 200, "new", true, false, "start;value;new")]
-        [InlineData("start;value", 400, "new", true, true, "start;value;new")]
-        [InlineData("start;value", 200, "new", true, true, "start;value;new")]
-        public async Task AddResponseHeader_Success(string startValue, int status, string value, bool append, bool always, string expected)
+        [InlineData("", 400, "new", false, ResponseCondition.Success, "", false)]
+        [InlineData("", 502, "new", false, ResponseCondition.Success, "", true)]
+        [InlineData("", 200, "new", false, ResponseCondition.Success, "new", false)]
+        [InlineData("", 400, "new", false, ResponseCondition.Always, "new", false)]
+        [InlineData("", 200, "new", false, ResponseCondition.Always, "new", false)]
+        [InlineData("", 502, "new", false, ResponseCondition.Always, "new", true)]
+        [InlineData("", 502, "new", false, ResponseCondition.Failure, "new", false)]
+        [InlineData("", 502, "new", false, ResponseCondition.Failure, "new", true)]
+        [InlineData("", 200, "new", false, ResponseCondition.Failure, "", false)]
+        [InlineData("start", 400, "new", false, ResponseCondition.Success, "start", false)]
+        [InlineData("start", 200, "new", false, ResponseCondition.Success, "new", false)]
+        [InlineData("start", 502, "new", false, ResponseCondition.Success, "start", true)]
+        [InlineData("start", 400, "new", false, ResponseCondition.Always, "new", false)]
+        [InlineData("start", 200, "new", false, ResponseCondition.Always, "new", false)]
+        [InlineData("start", 400, "new", true, ResponseCondition.Success, "start", false)]
+        [InlineData("start", 200, "new", true, ResponseCondition.Success, "start;new", false)]
+        [InlineData("start", 400, "new", true, ResponseCondition.Always, "start;new", false)]
+        [InlineData("start", 200, "new", true, ResponseCondition.Always, "start;new", false)]
+        [InlineData("start,value", 400, "new", true, ResponseCondition.Success, "start,value", false)]
+        [InlineData("start,value", 200, "new", true, ResponseCondition.Success, "start,value;new", false)]
+        [InlineData("start,value", 400, "new", true, ResponseCondition.Always, "start,value;new", false)]
+        [InlineData("start,value", 200, "new", true, ResponseCondition.Always, "start,value;new", false)]
+        [InlineData("start;value", 400, "new", true, ResponseCondition.Success, "start;value", false)]
+        [InlineData("start;value", 200, "new", true, ResponseCondition.Success, "start;value;new", false)]
+        [InlineData("start;value", 400, "new", true, ResponseCondition.Always, "start;value;new", false)]
+        [InlineData("start;value", 200, "new", true, ResponseCondition.Always, "start;value;new", false)]
+        public async Task AddResponseHeader_Success(string startValue, int status, string value, bool append, ResponseCondition condition, string expected, bool responseNull)
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Response.Headers["name"] = startValue.Split(";", System.StringSplitOptions.RemoveEmptyEntries);
@@ -40,10 +46,10 @@ namespace Yarp.ReverseProxy.Transforms.Tests
             var transformContext = new ResponseTransformContext()
             {
                 HttpContext = httpContext,
-                ProxyResponse = new HttpResponseMessage(),
+                ProxyResponse = responseNull ? null :  new HttpResponseMessage(),
                 HeadersCopied = true,
             };
-            var transform = new ResponseHeaderValueTransform("name", value, append, always);
+            var transform = new ResponseHeaderValueTransform("name", value, append, condition);
             await transform.ApplyAsync(transformContext);
             Assert.Equal(expected.Split(";", System.StringSplitOptions.RemoveEmptyEntries), httpContext.Response.Headers["name"]);
         }

@@ -16,7 +16,7 @@ XliffTasks* |  MIT
 docfx.console |  MIT
 NETStandard.Library |  MIT
 
-## Yarp.ReverseProxy.Kubernetes.Ingress
+## Yarp.Kubernetes.Ingress
 | Package | License |
 | :--- | :--- |
 Nerdbank.GitVersioning |  MIT
@@ -71,7 +71,7 @@ KubernetesClient |  Apache-2.0
 Microsoft.AspNetCore.Mvc.NewtonsoftJson |  Apache-2.0
 Microsoft.CodeAnalysis.FxCopAnalyzers |  [Microsoft .NET Library](https://dotnet.microsoft.com/en/dotnet_library_license.htm)
 
-## Yarp.ReverseProxy.Kubernetes.Controller
+## Yarp.Kubernetes.Controller
 | Package | License |
 | :--- | :--- |
 Microsoft.VisualStudio.Azure.Containers.Tools.Targets |  [Microsoft .Net Library](https://www.microsoft.com/web/webpi/eula/net_library_eula_ENU.htm)
@@ -93,7 +93,7 @@ xunit |  [Multiple licenses](https://raw.githubusercontent.com/xunit/xunit/maste
 xunit.runner.console |  [Multiple licenses](https://raw.githubusercontent.com/xunit/xunit/master/license.txt)
 xunit.runner.visualstudio |  MIT 
 
-## Yarp.ReverseProxy.Kubernetes.Tests
+## Yarp.Kubernetes.Tests
 | Package | License |
 | :--- | :--- |
 Autofac | MIT

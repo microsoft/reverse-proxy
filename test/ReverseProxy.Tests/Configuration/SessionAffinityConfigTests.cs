@@ -21,14 +21,15 @@ namespace Yarp.ReverseProxy.Configuration.Tests
             var options2 = new SessionAffinityConfig
             {
                 Enabled = true,
-                FailurePolicy = "policy1",
-                Policy = "policy1",
+                FailurePolicy = "Policy1",
+                Policy = "Policy1",
                 AffinityKeyName = "Key1"
             };
 
             var equals = options1.Equals(options2);
 
             Assert.True(equals);
+            Assert.Equal(options1.GetHashCode(), options2.GetHashCode());
         }
 
         [Fact]

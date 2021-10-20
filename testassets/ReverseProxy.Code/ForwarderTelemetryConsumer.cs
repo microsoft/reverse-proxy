@@ -4,7 +4,7 @@
 using System;
 using System.Threading;
 using Microsoft.AspNetCore.Http;
-using Yarp.ReverseProxy.Telemetry.Consumption;
+using Yarp.Telemetry.Consumption;
 
 namespace Yarp.ReverseProxy.Sample
 {

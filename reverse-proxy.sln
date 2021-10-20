@@ -34,15 +34,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Code.Sample", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Direct.Sample", "samples\ReverseProxy.Direct.Sample\ReverseProxy.Direct.Sample.csproj", "{D6B72704-603C-4C6F-8DFA-BB820B1C6CC0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.ServiceFabric", "src\ReverseProxy.ServiceFabric\Yarp.ReverseProxy.ServiceFabric.csproj", "{D7D077C7-CE13-42C3-A26A-DE5F940CBF3D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.ServiceFabric", "src\ServiceFabric\Yarp.ReverseProxy.ServiceFabric.csproj", "{D7D077C7-CE13-42C3-A26A-DE5F940CBF3D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.Tests.Common", "test\ReverseProxy.Tests.Common\Yarp.ReverseProxy.Tests.Common.csproj", "{A6F5DAB3-C9B6-402D-A637-131D56D3AD5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.Tests.Common", "test\Tests.Common\Yarp.Tests.Common.csproj", "{A6F5DAB3-C9B6-402D-A637-131D56D3AD5E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.ServiceFabric.Tests", "test\ReverseProxy.ServiceFabric.Tests\Yarp.ReverseProxy.ServiceFabric.Tests.csproj", "{FC33B6BC-E328-45CD-8589-AF3A5D9450EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.ServiceFabric.Tests", "test\ServiceFabric.Tests\Yarp.ReverseProxy.ServiceFabric.Tests.csproj", "{FC33B6BC-E328-45CD-8589-AF3A5D9450EE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.ServiceFabric.Sample", "samples\ReverseProxy.ServiceFabric.Sample\ReverseProxy.ServiceFabric.Sample.csproj", "{46DC2693-5E60-48B4-AC15-329692E2A252}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.Telemetry.Consumption", "src\ReverseProxy.TelemetryConsumption\Yarp.ReverseProxy.Telemetry.Consumption.csproj", "{9EE0CBFE-54E0-4189-AF30-BE0BE3185D2A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.Telemetry.Consumption", "src\TelemetryConsumption\Yarp.Telemetry.Consumption.csproj", "{9EE0CBFE-54E0-4189-AF30-BE0BE3185D2A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "testassets", "testassets", "{CDB73246-0A7E-4116-81E0-828228ECADDD}"
 EndProject
@@ -64,9 +64,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestServer", "testassets\Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Direct", "testassets\ReverseProxy.Direct\ReverseProxy.Direct.csproj", "{6FE9874A-87B9-42C6-B19C-065A97CC6360}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.Kubernetes.Controller", "src\ReverseProxy.Kubernetes.Controller\Yarp.ReverseProxy.Kubernetes.Controller.csproj", "{5C8E9658-39DA-4C27-A939-68F94B62110B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.Kubernetes.Controller", "src\Kubernetes.Controller\Yarp.Kubernetes.Controller.csproj", "{5C8E9658-39DA-4C27-A939-68F94B62110B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.Kubernetes.Protocol", "src\ReverseProxy.Kubernetes.Protocol\Yarp.ReverseProxy.Kubernetes.Protocol.csproj", "{4188D742-AC87-4CF4-86A0-3AB7AF034764}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.Kubernetes.Protocol", "src\Kubernetes.Protocol\Yarp.Kubernetes.Protocol.csproj", "{4188D742-AC87-4CF4-86A0-3AB7AF034764}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OperatorFramework", "OperatorFramework", "{3A8C7CF8-1F32-474E-B68A-B548A3384BB4}"
 EndProject
@@ -84,7 +84,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Kubernetes.Resour
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Kubernetes.Testing", "src\OperatorFramework\src\Testing\Microsoft.Kubernetes.Testing.csproj", "{A91475F7-6CF0-4564-A585-071D95CDC3A1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.Kubernetes.Tests", "test\ReverseProxy.Kubernetes.Tests\Yarp.ReverseProxy.Kubernetes.Tests.csproj", "{46E9889F-7355-433A-98D8-972D8D90C6D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.Kubernetes.Tests", "test\Kubernetes.Tests\Yarp.Kubernetes.Tests.csproj", "{46E9889F-7355-433A-98D8-972D8D90C6D0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.ConfigFilter.Sample", "samples\ReverseProxy.ConfigFilter.Sample\ReverseProxy.ConfigFilter.Sample.csproj", "{A1DE5B8D-25D2-4E57-B18D-5E64D879BE7E}"
 EndProject
@@ -98,7 +98,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{32B6B9
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ingress", "Ingress", "{04E87669-7E7B-4217-83A4-EF80B534D14B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.ReverseProxy.Kubernetes.Ingress", "samples\KuberenetesIngress.Sample\Ingress\Yarp.ReverseProxy.Kubernetes.Ingress.csproj", "{84B920E2-A501-457D-8F1A-9CC7AF8B5F2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.Kubernetes.Ingress", "samples\KuberenetesIngress.Sample\Ingress\Yarp.Kubernetes.Ingress.csproj", "{84B920E2-A501-457D-8F1A-9CC7AF8B5F2D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "backend", "samples\KuberenetesIngress.Sample\backend\backend.csproj", "{EB5663B9-31BA-4930-A302-4B87B8DEB74A}"
 EndProject

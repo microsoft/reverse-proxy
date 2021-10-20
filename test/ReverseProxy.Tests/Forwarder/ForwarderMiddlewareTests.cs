@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using Xunit;
-using Yarp.ReverseProxy.Common.Tests;
+using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
 
@@ -38,7 +38,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
             var httpRequestOptions = new ForwarderRequestConfig
             {
-                Timeout = TimeSpan.FromSeconds(60),
+                ActivityTimeout = TimeSpan.FromSeconds(60),
                 Version = HttpVersion.Version11,
 #if NET
                 VersionPolicy = HttpVersionPolicy.RequestVersionExact,
@@ -75,7 +75,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                     It.Is<string>(uri => uri == "https://localhost:123/a/b/"),
                     httpClient,
                     It.Is<ForwarderRequestConfig>(requestOptions =>
-                        requestOptions.Timeout == httpRequestOptions.Timeout
+                        requestOptions.ActivityTimeout == httpRequestOptions.ActivityTimeout
                         && requestOptions.Version == httpRequestOptions.Version
 #if NET
                         && requestOptions.VersionPolicy == httpRequestOptions.VersionPolicy

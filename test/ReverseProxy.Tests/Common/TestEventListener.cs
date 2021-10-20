@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Threading;
 
-namespace Yarp.ReverseProxy.Common.Tests
+namespace Yarp.Tests.Common
 {
     internal static class TestEventListener
     {

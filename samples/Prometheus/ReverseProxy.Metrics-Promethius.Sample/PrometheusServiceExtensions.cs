@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Extensions.DependencyInjection;
-using Yarp.ReverseProxy.Telemetry.Consumption;
+using Yarp.Telemetry.Consumption;
 
 namespace Yarp.Sample
 {
@@ -11,7 +11,7 @@ namespace Yarp.Sample
         public static IServiceCollection AddPrometheusForwarderMetrics(this IServiceCollection services)
         {
             services.AddTelemetryListeners();
-            services.AddSingleton<IForwarderMetricsConsumer, PrometheusForwarderMetrics>();
+            services.AddSingleton<IMetricsConsumer<ForwarderMetrics>, PrometheusForwarderMetrics>();
             return services;
         }
 
@@ -19,28 +19,28 @@ namespace Yarp.Sample
         public static IServiceCollection AddPrometheusDnsMetrics(this IServiceCollection services)
         {
             services.AddTelemetryListeners();
-            services.AddSingleton<INameResolutionMetricsConsumer, PrometheusDnsMetrics>();
+            services.AddSingleton<IMetricsConsumer<NameResolutionMetrics>, PrometheusDnsMetrics>();
             return services;
         }
 
         public static IServiceCollection AddPrometheusKestrelMetrics(this IServiceCollection services)
         {
             services.AddTelemetryListeners();
-            services.AddSingleton<IKestrelMetricsConsumer, PrometheusKestrelMetrics>();
+            services.AddSingleton<IMetricsConsumer<KestrelMetrics>, PrometheusKestrelMetrics>();
             return services;
         }
 
         public static IServiceCollection AddPrometheusOutboundHttpMetrics(this IServiceCollection services)
         {
             services.AddTelemetryListeners();
-            services.AddSingleton<IHttpMetricsConsumer, PrometheusOutboundHttpMetrics>();
+            services.AddSingleton<IMetricsConsumer<HttpMetrics>, PrometheusOutboundHttpMetrics>();
             return services;
         }
 
         public static IServiceCollection AddPrometheusSocketsMetrics(this IServiceCollection services)
         {
             services.AddTelemetryListeners();
-            services.AddSingleton<ISocketsMetricsConsumer, PrometheusSocketMetrics>();
+            services.AddSingleton<IMetricsConsumer<SocketsMetrics>, PrometheusSocketMetrics>();
             return services;
         }
 #endif

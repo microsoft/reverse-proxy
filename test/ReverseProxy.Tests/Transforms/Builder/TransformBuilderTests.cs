@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Transforms.Builder.Tests
 {
@@ -50,7 +51,7 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
             Assert.Empty(results.ResponseTransforms);
             Assert.Empty(results.ResponseTrailerTransforms);
 
-            Assert.Equal(5, results.RequestTransforms.Count);
+            Assert.Equal(6, results.RequestTransforms.Count);
             var hostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderOriginalHostTransform>());
             Assert.False(hostTransform.UseOriginalHost);
             var forTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
@@ -61,6 +62,9 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
             Assert.Equal("X-Forwarded-Prefix", prefixTransform.HeaderName);
             var protoTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedProtoTransform>());
             Assert.Equal(ForwardedHeadersDefaults.XForwardedProtoHeaderName, protoTransform.HeaderName);
+
+            var removeForwardedTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderForwardedTransform>());
+            Assert.Equal(ForwardedTransformActions.Remove, removeForwardedTransform.TransformAction);
         }
 
         [Fact]
@@ -90,7 +94,7 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
             Assert.Empty(results.ResponseTransforms);
             Assert.Empty(results.ResponseTrailerTransforms);
 
-            Assert.Equal(5, results.RequestTransforms.Count);
+            Assert.Equal(6, results.RequestTransforms.Count);
             var hostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderOriginalHostTransform>());
             Assert.False(hostTransform.UseOriginalHost);
             var forTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
@@ -101,6 +105,9 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
             Assert.Equal("X-Forwarded-Prefix", prefixTransform.HeaderName);
             var protoTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedProtoTransform>());
             Assert.Equal(ForwardedHeadersDefaults.XForwardedProtoHeaderName, protoTransform.HeaderName);
+
+            var removeForwardedTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderForwardedTransform>());
+            Assert.Equal(ForwardedTransformActions.Remove, removeForwardedTransform.TransformAction);
         }
 
         [Fact]
@@ -393,7 +400,14 @@ namespace Yarp.ReverseProxy.Transforms.Builder.Tests
             Assert.Empty(errors);
 
             var results = transformBuilder.BuildInternal(route, new ClusterConfig());
-            var transform = Assert.Single(results.RequestTransforms);
+            Assert.Equal(5, results.RequestTransforms.Count);
+            Assert.All(
+                results.RequestTransforms.Skip(1).Select(t => (dynamic)t),
+                t => {
+                    Assert.StartsWith("X-Forwarded-", t.HeaderName);
+                    Assert.Equal(ForwardedTransformActions.Remove, t.TransformAction);
+                });
+            var transform = results.RequestTransforms[0];
             var forwardedTransform = Assert.IsType<RequestHeaderForwardedTransform>(transform);
             Assert.True(forwardedTransform.ProtoEnabled);
         }

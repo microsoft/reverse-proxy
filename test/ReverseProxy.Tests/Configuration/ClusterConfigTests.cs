@@ -85,14 +85,13 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                     SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
                     DangerousAcceptAnyServerCertificate = true,
-                    ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
 #if NET
                     RequestHeaderEncoding = Encoding.UTF8.WebName
 #endif
                 },
                 HttpRequest = new ForwarderRequestConfig
                 {
-                    Timeout = TimeSpan.FromSeconds(60),
+                    ActivityTimeout = TimeSpan.FromSeconds(60),
                     Version = Version.Parse("1.0"),
 #if NET
                     VersionPolicy = HttpVersionPolicy.RequestVersionExact,
@@ -166,14 +165,13 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                     SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
                     DangerousAcceptAnyServerCertificate = true,
-                    ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
 #if NET
                     RequestHeaderEncoding = Encoding.UTF8.WebName
 #endif
                 },
                 HttpRequest = new ForwarderRequestConfig
                 {
-                    Timeout = TimeSpan.FromSeconds(60),
+                    ActivityTimeout = TimeSpan.FromSeconds(60),
                     Version = Version.Parse("1.0"),
 #if NET
                     VersionPolicy = HttpVersionPolicy.RequestVersionExact,
@@ -182,11 +180,12 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                 Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
             };
 
-            var equals = config1.Equals(config2);
+            var config3 = config1 with { }; // Clone
 
-            Assert.True(equals);
-
-            Assert.True(config1.Equals(config1 with { })); // Clone
+            Assert.True(config1.Equals(config2));
+            Assert.True(config1.Equals(config3));
+            Assert.Equal(config1.GetHashCode(), config2.GetHashCode());
+            Assert.Equal(config1.GetHashCode(), config3.GetHashCode());
         }
 
         [Fact]
@@ -257,11 +256,10 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                     SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
                     DangerousAcceptAnyServerCertificate = true,
-                    ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
                 },
                 HttpRequest = new ForwarderRequestConfig
                 {
-                    Timeout = TimeSpan.FromSeconds(60),
+                    ActivityTimeout = TimeSpan.FromSeconds(60),
                     Version = Version.Parse("1.0"),
 #if NET
                     VersionPolicy = HttpVersionPolicy.RequestVersionExact,
@@ -302,7 +300,6 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                     SslProtocols = SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
                     DangerousAcceptAnyServerCertificate = true,
-                    ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
                 }
             }));
             Assert.False(config1.Equals(config1 with { HttpRequest = new ForwarderRequestConfig() { } }));
@@ -369,7 +366,6 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                     SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                     MaxConnectionsPerServer = 10,
                     DangerousAcceptAnyServerCertificate = true,
-                    ActivityContextHeaders = ActivityContextHeaders.CorrelationContext,
                     WebProxy = new WebProxyConfig
                     {
                         Address = new Uri("http://proxy"),
@@ -379,7 +375,7 @@ namespace Yarp.ReverseProxy.Configuration.Tests
                 },
                 HttpRequest = new ForwarderRequestConfig
                 {
-                    Timeout = TimeSpan.FromSeconds(60),
+                    ActivityTimeout = TimeSpan.FromSeconds(60),
                     Version = Version.Parse("1.0"),
 #if NET
                     VersionPolicy = HttpVersionPolicy.RequestVersionExact,

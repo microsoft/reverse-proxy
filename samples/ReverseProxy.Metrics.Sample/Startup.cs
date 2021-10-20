@@ -4,7 +4,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Yarp.ReverseProxy.Telemetry.Consumption;
+using Yarp.Telemetry.Consumption;
 
 namespace Yarp.Sample
 {
@@ -36,7 +36,7 @@ namespace Yarp.Sample
             services.AddHttpContextAccessor();
 
             // Interface that collects general metrics about the proxy forwarder
-            services.AddSingleton<IForwarderMetricsConsumer, ForwarderMetricsConsumer>();
+            services.AddSingleton<IMetricsConsumer<ForwarderMetrics>, ForwarderMetricsConsumer>();
 
             // Registration of a consumer to events for proxy forwarder telemetry
             services.AddTelemetryConsumer<ForwarderTelemetryConsumer>();
@@ -44,6 +44,8 @@ namespace Yarp.Sample
             // Registration of a consumer to events for HttpClient telemetry
             // Note: this depends on changes implemented in .NET 5
             services.AddTelemetryConsumer<HttpClientTelemetryConsumer>();
+
+            services.AddTelemetryConsumer<WebSocketsTelemetryConsumer>();
         }
 
         /// <summary>
@@ -54,6 +56,9 @@ namespace Yarp.Sample
             // Custom middleware that collects and reports the proxy metrics
             // Placed at the beginning so it is the first and last thing run for each request
             app.UsePerRequestMetricCollection();
+
+            // Middleware used to intercept the WebSocket connection and collect telemetry exposed to WebSocketsTelemetryConsumer
+            app.UseWebSocketsTelemetry();
 
             app.UseRouting();
             app.UseEndpoints(endpoints =>

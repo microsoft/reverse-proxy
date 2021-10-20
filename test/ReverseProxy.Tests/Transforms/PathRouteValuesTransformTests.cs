@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -23,13 +24,15 @@ namespace Yarp.ReverseProxy.Transforms.Tests
             serviceCollection.AddRouting();
             using var services = serviceCollection.BuildServiceProvider();
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.RouteValues = new RouteValueDictionary()
+            var routeValues = new Dictionary<string, object>
             {
                 { "a", "6" },
                 { "b", "7" },
                 { "c", "8" },
             };
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.RouteValues = new RouteValueDictionary(routeValues);
             var context = new RequestTransformContext()
             {
                 Path = "/",
@@ -38,6 +41,9 @@ namespace Yarp.ReverseProxy.Transforms.Tests
             var transform = new PathRouteValuesTransform(transformValue, services.GetRequiredService<TemplateBinderFactory>());
             await transform.ApplyAsync(context);
             Assert.Equal(expected, context.Path);
+
+            // The transform should not modify the original request's route values
+            Assert.Equal(routeValues, httpContext.Request.RouteValues);
         }
     }
 }

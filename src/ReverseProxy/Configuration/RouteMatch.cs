@@ -29,11 +29,15 @@ namespace Yarp.ReverseProxy.Configuration
         public string? Path { get; init; }
 
         /// <summary>
+        /// Only match requests that contain all of these query parameters.
+        /// </summary>
+        public IReadOnlyList<RouteQueryParameter>? QueryParameters { get; init; }
+
+        /// <summary>
         /// Only match requests that contain all of these headers.
         /// </summary>
         public IReadOnlyList<RouteHeader>? Headers { get; init; }
 
-        /// <inheritdoc />
         public bool Equals(RouteMatch? other)
         {
             if (other == null)
@@ -44,46 +48,18 @@ namespace Yarp.ReverseProxy.Configuration
             return string.Equals(Path, other.Path, StringComparison.OrdinalIgnoreCase)
                 && CaseInsensitiveEqualHelper.Equals(Hosts, other.Hosts)
                 && CaseInsensitiveEqualHelper.Equals(Methods, other.Methods)
-                && HeadersEqual(Headers, other.Headers);
+                && CollectionEqualityHelper.Equals(Headers, other.Headers)
+                && CollectionEqualityHelper.Equals(QueryParameters, other.QueryParameters);
         }
 
-        // Order sensitive to reduce complexity
-        private static bool HeadersEqual(IReadOnlyList<RouteHeader>? headers1, IReadOnlyList<RouteHeader>? headers2)
-        {
-            if (ReferenceEquals(headers1, headers2))
-            {
-                return true;
-            }
-
-            if (headers1 == null || headers2 == null)
-            {
-                return false;
-            }
-
-            if (headers1.Count != headers2.Count)
-            {
-                return false;
-            }
-
-            for (var i = 0; i < headers1.Count; i++)
-            {
-                if (!headers1[i].Equals(headers2[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        /// <inheritdoc />
         public override int GetHashCode()
         {
             return HashCode.Combine(
                 Path?.GetHashCode(StringComparison.OrdinalIgnoreCase),
                 CaseInsensitiveEqualHelper.GetHashCode(Hosts),
                 CaseInsensitiveEqualHelper.GetHashCode(Methods),
-                Headers);
+                CollectionEqualityHelper.GetHashCode(Headers),
+                CollectionEqualityHelper.GetHashCode(QueryParameters));
         }
     }
 }

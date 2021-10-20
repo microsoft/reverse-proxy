@@ -12,7 +12,7 @@ namespace Yarp.ReverseProxy.Transforms
     /// </summary>
     public class ResponseHeaderValueTransform : ResponseTransform
     {
-        public ResponseHeaderValueTransform(string headerName, string value, bool append, bool always)
+        public ResponseHeaderValueTransform(string headerName, string value, bool append, ResponseCondition condition)
         {
             if (string.IsNullOrEmpty(headerName))
             {
@@ -22,10 +22,10 @@ namespace Yarp.ReverseProxy.Transforms
             HeaderName = headerName;
             Value = value ?? throw new ArgumentNullException(nameof(value));
             Append = append;
-            Always = always;
+            Condition = condition;
         }
 
-        internal bool Always { get; }
+        internal ResponseCondition Condition { get; }
 
         internal bool Append { get; }
 
@@ -42,7 +42,8 @@ namespace Yarp.ReverseProxy.Transforms
                 throw new ArgumentNullException(nameof(context));
             }
 
-            if (Always || Success(context))
+            if (Condition == ResponseCondition.Always
+                || Success(context) == (Condition == ResponseCondition.Success))
             {
                 var existingHeader = TakeHeader(context, HeaderName);
                 if (Append)

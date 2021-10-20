@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Yarp.ReverseProxy.Common.Tests
+namespace Yarp.Tests.Common
 {
     /// <summary>
     /// Extensions for the <see cref="Task"/> class.
@@ -49,7 +49,16 @@ namespace Yarp.ReverseProxy.Common.Tests
             {
                 return await task;
             }
-
+#if NET6_0_OR_GREATER
+            try
+            {
+                return await task.WaitAsync(timeout);
+            }
+            catch (TimeoutException ex) when (ex.Source == typeof(TaskExtensions).Namespace)
+            {
+                throw new TimeoutException(CreateMessage(timeout, filePath, lineNumber));
+            }
+#else
             var cts = new CancellationTokenSource();
             if (task == await Task.WhenAny(task, Task.Delay(timeout, cts.Token)))
             {
@@ -60,6 +69,7 @@ namespace Yarp.ReverseProxy.Common.Tests
             {
                 throw new TimeoutException(CreateMessage(timeout, filePath, lineNumber));
             }
+#endif
         }
 
         private static async Task TimeoutAfter(this Task task, TimeSpan timeout,

@@ -48,7 +48,9 @@ namespace Yarp.ReverseProxy.Health
         {
             var error = context.Features.Get<IForwarderErrorFeature>();
             var newHealth = EvaluateProxiedRequest(cluster, destination, error != null);
-            var reactivationPeriod = cluster.Model.Config.HealthCheck?.Passive?.ReactivationPeriod ?? _defaultReactivationPeriod;
+            var clusterReactivationPeriod = cluster.Model.Config.HealthCheck?.Passive?.ReactivationPeriod ?? _defaultReactivationPeriod;
+            // Avoid reactivating until the history has expired so that it does not affect future health assessments.
+            var reactivationPeriod = clusterReactivationPeriod >= _policyOptions.DetectionWindowSize ? clusterReactivationPeriod : _policyOptions.DetectionWindowSize;
             _healthUpdater.SetPassive(cluster, destination, newHealth, reactivationPeriod);
         }
 
@@ -96,7 +98,7 @@ namespace Yarp.ReverseProxy.Health
                 // and then add only one record storing them.
                 if (eventTime >= _nextRecordCreatedAt)
                 {
-                    _records.Enqueue(new HistoryRecord(eventTime, _nextRecordTotalCount, _nextRecordFailedCount));
+                    _records.Enqueue(new HistoryRecord(_nextRecordCreatedAt, _nextRecordTotalCount, _nextRecordFailedCount));
                     _nextRecordCreatedAt = eventTime + RecordWindowSize;
                     _nextRecordTotalCount = 0;
                     _nextRecordFailedCount = 0;

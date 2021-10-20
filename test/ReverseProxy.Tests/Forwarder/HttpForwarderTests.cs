@@ -18,7 +18,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using Moq;
 using Xunit;
-using Yarp.ReverseProxy.Common.Tests;
+using Yarp.Tests.Common;
+using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Forwarder.Tests
 {
@@ -74,7 +75,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                     Assert.Equal(HttpMethod.Post, request.Method);
                     Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
                     Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
-                    Assert.Equal("example.com:3456", request.Headers.Host);
+                    Assert.Null(request.Headers.Host);
                     Assert.False(request.Headers.TryGetValues(":authority", out var value));
 
                     Assert.NotNull(request.Content);
@@ -83,7 +84,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                     var capturedRequestContent = new MemoryStream();
 
                     // Use CopyToAsync as this is what HttpClient and friends use internally
-                    await request.Content.CopyToAsync(capturedRequestContent);
+                    await request.Content.CopyToWithCancellationAsync(capturedRequestContent);
                     capturedRequestContent.Position = 0;
                     var capturedContentText = StreamToString(capturedRequestContent);
                     Assert.Equal("request content", capturedContentText);
@@ -182,7 +183,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                     var capturedRequestContent = new MemoryStream();
 
                     // Use CopyToAsync as this is what HttpClient and friends use internally
-                    await request.Content.CopyToAsync(capturedRequestContent);
+                    await request.Content.CopyToWithCancellationAsync(capturedRequestContent);
                     capturedRequestContent.Position = 0;
                     var capturedContentText = StreamToString(capturedRequestContent);
                     Assert.Equal("request content", capturedContentText);
@@ -266,7 +267,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                     var capturedRequestContent = new MemoryStream();
 
                     // Use CopyToAsync as this is what HttpClient and friends use internally
-                    await request.Content.CopyToAsync(capturedRequestContent);
+                    await request.Content.CopyToWithCancellationAsync(capturedRequestContent);
                     capturedRequestContent.Position = 0;
                     var capturedContentText = StreamToString(capturedRequestContent);
                     Assert.Equal("request content", capturedContentText);
@@ -340,7 +341,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                     Assert.Equal(HttpMethod.Get, request.Method);
                     Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
                     Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
-                    Assert.Equal("example.com:3456", request.Headers.Host);
+                    Assert.Null(request.Headers.Host);
                     Assert.False(request.Headers.TryGetValues(":authority", out var value));
 
                     Assert.Null(request.Content);
@@ -370,6 +371,43 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 
             AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
             events.AssertContainProxyStages(upgrade: true);
+        }
+
+        [Fact]
+        public async Task NonUpgradableRequestReturns101_Aborted()
+        {
+            var events = TestEventListener.Collect();
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+
+            DuplexStream upstreamStream = null;
+
+            var destinationPrefix = "https://localhost:123/a/b/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    await Task.Yield();
+
+                    Assert.Equal(new Version(2, 0), request.Version);
+                    Assert.Equal(HttpMethod.Get, request.Method);
+                    Assert.Null(request.Content);
+
+                    var response = new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
+                    upstreamStream = new DuplexStream(
+                        readStream: StringToStream("response content"),
+                        writeStream: new MemoryStream());
+                    response.Content = new RawStreamContent(upstreamStream);
+                    return response;
+                });
+
+            await sut.SendAsync(httpContext, destinationPrefix, client);
+
+            Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
+
+            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, ForwarderError.UpgradeResponseDestination);
+            events.AssertContainProxyStages(upgrade: true, hasRequestContent: false, hasResponseContent: false);
         }
 
         // Tests proxying an upgradeable request where the destination refused to upgrade.
@@ -435,6 +473,75 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 
             AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
             events.AssertContainProxyStages(hasRequestContent: false, upgrade: false);
+        }
+
+        [Fact]
+        public async Task UpgradableRequest_CancelsIfIdle()
+        {
+            var events = TestEventListener.Collect();
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "GET";
+            httpContext.Request.Scheme = "http";
+            httpContext.Request.Path = "/api/test";
+            httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
+
+            // TODO: https://github.com/microsoft/reverse-proxy/issues/255
+            // https://github.com/microsoft/reverse-proxy/issues/467
+            httpContext.Request.Headers.Add("Upgrade", "WebSocket");
+
+            var _idleTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            var downstreamStream = new DuplexStream(
+                readStream: new StallStream(ct =>
+                {
+                    ct.Register(() => _idleTcs.TrySetCanceled());
+                    return _idleTcs.Task;
+                }),
+                writeStream: new MemoryStream());
+            DuplexStream upstreamStream = null;
+
+            var upgradeFeatureMock = new Mock<IHttpUpgradeFeature>();
+            upgradeFeatureMock.SetupGet(u => u.IsUpgradableRequest).Returns(true);
+            upgradeFeatureMock.Setup(u => u.UpgradeAsync()).ReturnsAsync(downstreamStream);
+            httpContext.Features.Set(upgradeFeatureMock.Object);
+
+            var destinationPrefix = "https://localhost:123/a/b/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    await Task.Yield();
+
+                    Assert.Equal(new Version(1, 1), request.Version);
+                    Assert.Equal(HttpMethod.Get, request.Method);
+
+                    Assert.Null(request.Content);
+
+                    var response = new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
+                    upstreamStream = new DuplexStream(
+                        readStream: new StallStream(ct =>
+                        {
+                            ct.Register(() => _idleTcs.TrySetCanceled());
+                            return _idleTcs.Task;
+                        }),
+                        writeStream: new MemoryStream());
+                    response.Content = new RawStreamContent(upstreamStream);
+                    return response;
+                });
+
+            var result = await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig
+            {
+                ActivityTimeout = TimeSpan.FromSeconds(1)
+            }).DefaultTimeout();
+
+            Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
+
+            // When both are idle it's a race which gets reported as canceled first.
+            Assert.True(ForwarderError.UpgradeRequestCanceled == result
+                || ForwarderError.UpgradeResponseCanceled == result);
+
+            events.AssertContainProxyStages(upgrade: true);
         }
 
         [Theory]
@@ -558,7 +665,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                     Assert.NotNull(request.Content);
 
                     // Must consume the body
-                    await request.Content.CopyToAsync(Stream.Null);
+                    await request.Content.CopyToWithCancellationAsync(Stream.Null);
 
                     return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
                 });
@@ -621,7 +728,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                     Assert.NotNull(request.Content);
 
                     // Must consume the body
-                    await request.Content.CopyToAsync(Stream.Null);
+                    await request.Content.CopyToWithCancellationAsync(Stream.Null);
 
                     return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
                 });
@@ -884,7 +991,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 });
 
             // Time out immediately
-            var requestOptions = new ForwarderRequestConfig { Timeout = TimeSpan.FromTicks(1) };
+            var requestOptions = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromTicks(1) };
 
             var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, requestOptions);
 
@@ -959,7 +1066,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 });
 
             // Time out immediately
-            var requestOptions = new ForwarderRequestConfig { Timeout = TimeSpan.FromTicks(1) };
+            var requestOptions = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromTicks(1) };
 
             var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, requestOptions);
 
@@ -972,6 +1079,66 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 
             AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
             events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart });
+        }
+
+        [Fact]
+        public async Task RequestWithBody_KeptAliveByActivity()
+        {
+            var events = TestEventListener.Collect();
+
+            var reads = 0;
+            var expectedReads = 6;
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Request.Method = "POST";
+            httpContext.Request.Body = new CallbackReadStream(async (memory, ct) =>
+            {
+                if (reads >= expectedReads)
+                {
+                    return 0;
+                }
+                reads++;
+                await Task.Delay(TimeSpan.FromMilliseconds(250), ct);
+                memory.Span[0] = (byte)'a';
+                return 1;
+            });
+            httpContext.Request.ContentLength = 1;
+
+            var proxyResponseStream = new MemoryStream();
+            httpContext.Response.Body = proxyResponseStream;
+
+            var destinationPrefix = "https://localhost:123/";
+            var sut = CreateProxy();
+            var client = MockHttpHandler.CreateClient(
+                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                {
+                    Assert.Equal(new Version(2, 0), request.Version);
+                    Assert.Equal("POST", request.Method.Method, StringComparer.OrdinalIgnoreCase);
+
+                    Assert.NotNull(request.Content);
+
+                    // Must consume the body
+                    var body = new MemoryStream();
+                    await request.Content.CopyToWithCancellationAsync(body);
+
+                    Assert.Equal(expectedReads, body.Length);
+
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+                });
+
+            var requestOptions = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(1) };
+
+            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, requestOptions);
+
+            Assert.Equal(ForwarderError.None, proxyError);
+            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+            Assert.Equal(0, proxyResponseStream.Length);
+
+            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+            events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart, ForwarderStage.SendAsyncStop,
+                ForwarderStage.RequestContentTransferStart, ForwarderStage.ResponseContentTransferStart,  });
         }
 
         [Fact]
@@ -1031,7 +1198,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     // Should throw.
-                    await request.Content.CopyToAsync(Stream.Null);
+                    await request.Content.CopyToWithCancellationAsync(Stream.Null);
                     return new HttpResponseMessage();
                 });
 
@@ -1071,7 +1238,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 async (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     // Doesn't throw for destination errors
-                    await request.Content.CopyToAsync(new ThrowStream());
+                    await request.Content.CopyToWithCancellationAsync(new ThrowStream());
                     throw new HttpRequestException();
                 });
 
@@ -1114,7 +1281,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                     // should throw
                     try
                     {
-                        await request.Content.CopyToAsync(new MemoryStream());
+                        await request.Content.CopyToWithCancellationAsync(new MemoryStream());
                     }
                     catch (OperationCanceledException) { }
                     throw new HttpRequestException();
@@ -1438,7 +1605,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     // Background copy
-                    _ = request.Content.CopyToAsync(new MemoryStream());
+                    _ = request.Content.CopyToWithCancellationAsync(new MemoryStream());
                     // Make sure the request isn't canceled until the response finishes copying.
                     return Task.FromResult(new HttpResponseMessage()
                     {
@@ -1484,7 +1651,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     // Background copy
-                    _ = request.Content.CopyToAsync(new MemoryStream());
+                    _ = request.Content.CopyToWithCancellationAsync(new MemoryStream());
                     // Make sure the request isn't canceled until the response finishes copying.
                     return Task.FromResult(new HttpResponseMessage()
                     {
@@ -1526,7 +1693,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
                     // Background copy
-                    _ = request.Content.CopyToAsync(new StallStream(waitTcs.Task));
+                    _ = request.Content.CopyToWithCancellationAsync(new StallStream(waitTcs.Task));
                     // Make sure the request isn't canceled until the response finishes copying.
                     return Task.FromResult(new HttpResponseMessage()
                     {
@@ -1932,8 +2099,15 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 "ALPN: value",
                 "Close: value",
                 "TE: value",
-#if NET
+                "HTTP2-Settings: value",
+                "Upgrade-Insecure-Requests: value",
                 "Alt-Svc: value",
+#if NET6_0_OR_GREATER
+                "traceparent: value",
+                "Request-Id: value",
+                "tracestate: value",
+                "baggage: value",
+                "Correlation-Context: value",
 #endif
             };
 
@@ -2166,6 +2340,27 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             {
                 await OnStallAction(cancellationToken);
                 cancellationToken.ThrowIfCancellationRequested();
+                throw new IOException();
+            }
+        }
+
+        private class CallbackReadStream : DelegatingStream
+        {
+            public CallbackReadStream(Func<Memory<byte>, CancellationToken, ValueTask<int>> onReadAsync)
+                : base(Stream.Null)
+            {
+                OnReadAsync = onReadAsync;
+            }
+
+            public Func<Memory<byte>, CancellationToken, ValueTask<int>> OnReadAsync { get; }
+
+            public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+            {
+                return OnReadAsync(buffer, cancellationToken);
+            }
+
+            public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+            {
                 throw new IOException();
             }
         }

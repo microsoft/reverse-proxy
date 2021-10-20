@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Yarp.ReverseProxy.ServiceFabric" Version="1.0.0-preview.12.21451.3" />
+    <ProjectReference Include="..\..\src\ServiceFabric\Yarp.ReverseProxy.ServiceFabric.csproj" />
   </ItemGroup>
 
   <ItemGroup>

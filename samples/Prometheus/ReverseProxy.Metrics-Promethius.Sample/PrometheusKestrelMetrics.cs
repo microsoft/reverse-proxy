@@ -4,13 +4,12 @@
 
 #if NET
 
-using System;
-using Yarp.ReverseProxy.Telemetry.Consumption;
+using Yarp.Telemetry.Consumption;
 using Prometheus;
 
 namespace Yarp.Sample
 {
-    public sealed class PrometheusKestrelMetrics : IKestrelMetricsConsumer
+    public sealed class PrometheusKestrelMetrics : IMetricsConsumer<KestrelMetrics>
     {
         private static readonly Counter _totalConnections = Metrics.CreateCounter(
             "yarp_kestrel_total_connections",
@@ -47,15 +46,15 @@ namespace Yarp.Sample
             "Number of requests on the queue"
             );
 
-        public void OnKestrelMetrics(KestrelMetrics oldMetrics, KestrelMetrics newMetrics)
+        public void OnMetrics(KestrelMetrics previous, KestrelMetrics current)
         {
-            _totalConnections.IncTo(newMetrics.TotalConnections);
-            _totalTlsHandshakes.IncTo(newMetrics.TotalTlsHandshakes);
-            _currentTlsHandshakes.Set(newMetrics.CurrentTlsHandshakes);
-            _failedTlsHandshakes.IncTo(newMetrics.FailedTlsHandshakes);
-            _currentConnections.Set(newMetrics.CurrentConnections);
-            _connectionQueueLength.Set(newMetrics.ConnectionQueueLength);
-            _requestQueueLength.Set(newMetrics.RequestQueueLength);
+            _totalConnections.IncTo(current.TotalConnections);
+            _totalTlsHandshakes.IncTo(current.TotalTlsHandshakes);
+            _currentTlsHandshakes.Set(current.CurrentTlsHandshakes);
+            _failedTlsHandshakes.IncTo(current.FailedTlsHandshakes);
+            _currentConnections.Set(current.CurrentConnections);
+            _connectionQueueLength.Set(current.ConnectionQueueLength);
+            _requestQueueLength.Set(current.RequestQueueLength);
         }
     }
 }

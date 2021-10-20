@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -104,10 +105,10 @@ namespace Yarp.ReverseProxy.Forwarder
             }
 
             ForwarderTelemetry.Log.ForwarderStart(destinationPrefix);
+
+            var activityCancellationSource = ActivityCancellationTokenSource.Rent(requestConfig?.ActivityTimeout ?? DefaultTimeout, context.RequestAborted);
             try
             {
-                var requestAborted = context.RequestAborted;
-
                 var isClientHttp2 = ProtocolHelper.IsHttp2(context.Request.Protocol);
 
                 // NOTE: We heuristically assume gRPC-looking requests may require streaming semantics.
@@ -116,39 +117,22 @@ namespace Yarp.ReverseProxy.Forwarder
 
                 // :: Step 1-3: Create outgoing HttpRequestMessage
                 var (destinationRequest, requestContent) = await CreateRequestMessageAsync(
-                    context, destinationPrefix, transformer, requestConfig, isStreamingRequest, requestAborted);
+                    context, destinationPrefix, transformer, requestConfig, isStreamingRequest, activityCancellationSource);
 
                 // :: Step 4: Send the outgoing request using HttpClient
                 HttpResponseMessage destinationResponse;
-                var requestTimeoutSource = CancellationTokenSource.CreateLinkedTokenSource(requestAborted);
-                requestTimeoutSource.CancelAfter(requestConfig?.Timeout ?? DefaultTimeout);
-                var requestTimeoutToken = requestTimeoutSource.Token;
                 try
                 {
                     ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.SendAsyncStart);
-                    destinationResponse = await httpClient.SendAsync(destinationRequest, requestTimeoutToken);
+                    destinationResponse = await httpClient.SendAsync(destinationRequest, activityCancellationSource.Token);
                     ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.SendAsyncStop);
-                }
-                catch (OperationCanceledException canceledException)
-                {
-                    if (!requestAborted.IsCancellationRequested && requestTimeoutToken.IsCancellationRequested)
-                    {
-                        ReportProxyError(context, ForwarderError.RequestTimedOut, canceledException);
-                        context.Response.StatusCode = StatusCodes.Status504GatewayTimeout;
-                        return ForwarderError.RequestTimedOut;
-                    }
 
-                    ReportProxyError(context, ForwarderError.RequestCanceled, canceledException);
-                    context.Response.StatusCode = StatusCodes.Status502BadGateway;
-                    return ForwarderError.RequestCanceled;
+                    // Reset the timeout since we received the response headers.
+                    activityCancellationSource.ResetTimeout();
                 }
                 catch (Exception requestException)
                 {
-                    return await HandleRequestFailureAsync(context, requestContent, requestException);
-                }
-                finally
-                {
-                    requestTimeoutSource.Dispose();
+                    return await HandleRequestFailureAsync(context, requestContent, requestException, transformer, activityCancellationSource);
                 }
 
                 // Detect connection downgrade, which may be problematic for e.g. gRPC.
@@ -168,12 +152,26 @@ namespace Yarp.ReverseProxy.Forwarder
                     {
                         // The transforms callback decided that the response body should be discarded.
                         destinationResponse.Dispose();
+
+                        if (requestContent is not null && requestContent.InProgress)
+                        {
+                            activityCancellationSource.Cancel();
+                            await requestContent.ConsumptionTask;
+                        }
+
                         return ForwarderError.None;
                     }
                 }
                 catch (Exception ex)
                 {
                     destinationResponse.Dispose();
+
+                    if (requestContent is not null && requestContent.InProgress)
+                    {
+                        activityCancellationSource.Cancel();
+                        await requestContent.ConsumptionTask;
+                    }
+
                     ReportProxyError(context, ForwarderError.ResponseHeaders, ex);
                     // Clear the response since status code, reason and some headers might have already been copied and we want clean 502 response.
                     context.Response.Clear();
@@ -184,7 +182,8 @@ namespace Yarp.ReverseProxy.Forwarder
                 // :: Step 7-A: Check for a 101 upgrade response, this takes care of WebSockets as well as any other upgradeable protocol.
                 if (destinationResponse.StatusCode == HttpStatusCode.SwitchingProtocols)
                 {
-                    return await HandleUpgradedResponse(context, destinationResponse, requestAborted);
+                    Debug.Assert(requestContent?.Started != true);
+                    return await HandleUpgradedResponse(context, destinationResponse, activityCancellationSource);
                 }
 
                 // NOTE: it may *seem* wise to call `context.Response.StartAsync()` at this point
@@ -198,11 +197,11 @@ namespace Yarp.ReverseProxy.Forwarder
                 // and clients misbehave if the initial headers response does not indicate stream end.
 
                 // :: Step 7-B: Copy response body Client ◄-- Proxy ◄-- Destination
-                var (responseBodyCopyResult, responseBodyException) = await CopyResponseBodyAsync(destinationResponse.Content, context.Response.Body, requestAborted);
+                var (responseBodyCopyResult, responseBodyException) = await CopyResponseBodyAsync(destinationResponse.Content, context.Response.Body, activityCancellationSource);
 
                 if (responseBodyCopyResult != StreamCopyResult.Success)
                 {
-                    return await HandleResponseBodyErrorAsync(context, requestContent, responseBodyCopyResult, responseBodyException!);
+                    return await HandleResponseBodyErrorAsync(context, requestContent, responseBodyCopyResult, responseBodyException!, activityCancellationSource);
                 }
 
                 // :: Step 8: Copy response trailer headers and finish response Client ◄-- Proxy ◄-- Destination
@@ -224,7 +223,7 @@ namespace Yarp.ReverseProxy.Forwarder
                 // e.g. when the request includes header `Expect: 100-continue` and the destination produced a non-1xx response.
                 // We must only wait for the request body to complete if it actually started,
                 // otherwise we run the risk of waiting indefinitely for a task that will never complete.
-                if (requestContent != null && requestContent.Started)
+                if (requestContent is not null && requestContent.Started)
                 {
                     var (requestBodyCopyResult, requestBodyException) = await requestContent.ConsumptionTask;
 
@@ -247,6 +246,7 @@ namespace Yarp.ReverseProxy.Forwarder
             }
             finally
             {
+                activityCancellationSource.Return();
                 ForwarderTelemetry.Log.ForwarderStop(context.Response.StatusCode);
             }
 
@@ -254,12 +254,12 @@ namespace Yarp.ReverseProxy.Forwarder
         }
 
         private async ValueTask<(HttpRequestMessage, StreamCopyHttpContent?)> CreateRequestMessageAsync(HttpContext context, string destinationPrefix,
-            HttpTransformer transformer, ForwarderRequestConfig requestConfig, bool isStreamingRequest, CancellationToken requestAborted)
+            HttpTransformer transformer, ForwarderRequestConfig? requestConfig, bool isStreamingRequest, ActivityCancellationTokenSource activityToken)
         {
             // "http://a".Length = 8
             if (destinationPrefix == null || destinationPrefix.Length < 8)
             {
-                throw new ArgumentException(nameof(destinationPrefix));
+                throw new ArgumentException("Invalid destination prefix.", nameof(destinationPrefix));
             }
 
             var destinationRequest = new HttpRequestMessage();
@@ -286,7 +286,7 @@ namespace Yarp.ReverseProxy.Forwarder
 
             // :: Step 2: Setup copy of request body (background) Client --► Proxy --► Destination
             // Note that we must do this before step (3) because step (3) may also add headers to the HttpContent that we set up here.
-            var requestContent = SetupRequestBodyCopy(context.Request, isStreamingRequest, requestAborted);
+            var requestContent = SetupRequestBodyCopy(context.Request, isStreamingRequest, activityToken);
             destinationRequest.Content = requestContent;
 
             // :: Step 3: Copy request headers Client --► Proxy --► Destination
@@ -301,7 +301,7 @@ namespace Yarp.ReverseProxy.Forwarder
             var request = context.Request;
             destinationRequest.RequestUri ??= RequestUtilities.MakeDestinationAddress(destinationPrefix, request.Path, request.QueryString);
 
-            Log.Proxying(_logger, destinationRequest.RequestUri);
+            Log.Proxying(_logger, destinationRequest, isStreamingRequest);
 
             if (requestConfig?.AllowResponseBuffering != true)
             {
@@ -332,7 +332,7 @@ namespace Yarp.ReverseProxy.Forwarder
             }
         }
 
-        private StreamCopyHttpContent? SetupRequestBodyCopy(HttpRequest request, bool isStreamingRequest, CancellationToken cancellation)
+        private StreamCopyHttpContent? SetupRequestBodyCopy(HttpRequest request, bool isStreamingRequest, ActivityCancellationTokenSource activityToken)
         {
             // If we generate an HttpContent without a Content-Length then for HTTP/1.1 HttpClient will add a Transfer-Encoding: chunked header
             // even if it's a GET request. Some servers reject requests containing a Transfer-Encoding header if they're not expecting a body.
@@ -408,7 +408,7 @@ namespace Yarp.ReverseProxy.Forwarder
                     source: request.Body,
                     autoFlushHttpClientOutgoingStream: isStreamingRequest,
                     clock: _clock,
-                    cancellation: cancellation);
+                    activityToken);
             }
 
             return null;
@@ -457,24 +457,50 @@ namespace Yarp.ReverseProxy.Forwarder
             return requestBodyError;
         }
 
-        private async ValueTask<ForwarderError> HandleRequestFailureAsync(HttpContext context, StreamCopyHttpContent? requestContent, Exception requestException)
+        private async ValueTask<ForwarderError> HandleRequestFailureAsync(HttpContext context, StreamCopyHttpContent? requestContent, Exception requestException, HttpTransformer transformer, CancellationTokenSource requestCancellationSource)
         {
+            if (requestException is OperationCanceledException)
+            {
+                if (!context.RequestAborted.IsCancellationRequested && requestCancellationSource.IsCancellationRequested)
+                {
+                    return await ReportErrorAsync(ForwarderError.RequestTimedOut, StatusCodes.Status504GatewayTimeout);
+                }
+                else
+                {
+                    return await ReportErrorAsync(ForwarderError.RequestCanceled, StatusCodes.Status502BadGateway);
+                }
+            }
+
             // Check for request body errors, these may have triggered the response error.
             if (requestContent?.ConsumptionTask.IsCompleted == true)
             {
-                var (requestBodyCopyResult, requestBodyException) = await requestContent.ConsumptionTask;
+                var (requestBodyCopyResult, requestBodyException) = requestContent.ConsumptionTask.Result;
 
                 if (requestBodyCopyResult != StreamCopyResult.Success)
                 {
-                    return HandleRequestBodyFailure(context, requestBodyCopyResult, requestBodyException!, requestException);
+                    var error = HandleRequestBodyFailure(context, requestBodyCopyResult, requestBodyException!, requestException);
+                    await transformer.TransformResponseAsync(context, proxyResponse: null);
+                    return error;
                 }
             }
 
             // We couldn't communicate with the destination.
-            ReportProxyError(context, ForwarderError.Request, requestException);
-            context.Response.StatusCode = StatusCodes.Status502BadGateway;
+            return await ReportErrorAsync(ForwarderError.Request, StatusCodes.Status502BadGateway);
 
-            return ForwarderError.Request;
+            async ValueTask<ForwarderError> ReportErrorAsync(ForwarderError error, int statusCode)
+            {
+                ReportProxyError(context, error, requestException);
+                context.Response.StatusCode = statusCode;
+
+                if (requestContent is not null && requestContent.InProgress)
+                {
+                    requestCancellationSource.Cancel();
+                    await requestContent.ConsumptionTask;
+                }
+
+                await transformer.TransformResponseAsync(context, null);
+                return error;
+            }
         }
 
         private static ValueTask<bool> CopyResponseStatusAndHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
@@ -486,7 +512,7 @@ namespace Yarp.ReverseProxy.Forwarder
                 // Don't explicitly set the field if the default reason phrase is used
                 if (source.ReasonPhrase != ReasonPhrases.GetReasonPhrase((int)source.StatusCode))
                 {
-                    context.Features.Get<IHttpResponseFeature>().ReasonPhrase = source.ReasonPhrase;
+                    context.Features.Get<IHttpResponseFeature>()!.ReasonPhrase = source.ReasonPhrase;
                 }
             }
 
@@ -518,7 +544,7 @@ namespace Yarp.ReverseProxy.Forwarder
         }
 
         private async ValueTask<ForwarderError> HandleUpgradedResponse(HttpContext context, HttpResponseMessage destinationResponse,
-            CancellationToken longCancellation)
+            ActivityCancellationTokenSource activityCancellationSource)
         {
             ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.ResponseUpgrade);
 
@@ -530,10 +556,19 @@ namespace Yarp.ReverseProxy.Forwarder
                 throw new InvalidOperationException("A response content is required for upgrades.");
             }
 
-            RestoreUpgradeHeaders(context, destinationResponse);
-
             // :: Step 7-A-1: Upgrade the client channel. This will also send response headers.
             var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
+            if (upgradeFeature == null)
+            {
+                var ex = new InvalidOperationException("Invalid 101 response when upgrades aren't supported.");
+                destinationResponse.Dispose();
+                context.Response.StatusCode = StatusCodes.Status502BadGateway;
+                ReportProxyError(context, ForwarderError.UpgradeResponseDestination, ex);
+                return ForwarderError.UpgradeResponseDestination;
+            }
+
+            RestoreUpgradeHeaders(context, destinationResponse);
+
             Stream upgradeResult;
             try
             {
@@ -550,10 +585,8 @@ namespace Yarp.ReverseProxy.Forwarder
             // :: Step 7-A-2: Copy duplex streams
             using var destinationStream = await destinationResponse.Content.ReadAsStreamAsync();
 
-            using var abortTokenSource = CancellationTokenSource.CreateLinkedTokenSource(longCancellation);
-
-            var requestTask = StreamCopier.CopyAsync(isRequest: true, clientStream, destinationStream, _clock, abortTokenSource.Token).AsTask();
-            var responseTask = StreamCopier.CopyAsync(isRequest: false, destinationStream, clientStream, _clock, abortTokenSource.Token).AsTask();
+            var requestTask = StreamCopier.CopyAsync(isRequest: true, clientStream, destinationStream, _clock, activityCancellationSource).AsTask();
+            var responseTask = StreamCopier.CopyAsync(isRequest: false, destinationStream, clientStream, _clock, activityCancellationSource).AsTask();
 
             // Make sure we report the first failure.
             var firstTask = await Task.WhenAny(requestTask, responseTask);
@@ -567,7 +600,7 @@ namespace Yarp.ReverseProxy.Forwarder
             {
                 error = ReportResult(context, requestFinishedFirst, firstResult, firstException);
                 // Cancel the other direction
-                abortTokenSource.Cancel();
+                activityCancellationSource.Cancel();
                 // Wait for this to finish before exiting so the resources get cleaned up properly.
                 await secondTask;
             }
@@ -576,7 +609,7 @@ namespace Yarp.ReverseProxy.Forwarder
                 var (secondResult, secondException) = await secondTask;
                 if (secondResult != StreamCopyResult.Success)
                 {
-                    error = ReportResult(context, requestFinishedFirst, secondResult, secondException!);
+                    error = ReportResult(context, !requestFinishedFirst, secondResult, secondException!);
                 }
                 else
                 {
@@ -601,7 +634,7 @@ namespace Yarp.ReverseProxy.Forwarder
         }
 
         private async ValueTask<(StreamCopyResult, Exception?)> CopyResponseBodyAsync(HttpContent destinationResponseContent, Stream clientResponseStream,
-            CancellationToken cancellation)
+            ActivityCancellationTokenSource activityCancellationSource)
         {
             // SocketHttpHandler and similar transports always provide an HttpContent object, even if it's empty.
             // In 3.1 this is only likely to return null in tests.
@@ -610,20 +643,27 @@ namespace Yarp.ReverseProxy.Forwarder
             if (destinationResponseContent != null)
             {
                 using var destinationResponseStream = await destinationResponseContent.ReadAsStreamAsync();
-                return await StreamCopier.CopyAsync(isRequest: false, destinationResponseStream, clientResponseStream, _clock, cancellation);
+                return await StreamCopier.CopyAsync(isRequest: false, destinationResponseStream, clientResponseStream, _clock, activityCancellationSource);
             }
 
             return (StreamCopyResult.Success, null);
         }
 
-        private async ValueTask<ForwarderError> HandleResponseBodyErrorAsync(HttpContext context, StreamCopyHttpContent? requestContent, StreamCopyResult responseBodyCopyResult, Exception responseBodyException)
+        private async ValueTask<ForwarderError> HandleResponseBodyErrorAsync(HttpContext context, StreamCopyHttpContent? requestContent, StreamCopyResult responseBodyCopyResult, Exception responseBodyException, CancellationTokenSource requestCancellationSource)
         {
-            if (requestContent?.ConsumptionTask.IsCompleted == true)
+            if (requestContent is not null && requestContent.Started)
             {
+                var alreadyFinished = requestContent.ConsumptionTask.IsCompleted == true;
+
+                if (!alreadyFinished)
+                {
+                    requestCancellationSource.Cancel();
+                }
+
                 var (requestBodyCopyResult, requestBodyError) = await requestContent.ConsumptionTask;
 
                 // Check for request body errors, these may have triggered the response error.
-                if (requestBodyCopyResult != StreamCopyResult.Success)
+                if (alreadyFinished && requestBodyCopyResult != StreamCopyResult.Success)
                 {
                     return HandleRequestBodyFailure(context, requestBodyCopyResult, requestBodyError!, responseBodyException);
                 }
@@ -723,10 +763,10 @@ namespace Yarp.ReverseProxy.Forwarder
                 EventIds.HttpDowngradeDetected,
                 "The request was downgraded from HTTP/2.");
 
-            private static readonly Action<ILogger, string, Exception?> _proxying = LoggerMessage.Define<string>(
+            private static readonly Action<ILogger, string, string, string, string, Exception?> _proxying = LoggerMessage.Define<string, string, string, string>(
                 LogLevel.Information,
                 EventIds.Forwarding,
-                "Proxying to {targetUrl}");
+                "Proxying to {targetUrl} {version} {versionPolicy} {isStreaming}");
 
             private static readonly Action<ILogger, ForwarderError, string, Exception> _proxyError = LoggerMessage.Define<ForwarderError, string>(
                 LogLevel.Information,
@@ -738,12 +778,19 @@ namespace Yarp.ReverseProxy.Forwarder
                 _httpDowngradeDetected(logger, null);
             }
 
-            public static void Proxying(ILogger logger, Uri targetUrl)
+            public static void Proxying(ILogger logger, HttpRequestMessage msg, bool isStreamingRequest)
             {
                 // Avoid computing the AbsoluteUri unless logging is enabled
                 if (logger.IsEnabled(LogLevel.Information))
                 {
-                    _proxying(logger, targetUrl.AbsoluteUri, null);
+                    var streaming = isStreamingRequest ? "streaming" : "no-streaming";
+                    var version = ProtocolHelper.GetHttpProtocol(msg.Version);
+#if NET
+                    var versionPolicy = ProtocolHelper.GetVersionPolicy(msg.VersionPolicy);
+#else
+                    var versionPolicy = "RequestVersionOrLower";
+#endif
+                    _proxying(logger, msg.RequestUri!.AbsoluteUri, version, versionPolicy, streaming, null);
                 }
             }
 

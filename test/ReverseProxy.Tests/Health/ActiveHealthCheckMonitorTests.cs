@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
-using Yarp.ReverseProxy.Common.Tests;
+using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Utilities;
@@ -116,6 +116,8 @@ namespace Yarp.ReverseProxy.Health.Tests
             timerFactory.VerifyTimer(1, Interval1);
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 1), ("https://localhost:20001/cluster0/api/health/", 1) }, policyCallTimes: 1);
             VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) }, policyCallTimes: 1);
+
+            GC.KeepAlive(monitor); // The timer does not keep a strong reference to the scheduler
         }
 
         [Fact]
@@ -158,6 +160,8 @@ namespace Yarp.ReverseProxy.Health.Tests
 
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 2), ("https://localhost:20001/cluster0/api/health/", 2) }, policyCallTimes: 2);
             VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) }, policyCallTimes: 1);
+
+            GC.KeepAlive(monitor); // The timer does not keep a strong reference to the scheduler
         }
 
         [Fact]
@@ -198,6 +202,8 @@ namespace Yarp.ReverseProxy.Health.Tests
             timerFactory.VerifyTimer(1, Interval1);
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 2), ("https://localhost:20001/cluster0/api/health/", 2) }, policyCallTimes: 2);
             VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) }, policyCallTimes: 1);
+
+            GC.KeepAlive(monitor); // The timer does not keep a strong reference to the scheduler
         }
 
         [Fact]
@@ -247,6 +253,8 @@ namespace Yarp.ReverseProxy.Health.Tests
             timerFactory.VerifyTimer(1, Interval1);
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 2), ("https://localhost:20001/cluster0/api/health/", 2) }, policyCallTimes: 2);
             VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:10000/cluster2/api/health/", 1), ("https://localhost:10001/cluster2/api/health/", 1) }, policyCallTimes: 2);
+
+            GC.KeepAlive(monitor); // The timer does not keep a strong reference to the scheduler
         }
 
         [Fact]
@@ -299,6 +307,8 @@ namespace Yarp.ReverseProxy.Health.Tests
 
             timerFactory.AssertTimerDisposed(1);
             VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 2), ("https://localhost:20001/cluster0/api/health/", 2) }, policyCallTimes: 2);
+
+            GC.KeepAlive(monitor); // The timer does not keep a strong reference to the scheduler
         }
 
         [Fact]
@@ -337,6 +347,8 @@ namespace Yarp.ReverseProxy.Health.Tests
             policy.Verify(p => p.Name);
             policy.VerifyNoOtherCalls();
 
+            GC.KeepAlive(monitor); // The timer does not keep a strong reference to the scheduler
+
             async Task<HttpResponseMessage> GetResponse(HttpRequestMessage m, CancellationToken t)
             {
                 return await Task.Run(() =>
@@ -352,45 +364,6 @@ namespace Yarp.ReverseProxy.Health.Tests
                     }
                 });
             }
-        }
-
-        [Fact]
-        public async Task ForceCheckAll_SendingProbeToDestinationThrowsException_SkipItAndProceedToNextDestination()
-        {
-            var policy = new Mock<IActiveHealthCheckPolicy>();
-            policy.SetupGet(p => p.Name).Returns("policy0");
-            var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
-            var clusters = new List<ClusterState>();
-            var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
-
-            var httpClient = new Mock<HttpMessageInvoker>(() => new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
-            httpClient.Setup(c => c.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((HttpRequestMessage m, CancellationToken t) =>
-                {
-                    switch (m.RequestUri.AbsoluteUri)
-                    {
-                        case "https://localhost:20001/cluster0/api/health/":
-                            throw new InvalidOperationException();
-                        default:
-                            return new HttpResponseMessage(HttpStatusCode.OK) { Version = m.Version };
-                    }
-                });
-            var cluster = GetClusterInfo("cluster0", "policy0", true, httpClient.Object, destinationCount: 3);
-            clusters.Add(cluster);
-
-            Assert.False(monitor.InitialProbeCompleted);
-
-            await monitor.CheckHealthAsync(clusters);
-
-            Assert.True(monitor.InitialProbeCompleted);
-
-            policy.Verify(
-                p => p.ProbingCompleted(
-                    cluster,
-                    It.Is<IReadOnlyList<DestinationProbingResult>>(r => r.Count == 2 && r.All(i => i.Response.StatusCode == HttpStatusCode.OK && i.Exception == null))),
-                Times.Once);
-            policy.Verify(p => p.Name);
-            policy.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -483,12 +456,18 @@ namespace Yarp.ReverseProxy.Health.Tests
             var clusters = new List<ClusterState>();
             var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
 
-            var tcs0 = new TaskCompletionSource<HttpResponseMessage>();
+            var assertsCompletedMre = new ManualResetEventSlim(false);
+
+            var tcs0 = new TaskCompletionSource<HttpResponseMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
             var httpClient0 = GetHttpClient(tcs0.Task);
             var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, destinationCount: 1);
             clusters.Add(cluster0);
-            var tcs1 = new TaskCompletionSource<HttpResponseMessage>();
-            var httpClient1 = GetHttpClient(tcs1.Task, () => tcs1.SetCanceled());
+            var tcs1 = new TaskCompletionSource<HttpResponseMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var httpClient1 = GetHttpClient(tcs1.Task, () =>
+            {
+                assertsCompletedMre.Wait();
+                tcs1.SetCanceled();
+            });
             var cluster1 = GetClusterInfo("cluster1", "policy0", true, httpClient1.Object, destinationCount: 1);
             clusters.Add(cluster1);
 
@@ -503,6 +482,8 @@ namespace Yarp.ReverseProxy.Health.Tests
 
             Assert.False(healthCheckTask.IsCompleted);
             Assert.False(monitor.InitialProbeCompleted);
+
+            assertsCompletedMre.Set();
 
             // Never set result to the second destination for it to time out.
 

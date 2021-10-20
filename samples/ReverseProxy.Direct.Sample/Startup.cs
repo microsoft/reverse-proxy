@@ -43,18 +43,46 @@ namespace Yarp.Sample
 
             // Setup our own request transform class
             var transformer = new CustomTransformer(); // or HttpTransformer.Default;
-            var requestOptions = new ForwarderRequestConfig { Timeout = TimeSpan.FromSeconds(100) };
+            var requestOptions = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
 
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
+                endpoints.Map("/test/{**catch-all}", async httpContext =>
+                {
+                    var error = await forwarder.SendAsync(httpContext, "https://example.com", httpClient, requestOptions,
+                        static (context, proxyRequest) =>
+                        {
+                            // Customize the query string:
+                            var queryContext = new QueryTransformContext(context.Request);
+                            queryContext.Collection.Remove("param1");
+                            queryContext.Collection["area"] = "xx2";
+
+                            // Assign the custom uri. Be careful about extra slashes when concatenating here.
+                            proxyRequest.RequestUri = new Uri("https://example.com" + context.Request.Path + queryContext.QueryString);
+
+                            // Suppress the original request header, use the one from the destination Uri.
+                            proxyRequest.Headers.Host = null;
+
+                            return default;
+                        });
+
+                    // Check if the proxy operation was successful
+                    if (error != ForwarderError.None)
+                    {
+                        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+                        var exception = errorFeature.Exception;
+                    }
+                });
+
+
                 // When using IHttpForwarder for direct forwarding you are responsible for routing, destination discovery, load balancing, affinity, etc..
                 // For an alternate example that includes those features see BasicYarpSample.
                 endpoints.Map("/{**catch-all}", async httpContext =>
                 {
                     var error = await forwarder.SendAsync(httpContext, "https://example.com", httpClient, requestOptions, transformer);
-                    // Check if the proxy operation was successful
-                    if (error != ForwarderError.None)
+                // Check if the proxy operation was successful
+                if (error != ForwarderError.None)
                     {
                         var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
                         var exception = errorFeature.Exception;

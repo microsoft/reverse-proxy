@@ -87,13 +87,11 @@ namespace Microsoft.Kubernetes
                 NamespacedName.From(resource));
         }
 
-        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             return obj is GroupKindNamespacedName name && Equals(name);
         }
 
-        /// <inheritdoc/>
         public bool Equals([AllowNull] GroupKindNamespacedName other)
         {
             return Group == other.Group &&
@@ -101,7 +99,6 @@ namespace Microsoft.Kubernetes
                    NamespacedName.Equals(other.NamespacedName);
         }
 
-        /// <inheritdoc/>
         public override int GetHashCode()
         {
             return HashCode.Combine(Group, Kind, NamespacedName);
