@@ -124,16 +124,9 @@ namespace Yarp.ReverseProxy.Forwarder
 
         /// <summary>
         /// Adds any wrapping middleware around the <see cref="HttpMessageHandler"/>.
-        /// The base implementation conditionally includes the <see cref="ActivityPropagationHandler"/>.
         /// </summary>
         protected virtual HttpMessageHandler WrapHandler(ForwarderHttpClientContext context, HttpMessageHandler handler)
         {
-            var activityContextHeaders = context.NewConfig.ActivityContextHeaders.GetValueOrDefault(ActivityContextHeaders.CorrelationContext);
-            if (activityContextHeaders != ActivityContextHeaders.None)
-            {
-                handler = new ActivityPropagationHandler(activityContextHeaders, handler);
-            }
-
             return handler;
         }
 

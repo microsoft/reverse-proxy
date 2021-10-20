@@ -191,7 +191,6 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
           "SSLProtocols" : "Tls13",
           "DangerousAcceptAnyServerCertificate" : false,
           "MaxConnectionsPerServer" : 1024,
-          "ActivityContextHeaders" : "None", // Or "Baggage", "CorrelationContext", "BaggageAndCorrelationContext"
           "EnableMultipleHttp2Connections" : true,
           "RequestHeaderEncoding" : "Latin1" // How to interpret non ASCII characters in header values
         },
