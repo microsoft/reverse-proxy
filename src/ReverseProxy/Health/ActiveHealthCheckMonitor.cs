@@ -155,13 +155,22 @@ namespace Yarp.ReverseProxy.Health
 
         private async Task<DestinationProbingResult> ProbeDestinationAsync(ClusterState cluster, DestinationState destination, TimeSpan timeout)
         {
-            var cts = new CancellationTokenSource(timeout);
-            HttpRequestMessage? request = null;
+            HttpRequestMessage request;
             try
             {
                 request = _probingRequestFactory.CreateRequest(cluster.Model, destination.Model);
                 Log.SendingHealthProbeToEndpointOfDestination(_logger, request.RequestUri, destination.DestinationId, cluster.ClusterId);
+            }
+            catch (Exception ex)
+            {
+                Log.ActiveHealthProbeConstructionFailedOnCluster(_logger, destination.DestinationId, cluster.ClusterId, ex);
 
+                return new DestinationProbingResult(destination, null, ex);
+            }
+
+            var cts = new CancellationTokenSource(timeout);
+            try
+            {
                 var response = await cluster.Model.HttpClient.SendAsync(request, cts.Token);
                 Log.DestinationProbingCompleted(_logger, destination.DestinationId, cluster.ClusterId, (int)response.StatusCode);
 
@@ -169,14 +178,7 @@ namespace Yarp.ReverseProxy.Health
             }
             catch (Exception ex)
             {
-                if (request is null)
-                {
-                    Log.ActiveHealthProbeConstructionFailedOnCluster(_logger, destination.DestinationId, cluster.ClusterId, ex);
-                }
-                else
-                {
-                    Log.DestinationProbingFailed(_logger, destination.DestinationId, cluster.ClusterId, ex);
-                }
+                Log.DestinationProbingFailed(_logger, destination.DestinationId, cluster.ClusterId, ex);
 
                 return new DestinationProbingResult(destination, null, ex);
             }
