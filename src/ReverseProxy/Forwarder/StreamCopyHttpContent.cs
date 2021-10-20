@@ -143,7 +143,7 @@ namespace Yarp.ReverseProxy.Forwarder
             if (_activityToken.Token != cancellationToken)
             {
                 Debug.Assert(cancellationToken.CanBeCanceled);
-                registration = cancellationToken.UnsafeRegister(ActivityCancellationTokenSource.LinkedTokenCancelDelegate, _activityToken);
+                registration = _activityToken.LinkTo(cancellationToken);
             }
 #else
             // On .NET Core 3.1, cancellationToken will always be CancellationToken.None

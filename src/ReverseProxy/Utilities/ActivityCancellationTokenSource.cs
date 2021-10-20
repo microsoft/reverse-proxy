@@ -10,10 +10,12 @@ namespace Yarp.ReverseProxy.Utilities
     internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
     {
 #if NET6_0_OR_GREATER
+        private const int MaxQueueSize = 1024;
         private static readonly ConcurrentQueue<ActivityCancellationTokenSource> _sharedSources = new();
+        private static int _count;
 #endif
 
-        public static readonly Action<object?> LinkedTokenCancelDelegate = static s =>
+        private static readonly Action<object?> _linkedTokenCancelDelegate = static s =>
         {
             ((ActivityCancellationTokenSource)s!).Cancel(throwOnFirstException: false);
         };
@@ -31,7 +33,11 @@ namespace Yarp.ReverseProxy.Utilities
         public static ActivityCancellationTokenSource Rent(TimeSpan activityTimeout, CancellationToken linkedToken)
         {
 #if NET6_0_OR_GREATER
-            if (!_sharedSources.TryDequeue(out var cts))
+            if (_sharedSources.TryDequeue(out var cts))
+            {
+                Interlocked.Decrement(ref _count);
+            }
+            else
             {
                 cts = new ActivityCancellationTokenSource();
             }
@@ -40,7 +46,7 @@ namespace Yarp.ReverseProxy.Utilities
 #endif
 
             cts._activityTimeoutMs = (int)activityTimeout.TotalMilliseconds;
-            cts._linkedRegistration = linkedToken.UnsafeRegister(LinkedTokenCancelDelegate, cts);
+            cts._linkedRegistration = cts.LinkTo(linkedToken);
             cts.ResetTimeout();
 
             return cts;
@@ -54,12 +60,22 @@ namespace Yarp.ReverseProxy.Utilities
 #if NET6_0_OR_GREATER
             if (TryReset())
             {
-                _sharedSources.Enqueue(this);
-                return;
+                if (Interlocked.Increment(ref _count) <= MaxQueueSize)
+                {
+                    _sharedSources.Enqueue(this);
+                    return;
+                }
+
+                Interlocked.Decrement(ref _count);
             }
 #endif
 
             Dispose();
+        }
+
+        public CancellationTokenRegistration LinkTo(CancellationToken linkedToken)
+        {
+            return linkedToken.UnsafeRegister(_linkedTokenCancelDelegate, this);
         }
     }
 }
