@@ -59,7 +59,7 @@ namespace Yarp.ReverseProxy.Forwarder
             return _headersToExclude.Contains(headerName);
         }
 
-        private static readonly HashSet<string> _headersToExclude = new(17, StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> _headersToExclude = new(22, StringComparer.OrdinalIgnoreCase)
         {
             HeaderNames.Connection,
             HeaderNames.TransferEncoding,
@@ -75,7 +75,7 @@ namespace Yarp.ReverseProxy.Forwarder
             "ALPN",
             "Close",
             "HTTP2-Settings",
-            "Upgrade-Insecure-Requests",
+            HeaderNames.UpgradeInsecureRequests,
             HeaderNames.TE,
 #if NET
             HeaderNames.AltSvc,
@@ -83,6 +83,14 @@ namespace Yarp.ReverseProxy.Forwarder
             "Alt-Svc",
 #endif
 
+#if NET6_0_OR_GREATER
+            // Distributed context headers
+            HeaderNames.TraceParent,
+            HeaderNames.RequestId,
+            HeaderNames.TraceState,
+            HeaderNames.Baggage,
+            HeaderNames.CorrelationContext,
+#endif
         };
 
         // Headers marked as HttpHeaderType.Content in

@@ -2101,8 +2101,13 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
                 "TE: value",
                 "HTTP2-Settings: value",
                 "Upgrade-Insecure-Requests: value",
-#if NET
                 "Alt-Svc: value",
+#if NET6_0_OR_GREATER
+                "traceparent: value",
+                "Request-Id: value",
+                "tracestate: value",
+                "baggage: value",
+                "Correlation-Context: value",
 #endif
             };
 

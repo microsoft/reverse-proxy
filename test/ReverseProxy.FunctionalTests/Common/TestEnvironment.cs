@@ -15,6 +15,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace Yarp.ReverseProxy.Common
 {
@@ -142,6 +144,18 @@ namespace Yarp.ReverseProxy.Common
             Action<IServiceCollection> configureServices, Action<IApplicationBuilder> configureApp)
         {
             return new HostBuilder()
+                .ConfigureAppConfiguration(config =>
+                {
+                    config.AddInMemoryCollection(new Dictionary<string, string>()
+                    {
+                        { "Logging:LogLevel:Microsoft.AspNetCore.Hosting.Diagnostics", "Information" }
+                    });
+                })
+                .ConfigureLogging((hostingContext, loggingBuilder) =>
+                {
+                    loggingBuilder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                    loggingBuilder.AddEventSourceLogger();
+                })
                 .ConfigureWebHost(webHostBuilder =>
                 {
                     webHostBuilder

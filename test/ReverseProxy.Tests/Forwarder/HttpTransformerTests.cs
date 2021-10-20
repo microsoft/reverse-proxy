@@ -15,6 +15,7 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
     {
         private static readonly string[] RestrictedHeaders = new[]
         {
+            HeaderNames.Connection,
             HeaderNames.TransferEncoding,
             HeaderNames.KeepAlive,
             HeaderNames.Upgrade,
@@ -28,12 +29,19 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
             "ALPN",
             "Close",
             "HTTP2-Settings",
-            "Upgrade-Insecure-Requests",
+            HeaderNames.UpgradeInsecureRequests,
             HeaderNames.TE,
 #if NET
             HeaderNames.AltSvc,
 #else
             "Alt-Svc",
+#endif
+#if NET6_0_OR_GREATER
+            HeaderNames.TraceParent,
+            HeaderNames.RequestId,
+            HeaderNames.TraceState,
+            HeaderNames.Baggage,
+            HeaderNames.CorrelationContext,
 #endif
         };
 
