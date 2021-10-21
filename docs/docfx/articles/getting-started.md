@@ -9,7 +9,7 @@ YARP is designed as a library that provides the core proxy functionality which y
 
 YARP is implemented on top of .NET Core infrastructure and is usable on Windows, Linux or MacOS. Development can be done with the SDK and your favorite editor, [Microsoft Visual Studio](https://visualstudio.microsoft.com/vs/) or [Visual Studio Code](https://code.visualstudio.com/).
 
-YARP 1.0.0 Preview 12 supports ASP.NET Core 3.1, 5.0 & 6.0. You can download the .NET SDK from https://dotnet.microsoft.com/download/dotnet/.
+YARP 1.0.0 supports ASP.NET Core 3.1, 5.0 & 6.0. You can download the .NET SDK from https://dotnet.microsoft.com/download/dotnet/.
 
 Visual Studio support for .NET 5 is included in Visual Studio 2019 v16.8 or newer.
 
