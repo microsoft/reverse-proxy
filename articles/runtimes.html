@@ -75,11 +75,11 @@
 <h3 id="yarpreverseproxy-package">Yarp.ReverseProxy package</h3>
 <p>The following features are supported on NET 5.0 and higher:</p>
 <ul>
-<li><a href="proxy-httpclient-config.md#HttpClient">EnableMultipleHttp2Connections</a> - enables opening additional HTTP/2 connections to the same server when the maximum number of concurrent streams is reached on all existing connections. Full path: <code>ClusterConfig.HttpClient.EnableMultipleHttp2Connections</code>. Type: <code>bool?</code></li>
-<li><a href="proxy-httpclient-config.md#HttpClient">RequestHeaderEncoding</a> - allows to set a non-ASCII header encoding for outgoing requests. Full path: <code>ClusterConfig.HttpClient.RequestHeaderEncoding</code>. Type: <code>string?</code></li>
-<li><a href="proxy-httpclient-config.md#HttpRequest">VersionPolicy</a> - policy applied to version selection, e.g. whether to prefer downgrades, upgrades or request an exact version. The default is <code>RequestVersionOrLower</code>. Full path: <code>ClusterConfig.HttpRequest.VersionPolicy</code>. Type: <code>HttpVersionPolicy?</code></li>
+<li><a href="http-client-config.html#httpclient">EnableMultipleHttp2Connections</a> - enables opening additional HTTP/2 connections to the same server when the maximum number of concurrent streams is reached on all existing connections. Full path: <code>ClusterConfig.HttpClient.EnableMultipleHttp2Connections</code>. Type: <code>bool?</code></li>
+<li><a href="http-client-config.html#httpclient">RequestHeaderEncoding</a> - allows to set a non-ASCII header encoding for outgoing requests. Full path: <code>ClusterConfig.HttpClient.RequestHeaderEncoding</code>. Type: <code>string?</code></li>
+<li><a href="http-client-config.html#httprequest">VersionPolicy</a> - policy applied to version selection, e.g. whether to prefer downgrades, upgrades or request an exact version. The default is <code>RequestVersionOrLower</code>. Full path: <code>ClusterConfig.HttpRequest.VersionPolicy</code>. Type: <code>HttpVersionPolicy?</code></li>
 </ul>
-<h3 id="yarpreverseproxytelemetryconsumption-package">Yarp.ReverseProxy.Telemetry.Consumption package</h3>
+<h3 id="yarptelemetryconsumption-package">Yarp.Telemetry.Consumption package</h3>
 <p>On .NET Core 3.1 it supports only:</p>
 <ul>
 <li>YARP events and metrics</li>

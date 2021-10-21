@@ -88,7 +88,28 @@
       <a class="xref" href="Yarp.ReverseProxy.Transforms.ResponseTrailersTransform.html#Yarp_ReverseProxy_Transforms_ResponseTrailersTransform_TakeHeader_Yarp_ReverseProxy_Transforms_ResponseTrailersTransformContext_System_String_">ResponseTrailersTransform.TakeHeader(ResponseTrailersTransformContext, String)</a>
     </div>
     <div>
-      <a class="xref" href="Yarp.ReverseProxy.Transforms.ResponseTrailersTransform.html#Yarp_ReverseProxy_Transforms_ResponseTrailersTransform_SetHeader_Yarp_ReverseProxy_Transforms_ResponseTrailersTransformContext_System_String_StringValues_">ResponseTrailersTransform.SetHeader(ResponseTrailersTransformContext, String, StringValues)</a>
+      <a class="xref" href="Yarp.ReverseProxy.Transforms.ResponseTrailersTransform.html#Yarp_ReverseProxy_Transforms_ResponseTrailersTransform_SetHeader_Yarp_ReverseProxy_Transforms_ResponseTrailersTransformContext_System_String_Microsoft_Extensions_Primitives_StringValues_">ResponseTrailersTransform.SetHeader(ResponseTrailersTransformContext, String, StringValues)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_">Object.Equals(Object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_System_Object_">Object.Equals(Object, Object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gethashcode#System_Object_GetHashCode">Object.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gettype#System_Object_GetType">Object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.memberwiseclone#System_Object_MemberwiseClone">Object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.referenceequals#System_Object_ReferenceEquals_System_Object_System_Object_">Object.ReferenceEquals(Object, Object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.tostring#System_Object_ToString">Object.ToString()</a>
     </div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Yarp.ReverseProxy.Transforms.html">Yarp.ReverseProxy.Transforms</a></h6>
@@ -101,18 +122,18 @@
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Transforms_ResponseTrailerValueTransform__ctor_System_String_System_String_System_Boolean_System_Boolean_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Transforms.ResponseTrailerValueTransform.%23ctor(System.String%2CSystem.String%2CSystem.Boolean%2CSystem.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Transforms_ResponseTrailerValueTransform__ctor_System_String_System_String_System_Boolean_Yarp_ReverseProxy_Transforms_ResponseCondition_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Transforms.ResponseTrailerValueTransform.%23ctor(System.String%2CSystem.String%2CSystem.Boolean%2CYarp.ReverseProxy.Transforms.ResponseCondition)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Transforms/ResponseTrailerValueTransform.cs/#L15">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Transforms_ResponseTrailerValueTransform__ctor_" data-uid="Yarp.ReverseProxy.Transforms.ResponseTrailerValueTransform.#ctor*"></a>
-  <h4 id="Yarp_ReverseProxy_Transforms_ResponseTrailerValueTransform__ctor_System_String_System_String_System_Boolean_System_Boolean_" data-uid="Yarp.ReverseProxy.Transforms.ResponseTrailerValueTransform.#ctor(System.String,System.String,System.Boolean,System.Boolean)">ResponseTrailerValueTransform(String, String, Boolean, Boolean)</h4>
+  <h4 id="Yarp_ReverseProxy_Transforms_ResponseTrailerValueTransform__ctor_System_String_System_String_System_Boolean_Yarp_ReverseProxy_Transforms_ResponseCondition_" data-uid="Yarp.ReverseProxy.Transforms.ResponseTrailerValueTransform.#ctor(System.String,System.String,System.Boolean,Yarp.ReverseProxy.Transforms.ResponseCondition)">ResponseTrailerValueTransform(String, String, Boolean, ResponseCondition)</h4>
   <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ResponseTrailerValueTransform(string headerName, string value, bool append, bool always)</code></pre>
+    <pre><code class="lang-csharp hljs">public ResponseTrailerValueTransform(string headerName, string value, bool append, ResponseCondition condition)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -140,8 +161,8 @@
         <td></td>
       </tr>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.boolean">Boolean</a></td>
-        <td><span class="parametername">always</span></td>
+        <td><a class="xref" href="Yarp.ReverseProxy.Transforms.ResponseCondition.html">ResponseCondition</a></td>
+        <td><span class="parametername">condition</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -158,7 +179,7 @@
   <a id="Yarp_ReverseProxy_Transforms_ResponseTrailerValueTransform_ApplyAsync_" data-uid="Yarp.ReverseProxy.Transforms.ResponseTrailerValueTransform.ApplyAsync*"></a>
   <h4 id="Yarp_ReverseProxy_Transforms_ResponseTrailerValueTransform_ApplyAsync_Yarp_ReverseProxy_Transforms_ResponseTrailersTransformContext_" data-uid="Yarp.ReverseProxy.Transforms.ResponseTrailerValueTransform.ApplyAsync(Yarp.ReverseProxy.Transforms.ResponseTrailersTransformContext)">ApplyAsync(ResponseTrailersTransformContext)</h4>
   <div class="markdown level1 summary"><p>Transforms the given response trailers. The trailers will have (optionally) already been
-copied to the <see cref="!:HttpResponse"></see> and any changes should be made there.</p>
+copied to the <a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.http.httpresponse">HttpResponse</a> and any changes should be made there.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -192,7 +213,7 @@ copied to the <see cref="!:HttpResponse"></see> and any changes should be made t
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">ValueTask</span></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.valuetask">ValueTask</a></td>
         <td></td>
       </tr>
     </tbody>

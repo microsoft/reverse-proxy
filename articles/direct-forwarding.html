@@ -110,7 +110,7 @@ public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
         UseCookies = false
     });
     var transformer = new CustomTransformer(); // or HttpTransformer.Default;
-    var requestOptions = new RequestProxyOptions { Timeout = TimeSpan.FromSeconds(100) };
+    var requestConfig = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
 
     app.UseRouting();
     app.UseAuthorization();
@@ -119,7 +119,7 @@ public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
         endpoints.Map(&quot;/{**catch-all}&quot;, async httpContext =&gt;
         {
             var error = await forwarder.SendAsync(httpContext, &quot;https://localhost:10000/&quot;,
-                httpClient, requestOptions, transformer);
+                httpClient, requestConfig, transformer);
             // Check if the operation was successful
             if (error != ForwarderError.None)
             {
@@ -130,8 +130,7 @@ public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
     });
 }
 </code></pre>
-<p>C#</p>
-<pre><code>private class CustomTransformer : HttpTransformer
+<pre><code class="lang-C#">private class CustomTransformer : HttpTransformer
 {
     public override async Task TransformRequestAsync(HttpContext httpContext,
         HttpRequestMessage proxyRequest, string destinationPrefix)

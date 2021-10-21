@@ -201,6 +201,9 @@ IActiveHealthCheckPolicy --(New active health states)--&gt; IDestinationHealthUp
 </code></pre>
 <h4 id="iprobingrequestfactory">IProbingRequestFactory</h4>
 <p><a class="xref" href="../api/Yarp.ReverseProxy.Health.IProbingRequestFactory.html">IProbingRequestFactory</a> creates active health probing requests to be sent to destination health endpoints. It can take into account <code>ActiveHealthCheckOptions.Path</code>, <code>DestinationConfig.Health</code>, and other configuration settings to construct probing requests.</p>
+<p>The default <code>IProbingRequestFactory</code> uses the same <code>HttpRequest</code> configuration as proxy requests, to customize that implement your own <code>IProbingRequestFactory</code> and register it in DI like the below.</p>
+<pre><code class="lang-C#">services.AddSingleton&lt;IProbingRequestFactory, CustomProbingRequestFactory&gt;();
+</code></pre>
 <p>The below is a simple example of a customer <code>IProbingRequestFactory</code> concatenating <code>DestinationConfig.Address</code> and a fixed health probe path to create the probing request URI.</p>
 <pre><code class="lang-C#">public class CustomProbingRequestFactory : IProbingRequestFactory
 {
@@ -265,7 +268,7 @@ IActiveHealthCheckPolicy --(New active health states)--&gt; IDestinationHealthUp
 </code></pre>
 <h3 id="configuration-1">Configuration</h3>
 <p>Passive health check settings are specified on the cluster level in <code>Cluster/HealthCheck/Passive</code> section. Alternatively, they can be defined in code via the corresponding types in <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.html">Yarp.ReverseProxy.Configuration</a> namespace mirroring the configuration contract.</p>
-<p>Passive health checks require the <code>PassiveHealthCheckMiddleware</code> added into the pipeline for them to work. The default <code>MapReverseProxy(this IEndpointRouteBuilder endpoints)</code> method does it automatically, but in case of a manual pipeline construction the <a href="xref:Microsoft.AspNetCore.Builder.ProxyMiddlewareAppBuilderExtensions">UsePassiveHealthChecks</a> method must be called to add that middleware as shown in the example below.</p>
+<p>Passive health checks require the <code>PassiveHealthCheckMiddleware</code> added into the pipeline for them to work. The default <code>MapReverseProxy(this IEndpointRouteBuilder endpoints)</code> method does it automatically, but in case of a manual pipeline construction the <a class="xref" href="../api/Microsoft.AspNetCore.Builder.AppBuilderHealthExtensions.html">UsePassiveHealthChecks</a> method must be called to add that middleware as shown in the example below.</p>
 <pre><code class="lang-C#">endpoints.MapReverseProxy(proxyPipeline =&gt;
 {
     proxyPipeline.UseAffinitizedDestinationLookup();

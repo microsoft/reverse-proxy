@@ -174,14 +174,22 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
           &quot;Path&quot;: &quot;/something/{**remainder}&quot;, // The path to match using ASP.NET syntax. 
           &quot;Hosts&quot; : [ &quot;www.aaaaa.com&quot;, &quot;www.bbbbb.com&quot;], // The host names to match, unspecified is any
           &quot;Methods&quot; : [ &quot;GET&quot;, &quot;PUT&quot; ], // The HTTP methods that match, uspecified is all
-          &quot;Headers&quot; : [ // The headers to match, unspecified is any
+          &quot;Headers&quot;: [ // The headers to match, unspecified is any
             {
-              &quot;Name&quot; : &quot;MyCustomHeader&quot;, // Name of the header
-              &quot;Values&quot; : [&quot;value1&quot;, &quot;value2&quot;, &quot;another value&quot;], // Matches are against any of these values
-              &quot;Mode&quot; : &quot;ExactHeader&quot;, // or &quot;HeaderPrefix&quot;, &quot;Exists&quot;
-              &quot;IsCaseSensitive&quot; : true
+              &quot;Name&quot;: &quot;MyCustomHeader&quot;, // Name of the header
+              &quot;Values&quot;: [ &quot;value1&quot;, &quot;value2&quot;, &quot;another value&quot; ], // Matches are against any of these values
+              &quot;Mode&quot;: &quot;ExactHeader&quot;, // or &quot;HeaderPrefix&quot;, &quot;Exists&quot; , &quot;Contains&quot;, &quot;NotContains&quot;
+              &quot;IsCaseSensitive&quot;: true
             }
           ],
+          &quot;QueryParameters&quot;: [ // The query parameters to match, unspecified is any
+            {
+              &quot;Name&quot;: &quot;MyQueryParameter&quot;, // Name of the query parameter
+              &quot;Values&quot;: [ &quot;value1&quot;, &quot;value2&quot;, &quot;another value&quot; ], // Matches are against any of these values
+              &quot;Mode&quot;: &quot;Exact&quot;, // or &quot;Prefix&quot;, &quot;Exists&quot; , &quot;Contains&quot;, &quot;NotContains&quot;
+              &quot;IsCaseSensitive&quot;: true
+            }
+          ]
         },
         &quot;MetaData&quot; : { // List of key value pairs that can be used by custom extensions
           &quot;MyName&quot; : &quot;MyValue&quot;
@@ -213,7 +221,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
             &quot;Health&quot; : &quot;https://10.20.30.40:12345/test&quot; // override for active health checks
           }
         },
-        &quot;LoadBalancingPolicy&quot; : &quot;PowerOfTwoChoices&quot;, // Alternatively &quot;First&quot;, &quot;Random&quot;, &quot;RoundRobin&quot;, &quot;LeastRequests&quot;
+        &quot;LoadBalancingPolicy&quot; : &quot;PowerOfTwoChoices&quot;, // Alternatively &quot;FirstAlphabetical&quot;, &quot;Random&quot;, &quot;RoundRobin&quot;, &quot;LeastRequests&quot;
         &quot;SessionAffinity&quot;: {
           &quot;Enabled&quot;: true, // Defaults to 'false'
           &quot;Policy&quot;: &quot;Cookie&quot;, // Default, alternatively &quot;CustomHeader&quot;
@@ -240,14 +248,14 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
           &quot;SSLProtocols&quot; : &quot;Tls13&quot;,
           &quot;DangerousAcceptAnyServerCertificate&quot; : false,
           &quot;MaxConnectionsPerServer&quot; : 1024,
-          &quot;ActivityContextHeaders&quot; : &quot;None&quot;, // Or &quot;Baggage&quot;, &quot;CorrelationContext&quot;, &quot;BaggageAndCorrelationContext&quot;
           &quot;EnableMultipleHttp2Connections&quot; : true,
           &quot;RequestHeaderEncoding&quot; : &quot;Latin1&quot; // How to interpret non ASCII characters in header values
         },
         &quot;HttpRequest&quot; : { // Options for sending request to destination
-          &quot;Timeout&quot; : &quot;00:02:00&quot;,
+          &quot;ActivityTimeout&quot; : &quot;00:02:00&quot;,
           &quot;Version&quot; : &quot;2&quot;,
-          &quot;VersionPolicy&quot; : &quot;RequestVersionOrLower&quot;
+          &quot;VersionPolicy&quot; : &quot;RequestVersionOrLower&quot;,
+          &quot;AllowResponseBuffering&quot; : &quot;false&quot;
         },
         &quot;MetaData&quot; : { // Custom Key value pairs
           &quot;TransportFailureRateHealthPolicy.RateLimit&quot;: &quot;0.5&quot;, // Used by Passive health policy

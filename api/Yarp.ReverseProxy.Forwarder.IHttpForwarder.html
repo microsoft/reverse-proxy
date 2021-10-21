@@ -86,13 +86,13 @@
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_IHttpForwarder_SendAsync_HttpContext_System_String_HttpMessageInvoker_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Yarp_ReverseProxy_Forwarder_HttpTransformer_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.IHttpForwarder.SendAsync(HttpContext%2CSystem.String%2CHttpMessageInvoker%2CYarp.ReverseProxy.Forwarder.ForwarderRequestConfig%2CYarp.ReverseProxy.Forwarder.HttpTransformer)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_IHttpForwarder_SendAsync_Microsoft_AspNetCore_Http_HttpContext_System_String_System_Net_Http_HttpMessageInvoker_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Yarp_ReverseProxy_Forwarder_HttpTransformer_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.IHttpForwarder.SendAsync(Microsoft.AspNetCore.Http.HttpContext%2CSystem.String%2CSystem.Net.Http.HttpMessageInvoker%2CYarp.ReverseProxy.Forwarder.ForwarderRequestConfig%2CYarp.ReverseProxy.Forwarder.HttpTransformer)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/IHttpForwarder.cs/#L25">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Forwarder_IHttpForwarder_SendAsync_" data-uid="Yarp.ReverseProxy.Forwarder.IHttpForwarder.SendAsync*"></a>
-  <h4 id="Yarp_ReverseProxy_Forwarder_IHttpForwarder_SendAsync_HttpContext_System_String_HttpMessageInvoker_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Yarp_ReverseProxy_Forwarder_HttpTransformer_" data-uid="Yarp.ReverseProxy.Forwarder.IHttpForwarder.SendAsync(HttpContext,System.String,HttpMessageInvoker,Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig,Yarp.ReverseProxy.Forwarder.HttpTransformer)">SendAsync(HttpContext, String, HttpMessageInvoker, ForwarderRequestConfig, HttpTransformer)</h4>
+  <h4 id="Yarp_ReverseProxy_Forwarder_IHttpForwarder_SendAsync_Microsoft_AspNetCore_Http_HttpContext_System_String_System_Net_Http_HttpMessageInvoker_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Yarp_ReverseProxy_Forwarder_HttpTransformer_" data-uid="Yarp.ReverseProxy.Forwarder.IHttpForwarder.SendAsync(Microsoft.AspNetCore.Http.HttpContext,System.String,System.Net.Http.HttpMessageInvoker,Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig,Yarp.ReverseProxy.Forwarder.HttpTransformer)">SendAsync(HttpContext, String, HttpMessageInvoker, ForwarderRequestConfig, HttpTransformer)</h4>
   <div class="markdown level1 summary"><p>Forwards the incoming request to the destination server, and the response back to the client.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -111,7 +111,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">HttpContext</span></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.http.httpcontext">HttpContext</a></td>
         <td><span class="parametername">context</span></td>
         <td><p>The HttpContext to forward.</p>
 </td>
@@ -123,7 +123,7 @@
 </td>
       </tr>
       <tr>
-        <td><span class="xref">HttpMessageInvoker</span></td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker">HttpMessageInvoker</a></td>
         <td><span class="parametername">httpClient</span></td>
         <td><p>The HTTP client used to forward the request.</p>
 </td>
@@ -153,7 +153,7 @@ custom transformations are not needed.</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">ValueTask</span>&lt;<a class="xref" href="Yarp.ReverseProxy.Forwarder.ForwarderError.html">ForwarderError</a>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.valuetask-1">ValueTask</a>&lt;<a class="xref" href="Yarp.ReverseProxy.Forwarder.ForwarderError.html">ForwarderError</a>&gt;</td>
         <td><p>The result of forwarding the request and response.</p>
 </td>
       </tr>
@@ -161,10 +161,16 @@ custom transformations are not needed.</p>
   </table>
   <h3 id="extensionmethods">Extension Methods</h3>
   <div>
-      <a class="xref" href="Yarp.ReverseProxy.Forwarder.IHttpForwarderExtensions.html#Yarp_ReverseProxy_Forwarder_IHttpForwarderExtensions_SendAsync_Yarp_ReverseProxy_Forwarder_IHttpForwarder_HttpContext_System_String_HttpMessageInvoker_">IHttpForwarderExtensions.SendAsync(IHttpForwarder, HttpContext, String, HttpMessageInvoker)</a>
+      <a class="xref" href="Yarp.ReverseProxy.Forwarder.IHttpForwarderExtensions.html#Yarp_ReverseProxy_Forwarder_IHttpForwarderExtensions_SendAsync_Yarp_ReverseProxy_Forwarder_IHttpForwarder_Microsoft_AspNetCore_Http_HttpContext_System_String_System_Net_Http_HttpMessageInvoker_">IHttpForwarderExtensions.SendAsync(IHttpForwarder, HttpContext, String, HttpMessageInvoker)</a>
   </div>
   <div>
-      <a class="xref" href="Yarp.ReverseProxy.Forwarder.IHttpForwarderExtensions.html#Yarp_ReverseProxy_Forwarder_IHttpForwarderExtensions_SendAsync_Yarp_ReverseProxy_Forwarder_IHttpForwarder_HttpContext_System_String_HttpMessageInvoker_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_">IHttpForwarderExtensions.SendAsync(IHttpForwarder, HttpContext, String, HttpMessageInvoker, ForwarderRequestConfig)</a>
+      <a class="xref" href="Yarp.ReverseProxy.Forwarder.IHttpForwarderExtensions.html#Yarp_ReverseProxy_Forwarder_IHttpForwarderExtensions_SendAsync_Yarp_ReverseProxy_Forwarder_IHttpForwarder_Microsoft_AspNetCore_Http_HttpContext_System_String_System_Net_Http_HttpMessageInvoker_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_">IHttpForwarderExtensions.SendAsync(IHttpForwarder, HttpContext, String, HttpMessageInvoker, ForwarderRequestConfig)</a>
+  </div>
+  <div>
+      <a class="xref" href="Yarp.ReverseProxy.Forwarder.IHttpForwarderExtensions.html#Yarp_ReverseProxy_Forwarder_IHttpForwarderExtensions_SendAsync_Yarp_ReverseProxy_Forwarder_IHttpForwarder_Microsoft_AspNetCore_Http_HttpContext_System_String_System_Net_Http_HttpMessageInvoker_System_Func_Microsoft_AspNetCore_Http_HttpContext_System_Net_Http_HttpRequestMessage_System_Threading_Tasks_ValueTask__">IHttpForwarderExtensions.SendAsync(IHttpForwarder, HttpContext, String, HttpMessageInvoker, Func&lt;HttpContext, HttpRequestMessage, ValueTask&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="Yarp.ReverseProxy.Forwarder.IHttpForwarderExtensions.html#Yarp_ReverseProxy_Forwarder_IHttpForwarderExtensions_SendAsync_Yarp_ReverseProxy_Forwarder_IHttpForwarder_Microsoft_AspNetCore_Http_HttpContext_System_String_System_Net_Http_HttpMessageInvoker_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_System_Func_Microsoft_AspNetCore_Http_HttpContext_System_Net_Http_HttpRequestMessage_System_Threading_Tasks_ValueTask__">IHttpForwarderExtensions.SendAsync(IHttpForwarder, HttpContext, String, HttpMessageInvoker, ForwarderRequestConfig, Func&lt;HttpContext, HttpRequestMessage, ValueTask&gt;)</a>
   </div>
 </article>
           </div>

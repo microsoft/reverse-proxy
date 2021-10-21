@@ -73,7 +73,7 @@
   
   <h1 id="Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig" data-uid="Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig" class="text-break">Class ForwarderRequestConfig
   </h1>
-  <div class="markdown level0 summary"><p>Config for <a class="xref" href="Yarp.ReverseProxy.Forwarder.IHttpForwarder.html#Yarp_ReverseProxy_Forwarder_IHttpForwarder_SendAsync_HttpContext_System_String_HttpMessageInvoker_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Yarp_ReverseProxy_Forwarder_HttpTransformer_">SendAsync(HttpContext, String, HttpMessageInvoker, ForwarderRequestConfig, HttpTransformer)</a></p>
+  <div class="markdown level0 summary"><p>Config for <a class="xref" href="Yarp.ReverseProxy.Forwarder.IHttpForwarder.html#Yarp_ReverseProxy_Forwarder_IHttpForwarder_SendAsync_Microsoft_AspNetCore_Http_HttpContext_System_String_System_Net_Http_HttpMessageInvoker_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Yarp_ReverseProxy_Forwarder_HttpTransformer_">SendAsync(HttpContext, String, HttpMessageInvoker, ForwarderRequestConfig, HttpTransformer)</a></p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
@@ -85,20 +85,75 @@
     <h5>Implements</h5>
     <div><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.iequatable-1">IEquatable</a>&lt;<a class="xref" href="Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.html">ForwarderRequestConfig</a>&gt;</div>
   </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_">Object.Equals(Object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_System_Object_">Object.Equals(Object, Object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gettype#System_Object_GetType">Object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.memberwiseclone#System_Object_MemberwiseClone">Object.MemberwiseClone()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.referenceequals#System_Object_ReferenceEquals_System_Object_System_Object_">Object.ReferenceEquals(Object, Object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.tostring#System_Object_ToString">Object.ToString()</a>
+    </div>
+  </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Yarp.ReverseProxy.Forwarder.html">Yarp.ReverseProxy.Forwarder</a></h6>
   <h6><strong>Assembly</strong>: Yarp.ReverseProxy.dll</h6>
   <h5 id="Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public sealed class ForwarderRequestConfig : object, IEquatable&lt;ForwarderRequestConfig&gt;</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed class ForwarderRequestConfig : IEquatable&lt;ForwarderRequestConfig&gt;</code></pre>
   </div>
   <h3 id="properties">Properties
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_ActivityTimeout.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.ActivityTimeout%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/ForwarderRequestConfig.cs/#L25">View Source</a>
+  </span>
+  <a id="Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_ActivityTimeout_" data-uid="Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.ActivityTimeout*"></a>
+  <h4 id="Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_ActivityTimeout" data-uid="Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.ActivityTimeout">ActivityTimeout</h4>
+  <div class="markdown level1 summary"><p>How long a request is allowed to remain idle between any operation completing, after which it will be canceled.
+The default is 100 seconds. The timeout will reset when response headers are received or after successfully reading or
+writing any request, response, or streaming data like gRPC or WebSockets. TCP keep-alives and HTTP/2 protocol pings will
+not reset the timeout, but WebSocket pings will.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan? ActivityTimeout { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_AllowResponseBuffering.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.AllowResponseBuffering%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/ForwarderRequestConfig.cs/#L44">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/ForwarderRequestConfig.cs/#L46">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_AllowResponseBuffering_" data-uid="Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.AllowResponseBuffering*"></a>
   <h4 id="Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_AllowResponseBuffering" data-uid="Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.AllowResponseBuffering">AllowResponseBuffering</h4>
@@ -159,42 +214,10 @@ NOTE: enabling it can break SSE (server side event) scenarios.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Timeout.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.Timeout%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/ForwarderRequestConfig.cs/#L23">View Source</a>
-  </span>
-  <a id="Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Timeout_" data-uid="Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.Timeout*"></a>
-  <h4 id="Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Timeout" data-uid="Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.Timeout">Timeout</h4>
-  <div class="markdown level1 summary"><p>The time allowed to send the request and receive the response headers. This may include
-the time needed to send the request body. The default is 100 seconds.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TimeSpan? Timeout { get; set; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<span class="xref">TimeSpan</span>&gt;</td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Version.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.Version%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/ForwarderRequestConfig.cs/#L29">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/ForwarderRequestConfig.cs/#L31">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Version_" data-uid="Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.Version*"></a>
   <h4 id="Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Version" data-uid="Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.Version">Version</h4>
@@ -204,7 +227,7 @@ The default is HTTP/2.0.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Version? Version { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public Version Version { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -216,7 +239,7 @@ The default is HTTP/2.0.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<span class="xref">Version</span>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.version">Version</a></td>
         <td></td>
       </tr>
     </tbody>
@@ -226,7 +249,7 @@ The default is HTTP/2.0.</p>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_VersionPolicy.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.VersionPolicy%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/ForwarderRequestConfig.cs/#L36">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/ForwarderRequestConfig.cs/#L38">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_VersionPolicy_" data-uid="Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.VersionPolicy*"></a>
   <h4 id="Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_VersionPolicy" data-uid="Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.VersionPolicy">VersionPolicy</h4>
@@ -248,7 +271,7 @@ request an exact version. The default is <code>RequestVersionOrLower</code>.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<span class="xref">HttpVersionPolicy</span>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<a class="xref" href="https://docs.microsoft.com/dotnet/api/system.net.http.httpversionpolicy">HttpVersionPolicy</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -260,7 +283,7 @@ request an exact version. The default is <code>RequestVersionOrLower</code>.</p>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Equals_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.Equals(Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/ForwarderRequestConfig.cs/#L47">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/ForwarderRequestConfig.cs/#L48">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Equals_" data-uid="Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.Equals*"></a>
   <h4 id="Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Equals_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_" data-uid="Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.Equals(Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig)">Equals(ForwarderRequestConfig)</h4>
@@ -332,6 +355,8 @@ request an exact version. The default is <code>RequestVersionOrLower</code>.</p>
       </tr>
     </tbody>
   </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gethashcode#System_Object_GetHashCode">Object.GetHashCode()</a></div>
   <h3 id="implements">Implements</h3>
   <div>
       <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.iequatable-1">System.IEquatable&lt;T&gt;</a>

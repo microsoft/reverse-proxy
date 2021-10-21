@@ -76,6 +76,27 @@
   <div class="markdown level0 summary"><p>Result of a destination's active health probing.</p>
 </div>
   <div class="markdown level0 conceptual"></div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.valuetype.equals#System_ValueType_Equals_System_Object_">ValueType.Equals(Object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.valuetype.gethashcode#System_ValueType_GetHashCode">ValueType.GetHashCode()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.valuetype.tostring#System_ValueType_ToString">ValueType.ToString()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_System_Object_">Object.Equals(Object, Object)</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gettype#System_Object_GetType">Object.GetType()</a>
+    </div>
+    <div>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.referenceequals#System_Object_ReferenceEquals_System_Object_System_Object_">Object.ReferenceEquals(Object, Object)</a>
+    </div>
+  </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Yarp.ReverseProxy.Health.html">Yarp.ReverseProxy.Health</a></h6>
   <h6><strong>Assembly</strong>: Yarp.ReverseProxy.dll</h6>
   <h5 id="Yarp_ReverseProxy_Health_DestinationProbingResult_syntax">Syntax</h5>
@@ -86,18 +107,18 @@
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Health_DestinationProbingResult__ctor_Yarp_ReverseProxy_Model_DestinationState_System_Nullable_HttpResponseMessage__System_Nullable_Exception__.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Health.DestinationProbingResult.%23ctor(Yarp.ReverseProxy.Model.DestinationState%2CSystem.Nullable%7BHttpResponseMessage%7D%2CSystem.Nullable%7BException%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Health_DestinationProbingResult__ctor_Yarp_ReverseProxy_Model_DestinationState_System_Net_Http_HttpResponseMessage_System_Exception_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Health.DestinationProbingResult.%23ctor(Yarp.ReverseProxy.Model.DestinationState%2CSystem.Net.Http.HttpResponseMessage%2CSystem.Exception)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Health/DestinationProbingResult.cs/#L15">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Health_DestinationProbingResult__ctor_" data-uid="Yarp.ReverseProxy.Health.DestinationProbingResult.#ctor*"></a>
-  <h4 id="Yarp_ReverseProxy_Health_DestinationProbingResult__ctor_Yarp_ReverseProxy_Model_DestinationState_System_Nullable_HttpResponseMessage__System_Nullable_Exception__" data-uid="Yarp.ReverseProxy.Health.DestinationProbingResult.#ctor(Yarp.ReverseProxy.Model.DestinationState,System.Nullable{HttpResponseMessage},System.Nullable{Exception})">DestinationProbingResult(DestinationState, Nullable&lt;HttpResponseMessage&gt;, Nullable&lt;Exception&gt;)</h4>
+  <h4 id="Yarp_ReverseProxy_Health_DestinationProbingResult__ctor_Yarp_ReverseProxy_Model_DestinationState_System_Net_Http_HttpResponseMessage_System_Exception_" data-uid="Yarp.ReverseProxy.Health.DestinationProbingResult.#ctor(Yarp.ReverseProxy.Model.DestinationState,System.Net.Http.HttpResponseMessage,System.Exception)">DestinationProbingResult(DestinationState, HttpResponseMessage, Exception)</h4>
   <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public DestinationProbingResult(DestinationState destination, HttpResponseMessage? response, Exception? exception)</code></pre>
+    <pre><code class="lang-csharp hljs">public DestinationProbingResult(DestinationState destination, HttpResponseMessage response, Exception exception)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -115,12 +136,12 @@
         <td></td>
       </tr>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<span class="xref">HttpResponseMessage</span>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.net.http.httpresponsemessage">HttpResponseMessage</a></td>
         <td><span class="parametername">response</span></td>
         <td></td>
       </tr>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<span class="xref">Exception</span>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.exception">Exception</a></td>
         <td><span class="parametername">exception</span></td>
         <td></td>
       </tr>
@@ -174,7 +195,7 @@ It is null in case of a success.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public readonly Exception? Exception { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public readonly Exception Exception { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -186,7 +207,7 @@ It is null in case of a success.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<span class="xref">Exception</span>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.exception">Exception</a></td>
         <td></td>
       </tr>
     </tbody>
@@ -206,7 +227,7 @@ It can be null in case of a failure.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public readonly HttpResponseMessage? Response { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public readonly HttpResponseMessage Response { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -218,7 +239,7 @@ It can be null in case of a failure.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<span class="xref">HttpResponseMessage</span>&gt;</td>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.net.http.httpresponsemessage">HttpResponseMessage</a></td>
         <td></td>
       </tr>
     </tbody>
