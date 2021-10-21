@@ -46,7 +46,7 @@ And then add:
  
  ```XML
 <ItemGroup> 
-  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-preview.12.*" />
+  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-rc.1.*" />
 </ItemGroup> 
 ```
 
@@ -111,7 +111,7 @@ Or create a new ASP.NET Core web application in Visual Studio 2022, and choose "
 
  ```XML
 <ItemGroup> 
-  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-preview.12.*" />
+  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-rc.1.*" />
 </ItemGroup> 
 ```
 
