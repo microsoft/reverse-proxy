@@ -137,17 +137,19 @@ namespace Yarp.ReverseProxy.Forwarder
             // On HTTP/1.1: Linked HttpContext.RequestAborted + Request Timeout
             // On HTTP/2.0: SocketsHttpHandler error / the server wants us to stop sending content / H2 connection closed
             // _cancellation will be the same as cancellationToken for HTTP/1.1, so we can avoid the overhead of linking them
-            CancellationTokenRegistration registration = default;
+            CancellationTokenSource? linkedCts = null;
 
 #if NET
             if (_activityToken.Token != cancellationToken)
             {
                 Debug.Assert(cancellationToken.CanBeCanceled);
-                registration = _activityToken.LinkTo(cancellationToken);
+                linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_activityToken.Token, cancellationToken);
+                cancellationToken = linkedCts.Token;
             }
 #else
             // On .NET Core 3.1, cancellationToken will always be CancellationToken.None
             Debug.Assert(!cancellationToken.CanBeCanceled);
+            cancellationToken = _activityToken.Token;
 #endif
 
             try
@@ -166,7 +168,7 @@ namespace Yarp.ReverseProxy.Forwarder
                 // https://github.com/dotnet/corefx/issues/39586#issuecomment-516210081
                 try
                 {
-                    await stream.FlushAsync(_activityToken.Token);
+                    await stream.FlushAsync(cancellationToken);
                 }
                 catch (OperationCanceledException oex)
                 {
@@ -179,7 +181,7 @@ namespace Yarp.ReverseProxy.Forwarder
                     return;
                 }
 
-                var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, _clock, _activityToken);
+                var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, _clock, _activityToken, cancellationToken);
                 _tcs.TrySetResult((result, error));
 
                 // Check for errors that weren't the result of the destination failing.
@@ -197,7 +199,7 @@ namespace Yarp.ReverseProxy.Forwarder
             }
             finally
             {
-                registration.Dispose();
+                linkedCts?.Dispose();
             }
         }
 
