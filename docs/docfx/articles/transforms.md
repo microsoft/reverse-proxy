@@ -79,10 +79,10 @@ Here is an example of common transforms:
       "route2" : {
         "ClusterId": "cluster1",
         "Match": {
-          "Path": "/api/{plugin}/stuff/{*remainder}"
+          "Path": "/api/{plugin}/stuff/{**remainder}"
         },
         "Transforms": [
-          { "PathPattern": "/foo/{plugin}/bar/{remainder}" },
+          { "PathPattern": "/foo/{plugin}/bar/{**remainder}" },
           {
             "QueryStringParameter": "q",
             "Append": "plugin"
@@ -235,27 +235,27 @@ This will set the request path with the given value.
 
 Config:
 ```JSON
-{ "PathPattern": "/my/{plugin}/api/{remainder}" }
+{ "PathPattern": "/my/{plugin}/api/{**remainder}" }
 ```
 Code:
 ```csharp
-routeConfig = routeConfig.WithTransformPathRouteValues(pattern: new PathString("/my/{plugin}/api/{remainder}"));
+routeConfig = routeConfig.WithTransformPathRouteValues(pattern: new PathString("/my/{plugin}/api/{**remainder}"));
 ```
 ```C#
-transformBuilderContext.AddPathRouteValues(pattern: new PathString("/my/{plugin}/api/{remainder}"));
+transformBuilderContext.AddPathRouteValues(pattern: new PathString("/my/{plugin}/api/{**remainder}"));
 ```
 
-This will set the request path with the given value and replace any `{}` segments with the associated route value. `{}` segments without a matching route value are removed. See ASP.NET Core's [routing docs](https://docs.microsoft.com/aspnet/core/fundamentals/routing#route-template-reference) for more information about route templates.
+This will set the request path with the given value and replace any `{}` segments with the associated route value. `{}` segments without a matching route value are removed. The final `{}` segment can be marked as `{**remainder}` to indicate this is a catch-all segment that may contain multiple path segments. See ASP.NET Core's [routing docs](https://docs.microsoft.com/aspnet/core/fundamentals/routing#route-template-reference) for more information about route templates.
 
 Example:
 
 | Step | Value |
 |------|-------|
-| Route definition | `/api/{plugin}/stuff/{*remainder}` |
+| Route definition | `/api/{plugin}/stuff/{**remainder}` |
 | Request path | `/api/v1/stuff/more/stuff` |
 | Plugin value | `v1` |
 | Remainder value | `more/stuff` |
-| PathPattern | `/my/{plugin}/api/{remainder}` |
+| PathPattern | `/my/{plugin}/api/{**remainder}` |
 | Result | `/my/v1/api/more/stuff` |
 
 ### QueryValueParameter
