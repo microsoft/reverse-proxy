@@ -17,7 +17,7 @@ namespace Yarp.ReverseProxy.Transforms
         /// Creates a new transform.
         /// </summary>
         /// <param name="headerName">The header name.</param>
-        /// <param name="append">Action to applied to the header.</param>
+        /// <param name="action">Action to applied to the header.</param>
         public RequestHeaderXForwardedHostTransform(string headerName, ForwardedTransformActions action)
         {
             if (string.IsNullOrEmpty(headerName))

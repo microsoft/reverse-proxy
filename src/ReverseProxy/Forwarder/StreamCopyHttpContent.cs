@@ -56,7 +56,7 @@ namespace Yarp.ReverseProxy.Forwarder
 
         /// <summary>
         /// Gets a <see cref="System.Threading.Tasks.Task"/> that completes in successful or failed state
-        /// mimicking the result of <see cref="SerializeToStreamAsync"/>.
+        /// mimicking the result of SerializeToStreamAsync.
         /// </summary>
         public Task<(StreamCopyResult, Exception?)> ConsumptionTask => _tcs.Task;
 
