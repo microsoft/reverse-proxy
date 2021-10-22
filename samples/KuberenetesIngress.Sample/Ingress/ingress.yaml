@@ -37,7 +37,7 @@ spec:
       containers:
       - name: yarp-proxy
         imagePullPolicy: IfNotPresent
-        image: yarp/yarp
+        image: <REGISTRY_NAME>/yarp:<TAG>
         ports:
         - containerPort: 8000
           name: proxy
