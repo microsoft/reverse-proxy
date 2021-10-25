@@ -243,7 +243,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
 
         /// <summary>
         /// Finds all eligible destinations (replica endpoints) for the <paramref name="service"/> specified,
-        /// and populates the specified <paramref name="cluster"/>'s <see cref="ClusterConfig.Destinations"/> accordingly.
+        /// and returns the <see cref="ClusterConfig.Destinations"/> accordingly.
         /// </summary>
         /// <remarks>All non-fatal exceptions are caught and logged.</remarks>
         private async Task<IReadOnlyDictionary<string, DestinationConfig>> DiscoverDestinationsAsync(

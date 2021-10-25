@@ -16,6 +16,7 @@ namespace Yarp.ReverseProxy.Forwarder
         /// <summary>
         /// Forwards the incoming request to the destination server, and the response back to the client.
         /// </summary>
+        /// <param name="forwarder">The forwarder instance.</param>
         /// <param name="context">The HttpContext to forward.</param>
         /// <param name="destinationPrefix">The url prefix for where to forward the request to.</param>
         /// <param name="httpClient">The HTTP client used to forward the request.</param>
@@ -34,6 +35,7 @@ namespace Yarp.ReverseProxy.Forwarder
         /// <summary>
         /// Forwards the incoming request to the destination server, and the response back to the client.
         /// </summary>
+        /// <param name="forwarder">The forwarder instance.</param>
         /// <param name="context">The HttpContext to forward.</param>
         /// <param name="destinationPrefix">The url prefix for where to forward the request to.</param>
         /// <param name="httpClient">The HTTP client used to forward the request.</param>
@@ -53,6 +55,7 @@ namespace Yarp.ReverseProxy.Forwarder
         /// <summary>
         /// Forwards the incoming request to the destination server, and the response back to the client.
         /// </summary>
+        /// <param name="forwarder">The forwarder instance.</param>
         /// <param name="context">The HttpContext to forward.</param>
         /// <param name="destinationPrefix">The url prefix for where to forward the request to.</param>
         /// <param name="httpClient">The HTTP client used to forward the request.</param>
@@ -67,6 +70,7 @@ namespace Yarp.ReverseProxy.Forwarder
         /// <summary>
         /// Forwards the incoming request to the destination server, and the response back to the client.
         /// </summary>
+        /// <param name="forwarder">The forwarder instance.</param>
         /// <param name="context">The HttpContext to forward.</param>
         /// <param name="destinationPrefix">The url prefix for where to forward the request to.</param>
         /// <param name="httpClient">The HTTP client used to forward the request.</param>

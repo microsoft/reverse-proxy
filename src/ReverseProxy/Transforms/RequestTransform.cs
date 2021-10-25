@@ -25,6 +25,7 @@ namespace Yarp.ReverseProxy.Transforms
         /// <see cref="RequestTransformContext.HeadersCopied"/> is not set.
         /// This ordering allows multiple transforms to mutate the same header.
         /// </summary>
+        /// <param name="context">The transform context.</param>
         /// <param name="headerName">The name of the header to take.</param>
         /// <returns>The requested header value, or StringValues.Empty if none.</returns>
         public static StringValues TakeHeader(RequestTransformContext context, string headerName)

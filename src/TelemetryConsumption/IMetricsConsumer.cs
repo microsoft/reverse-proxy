@@ -4,7 +4,7 @@
 namespace Yarp.Telemetry.Consumption
 {
     /// <summary>
-    /// A consumer of <see cref="TMetrics"/>.
+    /// A consumer of <typeparamref name="TMetrics"/>.
     /// </summary>
     public interface IMetricsConsumer<TMetrics>
     {

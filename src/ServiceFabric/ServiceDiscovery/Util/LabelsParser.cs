@@ -29,7 +29,7 @@ namespace Yarp.ReverseProxy.ServiceFabric
         /// </summary>
         private static readonly Regex _allowedHeaderNamesRegex = new Regex(@"^\[\d\d*\]$", RegexOptions.Compiled);
 
-
+        /// <summary>
         /// Requires all transform names to follow the .[0]. pattern to simulate indexing in an array
         /// </summary>
         private static readonly Regex _allowedTransformNamesRegex = new Regex(@"^\[\d\d*\]$", RegexOptions.Compiled);
