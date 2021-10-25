@@ -5,10 +5,11 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS publish
-WORKDIR /src
-COPY . backend
-WORKDIR "backend"
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS publish
+WORKDIR /samples
+COPY ["samples/KuberenetesIngress.Sample/backend", "KuberenetesIngress.Sample/backend"]
+
+WORKDIR KuberenetesIngress.Sample/backend
 RUN dotnet publish -c Release -o /app/publish -f net5.0
 
 FROM base AS final
