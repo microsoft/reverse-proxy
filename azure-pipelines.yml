@@ -23,6 +23,7 @@ trigger:
     include:
     - main
     - release/*
+    - internal/release/*
 
 pr:
   autoCancel: false
