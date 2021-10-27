@@ -34,7 +34,7 @@ namespace Microsoft.Kubernetes.Controller.Queues
             Assert.Equal(42, len);
         }
 
-        [Fact]
+        [Fact(Skip = "Flaky test")]
         public async Task DelayingQueueAddsWhenTimePasses()
         {
             var added = new List<string>();
@@ -104,7 +104,7 @@ namespace Microsoft.Kubernetes.Controller.Queues
             Assert.Equal(("before-two", "two"), Assert.Single(added));
         }
 
-        [Fact]
+        [Fact(Skip = "Flaky test")]
         public async Task NoAddingAfterShutdown()
         {
             var added = new List<string>();
