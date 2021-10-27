@@ -10,21 +10,17 @@ using Microsoft.Kubernetes.CustomResources;
 using Microsoft.Kubernetes.Fakes;
 using Microsoft.Kubernetes.Operator.Caches;
 using Microsoft.Kubernetes.Operator.Generators;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Shouldly;
 using System.Collections.Generic;
+using Xunit;
 
 namespace Microsoft.Kubernetes.Operator
 {
-    [TestClass]
     public class OperatorHandlerTests
     {
-
-        [TestMethod]
+        [Fact]
         public void NotifyWithPrimaryResourceCausesCacheEntryAndQueueItem()
         {
-            // arrange
             var generator = Mock.Of<IOperatorGenerator<TypicalResource>>();
             var typicalInformer = new FakeResourceInformer<TypicalResource>();
             var podInformer = new FakeResourceInformer<V1Pod>();
@@ -53,7 +49,6 @@ namespace Microsoft.Kubernetes.Operator
                 })
                 .Build();
 
-            // act
             var handler = host.Services.GetRequiredService<IOperatorHandler<TypicalResource>>();
 
             var typical = new TypicalResource
@@ -94,17 +89,16 @@ namespace Microsoft.Kubernetes.Operator
             podInformer.Callback(WatchEventType.Added, unrelatedPod);
             podInformer.Callback(WatchEventType.Added, relatedPod);
 
-            // assert
             var expectedName = new NamespacedName("test-namespace", "test-name");
-            addCalls.ShouldBe(new[] { expectedName, expectedName });
+            Assert.Equal(new[] { expectedName, expectedName }, addCalls);
 
-            cache.TryGetWorkItem(expectedName, out var cacheItem).ShouldBeTrue();
+            Assert.True(cache.TryGetWorkItem(expectedName, out var cacheItem));
 
-            cacheItem.Resource.ShouldBe(typical);
+            Assert.Equal(typical, cacheItem.Resource);
 
-            var related = cacheItem.Related.ShouldHaveSingleItem();
-            related.Key.ShouldBe(GroupKindNamespacedName.From(relatedPod));
-            related.Value.ShouldBe(relatedPod);
+            var related = Assert.Single(cacheItem.Related);
+            Assert.Equal(GroupKindNamespacedName.From(relatedPod), related.Key);
+            Assert.Equal(relatedPod, related.Value);
         }
     }
 }

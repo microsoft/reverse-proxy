@@ -2,21 +2,18 @@
 // Licensed under the MIT License.
 
 using Microsoft.Kubernetes.Fakes;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Microsoft.Kubernetes.Controller.Queues
 {
-    [TestClass]
     public class DelayingQueueTests
     {
-        [TestMethod]
+        [Fact]
         public void DelayingQueuePassesCallsThrough()
         {
-            // arrange
             var added = new List<string>();
             var doned = new List<string>();
             var fake = new FakeQueue<string>
@@ -28,21 +25,18 @@ namespace Microsoft.Kubernetes.Controller.Queues
             var clock = new FakeSystemClock();
             IDelayingQueue<string> delayingQueue = new DelayingQueue<string>(clock, fake);
 
-            // act
             delayingQueue.Add("one");
             delayingQueue.Done("two");
             var len = delayingQueue.Len();
 
-            // assert
-            added.ShouldHaveSingleItem().ShouldBe("one");
-            doned.ShouldHaveSingleItem().ShouldBe("two");
-            len.ShouldBe(42);
+            Assert.Equal("one", Assert.Single(added));
+            Assert.Equal("two", Assert.Single(doned));
+            Assert.Equal(42, len);
         }
 
-        [TestMethod]
+        [Fact(Skip = "Flaky test")]
         public async Task DelayingQueueAddsWhenTimePasses()
         {
-            // arrange            
             var added = new List<string>();
             var fake = new FakeQueue<string>
             {
@@ -51,7 +45,6 @@ namespace Microsoft.Kubernetes.Controller.Queues
             var clock = new FakeSystemClock();
             IDelayingQueue<string> delayingQueue = new DelayingQueue<string>(clock, fake);
 
-            // act
             delayingQueue.AddAfter("50ms", TimeSpan.FromMilliseconds(50));
             delayingQueue.AddAfter("100ms", TimeSpan.FromMilliseconds(100));
             clock.Advance(TimeSpan.FromMilliseconds(25));
@@ -73,19 +66,17 @@ namespace Microsoft.Kubernetes.Controller.Queues
             await Task.Delay(TimeSpan.FromMilliseconds(40));
             var countAfter135ms = added.Count;
 
-            // assert
-            countAfter25ms.ShouldBe(0);
-            countAfter55ms.ShouldBe(1);
-            countAfter80ms.ShouldBe(2);
-            countAfter105ms.ShouldBe(3);
-            countAfter135ms.ShouldBe(4);
-            added.ShouldBe(new[] { "50ms", "75ms", "100ms", "125ms" }, ignoreOrder: false);
+            Assert.Equal(0, countAfter25ms);
+            Assert.Equal(1, countAfter55ms);
+            Assert.Equal(2, countAfter80ms);
+            Assert.Equal(3, countAfter105ms);
+            Assert.Equal(4, countAfter135ms);
+            Assert.Equal(new[] { "50ms", "75ms", "100ms", "125ms" }, added);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task ZeroDelayAddsInline()
         {
-            // arrange            
             var state = "setup";
             var added = new List<(string state, string item)>();
             var fake = new FakeQueue<string>
@@ -95,7 +86,6 @@ namespace Microsoft.Kubernetes.Controller.Queues
             var clock = new FakeSystemClock();
             IDelayingQueue<string> delayingQueue = new DelayingQueue<string>(clock, fake);
 
-            // act
             state = "before-one";
             delayingQueue.AddAfter("one", TimeSpan.FromMilliseconds(1));
             state = "after-one";
@@ -111,14 +101,12 @@ namespace Microsoft.Kubernetes.Controller.Queues
             state = "after-three";
             await Task.Delay(TimeSpan.FromMilliseconds(40));
 
-            // assert
-            added.ShouldHaveSingleItem().ShouldBe(("before-two", "two"));
+            Assert.Equal(("before-two", "two"), Assert.Single(added));
         }
 
-        [TestMethod]
+        [Fact(Skip = "Flaky test")]
         public async Task NoAddingAfterShutdown()
         {
-            // arrange            
             var added = new List<string>();
             var fake = new FakeQueue<string>
             {
@@ -127,15 +115,13 @@ namespace Microsoft.Kubernetes.Controller.Queues
             var clock = new FakeSystemClock();
             IDelayingQueue<string> delayingQueue = new DelayingQueue<string>(clock, fake);
 
-            // act
             delayingQueue.AddAfter("one", TimeSpan.FromMilliseconds(10));
             delayingQueue.ShutDown();
             delayingQueue.AddAfter("two", TimeSpan.FromMilliseconds(10));
             clock.Advance(TimeSpan.FromMilliseconds(25));
             await Task.Delay(TimeSpan.FromMilliseconds(40));
 
-            // assert
-            added.ShouldBeEmpty();
+            Assert.Empty(added);
         }
     }
 }
