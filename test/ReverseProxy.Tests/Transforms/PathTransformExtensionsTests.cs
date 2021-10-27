@@ -137,7 +137,7 @@ namespace Yarp.ReverseProxy.Transforms.Tests
         {
             var requestTransform = Assert.Single(builderContext.RequestTransforms);
             var pathRouteValuesTransform = Assert.IsType<PathRouteValuesTransform>(requestTransform);
-            Assert.Equal("/path#", pathRouteValuesTransform.Template.TemplateText);
+            Assert.Equal("/path#", pathRouteValuesTransform.Pattern.RawText);
         }
     }
 }

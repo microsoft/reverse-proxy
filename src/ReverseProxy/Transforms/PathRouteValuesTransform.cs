@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.AspNetCore.Routing.Template;
 
 namespace Yarp.ReverseProxy.Transforms
@@ -24,10 +25,10 @@ namespace Yarp.ReverseProxy.Transforms
         {
             _ = pattern ?? throw new ArgumentNullException(nameof(pattern));
             _binderFactory = binderFactory ?? throw new ArgumentNullException(nameof(binderFactory));
-            Template = TemplateParser.Parse(pattern);
+            Pattern = RoutePatternFactory.Parse(pattern);
         }
 
-        internal RouteTemplate Template { get; }
+        internal RoutePattern Pattern { get; }
 
         /// <inheritdoc/>
         public override ValueTask ApplyAsync(RequestTransformContext context)
@@ -39,11 +40,20 @@ namespace Yarp.ReverseProxy.Transforms
 
             // TemplateBinder.BindValues will modify the RouteValueDictionary
             // We make a copy so that the original request is not modified by the transform
-            var routeValues = new RouteValueDictionary(context.HttpContext.Request.RouteValues);
+            var routeValues = context.HttpContext.Request.RouteValues;
+            var routeValuesCopy = new RouteValueDictionary();
 
-            // Route values that are not considered defaults will be appended as query parameters. Make them all defaults.
-            var binder = _binderFactory.Create(Template, defaults: routeValues);
-            context.Path = binder.BindValues(acceptedValues: routeValues);
+            // Only copy route values used in the pattern, otherwise they'll be added as query parameters.
+            foreach (var pattern in Pattern.Parameters)
+            {
+                if (routeValues.TryGetValue(pattern.Name, out var value))
+                {
+                    routeValuesCopy[pattern.Name] = value;
+                }
+            }
+
+            var binder = _binderFactory.Create(Pattern);
+            context.Path = binder.BindValues(acceptedValues: routeValuesCopy);
 
             return default;
         }
