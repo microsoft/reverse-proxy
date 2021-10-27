@@ -2,142 +2,119 @@
 // Licensed under the MIT License.
 
 using k8s.Models;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Shouldly;
 using System;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Microsoft.Kubernetes.CustomResources
 {
-    [TestClass]
     public class CustomResourceDefinitionGeneratorTests
     {
-        [TestMethod]
+        [Fact]
         public async Task MetadataNameComesFromPluralNameAndGroup()
         {
-            // arrange 
             var generator = new CustomResourceDefinitionGenerator();
 
-            // act
             var crd = await generator.GenerateCustomResourceDefinitionAsync<SimpleResource>("Namespaced");
 
-            // assert
-            crd.Name().ShouldBe("testkinds.test-group");
+            Assert.Equal("testkinds.test-group", crd.Name());
         }
 
-        [TestMethod]
+        [Fact]
         public async Task ApiVersionAndKindAreCorrect()
         {
-            // arrange 
             var generator = new CustomResourceDefinitionGenerator();
 
-            // act
             var crd = await generator.GenerateCustomResourceDefinitionAsync<SimpleResource>("Namespaced");
 
-            // assert
-            crd.ApiGroupVersion().ShouldBe("v1");
-            crd.ApiGroupVersion().ShouldBe(V1CustomResourceDefinition.KubeApiVersion);
-            crd.ApiGroup().ShouldBe("apiextensions.k8s.io");
-            crd.ApiGroup().ShouldBe(V1CustomResourceDefinition.KubeGroup);
-            crd.Kind.ShouldBe("CustomResourceDefinition");
-            crd.Kind.ShouldBe(V1CustomResourceDefinition.KubeKind);
+            Assert.Equal("v1", crd.ApiGroupVersion());
+            Assert.Equal(V1CustomResourceDefinition.KubeApiVersion, crd.ApiGroupVersion());
+            Assert.Equal("apiextensions.k8s.io", crd.ApiGroup());
+            Assert.Equal(V1CustomResourceDefinition.KubeGroup, crd.ApiGroup());
+            Assert.Equal("CustomResourceDefinition", crd.Kind);
+            Assert.Equal(V1CustomResourceDefinition.KubeKind, crd.Kind);
             crd.Validate();
         }
 
-        [TestMethod]
-        [DataRow("Namespaced")]
-        [DataRow("Cluster")]
+        [Theory]
+        [InlineData("Namespaced")]
+        [InlineData("Cluster")]
         public async Task ScopeProvidedByGenerateParameter(string scope)
         {
-            // arrange 
             var generator = new CustomResourceDefinitionGenerator();
 
-            // act
             var crd = await generator.GenerateCustomResourceDefinitionAsync<SimpleResource>(scope);
 
-            // assert
-            crd.Spec.Scope.ShouldBe(scope);
+            Assert.Equal(scope, crd.Spec.Scope);
         }
 
-        [TestMethod]
-        [DataRow(typeof(SimpleResource), "test-group", "TestKind", "testkinds")]
-        [DataRow(typeof(AnotherResource), "another-group", "AnotherKind", "anotherkinds")]
+        [Theory]
+        [InlineData(typeof(SimpleResource), "test-group", "TestKind", "testkinds")]
+        [InlineData(typeof(AnotherResource), "another-group", "AnotherKind", "anotherkinds")]
         public async Task GroupAndNamesComesFromKubernetesEntityAttribute(Type resourceType, string group, string kind, string plural)
         {
-            // arrange 
             var generator = new CustomResourceDefinitionGenerator();
 
-            // act
             var crd = await generator.GenerateCustomResourceDefinitionAsync(resourceType, "Namespaced");
 
-            // assert
-            crd.Spec.Group.ShouldBe(group);
-            crd.Spec.Names.Kind.ShouldBe(kind);
-            crd.Spec.Names.Plural.ShouldBe(plural);
+            Assert.Equal(group, crd.Spec.Group);
+            Assert.Equal(kind, crd.Spec.Names.Kind);
+            Assert.Equal(plural, crd.Spec.Names.Plural);
         }
 
-        [TestMethod]
-        [DataRow(typeof(SimpleResource), "test-version")]
-        [DataRow(typeof(AnotherResource), "another-version")]
+        [Theory]
+        [InlineData(typeof(SimpleResource), "test-version")]
+        [InlineData(typeof(AnotherResource), "another-version")]
         public async Task CreateWithSingleVersionThatIsStoredAndServed(Type resourceType, string version)
         {
-            // arrange 
             var generator = new CustomResourceDefinitionGenerator();
 
-            // act
             var crd = await generator.GenerateCustomResourceDefinitionAsync(resourceType, "Namespaced");
 
-            // assert
-            var crdVersion = crd.Spec.Versions.ShouldHaveSingleItem();
-            crdVersion.Name.ShouldBe(version);
-            crdVersion.Served.ShouldBe(true);
-            crdVersion.Storage.ShouldBe(true);
+            var crdVersion = Assert.Single(crd.Spec.Versions);
+            Assert.Equal(version, crdVersion.Name);
+            Assert.True(crdVersion.Served);
+            Assert.True(crdVersion.Storage);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task TypicalResourceHasSchema()
         {
-            // arrange 
             var generator = new CustomResourceDefinitionGenerator();
 
-            // act
             var crd = await generator.GenerateCustomResourceDefinitionAsync<TypicalResource>("Namespaced");
 
-            // assert
-            var schema = crd
-                .Spec.ShouldNotBeNull()
-                .Versions.ShouldHaveSingleItem()
-                .Schema.ShouldNotBeNull()
-                .OpenAPIV3Schema.ShouldNotBeNull();
+            Assert.NotNull(crd.Spec);
+            var version = Assert.Single(crd.Spec.Versions);
+            Assert.NotNull(version.Schema);
+            var schema = version.Schema.OpenAPIV3Schema;
+            Assert.NotNull(schema);
 
-            schema.Properties.Keys.ShouldBe(new[] { "apiVersion", "kind", "metadata", "spec", "status" });
+            Assert.Equal(new[] { "apiVersion", "kind", "metadata", "spec", "status" }, schema.Properties.Keys);
 
-            schema.Properties["apiVersion"].Type.ShouldBe("string");
-            schema.Properties["kind"].Type.ShouldBe("string");
-            schema.Properties["metadata"].Type.ShouldBe("object");
-            schema.Properties["spec"].Type.ShouldBe("object");
-            schema.Properties["status"].Type.ShouldBe("object");
+            Assert.Equal("string", schema.Properties["apiVersion"].Type);
+            Assert.Equal("string", schema.Properties["kind"].Type);
+            Assert.Equal("object", schema.Properties["metadata"].Type);
+            Assert.Equal("object", schema.Properties["spec"].Type);
+            Assert.Equal("object", schema.Properties["status"].Type);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task DescriptionsComeFromDocComments()
         {
-            // arrange 
             var generator = new CustomResourceDefinitionGenerator();
 
-            // act
             var crd = await generator.GenerateCustomResourceDefinitionAsync<TypicalResource>("Namespaced");
 
-            // assert
-            var schema = crd
-                .Spec.ShouldNotBeNull()
-                .Versions.ShouldHaveSingleItem()
-                .Schema.ShouldNotBeNull()
-                .OpenAPIV3Schema.ShouldNotBeNull();
+            Assert.NotNull(crd.Spec);
+            var version = Assert.Single(crd.Spec.Versions);
+            Assert.NotNull(version.Schema);
+            var schema = version.Schema.OpenAPIV3Schema;
+            Assert.NotNull(schema);
 
-            schema.Description.ShouldNotBeNull().ShouldContain("TypicalResource doc comment");
-            schema.Properties["spec"].Description.ShouldNotBeNull().ShouldContain("Spec doc comment");
-            schema.Properties["status"].Description.ShouldNotBeNull().ShouldContain("Status doc comment");
+            Assert.Contains("TypicalResource doc comment", schema.Description, StringComparison.Ordinal);
+            Assert.Contains("Spec doc comment", schema.Properties["spec"].Description, StringComparison.Ordinal);
+            Assert.Contains("Status doc comment", schema.Properties["status"].Description, StringComparison.Ordinal);
         }
     }
 }

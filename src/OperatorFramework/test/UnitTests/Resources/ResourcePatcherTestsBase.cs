@@ -3,16 +3,14 @@
 
 using Microsoft.Kubernetes.ResourceKinds;
 using Microsoft.Kubernetes.Resources.Models;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Microsoft.Kubernetes.Resources
 {
-    [TestClass]
     public abstract partial class ResourcePatcherTestsBase
     {
         public virtual IResourceKindManager Manager { get; set; }
@@ -33,10 +31,8 @@ namespace Microsoft.Kubernetes.Resources
 
         private async Task RunThreeWayMerge(StandardTestYaml testYaml)
         {
-            // arrange
             IResourcePatcher patcher = new ResourcePatcher();
 
-            // act
             var parameters = new CreatePatchParameters
             {
                 ApplyResource = testYaml.Apply,
@@ -53,17 +49,17 @@ namespace Microsoft.Kubernetes.Resources
 
             var patch = patcher.CreateJsonPatch(parameters);
 
-            // assert
-            var operations = new ResourceSerializers().Convert<PatchOperation[]>(patch);
-            operations.ShouldBe(testYaml.Patch, ignoreOrder: true);
+            var operations = new ResourceSerializers().Convert<List<PatchOperation>>(patch);
+
+            var expected = testYaml.Patch.OrderBy(op => op.ToString()).ToList();
+            operations = operations.OrderBy(op => op.ToString()).ToList();
+            Assert.Equal(expected, operations);
         }
 
         private async Task RunApplyLiveOnlyMerge(StandardTestYaml testYaml)
         {
-            // arrange
             IResourcePatcher patcher = new ResourcePatcher();
 
-            // act
             var parameters = new CreatePatchParameters
             {
                 ApplyResource = testYaml.Apply,
@@ -79,9 +75,11 @@ namespace Microsoft.Kubernetes.Resources
 
             var patch = patcher.CreateJsonPatch(parameters);
 
-            // assert
             var operations = new ResourceSerializers().Convert<List<PatchOperation>>(patch);
-            operations.ShouldBe(testYaml.Patch, ignoreOrder: true);
+
+            var expected = testYaml.Patch.OrderBy(op => op.ToString()).ToList();
+            operations = operations.OrderBy(op => op.ToString()).ToList();
+            Assert.Equal(expected, operations);
         }
     }
 }

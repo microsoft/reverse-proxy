@@ -7,23 +7,20 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Kubernetes.Testing;
 using Microsoft.Kubernetes.Utils;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Microsoft.Kubernetes.Controller.Informers
 {
-    [TestClass]
     public class ResourceInformerTests
     {
-        [TestMethod]
+        [Fact]
         public async Task ResourcesAreListedWhenReadyAsyncIsComplete()
         {
-            // arrange
             using var cancellation = new CancellationTokenSource(Debugger.IsAttached ? TimeSpan.FromMinutes(5) : TimeSpan.FromSeconds(5));
 
             var testYaml = TestYaml.LoadFromEmbeddedStream<(V1Pod[] pods, NamespacedName[] shouldBe)>();
@@ -51,20 +48,17 @@ namespace Microsoft.Kubernetes.Controller.Informers
                 pods[NamespacedName.From(pod)] = pod;
             });
 
-            // act
             await clusterHost.StartAsync(cancellation.Token);
             await testHost.StartAsync(cancellation.Token);
 
             await registration.ReadyAsync(cancellation.Token);
 
-            // assert
-            pods.Keys.ShouldBe(testYaml.shouldBe);
+            Assert.Equal(testYaml.shouldBe, pods.Keys);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task ResourcesWithApiGroupAreListed()
         {
-            // arrange
             using var cancellation = new CancellationTokenSource(Debugger.IsAttached ? TimeSpan.FromMinutes(5) : TimeSpan.FromSeconds(5));
 
             var testYaml = TestYaml.LoadFromEmbeddedStream<(V1Deployment[] deployments, NamespacedName[] shouldBe)>();
@@ -92,14 +86,12 @@ namespace Microsoft.Kubernetes.Controller.Informers
                 deployments[NamespacedName.From(deployment)] = deployment;
             });
 
-            // act
             await clusterHost.StartAsync(cancellation.Token);
             await testHost.StartAsync(cancellation.Token);
 
             await registration.ReadyAsync(cancellation.Token);
 
-            // assert
-            deployments.Keys.ShouldBe(testYaml.shouldBe);
+            Assert.Equal(testYaml.shouldBe, deployments.Keys);
         }
     }
 }

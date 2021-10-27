@@ -2,20 +2,17 @@
 // Licensed under the MIT License.
 
 using Microsoft.Kubernetes.Fakes;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Shouldly;
 using System;
 using System.Collections.Generic;
+using Xunit;
 
 namespace Microsoft.Kubernetes.Controller.Queues
 {
-    [TestClass]
     public class RateLimitingQueueTests
     {
-        [TestMethod]
+        [Fact]
         public void AddRateLimitedCallsWhenAndAddDelay()
         {
-            // arrange
             var whenResults = new Dictionary<string, TimeSpan>
             {
                 { "one", TimeSpan.FromMilliseconds(15) },
@@ -38,24 +35,23 @@ namespace Microsoft.Kubernetes.Controller.Queues
             };
             var queue = new RateLimitingQueue<string>(rateLimiter, @base);
 
-            // act
             queue.AddRateLimited("one");
             queue.AddRateLimited("two");
             queue.AddRateLimited("three");
 
-            // assert
-            whenCalls.ShouldBe(new[]
+            Assert.Equal(new[]
             {
                 "one",
                 "two",
                 "three"
-            });
-            addAfterCalls.ShouldBe(new[]
+            }, whenCalls);
+
+            Assert.Equal(new[]
             {
                 ("one", TimeSpan.FromMilliseconds(15)),
                 ("two", TimeSpan.FromMilliseconds(0)),
-                ("three", TimeSpan.FromMilliseconds(30)),
-            });
+                ("three", TimeSpan.FromMilliseconds(30))
+            }, addAfterCalls);
         }
     }
 }
