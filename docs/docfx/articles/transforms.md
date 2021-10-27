@@ -10,10 +10,10 @@ Request and response body transforms are not provided by YARP but you can write 
 ## Defaults
 The following transforms are enabled by default for all routes. They can be configured or disabled as shown later in this document.
 - Host - Suppress the incoming request's Host header. The proxy request will default to the host name specified in the destination server address. See [RequestHeaderOriginalHost](#requestheaderoriginalhost) below.
-- X-Forwarded-For - Appends the client's IP address to the X-Forwarded-For header. See [X-Forwarded](#x-forwarded) below.
-- X-Forwarded-Proto - Appends the request's original scheme (http/https) to the X-Forwarded-Proto header. See [X-Forwarded](#x-forwarded) below.
-- X-Forwarded-Host - Appends the request's original Host to the X-Forwarded-Host header. See [X-Forwarded](#x-forwarded) below.
-- X-Forwarded-Prefix - Appends the request's original PathBase, if any, to the X-Forwarded-Prefix header. See [X-Forwarded](#x-forwarded) below.
+- X-Forwarded-For - Sets the client's IP address to the X-Forwarded-For header. See [X-Forwarded](#x-forwarded) below.
+- X-Forwarded-Proto - Sets the request's original scheme (http/https) to the X-Forwarded-Proto header. See [X-Forwarded](#x-forwarded) below.
+- X-Forwarded-Host - Sets the request's original Host to the X-Forwarded-Host header. See [X-Forwarded](#x-forwarded) below.
+- X-Forwarded-Prefix - Sets the request's original PathBase, if any, to the X-Forwarded-Prefix header. See [X-Forwarded](#x-forwarded) below.
 
 For example the following incoming request to `http://IncomingHost:5000/path`:
 ```
