@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Linq;
 using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Xunit;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Transforms.Tests
 {
@@ -80,6 +82,47 @@ namespace Yarp.ReverseProxy.Transforms.Tests
                 HeadersCopied = true,
             }, "name");
             Assert.Equal(StringValues.Empty, result);
+        }
+
+        [Theory]
+        [InlineData("header1", "header1", "")]
+        [InlineData("header1", "headerX", "header1")]
+        [InlineData("header1; header2; header3", "header2", "header1; header3")]
+        [InlineData("header1", "Content-Encoding", "header1")]
+        [InlineData("header1; Content-Encoding", "Content-Encoding", "header1")]
+        [InlineData("header1; Content-Encoding", "header1", "Content-Encoding")]
+        [InlineData("header1; Content-Encoding", "Content-Type", "header1; Content-Encoding")]
+        [InlineData("header1; Content-Encoding", "headerX", "header1; Content-Encoding")]
+        public void RemoveHeader_RemovesProxyRequestHeader(string names, string removedHeader, string expected)
+        {
+            var httpContext = new DefaultHttpContext();
+            var proxyRequest = new HttpRequestMessage()
+            {
+                Content = new EmptyHttpContent()
+            };
+
+            foreach (var name in names.Split("; "))
+            {
+                httpContext.Request.Headers.Add(name, "value0");
+                RequestUtilities.AddHeader(proxyRequest, name, "value1");
+            }
+
+            RequestTransform.RemoveHeader(new RequestTransformContext()
+            {
+                HttpContext = httpContext,
+                ProxyRequest = proxyRequest
+            }, removedHeader);
+
+            foreach (var name in names.Split("; "))
+            {
+                Assert.True(httpContext.Request.Headers.TryGetValue(name, out var value));
+                Assert.Equal("value0", value);
+            }
+
+            var expectedHeaders = expected.Split("; ", System.StringSplitOptions.RemoveEmptyEntries);
+            var remainingHeaders = proxyRequest.Headers.Union(proxyRequest.Content.Headers);
+            Assert.Equal(expectedHeaders, remainingHeaders.Select(h => h.Key));
+            Assert.All(remainingHeaders, h => Assert.Equal("value1", Assert.Single(h.Value)));
         }
     }
 }
