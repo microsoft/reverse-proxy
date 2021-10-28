@@ -335,9 +335,13 @@ namespace Yarp.ReverseProxy.Forwarder
 
         internal static void RemoveHeader(HttpRequestMessage request, string headerName)
         {
-            if (!request.Headers.Remove(headerName))
+            if (_contentHeaders.Contains(headerName))
             {
                 request.Content?.Headers.Remove(headerName);
+            }
+            else
+            {
+                request.Headers.Remove(headerName);
             }
         }
     }
