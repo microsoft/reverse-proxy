@@ -93,6 +93,10 @@ namespace Yarp.ReverseProxy.Transforms.Tests
         [InlineData("header1; Content-Encoding", "header1", "Content-Encoding")]
         [InlineData("header1; Content-Encoding", "Content-Type", "header1; Content-Encoding")]
         [InlineData("header1; Content-Encoding", "headerX", "header1; Content-Encoding")]
+        [InlineData("header1; Content-Encoding; Accept-Encoding", "header1", "Content-Encoding; Accept-Encoding")]
+        [InlineData("header1; Content-Encoding; Accept-Encoding", "Content-Encoding", "header1; Accept-Encoding")]
+        [InlineData("header1; Content-Encoding; Accept-Encoding", "Accept-Encoding", "header1; Content-Encoding")]
+        [InlineData("header1; Content-Encoding; Accept-Encoding", "headerX", "header1; Content-Encoding; Accept-Encoding")]
         public void RemoveHeader_RemovesProxyRequestHeader(string names, string removedHeader, string expected)
         {
             var httpContext = new DefaultHttpContext();
@@ -119,8 +123,8 @@ namespace Yarp.ReverseProxy.Transforms.Tests
                 Assert.Equal("value0", value);
             }
 
-            var expectedHeaders = expected.Split("; ", System.StringSplitOptions.RemoveEmptyEntries);
-            var remainingHeaders = proxyRequest.Headers.Union(proxyRequest.Content.Headers);
+            var expectedHeaders = expected.Split("; ", System.StringSplitOptions.RemoveEmptyEntries).OrderBy(h => h);
+            var remainingHeaders = proxyRequest.Headers.Union(proxyRequest.Content.Headers).OrderBy(h => h.Key);
             Assert.Equal(expectedHeaders, remainingHeaders.Select(h => h.Key));
             Assert.All(remainingHeaders, h => Assert.Equal("value1", Assert.Single(h.Value)));
         }
