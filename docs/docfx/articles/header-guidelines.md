@@ -35,7 +35,7 @@ These are headers used with proxies and are not considered appropriate to forwar
 
 This response header is used with HTTP/3 upgrades and only applies to the immediate connection.
 
-### Trace-Parent, RequestId, Trace-State, Baggage, CorrelationContext
+### TraceParent, Request-Id, TraceState, Baggage, Correlation-Context
 
 These headers relate to distributed tracing. They are automatically removed on .NET 6 or later so that the forwarding HttpClient can replace them with updated values.
 
@@ -48,6 +48,10 @@ The Host header indicates which site on the server the request is intended for. 
 ### X-Forwarded-*, Forwarded
 
 Because a separate connection is used to communicate with the destination, these request headers can be used to forward information about the original connection like the IP, scheme, port, client certificate, etc.. X-Forwarded-For, X-Forwarded-Proto, X-Forwarded-Host, and X-Forwarded-Prefix are enabled by default. This information is subject to spoofing attacks so any existing headers on the request are removed and replaced by default. The destination app should be careful about how much trust it places in these values. See [transforms](transforms.md#defaults) for configuring these in the proxy. See the [ASP.NET docs](https://docs.microsoft.com/aspnet/core/host-and-deploy/proxy-load-balancer) for configuring the destination app to read these headers.
+
+### X-http-mehtod-override, x-http-method, x-method-override
+
+Some clients and servers limit witch HTTP methods they allow (GET, POST, etc.). These request headers are sometimes used to work around those restrictions. These headers are proxied by default. If in the proxy you want to prevent these bypasses then use the [RequestHeaderRemove](transforms.md#requestheaderremove) transform.
 
 ### Set-Cookie
 
