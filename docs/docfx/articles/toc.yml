@@ -10,6 +10,8 @@
   href: direct-forwarding.md
 - name: HTTP client configuration
   href: http-client-config.md
+- name: HTTPS & TLS
+  href: https-tls.md
 - name: Header Guidelines
   href: header-guidelines.md
 - name: Header Routing
