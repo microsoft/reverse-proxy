@@ -5,7 +5,7 @@ title: Header Guidelines
 
 # HTTP Headers
 
-Headers are a very important part of processing HTTP requests and each have their own semantics and considerations. Most headers are proxied by default, though some used to control how the request is delivered are automatically adjusted or removed by the proxy. Many headers contain information like domain names, paths, or other details that may be affected when a reverse proxy is included in the application architecture. Bellow is a collection of guidelines about how specific headers might be impacted and what to do about them.
+Headers are a very important part of processing HTTP requests and each have their own semantics and considerations. Most headers are proxied by default, though some used to control how the request is delivered are automatically adjusted or removed by the proxy. The connections between the client and the proxy and the proxy and destination are independent, and so headers that affect the connection and transport need to be filtered. Many headers contain information like domain names, paths, or other details that may be affected when a reverse proxy is included in the application architecture. Below is a collection of guidelines about how specific headers might be impacted and what to do about them.
 
 ## YARP header filtering
 
@@ -33,7 +33,7 @@ These are headers used with proxies and are not considered appropriate to forwar
 
 ### Alt-Svc
 
-This response header is used with HTTP/3 upgrades and only applies to the intimidate connection.
+This response header is used with HTTP/3 upgrades and only applies to the immediate connection.
 
 ### Trace-Parent, RequestId, Trace-State, Baggage, CorrelationContext
 
@@ -47,7 +47,7 @@ The Host header indicates which site on the server the request is intended for. 
 
 ### X-Forwarded-*, Forwarded
 
-Because a separate connection is used to communicate with the destination, these request headers can be used forward information about the original connection like the IP, scheme, port, client certificate, etc.. This information is subject to spoofing attacks and so any existing headers on the request are removed and replaced by default. The destination app should be careful about how much trust it places in these values. See [transforms](transforms.md#defaults) for configuring these in the proxy. See the [ASP.NET docs](https://docs.microsoft.com/aspnet/core/host-and-deploy/proxy-load-balancer) for configuring the destination app to read these headers.
+Because a separate connection is used to communicate with the destination, these request headers can be used to forward information about the original connection like the IP, scheme, port, client certificate, etc.. X-Forwarded-For, X-Forwarded-Proto, X-Forwarded-Host, and X-Forwarded-Prefix are enabled by default. This information is subject to spoofing attacks so any existing headers on the request are removed and replaced by default. The destination app should be careful about how much trust it places in these values. See [transforms](transforms.md#defaults) for configuring these in the proxy. See the [ASP.NET docs](https://docs.microsoft.com/aspnet/core/host-and-deploy/proxy-load-balancer) for configuring the destination app to read these headers.
 
 ### Set-Cookie
 
