@@ -51,7 +51,7 @@ Because a separate connection is used to communicate with the destination, these
 
 ### X-http-mehtod-override, x-http-method, x-method-override
 
-Some clients and servers limit witch HTTP methods they allow (GET, POST, etc.). These request headers are sometimes used to work around those restrictions. These headers are proxied by default. If in the proxy you want to prevent these bypasses then use the [RequestHeaderRemove](transforms.md#requestheaderremove) transform.
+Some clients and servers limit which HTTP methods they allow (GET, POST, etc.). These request headers are sometimes used to work around those restrictions. These headers are proxied by default. If in the proxy you want to prevent these bypasses then use the [RequestHeaderRemove](transforms.md#requestheaderremove) transform.
 
 ### Set-Cookie
 
