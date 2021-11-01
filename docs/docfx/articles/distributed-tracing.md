@@ -16,7 +16,7 @@ When running on .NET 3.1 or 5.0, YARP will copy tracing headers as-is, not accou
 To get YARP to actively participate, you must use a workaround to manually insert the correct headers.
 
 The recommended workaround is to:
-- Include a [custom `IForwarderHttpClientFactory`][workaround] in your project and
+- Include a [custom `IForwarderHttpClientFactory`][DiagnosticsHandlerFactory] in your project and
 - Register it in the DI container
     ```c#
     #if !NET6_0_OR_GREATER
@@ -27,4 +27,4 @@ The workaround mimics the behavior of the internal `DiagnosticsHandler` class us
 
 [OpenTelemetry]: https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/docs/trace/getting-started/README.md
 [Application Insights]: https://docs.microsoft.com/azure/azure-monitor/app/asp-net-core
-[workaround]: https://gist.github.com/MihaZupan/dc5de86f7d412e89844480dade65bb43
+[DiagnosticsHandlerFactory]: https://github.com/microsoft/reverse-proxy/blob/main/samples/ReverseProxy.Code.Sample/DiagnosticsHandlerFactory.cs
