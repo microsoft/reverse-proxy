@@ -26,5 +26,5 @@ The recommended workaround is to:
 The workaround mimics the behavior of the internal `DiagnosticsHandler` class used by `HttpClient`. As such, it automatically works with instrumentation packages from OpenTelemetry or Application Insights.
 
 [OpenTelemetry]: https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/docs/trace/getting-started/README.md
-[Application Insights]: https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-core
+[Application Insights]: https://docs.microsoft.com/azure/azure-monitor/app/asp-net-core
 [workaround]: https://gist.github.com/MihaZupan/dc5de86f7d412e89844480dade65bb43
