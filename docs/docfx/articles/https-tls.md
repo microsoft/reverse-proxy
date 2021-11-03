@@ -1,17 +1,12 @@
----
-uid: https-tls
-title: HTTPS & TLS
----
-
 # HTTPS & TLS
 
-HTTPS (HTTP over TLS encrypted connections) is the standard way to make HTTP request on the Internet for security, integrity, and privacy reasons. There are several HTTPS/TLS considerations to account for when using a reverse proxy like YARP.
+HTTPS (HTTP over TLS encrypted connections) is the standard way to make HTTP requests on the Internet for security, integrity, and privacy reasons. There are several HTTPS/TLS considerations to account for when using a reverse proxy like YARP.
 
 ## TLS Termination
 
 YARP is a level 7 HTTP proxy which means that incoming HTTPS/TLS connections are fully decrypted by the proxy so it can process and forward the HTTP requests. This is commonly known as TLS Termination. The outgoing connections to the destination(s) may or may not be encrypted, depending on the configuration provided.
 
-## TLS tunnelling (CONNECT)
+## TLS tunneling (CONNECT)
 
 TLS tunneling using the CONNECT method is a feature used to proxy requests without decrypting them. This is _not_ supported by YARP and there are no plans to add it.
 
