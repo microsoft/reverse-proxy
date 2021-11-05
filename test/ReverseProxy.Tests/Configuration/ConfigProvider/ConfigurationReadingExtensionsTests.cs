@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Xunit;
+using Yarp.ReverseProxy.Configuration.ConfigProvider;
 
 namespace Microsoft.Extensions.Configuration.Tests
 {

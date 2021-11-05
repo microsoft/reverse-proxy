@@ -3,15 +3,14 @@
 
 using System;
 
-namespace Yarp.ReverseProxy.Utilities
+namespace Yarp.ReverseProxy.Utilities;
+
+/// <inheritdoc/>
+internal sealed class RandomFactory : IRandomFactory
 {
     /// <inheritdoc/>
-    internal sealed class RandomFactory : IRandomFactory
+    public Random CreateRandomInstance()
     {
-        /// <inheritdoc/>
-        public Random CreateRandomInstance()
-        {
-            return ThreadStaticRandom.Instance;
-        }
+        return ThreadStaticRandom.Instance;
     }
 }

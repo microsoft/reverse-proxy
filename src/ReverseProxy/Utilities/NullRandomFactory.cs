@@ -3,13 +3,12 @@
 
 using System;
 
-namespace Yarp.ReverseProxy.Utilities
+namespace Yarp.ReverseProxy.Utilities;
+
+internal class NullRandomFactory : IRandomFactory
 {
-    internal class NullRandomFactory : IRandomFactory
+    public Random CreateRandomInstance()
     {
-        public Random CreateRandomInstance()
-        {
-            throw new NotImplementedException();
-        }
+        throw new NotImplementedException();
     }
 }

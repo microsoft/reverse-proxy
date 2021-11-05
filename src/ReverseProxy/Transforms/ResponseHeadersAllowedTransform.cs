@@ -10,67 +10,66 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
-namespace Yarp.ReverseProxy.Transforms
-{
-    /// <summary>
-    /// Copies only allowed response headers.
-    /// </summary>
-    public class ResponseHeadersAllowedTransform : ResponseTransform
-    {
-        public ResponseHeadersAllowedTransform(string[] allowedHeaders)
-        {
-            if (allowedHeaders is null)
-            {
-                throw new ArgumentNullException(nameof(allowedHeaders));
-            }
+namespace Yarp.ReverseProxy.Transforms;
 
-            AllowedHeaders = allowedHeaders;
-            AllowedHeadersSet = new HashSet<string>(allowedHeaders, StringComparer.OrdinalIgnoreCase);
+/// <summary>
+/// Copies only allowed response headers.
+/// </summary>
+public class ResponseHeadersAllowedTransform : ResponseTransform
+{
+    public ResponseHeadersAllowedTransform(string[] allowedHeaders)
+    {
+        if (allowedHeaders is null)
+        {
+            throw new ArgumentNullException(nameof(allowedHeaders));
         }
 
-        internal string[] AllowedHeaders { get; }
+        AllowedHeaders = allowedHeaders;
+        AllowedHeadersSet = new HashSet<string>(allowedHeaders, StringComparer.OrdinalIgnoreCase);
+    }
 
-        private HashSet<string> AllowedHeadersSet { get; }
+    internal string[] AllowedHeaders { get; }
 
-        /// <inheritdoc/>
-        public override ValueTask ApplyAsync(ResponseTransformContext context)
+    private HashSet<string> AllowedHeadersSet { get; }
+
+    /// <inheritdoc/>
+    public override ValueTask ApplyAsync(ResponseTransformContext context)
+    {
+        if (context is null)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            throw new ArgumentNullException(nameof(context));
+        }
 
-            if (context.ProxyResponse == null)
-            {
-                return default;
-            }
-
-            Debug.Assert(!context.HeadersCopied);
-
-            // See https://github.com/microsoft/reverse-proxy/blob/51d797986b1fea03500a1ad173d13a1176fb5552/src/ReverseProxy/Forwarder/HttpTransformer.cs#L67-L77
-            var responseHeaders = context.HttpContext.Response.Headers;
-            CopyResponseHeaders(context.ProxyResponse.Headers, responseHeaders);
-            if (context.ProxyResponse.Content != null)
-            {
-                CopyResponseHeaders(context.ProxyResponse.Content.Headers, responseHeaders);
-            }
-
-            context.HeadersCopied = true;
-
+        if (context.ProxyResponse == null)
+        {
             return default;
         }
 
-        // See https://github.com/microsoft/reverse-proxy/blob/51d797986b1fea03500a1ad173d13a1176fb5552/src/ReverseProxy/Forwarder/HttpTransformer.cs#L102-L115
-        private void CopyResponseHeaders(HttpHeaders source, IHeaderDictionary destination)
+        Debug.Assert(!context.HeadersCopied);
+
+        // See https://github.com/microsoft/reverse-proxy/blob/51d797986b1fea03500a1ad173d13a1176fb5552/src/ReverseProxy/Forwarder/HttpTransformer.cs#L67-L77
+        var responseHeaders = context.HttpContext.Response.Headers;
+        CopyResponseHeaders(context.ProxyResponse.Headers, responseHeaders);
+        if (context.ProxyResponse.Content != null)
         {
-            foreach (var header in source)
+            CopyResponseHeaders(context.ProxyResponse.Content.Headers, responseHeaders);
+        }
+
+        context.HeadersCopied = true;
+
+        return default;
+    }
+
+    // See https://github.com/microsoft/reverse-proxy/blob/51d797986b1fea03500a1ad173d13a1176fb5552/src/ReverseProxy/Forwarder/HttpTransformer.cs#L102-L115
+    private void CopyResponseHeaders(HttpHeaders source, IHeaderDictionary destination)
+    {
+        foreach (var header in source)
+        {
+            var headerName = header.Key;
+            if (AllowedHeadersSet.Contains(headerName))
             {
-                var headerName = header.Key;
-                if (AllowedHeadersSet.Contains(headerName))
-                {
-                    Debug.Assert(header.Value is string[]);
-                    destination.Append(headerName, header.Value as string[] ?? header.Value.ToArray());
-                }
+                Debug.Assert(header.Value is string[]);
+                destination.Append(headerName, header.Value as string[] ?? header.Value.ToArray());
             }
         }
     }

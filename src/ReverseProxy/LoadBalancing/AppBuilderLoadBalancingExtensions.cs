@@ -3,20 +3,19 @@
 
 using Yarp.ReverseProxy.LoadBalancing;
 
-namespace Microsoft.AspNetCore.Builder
+namespace Microsoft.AspNetCore.Builder;
+
+/// <summary>
+/// Extensions for adding proxy middleware to the pipeline.
+/// </summary>
+public static class AppBuilderLoadBalancingExtensions
 {
     /// <summary>
-    /// Extensions for adding proxy middleware to the pipeline.
+    /// Load balances across the available endpoints.
     /// </summary>
-    public static class AppBuilderLoadBalancingExtensions
+    public static IReverseProxyApplicationBuilder UseLoadBalancing(this IReverseProxyApplicationBuilder builder)
     {
-        /// <summary>
-        /// Load balances across the available endpoints.
-        /// </summary>
-        public static IReverseProxyApplicationBuilder UseLoadBalancing(this IReverseProxyApplicationBuilder builder)
-        {
-            builder.UseMiddleware<LoadBalancingMiddleware>();
-            return builder;
-        }
+        builder.UseMiddleware<LoadBalancingMiddleware>();
+        return builder;
     }
 }

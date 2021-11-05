@@ -6,68 +6,67 @@ using System;
 using System.Threading.Tasks;
 using Yarp.ReverseProxy.Transforms.Builder;
 
-namespace Yarp.ReverseProxy.Transforms
+namespace Yarp.ReverseProxy.Transforms;
+
+/// <summary>
+/// Extension methods for <see cref="TransformBuilderContext"/>.
+/// </summary>
+public static class TransformBuilderContextFuncExtensions
 {
     /// <summary>
-    /// Extension methods for <see cref="TransformBuilderContext"/>.
+    /// Adds a transform Func that runs on each request for the given route.
     /// </summary>
-    public static class TransformBuilderContextFuncExtensions
+    public static TransformBuilderContext AddRequestTransform(this TransformBuilderContext context, Func<RequestTransformContext, ValueTask> func)
     {
-        /// <summary>
-        /// Adds a transform Func that runs on each request for the given route.
-        /// </summary>
-        public static TransformBuilderContext AddRequestTransform(this TransformBuilderContext context, Func<RequestTransformContext, ValueTask> func)
+        if (context is null)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (func is null)
-            {
-                throw new ArgumentNullException(nameof(func));
-            }
-
-            context.RequestTransforms.Add(new RequestFuncTransform(func));
-            return context;
+            throw new ArgumentNullException(nameof(context));
         }
 
-        /// <summary>
-        /// Adds a transform Func that runs on each response for the given route.
-        /// </summary>
-        public static TransformBuilderContext AddResponseTransform(this TransformBuilderContext context, Func<ResponseTransformContext, ValueTask> func)
+        if (func is null)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (func is null)
-            {
-                throw new ArgumentNullException(nameof(func));
-            }
-
-            context.ResponseTransforms.Add(new ResponseFuncTransform(func));
-            return context;
+            throw new ArgumentNullException(nameof(func));
         }
 
-        /// <summary>
-        /// Adds a transform Func that runs on each response for the given route.
-        /// </summary>
-        public static TransformBuilderContext AddResponseTrailersTransform(this TransformBuilderContext context, Func<ResponseTrailersTransformContext, ValueTask> func)
+        context.RequestTransforms.Add(new RequestFuncTransform(func));
+        return context;
+    }
+
+    /// <summary>
+    /// Adds a transform Func that runs on each response for the given route.
+    /// </summary>
+    public static TransformBuilderContext AddResponseTransform(this TransformBuilderContext context, Func<ResponseTransformContext, ValueTask> func)
+    {
+        if (context is null)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (func is null)
-            {
-                throw new ArgumentNullException(nameof(func));
-            }
-
-            context.ResponseTrailersTransforms.Add(new ResponseTrailersFuncTransform(func));
-            return context;
+            throw new ArgumentNullException(nameof(context));
         }
+
+        if (func is null)
+        {
+            throw new ArgumentNullException(nameof(func));
+        }
+
+        context.ResponseTransforms.Add(new ResponseFuncTransform(func));
+        return context;
+    }
+
+    /// <summary>
+    /// Adds a transform Func that runs on each response for the given route.
+    /// </summary>
+    public static TransformBuilderContext AddResponseTrailersTransform(this TransformBuilderContext context, Func<ResponseTrailersTransformContext, ValueTask> func)
+    {
+        if (context is null)
+        {
+            throw new ArgumentNullException(nameof(context));
+        }
+
+        if (func is null)
+        {
+            throw new ArgumentNullException(nameof(func));
+        }
+
+        context.ResponseTrailersTransforms.Add(new ResponseTrailersFuncTransform(func));
+        return context;
     }
 }

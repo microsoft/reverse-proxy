@@ -5,59 +5,58 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 
-namespace Yarp.ReverseProxy.Transforms
+namespace Yarp.ReverseProxy.Transforms;
+
+/// <summary>
+/// Sets or appends simple response header values.
+/// </summary>
+public class ResponseHeaderValueTransform : ResponseTransform
 {
-    /// <summary>
-    /// Sets or appends simple response header values.
-    /// </summary>
-    public class ResponseHeaderValueTransform : ResponseTransform
+    public ResponseHeaderValueTransform(string headerName, string value, bool append, ResponseCondition condition)
     {
-        public ResponseHeaderValueTransform(string headerName, string value, bool append, ResponseCondition condition)
+        if (string.IsNullOrEmpty(headerName))
         {
-            if (string.IsNullOrEmpty(headerName))
-            {
-                throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
-            }
-
-            HeaderName = headerName;
-            Value = value ?? throw new ArgumentNullException(nameof(value));
-            Append = append;
-            Condition = condition;
+            throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
         }
 
-        internal ResponseCondition Condition { get; }
+        HeaderName = headerName;
+        Value = value ?? throw new ArgumentNullException(nameof(value));
+        Append = append;
+        Condition = condition;
+    }
 
-        internal bool Append { get; }
+    internal ResponseCondition Condition { get; }
 
-        internal string HeaderName { get; }
+    internal bool Append { get; }
 
-        internal string Value { get; }
+    internal string HeaderName { get; }
 
-        // Assumes the response status code has been set on the HttpContext already.
-        /// <inheritdoc/>
-        public override ValueTask ApplyAsync(ResponseTransformContext context)
+    internal string Value { get; }
+
+    // Assumes the response status code has been set on the HttpContext already.
+    /// <inheritdoc/>
+    public override ValueTask ApplyAsync(ResponseTransformContext context)
+    {
+        if (context is null)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (Condition == ResponseCondition.Always
-                || Success(context) == (Condition == ResponseCondition.Success))
-            {
-                var existingHeader = TakeHeader(context, HeaderName);
-                if (Append)
-                {
-                    var value = StringValues.Concat(existingHeader, Value);
-                    SetHeader(context, HeaderName, value);
-                }
-                else
-                {
-                    SetHeader(context, HeaderName, Value);
-                }
-            }
-
-            return default;
+            throw new ArgumentNullException(nameof(context));
         }
+
+        if (Condition == ResponseCondition.Always
+            || Success(context) == (Condition == ResponseCondition.Success))
+        {
+            var existingHeader = TakeHeader(context, HeaderName);
+            if (Append)
+            {
+                var value = StringValues.Concat(existingHeader, Value);
+                SetHeader(context, HeaderName, value);
+            }
+            else
+            {
+                SetHeader(context, HeaderName, Value);
+            }
+        }
+
+        return default;
     }
 }

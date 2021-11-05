@@ -5,63 +5,62 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 
-namespace Yarp.ReverseProxy.Transforms
+namespace Yarp.ReverseProxy.Transforms;
+
+public abstract class QueryParameterTransform : RequestTransform
 {
-    public abstract class QueryParameterTransform : RequestTransform
+    public QueryParameterTransform(QueryStringTransformMode mode, string key)
     {
-        public QueryParameterTransform(QueryStringTransformMode mode, string key)
+        if (string.IsNullOrEmpty(key))
         {
-            if (string.IsNullOrEmpty(key))
-            {
-                throw new ArgumentException($"'{nameof(key)}' cannot be null or empty.", nameof(key));
-            }
-
-            Mode = mode;
-            Key = key;
+            throw new ArgumentException($"'{nameof(key)}' cannot be null or empty.", nameof(key));
         }
 
-        internal QueryStringTransformMode Mode { get; }
+        Mode = mode;
+        Key = key;
+    }
 
-        internal string Key { get; }
+    internal QueryStringTransformMode Mode { get; }
 
-        /// <inheritdoc/>
-        public override ValueTask ApplyAsync(RequestTransformContext context)
+    internal string Key { get; }
+
+    /// <inheritdoc/>
+    public override ValueTask ApplyAsync(RequestTransformContext context)
+    {
+        if (context == null)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            var value = GetValue(context);
-            if (value != null)
-            {
-                switch (Mode)
-                {
-                    case QueryStringTransformMode.Append:
-                        StringValues newValue = value;
-                        if (context.Query.Collection.TryGetValue(Key, out var currentValue))
-                        {
-                             newValue = StringValues.Concat(currentValue, value);
-                        }
-                        context.Query.Collection[Key] = newValue;
-                        break;
-                    case QueryStringTransformMode.Set:
-                        context.Query.Collection[Key] = value;
-                        break;
-                    default:
-                        throw new NotImplementedException(Mode.ToString());
-                }
-            }
-
-            return default;
+            throw new ArgumentNullException(nameof(context));
         }
 
-        protected abstract string? GetValue(RequestTransformContext context);
+        var value = GetValue(context);
+        if (value != null)
+        {
+            switch (Mode)
+            {
+                case QueryStringTransformMode.Append:
+                    StringValues newValue = value;
+                    if (context.Query.Collection.TryGetValue(Key, out var currentValue))
+                    {
+                        newValue = StringValues.Concat(currentValue, value);
+                    }
+                    context.Query.Collection[Key] = newValue;
+                    break;
+                case QueryStringTransformMode.Set:
+                    context.Query.Collection[Key] = value;
+                    break;
+                default:
+                    throw new NotImplementedException(Mode.ToString());
+            }
+        }
+
+        return default;
     }
 
-    public enum QueryStringTransformMode
-    {
-        Append,
-        Set
-    }
+    protected abstract string? GetValue(RequestTransformContext context);
+}
+
+public enum QueryStringTransformMode
+{
+    Append,
+    Set
 }

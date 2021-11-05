@@ -1,13 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Yarp.ReverseProxy.Forwarder
+namespace Yarp.ReverseProxy.Forwarder;
+
+internal enum StreamCopyResult
 {
-    internal enum StreamCopyResult
-    {
-        Success,
-        InputError,
-        OutputError,
-        Canceled
-    }
+    Success,
+    InputError,
+    OutputError,
+    Canceled
 }

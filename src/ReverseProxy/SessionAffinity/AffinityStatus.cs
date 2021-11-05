@@ -1,16 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Yarp.ReverseProxy.SessionAffinity
+namespace Yarp.ReverseProxy.SessionAffinity;
+
+/// <summary>
+/// Affinity resolution status.
+/// </summary>
+public enum AffinityStatus
 {
-    /// <summary>
-    /// Affinity resolution status.
-    /// </summary>
-    public enum AffinityStatus
-    {
-        OK,
-        AffinityKeyNotSet,
-        AffinityKeyExtractionFailed,
-        DestinationNotFound
-    }
+    OK,
+    AffinityKeyNotSet,
+    AffinityKeyExtractionFailed,
+    DestinationNotFound
 }

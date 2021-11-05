@@ -6,80 +6,79 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 
-namespace Yarp.ReverseProxy.Transforms
+namespace Yarp.ReverseProxy.Transforms;
+
+/// <summary>
+/// Sets or appends the X-Forwarded-Host header with the request's original Host header.
+/// </summary>
+public class RequestHeaderXForwardedHostTransform : RequestTransform
 {
     /// <summary>
-    /// Sets or appends the X-Forwarded-Host header with the request's original Host header.
+    /// Creates a new transform.
     /// </summary>
-    public class RequestHeaderXForwardedHostTransform : RequestTransform
+    /// <param name="headerName">The header name.</param>
+    /// <param name="action">Action to applied to the header.</param>
+    public RequestHeaderXForwardedHostTransform(string headerName, ForwardedTransformActions action)
     {
-        /// <summary>
-        /// Creates a new transform.
-        /// </summary>
-        /// <param name="headerName">The header name.</param>
-        /// <param name="action">Action to applied to the header.</param>
-        public RequestHeaderXForwardedHostTransform(string headerName, ForwardedTransformActions action)
+        if (string.IsNullOrEmpty(headerName))
         {
-            if (string.IsNullOrEmpty(headerName))
-            {
-                throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
-            }
-
-            HeaderName = headerName;
-            Debug.Assert(action != ForwardedTransformActions.Off);
-            TransformAction = action;
+            throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
         }
 
-        internal string HeaderName { get; }
-        internal ForwardedTransformActions TransformAction { get; }
+        HeaderName = headerName;
+        Debug.Assert(action != ForwardedTransformActions.Off);
+        TransformAction = action;
+    }
 
-        /// <inheritdoc/>
-        public override ValueTask ApplyAsync(RequestTransformContext context)
+    internal string HeaderName { get; }
+    internal ForwardedTransformActions TransformAction { get; }
+
+    /// <inheritdoc/>
+    public override ValueTask ApplyAsync(RequestTransformContext context)
+    {
+        if (context is null)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            var host = context.HttpContext.Request.Host;
-
-            switch (TransformAction)
-            {
-                case ForwardedTransformActions.Set:
-                    RemoveHeader(context, HeaderName);
-                    if (host.HasValue)
-                    {
-                        AddHeader(context, HeaderName, host.ToUriComponent());
-                    }
-                    break;
-                case ForwardedTransformActions.Append:
-                    Append(context, host);
-                    break;
-                case ForwardedTransformActions.Remove:
-                    RemoveHeader(context, HeaderName);
-                    break;
-                default:
-                    throw new NotImplementedException(TransformAction.ToString());
-            }
-
-            return default;
+            throw new ArgumentNullException(nameof(context));
         }
 
-        private void Append(RequestTransformContext context, Microsoft.AspNetCore.Http.HostString host)
+        var host = context.HttpContext.Request.Host;
+
+        switch (TransformAction)
         {
-            var existingValues = TakeHeader(context, HeaderName);
-            if (!host.HasValue)
-            {
-                if (!string.IsNullOrEmpty(existingValues))
+            case ForwardedTransformActions.Set:
+                RemoveHeader(context, HeaderName);
+                if (host.HasValue)
                 {
-                    AddHeader(context, HeaderName, existingValues);
+                    AddHeader(context, HeaderName, host.ToUriComponent());
                 }
-            }
-            else
+                break;
+            case ForwardedTransformActions.Append:
+                Append(context, host);
+                break;
+            case ForwardedTransformActions.Remove:
+                RemoveHeader(context, HeaderName);
+                break;
+            default:
+                throw new NotImplementedException(TransformAction.ToString());
+        }
+
+        return default;
+    }
+
+    private void Append(RequestTransformContext context, Microsoft.AspNetCore.Http.HostString host)
+    {
+        var existingValues = TakeHeader(context, HeaderName);
+        if (!host.HasValue)
+        {
+            if (!string.IsNullOrEmpty(existingValues))
             {
-                var values = StringValues.Concat(existingValues, host.ToUriComponent());
-                AddHeader(context, HeaderName, values);
+                AddHeader(context, HeaderName, existingValues);
             }
+        }
+        else
+        {
+            var values = StringValues.Concat(existingValues, host.ToUriComponent());
+            AddHeader(context, HeaderName, values);
         }
     }
 }

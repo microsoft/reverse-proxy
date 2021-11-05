@@ -4,24 +4,23 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Yarp.ReverseProxy.Transforms
+namespace Yarp.ReverseProxy.Transforms;
+
+/// <summary>
+/// A response trailers transform that runs the given Func.
+/// </summary>
+public class ResponseTrailersFuncTransform : ResponseTrailersTransform
 {
-    /// <summary>
-    /// A response trailers transform that runs the given Func.
-    /// </summary>
-    public class ResponseTrailersFuncTransform : ResponseTrailersTransform
+    private readonly Func<ResponseTrailersTransformContext, ValueTask> _func;
+
+    public ResponseTrailersFuncTransform(Func<ResponseTrailersTransformContext, ValueTask> func)
     {
-        private readonly Func<ResponseTrailersTransformContext, ValueTask> _func;
+        _func = func ?? throw new ArgumentNullException(nameof(func));
+    }
 
-        public ResponseTrailersFuncTransform(Func<ResponseTrailersTransformContext, ValueTask> func)
-        {
-            _func = func ?? throw new ArgumentNullException(nameof(func));
-        }
-
-        /// <inheritdoc/>
-        public override ValueTask ApplyAsync(ResponseTrailersTransformContext context)
-        {
-            return _func(context);
-        }
+    /// <inheritdoc/>
+    public override ValueTask ApplyAsync(ResponseTrailersTransformContext context)
+    {
+        return _func(context);
     }
 }

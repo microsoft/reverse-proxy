@@ -4,19 +4,18 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Primitives;
 
-namespace Yarp.ReverseProxy.Configuration.ConfigProvider
+namespace Yarp.ReverseProxy.Configuration.ConfigProvider;
+
+internal sealed class ConfigurationSnapshot : IProxyConfig
 {
-    internal sealed class ConfigurationSnapshot : IProxyConfig
-    {
-        public List<RouteConfig> Routes { get; internal set; } = new List<RouteConfig>();
+    public List<RouteConfig> Routes { get; internal set; } = new List<RouteConfig>();
 
-        public List<ClusterConfig> Clusters { get; internal set; } = new List<ClusterConfig>();
+    public List<ClusterConfig> Clusters { get; internal set; } = new List<ClusterConfig>();
 
-        IReadOnlyList<RouteConfig> IProxyConfig.Routes => Routes;
+    IReadOnlyList<RouteConfig> IProxyConfig.Routes => Routes;
 
-        IReadOnlyList<ClusterConfig> IProxyConfig.Clusters => Clusters;
+    IReadOnlyList<ClusterConfig> IProxyConfig.Clusters => Clusters;
 
-        // This field is required.
-        public IChangeToken ChangeToken { get; internal set; } = default!;
-    }
+    // This field is required.
+    public IChangeToken ChangeToken { get; internal set; } = default!;
 }

@@ -3,38 +3,37 @@
 
 using System;
 
-namespace Yarp.ReverseProxy.Transforms
+namespace Yarp.ReverseProxy.Transforms;
+
+public class QueryParameterRouteTransform : QueryParameterTransform
 {
-    public class QueryParameterRouteTransform : QueryParameterTransform
+    public QueryParameterRouteTransform(QueryStringTransformMode mode, string key, string routeValueKey)
+        : base(mode, key)
     {
-        public QueryParameterRouteTransform(QueryStringTransformMode mode, string key, string routeValueKey)
-            : base(mode, key)
+        if (string.IsNullOrEmpty(key))
         {
-            if (string.IsNullOrEmpty(key))
-            {
-                throw new ArgumentException($"'{nameof(key)}' cannot be null or empty.", nameof(key));
-            }
-
-            if (string.IsNullOrEmpty(routeValueKey))
-            {
-                throw new ArgumentException($"'{nameof(routeValueKey)}' cannot be null or empty.", nameof(routeValueKey));
-            }
-
-            RouteValueKey = routeValueKey;
+            throw new ArgumentException($"'{nameof(key)}' cannot be null or empty.", nameof(key));
         }
 
-        internal string RouteValueKey { get; }
-
-        /// <inheritdoc/>
-        protected override string? GetValue(RequestTransformContext context)
+        if (string.IsNullOrEmpty(routeValueKey))
         {
-            var routeValues = context.HttpContext.Request.RouteValues;
-            if (!routeValues.TryGetValue(RouteValueKey, out var value))
-            {
-                return null;
-            }
-
-            return value?.ToString();
+            throw new ArgumentException($"'{nameof(routeValueKey)}' cannot be null or empty.", nameof(routeValueKey));
         }
+
+        RouteValueKey = routeValueKey;
+    }
+
+    internal string RouteValueKey { get; }
+
+    /// <inheritdoc/>
+    protected override string? GetValue(RequestTransformContext context)
+    {
+        var routeValues = context.HttpContext.Request.RouteValues;
+        if (!routeValues.TryGetValue(RouteValueKey, out var value))
+        {
+            return null;
+        }
+
+        return value?.ToString();
     }
 }
