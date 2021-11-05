@@ -34,7 +34,7 @@ namespace Microsoft.Kubernetes.Controller.Queues
             Assert.Equal(42, len);
         }
 
-        [Fact(Skip = "Flaky test")]
+        [Fact(Skip = "https://github.com/microsoft/reverse-proxy/issues/1357")]
         public async Task DelayingQueueAddsWhenTimePasses()
         {
             var added = new List<string>();
@@ -104,7 +104,7 @@ namespace Microsoft.Kubernetes.Controller.Queues
             Assert.Equal(("before-two", "two"), Assert.Single(added));
         }
 
-        [Fact(Skip = "Flaky test")]
+        [Fact(Skip = "https://github.com/microsoft/reverse-proxy/issues/1357")]
         public async Task NoAddingAfterShutdown()
         {
             var added = new List<string>();
