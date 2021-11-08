@@ -79,10 +79,10 @@ Here is an example of common transforms:
       "route2" : {
         "ClusterId": "cluster1",
         "Match": {
-          "Path": "/api/{plugin}/stuff/{*remainder}"
+          "Path": "/api/{plugin}/stuff/{**remainder}"
         },
         "Transforms": [
-          { "PathPattern": "/foo/{plugin}/bar/{remainder}" },
+          { "PathPattern": "/foo/{plugin}/bar/{**remainder}" },
           {
             "QueryStringParameter": "q",
             "Append": "plugin"
@@ -235,27 +235,27 @@ This will set the request path with the given value.
 
 Config:
 ```JSON
-{ "PathPattern": "/my/{plugin}/api/{remainder}" }
+{ "PathPattern": "/my/{plugin}/api/{**remainder}" }
 ```
 Code:
 ```csharp
-routeConfig = routeConfig.WithTransformPathRouteValues(pattern: new PathString("/my/{plugin}/api/{remainder}"));
+routeConfig = routeConfig.WithTransformPathRouteValues(pattern: new PathString("/my/{plugin}/api/{**remainder}"));
 ```
 ```C#
-transformBuilderContext.AddPathRouteValues(pattern: new PathString("/my/{plugin}/api/{remainder}"));
+transformBuilderContext.AddPathRouteValues(pattern: new PathString("/my/{plugin}/api/{**remainder}"));
 ```
 
-This will set the request path with the given value and replace any `{}` segments with the associated route value. `{}` segments without a matching route value are removed. See ASP.NET Core's [routing docs](https://docs.microsoft.com/aspnet/core/fundamentals/routing#route-template-reference) for more information about route templates.
+This will set the request path with the given value and replace any `{}` segments with the associated route value. `{}` segments without a matching route value are removed. The final `{}` segment can be marked as `{**remainder}` to indicate this is a catch-all segment that may contain multiple path segments. See ASP.NET Core's [routing docs](https://docs.microsoft.com/aspnet/core/fundamentals/routing#route-template-reference) for more information about route templates.
 
 Example:
 
 | Step | Value |
 |------|-------|
-| Route definition | `/api/{plugin}/stuff/{*remainder}` |
+| Route definition | `/api/{plugin}/stuff/{**remainder}` |
 | Request path | `/api/v1/stuff/more/stuff` |
 | Plugin value | `v1` |
 | Remainder value | `more/stuff` |
-| PathPattern | `/my/{plugin}/api/{remainder}` |
+| PathPattern | `/my/{plugin}/api/{**remainder}` |
 | Result | `/my/v1/api/more/stuff` |
 
 ### QueryValueParameter
@@ -687,6 +687,10 @@ Example:
 X-Client-Cert: SSdtIGEgY2VydGlmaWNhdGU...
 ```
 As the inbound and outbound connections are independent, there needs to be a way to pass any inbound client certificate to the destination server. This transform causes the client certificate taken from `HttpContext.Connection.ClientCertificate` to be Base64 encoded and set as the value for the given header name. The destination server may need that certificate to authenticate the client. There is no standard that defines this header and implementations vary, check your destination server for support.
+
+Servers do minimal validation on the incoming client certificate by default. The certificate should be validated either in the proxy or the destination, see the [client certificate auth](https://docs.microsoft.com/aspnet/core/security/authentication/certauth) docs for details.
+
+This transform will only apply if the client certificate is already present on the connection. See the [optional certs doc](https://docs.microsoft.com/aspnet/core/security/authentication/certauth#optional-client-certificates) if it needs to be requested from the client on a per-route basis.
 
 ## Response and Response Trailers
 

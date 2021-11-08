@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Yarp.ReverseProxy.Transforms
@@ -32,8 +31,7 @@ namespace Yarp.ReverseProxy.Transforms
                 throw new ArgumentNullException(nameof(context));
             }
 
-            var proxyRequestHeaders = context.ProxyRequest.Headers;
-            proxyRequestHeaders.Remove(HeaderName);
+            RemoveHeader(context, HeaderName);
 
             var clientCert = context.HttpContext.Connection.ClientCertificate;
             if (clientCert != null)

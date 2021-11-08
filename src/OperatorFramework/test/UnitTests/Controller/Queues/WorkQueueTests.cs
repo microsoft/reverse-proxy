@@ -1,85 +1,63 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Shouldly;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Microsoft.Kubernetes.Controller.Queues
 {
-    [TestClass]
     public class WorkQueueTests
     {
-        public CancellationTokenSource Cancellation { get; set; }
+        public CancellationTokenSource Cancellation { get; set; } = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            Cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-        }
-
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            Cancellation.Dispose();
-        }
-
-        [TestMethod]
+        [Fact]
         public async Task NormalUsageIsAddGetDone()
         {
-            // arrange
             using IWorkQueue<string> queue = new WorkQueue<string>();
 
-            // act
-            queue.Len().ShouldBe(0);
+            Assert.Equal(0, queue.Len());
             queue.Add("one");
-            queue.Len().ShouldBe(1);
+            Assert.Equal(1, queue.Len());
             queue.Add("two");
-            queue.Len().ShouldBe(2);
+            Assert.Equal(2, queue.Len());
             var (item1, shutdown1) = await queue.GetAsync(Cancellation.Token);
-            queue.Len().ShouldBe(1);
+            Assert.Equal(1, queue.Len());
             queue.Done(item1);
-            queue.Len().ShouldBe(1);
+            Assert.Equal(1, queue.Len());
             var (item2, shutdown2) = await queue.GetAsync(Cancellation.Token);
-            queue.Len().ShouldBe(0);
+            Assert.Equal(0, queue.Len());
             queue.Done(item2);
-            queue.Len().ShouldBe(0);
+            Assert.Equal(0, queue.Len());
 
-            // assert
-            item1.ShouldBe("one");
-            shutdown1.ShouldBeFalse();
-            item2.ShouldBe("two");
-            shutdown2.ShouldBeFalse();
+            Assert.Equal("one", item1);
+            Assert.False(shutdown1);
+            Assert.Equal("two", item2);
+            Assert.False(shutdown2);
         }
 
-        [TestMethod]
+        [Fact]
         public void AddingSameItemAgainHasNoEffect()
         {
-            // arrange
             using IWorkQueue<string> queue = new WorkQueue<string>();
 
-            // act
             var len1 = queue.Len();
             queue.Add("one");
             var len2 = queue.Len();
             queue.Add("one");
             var len3 = queue.Len();
 
-            // assert
-            len1.ShouldBe(0);
-            len2.ShouldBe(1);
-            len3.ShouldBe(1);
+            Assert.Equal(0, len1);
+            Assert.Equal(1, len2);
+            Assert.Equal(1, len3);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task CallingAddWhileItemIsBeingProcessedHasNoEffect()
         {
-            // arrange
             using IWorkQueue<string> queue = new WorkQueue<string>();
 
-            // act
             var lenOriginal = queue.Len();
             queue.Add("one");
             var lenAfterAdd = queue.Len();
@@ -88,23 +66,20 @@ namespace Microsoft.Kubernetes.Controller.Queues
             queue.Add("one");
             var lenAfterAddAgain = queue.Len();
 
-            // assert
-            item1.ShouldBe("one");
-            lenOriginal.ShouldBe(0);
-            lenAfterAdd.ShouldBe(1);
-            lenAfterGet.ShouldBe(0);
-            lenAfterAddAgain.ShouldBe(0);
+            Assert.Equal("one", item1);
+            Assert.Equal(0, lenOriginal);
+            Assert.Equal(1, lenAfterAdd);
+            Assert.Equal(0, lenAfterGet);
+            Assert.Equal(0, lenAfterAddAgain);
 
-            queue.Len().ShouldBe(0);
+            Assert.Equal(0, queue.Len());
         }
 
-        [TestMethod]
+        [Fact]
         public async Task ItemCanBeAddedAgainAfterDoneIsCalled()
         {
-            // arrange
             using IWorkQueue<string> queue = new WorkQueue<string>();
 
-            // act
             var lenOriginal = queue.Len();
             queue.Add("one");
             var lenAfterAdd = queue.Len();
@@ -115,24 +90,21 @@ namespace Microsoft.Kubernetes.Controller.Queues
             queue.Add("one");
             var lenAfterAddAgain = queue.Len();
 
-            // assert
-            item1.ShouldBe("one");
-            lenOriginal.ShouldBe(0);
-            lenAfterAdd.ShouldBe(1);
-            lenAfterGet.ShouldBe(0);
-            lenAfterDone.ShouldBe(0);
-            lenAfterAddAgain.ShouldBe(1);
+            Assert.Equal("one", item1);
+            Assert.Equal(0, lenOriginal);
+            Assert.Equal(1, lenAfterAdd);
+            Assert.Equal(0, lenAfterGet);
+            Assert.Equal(0, lenAfterDone);
+            Assert.Equal(1, lenAfterAddAgain);
 
-            queue.Len().ShouldBe(1);
+            Assert.Equal(1, queue.Len());
         }
 
-        [TestMethod]
+        [Fact]
         public async Task IfAddWasCalledDuringProcessingThenItemIsRequeuedByDone()
         {
-            // arrange
             using IWorkQueue<string> queue = new WorkQueue<string>();
 
-            // act
             var lenOriginal = queue.Len();
             queue.Add("one");
             var lenAfterAdd = queue.Len();
@@ -145,76 +117,66 @@ namespace Microsoft.Kubernetes.Controller.Queues
             var (item2, _) = await queue.GetAsync(Cancellation.Token);
             var lenAfterGetAgain = queue.Len();
 
-            // assert
-            item1.ShouldBe("one");
-            item2.ShouldBe("one");
-            lenOriginal.ShouldBe(0);
-            lenAfterAdd.ShouldBe(1);
-            lenAfterGet.ShouldBe(0);
-            lenAfterAddAgain.ShouldBe(0);
-            lenAfterDone.ShouldBe(1);
-            lenAfterGetAgain.ShouldBe(0);
+            Assert.Equal("one", item1);
+            Assert.Equal("one", item2);
+            Assert.Equal(0, lenOriginal);
+            Assert.Equal(1, lenAfterAdd);
+            Assert.Equal(0, lenAfterGet);
+            Assert.Equal(0, lenAfterAddAgain);
+            Assert.Equal(1, lenAfterDone);
+            Assert.Equal(0, lenAfterGetAgain);
 
-            queue.Len().ShouldBe(0);
+            Assert.Equal(0, queue.Len());
         }
 
 
-        [TestMethod]
+        [Fact]
         public async Task GetCompletesOnceAddIsCalled()
         {
-            // arrange
             using IWorkQueue<string> queue = new WorkQueue<string>();
 
-            // act
             var getTask = queue.GetAsync(Cancellation.Token);
-            queue.Len().ShouldBe(0);
-            getTask.IsCompleted.ShouldBeFalse();
+            Assert.Equal(0, queue.Len());
+            Assert.False(getTask.IsCompleted);
 
             queue.Add("one");
             var (item1, _) = await getTask;
-            queue.Len().ShouldBe(0);
-            getTask.IsCompleted.ShouldBeTrue();
+            Assert.Equal(0, queue.Len());
+            Assert.True(getTask.IsCompleted);
 
-            // assert
-            item1.ShouldBe("one");
-            queue.Len().ShouldBe(0);
+            Assert.Equal("one", item1);
+            Assert.Equal(0, queue.Len());
         }
 
-        [TestMethod]
+        [Fact]
         public async Task GetReturnsShutdownTrueAfterShutdownIsCalled()
         {
-            // arrange
             using IWorkQueue<string> queue = new WorkQueue<string>();
 
-            // act
             var getTask = queue.GetAsync(Cancellation.Token);
-            queue.Len().ShouldBe(0);
-            getTask.IsCompleted.ShouldBeFalse();
+            Assert.Equal(0, queue.Len());
+            Assert.False(getTask.IsCompleted);
 
             queue.ShutDown();
             var (item1, shutdown1) = await getTask;
-            queue.Len().ShouldBe(0);
-            getTask.IsCompleted.ShouldBeTrue();
+            Assert.Equal(0, queue.Len());
+            Assert.True(getTask.IsCompleted);
 
-            // assert
-            shutdown1.ShouldBeTrue();
-            queue.Len().ShouldBe(0);
+            Assert.True(shutdown1);
+            Assert.Equal(0, queue.Len());
         }
 
-        [TestMethod]
+        [Fact]
         public void ShuttingDownReturnsTrueAfterShutdownIsCalled()
         {
-            // arrange
             using IWorkQueue<string> queue = new WorkQueue<string>();
 
-            // act
             var shuttingDownBefore = queue.ShuttingDown();
             queue.ShutDown();
             var shuttingDownAfter = queue.ShuttingDown();
 
-            // assert
-            shuttingDownBefore.ShouldBeFalse();
-            shuttingDownAfter.ShouldBeTrue();
+            Assert.False(shuttingDownBefore);
+            Assert.True(shuttingDownAfter);
         }
     }
 }

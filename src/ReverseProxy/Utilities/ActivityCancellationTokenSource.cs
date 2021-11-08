@@ -46,7 +46,7 @@ namespace Yarp.ReverseProxy.Utilities
 #endif
 
             cts._activityTimeoutMs = (int)activityTimeout.TotalMilliseconds;
-            cts._linkedRegistration = cts.LinkTo(linkedToken);
+            cts._linkedRegistration = linkedToken.UnsafeRegister(_linkedTokenCancelDelegate, cts);
             cts.ResetTimeout();
 
             return cts;
@@ -71,11 +71,6 @@ namespace Yarp.ReverseProxy.Utilities
 #endif
 
             Dispose();
-        }
-
-        public CancellationTokenRegistration LinkTo(CancellationToken linkedToken)
-        {
-            return linkedToken.UnsafeRegister(_linkedTokenCancelDelegate, this);
         }
     }
 }

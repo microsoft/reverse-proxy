@@ -2,46 +2,40 @@
 // Licensed under the MIT License.
 
 using Microsoft.Kubernetes.Fakes;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Polly;
-using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit;
+using Xunit.Sdk;
 
 namespace Microsoft.Kubernetes.Controller.Rate
 {
-    [TestClass]
     public class LimiterTests
     {
-        [TestMethod]
+        [Fact]
         public void FirstTokenIsAvailable()
         {
-            // arrange
             var clock = new FakeSystemClock();
             var limiter = new Limiter(new Limit(10), 1, clock);
 
-            // act
             var allowed = limiter.Allow();
 
-            // assert
-            allowed.ShouldBe(true);
+            Assert.True(allowed);
         }
 
-        [TestMethod]
-        [DataRow(5)]
-        [DataRow(1)]
-        [DataRow(300)]
+        [Theory]
+        [InlineData(5)]
+        [InlineData(1)]
+        [InlineData(300)]
         public void AsManyAsBurstTokensAreAvailableRightAway(int burst)
         {
-            // arrange
             var clock = new FakeSystemClock();
             var limiter = new Limiter(new Limit(10), burst, clock);
 
-            // act
             var allowed = new List<bool>();
             foreach (var index in Enumerable.Range(1, burst))
             {
@@ -49,19 +43,16 @@ namespace Microsoft.Kubernetes.Controller.Rate
             }
             var notAllowed = limiter.Allow();
 
-            // assert
-            allowed.ShouldAllBe(item => item == true);
-            notAllowed.ShouldBeFalse();
+            Assert.All(allowed, item => Assert.True(item));
+            Assert.False(notAllowed);
         }
 
-        [TestMethod]
+        [Fact]
         public void TokensBecomeAvailableAtLimitPerSecondRate()
         {
-            // arrange
             var clock = new FakeSystemClock();
             var limiter = new Limiter(new Limit(10), 50, clock);
 
-            // act
             var initiallyAllowed = limiter.AllowN(clock.UtcNow, 50);
             var thenNotAllowed1 = limiter.Allow();
 
@@ -74,24 +65,21 @@ namespace Microsoft.Kubernetes.Controller.Rate
             var twoTokensAvailable2 = limiter.Allow();
             var thenNotAllowed3 = limiter.Allow();
 
-            // assert
-            initiallyAllowed.ShouldBeTrue();
-            thenNotAllowed1.ShouldBeFalse();
-            oneTokenAvailable.ShouldBeTrue();
-            thenNotAllowed2.ShouldBeFalse();
-            twoTokensAvailable1.ShouldBeTrue();
-            twoTokensAvailable2.ShouldBeTrue();
-            thenNotAllowed3.ShouldBeFalse();
+            Assert.True(initiallyAllowed);
+            Assert.False(thenNotAllowed1);
+            Assert.True(oneTokenAvailable);
+            Assert.False(thenNotAllowed2);
+            Assert.True(twoTokensAvailable1);
+            Assert.True(twoTokensAvailable2);
+            Assert.False(thenNotAllowed3);
         }
 
-        [TestMethod]
+        [Fact]
         public void ReserveTellsYouHowLongToWait()
         {
-            // arrange
             var clock = new FakeSystemClock();
             var limiter = new Limiter(new Limit(10), 50, clock);
 
-            // act
             var initiallyAllowed = limiter.AllowN(clock.UtcNow, 50);
             var thenNotAllowed1 = limiter.Allow();
 
@@ -109,27 +97,24 @@ namespace Microsoft.Kubernetes.Controller.Rate
             var reserveHalfAvailable = limiter.Reserve();
             var delayHalfAvailable = reserveHalfAvailable.Delay();
 
-            // assert
-            initiallyAllowed.ShouldBeTrue();
-            thenNotAllowed1.ShouldBeFalse();
-            reserveOne.Ok.ShouldBeTrue();
-            delayOne.ShouldBe(TimeSpan.FromMilliseconds(100));
-            reserveTwoMore.Ok.ShouldBeTrue();
-            delayTwoMore.ShouldBe(TimeSpan.FromMilliseconds(300));
-            reserveAlreadyAvailable.Ok.ShouldBeTrue();
-            delayAlreadyAvailable.ShouldBe(TimeSpan.Zero);
-            reserveHalfAvailable.Ok.ShouldBeTrue();
-            delayHalfAvailable.ShouldBe(TimeSpan.FromMilliseconds(50));
+            Assert.True(initiallyAllowed);
+            Assert.False(thenNotAllowed1);
+            Assert.True(reserveOne.Ok);
+            Assert.Equal(TimeSpan.FromMilliseconds(100), delayOne);
+            Assert.True(reserveTwoMore.Ok);
+            Assert.Equal(TimeSpan.FromMilliseconds(300), delayTwoMore);
+            Assert.True(reserveAlreadyAvailable.Ok);
+            Assert.Equal(TimeSpan.Zero, delayAlreadyAvailable);
+            Assert.True(reserveHalfAvailable.Ok);
+            Assert.Equal(TimeSpan.FromMilliseconds(50), delayHalfAvailable);
         }
 
-        [TestMethod]
+        [Fact(Skip = "https://github.com/microsoft/reverse-proxy/issues/1357")]
         public async Task WaitAsyncCausesPauseLikeReserve()
         {
-            // arrange
             var limiter = new Limiter(new Limit(10), 5);
             using var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
-            // act
             while (cancellation.IsCancellationRequested == false)
             {
                 var task = limiter.WaitAsync(cancellation.Token);
@@ -162,26 +147,23 @@ namespace Microsoft.Kubernetes.Controller.Rate
             await limiter.WaitAsync(cancellation.Token).ConfigureAwait(false);
             delayHalfAvailable.Stop();
 
-            // assert
-            delayOne.Elapsed.ShouldBe(TimeSpan.FromMilliseconds(100), tolerance: TimeSpan.FromMilliseconds(25));
-            delayTwoMore.Elapsed.ShouldBe(TimeSpan.FromMilliseconds(200), tolerance: TimeSpan.FromMilliseconds(25));
-            delayAlreadyAvailable.Elapsed.ShouldBe(TimeSpan.Zero, tolerance: TimeSpan.FromMilliseconds(5));
-            delayHalfAvailable.Elapsed.ShouldBe(TimeSpan.FromMilliseconds(50), tolerance: TimeSpan.FromMilliseconds(25));
+            Assert.InRange(delayOne.Elapsed, TimeSpan.FromMilliseconds(75), TimeSpan.FromMilliseconds(125));
+            Assert.InRange(delayTwoMore.Elapsed, TimeSpan.FromMilliseconds(175), TimeSpan.FromMilliseconds(225));
+            Assert.InRange(delayAlreadyAvailable.Elapsed, TimeSpan.Zero, TimeSpan.FromMilliseconds(5));
+            Assert.InRange(delayHalfAvailable.Elapsed, TimeSpan.FromMilliseconds(25), TimeSpan.FromMilliseconds(75));
         }
 
-        [TestMethod]
+        [Fact(Skip = "https://github.com/microsoft/reverse-proxy/issues/1357")]
         public async Task ManyWaitsStackUp()
         {
             await Policy
-                .Handle<ShouldAssertException>()
+                .Handle<InRangeException>()
                 .RetryAsync(3)
                 .ExecuteAsync(async () =>
                 {
-                    // arrange
                     var limiter = new Limiter(new Limit(10), 5);
                     using var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
-                    // act
                     while (cancellation.IsCancellationRequested == false)
                     {
                         var task = limiter.WaitAsync(cancellation.Token);
@@ -208,25 +190,24 @@ namespace Microsoft.Kubernetes.Controller.Rate
                         limiter.WaitAsync(cancellation.Token),
                     };
 
-                    var taskOne = await Task.WhenAny(waits.ToArray()).ConfigureAwait(false);
+                    var taskOne = await Task.WhenAny(waits).ConfigureAwait(false);
                     await taskOne.ConfigureAwait(false);
                     delayOne.Stop();
                     waits.Remove(taskOne);
 
-                    var taskTwo = await Task.WhenAny(waits.ToArray()).ConfigureAwait(false);
+                    var taskTwo = await Task.WhenAny(waits).ConfigureAwait(false);
                     await taskTwo.ConfigureAwait(false);
                     delayTwo.Stop();
                     waits.Remove(taskTwo);
 
-                    var taskThree = await Task.WhenAny(waits.ToArray()).ConfigureAwait(false);
+                    var taskThree = await Task.WhenAny(waits).ConfigureAwait(false);
                     await taskThree.ConfigureAwait(false);
                     delayThree.Stop();
                     waits.Remove(taskThree);
 
-                    // assert
-                    delayOne.Elapsed.ShouldBe(TimeSpan.FromMilliseconds(100), tolerance: TimeSpan.FromMilliseconds(25));
-                    delayTwo.Elapsed.ShouldBe(TimeSpan.FromMilliseconds(200), tolerance: TimeSpan.FromMilliseconds(25));
-                    delayThree.Elapsed.ShouldBe(TimeSpan.FromMilliseconds(300), tolerance: TimeSpan.FromMilliseconds(25));
+                    Assert.InRange(delayOne.Elapsed, TimeSpan.FromMilliseconds(75), TimeSpan.FromMilliseconds(125));
+                    Assert.InRange(delayTwo.Elapsed, TimeSpan.FromMilliseconds(175), TimeSpan.FromMilliseconds(225));
+                    Assert.InRange(delayThree.Elapsed, TimeSpan.FromMilliseconds(275), TimeSpan.FromMilliseconds(325));
                 }).ConfigureAwait(false);
         }
     }

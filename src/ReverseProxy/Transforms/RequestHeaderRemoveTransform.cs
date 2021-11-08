@@ -31,10 +31,7 @@ namespace Yarp.ReverseProxy.Transforms
                 throw new ArgumentNullException(nameof(context));
             }
 
-            if (!context.ProxyRequest.Headers.Remove(HeaderName))
-            {
-                context.ProxyRequest.Content?.Headers.Remove(HeaderName);
-            }
+            RemoveHeader(context, HeaderName);
 
             return default;
         }
