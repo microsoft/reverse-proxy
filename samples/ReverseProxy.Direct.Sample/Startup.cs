@@ -58,8 +58,8 @@ namespace Yarp.Sample
                             queryContext.Collection.Remove("param1");
                             queryContext.Collection["area"] = "xx2";
 
-                            // Assign the custom uri. Be careful about extra slashes when concatenating here.
-                            proxyRequest.RequestUri = new Uri("https://example.com" + context.Request.Path + queryContext.QueryString);
+                            // Assign the custom uri. Be careful about extra slashes when concatenating here. RequestUtilities.MakeDestinationAddress is a safe default.
+                            proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress("https://example.com", context.Request.Path, queryContext.QueryString);
 
                             // Suppress the original request header, use the one from the destination Uri.
                             proxyRequest.Headers.Host = null;
@@ -118,8 +118,8 @@ namespace Yarp.Sample
                 queryContext.Collection.Remove("param1");
                 queryContext.Collection["area"] = "xx2";
 
-                // Assign the custom uri. Be careful about extra slashes when concatenating here.
-                proxyRequest.RequestUri = new Uri(destinationPrefix + httpContext.Request.Path + queryContext.QueryString);
+                // Assign the custom uri. Be careful about extra slashes when concatenating here. RequestUtilities.MakeDestinationAddress is a safe default.
+                proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress("https://example.com", context.Request.Path, queryContext.QueryString);
 
                 // Suppress the original request header, use the one from the destination Uri.
                 proxyRequest.Headers.Host = null;
