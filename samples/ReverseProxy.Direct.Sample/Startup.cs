@@ -81,8 +81,8 @@ namespace Yarp.Sample
                 endpoints.Map("/{**catch-all}", async httpContext =>
                 {
                     var error = await forwarder.SendAsync(httpContext, "https://example.com", httpClient, requestOptions, transformer);
-                // Check if the proxy operation was successful
-                if (error != ForwarderError.None)
+                    // Check if the proxy operation was successful
+                    if (error != ForwarderError.None)
                     {
                         var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
                         var exception = errorFeature.Exception;
