@@ -8,7 +8,7 @@
     }
   },
   "profiles": {
-    "ReverseProxy.Sample": {
+    "ReverseProxy.ServiceFabric.Sample": {
       "commandName": "Project",
       "launchBrowser": false,
       "environmentVariables": {

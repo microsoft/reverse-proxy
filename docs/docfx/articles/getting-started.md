@@ -111,7 +111,7 @@ Or create a new ASP.NET Core web application in Visual Studio 2022, and choose "
 
  ```XML
 <ItemGroup> 
-  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-rc.1.*" />
+  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0" />
 </ItemGroup> 
 ```
 
@@ -158,7 +158,7 @@ You can find out more about the available configuration options by looking at [R
     "Clusters": {
       "cluster1": {
         "Destinations": {
-          "cluster1/destination1": {
+          "destination1": {
             "Address": "https://example.com/"
           }
         }
