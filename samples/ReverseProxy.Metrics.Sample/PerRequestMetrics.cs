@@ -38,6 +38,7 @@ namespace Yarp.Sample
         public float HttpResponseHeadersStopOffset { get; set; }
         public float HttpResponseContentStopOffset { get; set; }
 
+        public float HttpRequestStopOffset { get; set; }
         public float ProxyStopOffset { get; set; }
 
         //Info about the request

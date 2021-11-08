@@ -21,7 +21,7 @@ namespace BasicYARPSample
         // the web application via services in the DI container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Add the reverse proxy to capability to the server
+            // Add the reverse proxy capability to the server
             var proxyBuilder = services.AddReverseProxy();
             // Initialize the reverse proxy from the "ReverseProxy" section of configuration
             proxyBuilder.LoadFromConfig(Configuration.GetSection("ReverseProxy"));

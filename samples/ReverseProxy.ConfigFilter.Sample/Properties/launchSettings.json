@@ -8,7 +8,7 @@
     }
   },
   "profiles": {
-    "ReverseProxy.Sample": {
+    "ReverseProxy.ConfigFilter.Sample": {
       "commandName": "Project",
       "environmentVariables": {
         "Key": "Value",

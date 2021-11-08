@@ -8,7 +8,7 @@
     }
   },
   "profiles": {
-    "ReverseProxy.Sample": {
+    "ReverseProxy.Direct.Sample": {
       "commandName": "Project",
       "launchBrowser": false,
       "environmentVariables": {
