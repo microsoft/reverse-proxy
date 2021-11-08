@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "SampleClient": {
+    "TestClient": {
       "commandName": "Project",
       "commandLineArgs": "-t https://localhost:5001"
     }

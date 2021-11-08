@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "ReverseProxy.Sample": {
+    "SampleServer": {
       "commandName": "Project",
       "launchBrowser": false,
       "environmentVariables": {
