@@ -5,11 +5,9 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Class OperatorHandlerTests
-   </title>
+    <title>Distributed tracing </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Class OperatorHandlerTests
-   ">
+    <meta name="title" content="Distributed tracing ">
     <meta name="generator" content="docfx 2.58.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
@@ -68,41 +66,31 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="Microsoft.Kubernetes.Operator.OperatorHandlerTests">
-  
-  
-  <h1 id="Microsoft_Kubernetes_Operator_OperatorHandlerTests" data-uid="Microsoft.Kubernetes.Operator.OperatorHandlerTests" class="text-break">Class OperatorHandlerTests
-  </h1>
-  <div class="markdown level0 summary"></div>
-  <div class="markdown level0 conceptual"></div>
-  <div class="inheritance">
-    <h5>Inheritance</h5>
-    <div class="level0"><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object">Object</a></div>
-    <div class="level1"><span class="xref">OperatorHandlerTests</span></div>
-  </div>
-  <h6><strong>Namespace</strong>: <a class="xref" href="Microsoft.Kubernetes.Operator.html">Microsoft.Kubernetes.Operator</a></h6>
-  <h6><strong>Assembly</strong>: Microsoft.Kubernetes.UnitTests.dll</h6>
-  <h5 id="Microsoft_Kubernetes_Operator_OperatorHandlerTests_syntax">Syntax</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class OperatorHandlerTests : object</code></pre>
-  </div>
-  <h3 id="methods">Methods
-  </h3>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_Operator_OperatorHandlerTests_NotifyWithPrimaryResourceCausesCacheEntryAndQueueItem.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.Operator.OperatorHandlerTests.NotifyWithPrimaryResourceCausesCacheEntryAndQueueItem%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/test/UnitTests/Operator/OperatorHandlerTests.cs/#L21">View Source</a>
-  </span>
-  <a id="Microsoft_Kubernetes_Operator_OperatorHandlerTests_NotifyWithPrimaryResourceCausesCacheEntryAndQueueItem_" data-uid="Microsoft.Kubernetes.Operator.OperatorHandlerTests.NotifyWithPrimaryResourceCausesCacheEntryAndQueueItem*"></a>
-  <h4 id="Microsoft_Kubernetes_Operator_OperatorHandlerTests_NotifyWithPrimaryResourceCausesCacheEntryAndQueueItem" data-uid="Microsoft.Kubernetes.Operator.OperatorHandlerTests.NotifyWithPrimaryResourceCausesCacheEntryAndQueueItem">NotifyWithPrimaryResourceCausesCacheEntryAndQueueItem()</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void NotifyWithPrimaryResourceCausesCacheEntryAndQueueItem()</code></pre>
-  </div>
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="distributed-tracing">Distributed tracing</h1>
+
+<p>As an ASP.NET Core component, YARP can easily integrate into different tracing systems the same as any other web application.
+See detailed guides for setting up your application with:</p>
+<ul>
+<li><a href="https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/docs/trace/getting-started/README.md">OpenTelemetry</a> or</li>
+<li><a href="https://docs.microsoft.com/azure/azure-monitor/app/asp-net-core">Application Insights</a></li>
+</ul>
+<p>.NET 6.0 has built-in configurable support for distributed tracing that YARP takes advantage of to enable such scenarios out-of-the-box.</p>
+<h2 id="net-50-and-older">.NET 5.0 and older</h2>
+<p>Before 6.0, <code>SocketsHttpHandler</code> could not be used with distributed tracing.
+When running on .NET 3.1 or 5.0, YARP will copy tracing headers as-is, not accounting for any changes that may have occurred to the trace within the application.</p>
+<p>To get YARP to actively participate, you must use a workaround to manually insert the correct headers.</p>
+<p>The recommended workaround is to:</p>
+<ul>
+<li>Include a <a href="https://github.com/microsoft/reverse-proxy/blob/main/samples/ReverseProxy.Code.Sample/DiagnosticsHandlerFactory.cs">custom <code>IForwarderHttpClientFactory</code></a> in your project and</li>
+<li>Register it in the DI container
+<pre><code class="lang-c#">#if !NET6_0_OR_GREATER
+services.AddSingleton&lt;IForwarderHttpClientFactory, DiagnosticsHandlerFactory&gt;();
+#endif
+</code></pre>
+</li>
+</ul>
+<p>The workaround mimics the behavior of the internal <code>DiagnosticsHandler</code> class used by <code>HttpClient</code>. As such, it automatically works with instrumentation packages from OpenTelemetry or Application Insights.</p>
 </article>
           </div>
           
@@ -111,10 +99,7 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_Kubernetes_Operator_OperatorHandlerTests.md&amp;value=---%0Auid%3A%20Microsoft.Kubernetes.Operator.OperatorHandlerTests%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
-                  </li>
-                  <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/OperatorFramework/test/UnitTests/Operator/OperatorHandlerTests.cs/#L19" class="contribution-link">View Source</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/docs/docfx/articles/distributed-tracing.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

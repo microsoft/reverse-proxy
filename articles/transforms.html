@@ -136,10 +136,10 @@ X-Forwarded-Host: IncomingHost:5000
       &quot;route2&quot; : {
         &quot;ClusterId&quot;: &quot;cluster1&quot;,
         &quot;Match&quot;: {
-          &quot;Path&quot;: &quot;/api/{plugin}/stuff/{*remainder}&quot;
+          &quot;Path&quot;: &quot;/api/{plugin}/stuff/{**remainder}&quot;
         },
         &quot;Transforms&quot;: [
-          { &quot;PathPattern&quot;: &quot;/foo/{plugin}/bar/{remainder}&quot; },
+          { &quot;PathPattern&quot;: &quot;/foo/{plugin}/bar/{**remainder}&quot; },
           {
             &quot;QueryStringParameter&quot;: &quot;q&quot;,
             &quot;Append&quot;: &quot;plugin&quot;
@@ -302,14 +302,14 @@ X-Forwarded-Host: IncomingHost:5000
 </tbody>
 </table>
 <p>Config:</p>
-<pre><code class="lang-JSON">{ &quot;PathPattern&quot;: &quot;/my/{plugin}/api/{remainder}&quot; }
+<pre><code class="lang-JSON">{ &quot;PathPattern&quot;: &quot;/my/{plugin}/api/{**remainder}&quot; }
 </code></pre>
 <p>Code:</p>
-<pre><code class="lang-csharp">routeConfig = routeConfig.WithTransformPathRouteValues(pattern: new PathString(&quot;/my/{plugin}/api/{remainder}&quot;));
+<pre><code class="lang-csharp">routeConfig = routeConfig.WithTransformPathRouteValues(pattern: new PathString(&quot;/my/{plugin}/api/{**remainder}&quot;));
 </code></pre>
-<pre><code class="lang-C#">transformBuilderContext.AddPathRouteValues(pattern: new PathString(&quot;/my/{plugin}/api/{remainder}&quot;));
+<pre><code class="lang-C#">transformBuilderContext.AddPathRouteValues(pattern: new PathString(&quot;/my/{plugin}/api/{**remainder}&quot;));
 </code></pre>
-<p>This will set the request path with the given value and replace any <code>{}</code> segments with the associated route value. <code>{}</code> segments without a matching route value are removed. See ASP.NET Core's <a href="https://docs.microsoft.com/aspnet/core/fundamentals/routing#route-template-reference">routing docs</a> for more information about route templates.</p>
+<p>This will set the request path with the given value and replace any <code>{}</code> segments with the associated route value. <code>{}</code> segments without a matching route value are removed. The final <code>{}</code> segment can be marked as <code>{**remainder}</code> to indicate this is a catch-all segment that may contain multiple path segments. See ASP.NET Core's <a href="https://docs.microsoft.com/aspnet/core/fundamentals/routing#route-template-reference">routing docs</a> for more information about route templates.</p>
 <p>Example:</p>
 <table>
 <thead>
@@ -321,7 +321,7 @@ X-Forwarded-Host: IncomingHost:5000
 <tbody>
 <tr>
 <td>Route definition</td>
-<td><code>/api/{plugin}/stuff/{*remainder}</code></td>
+<td><code>/api/{plugin}/stuff/{**remainder}</code></td>
 </tr>
 <tr>
 <td>Request path</td>
@@ -337,7 +337,7 @@ X-Forwarded-Host: IncomingHost:5000
 </tr>
 <tr>
 <td>PathPattern</td>
-<td><code>/my/{plugin}/api/{remainder}</code></td>
+<td><code>/my/{plugin}/api/{**remainder}</code></td>
 </tr>
 <tr>
 <td>Result</td>
@@ -970,6 +970,8 @@ X-Forwarded-Prefix: /path/base
 <pre><code>X-Client-Cert: SSdtIGEgY2VydGlmaWNhdGU...
 </code></pre>
 <p>As the inbound and outbound connections are independent, there needs to be a way to pass any inbound client certificate to the destination server. This transform causes the client certificate taken from <code>HttpContext.Connection.ClientCertificate</code> to be Base64 encoded and set as the value for the given header name. The destination server may need that certificate to authenticate the client. There is no standard that defines this header and implementations vary, check your destination server for support.</p>
+<p>Servers do minimal validation on the incoming client certificate by default. The certificate should be validated either in the proxy or the destination, see the <a href="https://docs.microsoft.com/aspnet/core/security/authentication/certauth">client certificate auth</a> docs for details.</p>
+<p>This transform will only apply if the client certificate is already present on the connection. See the <a href="https://docs.microsoft.com/aspnet/core/security/authentication/certauth#optional-client-certificates">optional certs doc</a> if it needs to be requested from the client on a per-route basis.</p>
 <h2 id="response-and-response-trailers">Response and Response Trailers</h2>
 <p>All response headers and trailers are copied from the proxied response to the outgoing client response by default. Response and response trailer transforms may specify if they should be applied only for successful responses or for all responses.</p>
 <p>In code these are implemented as derivations of the abstract classes <a class="xref" href="../api/Yarp.ReverseProxy.Transforms.ResponseTransform.html">ResponseTransform</a> and <a class="xref" href="../api/Yarp.ReverseProxy.Transforms.ResponseTrailersTransform.html">ResponseTrailersTransform</a>.</p>

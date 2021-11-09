@@ -9,7 +9,7 @@
       "output": {
         ".html": {
           "relative_path": "README.html",
-          "hash": "WigFCAdUmjcFdnFnGR0FI7c++YaElPTgQzXmfhAr6ms="
+          "hash": "UlRp4XDyvTy2nC/t80TJJ07w/jAIiS1oajaxU7Pmbk4="
         }
       },
       "is_incremental": false,
@@ -381,7 +381,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.BackgroundHostedServiceTests.html",
-          "hash": "rMdyc8C+ft4SqBXwZRVWfbwCSQZJwaNulolTNMJ27zw="
+          "hash": "kGvNeUl3ggx8TbvSOnP0URqGuM+zEXq+wWBzdKVQvzA="
         }
       },
       "is_incremental": false,
@@ -537,7 +537,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Kubernetes.Controller.Informers.ResourceInformerTests.html",
-          "hash": "it1qfKQpZX6Xf/jsHCvZjfO1RRd/TiK1cPx34SOdtEU="
+          "hash": "8dkMFFHBsP9QAwrlUPcGUSxSCi3i+JTpvjXoy64zHA8="
         }
       },
       "is_incremental": false,
@@ -621,7 +621,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.DelayingQueueTests.html",
-          "hash": "YXdXjKauzEiuR5aL18HwFcSR4BHod5SW9X6Nyk52kmQ="
+          "hash": "VN42nAqOrRfJPzQcRJQRvSiuSYIM3mkB0uBFygf9EUI="
         }
       },
       "is_incremental": false,
@@ -693,7 +693,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.RateLimitingQueueTests.html",
-          "hash": "FB72Bm99bCSDJStvttsKmjT2LZ0k7SxZW7OqteIt/ow="
+          "hash": "BluIkwEfHi4R0g14uk4p6xqJpCIjn96lAElvlQQPG9o="
         }
       },
       "is_incremental": false,
@@ -741,7 +741,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.html",
-          "hash": "gVjzCVdCTi4F9p5RBr/Bf2SJDqIq+CpdQwwxBFxKP/0="
+          "hash": "RDQk2L/0jfosLzxn7NMMrXyC+pZjPOwi+zktXFjxYL8="
         }
       },
       "is_incremental": false,
@@ -777,7 +777,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Kubernetes.Controller.Rate.LimitTests.html",
-          "hash": "2yXPOVqnI1ZH2BGibohcfHnQ7n/kttScCNdvstS/CI4="
+          "hash": "JzEZWSr5ONexJIDDRTIcUkZZ7yOHBcdC4cFjlPP/gYw="
         }
       },
       "is_incremental": false,
@@ -801,7 +801,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Kubernetes.Controller.Rate.LimiterTests.html",
-          "hash": "ndbcqnHJ0J2m4AWKL/jQE+U0I5cqfQ6KRHH2IlsGlI4="
+          "hash": "aC2ikAHDgQxzl+pulQi3EunzbEabFIV6yEGa2BM4vGw="
         }
       },
       "is_incremental": false,
@@ -897,7 +897,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Kubernetes.Controllers.Rate.ReservationTests.html",
-          "hash": "CkLhj5YAc78LdZazLIm5Oic19+ZS449w2XhXPkyhO+o="
+          "hash": "n+mRlKaQHpp82SPlEC4mJIpAGBpgH8Qp9nvtHqdf6NI="
         }
       },
       "is_incremental": false,
@@ -945,7 +945,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Kubernetes.CustomResources.CustomResourceDefinitionGeneratorTests.html",
-          "hash": "CKlIUpMjHCQqlm0U/N5hZ9Rzm3mduRi85HTL82iVoS8="
+          "hash": "RED6ZyS7pj5BCxdLU0Xech9hBtnFfwdiTAJWd6tbnSY="
         }
       },
       "is_incremental": false,
@@ -1137,7 +1137,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Kubernetes.GroupKindNamespacedNameTests.html",
-          "hash": "drbxr1hNxDigMf6ByPOVvl9k5/pUYSwuGe/Qi34gnKs="
+          "hash": "2SUa5ApyMtbuAfMeg0g6qhOLLi599E9dqrrfsEIYo5c="
         }
       },
       "is_incremental": false,
@@ -1161,7 +1161,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Kubernetes.KubernetesCoreExtensionsTests.html",
-          "hash": "E/osELEeWXLNAGw6MWpmvKy8y80PDHJgsh0p/hMdfsw="
+          "hash": "iEgrxlI6hmA/YUXpJJllfCrDcu3rbOGYCC7sXq+MPNs="
         }
       },
       "is_incremental": false,
@@ -1185,7 +1185,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Kubernetes.NamespacedNameTests.html",
-          "hash": "0/K934EiGfopXE65fy4NbEgUfjm/kWGslImtIzAbzRM="
+          "hash": "P4yUkAn/JSitqWmaV8IXE3sO5aUIkyIoqUD+5IsSOm0="
         }
       },
       "is_incremental": false,
@@ -1341,7 +1341,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Kubernetes.Operator.OperatorHandlerTests.html",
-          "hash": "clGPBrxpMp00AJjV+5CnrXJPrpZN5XAmigNWvQYg1b4="
+          "hash": "WRT+SeC+2sizVx3wePQF/zZYHY2H4nTkp56Vjvs+KxQ="
         }
       },
       "is_incremental": false,
@@ -1617,7 +1617,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Kubernetes.ResourceKinds.OpenApi.OpenApiResourceKindProviderTests.html",
-          "hash": "tQ/NaBb6z+IxnCaPHTsKQzGyne8PRxihjBwX/UO1mBM="
+          "hash": "xNYDLA2nEOTBSRc8FRFxJX43nZ7LHAjQ/nD6bT2ypTM="
         }
       },
       "is_incremental": false,
@@ -1761,7 +1761,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.html",
-          "hash": "mlRFnR74/ZfF+0UWfQJsJbqi5I2mErw45moMEvSqT04="
+          "hash": "DQeuxmrtUjyWMRB0Hcqm6brTD6e/Pj71WEwtKoHna3s="
         }
       },
       "is_incremental": false,
@@ -1773,7 +1773,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Kubernetes.Resources.ResourcePatcherTestsBase.html",
-          "hash": "KVbbERCJ50eXeOGAhb4ZO4caJDreb/tHC3PMCcPN568="
+          "hash": "SXoUZI1p1k3wBdjJdBUkdk/VSpHXV/FExvsB+/n19gI="
         }
       },
       "is_incremental": false,
@@ -1785,7 +1785,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Kubernetes.Resources.ResourcePatcherUnknownSchemaTests.html",
-          "hash": "vy0sUfvOtfixQvz76YkQSUGj6Jpqn8QpX/d/QHmMJrQ="
+          "hash": "omyXwNdn88zl4oGzI7naNul2evRZvbB1yRZD/Jnrljc="
         }
       },
       "is_incremental": false,
@@ -1809,7 +1809,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Kubernetes.Resources.ResourceSerializersTests.html",
-          "hash": "fzm/rj6nhElKDDVK5HxSAHomcyEi6Bv/ZKmKpXEcpuA="
+          "hash": "cGlidobGgH+BidApd1ppM0am6b53leyu1dTUDacCaq4="
         }
       },
       "is_incremental": false,
@@ -2685,7 +2685,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Configuration.IProxyConfigFilter.html",
-          "hash": "Pc14sMr8p6w/h6d2qODUISdeP8pQIRRDNg3ubnznrdc="
+          "hash": "Tl6hrMip75WZogQVKBFa6PqNGrle8NhytK2aQVgOOHQ="
         }
       },
       "is_incremental": false,
@@ -2925,7 +2925,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Forwarder.IHttpForwarderExtensions.html",
-          "hash": "YxpODA4OlbArBcVRiH90NF1s8ijJGEry/Q+/LfCvSaQ="
+          "hash": "0/BUiRxBsONMAGJa03hUkOa2eF3OQnfxaOjXEWt9Qb4="
         }
       },
       "is_incremental": false,
@@ -3705,7 +3705,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.PathRouteValuesTransform.html",
-          "hash": "XuLz9lXqcrLsXgi583fx92jIubqn2CF+an34xRyW2iM="
+          "hash": "YAKg+5JVULcEAt8hPLcxQdkW2Ux3ZDJbA/uwSdZjdBw="
         }
       },
       "is_incremental": false,
@@ -3849,7 +3849,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderClientCertTransform.html",
-          "hash": "zplVHus7jwUIQWoBJJ1Euf2AUn84FZt+6PRKiDqDd+w="
+          "hash": "eYyrtF5WejHx5WogS9u02r0T4lPnlXznaa0grGPhhII="
         }
       },
       "is_incremental": false,
@@ -3909,7 +3909,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderXForwardedForTransform.html",
-          "hash": "rdUTYdY67nvWvp6oEJqDDAskSncXMGf+mP1ktEDnE3Q="
+          "hash": "tbq+yOFbq27WDtONrT9/iKFHiFdFUDBZhUMk2zh4mHg="
         }
       },
       "is_incremental": false,
@@ -3921,7 +3921,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderXForwardedHostTransform.html",
-          "hash": "EZF+RnVjMtEQX59DXqG3LmLWSXUr4BQCZAUjC64wnFw="
+          "hash": "NQTXVdlFZSksniuSX4uSNKcgFqNrRveYBdAUdZzzxB4="
         }
       },
       "is_incremental": false,
@@ -3945,7 +3945,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderXForwardedProtoTransform.html",
-          "hash": "D/lonxaJqoOMAaFLySNrBk9WzPZNfaHVa2i4IZSvym4="
+          "hash": "fe7lvq3gmdWF6KQZvjWjm4vqJ0TnVtj9D/EzuYt8iDU="
         }
       },
       "is_incremental": false,
@@ -3981,7 +3981,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestTransform.html",
-          "hash": "cXy4Cu6sDLN6Pwpc9MuM6PXzCP7bJlHnMR1+Rin6jFE="
+          "hash": "D1OLLBVZPFtYkI7BYJR0s3inAlwEFPEVTOWraxt0J9w="
         }
       },
       "is_incremental": false,
@@ -4113,7 +4113,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailersTransform.html",
-          "hash": "9XjRuhq+hP1Pouv8sWrcbErCv5L1An6b1JOHXE08PnM="
+          "hash": "2dduHSROcK0VpNBG1xZOuOwrOaJoQ1rDxbFf2oEnAAs="
         }
       },
       "is_incremental": false,
@@ -4137,7 +4137,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTransform.html",
-          "hash": "u+Njcio1Qkzw025ofAklQq6lMk83jT0ZazGtR9JTvDU="
+          "hash": "LeWwD5okDIIVayF4DGT1i3fDaW7KVsthVsNfSGFdzkI="
         }
       },
       "is_incremental": false,
@@ -4461,7 +4461,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.Telemetry.Consumption.IMetricsConsumer-1.html",
-          "hash": "CRhiia2HCM1YqBYZz9tbezkw6kfLOsc5xl2IOM+cdqg="
+          "hash": "EoOJ9LFj7Z61lu7r0JYVYlZEUkOm5Jl2wGg9RPnxxEM="
         }
       },
       "is_incremental": false,
@@ -4581,7 +4581,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.Telemetry.Consumption.html",
-          "hash": "zsQHVZGjntHIPquoJihZSP0aTs9BQXtzXkLlvhvX3Jc="
+          "hash": "7zC4TnV4SVHMP0bPNsvEnsLduSexEd9UyrK/vaIQP2I="
         }
       },
       "is_incremental": false,
@@ -4697,6 +4697,18 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "articles/diagnosing-yarp-issues.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/diagnosing-yarp-issues.html",
+          "hash": "489halhUkr/gzWbQW3hDXfY25R9jwaPit0IsJhzSHR0="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "articles/direct-forwarding.md",
       "output": {
         ".html": {
@@ -4709,11 +4721,23 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "articles/distributed-tracing.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/distributed-tracing.html",
+          "hash": "kp717olwSYaYDpPiElXsEQRyldK0j3Xf7//GBEg/c8M="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "articles/getting-started.md",
       "output": {
         ".html": {
           "relative_path": "articles/getting-started.html",
-          "hash": "6VHPbZp+p+fQSTMFncpPzgxfHR92REyiF6T/j8Wv3w8="
+          "hash": "n+AXoh/dklBXmL7Kw9AUca9Iy+8FajnYt/FAyLm9XTw="
         }
       },
       "is_incremental": false,
@@ -4726,6 +4750,18 @@
         ".html": {
           "relative_path": "articles/grpc.html",
           "hash": "LMQbd0i5yAjLNYl4BGyTnoitDlveHcAD+WghTQVKa04="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/header-guidelines.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/header-guidelines.html",
+          "hash": "nCoQqIcoUBUNv9IPQHEFIFbqIUvZBkCfUn8PIEo5Nlc="
         }
       },
       "is_incremental": false,
@@ -4750,6 +4786,21 @@
         ".html": {
           "relative_path": "articles/http-client-config.html",
           "hash": "zYvjO8fLgelaQ7iLnLYDOWksNq06v47tMwbKqvRIqnU="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "log_codes": [
+        "InvalidFileLink"
+      ],
+      "type": "Conceptual",
+      "source_relative_path": "articles/https-tls.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/https-tls.html",
+          "hash": "MtL2SGhUG0s3dXvLrdBaeGKC7Pu7lPb8RAO7XUSBrFI="
         }
       },
       "is_incremental": false,
@@ -4785,7 +4836,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/load-balancing.html",
-          "hash": "TkMjpb1ScwuMndkiDU1ZrdQS8OMBuV9BCctbhRY6EUc="
+          "hash": "eOdSgKCH7iHHEalLwC1Vzdx9JGgSvis46CmP0IFJoT4="
         }
       },
       "is_incremental": false,
@@ -4869,7 +4920,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/toc.html",
-          "hash": "JlSeksrtAyQXsLdJq9iyLXL3N8VQHne0F5b8K3M978c="
+          "hash": "JewnyOOoE2Ta1+rqIXu3SC3Enxz23gDhy5F/F83Wedc="
         }
       },
       "is_incremental": false,
@@ -4881,7 +4932,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/transforms.html",
-          "hash": "+jKCwW2MPFP64Eqo4GHf0q0Q1UOlzrqQDdePUwc6EU8="
+          "hash": "b31PZBt8JRS+b9lQZxubOJI63eODMy/No68uyZZyYxs="
         }
       },
       "is_incremental": false,
@@ -4926,7 +4977,7 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 23,
+          "total_file_count": 27,
           "skipped_file_count": 0
         },
         "ManagedReferenceDocumentProcessor": {

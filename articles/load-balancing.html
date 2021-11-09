@@ -140,7 +140,7 @@ public sealed class LastLoadBalancingPolicy : ILoadBalancingPolicy
 {
     public string Name =&gt; &quot;Last&quot;;
 
-    public DestinationState PickDestination(HttpContext context, IReadOnlyList&lt;DestinationState&gt; availableDestinations)
+    public DestinationState? PickDestination(HttpContext context, ClusterState cluster, IReadOnlyList&lt;DestinationState&gt; availableDestinations)
     {
         return availableDestinations[^1];
     }
@@ -151,14 +151,6 @@ services.AddSingleton&lt;ILoadBalancingPolicy, LastLoadBalancingPolicy&gt;();
 
 // Set the LoadBalancingPolicy on the cluster
 cluster.LoadBalancingPolicy = &quot;Last&quot;;
-</code></pre>
-<p>Other information that may be necessary to decide on a destination, such as cluster configuration, can be accessed from the <code>HttpContext</code>:</p>
-<pre><code class="lang-c#">public DestinationState PickDestination(HttpContext context, IReadOnlyList&lt;DestinationState&gt; availableDestinations)
-{
-    var proxyFeature = context.GetReverseProxyFeature();
-    var cluster = proxyFeature.Cluster;
-    // ...
-}
 </code></pre>
 </article>
           </div>

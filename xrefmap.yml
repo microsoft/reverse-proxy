@@ -204,6 +204,9 @@ references:
 - uid: getting-started
   name: Getting Started with YARP
   href: articles/getting-started.html
+- uid: header-guidelines
+  name: Header Guidelines
+  href: articles/header-guidelines.html
 - uid: header-routing
   name: Header Routing
   href: articles/header-routing.html
@@ -2929,32 +2932,6 @@ references:
   isSpec: "True"
   fullName: Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.ShuttingDownReturnsTrueAfterShutdownIsCalled
   nameWithType: WorkQueueTests.ShuttingDownReturnsTrueAfterShutdownIsCalled
-- uid: Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.TestCleanup
-  name: TestCleanup()
-  href: api/Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.html#Microsoft_Kubernetes_Controller_Queues_WorkQueueTests_TestCleanup
-  commentId: M:Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.TestCleanup
-  fullName: Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.TestCleanup()
-  nameWithType: WorkQueueTests.TestCleanup()
-- uid: Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.TestCleanup*
-  name: TestCleanup
-  href: api/Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.html#Microsoft_Kubernetes_Controller_Queues_WorkQueueTests_TestCleanup_
-  commentId: Overload:Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.TestCleanup
-  isSpec: "True"
-  fullName: Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.TestCleanup
-  nameWithType: WorkQueueTests.TestCleanup
-- uid: Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.TestInitialize
-  name: TestInitialize()
-  href: api/Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.html#Microsoft_Kubernetes_Controller_Queues_WorkQueueTests_TestInitialize
-  commentId: M:Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.TestInitialize
-  fullName: Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.TestInitialize()
-  nameWithType: WorkQueueTests.TestInitialize()
-- uid: Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.TestInitialize*
-  name: TestInitialize
-  href: api/Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.html#Microsoft_Kubernetes_Controller_Queues_WorkQueueTests_TestInitialize_
-  commentId: Overload:Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.TestInitialize
-  isSpec: "True"
-  fullName: Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.TestInitialize
-  nameWithType: WorkQueueTests.TestInitialize
 - uid: Microsoft.Kubernetes.Controller.Rate
   name: Microsoft.Kubernetes.Controller.Rate
   href: api/Microsoft.Kubernetes.Controller.Rate.html
@@ -7091,19 +7068,6 @@ references:
   isSpec: "True"
   fullName: Microsoft.Kubernetes.ResourceKinds.OpenApi.OpenApiResourceKindProviderTests.BuiltInResourceKindsCanBeFound
   nameWithType: OpenApiResourceKindProviderTests.BuiltInResourceKindsCanBeFound
-- uid: Microsoft.Kubernetes.ResourceKinds.OpenApi.OpenApiResourceKindProviderTests.ClassInitialize(TestContext)
-  name: ClassInitialize(TestContext)
-  href: api/Microsoft.Kubernetes.ResourceKinds.OpenApi.OpenApiResourceKindProviderTests.html#Microsoft_Kubernetes_ResourceKinds_OpenApi_OpenApiResourceKindProviderTests_ClassInitialize_TestContext_
-  commentId: M:Microsoft.Kubernetes.ResourceKinds.OpenApi.OpenApiResourceKindProviderTests.ClassInitialize(TestContext)
-  fullName: Microsoft.Kubernetes.ResourceKinds.OpenApi.OpenApiResourceKindProviderTests.ClassInitialize(TestContext)
-  nameWithType: OpenApiResourceKindProviderTests.ClassInitialize(TestContext)
-- uid: Microsoft.Kubernetes.ResourceKinds.OpenApi.OpenApiResourceKindProviderTests.ClassInitialize*
-  name: ClassInitialize
-  href: api/Microsoft.Kubernetes.ResourceKinds.OpenApi.OpenApiResourceKindProviderTests.html#Microsoft_Kubernetes_ResourceKinds_OpenApi_OpenApiResourceKindProviderTests_ClassInitialize_
-  commentId: Overload:Microsoft.Kubernetes.ResourceKinds.OpenApi.OpenApiResourceKindProviderTests.ClassInitialize
-  isSpec: "True"
-  fullName: Microsoft.Kubernetes.ResourceKinds.OpenApi.OpenApiResourceKindProviderTests.ClassInitialize
-  nameWithType: OpenApiResourceKindProviderTests.ClassInitialize
 - uid: Microsoft.Kubernetes.ResourceKinds.OpenApi.OpenApiResourceKindProviderTests.DictionaryHasInformationAboutContents
   name: DictionaryHasInformationAboutContents()
   href: api/Microsoft.Kubernetes.ResourceKinds.OpenApi.OpenApiResourceKindProviderTests.html#Microsoft_Kubernetes_ResourceKinds_OpenApi_OpenApiResourceKindProviderTests_DictionaryHasInformationAboutContents
@@ -7630,6 +7594,19 @@ references:
   commentId: T:Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests
   fullName: Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests
   nameWithType: ResourcePatcherOpenApiSchemaTests
+- uid: Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.#ctor
+  name: ResourcePatcherOpenApiSchemaTests()
+  href: api/Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.html#Microsoft_Kubernetes_Resources_ResourcePatcherOpenApiSchemaTests__ctor
+  commentId: M:Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.#ctor
+  fullName: Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.ResourcePatcherOpenApiSchemaTests()
+  nameWithType: ResourcePatcherOpenApiSchemaTests.ResourcePatcherOpenApiSchemaTests()
+- uid: Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.#ctor*
+  name: ResourcePatcherOpenApiSchemaTests
+  href: api/Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.html#Microsoft_Kubernetes_Resources_ResourcePatcherOpenApiSchemaTests__ctor_
+  commentId: Overload:Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.#ctor
+  isSpec: "True"
+  fullName: Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.ResourcePatcherOpenApiSchemaTests
+  nameWithType: ResourcePatcherOpenApiSchemaTests.ResourcePatcherOpenApiSchemaTests
 - uid: Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.ArrayOfPrimativesReplacedEntirelyWhenDifferent
   name: ArrayOfPrimativesReplacedEntirelyWhenDifferent()
   href: api/Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.html#Microsoft_Kubernetes_Resources_ResourcePatcherOpenApiSchemaTests_ArrayOfPrimativesReplacedEntirelyWhenDifferent
@@ -7656,19 +7633,6 @@ references:
   isSpec: "True"
   fullName: Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.ArrayWithMergeKeyTreatedAsDictionary
   nameWithType: ResourcePatcherOpenApiSchemaTests.ArrayWithMergeKeyTreatedAsDictionary
-- uid: Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.ClassInitialize(TestContext)
-  name: ClassInitialize(TestContext)
-  href: api/Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.html#Microsoft_Kubernetes_Resources_ResourcePatcherOpenApiSchemaTests_ClassInitialize_TestContext_
-  commentId: M:Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.ClassInitialize(TestContext)
-  fullName: Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.ClassInitialize(TestContext)
-  nameWithType: ResourcePatcherOpenApiSchemaTests.ClassInitialize(TestContext)
-- uid: Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.ClassInitialize*
-  name: ClassInitialize
-  href: api/Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.html#Microsoft_Kubernetes_Resources_ResourcePatcherOpenApiSchemaTests_ClassInitialize_
-  commentId: Overload:Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.ClassInitialize
-  isSpec: "True"
-  fullName: Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.ClassInitialize
-  nameWithType: ResourcePatcherOpenApiSchemaTests.ClassInitialize
 - uid: Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.DictionaryOfPrimativesAddedAndRemoved
   name: DictionaryOfPrimativesAddedAndRemoved()
   href: api/Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.html#Microsoft_Kubernetes_Resources_ResourcePatcherOpenApiSchemaTests_DictionaryOfPrimativesAddedAndRemoved
@@ -7851,19 +7815,6 @@ references:
   isSpec: "True"
   fullName: Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.SharedManager
   nameWithType: ResourcePatcherOpenApiSchemaTests.SharedManager
-- uid: Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.TestInitialize
-  name: TestInitialize()
-  href: api/Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.html#Microsoft_Kubernetes_Resources_ResourcePatcherOpenApiSchemaTests_TestInitialize
-  commentId: M:Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.TestInitialize
-  fullName: Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.TestInitialize()
-  nameWithType: ResourcePatcherOpenApiSchemaTests.TestInitialize()
-- uid: Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.TestInitialize*
-  name: TestInitialize
-  href: api/Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.html#Microsoft_Kubernetes_Resources_ResourcePatcherOpenApiSchemaTests_TestInitialize_
-  commentId: Overload:Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.TestInitialize
-  isSpec: "True"
-  fullName: Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.TestInitialize
-  nameWithType: ResourcePatcherOpenApiSchemaTests.TestInitialize
 - uid: Microsoft.Kubernetes.Resources.ResourcePatcherTestsBase
   name: ResourcePatcherTestsBase
   href: api/Microsoft.Kubernetes.Resources.ResourcePatcherTestsBase.html
