@@ -6,5 +6,6 @@
   <PropertyGroup>
     <IsShipping>true</IsShipping>
     <IsPackable>true</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 </Project>

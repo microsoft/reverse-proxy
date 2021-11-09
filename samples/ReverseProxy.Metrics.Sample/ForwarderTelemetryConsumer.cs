@@ -24,7 +24,6 @@ namespace Yarp.Sample
         public void OnForwarderFailed(DateTime timestamp, ForwarderError error)
         {
             var metrics = PerRequestMetrics.Current;
-            metrics.ProxyStopOffset = metrics.CalcOffset(timestamp);
             metrics.Error = error;
         }
 

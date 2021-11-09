@@ -4,57 +4,46 @@
 using k8s;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Kubernetes.Resources;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Shouldly;
+using Xunit;
 
 namespace Microsoft.Kubernetes
 {
-    [TestClass]
     public class KubernetesCoreExtensionsTests
     {
-        [TestMethod]
+        [Fact]
         public void KubernetesClientIsAdded()
         {
-            // arrange 
             var services = new ServiceCollection();
 
-            // act
             services.AddKubernetesCore();
 
-            // assert
             var serviceProvider = services.BuildServiceProvider();
-            serviceProvider.GetService<IKubernetes>().ShouldNotBeNull();
+            Assert.NotNull(serviceProvider.GetService<IKubernetes>());
         }
 
-        [TestMethod]
+        [Fact]
         public void HelperServicesAreAdded()
         {
-            // arrange 
             var services = new ServiceCollection();
 
-            // act
             services.AddKubernetesCore();
 
-            // assert
             var serviceProvider = services.BuildServiceProvider();
-            serviceProvider.GetService<IResourceSerializers>().ShouldNotBeNull();
+            Assert.NotNull(serviceProvider.GetService<IResourceSerializers>());
         }
 
 
-        [TestMethod]
+        [Fact]
         public void ExistingClientIsNotReplaced()
         {
-            // arrange 
             using var client = new k8s.Kubernetes(KubernetesClientConfiguration.BuildDefaultConfig());
             var services = new ServiceCollection();
 
-            // act
             services.AddSingleton<IKubernetes>(client);
             services.AddKubernetesCore();
 
-            // assert
             var serviceProvider = services.BuildServiceProvider();
-            serviceProvider.GetService<IKubernetes>().ShouldBeSameAs(client);
+            Assert.Same(client, serviceProvider.GetService<IKubernetes>());
         }
     }
 }
