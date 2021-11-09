@@ -13,12 +13,12 @@ YARP 1.0.0 Preview 12 supports ASP.NET Core 3.1, 5.0 & 6.0. You can download the
 
 Visual Studio support for .NET 5 is included in Visual Studio 2019 v16.8 or newer.
 
-Visual Studio support for .NET 6 is included in Visual Studio 2022 previews.
+Visual Studio support for .NET 6 is included in Visual Studio 2022.
 
 
 ## .NET Core 3.1 & 5.0
 
-A fully commented variant of the getting started app can be found at [Basic YARP Sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/BasicYarpSample)
+A fully commented variant of the getting started app can be found at [Basic YARP Sample](https://github.com/microsoft/reverse-proxy/tree/release/latest/samples/BasicYarpSample)
 
 ### Create a new project
 
@@ -46,7 +46,7 @@ And then add:
  
  ```XML
 <ItemGroup> 
-  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0-preview.12.*" />
+  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0" />
 </ItemGroup> 
 ```
 
