@@ -6,9 +6,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
-using Microsoft.Extensions.Configuration;
 
-namespace Yarp.ReverseProxy.Configuration.ConfigProvider;
+namespace Microsoft.Extensions.Configuration;
 
 internal static class ConfigurationReadingExtensions
 {
