@@ -129,10 +129,10 @@ stages:
             artifactType: Container
             parallel: true
 
-      - job: macOS_10_14
-        displayName: 'macOS 10.14'
+      - job: macOS_latest
+        displayName: 'macOS latest'
         pool:
-          vmImage: macOS-10.14
+          vmImage: macOS-latest
         variables:
         - name: _SignType
           value: none
