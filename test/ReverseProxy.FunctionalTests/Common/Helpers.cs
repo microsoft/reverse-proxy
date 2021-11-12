@@ -7,13 +7,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 
-namespace Yarp.ReverseProxy
+namespace Yarp.ReverseProxy;
+
+public static class Helpers
 {
-    public static class Helpers
+    public static string GetAddress(this IHost server)
     {
-        public static string GetAddress(this IHost server)
-        {
-            return server.Services.GetService<IServer>().Features.Get<IServerAddressesFeature>().Addresses.First();
-        }
+        return server.Services.GetService<IServer>().Features.Get<IServerAddressesFeature>().Addresses.First();
     }
 }

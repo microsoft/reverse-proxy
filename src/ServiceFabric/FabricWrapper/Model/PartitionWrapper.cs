@@ -3,11 +3,10 @@
 
 using System;
 
-namespace Yarp.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric;
+
+internal sealed class PartitionWrapper
 {
-    internal sealed class PartitionWrapper
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-    }
+    public Guid Id { get; set; }
+    public string Name { get; set; }
 }

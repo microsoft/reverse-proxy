@@ -3,16 +3,15 @@
 
 using System;
 
-namespace Yarp.Tests.Common
-{
-    public class TestRandom : Random
-    {
-        public int[] Sequence { get; set; }
-        public int Offset { get; set; }
+namespace Yarp.Tests.Common;
 
-        public override int Next(int maxValue)
-        {
-            return Sequence[Offset++];
-        }
+public class TestRandom : Random
+{
+    public int[] Sequence { get; set; }
+    public int Offset { get; set; }
+
+    public override int Next(int maxValue)
+    {
+        return Sequence[Offset++];
     }
 }

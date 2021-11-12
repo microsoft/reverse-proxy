@@ -3,10 +3,9 @@
 
 using System.Fabric;
 
-namespace Yarp.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric;
+
+internal interface IFabricClientWrapper
 {
-    internal interface IFabricClientWrapper
-    {
-        FabricClient FabricClient { get; }
-    }
+    FabricClient FabricClient { get; }
 }

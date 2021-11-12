@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Yarp.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric;
+
+internal enum StatefulReplicaSelectionMode
 {
-    internal enum StatefulReplicaSelectionMode
-    {
-        All,
-        Primary,
-        ActiveSecondary,
-    }
+    All,
+    Primary,
+    ActiveSecondary,
 }

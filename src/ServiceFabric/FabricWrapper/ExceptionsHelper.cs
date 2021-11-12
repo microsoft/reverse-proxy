@@ -6,45 +6,44 @@ using System.Fabric;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Yarp.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric;
+
+internal static class ExceptionsHelper
 {
-    internal static class ExceptionsHelper
+    /// <summary>
+    /// Translates Service Fabric's <see cref="FabricTransientException"/>
+    /// into the appropriate <see cref="OperationCanceledException"/> when it represents a deliberate cancellation.
+    /// </summary>
+    public static Task TranslateCancellations(Func<Task> func, CancellationToken cancellation)
     {
-        /// <summary>
-        /// Translates Service Fabric's <see cref="FabricTransientException"/>
-        /// into the appropriate <see cref="OperationCanceledException"/> when it represents a deliberate cancellation.
-        /// </summary>
-        public static Task TranslateCancellations(Func<Task> func, CancellationToken cancellation)
+        return TranslateCancellations(
+            async () =>
+            {
+                await func();
+                return 0;
+            },
+            cancellation);
+    }
+
+    /// <summary>
+    /// Translates Service Fabric's <see cref="FabricTransientException"/>
+    /// into the appropriate <see cref="OperationCanceledException"/> when it represents a deliberate cancellation.
+    /// </summary>
+    public static async Task<TResult> TranslateCancellations<TResult>(Func<Task<TResult>> func, CancellationToken cancellation)
+    {
+        try
         {
-            return TranslateCancellations(
-                async () =>
-                {
-                    await func();
-                    return 0;
-                },
-                cancellation);
+            return await func();
         }
-
-        /// <summary>
-        /// Translates Service Fabric's <see cref="FabricTransientException"/>
-        /// into the appropriate <see cref="OperationCanceledException"/> when it represents a deliberate cancellation.
-        /// </summary>
-        public static async Task<TResult> TranslateCancellations<TResult>(Func<Task<TResult>> func, CancellationToken cancellation)
+        catch (FabricTransientException ex)
         {
-            try
+            if (ex.ErrorCode == FabricErrorCode.OperationCanceled && cancellation.IsCancellationRequested)
             {
-                return await func();
+                cancellation.ThrowIfCancellationRequested();
+                throw new InvalidOperationException("Execution should never get here...");
             }
-            catch (FabricTransientException ex)
-            {
-                if (ex.ErrorCode == FabricErrorCode.OperationCanceled && cancellation.IsCancellationRequested)
-                {
-                    cancellation.ThrowIfCancellationRequested();
-                    throw new InvalidOperationException("Execution should never get here...");
-                }
 
-                throw;
-            }
+            throw;
         }
     }
 }

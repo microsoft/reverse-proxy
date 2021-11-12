@@ -4,20 +4,19 @@
 using System;
 using System.Fabric;
 
-namespace Yarp.ReverseProxy.ServiceFabric
+namespace Yarp.ReverseProxy.ServiceFabric;
+
+internal sealed class FabricClientWrapper : IFabricClientWrapper, IDisposable
 {
-    internal sealed class FabricClientWrapper : IFabricClientWrapper, IDisposable
+    public FabricClientWrapper()
     {
-        public FabricClientWrapper()
-        {
-            FabricClient = new FabricClient();
-        }
+        FabricClient = new FabricClient();
+    }
 
-        public FabricClient FabricClient { get; }
+    public FabricClient FabricClient { get; }
 
-        public void Dispose()
-        {
-            FabricClient.Dispose();
-        }
+    public void Dispose()
+    {
+        FabricClient.Dispose();
     }
 }

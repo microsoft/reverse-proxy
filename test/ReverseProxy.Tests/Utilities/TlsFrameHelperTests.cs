@@ -9,152 +9,152 @@ using System.Net.Security;
 using System.Security.Authentication;
 using Xunit;
 
-namespace Yarp.ReverseProxy.Utilities.Tls.Tests
+namespace Yarp.ReverseProxy.Utilities.Tls.Tests;
+
+public class TlsFrameHelperTests
 {
-    public class TlsFrameHelperTests
+    [Fact]
+    public void SniHelper_ValidData_Ok()
     {
-        [Fact]
-        public void SniHelper_ValidData_Ok()
-        {
-            InvalidClientHello(s_validClientHello, -1, shouldPass: true);
-        }
+        InvalidClientHello(s_validClientHello, -1, shouldPass: true);
+    }
 
-        [Theory]
-        [MemberData(nameof(InvalidClientHelloData))]
-        public void SniHelper_InvalidData_Fails(int id, byte[] clientHello)
-        {
-            InvalidClientHello(clientHello, id, shouldPass: false);
-        }
+    [Theory]
+    [MemberData(nameof(InvalidClientHelloData))]
+    public void SniHelper_InvalidData_Fails(int id, byte[] clientHello)
+    {
+        InvalidClientHello(clientHello, id, shouldPass: false);
+    }
 
-        [Theory]
-        [MemberData(nameof(InvalidClientHelloDataTruncatedBytes))]
-        public void SniHelper_TruncatedData_Fails(int id, byte[] clientHello)
-        {
-            InvalidClientHello(clientHello, id, shouldPass: false);
-        }
+    [Theory]
+    [MemberData(nameof(InvalidClientHelloDataTruncatedBytes))]
+    public void SniHelper_TruncatedData_Fails(int id, byte[] clientHello)
+    {
+        InvalidClientHello(clientHello, id, shouldPass: false);
+    }
 
-        private void InvalidClientHello(byte[] clientHello, int id, bool shouldPass)
+    private void InvalidClientHello(byte[] clientHello, int id, bool shouldPass)
+    {
+        var ret = TlsFrameHelper.GetServerName(clientHello);
+        if (shouldPass)
         {
-            var ret = TlsFrameHelper.GetServerName(clientHello);
-            if (shouldPass)
+            Assert.NotNull(ret);
+        }
+        else
+        {
+            Assert.Null(ret);
+        }
+    }
+
+    [Fact]
+    public void TlsFrameHelper_ValidData_Ok()
+    {
+        TlsFrameHelper.TlsFrameInfo info = default;
+        Assert.True(TlsFrameHelper.TryGetFrameInfo(s_validClientHello, ref info));
+
+        Assert.Equal(SslProtocols.Tls12, info.Header.Version);
+        Assert.Equal(203, info.Header.Length);
+        Assert.Equal(SslProtocols.Tls12, info.SupportedVersions);
+        Assert.Equal(TlsFrameHelper.ApplicationProtocolInfo.None, info.ApplicationProtocols);
+    }
+
+    [Fact]
+    public void TlsFrameHelper_Tls12ClientHello_Ok()
+    {
+        TlsFrameHelper.TlsFrameInfo info = default;
+        Assert.True(TlsFrameHelper.TryGetFrameInfo(s_Tls12ClientHello, ref info));
+
+        Assert.Equal(SslProtocols.Tls, info.Header.Version);
+        Assert.Equal(SslProtocols.Tls | SslProtocols.Tls12, info.SupportedVersions);
+        Assert.Equal(TlsFrameHelper.ApplicationProtocolInfo.Http11 | TlsFrameHelper.ApplicationProtocolInfo.Http2, info.ApplicationProtocols);
+
+        Assert.Equal(46, info.TlsCipherSuites.Length);
+        int expectedCiphersCount = 0;
+        for (int i = 0; i < info.TlsCipherSuites.Length; i++)
+        {
+            // spotcheck on ciphers
+            if (info.TlsCipherSuites.Span[i] == TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 ||
+                info.TlsCipherSuites.Span[i] == TlsCipherSuite.TLS_RSA_WITH_AES_128_GCM_SHA256 ||
+                info.TlsCipherSuites.Span[i] == TlsCipherSuite.TLS_RSA_WITH_RC4_128_SHA)
             {
-                Assert.NotNull(ret);
-            }
-            else
-            {
-                Assert.Null(ret);
-            }
-        }
-
-        [Fact]
-        public void TlsFrameHelper_ValidData_Ok()
-        {
-            TlsFrameHelper.TlsFrameInfo info = default;
-            Assert.True(TlsFrameHelper.TryGetFrameInfo(s_validClientHello, ref info));
-
-            Assert.Equal(SslProtocols.Tls12, info.Header.Version);
-            Assert.Equal(203, info.Header.Length);
-            Assert.Equal(SslProtocols.Tls12, info.SupportedVersions);
-            Assert.Equal(TlsFrameHelper.ApplicationProtocolInfo.None, info.ApplicationProtocols);
-        }
-
-        [Fact]
-        public void TlsFrameHelper_Tls12ClientHello_Ok()
-        {
-            TlsFrameHelper.TlsFrameInfo info = default;
-            Assert.True(TlsFrameHelper.TryGetFrameInfo(s_Tls12ClientHello, ref info));
-
-            Assert.Equal(SslProtocols.Tls, info.Header.Version);
-            Assert.Equal(SslProtocols.Tls|SslProtocols.Tls12, info.SupportedVersions);
-            Assert.Equal(TlsFrameHelper.ApplicationProtocolInfo.Http11 | TlsFrameHelper.ApplicationProtocolInfo.Http2, info.ApplicationProtocols);
-
-            Assert.Equal(46, info.TlsCipherSuites.Length);
-            int expectedCiphersCount = 0;
-            for (int i = 0 ; i < info.TlsCipherSuites.Length; i++)
-            {
-                // spotcheck on ciphers
-                if (info.TlsCipherSuites.Span[i] == TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 ||
-                    info.TlsCipherSuites.Span[i] == TlsCipherSuite.TLS_RSA_WITH_AES_128_GCM_SHA256 ||
-                    info.TlsCipherSuites.Span[i] == TlsCipherSuite.TLS_RSA_WITH_RC4_128_SHA)
-                {
-                    expectedCiphersCount++;
-                }
-            }
-            Assert.Equal(3, expectedCiphersCount);
-        }
-
-        [Fact]
-        public void TlsFrameHelper_Tls13ClientHello_Ok()
-        {
-            TlsFrameHelper.TlsFrameInfo info = default;
-            Assert.True(TlsFrameHelper.TryGetFrameInfo(s_Tls13ClientHello, ref info));
-
-            Assert.Equal(SslProtocols.Tls, info.Header.Version);
-            Assert.Equal(SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12 | SslProtocols.Tls13, info.SupportedVersions);
-            Assert.Equal(TlsFrameHelper.ApplicationProtocolInfo.Other, info.ApplicationProtocols);
-
-            Assert.Equal(6, info.TlsCipherSuites.Length);
-            int expectedCiphersCount = 0;
-            for (int i = 0; i < info.TlsCipherSuites.Length; i++)
-            {
-                if (info.TlsCipherSuites.Span[i] == TlsCipherSuite.TLS_AES_256_GCM_SHA384 ||
-                    info.TlsCipherSuites.Span[i] == TlsCipherSuite.TLS_CHACHA20_POLY1305_SHA256 ||
-                    info.TlsCipherSuites.Span[i] == TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384)
-                {
-                    expectedCiphersCount++;
-                }
-            }
-            Assert.Equal(3, expectedCiphersCount);
-
-        }
-
-        [Fact]
-        public void TlsFrameHelper_Tls12ServerHello_Ok()
-        {
-            TlsFrameHelper.TlsFrameInfo info = default;
-            Assert.True(TlsFrameHelper.TryGetFrameInfo(s_Tls12ServerHello, ref info));
-
-            Assert.Equal(SslProtocols.Tls12, info.Header.Version);
-            Assert.Equal(SslProtocols.Tls12, info.SupportedVersions);
-            Assert.Equal(TlsFrameHelper.ApplicationProtocolInfo.Http2, info.ApplicationProtocols);
-        }
-
-        public static IEnumerable<object[]> InvalidClientHelloData()
-        {
-            int id = 0;
-            foreach (byte[] invalidClientHello in InvalidClientHello())
-            {
-                id++;
-                yield return new object[] { id, invalidClientHello };
+                expectedCiphersCount++;
             }
         }
+        Assert.Equal(3, expectedCiphersCount);
+    }
 
-        public static IEnumerable<object[]> InvalidClientHelloDataTruncatedBytes()
+    [Fact]
+    public void TlsFrameHelper_Tls13ClientHello_Ok()
+    {
+        TlsFrameHelper.TlsFrameInfo info = default;
+        Assert.True(TlsFrameHelper.TryGetFrameInfo(s_Tls13ClientHello, ref info));
+
+        Assert.Equal(SslProtocols.Tls, info.Header.Version);
+        Assert.Equal(SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12 | SslProtocols.Tls13, info.SupportedVersions);
+        Assert.Equal(TlsFrameHelper.ApplicationProtocolInfo.Other, info.ApplicationProtocols);
+
+        Assert.Equal(6, info.TlsCipherSuites.Length);
+        int expectedCiphersCount = 0;
+        for (int i = 0; i < info.TlsCipherSuites.Length; i++)
         {
-            // converting to base64 first to remove duplicated test cases
-            var uniqueInvalidHellos = new HashSet<string>();
-            foreach (byte[] invalidClientHello in InvalidClientHello())
+            if (info.TlsCipherSuites.Span[i] == TlsCipherSuite.TLS_AES_256_GCM_SHA384 ||
+                info.TlsCipherSuites.Span[i] == TlsCipherSuite.TLS_CHACHA20_POLY1305_SHA256 ||
+                info.TlsCipherSuites.Span[i] == TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384)
             {
-                for (int i = 0; i < invalidClientHello.Length - 1; i++)
-                {
-                    uniqueInvalidHellos.Add(Convert.ToBase64String(invalidClientHello.Take(i).ToArray()));
-                }
+                expectedCiphersCount++;
             }
+        }
+        Assert.Equal(3, expectedCiphersCount);
 
-            for (int i = 0; i < s_validClientHello.Length - 1; i++)
-            {
-                uniqueInvalidHellos.Add(Convert.ToBase64String(s_validClientHello.Take(i).ToArray()));
-            }
+    }
 
-            int id = 0;
-            foreach (string invalidClientHello in uniqueInvalidHellos)
+    [Fact]
+    public void TlsFrameHelper_Tls12ServerHello_Ok()
+    {
+        TlsFrameHelper.TlsFrameInfo info = default;
+        Assert.True(TlsFrameHelper.TryGetFrameInfo(s_Tls12ServerHello, ref info));
+
+        Assert.Equal(SslProtocols.Tls12, info.Header.Version);
+        Assert.Equal(SslProtocols.Tls12, info.SupportedVersions);
+        Assert.Equal(TlsFrameHelper.ApplicationProtocolInfo.Http2, info.ApplicationProtocols);
+    }
+
+    public static IEnumerable<object[]> InvalidClientHelloData()
+    {
+        int id = 0;
+        foreach (byte[] invalidClientHello in InvalidClientHello())
+        {
+            id++;
+            yield return new object[] { id, invalidClientHello };
+        }
+    }
+
+    public static IEnumerable<object[]> InvalidClientHelloDataTruncatedBytes()
+    {
+        // converting to base64 first to remove duplicated test cases
+        var uniqueInvalidHellos = new HashSet<string>();
+        foreach (byte[] invalidClientHello in InvalidClientHello())
+        {
+            for (int i = 0; i < invalidClientHello.Length - 1; i++)
             {
-                id++;
-                yield return new object[] { id, Convert.FromBase64String(invalidClientHello) };
+                uniqueInvalidHellos.Add(Convert.ToBase64String(invalidClientHello.Take(i).ToArray()));
             }
         }
 
-        private static byte[] s_validClientHello = new byte[] {
+        for (int i = 0; i < s_validClientHello.Length - 1; i++)
+        {
+            uniqueInvalidHellos.Add(Convert.ToBase64String(s_validClientHello.Take(i).ToArray()));
+        }
+
+        int id = 0;
+        foreach (string invalidClientHello in uniqueInvalidHellos)
+        {
+            id++;
+            yield return new object[] { id, Convert.FromBase64String(invalidClientHello) };
+        }
+    }
+
+    private static byte[] s_validClientHello = new byte[] {
             // SslPlainText.(ContentType+ProtocolVersion)
             0x16, 0x03, 0x03,
             // SslPlainText.length
@@ -242,7 +242,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
             0x00, 0x01, 0x00
         };
 
-        private static byte[] s_Tls12ClientHello = new byte[] {
+    private static byte[] s_Tls12ClientHello = new byte[] {
             // SslPlainText.(ContentType+ProtocolVersion)
             0x16, 0x03, 0x01,
             // SslPlainText.length
@@ -300,7 +300,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
             0x2E, 0x31
         };
 
-        private static byte[] s_Tls13ClientHello = new byte[] {
+    private static byte[] s_Tls13ClientHello = new byte[] {
             // SslPlainText.(ContentType+ProtocolVersion)
             0x16, 0x03, 0x01,
             // SslPlainText.length
@@ -370,7 +370,7 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
             0x03, 0x01, 0x03, 0x03, 0x02, 0x01, 0x02, 0x03
         };
 
-        private static byte[] s_Tls12ServerHello = new byte[] {
+    private static byte[] s_Tls12ServerHello = new byte[] {
             // SslPlainText.(ContentType+ProtocolVersion)
             0x16, 0x03, 0x03,
             // SslPlainText.length
@@ -412,16 +412,16 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
             0x00, 0x10, 0x00, 0x05, 0x00, 0x03, 0x02, 0x68, 0x32,
         };
 
-        private static IEnumerable<byte[]> InvalidClientHello()
-        {
-            // This test covers following test cases:
-            // - Length of structure off by 1 (search for "length off by 1")
-            // - Length of structure is max length (search for "max length")
-            // - Type is invalid or unknown (i.e. SslPlainText.ClientType is not 0x16 - search for "unknown")
-            // - Invalid utf-8 characters
-            // in each case sni will be null or will cause parsing error - we only expect some parsing errors,
-            // anything else is considered a bug
-            yield return new byte[] {
+    private static IEnumerable<byte[]> InvalidClientHello()
+    {
+        // This test covers following test cases:
+        // - Length of structure off by 1 (search for "length off by 1")
+        // - Length of structure is max length (search for "max length")
+        // - Type is invalid or unknown (i.e. SslPlainText.ClientType is not 0x16 - search for "unknown")
+        // - Invalid utf-8 characters
+        // in each case sni will be null or will cause parsing error - we only expect some parsing errors,
+        // anything else is considered a bug
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -509,8 +509,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x02, 0x00
             };
 
-            // #2
-            yield return new byte[] {
+        // #2
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -598,8 +598,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0xFF, 0xFF, 0x00
             };
 
-            // #3
-            yield return new byte[] {
+        // #3
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -687,8 +687,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #4
-            yield return new byte[] {
+        // #4
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -776,8 +776,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #5
-            yield return new byte[] {
+        // #5
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -865,8 +865,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #6
-            yield return new byte[] {
+        // #6
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -954,8 +954,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #7
-            yield return new byte[] {
+        // #7
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -1043,8 +1043,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #8
-            yield return new byte[] {
+        // #8
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -1132,8 +1132,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #9
-            yield return new byte[] {
+        // #9
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -1221,8 +1221,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #10
-            yield return new byte[] {
+        // #10
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -1310,8 +1310,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #11
-            yield return new byte[] {
+        // #11
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -1399,8 +1399,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #10
-            yield return new byte[] {
+        // #10
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -1488,8 +1488,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #13
-            yield return new byte[] {
+        // #13
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -1577,8 +1577,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #14
-            yield return new byte[] {
+        // #14
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -1666,8 +1666,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #15
-            yield return new byte[] {
+        // #15
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -1755,8 +1755,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #16
-            yield return new byte[] {
+        // #16
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -1844,8 +1844,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #17
-            yield return new byte[] {
+        // #17
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -1933,8 +1933,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #18
-            yield return new byte[] {
+        // #18
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -2022,8 +2022,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #19
-            yield return new byte[] {
+        // #19
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -2111,8 +2111,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #20
-            yield return new byte[] {
+        // #20
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -2200,8 +2200,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #21
-            yield return new byte[] {
+        // #21
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -2289,8 +2289,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #22
-            yield return new byte[] {
+        // #22
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -2378,8 +2378,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #23
-            yield return new byte[] {
+        // #23
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -2467,8 +2467,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #24
-            yield return new byte[] {
+        // #24
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -2556,8 +2556,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #25
-            yield return new byte[] {
+        // #25
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -2645,8 +2645,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #26
-            yield return new byte[] {
+        // #26
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -2734,8 +2734,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #27
-            yield return new byte[] {
+        // #27
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -2823,8 +2823,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #28
-            yield return new byte[] {
+        // #28
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -2912,8 +2912,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #29
-            yield return new byte[] {
+        // #29
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -3001,8 +3001,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #30
-            yield return new byte[] {
+        // #30
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -3090,8 +3090,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #31
-            yield return new byte[] {
+        // #31
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -3179,8 +3179,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #32
-            yield return new byte[] {
+        // #32
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length - length off by 1
@@ -3268,8 +3268,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #33
-            yield return new byte[] {
+        // #33
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length - max length
@@ -3357,8 +3357,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #34
-            yield return new byte[] {
+        // #34
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion) - unknown
                 0x01, 0x03, 0x04,
                 // SslPlainText.length
@@ -3446,8 +3446,8 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 0x00, 0x01, 0x00
             };
 
-            // #35
-            yield return new byte[] {
+        // #35
+        yield return new byte[] {
                 // SslPlainText.(ContentType+ProtocolVersion)
                 0x16, 0x03, 0x03,
                 // SslPlainText.length
@@ -3534,6 +3534,5 @@ namespace Yarp.ReverseProxy.Utilities.Tls.Tests
                 // Extension FF01
                 0x00, 0x01, 0x00
             };
-        }
     }
 }

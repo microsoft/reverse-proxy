@@ -16,15 +16,15 @@ using Microsoft.Extensions.Hosting;
 using Xunit;
 using Yarp.ReverseProxy.Configuration;
 
-namespace Yarp.ReverseProxy.Routing.Tests
+namespace Yarp.ReverseProxy.Routing.Tests;
+
+public class RoutingTests
 {
-    public class RoutingTests
+    [Fact]
+    public async Task PathRouting_Works()
     {
-        [Fact]
-        public async Task PathRouting_Works()
+        var routes = new[]
         {
-            var routes = new[]
-            {
                 new RouteConfig()
                 {
                     RouteId = "route1",
@@ -33,24 +33,24 @@ namespace Yarp.ReverseProxy.Routing.Tests
                 }
             };
 
-            using var host = await CreateHostAsync(routes);
-            var client = host.GetTestClient();
+        using var host = await CreateHostAsync(routes);
+        var client = host.GetTestClient();
 
-            // Positive
-            var response = await client.GetAsync("/api/extra");
-            response.EnsureSuccessStatusCode();
-            Assert.Equal("route1", response.Headers.GetValues("route").SingleOrDefault());
+        // Positive
+        var response = await client.GetAsync("/api/extra");
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("route1", response.Headers.GetValues("route").SingleOrDefault());
 
-            // Negative
-            response = await client.GetAsync("/");
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        }
+        // Negative
+        response = await client.GetAsync("/");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
 
-        [Fact]
-        public async Task HostRouting_Works()
+    [Fact]
+    public async Task HostRouting_Works()
+    {
+        var routes = new[]
         {
-            var routes = new[]
-            {
                 new RouteConfig()
                 {
                     RouteId = "route1",
@@ -59,24 +59,24 @@ namespace Yarp.ReverseProxy.Routing.Tests
                 }
             };
 
-            using var host = await CreateHostAsync(routes);
-            var client = host.GetTestClient();
+        using var host = await CreateHostAsync(routes);
+        var client = host.GetTestClient();
 
-            // Positive
-            var response = await client.GetAsync("http://foo.example.com/");
-            response.EnsureSuccessStatusCode();
-            Assert.Equal("route1", response.Headers.GetValues("route").SingleOrDefault());
+        // Positive
+        var response = await client.GetAsync("http://foo.example.com/");
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("route1", response.Headers.GetValues("route").SingleOrDefault());
 
-            // Negative
-            response = await client.GetAsync("http://example.com");
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        }
+        // Negative
+        response = await client.GetAsync("http://example.com");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
 
-        [Fact]
-        public async Task HeaderRouting_OneHeader_Works()
+    [Fact]
+    public async Task HeaderRouting_OneHeader_Works()
+    {
+        var routes = new[]
         {
-            var routes = new[]
-            {
                 new RouteConfig()
                 {
                     RouteId = "route1",
@@ -96,41 +96,41 @@ namespace Yarp.ReverseProxy.Routing.Tests
                 }
             };
 
-            using var host = await CreateHostAsync(routes);
-            var client = host.GetTestClient();
+        using var host = await CreateHostAsync(routes);
+        var client = host.GetTestClient();
 
-            // Positive
-            var request = new HttpRequestMessage();
-            request.Headers.Add("header1", "value1");
-            var response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            Assert.Equal("route1", response.Headers.GetValues("route").SingleOrDefault());
+        // Positive
+        var request = new HttpRequestMessage();
+        request.Headers.Add("header1", "value1");
+        var response = await client.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("route1", response.Headers.GetValues("route").SingleOrDefault());
 
-            // Negative
-            response = await client.GetAsync("/");
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        // Negative
+        response = await client.GetAsync("/");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
-            request = new HttpRequestMessage();
-            request.Headers.Add("header2", "value1");
-            response = await client.SendAsync(request);
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        request = new HttpRequestMessage();
+        request.Headers.Add("header2", "value1");
+        response = await client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
-            request = new HttpRequestMessage();
-            request.Headers.Add("header1", "v");
-            response = await client.SendAsync(request);
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        request = new HttpRequestMessage();
+        request.Headers.Add("header1", "v");
+        response = await client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
-            request = new HttpRequestMessage();
-            request.Headers.Add("header1", (string)null);
-            response = await client.SendAsync(request);
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        }
+        request = new HttpRequestMessage();
+        request.Headers.Add("header1", (string)null);
+        response = await client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
 
-        [Fact]
-        public async Task HeaderRouting_MultipleHeaders_Works()
+    [Fact]
+    public async Task HeaderRouting_MultipleHeaders_Works()
+    {
+        var routes = new[]
         {
-            var routes = new[]
-            {
                 new RouteConfig()
                 {
                     RouteId = "route1",
@@ -189,59 +189,59 @@ namespace Yarp.ReverseProxy.Routing.Tests
                 }
             };
 
-            using var host = await CreateHostAsync(routes);
-            var client = host.GetTestClient();
+        using var host = await CreateHostAsync(routes);
+        var client = host.GetTestClient();
 
-            // Check for the most specific match
-            var request = new HttpRequestMessage();
-            request.Headers.Add("header1", "value1");
-            var response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            Assert.Equal("route1", response.Headers.GetValues("route").SingleOrDefault());
+        // Check for the most specific match
+        var request = new HttpRequestMessage();
+        request.Headers.Add("header1", "value1");
+        var response = await client.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("route1", response.Headers.GetValues("route").SingleOrDefault());
 
-            request = new HttpRequestMessage();
-            request.Headers.Add("header1", "value1");
-            request.Headers.Add("header2", "value3");
-            response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            Assert.Equal("route1", response.Headers.GetValues("route").SingleOrDefault());
+        request = new HttpRequestMessage();
+        request.Headers.Add("header1", "value1");
+        request.Headers.Add("header2", "value3");
+        response = await client.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("route1", response.Headers.GetValues("route").SingleOrDefault());
 
-            request = new HttpRequestMessage();
-            request.Headers.Add("header2", "value2");
-            response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            Assert.Equal("route2", response.Headers.GetValues("route").SingleOrDefault());
+        request = new HttpRequestMessage();
+        request.Headers.Add("header2", "value2");
+        response = await client.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("route2", response.Headers.GetValues("route").SingleOrDefault());
 
-            request = new HttpRequestMessage();
-            request.Headers.Add("header1", "value3");
-            request.Headers.Add("header2", "value2");
-            response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            Assert.Equal("route2", response.Headers.GetValues("route").SingleOrDefault());
+        request = new HttpRequestMessage();
+        request.Headers.Add("header1", "value3");
+        request.Headers.Add("header2", "value2");
+        response = await client.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("route2", response.Headers.GetValues("route").SingleOrDefault());
 
-            request = new HttpRequestMessage();
-            request.Headers.Add("header1", "value1");
-            request.Headers.Add("header2", "value2");
-            response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            Assert.Equal("route3", response.Headers.GetValues("route").SingleOrDefault());
+        request = new HttpRequestMessage();
+        request.Headers.Add("header1", "value1");
+        request.Headers.Add("header2", "value2");
+        response = await client.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("route3", response.Headers.GetValues("route").SingleOrDefault());
 
-            // Negative
-            response = await client.GetAsync("/");
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        // Negative
+        response = await client.GetAsync("/");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
-            request = new HttpRequestMessage();
-            request.Headers.Add("header1", "value2");
-            request.Headers.Add("header2", "value1");
-            response = await client.SendAsync(request);
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        }
+        request = new HttpRequestMessage();
+        request.Headers.Add("header1", "value2");
+        request.Headers.Add("header2", "value1");
+        response = await client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
 
-        [Fact]
-        public async Task Precedence_PathMethodHostHeaders()
+    [Fact]
+    public async Task Precedence_PathMethodHostHeaders()
+    {
+        var routes = new[]
         {
-            var routes = new[]
-            {
                 new RouteConfig()
                 {
                     RouteId = "route1",
@@ -286,44 +286,44 @@ namespace Yarp.ReverseProxy.Routing.Tests
                 }
             };
 
-            using var host = await CreateHostAsync(routes);
-            var client = host.GetTestClient();
+        using var host = await CreateHostAsync(routes);
+        var client = host.GetTestClient();
 
-            // Check for the highest priority match
+        // Check for the highest priority match
 
-            // Path
-            var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/route1");
-            request.Headers.Add("header1", "value1");
-            var response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            Assert.Equal("route1", response.Headers.GetValues("route").SingleOrDefault());
+        // Path
+        var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/route1");
+        request.Headers.Add("header1", "value1");
+        var response = await client.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("route1", response.Headers.GetValues("route").SingleOrDefault());
 
-            // Method
-            request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/");
-            request.Headers.Add("header1", "value1");
-            response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            Assert.Equal("route2", response.Headers.GetValues("route").SingleOrDefault());
+        // Method
+        request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/");
+        request.Headers.Add("header1", "value1");
+        response = await client.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("route2", response.Headers.GetValues("route").SingleOrDefault());
 
-            // Host
-            request = new HttpRequestMessage(HttpMethod.Post, "http://localhost/");
-            request.Headers.Add("header1", "value1");
-            response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            Assert.Equal("route3", response.Headers.GetValues("route").SingleOrDefault());
+        // Host
+        request = new HttpRequestMessage(HttpMethod.Post, "http://localhost/");
+        request.Headers.Add("header1", "value1");
+        response = await client.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("route3", response.Headers.GetValues("route").SingleOrDefault());
 
-            // Header
-            request = new HttpRequestMessage(HttpMethod.Post, "http://example/");
-            request.Headers.Add("header1", "value1");
-            response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            Assert.Equal("route4", response.Headers.GetValues("route").SingleOrDefault());
-        }
+        // Header
+        request = new HttpRequestMessage(HttpMethod.Post, "http://example/");
+        request.Headers.Add("header1", "value1");
+        response = await client.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("route4", response.Headers.GetValues("route").SingleOrDefault());
+    }
 
-        public static Task<IHost> CreateHostAsync(IReadOnlyList<RouteConfig> routes)
+    public static Task<IHost> CreateHostAsync(IReadOnlyList<RouteConfig> routes)
+    {
+        var clusters = new[]
         {
-            var clusters = new[]
-            {
                 new ClusterConfig()
                 {
                     ClusterId = "cluster1",
@@ -334,32 +334,31 @@ namespace Yarp.ReverseProxy.Routing.Tests
                 }
             };
 
-            return new HostBuilder()
-                .ConfigureWebHost(webHost =>
+        return new HostBuilder()
+            .ConfigureWebHost(webHost =>
+            {
+                webHost.UseTestServer();
+                webHost.ConfigureServices(services =>
                 {
-                    webHost.UseTestServer();
-                    webHost.ConfigureServices(services =>
+                    services.AddReverseProxy()
+                        .LoadFromMemory(routes, clusters);
+                });
+                webHost.Configure(appBuilder =>
+                {
+                    appBuilder.UseRouting();
+                    appBuilder.UseEndpoints(endpoints =>
                     {
-                        services.AddReverseProxy()
-                            .LoadFromMemory(routes, clusters);
-                    });
-                    webHost.Configure(appBuilder =>
-                    {
-                        appBuilder.UseRouting();
-                        appBuilder.UseEndpoints(endpoints =>
+                        endpoints.MapReverseProxy(proxyApp =>
                         {
-                            endpoints.MapReverseProxy(proxyApp =>
+                            proxyApp.Run(context =>
                             {
-                                proxyApp.Run(context =>
-                                {
-                                    var endpoint = context.GetEndpoint();
-                                    context.Response.Headers["route"] = endpoint.DisplayName;
-                                    return Task.CompletedTask;
-                                });
+                                var endpoint = context.GetEndpoint();
+                                context.Response.Headers["route"] = endpoint.DisplayName;
+                                return Task.CompletedTask;
                             });
                         });
                     });
-                }).StartAsync();
-        }
+                });
+            }).StartAsync();
     }
 }

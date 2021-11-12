@@ -3,25 +3,24 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace Yarp.Tests.Common
+namespace Yarp.Tests.Common;
+
+public class TestLoggerFactory : ILoggerFactory
 {
-    public class TestLoggerFactory : ILoggerFactory
+    public TestLogger Logger { get; } = new TestLogger();
+
+    public void AddProvider(ILoggerProvider provider)
     {
-        public TestLogger Logger { get; } = new TestLogger();
 
-        public void AddProvider(ILoggerProvider provider)
-        {
+    }
 
-        }
+    public ILogger CreateLogger(string categoryName)
+    {
+        return Logger;
+    }
 
-        public ILogger CreateLogger(string categoryName)
-        {
-            return Logger;
-        }
+    public void Dispose()
+    {
 
-        public void Dispose()
-        {
-
-        }
     }
 }

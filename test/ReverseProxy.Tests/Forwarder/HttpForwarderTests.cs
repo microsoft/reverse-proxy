@@ -21,2070 +21,2070 @@ using Xunit;
 using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy.Forwarder.Tests
+namespace Yarp.ReverseProxy.Forwarder.Tests;
+
+public class HttpForwarderTests
 {
-    public class HttpForwarderTests
+    private IHttpForwarder CreateProxy()
     {
-        private IHttpForwarder CreateProxy()
-        {
-            var services = new ServiceCollection();
-            services.AddLogging();
-            services.AddHttpForwarder();
-            var provider = services.BuildServiceProvider();
-            return provider.GetRequiredService<IHttpForwarder>();
-        }
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddHttpForwarder();
+        var provider = services.BuildServiceProvider();
+        return provider.GetRequiredService<IHttpForwarder>();
+    }
 
-        [Fact]
-        public void Constructor_Works()
-        {
-            Assert.NotNull(CreateProxy());
-        }
+    [Fact]
+    public void Constructor_Works()
+    {
+        Assert.NotNull(CreateProxy());
+    }
 
-        // Tests normal (as opposed to upgradeable) request proxying.
-        [Fact]
-        public async Task NormalRequest_Works()
-        {
-            var events = TestEventListener.Collect();
+    // Tests normal (as opposed to upgradeable) request proxying.
+    [Fact]
+    public async Task NormalRequest_Works()
+    {
+        var events = TestEventListener.Collect();
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Scheme = "http";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            httpContext.Request.Path = "/path/base/dropped";
-            httpContext.Request.Path = "/api/test";
-            httpContext.Request.QueryString = new QueryString("?a=b&c=d");
-            httpContext.Request.Headers.Add(":authority", "example.com:3456");
-            httpContext.Request.Headers.Add("x-ms-request-test", "request");
-            httpContext.Request.Headers.Add("Content-Language", "requestLanguage");
-            httpContext.Request.Headers.Add("Content-Length", "1");
-            httpContext.Request.Body = StringToStream("request content");
-            httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Scheme = "http";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        httpContext.Request.Path = "/path/base/dropped";
+        httpContext.Request.Path = "/api/test";
+        httpContext.Request.QueryString = new QueryString("?a=b&c=d");
+        httpContext.Request.Headers.Add(":authority", "example.com:3456");
+        httpContext.Request.Headers.Add("x-ms-request-test", "request");
+        httpContext.Request.Headers.Add("Content-Language", "requestLanguage");
+        httpContext.Request.Headers.Add("Content-Length", "1");
+        httpContext.Request.Body = StringToStream("request content");
+        httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
 
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
 
-            var destinationPrefix = "https://localhost:123/a/b/";
-            var targetUri = "https://localhost:123/a/b/api/test?a=b&c=d";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    await Task.Yield();
+        var destinationPrefix = "https://localhost:123/a/b/";
+        var targetUri = "https://localhost:123/a/b/api/test?a=b&c=d";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                await Task.Yield();
 
-                    Assert.Equal(new Version(2, 0), request.Version);
-                    Assert.Equal(HttpMethod.Post, request.Method);
-                    Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
-                    Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
-                    Assert.Null(request.Headers.Host);
-                    Assert.False(request.Headers.TryGetValues(":authority", out var value));
+                Assert.Equal(new Version(2, 0), request.Version);
+                Assert.Equal(HttpMethod.Post, request.Method);
+                Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
+                Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
+                Assert.Null(request.Headers.Host);
+                Assert.False(request.Headers.TryGetValues(":authority", out var value));
 
-                    Assert.NotNull(request.Content);
-                    Assert.Contains("requestLanguage", request.Content.Headers.GetValues("Content-Language"));
+                Assert.NotNull(request.Content);
+                Assert.Contains("requestLanguage", request.Content.Headers.GetValues("Content-Language"));
 
-                    var capturedRequestContent = new MemoryStream();
+                var capturedRequestContent = new MemoryStream();
 
                     // Use CopyToAsync as this is what HttpClient and friends use internally
                     await request.Content.CopyToWithCancellationAsync(capturedRequestContent);
-                    capturedRequestContent.Position = 0;
-                    var capturedContentText = StreamToString(capturedRequestContent);
-                    Assert.Equal("request content", capturedContentText);
+                capturedRequestContent.Position = 0;
+                var capturedContentText = StreamToString(capturedRequestContent);
+                Assert.Equal("request content", capturedContentText);
 
-                    var response = new HttpResponseMessage((HttpStatusCode)234);
-                    response.ReasonPhrase = "Test Reason Phrase";
-                    response.Headers.TryAddWithoutValidation("x-ms-response-test", "response");
-                    response.Content = new StreamContent(StringToStream("response content"));
-                    response.Content.Headers.TryAddWithoutValidation("Content-Language", "responseLanguage");
-                    return response;
-                });
+                var response = new HttpResponseMessage((HttpStatusCode)234);
+                response.ReasonPhrase = "Test Reason Phrase";
+                response.Headers.TryAddWithoutValidation("x-ms-response-test", "response");
+                response.Content = new StreamContent(StringToStream("response content"));
+                response.Content.Headers.TryAddWithoutValidation("Content-Language", "responseLanguage");
+                return response;
+            });
 
-            await sut.SendAsync(httpContext, destinationPrefix, client);
+        await sut.SendAsync(httpContext, destinationPrefix, client);
 
-            Assert.Equal(234, httpContext.Response.StatusCode);
-            var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
-            Assert.Equal("Test Reason Phrase", reasonPhrase);
-            Assert.Contains("response", httpContext.Response.Headers["x-ms-response-test"].ToArray());
-            Assert.Contains("responseLanguage", httpContext.Response.Headers["Content-Language"].ToArray());
+        Assert.Equal(234, httpContext.Response.StatusCode);
+        var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
+        Assert.Equal("Test Reason Phrase", reasonPhrase);
+        Assert.Contains("response", httpContext.Response.Headers["x-ms-response-test"].ToArray());
+        Assert.Contains("responseLanguage", httpContext.Response.Headers["Content-Language"].ToArray());
 
-            proxyResponseStream.Position = 0;
-            var proxyResponseText = StreamToString(proxyResponseStream);
-            Assert.Equal("response content", proxyResponseText);
+        proxyResponseStream.Position = 0;
+        var proxyResponseText = StreamToString(proxyResponseStream);
+        Assert.Equal("response content", proxyResponseText);
 
-            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-            events.AssertContainProxyStages();
-        }
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages();
+    }
 
-        [Fact]
-        public async Task NormalRequestWithTransforms_Works()
+    [Fact]
+    public async Task NormalRequestWithTransforms_Works()
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Protocol = "http/2";
+        httpContext.Request.Scheme = "http";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        httpContext.Request.Path = "/path/base/dropped";
+        httpContext.Request.Path = "/api/test";
+        httpContext.Request.QueryString = new QueryString("?a=b&c=d");
+        httpContext.Request.Headers.Add(":authority", "example.com:3456");
+        httpContext.Request.Headers.Add("x-ms-request-test", "request");
+        httpContext.Request.Headers.Add("Content-Language", "requestLanguage");
+        httpContext.Request.Body = StringToStream("request content");
+        httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
+        httpContext.Features.Set<IHttpResponseTrailersFeature>(new TestTrailersFeature());
+
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
+
+        var destinationPrefix = "https://localhost:123/a/b/";
+        var transforms = new DelegateHttpTransforms()
         {
-            var events = TestEventListener.Collect();
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Protocol = "http/2";
-            httpContext.Request.Scheme = "http";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            httpContext.Request.Path = "/path/base/dropped";
-            httpContext.Request.Path = "/api/test";
-            httpContext.Request.QueryString = new QueryString("?a=b&c=d");
-            httpContext.Request.Headers.Add(":authority", "example.com:3456");
-            httpContext.Request.Headers.Add("x-ms-request-test", "request");
-            httpContext.Request.Headers.Add("Content-Language", "requestLanguage");
-            httpContext.Request.Body = StringToStream("request content");
-            httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
-            httpContext.Features.Set<IHttpResponseTrailersFeature>(new TestTrailersFeature());
-
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
-
-            var destinationPrefix = "https://localhost:123/a/b/";
-            var transforms = new DelegateHttpTransforms()
+            OnRequest = (context, request, destination) =>
             {
-                OnRequest = (context, request, destination) =>
-                {
-                    request.RequestUri = new Uri(destination + "prefix"
-                        + context.Request.Path + context.Request.QueryString);
-                    request.Headers.Remove("transformHeader");
-                    request.Headers.TryAddWithoutValidation("transformHeader", "value");
-                    request.Headers.TryAddWithoutValidation("x-ms-request-test", "transformValue");
-                    request.Headers.Host = null;
-                    return Task.CompletedTask;
-                },
-                OnResponse = (context, response) =>
-                {
-                    context.Response.Headers["transformHeader"] = "value";
-                    context.Response.Headers.Append("x-ms-response-test", "value");
-                    return new (true);
-                },
-                OnResponseTrailers = (context, response) =>
-                {
-                    context.Response.AppendTrailer("trailerTransform", "value");
-                    return Task.CompletedTask;
-                }
-            };
-
-            var targetUri = "https://localhost:123/a/b/prefix/api/test?a=b&c=d";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    await Task.Yield();
-
-                    Assert.Equal(new Version(2, 0), request.Version);
-                    Assert.Equal(HttpMethod.Post, request.Method);
-                    Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
-                    Assert.Equal(new[] { "value" }, request.Headers.GetValues("transformHeader"));
-                    Assert.Equal(new[] { "request", "transformValue" }, request.Headers.GetValues("x-ms-request-test"));
-                    Assert.Null(request.Headers.Host);
-                    Assert.False(request.Headers.TryGetValues(":authority", out var value));
-
-                    Assert.NotNull(request.Content);
-                    Assert.Contains("requestLanguage", request.Content.Headers.GetValues("Content-Language"));
-
-                    var capturedRequestContent = new MemoryStream();
-
-                    // Use CopyToAsync as this is what HttpClient and friends use internally
-                    await request.Content.CopyToWithCancellationAsync(capturedRequestContent);
-                    capturedRequestContent.Position = 0;
-                    var capturedContentText = StreamToString(capturedRequestContent);
-                    Assert.Equal("request content", capturedContentText);
-
-                    var response = new HttpResponseMessage((HttpStatusCode)234);
-                    response.ReasonPhrase = "Test Reason Phrase";
-                    response.Headers.TryAddWithoutValidation("x-ms-response-test", "response");
-                    response.Content = new StreamContent(StringToStream("response content"));
-                    response.Content.Headers.TryAddWithoutValidation("Content-Language", "responseLanguage");
-                    return response;
-                });
-
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, ForwarderRequestConfig.Empty, transforms);
-
-            Assert.Equal(ForwarderError.None, proxyError);
-            Assert.Equal(234, httpContext.Response.StatusCode);
-            var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
-            Assert.Null(reasonPhrase); // We don't set the ReasonPhrase for HTTP/2+
-            Assert.Equal(new[] { "response", "value" }, httpContext.Response.Headers["x-ms-response-test"].ToArray());
-            Assert.Contains("responseLanguage", httpContext.Response.Headers["Content-Language"].ToArray());
-            Assert.Contains("value", httpContext.Response.Headers["transformHeader"].ToArray());
-            Assert.Equal(new[] { "value" }, httpContext.Features.Get<IHttpResponseTrailersFeature>().Trailers?["trailerTransform"].ToArray());
-
-            proxyResponseStream.Position = 0;
-            var proxyResponseText = StreamToString(proxyResponseStream);
-            Assert.Equal("response content", proxyResponseText);
-
-            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-            events.AssertContainProxyStages();
-        }
-
-        [Fact]
-        public async Task NormalRequestWithCopyRequestHeadersDisabled_Works()
-        {
-            var events = TestEventListener.Collect();
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Scheme = "http";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            httpContext.Request.PathBase = "/api";
-            httpContext.Request.Path = "/test";
-            httpContext.Request.QueryString = new QueryString("?a=b&c=d");
-            httpContext.Request.Headers.Add(":authority", "example.com:3456");
-            httpContext.Request.Headers.Add("x-ms-request-test", "request");
-            httpContext.Request.Headers.Add("Content-Language", "requestLanguage");
-            httpContext.Request.Headers.Add("Transfer-Encoding", "chunked");
-            httpContext.Request.Body = StringToStream("request content");
-            httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
-
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
-
-            var destinationPrefix = "https://localhost:123/a/b/";
-            var transforms = new DelegateHttpTransforms()
+                request.RequestUri = new Uri(destination + "prefix"
+                    + context.Request.Path + context.Request.QueryString);
+                request.Headers.Remove("transformHeader");
+                request.Headers.TryAddWithoutValidation("transformHeader", "value");
+                request.Headers.TryAddWithoutValidation("x-ms-request-test", "transformValue");
+                request.Headers.Host = null;
+                return Task.CompletedTask;
+            },
+            OnResponse = (context, response) =>
             {
-                CopyRequestHeaders = false,
-                OnRequest = (context, request, destination) =>
-                {
-                    request.Headers.TryAddWithoutValidation("x-ms-request-test", "transformValue");
-                    return Task.CompletedTask;
-                }
-            };
-            var targetUri = "https://localhost:123/a/b/test?a=b&c=d";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    await Task.Yield();
-
-                    Assert.Equal(new Version(2, 0), request.Version);
-                    Assert.Equal(HttpMethod.Post, request.Method);
-                    Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
-                    Assert.Equal(new[] { "transformValue" }, request.Headers.GetValues("x-ms-request-test"));
-                    Assert.Null(request.Headers.Host);
-                    Assert.False(request.Headers.TryGetValues(":authority", out var _));
-
-                    Assert.NotNull(request.Content);
-                    Assert.False(request.Content.Headers.TryGetValues("Content-Language", out var _));
-
-                    var capturedRequestContent = new MemoryStream();
-
-                    // Use CopyToAsync as this is what HttpClient and friends use internally
-                    await request.Content.CopyToWithCancellationAsync(capturedRequestContent);
-                    capturedRequestContent.Position = 0;
-                    var capturedContentText = StreamToString(capturedRequestContent);
-                    Assert.Equal("request content", capturedContentText);
-
-                    var response = new HttpResponseMessage((HttpStatusCode)234);
-                    response.ReasonPhrase = "Test Reason Phrase";
-                    response.Headers.TryAddWithoutValidation("x-ms-response-test", "response");
-                    response.Content = new StreamContent(StringToStream("response content"));
-                    response.Content.Headers.TryAddWithoutValidation("Content-Language", "responseLanguage");
-                    return response;
-                });
-
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, ForwarderRequestConfig.Empty, transforms);
-
-            Assert.Equal(ForwarderError.None, proxyError);
-            Assert.Equal(234, httpContext.Response.StatusCode);
-            var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
-            Assert.Equal("Test Reason Phrase", reasonPhrase);
-            Assert.Contains("response", httpContext.Response.Headers["x-ms-response-test"].ToArray());
-            Assert.Contains("responseLanguage", httpContext.Response.Headers["Content-Language"].ToArray());
-
-            proxyResponseStream.Position = 0;
-            var proxyResponseText = StreamToString(proxyResponseStream);
-            Assert.Equal("response content", proxyResponseText);
-
-            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-            events.AssertContainProxyStages();
-        }
-
-        // Tests proxying an upgradeable request.
-        [Theory]
-        [InlineData("WebSocket")]
-        [InlineData("SPDY/3.1")]
-        public async Task UpgradableRequest_Works(string upgradeHeader)
-        {
-            var events = TestEventListener.Collect();
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Scheme = "http";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            httpContext.Request.Path = "/api/test";
-            httpContext.Request.QueryString = new QueryString("?a=b&c=d");
-            httpContext.Request.Headers.Add(":authority", "example.com:3456");
-            httpContext.Request.Headers.Add("x-ms-request-test", "request");
-            httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
-
-            // TODO: https://github.com/microsoft/reverse-proxy/issues/255
-            // https://github.com/microsoft/reverse-proxy/issues/467
-            httpContext.Request.Headers.Add("Upgrade", upgradeHeader);
-
-            var downstreamStream = new DuplexStream(
-                readStream: StringToStream("request content"),
-                writeStream: new MemoryStream());
-            DuplexStream upstreamStream = null;
-
-            var upgradeFeatureMock = new Mock<IHttpUpgradeFeature>();
-            upgradeFeatureMock.SetupGet(u => u.IsUpgradableRequest).Returns(true);
-            upgradeFeatureMock.Setup(u => u.UpgradeAsync()).ReturnsAsync(downstreamStream);
-            httpContext.Features.Set(upgradeFeatureMock.Object);
-
-            var destinationPrefix = "https://localhost:123/a/b/";
-            var targetUri = "https://localhost:123/a/b/api/test?a=b&c=d";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    await Task.Yield();
-
-                    Assert.Equal(new Version(1, 1), request.Version);
-                    Assert.Equal(HttpMethod.Get, request.Method);
-                    Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
-                    Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
-                    Assert.Null(request.Headers.Host);
-                    Assert.False(request.Headers.TryGetValues(":authority", out var value));
-
-                    Assert.Null(request.Content);
-
-                    var response = new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
-                    response.Headers.TryAddWithoutValidation("x-ms-response-test", "response");
-                    upstreamStream = new DuplexStream(
-                        readStream: StringToStream("response content"),
-                        writeStream: new MemoryStream());
-                    response.Content = new RawStreamContent(upstreamStream);
-                    return response;
-                });
-
-            await sut.SendAsync(httpContext, destinationPrefix, client);
-
-            Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
-            Assert.Contains("response", httpContext.Response.Headers["x-ms-response-test"].ToArray());
-
-            downstreamStream.WriteStream.Position = 0;
-            var returnedToDownstream = StreamToString(downstreamStream.WriteStream);
-            Assert.Equal("response content", returnedToDownstream);
-
-            Assert.NotNull(upstreamStream);
-            upstreamStream.WriteStream.Position = 0;
-            var sentToUpstream = StreamToString(upstreamStream.WriteStream);
-            Assert.Equal("request content", sentToUpstream);
-
-            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-            events.AssertContainProxyStages(upgrade: true);
-        }
-
-        [Fact]
-        public async Task NonUpgradableRequestReturns101_Aborted()
-        {
-            var events = TestEventListener.Collect();
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-
-            DuplexStream upstreamStream = null;
-
-            var destinationPrefix = "https://localhost:123/a/b/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    await Task.Yield();
-
-                    Assert.Equal(new Version(2, 0), request.Version);
-                    Assert.Equal(HttpMethod.Get, request.Method);
-                    Assert.Null(request.Content);
-
-                    var response = new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
-                    upstreamStream = new DuplexStream(
-                        readStream: StringToStream("response content"),
-                        writeStream: new MemoryStream());
-                    response.Content = new RawStreamContent(upstreamStream);
-                    return response;
-                });
-
-            await sut.SendAsync(httpContext, destinationPrefix, client);
-
-            Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
-
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, ForwarderError.UpgradeResponseDestination);
-            events.AssertContainProxyStages(upgrade: true, hasRequestContent: false, hasResponseContent: false);
-        }
-
-        // Tests proxying an upgradeable request where the destination refused to upgrade.
-        // We should still proxy back the response.
-        [Fact]
-        public async Task UpgradableRequestFailsToUpgrade_ProxiesResponse()
-        {
-            var events = TestEventListener.Collect();
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Scheme = "https";
-            httpContext.Request.Host = new HostString("example.com");
-            httpContext.Request.Path = "/api/test";
-            httpContext.Request.QueryString = new QueryString("?a=b&c=d");
-            httpContext.Request.Headers.Add(":host", "example.com");
-            httpContext.Request.Headers.Add("x-ms-request-test", "request");
-
-            // TODO: https://github.com/microsoft/reverse-proxy/issues/255
-            httpContext.Request.Headers.Add("Upgrade", "WebSocket");
-
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
-
-            var upgradeFeatureMock = new Mock<IHttpUpgradeFeature>(MockBehavior.Strict);
-            upgradeFeatureMock.SetupGet(u => u.IsUpgradableRequest).Returns(true);
-            httpContext.Features.Set(upgradeFeatureMock.Object);
-
-            var destinationPrefix = "https://localhost:123/a/b/";
-            var targetUri = "https://localhost:123/a/b/api/test?a=b&c=d";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    await Task.Yield();
-
-                    Assert.Equal(new Version(1, 1), request.Version);
-                    Assert.Equal(HttpMethod.Get, request.Method);
-                    Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
-                    Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
-
-                    Assert.Null(request.Content);
-
-                    var response = new HttpResponseMessage((HttpStatusCode)234);
-                    response.ReasonPhrase = "Test Reason Phrase";
-                    response.Headers.TryAddWithoutValidation("x-ms-response-test", "response");
-                    response.Content = new StreamContent(StringToStream("response content"));
-                    response.Content.Headers.TryAddWithoutValidation("Content-Language", "responseLanguage");
-                    return response;
-                });
-
-            await sut.SendAsync(httpContext, destinationPrefix, client);
-
-            Assert.Equal(234, httpContext.Response.StatusCode);
-            var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
-            Assert.Equal("Test Reason Phrase", reasonPhrase);
-            Assert.Contains("response", httpContext.Response.Headers["x-ms-response-test"].ToArray());
-            Assert.Contains("responseLanguage", httpContext.Response.Headers["Content-Language"].ToArray());
-
-            proxyResponseStream.Position = 0;
-            var proxyResponseText = StreamToString(proxyResponseStream);
-            Assert.Equal("response content", proxyResponseText);
-
-            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-            events.AssertContainProxyStages(hasRequestContent: false, upgrade: false);
-        }
-
-        [Fact]
-        public async Task UpgradableRequest_CancelsIfIdle()
-        {
-            var events = TestEventListener.Collect();
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Scheme = "http";
-            httpContext.Request.Path = "/api/test";
-            httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
-
-            // TODO: https://github.com/microsoft/reverse-proxy/issues/255
-            // https://github.com/microsoft/reverse-proxy/issues/467
-            httpContext.Request.Headers.Add("Upgrade", "WebSocket");
-
-            var _idleTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
-
-            var downstreamStream = new DuplexStream(
-                readStream: new StallStream(ct =>
-                {
-                    ct.Register(() => _idleTcs.TrySetCanceled());
-                    return _idleTcs.Task;
-                }),
-                writeStream: new MemoryStream());
-            DuplexStream upstreamStream = null;
-
-            var upgradeFeatureMock = new Mock<IHttpUpgradeFeature>();
-            upgradeFeatureMock.SetupGet(u => u.IsUpgradableRequest).Returns(true);
-            upgradeFeatureMock.Setup(u => u.UpgradeAsync()).ReturnsAsync(downstreamStream);
-            httpContext.Features.Set(upgradeFeatureMock.Object);
-
-            var destinationPrefix = "https://localhost:123/a/b/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    await Task.Yield();
-
-                    Assert.Equal(new Version(1, 1), request.Version);
-                    Assert.Equal(HttpMethod.Get, request.Method);
-
-                    Assert.Null(request.Content);
-
-                    var response = new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
-                    upstreamStream = new DuplexStream(
-                        readStream: new StallStream(ct =>
-                        {
-                            ct.Register(() => _idleTcs.TrySetCanceled());
-                            return _idleTcs.Task;
-                        }),
-                        writeStream: new MemoryStream());
-                    response.Content = new RawStreamContent(upstreamStream);
-                    return response;
-                });
-
-            var result = await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig
+                context.Response.Headers["transformHeader"] = "value";
+                context.Response.Headers.Append("x-ms-response-test", "value");
+                return new(true);
+            },
+            OnResponseTrailers = (context, response) =>
             {
-                ActivityTimeout = TimeSpan.FromSeconds(1)
-            }).DefaultTimeout();
-
-            Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
-
-            // When both are idle it's a race which gets reported as canceled first.
-            Assert.True(ForwarderError.UpgradeRequestCanceled == result
-                || ForwarderError.UpgradeResponseCanceled == result);
-
-            events.AssertContainProxyStages(upgrade: true);
-        }
-
-        [Theory]
-        [InlineData("TRACE", "HTTP/1.1", "")]
-        [InlineData("TRACE", "HTTP/2", "")]
-        [InlineData("GET", "HTTP/1.1", "")]
-        [InlineData("GET", "HTTP/2", "")]
-        [InlineData("GET", "HTTP/1.1", "Content-Length:0")]
-        [InlineData("HEAD", "HTTP/1.1", "")]
-        [InlineData("POST", "HTTP/1.1", "")]
-        [InlineData("POST", "HTTP/1.1", "Content-Length:0")]
-        [InlineData("POST", "HTTP/1.1", "Content-Length:0;Content-Type:text/plain")]
-        [InlineData("POST", "HTTP/2", "Content-Length:0")]
-        [InlineData("POST", "HTTP/2", "Content-Length:0;Content-Type:text/plain")]
-        [InlineData("PATCH", "HTTP/1.1", "")]
-        [InlineData("DELETE", "HTTP/1.1", "")]
-        [InlineData("Unknown", "HTTP/1.1", "")]
-        // [InlineData("CONNECT", "HTTP/1.1", "")] Blocked in HttpUtilities.GetHttpMethod
-        [InlineData("GET", "HTTP/1.1", "Allow:Foo")]
-        [InlineData("GET", "HTTP/1.1", "Content-Disposition:Foo")]
-        [InlineData("GET", "HTTP/1.1", "Content-Encoding:Foo")]
-        [InlineData("GET", "HTTP/1.1", "Content-Language:Foo")]
-        [InlineData("GET", "HTTP/1.1", "Content-Location:Foo")]
-        [InlineData("GET", "HTTP/1.1", "Content-MD5:Foo")]
-        [InlineData("GET", "HTTP/1.1", "Content-Range:Foo")]
-        [InlineData("GET", "HTTP/1.1", "Content-Type:Foo")]
-        [InlineData("GET", "HTTP/1.1", "Expires:Foo")]
-        [InlineData("GET", "HTTP/1.1", "Last-Modified:Foo")]
-        public async Task RequestWithoutBodies_NoHttpContent(string method, string protocol, string headerList)
-        {
-            var events = TestEventListener.Collect();
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = method;
-            httpContext.Request.Protocol = protocol;
-
-            var headers = headerList
-                .Split(';', StringSplitOptions.RemoveEmptyEntries)
-                .Select(header => (Key: header.Split(':')[0], Value: header.Split(':')[1]))
-                .ToArray();
-
-            foreach (var (key, value) in headers)
-            {
-                httpContext.Request.Headers[key] = value;
+                context.Response.AppendTrailer("trailerTransform", "value");
+                return Task.CompletedTask;
             }
+        };
 
-            var destinationPrefix = "https://localhost/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    Assert.Equal(new Version(2, 0), request.Version);
-                    Assert.Equal(method, request.Method.Method, StringComparer.OrdinalIgnoreCase);
+        var targetUri = "https://localhost:123/a/b/prefix/api/test?a=b&c=d";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                await Task.Yield();
+
+                Assert.Equal(new Version(2, 0), request.Version);
+                Assert.Equal(HttpMethod.Post, request.Method);
+                Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
+                Assert.Equal(new[] { "value" }, request.Headers.GetValues("transformHeader"));
+                Assert.Equal(new[] { "request", "transformValue" }, request.Headers.GetValues("x-ms-request-test"));
+                Assert.Null(request.Headers.Host);
+                Assert.False(request.Headers.TryGetValues(":authority", out var value));
+
+                Assert.NotNull(request.Content);
+                Assert.Contains("requestLanguage", request.Content.Headers.GetValues("Content-Language"));
+
+                var capturedRequestContent = new MemoryStream();
+
+                    // Use CopyToAsync as this is what HttpClient and friends use internally
+                    await request.Content.CopyToWithCancellationAsync(capturedRequestContent);
+                capturedRequestContent.Position = 0;
+                var capturedContentText = StreamToString(capturedRequestContent);
+                Assert.Equal("request content", capturedContentText);
+
+                var response = new HttpResponseMessage((HttpStatusCode)234);
+                response.ReasonPhrase = "Test Reason Phrase";
+                response.Headers.TryAddWithoutValidation("x-ms-response-test", "response");
+                response.Content = new StreamContent(StringToStream("response content"));
+                response.Content.Headers.TryAddWithoutValidation("Content-Language", "responseLanguage");
+                return response;
+            });
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, ForwarderRequestConfig.Empty, transforms);
+
+        Assert.Equal(ForwarderError.None, proxyError);
+        Assert.Equal(234, httpContext.Response.StatusCode);
+        var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
+        Assert.Null(reasonPhrase); // We don't set the ReasonPhrase for HTTP/2+
+        Assert.Equal(new[] { "response", "value" }, httpContext.Response.Headers["x-ms-response-test"].ToArray());
+        Assert.Contains("responseLanguage", httpContext.Response.Headers["Content-Language"].ToArray());
+        Assert.Contains("value", httpContext.Response.Headers["transformHeader"].ToArray());
+        Assert.Equal(new[] { "value" }, httpContext.Features.Get<IHttpResponseTrailersFeature>().Trailers?["trailerTransform"].ToArray());
+
+        proxyResponseStream.Position = 0;
+        var proxyResponseText = StreamToString(proxyResponseStream);
+        Assert.Equal("response content", proxyResponseText);
+
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages();
+    }
+
+    [Fact]
+    public async Task NormalRequestWithCopyRequestHeadersDisabled_Works()
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Scheme = "http";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        httpContext.Request.PathBase = "/api";
+        httpContext.Request.Path = "/test";
+        httpContext.Request.QueryString = new QueryString("?a=b&c=d");
+        httpContext.Request.Headers.Add(":authority", "example.com:3456");
+        httpContext.Request.Headers.Add("x-ms-request-test", "request");
+        httpContext.Request.Headers.Add("Content-Language", "requestLanguage");
+        httpContext.Request.Headers.Add("Transfer-Encoding", "chunked");
+        httpContext.Request.Body = StringToStream("request content");
+        httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
+
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
+
+        var destinationPrefix = "https://localhost:123/a/b/";
+        var transforms = new DelegateHttpTransforms()
+        {
+            CopyRequestHeaders = false,
+            OnRequest = (context, request, destination) =>
+            {
+                request.Headers.TryAddWithoutValidation("x-ms-request-test", "transformValue");
+                return Task.CompletedTask;
+            }
+        };
+        var targetUri = "https://localhost:123/a/b/test?a=b&c=d";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                await Task.Yield();
+
+                Assert.Equal(new Version(2, 0), request.Version);
+                Assert.Equal(HttpMethod.Post, request.Method);
+                Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
+                Assert.Equal(new[] { "transformValue" }, request.Headers.GetValues("x-ms-request-test"));
+                Assert.Null(request.Headers.Host);
+                Assert.False(request.Headers.TryGetValues(":authority", out var _));
+
+                Assert.NotNull(request.Content);
+                Assert.False(request.Content.Headers.TryGetValues("Content-Language", out var _));
+
+                var capturedRequestContent = new MemoryStream();
+
+                    // Use CopyToAsync as this is what HttpClient and friends use internally
+                    await request.Content.CopyToWithCancellationAsync(capturedRequestContent);
+                capturedRequestContent.Position = 0;
+                var capturedContentText = StreamToString(capturedRequestContent);
+                Assert.Equal("request content", capturedContentText);
+
+                var response = new HttpResponseMessage((HttpStatusCode)234);
+                response.ReasonPhrase = "Test Reason Phrase";
+                response.Headers.TryAddWithoutValidation("x-ms-response-test", "response");
+                response.Content = new StreamContent(StringToStream("response content"));
+                response.Content.Headers.TryAddWithoutValidation("Content-Language", "responseLanguage");
+                return response;
+            });
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, ForwarderRequestConfig.Empty, transforms);
+
+        Assert.Equal(ForwarderError.None, proxyError);
+        Assert.Equal(234, httpContext.Response.StatusCode);
+        var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
+        Assert.Equal("Test Reason Phrase", reasonPhrase);
+        Assert.Contains("response", httpContext.Response.Headers["x-ms-response-test"].ToArray());
+        Assert.Contains("responseLanguage", httpContext.Response.Headers["Content-Language"].ToArray());
+
+        proxyResponseStream.Position = 0;
+        var proxyResponseText = StreamToString(proxyResponseStream);
+        Assert.Equal("response content", proxyResponseText);
+
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages();
+    }
+
+    // Tests proxying an upgradeable request.
+    [Theory]
+    [InlineData("WebSocket")]
+    [InlineData("SPDY/3.1")]
+    public async Task UpgradableRequest_Works(string upgradeHeader)
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Scheme = "http";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        httpContext.Request.Path = "/api/test";
+        httpContext.Request.QueryString = new QueryString("?a=b&c=d");
+        httpContext.Request.Headers.Add(":authority", "example.com:3456");
+        httpContext.Request.Headers.Add("x-ms-request-test", "request");
+        httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
+
+        // TODO: https://github.com/microsoft/reverse-proxy/issues/255
+        // https://github.com/microsoft/reverse-proxy/issues/467
+        httpContext.Request.Headers.Add("Upgrade", upgradeHeader);
+
+        var downstreamStream = new DuplexStream(
+            readStream: StringToStream("request content"),
+            writeStream: new MemoryStream());
+        DuplexStream upstreamStream = null;
+
+        var upgradeFeatureMock = new Mock<IHttpUpgradeFeature>();
+        upgradeFeatureMock.SetupGet(u => u.IsUpgradableRequest).Returns(true);
+        upgradeFeatureMock.Setup(u => u.UpgradeAsync()).ReturnsAsync(downstreamStream);
+        httpContext.Features.Set(upgradeFeatureMock.Object);
+
+        var destinationPrefix = "https://localhost:123/a/b/";
+        var targetUri = "https://localhost:123/a/b/api/test?a=b&c=d";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                await Task.Yield();
+
+                Assert.Equal(new Version(1, 1), request.Version);
+                Assert.Equal(HttpMethod.Get, request.Method);
+                Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
+                Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
+                Assert.Null(request.Headers.Host);
+                Assert.False(request.Headers.TryGetValues(":authority", out var value));
+
+                Assert.Null(request.Content);
+
+                var response = new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
+                response.Headers.TryAddWithoutValidation("x-ms-response-test", "response");
+                upstreamStream = new DuplexStream(
+                    readStream: StringToStream("response content"),
+                    writeStream: new MemoryStream());
+                response.Content = new RawStreamContent(upstreamStream);
+                return response;
+            });
+
+        await sut.SendAsync(httpContext, destinationPrefix, client);
+
+        Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
+        Assert.Contains("response", httpContext.Response.Headers["x-ms-response-test"].ToArray());
+
+        downstreamStream.WriteStream.Position = 0;
+        var returnedToDownstream = StreamToString(downstreamStream.WriteStream);
+        Assert.Equal("response content", returnedToDownstream);
+
+        Assert.NotNull(upstreamStream);
+        upstreamStream.WriteStream.Position = 0;
+        var sentToUpstream = StreamToString(upstreamStream.WriteStream);
+        Assert.Equal("request content", sentToUpstream);
+
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages(upgrade: true);
+    }
+
+    [Fact]
+    public async Task NonUpgradableRequestReturns101_Aborted()
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+
+        DuplexStream upstreamStream = null;
+
+        var destinationPrefix = "https://localhost:123/a/b/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                await Task.Yield();
+
+                Assert.Equal(new Version(2, 0), request.Version);
+                Assert.Equal(HttpMethod.Get, request.Method);
+                Assert.Null(request.Content);
+
+                var response = new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
+                upstreamStream = new DuplexStream(
+                    readStream: StringToStream("response content"),
+                    writeStream: new MemoryStream());
+                response.Content = new RawStreamContent(upstreamStream);
+                return response;
+            });
+
+        await sut.SendAsync(httpContext, destinationPrefix, client);
+
+        Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
+
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, ForwarderError.UpgradeResponseDestination);
+        events.AssertContainProxyStages(upgrade: true, hasRequestContent: false, hasResponseContent: false);
+    }
+
+    // Tests proxying an upgradeable request where the destination refused to upgrade.
+    // We should still proxy back the response.
+    [Fact]
+    public async Task UpgradableRequestFailsToUpgrade_ProxiesResponse()
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Scheme = "https";
+        httpContext.Request.Host = new HostString("example.com");
+        httpContext.Request.Path = "/api/test";
+        httpContext.Request.QueryString = new QueryString("?a=b&c=d");
+        httpContext.Request.Headers.Add(":host", "example.com");
+        httpContext.Request.Headers.Add("x-ms-request-test", "request");
+
+        // TODO: https://github.com/microsoft/reverse-proxy/issues/255
+        httpContext.Request.Headers.Add("Upgrade", "WebSocket");
+
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
+
+        var upgradeFeatureMock = new Mock<IHttpUpgradeFeature>(MockBehavior.Strict);
+        upgradeFeatureMock.SetupGet(u => u.IsUpgradableRequest).Returns(true);
+        httpContext.Features.Set(upgradeFeatureMock.Object);
+
+        var destinationPrefix = "https://localhost:123/a/b/";
+        var targetUri = "https://localhost:123/a/b/api/test?a=b&c=d";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                await Task.Yield();
+
+                Assert.Equal(new Version(1, 1), request.Version);
+                Assert.Equal(HttpMethod.Get, request.Method);
+                Assert.Equal(targetUri, request.RequestUri.AbsoluteUri);
+                Assert.Contains("request", request.Headers.GetValues("x-ms-request-test"));
+
+                Assert.Null(request.Content);
+
+                var response = new HttpResponseMessage((HttpStatusCode)234);
+                response.ReasonPhrase = "Test Reason Phrase";
+                response.Headers.TryAddWithoutValidation("x-ms-response-test", "response");
+                response.Content = new StreamContent(StringToStream("response content"));
+                response.Content.Headers.TryAddWithoutValidation("Content-Language", "responseLanguage");
+                return response;
+            });
+
+        await sut.SendAsync(httpContext, destinationPrefix, client);
+
+        Assert.Equal(234, httpContext.Response.StatusCode);
+        var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
+        Assert.Equal("Test Reason Phrase", reasonPhrase);
+        Assert.Contains("response", httpContext.Response.Headers["x-ms-response-test"].ToArray());
+        Assert.Contains("responseLanguage", httpContext.Response.Headers["Content-Language"].ToArray());
+
+        proxyResponseStream.Position = 0;
+        var proxyResponseText = StreamToString(proxyResponseStream);
+        Assert.Equal("response content", proxyResponseText);
+
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages(hasRequestContent: false, upgrade: false);
+    }
+
+    [Fact]
+    public async Task UpgradableRequest_CancelsIfIdle()
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Scheme = "http";
+        httpContext.Request.Path = "/api/test";
+        httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
+
+        // TODO: https://github.com/microsoft/reverse-proxy/issues/255
+        // https://github.com/microsoft/reverse-proxy/issues/467
+        httpContext.Request.Headers.Add("Upgrade", "WebSocket");
+
+        var _idleTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var downstreamStream = new DuplexStream(
+            readStream: new StallStream(ct =>
+            {
+                ct.Register(() => _idleTcs.TrySetCanceled());
+                return _idleTcs.Task;
+            }),
+            writeStream: new MemoryStream());
+        DuplexStream upstreamStream = null;
+
+        var upgradeFeatureMock = new Mock<IHttpUpgradeFeature>();
+        upgradeFeatureMock.SetupGet(u => u.IsUpgradableRequest).Returns(true);
+        upgradeFeatureMock.Setup(u => u.UpgradeAsync()).ReturnsAsync(downstreamStream);
+        httpContext.Features.Set(upgradeFeatureMock.Object);
+
+        var destinationPrefix = "https://localhost:123/a/b/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                await Task.Yield();
+
+                Assert.Equal(new Version(1, 1), request.Version);
+                Assert.Equal(HttpMethod.Get, request.Method);
+
+                Assert.Null(request.Content);
+
+                var response = new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
+                upstreamStream = new DuplexStream(
+                    readStream: new StallStream(ct =>
+                    {
+                        ct.Register(() => _idleTcs.TrySetCanceled());
+                        return _idleTcs.Task;
+                    }),
+                    writeStream: new MemoryStream());
+                response.Content = new RawStreamContent(upstreamStream);
+                return response;
+            });
+
+        var result = await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig
+        {
+            ActivityTimeout = TimeSpan.FromSeconds(1)
+        }).DefaultTimeout();
+
+        Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
+
+        // When both are idle it's a race which gets reported as canceled first.
+        Assert.True(ForwarderError.UpgradeRequestCanceled == result
+            || ForwarderError.UpgradeResponseCanceled == result);
+
+        events.AssertContainProxyStages(upgrade: true);
+    }
+
+    [Theory]
+    [InlineData("TRACE", "HTTP/1.1", "")]
+    [InlineData("TRACE", "HTTP/2", "")]
+    [InlineData("GET", "HTTP/1.1", "")]
+    [InlineData("GET", "HTTP/2", "")]
+    [InlineData("GET", "HTTP/1.1", "Content-Length:0")]
+    [InlineData("HEAD", "HTTP/1.1", "")]
+    [InlineData("POST", "HTTP/1.1", "")]
+    [InlineData("POST", "HTTP/1.1", "Content-Length:0")]
+    [InlineData("POST", "HTTP/1.1", "Content-Length:0;Content-Type:text/plain")]
+    [InlineData("POST", "HTTP/2", "Content-Length:0")]
+    [InlineData("POST", "HTTP/2", "Content-Length:0;Content-Type:text/plain")]
+    [InlineData("PATCH", "HTTP/1.1", "")]
+    [InlineData("DELETE", "HTTP/1.1", "")]
+    [InlineData("Unknown", "HTTP/1.1", "")]
+    // [InlineData("CONNECT", "HTTP/1.1", "")] Blocked in HttpUtilities.GetHttpMethod
+    [InlineData("GET", "HTTP/1.1", "Allow:Foo")]
+    [InlineData("GET", "HTTP/1.1", "Content-Disposition:Foo")]
+    [InlineData("GET", "HTTP/1.1", "Content-Encoding:Foo")]
+    [InlineData("GET", "HTTP/1.1", "Content-Language:Foo")]
+    [InlineData("GET", "HTTP/1.1", "Content-Location:Foo")]
+    [InlineData("GET", "HTTP/1.1", "Content-MD5:Foo")]
+    [InlineData("GET", "HTTP/1.1", "Content-Range:Foo")]
+    [InlineData("GET", "HTTP/1.1", "Content-Type:Foo")]
+    [InlineData("GET", "HTTP/1.1", "Expires:Foo")]
+    [InlineData("GET", "HTTP/1.1", "Last-Modified:Foo")]
+    public async Task RequestWithoutBodies_NoHttpContent(string method, string protocol, string headerList)
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = method;
+        httpContext.Request.Protocol = protocol;
+
+        var headers = headerList
+            .Split(';', StringSplitOptions.RemoveEmptyEntries)
+            .Select(header => (Key: header.Split(':')[0], Value: header.Split(':')[1]))
+            .ToArray();
+
+        foreach (var (key, value) in headers)
+        {
+            httpContext.Request.Headers[key] = value;
+        }
+
+        var destinationPrefix = "https://localhost/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                Assert.Equal(new Version(2, 0), request.Version);
+                Assert.Equal(method, request.Method.Method, StringComparer.OrdinalIgnoreCase);
 
                     // When adding content-specific headers, we will inject an EmptyHttpContent if no other content is present
                     if (headers.Any())
-                    {
-                        Assert.NotNull(request.Content);
-                        Assert.IsType<EmptyHttpContent>(request.Content);
-                        Assert.Empty(await request.Content.ReadAsByteArrayAsync());
+                {
+                    Assert.NotNull(request.Content);
+                    Assert.IsType<EmptyHttpContent>(request.Content);
+                    Assert.Empty(await request.Content.ReadAsByteArrayAsync());
 
-                        foreach (var (key, value) in headers)
-                        {
-                            Assert.True(request.Content.Headers.TryGetValues(key, out var values));
-                            Assert.Equal(value, Assert.Single(values));
-                        }
+                    foreach (var (key, value) in headers)
+                    {
+                        Assert.True(request.Content.Headers.TryGetValues(key, out var values));
+                        Assert.Equal(value, Assert.Single(values));
+                    }
 
                         // If a custom content is injected, so is a "Content-Length: 0" header
                         Assert.True(request.Content.Headers.TryGetValues(HeaderNames.ContentLength, out var contentLength));
-                        Assert.Equal("0", Assert.Single(contentLength));
-                    }
-                    else
-                    {
-                        Assert.Null(request.Content);
-                    }
+                    Assert.Equal("0", Assert.Single(contentLength));
+                }
+                else
+                {
+                    Assert.Null(request.Content);
+                }
 
-                    return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
-                });
+                return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+            });
 
-            await sut.SendAsync(httpContext, destinationPrefix, client);
+        await sut.SendAsync(httpContext, destinationPrefix, client);
 
-            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
 
-            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-            events.AssertContainProxyStages(hasRequestContent: false);
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages(hasRequestContent: false);
+    }
+
+    [Theory]
+    [InlineData("POST", "HTTP/2", "")]
+    [InlineData("PATCH", "HTTP/2", "")]
+    [InlineData("UNKNOWN", "HTTP/2", "")]
+    [InlineData("UNKNOWN", "HTTP/1.1", "Content-Length:10")]
+    [InlineData("UNKNOWN", "HTTP/1.1", "transfer-encoding:Chunked")]
+    [InlineData("GET", "HTTP/1.1", "Content-Length:10")]
+    [InlineData("GET", "HTTP/2", "Content-Length:10")]
+    [InlineData("HEAD", "HTTP/1.1", "transfer-encoding:Chunked")]
+    [InlineData("HEAD", "HTTP/2", "transfer-encoding:Chunked")]
+    public async Task RequestWithBodies_HasHttpContent(string method, string protocol, string headers)
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = method;
+        httpContext.Request.Protocol = protocol;
+        foreach (var header in headers.Split(';', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var parts = header.Split(':');
+            var key = parts[0];
+            var value = parts[1];
+            httpContext.Request.Headers[key] = value;
         }
 
-        [Theory]
-        [InlineData("POST", "HTTP/2", "")]
-        [InlineData("PATCH", "HTTP/2", "")]
-        [InlineData("UNKNOWN", "HTTP/2", "")]
-        [InlineData("UNKNOWN", "HTTP/1.1", "Content-Length:10")]
-        [InlineData("UNKNOWN", "HTTP/1.1", "transfer-encoding:Chunked")]
-        [InlineData("GET", "HTTP/1.1", "Content-Length:10")]
-        [InlineData("GET", "HTTP/2", "Content-Length:10")]
-        [InlineData("HEAD", "HTTP/1.1", "transfer-encoding:Chunked")]
-        [InlineData("HEAD", "HTTP/2", "transfer-encoding:Chunked")]
-        public async Task RequestWithBodies_HasHttpContent(string method, string protocol, string headers)
-        {
-            var events = TestEventListener.Collect();
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = method;
-            httpContext.Request.Protocol = protocol;
-            foreach (var header in headers.Split(';', StringSplitOptions.RemoveEmptyEntries))
+        var destinationPrefix = "https://localhost/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
             {
-                var parts = header.Split(':');
-                var key = parts[0];
-                var value = parts[1];
-                httpContext.Request.Headers[key] = value;
-            }
+                Assert.Equal(new Version(2, 0), request.Version);
+                Assert.Equal(method, request.Method.Method, StringComparer.OrdinalIgnoreCase);
 
-            var destinationPrefix = "https://localhost/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    Assert.Equal(new Version(2, 0), request.Version);
-                    Assert.Equal(method, request.Method.Method, StringComparer.OrdinalIgnoreCase);
-
-                    Assert.NotNull(request.Content);
+                Assert.NotNull(request.Content);
 
                     // Must consume the body
                     await request.Content.CopyToWithCancellationAsync(Stream.Null);
 
-                    return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
-                });
+                return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+            });
 
-            await sut.SendAsync(httpContext, destinationPrefix, client);
+        await sut.SendAsync(httpContext, destinationPrefix, client);
 
-            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
 
-            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-            events.AssertContainProxyStages();
-        }
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages();
+    }
 
 #if NET
-        [Fact]
-        public async Task BodyDetectionFeatureSaysNo_NoHttpContent()
-        {
-            var events = TestEventListener.Collect();
+    [Fact]
+    public async Task BodyDetectionFeatureSaysNo_NoHttpContent()
+    {
+        var events = TestEventListener.Collect();
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = HttpMethods.Post;
-            httpContext.Features.Set<IHttpRequestBodyDetectionFeature>(new TestBodyDetector() { CanHaveBody = false });
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = HttpMethods.Post;
+        httpContext.Features.Set<IHttpRequestBodyDetectionFeature>(new TestBodyDetector() { CanHaveBody = false });
 
-            var destinationPrefix = "https://localhost/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    Assert.Equal(new Version(2, 0), request.Version);
+        var destinationPrefix = "https://localhost/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                Assert.Equal(new Version(2, 0), request.Version);
 
-                    Assert.Null(request.Content);
+                Assert.Null(request.Content);
 
-                    var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
-                    return Task.FromResult(response);
-                });
+                var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+                return Task.FromResult(response);
+            });
 
-            await sut.SendAsync(httpContext, destinationPrefix, client);
+        await sut.SendAsync(httpContext, destinationPrefix, client);
 
-            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
 
-            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-            events.AssertContainProxyStages(hasRequestContent: false);
-        }
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages(hasRequestContent: false);
+    }
 
-        [Fact]
-        public async Task BodyDetectionFeatureSaysYes_HasHttpContent()
-        {
-            var events = TestEventListener.Collect();
+    [Fact]
+    public async Task BodyDetectionFeatureSaysYes_HasHttpContent()
+    {
+        var events = TestEventListener.Collect();
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = HttpMethods.Get;
-            httpContext.Features.Set<IHttpRequestBodyDetectionFeature>(new TestBodyDetector() { CanHaveBody = true });
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = HttpMethods.Get;
+        httpContext.Features.Set<IHttpRequestBodyDetectionFeature>(new TestBodyDetector() { CanHaveBody = true });
 
-            var destinationPrefix = "https://localhost/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    Assert.Equal(new Version(2, 0), request.Version);
+        var destinationPrefix = "https://localhost/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                Assert.Equal(new Version(2, 0), request.Version);
 
-                    Assert.NotNull(request.Content);
+                Assert.NotNull(request.Content);
 
                     // Must consume the body
                     await request.Content.CopyToWithCancellationAsync(Stream.Null);
 
-                    return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
-                });
+                return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+            });
 
-            await sut.SendAsync(httpContext, destinationPrefix, client);
+        await sut.SendAsync(httpContext, destinationPrefix, client);
 
-            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
 
-            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-            events.AssertContainProxyStages();
-        }
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages();
+    }
 
-        private class TestBodyDetector : IHttpRequestBodyDetectionFeature
-        {
-            public bool CanHaveBody { get; set; }
-        }
+    private class TestBodyDetector : IHttpRequestBodyDetectionFeature
+    {
+        public bool CanHaveBody { get; set; }
+    }
 #endif
 
-        [Fact]
-        public async Task RequestWithCookieHeaders()
-        {
-            var events = TestEventListener.Collect();
+    [Fact]
+    public async Task RequestWithCookieHeaders()
+    {
+        var events = TestEventListener.Collect();
 
-            // This is an invalid format per spec but may happen due to https://github.com/dotnet/aspnetcore/issues/26461
-            var cookies = new [] { "testA=A_Cookie", "testB=B_Cookie", "testC=C_Cookie" };
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Headers.Add(HeaderNames.Cookie, cookies);
+        // This is an invalid format per spec but may happen due to https://github.com/dotnet/aspnetcore/issues/26461
+        var cookies = new[] { "testA=A_Cookie", "testB=B_Cookie", "testC=C_Cookie" };
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Headers.Add(HeaderNames.Cookie, cookies);
 
-            var destinationPrefix = "https://localhost/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
+        var destinationPrefix = "https://localhost/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
                     // "testA=A_Cookie; testB=B_Cookie; testC=C_Cookie"
                     var expectedCookieString = string.Join("; ", cookies);
 
-                    Assert.Equal(new Version(2, 0), request.Version);
-                    Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
-                    Assert.Null(request.Content);
-                    Assert.True(request.Headers.TryGetValues(HeaderNames.Cookie, out var cookieHeaders));
-                    Assert.NotNull(cookieHeaders);
-                    var cookie = Assert.Single(cookieHeaders);
-                    Assert.Equal(expectedCookieString, cookie);
+                Assert.Equal(new Version(2, 0), request.Version);
+                Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
+                Assert.Null(request.Content);
+                Assert.True(request.Headers.TryGetValues(HeaderNames.Cookie, out var cookieHeaders));
+                Assert.NotNull(cookieHeaders);
+                var cookie = Assert.Single(cookieHeaders);
+                Assert.Equal(expectedCookieString, cookie);
 
-                    var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
-                    return Task.FromResult(response);
-                });
+                var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+                return Task.FromResult(response);
+            });
 
-            await sut.SendAsync(httpContext, destinationPrefix, client);
+        await sut.SendAsync(httpContext, destinationPrefix, client);
 
-            Assert.Null(httpContext.Features.Get<IForwarderErrorFeature>());
-            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        Assert.Null(httpContext.Features.Get<IForwarderErrorFeature>());
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
 
-            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-            events.AssertContainProxyStages(hasRequestContent: false);
-        }
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages(hasRequestContent: false);
+    }
 
-        [Fact]
-        public async Task OptionsWithVersion()
-        {
-            var events = TestEventListener.Collect();
+    [Fact]
+    public async Task OptionsWithVersion()
+    {
+        var events = TestEventListener.Collect();
 
-            // Use any non-default value
-            var version = new Version(5, 5);
+        // Use any non-default value
+        var version = new Version(5, 5);
 #if NET
-            var versionPolicy = HttpVersionPolicy.RequestVersionExact;
+        var versionPolicy = HttpVersionPolicy.RequestVersionExact;
 #endif
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
 
-            var destinationPrefix = "https://localhost/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    Assert.Equal(version, request.Version);
+        var destinationPrefix = "https://localhost/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                Assert.Equal(version, request.Version);
 #if NET
                     Assert.Equal(versionPolicy, request.VersionPolicy);
 #endif
                     Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
-                    Assert.Null(request.Content);
+                Assert.Null(request.Content);
 
-                    var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
-                    return Task.FromResult(response);
-                });
+                var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+                return Task.FromResult(response);
+            });
 
-            var options = new ForwarderRequestConfig
-            {
-                Version = version,
-#if NET
-                VersionPolicy = versionPolicy,
-#endif
-            };
-
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, options);
-
-            Assert.Equal(ForwarderError.None, proxyError);
-            Assert.Null(httpContext.Features.Get<IForwarderErrorFeature>());
-            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
-
-            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-            events.AssertContainProxyStages(hasRequestContent: false);
-        }
-
-        [Fact]
-        public async Task OptionsWithVersion_Transformed()
+        var options = new ForwarderRequestConfig
         {
-            var events = TestEventListener.Collect();
-
-            // Use any non-default value
-            var version = new Version(5, 5);
-            var transformedVersion = new Version(6, 6);
+            Version = version,
 #if NET
-            var versionPolicy = HttpVersionPolicy.RequestVersionExact;
-            var transformedVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
+            VersionPolicy = versionPolicy,
+#endif
+        };
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, options);
+
+        Assert.Equal(ForwarderError.None, proxyError);
+        Assert.Null(httpContext.Features.Get<IForwarderErrorFeature>());
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages(hasRequestContent: false);
+    }
+
+    [Fact]
+    public async Task OptionsWithVersion_Transformed()
+    {
+        var events = TestEventListener.Collect();
+
+        // Use any non-default value
+        var version = new Version(5, 5);
+        var transformedVersion = new Version(6, 6);
+#if NET
+        var versionPolicy = HttpVersionPolicy.RequestVersionExact;
+        var transformedVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
 #endif
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
 
-            var destinationPrefix = "https://localhost/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    Assert.Equal(transformedVersion, request.Version);
+        var destinationPrefix = "https://localhost/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                Assert.Equal(transformedVersion, request.Version);
 #if NET
                     Assert.Equal(transformedVersionPolicy, request.VersionPolicy);
 #endif
                     Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
-                    Assert.Null(request.Content);
+                Assert.Null(request.Content);
 
-                    var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
-                    return Task.FromResult(response);
-                });
+                var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+                return Task.FromResult(response);
+            });
 
-            var transforms = new DelegateHttpTransforms()
+        var transforms = new DelegateHttpTransforms()
+        {
+            CopyRequestHeaders = false,
+            OnRequest = (context, request, destination) =>
             {
-                CopyRequestHeaders = false,
-                OnRequest = (context, request, destination) =>
-                {
-                    Assert.Equal(version, request.Version);
-                    request.Version = transformedVersion;
+                Assert.Equal(version, request.Version);
+                request.Version = transformedVersion;
 #if NET
                     Assert.Equal(versionPolicy, request.VersionPolicy);
-                    request.VersionPolicy = transformedVersionPolicy;
+                request.VersionPolicy = transformedVersionPolicy;
 #endif
                     return Task.CompletedTask;
-                }
-            };
+            }
+        };
 
-            var requestOptions = new ForwarderRequestConfig
-            {
-                Version = version,
+        var requestOptions = new ForwarderRequestConfig
+        {
+            Version = version,
 #if NET
-                VersionPolicy = versionPolicy,
+            VersionPolicy = versionPolicy,
 #endif
-            };
+        };
 
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, requestOptions, transforms);
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, requestOptions, transforms);
 
-            Assert.Equal(ForwarderError.None, proxyError);
-            Assert.Null(httpContext.Features.Get<IForwarderErrorFeature>());
-            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        Assert.Equal(ForwarderError.None, proxyError);
+        Assert.Null(httpContext.Features.Get<IForwarderErrorFeature>());
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
 
-            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-            events.AssertContainProxyStages(hasRequestContent: false);
-        }
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages(hasRequestContent: false);
+    }
 
-        [Fact]
-        public async Task UnableToConnect_Returns502()
-        {
-            var events = TestEventListener.Collect();
+    [Fact]
+    public async Task UnableToConnect_Returns502()
+    {
+        var events = TestEventListener.Collect();
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Host = new HostString("example.com:3456");
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Host = new HostString("example.com:3456");
 
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
 
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    throw new HttpRequestException("No connection could be made because the target machine actively refused it.");
-                });
-
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
-
-            Assert.Equal(ForwarderError.Request, proxyError);
-            Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
-            Assert.Equal(0, proxyResponseStream.Length);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.Request, errorFeature.Error);
-            Assert.IsType<HttpRequestException>(errorFeature.Exception);
-
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart });
-        }
-
-        [Fact]
-        public async Task UnableToConnectWithBody_Returns502()
-        {
-            var events = TestEventListener.Collect();
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            httpContext.Request.Body = new MemoryStream(new byte[1]);
-            httpContext.Request.ContentLength = 1;
-
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
-
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    throw new HttpRequestException("No connection could be made because the target machine actively refused it.");
-                });
-
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
-
-            Assert.Equal(ForwarderError.Request, proxyError);
-            Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
-            Assert.Equal(0, proxyResponseStream.Length);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.Request, errorFeature.Error);
-            Assert.IsType<HttpRequestException>(errorFeature.Exception);
-
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart });
-        }
-
-        [Fact]
-        public async Task RequestTimedOut_Returns504()
-        {
-            var events = TestEventListener.Collect();
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Host = new HostString("example.com:3456");
-
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
-
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    cancellationToken.WaitHandle.WaitOne();
-                    cancellationToken.ThrowIfCancellationRequested();
-                    return Task.FromResult(new HttpResponseMessage());
-                });
-
-            // Time out immediately
-            var requestOptions = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromTicks(1) };
-
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, requestOptions);
-
-            Assert.Equal(ForwarderError.RequestTimedOut, proxyError);
-            Assert.Equal(StatusCodes.Status504GatewayTimeout, httpContext.Response.StatusCode);
-            Assert.Equal(0, proxyResponseStream.Length);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.RequestTimedOut, errorFeature.Error);
-            Assert.IsType<OperationCanceledException>(errorFeature.Exception);
-
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart });
-        }
-
-        [Fact]
-        public async Task RequestCanceled_Returns502()
-        {
-            var events = TestEventListener.Collect();
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            httpContext.RequestAborted = new CancellationToken(canceled: true);
-
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
-
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    return Task.FromResult(new HttpResponseMessage());
-                });
-
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
-
-            Assert.Equal(ForwarderError.RequestCanceled, proxyError);
-            Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
-            Assert.Equal(0, proxyResponseStream.Length);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.RequestCanceled, errorFeature.Error);
-            Assert.IsType<OperationCanceledException>(errorFeature.Exception);
-
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart });
-        }
-
-        [Fact]
-        public async Task RequestWithBodyTimedOut_Returns504()
-        {
-            var events = TestEventListener.Collect();
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            httpContext.Request.Body = new MemoryStream(new byte[1]);
-            httpContext.Request.ContentLength = 1;
-
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
-
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    cancellationToken.WaitHandle.WaitOne();
-                    cancellationToken.ThrowIfCancellationRequested();
-                    return Task.FromResult(new HttpResponseMessage());
-                });
-
-            // Time out immediately
-            var requestOptions = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromTicks(1) };
-
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, requestOptions);
-
-            Assert.Equal(ForwarderError.RequestTimedOut, proxyError);
-            Assert.Equal(StatusCodes.Status504GatewayTimeout, httpContext.Response.StatusCode);
-            Assert.Equal(0, proxyResponseStream.Length);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.RequestTimedOut, errorFeature.Error);
-            Assert.IsType<OperationCanceledException>(errorFeature.Exception);
-
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart });
-        }
-
-        [Fact]
-        public async Task RequestWithBody_KeptAliveByActivity()
-        {
-            var events = TestEventListener.Collect();
-
-            var reads = 0;
-            var expectedReads = 6;
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Body = new CallbackReadStream(async (memory, ct) =>
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
             {
-                if (reads >= expectedReads)
-                {
-                    return 0;
-                }
-                reads++;
-                await Task.Delay(TimeSpan.FromMilliseconds(250), ct);
-                memory.Span[0] = (byte)'a';
-                return 1;
+                throw new HttpRequestException("No connection could be made because the target machine actively refused it.");
             });
-            httpContext.Request.ContentLength = 1;
 
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
 
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    Assert.Equal(new Version(2, 0), request.Version);
-                    Assert.Equal("POST", request.Method.Method, StringComparer.OrdinalIgnoreCase);
+        Assert.Equal(ForwarderError.Request, proxyError);
+        Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
+        Assert.Equal(0, proxyResponseStream.Length);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.Request, errorFeature.Error);
+        Assert.IsType<HttpRequestException>(errorFeature.Exception);
 
-                    Assert.NotNull(request.Content);
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart });
+    }
+
+    [Fact]
+    public async Task UnableToConnectWithBody_Returns502()
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        httpContext.Request.Body = new MemoryStream(new byte[1]);
+        httpContext.Request.ContentLength = 1;
+
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
+
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                throw new HttpRequestException("No connection could be made because the target machine actively refused it.");
+            });
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+
+        Assert.Equal(ForwarderError.Request, proxyError);
+        Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
+        Assert.Equal(0, proxyResponseStream.Length);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.Request, errorFeature.Error);
+        Assert.IsType<HttpRequestException>(errorFeature.Exception);
+
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart });
+    }
+
+    [Fact]
+    public async Task RequestTimedOut_Returns504()
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Host = new HostString("example.com:3456");
+
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
+
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                cancellationToken.WaitHandle.WaitOne();
+                cancellationToken.ThrowIfCancellationRequested();
+                return Task.FromResult(new HttpResponseMessage());
+            });
+
+        // Time out immediately
+        var requestOptions = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromTicks(1) };
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, requestOptions);
+
+        Assert.Equal(ForwarderError.RequestTimedOut, proxyError);
+        Assert.Equal(StatusCodes.Status504GatewayTimeout, httpContext.Response.StatusCode);
+        Assert.Equal(0, proxyResponseStream.Length);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.RequestTimedOut, errorFeature.Error);
+        Assert.IsType<OperationCanceledException>(errorFeature.Exception);
+
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart });
+    }
+
+    [Fact]
+    public async Task RequestCanceled_Returns502()
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        httpContext.RequestAborted = new CancellationToken(canceled: true);
+
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
+
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                return Task.FromResult(new HttpResponseMessage());
+            });
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+
+        Assert.Equal(ForwarderError.RequestCanceled, proxyError);
+        Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
+        Assert.Equal(0, proxyResponseStream.Length);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.RequestCanceled, errorFeature.Error);
+        Assert.IsType<OperationCanceledException>(errorFeature.Exception);
+
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart });
+    }
+
+    [Fact]
+    public async Task RequestWithBodyTimedOut_Returns504()
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        httpContext.Request.Body = new MemoryStream(new byte[1]);
+        httpContext.Request.ContentLength = 1;
+
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
+
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                cancellationToken.WaitHandle.WaitOne();
+                cancellationToken.ThrowIfCancellationRequested();
+                return Task.FromResult(new HttpResponseMessage());
+            });
+
+        // Time out immediately
+        var requestOptions = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromTicks(1) };
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, requestOptions);
+
+        Assert.Equal(ForwarderError.RequestTimedOut, proxyError);
+        Assert.Equal(StatusCodes.Status504GatewayTimeout, httpContext.Response.StatusCode);
+        Assert.Equal(0, proxyResponseStream.Length);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.RequestTimedOut, errorFeature.Error);
+        Assert.IsType<OperationCanceledException>(errorFeature.Exception);
+
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart });
+    }
+
+    [Fact]
+    public async Task RequestWithBody_KeptAliveByActivity()
+    {
+        var events = TestEventListener.Collect();
+
+        var reads = 0;
+        var expectedReads = 6;
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Body = new CallbackReadStream(async (memory, ct) =>
+        {
+            if (reads >= expectedReads)
+            {
+                return 0;
+            }
+            reads++;
+            await Task.Delay(TimeSpan.FromMilliseconds(250), ct);
+            memory.Span[0] = (byte)'a';
+            return 1;
+        });
+        httpContext.Request.ContentLength = 1;
+
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
+
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                Assert.Equal(new Version(2, 0), request.Version);
+                Assert.Equal("POST", request.Method.Method, StringComparer.OrdinalIgnoreCase);
+
+                Assert.NotNull(request.Content);
 
                     // Must consume the body
                     var body = new MemoryStream();
-                    await request.Content.CopyToWithCancellationAsync(body);
+                await request.Content.CopyToWithCancellationAsync(body);
 
-                    Assert.Equal(expectedReads, body.Length);
+                Assert.Equal(expectedReads, body.Length);
 
-                    cancellationToken.ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
 
-                    return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
-                });
+                return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+            });
 
-            var requestOptions = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(1) };
+        var requestOptions = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(1) };
 
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, requestOptions);
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, requestOptions);
 
-            Assert.Equal(ForwarderError.None, proxyError);
-            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
-            Assert.Equal(0, proxyResponseStream.Length);
+        Assert.Equal(ForwarderError.None, proxyError);
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        Assert.Equal(0, proxyResponseStream.Length);
 
-            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-            events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart, ForwarderStage.SendAsyncStop,
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart, ForwarderStage.SendAsyncStop,
                 ForwarderStage.RequestContentTransferStart, ForwarderStage.ResponseContentTransferStart,  });
-        }
+    }
 
-        [Fact]
-        public async Task RequestWithBodyCanceled_Returns502()
-        {
-            var events = TestEventListener.Collect();
+    [Fact]
+    public async Task RequestWithBodyCanceled_Returns502()
+    {
+        var events = TestEventListener.Collect();
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            httpContext.Request.Body = new MemoryStream(new byte[1]);
-            httpContext.Request.ContentLength = 1;
-            httpContext.RequestAborted = new CancellationToken(canceled: true);
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        httpContext.Request.Body = new MemoryStream(new byte[1]);
+        httpContext.Request.ContentLength = 1;
+        httpContext.RequestAborted = new CancellationToken(canceled: true);
 
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
 
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    return Task.FromResult(new HttpResponseMessage());
-                });
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                return Task.FromResult(new HttpResponseMessage());
+            });
 
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
 
-            Assert.Equal(ForwarderError.RequestCanceled, proxyError);
-            Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
-            Assert.Equal(0, proxyResponseStream.Length);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.RequestCanceled, errorFeature.Error);
-            Assert.IsType<OperationCanceledException>(errorFeature.Exception);
+        Assert.Equal(ForwarderError.RequestCanceled, proxyError);
+        Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
+        Assert.Equal(0, proxyResponseStream.Length);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.RequestCanceled, errorFeature.Error);
+        Assert.IsType<OperationCanceledException>(errorFeature.Exception);
 
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart });
-        }
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart });
+    }
 
-        [Fact]
-        public async Task RequestBodyClientErrorBeforeResponseError_Returns400()
-        {
-            var events = TestEventListener.Collect();
+    [Fact]
+    public async Task RequestBodyClientErrorBeforeResponseError_Returns400()
+    {
+        var events = TestEventListener.Collect();
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            httpContext.Request.Body = new ThrowStream(throwOnFirstRead: true);
-            httpContext.Request.ContentLength = 1;
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        httpContext.Request.Body = new ThrowStream(throwOnFirstRead: true);
+        httpContext.Request.ContentLength = 1;
 
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
 
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
                     // Should throw.
                     await request.Content.CopyToWithCancellationAsync(Stream.Null);
-                    return new HttpResponseMessage();
-                });
+                return new HttpResponseMessage();
+            });
 
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
 
-            Assert.Equal(ForwarderError.RequestBodyClient, proxyError);
-            Assert.Equal(StatusCodes.Status400BadRequest, httpContext.Response.StatusCode);
-            Assert.Equal(0, proxyResponseStream.Length);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.RequestBodyClient, errorFeature.Error);
-            Assert.IsType<AggregateException>(errorFeature.Exception);
+        Assert.Equal(ForwarderError.RequestBodyClient, proxyError);
+        Assert.Equal(StatusCodes.Status400BadRequest, httpContext.Response.StatusCode);
+        Assert.Equal(0, proxyResponseStream.Length);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.RequestBodyClient, errorFeature.Error);
+        Assert.IsType<AggregateException>(errorFeature.Exception);
 
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages(new[] {
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(new[] {
                 ForwarderStage.SendAsyncStart,
                 ForwarderStage.RequestContentTransferStart
             });
-        }
+    }
 
-        [Fact]
-        public async Task RequestBodyDestinationErrorBeforeResponseError_Returns502()
-        {
-            var events = TestEventListener.Collect();
+    [Fact]
+    public async Task RequestBodyDestinationErrorBeforeResponseError_Returns502()
+    {
+        var events = TestEventListener.Collect();
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            httpContext.Request.Body = new MemoryStream(new byte[1]);
-            httpContext.Request.ContentLength = 1;
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        httpContext.Request.Body = new MemoryStream(new byte[1]);
+        httpContext.Request.ContentLength = 1;
 
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
 
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
                     // Doesn't throw for destination errors
                     await request.Content.CopyToWithCancellationAsync(new ThrowStream());
-                    throw new HttpRequestException();
-                });
+                throw new HttpRequestException();
+            });
 
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
 
-            Assert.Equal(ForwarderError.RequestBodyDestination, proxyError);
-            Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
-            Assert.Equal(0, proxyResponseStream.Length);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.RequestBodyDestination, errorFeature.Error);
-            Assert.IsType<AggregateException>(errorFeature.Exception);
+        Assert.Equal(ForwarderError.RequestBodyDestination, proxyError);
+        Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
+        Assert.Equal(0, proxyResponseStream.Length);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.RequestBodyDestination, errorFeature.Error);
+        Assert.IsType<AggregateException>(errorFeature.Exception);
 
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages(new[] {
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(new[] {
                 ForwarderStage.SendAsyncStart,
                 ForwarderStage.RequestContentTransferStart
             });
-        }
+    }
 
-        [Fact]
-        public async Task RequestBodyCanceledBeforeResponseError_Returns502()
-        {
-            var events = TestEventListener.Collect();
+    [Fact]
+    public async Task RequestBodyCanceledBeforeResponseError_Returns502()
+    {
+        var events = TestEventListener.Collect();
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            httpContext.Request.Body = new MemoryStream(new byte[1]);
-            httpContext.Request.ContentLength = 1;
-            httpContext.RequestAborted = new CancellationToken(canceled: true);
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        httpContext.Request.Body = new MemoryStream(new byte[1]);
+        httpContext.Request.ContentLength = 1;
+        httpContext.RequestAborted = new CancellationToken(canceled: true);
 
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
 
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
                     // should throw
                     try
-                    {
-                        await request.Content.CopyToWithCancellationAsync(new MemoryStream());
-                    }
-                    catch (OperationCanceledException) { }
-                    throw new HttpRequestException();
-                });
-
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
-
-            Assert.Equal(ForwarderError.RequestBodyCanceled, proxyError);
-            Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
-            Assert.Equal(0, proxyResponseStream.Length);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.RequestBodyCanceled, errorFeature.Error);
-            Assert.IsType<AggregateException>(errorFeature.Exception);
-
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart });
-        }
-
-        [Fact]
-        public async Task ResponseBodySuppressedByTransform_ReturnsStatusCodeAndHeaders()
-        {
-            var events = TestEventListener.Collect();
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Host = new HostString("example.com:3456");
-
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
-
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
-                    var message = new HttpResponseMessage()
-                    {
-                        StatusCode = HttpStatusCode.UnprocessableEntity,
-                        Content = new StreamContent(new ThrowStream(throwOnFirstRead: true))
-                    };
-                    message.Headers.AcceptRanges.Add("bytes");
-                    return Task.FromResult(message);
-                });
-
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, ForwarderRequestConfig.Empty, new DelegateHttpTransforms()
-            {
-                OnResponse = (context, proxyResponse) =>
-                {
-                    Assert.Equal(HttpStatusCode.UnprocessableEntity, proxyResponse.StatusCode);
-                    Assert.Equal(StatusCodes.Status422UnprocessableEntity, context.Response.StatusCode);
-                    return new (false);
+                    await request.Content.CopyToWithCancellationAsync(new MemoryStream());
                 }
+                catch (OperationCanceledException) { }
+                throw new HttpRequestException();
             });
 
-            Assert.Equal(ForwarderError.None, proxyError);
-            Assert.Equal(StatusCodes.Status422UnprocessableEntity, httpContext.Response.StatusCode);
-            Assert.Equal(0, proxyResponseStream.Length);
-            Assert.Equal("bytes", httpContext.Response.Headers[HeaderNames.AcceptRanges]);
-            Assert.Null(httpContext.Features.Get<IForwarderErrorFeature>());
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
 
-            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-            events.AssertContainProxyStages(hasRequestContent: false, hasResponseContent: false);
-        }
+        Assert.Equal(ForwarderError.RequestBodyCanceled, proxyError);
+        Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
+        Assert.Equal(0, proxyResponseStream.Length);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.RequestBodyCanceled, errorFeature.Error);
+        Assert.IsType<AggregateException>(errorFeature.Exception);
 
-        [Fact]
-        public async Task ResponseBodyDestionationErrorFirstRead_Returns502()
-        {
-            var events = TestEventListener.Collect();
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart });
+    }
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Host = new HostString("example.com:3456");
+    [Fact]
+    public async Task ResponseBodySuppressedByTransform_ReturnsStatusCodeAndHeaders()
+    {
+        var events = TestEventListener.Collect();
 
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Host = new HostString("example.com:3456");
 
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
+
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                var message = new HttpResponseMessage()
                 {
-                    var message = new HttpResponseMessage()
-                    {
-                        Content = new StreamContent(new ThrowStream(throwOnFirstRead: true))
-                    };
-                    message.Headers.AcceptRanges.Add("bytes");
-                    return Task.FromResult(message);
-                });
+                    StatusCode = HttpStatusCode.UnprocessableEntity,
+                    Content = new StreamContent(new ThrowStream(throwOnFirstRead: true))
+                };
+                message.Headers.AcceptRanges.Add("bytes");
+                return Task.FromResult(message);
+            });
 
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
-
-            Assert.Equal(ForwarderError.ResponseBodyDestination, proxyError);
-            Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
-            Assert.Equal(0, proxyResponseStream.Length);
-            Assert.Empty(httpContext.Response.Headers);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.ResponseBodyDestination, errorFeature.Error);
-            Assert.IsType<IOException>(errorFeature.Exception);
-
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages(hasRequestContent: false);
-        }
-
-        [Fact]
-        public async Task ResponseBodyDestionationErrorSecondRead_Aborted()
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, ForwarderRequestConfig.Empty, new DelegateHttpTransforms()
         {
-            var events = TestEventListener.Collect();
+            OnResponse = (context, proxyResponse) =>
+            {
+                Assert.Equal(HttpStatusCode.UnprocessableEntity, proxyResponse.StatusCode);
+                Assert.Equal(StatusCodes.Status422UnprocessableEntity, context.Response.StatusCode);
+                return new(false);
+            }
+        });
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            var responseBody = new TestResponseBody();
-            httpContext.Features.Set<IHttpResponseFeature>(responseBody);
-            httpContext.Features.Set<IHttpResponseBodyFeature>(responseBody);
-            httpContext.Features.Set<IHttpRequestLifetimeFeature>(responseBody);
+        Assert.Equal(ForwarderError.None, proxyError);
+        Assert.Equal(StatusCodes.Status422UnprocessableEntity, httpContext.Response.StatusCode);
+        Assert.Equal(0, proxyResponseStream.Length);
+        Assert.Equal("bytes", httpContext.Response.Headers[HeaderNames.AcceptRanges]);
+        Assert.Null(httpContext.Features.Get<IForwarderErrorFeature>());
 
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages(hasRequestContent: false, hasResponseContent: false);
+    }
+
+    [Fact]
+    public async Task ResponseBodyDestionationErrorFirstRead_Returns502()
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Host = new HostString("example.com:3456");
+
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
+
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                var message = new HttpResponseMessage()
                 {
-                    var message = new HttpResponseMessage()
-                    {
-                        Content = new StreamContent(new ThrowStream(throwOnFirstRead: false))
-                    };
-                    message.Headers.AcceptRanges.Add("bytes");
-                    return Task.FromResult(message);
-                });
+                    Content = new StreamContent(new ThrowStream(throwOnFirstRead: true))
+                };
+                message.Headers.AcceptRanges.Add("bytes");
+                return Task.FromResult(message);
+            });
 
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
 
-            Assert.Equal(ForwarderError.ResponseBodyDestination, proxyError);
-            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
-            Assert.Equal(1, responseBody.InnerStream.Length);
-            Assert.True(responseBody.Aborted);
-            Assert.Equal("bytes", httpContext.Response.Headers[HeaderNames.AcceptRanges]);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.ResponseBodyDestination, errorFeature.Error);
-            Assert.IsType<IOException>(errorFeature.Exception);
+        Assert.Equal(ForwarderError.ResponseBodyDestination, proxyError);
+        Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
+        Assert.Equal(0, proxyResponseStream.Length);
+        Assert.Empty(httpContext.Response.Headers);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.ResponseBodyDestination, errorFeature.Error);
+        Assert.IsType<IOException>(errorFeature.Exception);
 
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages(hasRequestContent: false);
-        }
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(hasRequestContent: false);
+    }
 
-        [Fact]
-        public async Task ResponseBodyClientError_Aborted()
-        {
-            var events = TestEventListener.Collect();
+    [Fact]
+    public async Task ResponseBodyDestionationErrorSecondRead_Aborted()
+    {
+        var events = TestEventListener.Collect();
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            var responseBody = new TestResponseBody(new ThrowStream());
-            httpContext.Features.Set<IHttpResponseFeature>(responseBody);
-            httpContext.Features.Set<IHttpResponseBodyFeature>(responseBody);
-            httpContext.Features.Set<IHttpRequestLifetimeFeature>(responseBody);
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        var responseBody = new TestResponseBody();
+        httpContext.Features.Set<IHttpResponseFeature>(responseBody);
+        httpContext.Features.Set<IHttpResponseBodyFeature>(responseBody);
+        httpContext.Features.Set<IHttpRequestLifetimeFeature>(responseBody);
 
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                var message = new HttpResponseMessage()
                 {
-                    var message = new HttpResponseMessage()
-                    {
-                        Content = new StreamContent(new MemoryStream(new byte[1]))
-                    };
-                    message.Headers.AcceptRanges.Add("bytes");
-                    return Task.FromResult(message);
-                });
+                    Content = new StreamContent(new ThrowStream(throwOnFirstRead: false))
+                };
+                message.Headers.AcceptRanges.Add("bytes");
+                return Task.FromResult(message);
+            });
 
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
 
-            Assert.Equal(ForwarderError.ResponseBodyClient, proxyError);
-            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
-            Assert.True(responseBody.Aborted);
-            Assert.Equal("bytes", httpContext.Response.Headers[HeaderNames.AcceptRanges]);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.ResponseBodyClient, errorFeature.Error);
-            Assert.IsType<IOException>(errorFeature.Exception);
+        Assert.Equal(ForwarderError.ResponseBodyDestination, proxyError);
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        Assert.Equal(1, responseBody.InnerStream.Length);
+        Assert.True(responseBody.Aborted);
+        Assert.Equal("bytes", httpContext.Response.Headers[HeaderNames.AcceptRanges]);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.ResponseBodyDestination, errorFeature.Error);
+        Assert.IsType<IOException>(errorFeature.Exception);
 
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages(hasRequestContent: false);
-        }
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(hasRequestContent: false);
+    }
 
-        [Fact]
-        public async Task ResponseBodyCancelled_502()
-        {
-            var events = TestEventListener.Collect();
+    [Fact]
+    public async Task ResponseBodyClientError_Aborted()
+    {
+        var events = TestEventListener.Collect();
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            var responseBody = new TestResponseBody();
-            httpContext.Features.Set<IHttpResponseFeature>(responseBody);
-            httpContext.Features.Set<IHttpResponseBodyFeature>(responseBody);
-            httpContext.Features.Set<IHttpRequestLifetimeFeature>(responseBody);
-            httpContext.RequestAborted = new CancellationToken(canceled: true);
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        var responseBody = new TestResponseBody(new ThrowStream());
+        httpContext.Features.Set<IHttpResponseFeature>(responseBody);
+        httpContext.Features.Set<IHttpResponseBodyFeature>(responseBody);
+        httpContext.Features.Set<IHttpRequestLifetimeFeature>(responseBody);
 
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                var message = new HttpResponseMessage()
                 {
-                    var message = new HttpResponseMessage()
-                    {
-                        Content = new StreamContent(new MemoryStream(new byte[1]))
-                    };
-                    message.Headers.AcceptRanges.Add("bytes");
-                    return Task.FromResult(message);
-                });
+                    Content = new StreamContent(new MemoryStream(new byte[1]))
+                };
+                message.Headers.AcceptRanges.Add("bytes");
+                return Task.FromResult(message);
+            });
 
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
 
-            Assert.Equal(ForwarderError.ResponseBodyCanceled, proxyError);
-            Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
-            Assert.False(responseBody.Aborted);
-            Assert.Empty(httpContext.Response.Headers);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.ResponseBodyCanceled, errorFeature.Error);
-            Assert.IsType<OperationCanceledException>(errorFeature.Exception);
+        Assert.Equal(ForwarderError.ResponseBodyClient, proxyError);
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        Assert.True(responseBody.Aborted);
+        Assert.Equal("bytes", httpContext.Response.Headers[HeaderNames.AcceptRanges]);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.ResponseBodyClient, errorFeature.Error);
+        Assert.IsType<IOException>(errorFeature.Exception);
 
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages(hasRequestContent: false);
-        }
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(hasRequestContent: false);
+    }
 
-        [Fact]
-        public async Task ResponseBodyCancelledAfterStart_Aborted()
-        {
-            var events = TestEventListener.Collect();
+    [Fact]
+    public async Task ResponseBodyCancelled_502()
+    {
+        var events = TestEventListener.Collect();
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            var responseBody = new TestResponseBody() { HasStarted = true };
-            httpContext.Features.Set<IHttpResponseFeature>(responseBody);
-            httpContext.Features.Set<IHttpResponseBodyFeature>(responseBody);
-            httpContext.Features.Set<IHttpRequestLifetimeFeature>(responseBody);
-            httpContext.RequestAborted = new CancellationToken(canceled: true);
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        var responseBody = new TestResponseBody();
+        httpContext.Features.Set<IHttpResponseFeature>(responseBody);
+        httpContext.Features.Set<IHttpResponseBodyFeature>(responseBody);
+        httpContext.Features.Set<IHttpRequestLifetimeFeature>(responseBody);
+        httpContext.RequestAborted = new CancellationToken(canceled: true);
 
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                var message = new HttpResponseMessage()
                 {
-                    var message = new HttpResponseMessage()
-                    {
-                        Content = new StreamContent(new MemoryStream(new byte[1]))
-                    };
-                    message.Headers.AcceptRanges.Add("bytes");
-                    return Task.FromResult(message);
-                });
+                    Content = new StreamContent(new MemoryStream(new byte[1]))
+                };
+                message.Headers.AcceptRanges.Add("bytes");
+                return Task.FromResult(message);
+            });
 
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
 
-            Assert.Equal(ForwarderError.ResponseBodyCanceled, proxyError);
-            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
-            Assert.True(responseBody.Aborted);
-            Assert.Equal("bytes", httpContext.Response.Headers[HeaderNames.AcceptRanges]);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.ResponseBodyCanceled, errorFeature.Error);
-            Assert.IsType<OperationCanceledException>(errorFeature.Exception);
+        Assert.Equal(ForwarderError.ResponseBodyCanceled, proxyError);
+        Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
+        Assert.False(responseBody.Aborted);
+        Assert.Empty(httpContext.Response.Headers);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.ResponseBodyCanceled, errorFeature.Error);
+        Assert.IsType<OperationCanceledException>(errorFeature.Exception);
 
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages(hasRequestContent: false);
-        }
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(hasRequestContent: false);
+    }
 
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        [InlineData(null)]
-        public async Task ResponseBodyDisableBuffering_Success(bool? enableBuffering)
-        {
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-            var responseBody = new TestResponseBody();
-            httpContext.Features.Set<IHttpResponseFeature>(responseBody);
-            httpContext.Features.Set<IHttpResponseBodyFeature>(responseBody);
-            httpContext.Features.Set<IHttpRequestLifetimeFeature>(responseBody);
+    [Fact]
+    public async Task ResponseBodyCancelledAfterStart_Aborted()
+    {
+        var events = TestEventListener.Collect();
 
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        var responseBody = new TestResponseBody() { HasStarted = true };
+        httpContext.Features.Set<IHttpResponseFeature>(responseBody);
+        httpContext.Features.Set<IHttpResponseBodyFeature>(responseBody);
+        httpContext.Features.Set<IHttpRequestLifetimeFeature>(responseBody);
+        httpContext.RequestAborted = new CancellationToken(canceled: true);
+
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                var message = new HttpResponseMessage()
                 {
-                    var message = new HttpResponseMessage()
-                    {
-                        Content = new StreamContent(new MemoryStream(new byte[1]))
-                    };
-                    message.Headers.AcceptRanges.Add("bytes");
-                    return Task.FromResult(message);
-                });
+                    Content = new StreamContent(new MemoryStream(new byte[1]))
+                };
+                message.Headers.AcceptRanges.Add("bytes");
+                return Task.FromResult(message);
+            });
 
-            var requestConfig = ForwarderRequestConfig.Empty with { AllowResponseBuffering = enableBuffering };
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, requestConfig, HttpTransformer.Default);
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
 
-            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
-            Assert.Equal(enableBuffering != true, responseBody.BufferingDisabled);
-        }
+        Assert.Equal(ForwarderError.ResponseBodyCanceled, proxyError);
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        Assert.True(responseBody.Aborted);
+        Assert.Equal("bytes", httpContext.Response.Headers[HeaderNames.AcceptRanges]);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.ResponseBodyCanceled, errorFeature.Error);
+        Assert.IsType<OperationCanceledException>(errorFeature.Exception);
 
-        [Fact]
-        public async Task RequestBodyCanceledAfterResponse_Reported()
-        {
-            var events = TestEventListener.Collect();
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(hasRequestContent: false);
+    }
 
-            var waitTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            httpContext.Request.Body = new StallStream(waitTcs.Task);
-            httpContext.Request.ContentLength = 1;
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    [InlineData(null)]
+    public async Task ResponseBodyDisableBuffering_Success(bool? enableBuffering)
+    {
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        var responseBody = new TestResponseBody();
+        httpContext.Features.Set<IHttpResponseFeature>(responseBody);
+        httpContext.Features.Set<IHttpResponseBodyFeature>(responseBody);
+        httpContext.Features.Set<IHttpRequestLifetimeFeature>(responseBody);
 
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
-
-            using var longTokenSource = new CancellationTokenSource();
-            httpContext.RequestAborted = longTokenSource.Token;
-
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                var message = new HttpResponseMessage()
                 {
+                    Content = new StreamContent(new MemoryStream(new byte[1]))
+                };
+                message.Headers.AcceptRanges.Add("bytes");
+                return Task.FromResult(message);
+            });
+
+        var requestConfig = ForwarderRequestConfig.Empty with { AllowResponseBuffering = enableBuffering };
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, requestConfig, HttpTransformer.Default);
+
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        Assert.Equal(enableBuffering != true, responseBody.BufferingDisabled);
+    }
+
+    [Fact]
+    public async Task RequestBodyCanceledAfterResponse_Reported()
+    {
+        var events = TestEventListener.Collect();
+
+        var waitTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        httpContext.Request.Body = new StallStream(waitTcs.Task);
+        httpContext.Request.ContentLength = 1;
+
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
+
+        using var longTokenSource = new CancellationTokenSource();
+        httpContext.RequestAborted = longTokenSource.Token;
+
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
                     // Background copy
                     _ = request.Content.CopyToWithCancellationAsync(new MemoryStream());
                     // Make sure the request isn't canceled until the response finishes copying.
                     return Task.FromResult(new HttpResponseMessage()
-                    {
-                        Content = new StreamContent(new OnCompletedReadStream(() =>
-                        {
-                            longTokenSource.Cancel();
-                            waitTcs.SetResult(0);
-                        }))
-                    });
-                });
-
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
-
-            Assert.Equal(ForwarderError.RequestBodyCanceled, proxyError);
-            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
-            Assert.Equal(0, proxyResponseStream.Length);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.RequestBodyCanceled, errorFeature.Error);
-            Assert.IsType<OperationCanceledException>(errorFeature.Exception);
-
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages();
-        }
-
-        [Fact]
-        public async Task RequestBodyClientErrorAfterResponse_Reported()
-        {
-            var events = TestEventListener.Collect();
-
-            var waitTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            httpContext.Request.Body = new StallStream(waitTcs.Task);
-            httpContext.Request.ContentLength = 1;
-
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
-
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
+                    Content = new StreamContent(new OnCompletedReadStream(() =>
+                    {
+                        longTokenSource.Cancel();
+                        waitTcs.SetResult(0);
+                    }))
+                });
+            });
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+
+        Assert.Equal(ForwarderError.RequestBodyCanceled, proxyError);
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        Assert.Equal(0, proxyResponseStream.Length);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.RequestBodyCanceled, errorFeature.Error);
+        Assert.IsType<OperationCanceledException>(errorFeature.Exception);
+
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages();
+    }
+
+    [Fact]
+    public async Task RequestBodyClientErrorAfterResponse_Reported()
+    {
+        var events = TestEventListener.Collect();
+
+        var waitTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        httpContext.Request.Body = new StallStream(waitTcs.Task);
+        httpContext.Request.ContentLength = 1;
+
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
+
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
                     // Background copy
                     _ = request.Content.CopyToWithCancellationAsync(new MemoryStream());
                     // Make sure the request isn't canceled until the response finishes copying.
                     return Task.FromResult(new HttpResponseMessage()
-                    {
-                        Content = new StreamContent(new OnCompletedReadStream(() => waitTcs.SetResult(0)))
-                    });
-                });
-
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
-
-            Assert.Equal(ForwarderError.RequestBodyClient, proxyError);
-            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
-            Assert.Equal(0, proxyResponseStream.Length);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.RequestBodyClient, errorFeature.Error);
-            Assert.IsType<IOException>(errorFeature.Exception);
-
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages();
-        }
-
-        [Fact]
-        public async Task RequestBodyDestinationErrorAfterResponse_Reported()
-        {
-            var events = TestEventListener.Collect();
-
-            var waitTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            httpContext.Request.Body = new MemoryStream(new byte[1]);
-            httpContext.Request.ContentLength = 1;
-
-            var proxyResponseStream = new MemoryStream();
-            httpContext.Response.Body = proxyResponseStream;
-
-            var destinationPrefix = "https://localhost:123/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
                 {
+                    Content = new StreamContent(new OnCompletedReadStream(() => waitTcs.SetResult(0)))
+                });
+            });
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+
+        Assert.Equal(ForwarderError.RequestBodyClient, proxyError);
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        Assert.Equal(0, proxyResponseStream.Length);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.RequestBodyClient, errorFeature.Error);
+        Assert.IsType<IOException>(errorFeature.Exception);
+
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages();
+    }
+
+    [Fact]
+    public async Task RequestBodyDestinationErrorAfterResponse_Reported()
+    {
+        var events = TestEventListener.Collect();
+
+        var waitTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        httpContext.Request.Body = new MemoryStream(new byte[1]);
+        httpContext.Request.ContentLength = 1;
+
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
+
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
                     // Background copy
                     _ = request.Content.CopyToWithCancellationAsync(new StallStream(waitTcs.Task));
                     // Make sure the request isn't canceled until the response finishes copying.
                     return Task.FromResult(new HttpResponseMessage()
+                {
+                    Content = new StreamContent(new OnCompletedReadStream(() => waitTcs.SetResult(0)))
+                });
+            });
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+
+        Assert.Equal(ForwarderError.RequestBodyDestination, proxyError);
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        Assert.Equal(0, proxyResponseStream.Length);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.RequestBodyDestination, errorFeature.Error);
+        Assert.IsType<IOException>(errorFeature.Exception);
+
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages();
+    }
+
+    [Fact]
+    public async Task UpgradableRequest_RequestBodyCopyError_CancelsResponseBody()
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Scheme = "http";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        // TODO: https://github.com/microsoft/reverse-proxy/issues/255
+        httpContext.Request.Headers.Add("Upgrade", "WebSocket");
+
+        var downstreamStream = new DuplexStream(
+            readStream: new ThrowStream(),
+            writeStream: new MemoryStream());
+        DuplexStream upstreamStream = null;
+
+        var upgradeFeatureMock = new Mock<IHttpUpgradeFeature>();
+        upgradeFeatureMock.SetupGet(u => u.IsUpgradableRequest).Returns(true);
+        upgradeFeatureMock.Setup(u => u.UpgradeAsync()).ReturnsAsync(downstreamStream);
+        httpContext.Features.Set(upgradeFeatureMock.Object);
+
+        var destinationPrefix = "https://localhost/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                Assert.Equal(new Version(1, 1), request.Version);
+                Assert.Equal(HttpMethod.Get, request.Method);
+
+                Assert.Null(request.Content);
+
+                var response = new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
+                upstreamStream = new DuplexStream(
+                    readStream: new StallStream(ct =>
                     {
-                        Content = new StreamContent(new OnCompletedReadStream(() => waitTcs.SetResult(0)))
-                    });
-                });
+                        var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+                        ct.Register(() => tcs.SetResult(0));
+                        return tcs.Task.DefaultTimeout();
+                    }),
+                    writeStream: new MemoryStream());
+                response.Content = new RawStreamContent(upstreamStream);
+                return Task.FromResult(response);
+            });
 
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
 
-            Assert.Equal(ForwarderError.RequestBodyDestination, proxyError);
-            Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
-            Assert.Equal(0, proxyResponseStream.Length);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.RequestBodyDestination, errorFeature.Error);
-            Assert.IsType<IOException>(errorFeature.Exception);
+        Assert.Equal(ForwarderError.UpgradeRequestClient, proxyError);
+        Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.UpgradeRequestClient, errorFeature.Error);
+        Assert.IsType<IOException>(errorFeature.Exception);
 
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages();
-        }
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(upgrade: true);
+    }
 
-        [Fact]
-        public async Task UpgradableRequest_RequestBodyCopyError_CancelsResponseBody()
-        {
-            var events = TestEventListener.Collect();
+    [Fact]
+    public async Task UpgradableRequest_ResponseBodyCopyError_CancelsRequestBody()
+    {
+        var events = TestEventListener.Collect();
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Scheme = "http";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            // TODO: https://github.com/microsoft/reverse-proxy/issues/255
-            httpContext.Request.Headers.Add("Upgrade", "WebSocket");
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Scheme = "http";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        // TODO: https://github.com/microsoft/reverse-proxy/issues/255
+        httpContext.Request.Headers.Add("Upgrade", "WebSocket");
 
-            var downstreamStream = new DuplexStream(
-                readStream: new ThrowStream(),
-                writeStream: new MemoryStream());
-            DuplexStream upstreamStream = null;
-
-            var upgradeFeatureMock = new Mock<IHttpUpgradeFeature>();
-            upgradeFeatureMock.SetupGet(u => u.IsUpgradableRequest).Returns(true);
-            upgradeFeatureMock.Setup(u => u.UpgradeAsync()).ReturnsAsync(downstreamStream);
-            httpContext.Features.Set(upgradeFeatureMock.Object);
-
-            var destinationPrefix = "https://localhost/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    Assert.Equal(new Version(1, 1), request.Version);
-                    Assert.Equal(HttpMethod.Get, request.Method);
-
-                    Assert.Null(request.Content);
-
-                    var response = new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
-                    upstreamStream = new DuplexStream(
-                        readStream: new StallStream(ct =>
-                        {
-                            var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
-                            ct.Register(() => tcs.SetResult(0));
-                            return tcs.Task.DefaultTimeout();
-                        }),
-                        writeStream: new MemoryStream());
-                    response.Content = new RawStreamContent(upstreamStream);
-                    return Task.FromResult(response);
-                });
-
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
-
-            Assert.Equal(ForwarderError.UpgradeRequestClient, proxyError);
-            Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.UpgradeRequestClient, errorFeature.Error);
-            Assert.IsType<IOException>(errorFeature.Exception);
-
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages(upgrade: true);
-        }
-
-        [Fact]
-        public async Task UpgradableRequest_ResponseBodyCopyError_CancelsRequestBody()
-        {
-            var events = TestEventListener.Collect();
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-            httpContext.Request.Scheme = "http";
-            httpContext.Request.Host = new HostString("example.com:3456");
-            // TODO: https://github.com/microsoft/reverse-proxy/issues/255
-            httpContext.Request.Headers.Add("Upgrade", "WebSocket");
-
-            var downstreamStream = new DuplexStream(
-                readStream: new StallStream(ct =>
-                {
-                    var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
-                    ct.Register(() => tcs.SetResult(0));
-                    return tcs.Task.DefaultTimeout();
-                }),
-                writeStream: new MemoryStream());
-            DuplexStream upstreamStream = null;
-
-            var upgradeFeatureMock = new Mock<IHttpUpgradeFeature>();
-            upgradeFeatureMock.SetupGet(u => u.IsUpgradableRequest).Returns(true);
-            upgradeFeatureMock.Setup(u => u.UpgradeAsync()).ReturnsAsync(downstreamStream);
-            httpContext.Features.Set(upgradeFeatureMock.Object);
-
-            var destinationPrefix = "https://localhost/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    Assert.Equal(new Version(1, 1), request.Version);
-                    Assert.Equal(HttpMethod.Get, request.Method);
-
-                    Assert.Null(request.Content);
-
-                    var response = new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
-                    upstreamStream = new DuplexStream(
-                        readStream: new ThrowStream(),
-                        writeStream: new MemoryStream());
-                    response.Content = new RawStreamContent(upstreamStream);
-                    return Task.FromResult(response);
-                });
-
-            var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
-
-            Assert.Equal(ForwarderError.UpgradeResponseDestination, proxyError);
-            Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
-            var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-            Assert.Equal(ForwarderError.UpgradeResponseDestination, errorFeature.Error);
-            Assert.IsType<IOException>(errorFeature.Exception);
-
-            AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-            events.AssertContainProxyStages(upgrade: true);
-        }
-
-        [Fact]
-        public async Task WithHttpClient_Fails()
-        {
-            var httpClient = new HttpClient();
-            var httpContext = new DefaultHttpContext();
-            var destinationPrefix = "";
-            var transforms = HttpTransformer.Default;
-            var requestOptions = ForwarderRequestConfig.Empty;
-            var proxy = CreateProxy();
-
-            await Assert.ThrowsAsync<ArgumentException>(async () => await proxy.SendAsync(httpContext,
-                destinationPrefix, httpClient, requestOptions, transforms));
-        }
-
-        [Theory]
-        [InlineData("HTTP/1.1", "1.1")]
-        [InlineData("HTTP/2", "2.0")]
-        public async Task Expect100ContinueWithFailedResponse_ReturnResponse(string fromProtocol, string toProtocol)
-        {
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "POST";
-            httpContext.Request.Protocol = fromProtocol;
-            httpContext.Request.Headers[HeaderNames.Expect] = "100-continue";
-            var content = Encoding.UTF8.GetBytes(new string('a', 1024 * 1024 * 10));
-            httpContext.Request.Headers[HeaderNames.ContentLength] = content.Length.ToString();
-            using var contentStream = new MemoryStream(content);
-            httpContext.Request.Body = contentStream;
-
-            var destinationPrefix = "https://localhost:123/a/b/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    await Task.Yield();
-                    Assert.NotNull(request.Content);
-                    return new HttpResponseMessage(HttpStatusCode.Conflict);
-                });
-
-            await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = Version.Parse(toProtocol) });
-
-            Assert.Equal(0, contentStream.Position);
-            Assert.Equal((int)HttpStatusCode.Conflict, httpContext.Response.StatusCode);
-        }
-
-        [Theory]
-        [InlineData("1.1", false, "Connection: upgrade; Upgrade: test123", null, "Connection; Upgrade")]
-        [InlineData("1.1", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
-        [InlineData("1.1", true, "Connection: upgrade; Upgrade: websocket", "Connection: upgrade; Upgrade: websocket", null)]
-        [InlineData("1.1", true, "Connection: upgrade, keep-alive; Upgrade: websocket; Keep-Alive: timeout=100", "Connection: upgrade; Upgrade: websocket", "Keep-Alive")]
-        [InlineData("1.1", true, "Foo: bar; Upgrade: websocket", "Foo: bar", "Upgrade")]
-        [InlineData("1.1", true, "Foo: bar; Connection: upgrade", "Foo: bar", "Connection")]
-        [InlineData("1.1", false, "Foo: bar", "Foo: bar", null)]
-        [InlineData("2.0", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
-        [InlineData("2.0", false, "Connection: upgrade; Upgrade: websocket", null, "Connection; Upgrade")]
-        [InlineData("2.0", false, "Foo: bar", "Foo: bar", null)]
-        public async Task ResponseToNonUpgradeableRequest_RemoveAllConnectionHeaders(string protocol, bool upgrade, string responseHeadersList, string preservedHeadersList, string removedHeadersList)
-        {
-            var events = TestEventListener.Collect();
-
-            var responseHeaders = responseHeadersList.Split("; ");
-            var preservedHeaders = preservedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
-            var removedHeaders = removedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-
-            if (upgrade)
+        var downstreamStream = new DuplexStream(
+            readStream: new StallStream(ct =>
             {
-                var upgradeFeature = new Mock<IHttpUpgradeFeature>();
-                upgradeFeature.SetupGet(f => f.IsUpgradableRequest).Returns(true);
-                upgradeFeature.Setup(f => f.UpgradeAsync()).ReturnsAsync(httpContext.Request.Body);
-                httpContext.Features.Set(upgradeFeature.Object);
-                httpContext.Request.Headers[HeaderNames.Upgrade] = "WebSocket";
-            }
+                var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+                ct.Register(() => tcs.SetResult(0));
+                return tcs.Task.DefaultTimeout();
+            }),
+            writeStream: new MemoryStream());
+        DuplexStream upstreamStream = null;
 
-            var destinationPrefix = "https://localhost:123/a/b/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    await Task.Yield();
+        var upgradeFeatureMock = new Mock<IHttpUpgradeFeature>();
+        upgradeFeatureMock.SetupGet(u => u.IsUpgradableRequest).Returns(true);
+        upgradeFeatureMock.Setup(u => u.UpgradeAsync()).ReturnsAsync(downstreamStream);
+        httpContext.Features.Set(upgradeFeatureMock.Object);
 
-                    var response = new HttpResponseMessage(upgrade ? HttpStatusCode.SwitchingProtocols : HttpStatusCode.OK);
-                    response.Content = new StringContent("Foo");
-
-                    foreach (var header in responseHeaders)
-                    {
-                        (var headerName, var headerValues) = GetHeaderNameAndValues(header);
-                        response.Headers.TryAddWithoutValidation(headerName, headerValues);
-                    }
-
-                    return response;
-                });
-
-            await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = Version.Parse(protocol) });
-
-            Assert.Equal(upgrade ? (int)HttpStatusCode.SwitchingProtocols : (int)HttpStatusCode.OK, httpContext.Response.StatusCode);
-
-            foreach (var preservedHeader in preservedHeaders)
+        var destinationPrefix = "https://localhost/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
             {
-                (var headerName, var expectedValues) = GetHeaderNameAndValues(preservedHeader);
-                var actualValues = httpContext.Response.Headers[headerName];
-                Assert.Equal(expectedValues, actualValues);
-            }
+                Assert.Equal(new Version(1, 1), request.Version);
+                Assert.Equal(HttpMethod.Get, request.Method);
 
-            foreach (var removedHeaderName in removedHeaders)
+                Assert.Null(request.Content);
+
+                var response = new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
+                upstreamStream = new DuplexStream(
+                    readStream: new ThrowStream(),
+                    writeStream: new MemoryStream());
+                response.Content = new RawStreamContent(upstreamStream);
+                return Task.FromResult(response);
+            });
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+
+        Assert.Equal(ForwarderError.UpgradeResponseDestination, proxyError);
+        Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.UpgradeResponseDestination, errorFeature.Error);
+        Assert.IsType<IOException>(errorFeature.Exception);
+
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(upgrade: true);
+    }
+
+    [Fact]
+    public async Task WithHttpClient_Fails()
+    {
+        var httpClient = new HttpClient();
+        var httpContext = new DefaultHttpContext();
+        var destinationPrefix = "";
+        var transforms = HttpTransformer.Default;
+        var requestOptions = ForwarderRequestConfig.Empty;
+        var proxy = CreateProxy();
+
+        await Assert.ThrowsAsync<ArgumentException>(async () => await proxy.SendAsync(httpContext,
+            destinationPrefix, httpClient, requestOptions, transforms));
+    }
+
+    [Theory]
+    [InlineData("HTTP/1.1", "1.1")]
+    [InlineData("HTTP/2", "2.0")]
+    public async Task Expect100ContinueWithFailedResponse_ReturnResponse(string fromProtocol, string toProtocol)
+    {
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Protocol = fromProtocol;
+        httpContext.Request.Headers[HeaderNames.Expect] = "100-continue";
+        var content = Encoding.UTF8.GetBytes(new string('a', 1024 * 1024 * 10));
+        httpContext.Request.Headers[HeaderNames.ContentLength] = content.Length.ToString();
+        using var contentStream = new MemoryStream(content);
+        httpContext.Request.Body = contentStream;
+
+        var destinationPrefix = "https://localhost:123/a/b/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
             {
-                Assert.False(httpContext.Response.Headers.TryGetValue(removedHeaderName, out _));
-            }
+                await Task.Yield();
+                Assert.NotNull(request.Content);
+                return new HttpResponseMessage(HttpStatusCode.Conflict);
+            });
 
-            AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-            events.AssertContainProxyStages(hasRequestContent: upgrade, upgrade);
+        await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = Version.Parse(toProtocol) });
+
+        Assert.Equal(0, contentStream.Position);
+        Assert.Equal((int)HttpStatusCode.Conflict, httpContext.Response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("1.1", false, "Connection: upgrade; Upgrade: test123", null, "Connection; Upgrade")]
+    [InlineData("1.1", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
+    [InlineData("1.1", true, "Connection: upgrade; Upgrade: websocket", "Connection: upgrade; Upgrade: websocket", null)]
+    [InlineData("1.1", true, "Connection: upgrade, keep-alive; Upgrade: websocket; Keep-Alive: timeout=100", "Connection: upgrade; Upgrade: websocket", "Keep-Alive")]
+    [InlineData("1.1", true, "Foo: bar; Upgrade: websocket", "Foo: bar", "Upgrade")]
+    [InlineData("1.1", true, "Foo: bar; Connection: upgrade", "Foo: bar", "Connection")]
+    [InlineData("1.1", false, "Foo: bar", "Foo: bar", null)]
+    [InlineData("2.0", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
+    [InlineData("2.0", false, "Connection: upgrade; Upgrade: websocket", null, "Connection; Upgrade")]
+    [InlineData("2.0", false, "Foo: bar", "Foo: bar", null)]
+    public async Task ResponseToNonUpgradeableRequest_RemoveAllConnectionHeaders(string protocol, bool upgrade, string responseHeadersList, string preservedHeadersList, string removedHeadersList)
+    {
+        var events = TestEventListener.Collect();
+
+        var responseHeaders = responseHeadersList.Split("; ");
+        var preservedHeaders = preservedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
+        var removedHeaders = removedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+
+        if (upgrade)
+        {
+            var upgradeFeature = new Mock<IHttpUpgradeFeature>();
+            upgradeFeature.SetupGet(f => f.IsUpgradableRequest).Returns(true);
+            upgradeFeature.Setup(f => f.UpgradeAsync()).ReturnsAsync(httpContext.Request.Body);
+            httpContext.Features.Set(upgradeFeature.Object);
+            httpContext.Request.Headers[HeaderNames.Upgrade] = "WebSocket";
         }
 
-        [Theory]
-        [InlineData("1.1", false, "Connection: upgrade; Upgrade: test123", null, "Connection; Upgrade")]
-        [InlineData("1.1", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
-        [InlineData("1.1", true, "Connection: upgrade; Upgrade: websocket", "Connection: upgrade; Upgrade: websocket", null)]
-        [InlineData("1.1", true, "Connection: upgrade; Upgrade: SPDY/", "Connection: upgrade; Upgrade: SPDY/", null)]
-        [InlineData("1.1", true, "Connection: upgrade, keep-alive; Upgrade: websocket; Keep-Alive: timeout=100", "Connection: upgrade; Upgrade: websocket", "Keep-Alive")]
-        [InlineData("1.1", false, "Foo: bar", "Foo: bar", null)]
-        [InlineData("2.0", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
-        [InlineData("2.0", false, "Connection: upgrade; Upgrade: websocket", null, "Connection; Upgrade")]
-        [InlineData("2.0", false, "Foo: bar", "Foo: bar", null)]
-        public async Task NonUpgradableRequest_RemoveAllConnectionHeaders(string protocol, bool upgrade, string addHeadersList, string preservedHeadersList, string removedHeadersList)
-        {
-            var addHeaders = addHeadersList.Split("; ").Select(GetHeaderNameAndValues);
-            var preservedHeaders = (preservedHeadersList?.Split("; ") ?? Enumerable.Empty<string>()).Select(GetHeaderNameAndValues);
-            var removedHeaders = removedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-
-            if (upgrade)
+        var destinationPrefix = "https://localhost:123/a/b/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
             {
-                var upgradeFeature = new Mock<IHttpUpgradeFeature>();
-                upgradeFeature.SetupGet(f => f.IsUpgradableRequest).Returns(true);
-                httpContext.Features.Set(upgradeFeature.Object);
-            }
+                await Task.Yield();
 
-            foreach (var (name, value) in addHeaders)
-            {
-                httpContext.Request.Headers[name] = value;
-            }
+                var response = new HttpResponseMessage(upgrade ? HttpStatusCode.SwitchingProtocols : HttpStatusCode.OK);
+                response.Content = new StringContent("Foo");
 
-            var destinationPrefix = "https://localhost:123/a/b/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+                foreach (var header in responseHeaders)
                 {
-                    await Task.Yield();
+                    (var headerName, var headerValues) = GetHeaderNameAndValues(header);
+                    response.Headers.TryAddWithoutValidation(headerName, headerValues);
+                }
 
-                    foreach(var (name, value) in preservedHeaders)
-                    {
-                        var actualValues = string.Join(", ", request.Headers.GetValues(name));
-                        Assert.Equal(value, actualValues);
-                    }
+                return response;
+            });
 
-                    foreach (var removedHeaderName in removedHeaders)
-                    {
-                        Assert.False(request.Headers.TryGetValues(removedHeaderName, out _));
-                    }
+        await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = Version.Parse(protocol) });
 
-                    var response = new HttpResponseMessage(HttpStatusCode.OK);
-                    return response;
-                });
+        Assert.Equal(upgrade ? (int)HttpStatusCode.SwitchingProtocols : (int)HttpStatusCode.OK, httpContext.Response.StatusCode);
 
-            await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = Version.Parse(protocol) });
-
-            Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
+        foreach (var preservedHeader in preservedHeaders)
+        {
+            (var headerName, var expectedValues) = GetHeaderNameAndValues(preservedHeader);
+            var actualValues = httpContext.Response.Headers[headerName];
+            Assert.Equal(expectedValues, actualValues);
         }
 
-        [Theory]
-        [MemberData(nameof(GetProhibitedHeaders))]
-        [MemberData(nameof(GetHeadersWithNewLines))]
-        public async Task Request_RemoveProhibitedHeaders(string protocol, string prohibitedHeadersList)
+        foreach (var removedHeaderName in removedHeaders)
         {
-            const string PreservedHeaderName = "Foo";
-            const string PreservedHeaderValue = "bar";
-            var prohibitedHeaders = prohibitedHeadersList.Split("; ").Select(GetHeaderNameAndValues);
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-
-            foreach (var (name, value) in prohibitedHeaders)
-            {
-                httpContext.Request.Headers[name] = value;
-            }
-            httpContext.Request.Headers[PreservedHeaderName] = PreservedHeaderValue;
-
-            var destinationPrefix = "https://localhost:123/a/b/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    await Task.Yield();
-
-                    Assert.Equal(PreservedHeaderValue, string.Join(", ", request.Headers.GetValues(PreservedHeaderName)));
-
-                    foreach (var (name, _) in prohibitedHeaders)
-                    {
-                        Assert.False(request.Headers.TryGetValues(name, out _));
-                    }
-
-                    var response = new HttpResponseMessage(HttpStatusCode.OK);
-                    return response;
-                });
-
-            await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = Version.Parse(protocol) });
-
-            Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
+            Assert.False(httpContext.Response.Headers.TryGetValue(removedHeaderName, out _));
         }
 
-        [Theory]
-        [MemberData(nameof(GetProhibitedHeaders))]
-        public async Task Response_RemoveProhibitedHeaders(string protocol, string prohibitedHeadersList)
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages(hasRequestContent: upgrade, upgrade);
+    }
+
+    [Theory]
+    [InlineData("1.1", false, "Connection: upgrade; Upgrade: test123", null, "Connection; Upgrade")]
+    [InlineData("1.1", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
+    [InlineData("1.1", true, "Connection: upgrade; Upgrade: websocket", "Connection: upgrade; Upgrade: websocket", null)]
+    [InlineData("1.1", true, "Connection: upgrade; Upgrade: SPDY/", "Connection: upgrade; Upgrade: SPDY/", null)]
+    [InlineData("1.1", true, "Connection: upgrade, keep-alive; Upgrade: websocket; Keep-Alive: timeout=100", "Connection: upgrade; Upgrade: websocket", "Keep-Alive")]
+    [InlineData("1.1", false, "Foo: bar", "Foo: bar", null)]
+    [InlineData("2.0", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
+    [InlineData("2.0", false, "Connection: upgrade; Upgrade: websocket", null, "Connection; Upgrade")]
+    [InlineData("2.0", false, "Foo: bar", "Foo: bar", null)]
+    public async Task NonUpgradableRequest_RemoveAllConnectionHeaders(string protocol, bool upgrade, string addHeadersList, string preservedHeadersList, string removedHeadersList)
+    {
+        var addHeaders = addHeadersList.Split("; ").Select(GetHeaderNameAndValues);
+        var preservedHeaders = (preservedHeadersList?.Split("; ") ?? Enumerable.Empty<string>()).Select(GetHeaderNameAndValues);
+        var removedHeaders = removedHeadersList?.Split("; ") ?? Enumerable.Empty<string>();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+
+        if (upgrade)
         {
-            const string PreservedHeaderName = "Foo";
-            const string PreservedHeaderValue = "bar";
-            var prohibitedHeaders = prohibitedHeadersList.Split("; ").Select(GetHeaderNameAndValues);
-
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Method = "GET";
-
-            var destinationPrefix = "https://localhost:123/a/b/";
-            var sut = CreateProxy();
-            var client = MockHttpHandler.CreateClient(
-                async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-                {
-                    await Task.Yield();
-
-                    var response = new HttpResponseMessage(HttpStatusCode.OK);
-
-                    foreach (var (name, value) in prohibitedHeaders)
-                    {
-                        response.Headers.TryAddWithoutValidation(name, value);
-                    }
-                    response.Headers.TryAddWithoutValidation(PreservedHeaderName, PreservedHeaderValue);
-
-                    return response;
-                });
-
-            await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = Version.Parse(protocol) });
-
-            Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
-            Assert.Equal(PreservedHeaderValue, string.Join(", ", httpContext.Response.Headers[PreservedHeaderName]));
-
-            foreach (var (name, _) in prohibitedHeaders)
-            {
-                Assert.False(httpContext.Response.Headers.TryGetValue(name, out _));
-            }
+            var upgradeFeature = new Mock<IHttpUpgradeFeature>();
+            upgradeFeature.SetupGet(f => f.IsUpgradableRequest).Returns(true);
+            httpContext.Features.Set(upgradeFeature.Object);
         }
 
-        public static IEnumerable<object[]> GetProhibitedHeaders()
+        foreach (var (name, value) in addHeaders)
         {
-            var headers = new[]
+            httpContext.Request.Headers[name] = value;
+        }
+
+        var destinationPrefix = "https://localhost:123/a/b/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
             {
+                await Task.Yield();
+
+                foreach (var (name, value) in preservedHeaders)
+                {
+                    var actualValues = string.Join(", ", request.Headers.GetValues(name));
+                    Assert.Equal(value, actualValues);
+                }
+
+                foreach (var removedHeaderName in removedHeaders)
+                {
+                    Assert.False(request.Headers.TryGetValues(removedHeaderName, out _));
+                }
+
+                var response = new HttpResponseMessage(HttpStatusCode.OK);
+                return response;
+            });
+
+        await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = Version.Parse(protocol) });
+
+        Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetProhibitedHeaders))]
+    [MemberData(nameof(GetHeadersWithNewLines))]
+    public async Task Request_RemoveProhibitedHeaders(string protocol, string prohibitedHeadersList)
+    {
+        const string PreservedHeaderName = "Foo";
+        const string PreservedHeaderValue = "bar";
+        var prohibitedHeaders = prohibitedHeadersList.Split("; ").Select(GetHeaderNameAndValues);
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+
+        foreach (var (name, value) in prohibitedHeaders)
+        {
+            httpContext.Request.Headers[name] = value;
+        }
+        httpContext.Request.Headers[PreservedHeaderName] = PreservedHeaderValue;
+
+        var destinationPrefix = "https://localhost:123/a/b/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                await Task.Yield();
+
+                Assert.Equal(PreservedHeaderValue, string.Join(", ", request.Headers.GetValues(PreservedHeaderName)));
+
+                foreach (var (name, _) in prohibitedHeaders)
+                {
+                    Assert.False(request.Headers.TryGetValues(name, out _));
+                }
+
+                var response = new HttpResponseMessage(HttpStatusCode.OK);
+                return response;
+            });
+
+        await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = Version.Parse(protocol) });
+
+        Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetProhibitedHeaders))]
+    public async Task Response_RemoveProhibitedHeaders(string protocol, string prohibitedHeadersList)
+    {
+        const string PreservedHeaderName = "Foo";
+        const string PreservedHeaderValue = "bar";
+        var prohibitedHeaders = prohibitedHeadersList.Split("; ").Select(GetHeaderNameAndValues);
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+
+        var destinationPrefix = "https://localhost:123/a/b/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                await Task.Yield();
+
+                var response = new HttpResponseMessage(HttpStatusCode.OK);
+
+                foreach (var (name, value) in prohibitedHeaders)
+                {
+                    response.Headers.TryAddWithoutValidation(name, value);
+                }
+                response.Headers.TryAddWithoutValidation(PreservedHeaderName, PreservedHeaderValue);
+
+                return response;
+            });
+
+        await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = Version.Parse(protocol) });
+
+        Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
+        Assert.Equal(PreservedHeaderValue, string.Join(", ", httpContext.Response.Headers[PreservedHeaderName]));
+
+        foreach (var (name, _) in prohibitedHeaders)
+        {
+            Assert.False(httpContext.Response.Headers.TryGetValue(name, out _));
+        }
+    }
+
+    public static IEnumerable<object[]> GetProhibitedHeaders()
+    {
+        var headers = new[]
+        {
                 "Connection: close",
                 "Upgrade: test123",
                 "Transfer-Encoding: deflate",
@@ -2111,387 +2111,386 @@ namespace Yarp.ReverseProxy.Forwarder.Tests
 #endif
             };
 
-            foreach (var header in headers)
-            {
-                yield return new object[] { "1.1", header };
-                yield return new object[] { "2.0", header };
-            }
-        }
-
-        public static IEnumerable<object[]> GetHeadersWithNewLines()
+        foreach (var header in headers)
         {
-            var headers = new[]
-            {
+            yield return new object[] { "1.1", header };
+            yield return new object[] { "2.0", header };
+        }
+    }
+
+    public static IEnumerable<object[]> GetHeadersWithNewLines()
+    {
+        var headers = new[]
+        {
                 "valid-name-1: \rfoo",
                 "valid-name-2: bar\n",
                 "valid-name-3: foo\r\nbar",
                 "valid-name-4: foo\r\n bar",
             };
 
-            foreach (var header in headers)
-            {
-                yield return new object[] { "1.1", header };
-                yield return new object[] { "2.0", header };
-            }
+        foreach (var header in headers)
+        {
+            yield return new object[] { "1.1", header };
+            yield return new object[] { "2.0", header };
+        }
+    }
+
+    private static void AssertProxyStartStop(List<EventWrittenEventArgs> events, string destinationPrefix, int statusCode)
+    {
+        AssertProxyStartFailedStop(events, destinationPrefix, statusCode, error: null);
+    }
+
+    private static void AssertProxyStartFailedStop(List<EventWrittenEventArgs> events, string destinationPrefix, int statusCode, ForwarderError? error)
+    {
+        var start = Assert.Single(events, e => e.EventName == "ForwarderStart");
+        var prefixActual = (string)Assert.Single(start.Payload);
+        Assert.Equal(destinationPrefix, prefixActual);
+
+        var stop = Assert.Single(events, e => e.EventName == "ForwarderStop");
+        var statusActual = (int)Assert.Single(stop.Payload);
+        Assert.Equal(statusCode, statusActual);
+        Assert.True(start.TimeStamp <= stop.TimeStamp);
+
+        if (error is null)
+        {
+            Assert.DoesNotContain(events, e => e.EventName == "ForwarderFailed");
+        }
+        else
+        {
+            var failed = Assert.Single(events, e => e.EventName == "ForwarderFailed");
+            var errorActual = (ForwarderError)Assert.Single(failed.Payload);
+            Assert.Equal(error.Value, errorActual);
+            Assert.True(start.TimeStamp <= failed.TimeStamp);
+            Assert.True(failed.TimeStamp <= stop.TimeStamp);
+        }
+    }
+
+    private static MemoryStream StringToStream(string text)
+    {
+        var stream = new MemoryStream(Encoding.UTF8.GetBytes(text));
+        return stream;
+    }
+
+    private static string StreamToString(Stream stream)
+    {
+        using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
+        return reader.ReadToEnd();
+    }
+
+    private static (string Name, string Values) GetHeaderNameAndValues(string fullHeader)
+    {
+        var headerNameEnd = fullHeader.IndexOf(": ");
+        return (fullHeader.Substring(0, headerNameEnd), fullHeader.Substring(headerNameEnd + 2));
+    }
+
+    private class DuplexStream : Stream
+    {
+        public DuplexStream(Stream readStream, Stream writeStream)
+        {
+            ReadStream = readStream ?? throw new ArgumentNullException(nameof(readStream));
+            WriteStream = writeStream ?? throw new ArgumentNullException(nameof(writeStream));
         }
 
-        private static void AssertProxyStartStop(List<EventWrittenEventArgs> events, string destinationPrefix, int statusCode)
+        public Stream ReadStream { get; }
+
+        public Stream WriteStream { get; }
+
+        public override bool CanRead => true;
+
+        public override bool CanSeek => false;
+
+        public override bool CanWrite => true;
+
+        public override long Length => throw new NotImplementedException();
+
+        public override long Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public override int Read(byte[] buffer, int offset, int count)
         {
-            AssertProxyStartFailedStop(events, destinationPrefix, statusCode, error: null);
+            return ReadStream.Read(buffer, offset, count);
         }
 
-        private static void AssertProxyStartFailedStop(List<EventWrittenEventArgs> events, string destinationPrefix, int statusCode, ForwarderError? error)
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            var start = Assert.Single(events, e => e.EventName == "ForwarderStart");
-            var prefixActual = (string)Assert.Single(start.Payload);
-            Assert.Equal(destinationPrefix, prefixActual);
-
-            var stop = Assert.Single(events, e => e.EventName == "ForwarderStop");
-            var statusActual = (int)Assert.Single(stop.Payload);
-            Assert.Equal(statusCode, statusActual);
-            Assert.True(start.TimeStamp <= stop.TimeStamp);
-
-            if (error is null)
-            {
-                Assert.DoesNotContain(events, e => e.EventName == "ForwarderFailed");
-            }
-            else
-            {
-                var failed = Assert.Single(events, e => e.EventName == "ForwarderFailed");
-                var errorActual = (ForwarderError)Assert.Single(failed.Payload);
-                Assert.Equal(error.Value, errorActual);
-                Assert.True(start.TimeStamp <= failed.TimeStamp);
-                Assert.True(failed.TimeStamp <= stop.TimeStamp);
-            }
+            return ReadStream.ReadAsync(buffer, offset, count, cancellationToken);
         }
 
-        private static MemoryStream StringToStream(string text)
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            var stream = new MemoryStream(Encoding.UTF8.GetBytes(text));
-            return stream;
+            return ReadStream.ReadAsync(buffer, cancellationToken);
         }
 
-        private static string StreamToString(Stream stream)
+        public override void Write(byte[] buffer, int offset, int count)
         {
-            using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
-            return reader.ReadToEnd();
+            WriteStream.Write(buffer, offset, count);
         }
 
-        private static (string Name, string Values) GetHeaderNameAndValues(string fullHeader)
+        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            var headerNameEnd = fullHeader.IndexOf(": ");
-            return (fullHeader.Substring(0, headerNameEnd), fullHeader.Substring(headerNameEnd + 2));
+            return WriteStream.WriteAsync(buffer, offset, count, cancellationToken);
         }
 
-        private class DuplexStream : Stream
+        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            public DuplexStream(Stream readStream, Stream writeStream)
-            {
-                ReadStream = readStream ?? throw new ArgumentNullException(nameof(readStream));
-                WriteStream = writeStream ?? throw new ArgumentNullException(nameof(writeStream));
-            }
-
-            public Stream ReadStream { get; }
-
-            public Stream WriteStream { get; }
-
-            public override bool CanRead => true;
-
-            public override bool CanSeek => false;
-
-            public override bool CanWrite => true;
-
-            public override long Length => throw new NotImplementedException();
-
-            public override long Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-            public override int Read(byte[] buffer, int offset, int count)
-            {
-                return ReadStream.Read(buffer, offset, count);
-            }
-
-            public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-            {
-                return ReadStream.ReadAsync(buffer, offset, count, cancellationToken);
-            }
-
-            public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
-            {
-                return ReadStream.ReadAsync(buffer, cancellationToken);
-            }
-
-            public override void Write(byte[] buffer, int offset, int count)
-            {
-                WriteStream.Write(buffer, offset, count);
-            }
-
-            public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-            {
-                return WriteStream.WriteAsync(buffer, offset, count, cancellationToken);
-            }
-
-            public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
-            {
-                return WriteStream.WriteAsync(buffer, cancellationToken);
-            }
-
-            public override void Flush()
-            {
-            }
-
-            public override long Seek(long offset, SeekOrigin origin)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override void SetLength(long value)
-            {
-                throw new NotImplementedException();
-            }
+            return WriteStream.WriteAsync(buffer, cancellationToken);
         }
 
-        /// <summary>
-        /// Replacement for <see cref="StreamContent"/> which just returns the raw stream,
-        /// whereas <see cref="StreamContent"/> wraps it in a read-only stream.
-        /// We need to return the raw internal stream to test full duplex proxying.
-        /// </summary>
-        private class RawStreamContent : HttpContent
+        public override void Flush()
         {
-            private readonly Stream stream;
-
-            public RawStreamContent(Stream stream)
-            {
-                this.stream = stream ?? throw new ArgumentNullException(nameof(stream));
-            }
-
-            protected override Task<Stream> CreateContentReadStreamAsync()
-            {
-                return Task.FromResult(stream);
-            }
-
-            protected override Task SerializeToStreamAsync(Stream stream, TransportContext context)
-            {
-                throw new NotImplementedException();
-            }
-
-            protected override bool TryComputeLength(out long length)
-            {
-                throw new NotImplementedException();
-            }
         }
 
-        private class TestTrailersFeature : IHttpResponseTrailersFeature
+        public override long Seek(long offset, SeekOrigin origin)
         {
-            public IHeaderDictionary Trailers { get; set; } = new HeaderDictionary();
+            throw new NotImplementedException();
         }
 
-        private class ThrowStream : DelegatingStream
+        public override void SetLength(long value)
         {
-            private bool _firstRead = true;
+            throw new NotImplementedException();
+        }
+    }
 
-            public ThrowStream(bool throwOnFirstRead = true)
-                : base(Stream.Null)
-            {
-                ThrowOnFirstRead = throwOnFirstRead;
-            }
+    /// <summary>
+    /// Replacement for <see cref="StreamContent"/> which just returns the raw stream,
+    /// whereas <see cref="StreamContent"/> wraps it in a read-only stream.
+    /// We need to return the raw internal stream to test full duplex proxying.
+    /// </summary>
+    private class RawStreamContent : HttpContent
+    {
+        private readonly Stream stream;
 
-            public bool ThrowOnFirstRead { get; }
-
-            public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                if (_firstRead && !ThrowOnFirstRead)
-                {
-                    _firstRead = false;
-                    return new ValueTask<int>(1);
-                }
-                throw new IOException("Fake connection issue");
-            }
-
-            public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                throw new IOException("Fake connection issue");
-            }
+        public RawStreamContent(Stream stream)
+        {
+            this.stream = stream ?? throw new ArgumentNullException(nameof(stream));
         }
 
-        private class StallStream : DelegatingStream
+        protected override Task<Stream> CreateContentReadStreamAsync()
         {
-            public StallStream(Task until)
-                : this(_ => until)
-            { }
-
-            public StallStream(Func<CancellationToken, Task> onStallAction)
-                : base(Stream.Null)
-            {
-                OnStallAction = onStallAction;
-            }
-
-            public Func<CancellationToken, Task> OnStallAction { get; }
-
-            public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
-            {
-                await OnStallAction(cancellationToken);
-                cancellationToken.ThrowIfCancellationRequested();
-                throw new IOException();
-            }
-
-            public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
-            {
-                await OnStallAction(cancellationToken);
-                cancellationToken.ThrowIfCancellationRequested();
-                throw new IOException();
-            }
+            return Task.FromResult(stream);
         }
 
-        private class CallbackReadStream : DelegatingStream
+        protected override Task SerializeToStreamAsync(Stream stream, TransportContext context)
         {
-            public CallbackReadStream(Func<Memory<byte>, CancellationToken, ValueTask<int>> onReadAsync)
-                : base(Stream.Null)
-            {
-                OnReadAsync = onReadAsync;
-            }
-
-            public Func<Memory<byte>, CancellationToken, ValueTask<int>> OnReadAsync { get; }
-
-            public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
-            {
-                return OnReadAsync(buffer, cancellationToken);
-            }
-
-            public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
-            {
-                throw new IOException();
-            }
+            throw new NotImplementedException();
         }
 
-        private class TestResponseBody : DelegatingStream, IHttpResponseBodyFeature, IHttpResponseFeature, IHttpRequestLifetimeFeature
+        protected override bool TryComputeLength(out long length)
         {
-            public TestResponseBody()
-                : this(new MemoryStream())
-            { }
+            throw new NotImplementedException();
+        }
+    }
 
-            public TestResponseBody(Stream innerStream)
-                : base(innerStream)
-            {
-                InnerStream = innerStream;
-            }
+    private class TestTrailersFeature : IHttpResponseTrailersFeature
+    {
+        public IHeaderDictionary Trailers { get; set; } = new HeaderDictionary();
+    }
 
-            public Stream InnerStream { get; }
+    private class ThrowStream : DelegatingStream
+    {
+        private bool _firstRead = true;
 
-            public bool Aborted { get; private set; }
-
-            public Stream Stream => this;
-
-            public PipeWriter Writer => throw new NotImplementedException();
-
-            public bool BufferingDisabled { get; set; }
-
-            public int StatusCode { get; set; } = 200;
-            public string ReasonPhrase { get; set; }
-            public IHeaderDictionary Headers { get; set; } = new HeaderDictionary();
-            public Stream Body { get => this; set => throw new NotImplementedException(); }
-            public bool HasStarted { get; set; }
-            public CancellationToken RequestAborted { get; set; }
-
-            public void Abort()
-            {
-                Aborted = true;
-            }
-
-            public Task CompleteAsync()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void DisableBuffering()
-            {
-                BufferingDisabled = true;
-            }
-
-            public void OnCompleted(Func<object, Task> callback, object state)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void OnStarting(Func<object, Task> callback, object state)
-            {
-                throw new NotImplementedException();
-            }
-
-            public Task SendFileAsync(string path, long offset, long? count, CancellationToken cancellationToken = default)
-            {
-                throw new NotImplementedException();
-            }
-
-            public Task StartAsync(CancellationToken cancellationToken = default)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
-            {
-                OnStart();
-                return base.WriteAsync(buffer, cancellationToken);
-            }
-
-            private void OnStart()
-            {
-                if (!HasStarted)
-                {
-                    HasStarted = true;
-                }
-            }
+        public ThrowStream(bool throwOnFirstRead = true)
+            : base(Stream.Null)
+        {
+            ThrowOnFirstRead = throwOnFirstRead;
         }
 
-        private class OnCompletedReadStream : DelegatingStream
+        public bool ThrowOnFirstRead { get; }
+
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            public OnCompletedReadStream(Action onCompleted)
-                : base(Stream.Null)
+            cancellationToken.ThrowIfCancellationRequested();
+            if (_firstRead && !ThrowOnFirstRead)
             {
-                OnCompleted = onCompleted;
+                _firstRead = false;
+                return new ValueTask<int>(1);
             }
-
-            public Action OnCompleted { get; }
-
-            public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
-            {
-                OnCompleted();
-                return new ValueTask<int>(0);
-            }
+            throw new IOException("Fake connection issue");
         }
 
-        private class DelegateHttpTransforms : HttpTransformer
+        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            public bool CopyRequestHeaders { get; set; } = true;
+            cancellationToken.ThrowIfCancellationRequested();
+            throw new IOException("Fake connection issue");
+        }
+    }
 
-            public Func<HttpContext, HttpRequestMessage, string, Task> OnRequest { get; set; } = (_, _, _) => Task.CompletedTask;
-            public Func<HttpContext, HttpResponseMessage, ValueTask<bool>> OnResponse { get; set; } = (_, _) => new (true);
-            public Func<HttpContext, HttpResponseMessage, Task> OnResponseTrailers { get; set; } = (_, _) => Task.CompletedTask;
+    private class StallStream : DelegatingStream
+    {
+        public StallStream(Task until)
+            : this(_ => until)
+        { }
 
-            public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
+        public StallStream(Func<CancellationToken, Task> onStallAction)
+            : base(Stream.Null)
+        {
+            OnStallAction = onStallAction;
+        }
+
+        public Func<CancellationToken, Task> OnStallAction { get; }
+
+        public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            await OnStallAction(cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            throw new IOException();
+        }
+
+        public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            await OnStallAction(cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            throw new IOException();
+        }
+    }
+
+    private class CallbackReadStream : DelegatingStream
+    {
+        public CallbackReadStream(Func<Memory<byte>, CancellationToken, ValueTask<int>> onReadAsync)
+            : base(Stream.Null)
+        {
+            OnReadAsync = onReadAsync;
+        }
+
+        public Func<Memory<byte>, CancellationToken, ValueTask<int>> OnReadAsync { get; }
+
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            return OnReadAsync(buffer, cancellationToken);
+        }
+
+        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            throw new IOException();
+        }
+    }
+
+    private class TestResponseBody : DelegatingStream, IHttpResponseBodyFeature, IHttpResponseFeature, IHttpRequestLifetimeFeature
+    {
+        public TestResponseBody()
+            : this(new MemoryStream())
+        { }
+
+        public TestResponseBody(Stream innerStream)
+            : base(innerStream)
+        {
+            InnerStream = innerStream;
+        }
+
+        public Stream InnerStream { get; }
+
+        public bool Aborted { get; private set; }
+
+        public Stream Stream => this;
+
+        public PipeWriter Writer => throw new NotImplementedException();
+
+        public bool BufferingDisabled { get; set; }
+
+        public int StatusCode { get; set; } = 200;
+        public string ReasonPhrase { get; set; }
+        public IHeaderDictionary Headers { get; set; } = new HeaderDictionary();
+        public Stream Body { get => this; set => throw new NotImplementedException(); }
+        public bool HasStarted { get; set; }
+        public CancellationToken RequestAborted { get; set; }
+
+        public void Abort()
+        {
+            Aborted = true;
+        }
+
+        public Task CompleteAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DisableBuffering()
+        {
+            BufferingDisabled = true;
+        }
+
+        public void OnCompleted(Func<object, Task> callback, object state)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnStarting(Func<object, Task> callback, object state)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SendFileAsync(string path, long offset, long? count, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task StartAsync(CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            OnStart();
+            return base.WriteAsync(buffer, cancellationToken);
+        }
+
+        private void OnStart()
+        {
+            if (!HasStarted)
             {
-                if (CopyRequestHeaders)
-                {
-                    await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
-                }
+                HasStarted = true;
+            }
+        }
+    }
 
-                await OnRequest(httpContext, proxyRequest, destinationPrefix);
+    private class OnCompletedReadStream : DelegatingStream
+    {
+        public OnCompletedReadStream(Action onCompleted)
+            : base(Stream.Null)
+        {
+            OnCompleted = onCompleted;
+        }
+
+        public Action OnCompleted { get; }
+
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            OnCompleted();
+            return new ValueTask<int>(0);
+        }
+    }
+
+    private class DelegateHttpTransforms : HttpTransformer
+    {
+        public bool CopyRequestHeaders { get; set; } = true;
+
+        public Func<HttpContext, HttpRequestMessage, string, Task> OnRequest { get; set; } = (_, _, _) => Task.CompletedTask;
+        public Func<HttpContext, HttpResponseMessage, ValueTask<bool>> OnResponse { get; set; } = (_, _) => new(true);
+        public Func<HttpContext, HttpResponseMessage, Task> OnResponseTrailers { get; set; } = (_, _) => Task.CompletedTask;
+
+        public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
+        {
+            if (CopyRequestHeaders)
+            {
+                await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
             }
 
-            public override async ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
-            {
-                await base.TransformResponseAsync(httpContext, proxyResponse);
+            await OnRequest(httpContext, proxyRequest, destinationPrefix);
+        }
 
-                return await OnResponse(httpContext, proxyResponse);
-            }
+        public override async ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+        {
+            await base.TransformResponseAsync(httpContext, proxyResponse);
 
-            public override async ValueTask TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
-            {
-                await base.TransformResponseTrailersAsync(httpContext, proxyResponse);
+            return await OnResponse(httpContext, proxyResponse);
+        }
 
-                await OnResponseTrailers(httpContext, proxyResponse);
-            }
+        public override async ValueTask TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+        {
+            await base.TransformResponseTrailersAsync(httpContext, proxyResponse);
+
+            await OnResponseTrailers(httpContext, proxyResponse);
         }
     }
 }

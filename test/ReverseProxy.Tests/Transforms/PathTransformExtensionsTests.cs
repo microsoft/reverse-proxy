@@ -8,136 +8,135 @@ using Xunit;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Transforms.Builder;
 
-namespace Yarp.ReverseProxy.Transforms.Tests
+namespace Yarp.ReverseProxy.Transforms.Tests;
+
+public class PathTransformExtensionsTests : TransformExtentionsTestsBase
 {
-    public class PathTransformExtensionsTests : TransformExtentionsTestsBase
+    private readonly PathTransformFactory _factory;
+
+    public PathTransformExtensionsTests()
     {
-        private readonly PathTransformFactory _factory;
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddOptions();
+        serviceCollection.AddRouting();
+        var services = serviceCollection.BuildServiceProvider();
 
-        public PathTransformExtensionsTests()
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddOptions();
-            serviceCollection.AddRouting();
-            var services = serviceCollection.BuildServiceProvider();
+        _factory = new PathTransformFactory(services.GetRequiredService<TemplateBinderFactory>());
+    }
 
-            _factory = new PathTransformFactory(services.GetRequiredService<TemplateBinderFactory>());
-        }
+    [Fact]
+    public void WithTransformPathSet()
+    {
+        var routeConfig = new RouteConfig();
+        routeConfig = routeConfig.WithTransformPathSet(new PathString("/path#"));
 
-        [Fact]
-        public void WithTransformPathSet()
-        {
-            var routeConfig = new RouteConfig();
-            routeConfig = routeConfig.WithTransformPathSet(new PathString("/path#"));
+        var builderContext = ValidateAndBuild(routeConfig, _factory);
 
-            var builderContext = ValidateAndBuild(routeConfig, _factory);
+        ValidatePathSet(builderContext);
+    }
 
-            ValidatePathSet(builderContext);
-        }
+    [Fact]
+    public void AddPathSet()
+    {
+        var builderContext = CreateBuilderContext();
+        builderContext.AddPathSet(new PathString("/path#"));
 
-        [Fact]
-        public void AddPathSet()
-        {
-            var builderContext = CreateBuilderContext();
-            builderContext.AddPathSet(new PathString("/path#"));
+        ValidatePathSet(builderContext);
+    }
 
-            ValidatePathSet(builderContext);
-        }
+    private static void ValidatePathSet(TransformBuilderContext builderContext)
+    {
+        var requestTransform = Assert.Single(builderContext.RequestTransforms);
+        var pathStringTransform = Assert.IsType<PathStringTransform>(requestTransform);
+        Assert.Equal(PathStringTransform.PathTransformMode.Set, pathStringTransform.Mode);
+        Assert.Equal("/path#", pathStringTransform.Value.Value);
+    }
 
-        private static void ValidatePathSet(TransformBuilderContext builderContext)
-        {
-            var requestTransform = Assert.Single(builderContext.RequestTransforms);
-            var pathStringTransform = Assert.IsType<PathStringTransform>(requestTransform);
-            Assert.Equal(PathStringTransform.PathTransformMode.Set, pathStringTransform.Mode);
-            Assert.Equal("/path#", pathStringTransform.Value.Value);
-        }
+    [Fact]
+    public void WithTransformPathRemovePrefix()
+    {
+        var routeConfig = new RouteConfig();
+        routeConfig = routeConfig.WithTransformPathRemovePrefix(new PathString("/path#"));
 
-        [Fact]
-        public void WithTransformPathRemovePrefix()
-        {
-            var routeConfig = new RouteConfig();
-            routeConfig = routeConfig.WithTransformPathRemovePrefix(new PathString("/path#"));
+        var builderContext = ValidateAndBuild(routeConfig, _factory);
 
-            var builderContext = ValidateAndBuild(routeConfig, _factory);
+        ValidatePathRemovePrefix(builderContext);
+    }
 
-            ValidatePathRemovePrefix(builderContext);
-        }
+    [Fact]
+    public void AddPathRemovePrefix()
+    {
+        var builderContext = CreateBuilderContext();
+        builderContext.AddPathRemovePrefix(new PathString("/path#"));
 
-        [Fact]
-        public void AddPathRemovePrefix()
-        {
-            var builderContext = CreateBuilderContext();
-            builderContext.AddPathRemovePrefix(new PathString("/path#"));
+        ValidatePathRemovePrefix(builderContext);
+    }
 
-            ValidatePathRemovePrefix(builderContext);
-        }
+    private static void ValidatePathRemovePrefix(TransformBuilderContext builderContext)
+    {
+        var requestTransform = Assert.Single(builderContext.RequestTransforms);
+        var pathStringTransform = Assert.IsType<PathStringTransform>(requestTransform);
+        Assert.Equal(PathStringTransform.PathTransformMode.RemovePrefix, pathStringTransform.Mode);
+        Assert.Equal("/path#", pathStringTransform.Value.Value);
+    }
 
-        private static void ValidatePathRemovePrefix(TransformBuilderContext builderContext)
-        {
-            var requestTransform = Assert.Single(builderContext.RequestTransforms);
-            var pathStringTransform = Assert.IsType<PathStringTransform>(requestTransform);
-            Assert.Equal(PathStringTransform.PathTransformMode.RemovePrefix, pathStringTransform.Mode);
-            Assert.Equal("/path#", pathStringTransform.Value.Value);
-        }
+    [Fact]
+    public void WithTransformPathPrefix()
+    {
+        var routeConfig = new RouteConfig();
+        routeConfig = routeConfig.WithTransformPathPrefix(new PathString("/path#"));
 
-        [Fact]
-        public void WithTransformPathPrefix()
-        {
-            var routeConfig = new RouteConfig();
-            routeConfig = routeConfig.WithTransformPathPrefix(new PathString("/path#"));
+        var builderContext = ValidateAndBuild(routeConfig, _factory);
 
-            var builderContext = ValidateAndBuild(routeConfig, _factory);
+        ValidatePathPrefix(builderContext);
+    }
 
-            ValidatePathPrefix(builderContext);
-        }
+    [Fact]
+    public void AddPathPrefix()
+    {
+        var builderContext = CreateBuilderContext();
+        builderContext.AddPathPrefix(new PathString("/path#"));
 
-        [Fact]
-        public void AddPathPrefix()
-        {
-            var builderContext = CreateBuilderContext();
-            builderContext.AddPathPrefix(new PathString("/path#"));
+        ValidatePathPrefix(builderContext);
+    }
 
-            ValidatePathPrefix(builderContext);
-        }
+    private static void ValidatePathPrefix(TransformBuilderContext builderContext)
+    {
+        var requestTransform = Assert.Single(builderContext.RequestTransforms);
+        var pathStringTransform = Assert.IsType<PathStringTransform>(requestTransform);
+        Assert.Equal(PathStringTransform.PathTransformMode.Prefix, pathStringTransform.Mode);
+        Assert.Equal("/path#", pathStringTransform.Value.Value);
+    }
 
-        private static void ValidatePathPrefix(TransformBuilderContext builderContext)
-        {
-            var requestTransform = Assert.Single(builderContext.RequestTransforms);
-            var pathStringTransform = Assert.IsType<PathStringTransform>(requestTransform);
-            Assert.Equal(PathStringTransform.PathTransformMode.Prefix, pathStringTransform.Mode);
-            Assert.Equal("/path#", pathStringTransform.Value.Value);
-        }
+    [Fact]
+    public void WithTransformPathRouteValues()
+    {
+        var routeConfig = new RouteConfig();
+        routeConfig = routeConfig.WithTransformPathRouteValues(new PathString("/path#"));
 
-        [Fact]
-        public void WithTransformPathRouteValues()
-        {
-            var routeConfig = new RouteConfig();
-            routeConfig = routeConfig.WithTransformPathRouteValues(new PathString("/path#"));
+        var builderContext = ValidateAndBuild(routeConfig, _factory);
 
-            var builderContext = ValidateAndBuild(routeConfig, _factory);
+        ValidatePathRouteValues(builderContext);
+    }
 
-            ValidatePathRouteValues(builderContext);
-        }
+    [Fact]
+    public void AddPathRouteValues()
+    {
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddOptions();
+        serviceCollection.AddRouting();
+        var services = serviceCollection.BuildServiceProvider();
 
-        [Fact]
-        public void AddPathRouteValues()
-        {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddOptions();
-            serviceCollection.AddRouting();
-            var services = serviceCollection.BuildServiceProvider();
+        var builderContext = CreateBuilderContext(services: services);
+        builderContext.AddPathRouteValues(new PathString("/path#"));
 
-            var builderContext = CreateBuilderContext(services: services);
-            builderContext.AddPathRouteValues(new PathString("/path#"));
+        ValidatePathRouteValues(builderContext);
+    }
 
-            ValidatePathRouteValues(builderContext);
-        }
-
-        private static void ValidatePathRouteValues(TransformBuilderContext builderContext)
-        {
-            var requestTransform = Assert.Single(builderContext.RequestTransforms);
-            var pathRouteValuesTransform = Assert.IsType<PathRouteValuesTransform>(requestTransform);
-            Assert.Equal("/path#", pathRouteValuesTransform.Pattern.RawText);
-        }
+    private static void ValidatePathRouteValues(TransformBuilderContext builderContext)
+    {
+        var requestTransform = Assert.Single(builderContext.RequestTransforms);
+        var pathRouteValuesTransform = Assert.IsType<PathRouteValuesTransform>(requestTransform);
+        Assert.Equal("/path#", pathRouteValuesTransform.Pattern.RawText);
     }
 }
