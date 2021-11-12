@@ -5,45 +5,44 @@ using System;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace Yarp.Tests.Common
+namespace Yarp.Tests.Common;
+
+public class XunitLogger<TCategoryName> : ILogger<TCategoryName>
 {
-    public class XunitLogger<TCategoryName> : ILogger<TCategoryName>
+    private readonly ITestOutputHelper _testOutputHelper;
+    private readonly string _categoryName;
+
+    public XunitLogger(ITestOutputHelper testOutputHelper)
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-        private readonly string _categoryName;
+        _testOutputHelper = testOutputHelper;
+        _categoryName = typeof(TCategoryName).FullName;
+    }
 
-        public XunitLogger(ITestOutputHelper testOutputHelper)
+    public IDisposable BeginScope<TState>(TState state)
+        => NoopDisposable.Instance;
+
+    public bool IsEnabled(LogLevel logLevel)
+        => true;
+
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+    {
+        _testOutputHelper.WriteLine($"{_categoryName}[{logLevel}][{eventId}] {formatter(state, exception)}");
+        if (exception != null)
         {
-            _testOutputHelper = testOutputHelper;
-            _categoryName = typeof(TCategoryName).FullName;
+            _testOutputHelper.WriteLine(exception.ToString());
+        }
+    }
+
+    private class NoopDisposable : IDisposable
+    {
+        private NoopDisposable()
+        {
         }
 
-        public IDisposable BeginScope<TState>(TState state)
-            => NoopDisposable.Instance;
+        public static NoopDisposable Instance { get; set; } = new NoopDisposable();
 
-        public bool IsEnabled(LogLevel logLevel)
-            => true;
-
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public void Dispose()
         {
-            _testOutputHelper.WriteLine($"{_categoryName}[{logLevel}][{eventId}] {formatter(state, exception)}");
-            if (exception != null)
-            {
-                _testOutputHelper.WriteLine(exception.ToString());
-            }
-        }
-
-        private class NoopDisposable : IDisposable
-        {
-            private NoopDisposable()
-            {
-            }
-
-            public static NoopDisposable Instance { get; set; } = new NoopDisposable();
-
-            public void Dispose()
-            {
-            }
         }
     }
 }

@@ -4,36 +4,35 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Yarp.ReverseProxy.Transforms
+namespace Yarp.ReverseProxy.Transforms;
+
+/// <summary>
+/// Removes a request header.
+/// </summary>
+public class RequestHeaderRemoveTransform : RequestTransform
 {
-    /// <summary>
-    /// Removes a request header.
-    /// </summary>
-    public class RequestHeaderRemoveTransform : RequestTransform
+    public RequestHeaderRemoveTransform(string headerName)
     {
-        public RequestHeaderRemoveTransform(string headerName)
+        if (string.IsNullOrEmpty(headerName))
         {
-            if (string.IsNullOrEmpty(headerName))
-            {
-                throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
-            }
-
-            HeaderName = headerName;
+            throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
         }
 
-        internal string HeaderName { get; }
+        HeaderName = headerName;
+    }
 
-        /// <inheritdoc/>
-        public override ValueTask ApplyAsync(RequestTransformContext context)
+    internal string HeaderName { get; }
+
+    /// <inheritdoc/>
+    public override ValueTask ApplyAsync(RequestTransformContext context)
+    {
+        if (context is null)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            RemoveHeader(context, HeaderName);
-
-            return default;
+            throw new ArgumentNullException(nameof(context));
         }
+
+        RemoveHeader(context, HeaderName);
+
+        return default;
     }
 }

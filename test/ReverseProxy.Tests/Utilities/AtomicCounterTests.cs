@@ -4,44 +4,43 @@
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Yarp.ReverseProxy.Utilities.Tests
+namespace Yarp.ReverseProxy.Utilities.Tests;
+
+public class AtomicCounterTests
 {
-    public class AtomicCounterTests
+    [Fact]
+    public void Constructor_Works()
     {
-        [Fact]
-        public void Constructor_Works()
+        new AtomicCounter();
+    }
+
+    [Fact]
+    public void Increment_ThreadSafety()
+    {
+        const int Iterations = 100_000;
+
+        var counter = new AtomicCounter();
+
+        Parallel.For(0, Iterations, i =>
         {
-            new AtomicCounter();
-        }
+            counter.Increment();
+        });
 
-        [Fact]
-        public void Increment_ThreadSafety()
+        Assert.Equal(Iterations, counter.Value);
+    }
+
+    [Fact]
+    public void Decrement_ThreadSafety()
+    {
+        const int Iterations = 100_000;
+
+        var counter = new AtomicCounter();
+
+        Parallel.For(0, Iterations, i =>
         {
-            const int Iterations = 100_000;
+            counter.Decrement();
+        });
 
-            var counter = new AtomicCounter();
-
-            Parallel.For(0, Iterations, i =>
-            {
-                counter.Increment();
-            });
-
-            Assert.Equal(Iterations, counter.Value);
-        }
-
-        [Fact]
-        public void Decrement_ThreadSafety()
-        {
-            const int Iterations = 100_000;
-
-            var counter = new AtomicCounter();
-
-            Parallel.For(0, Iterations, i =>
-            {
-                counter.Decrement();
-            });
-
-            Assert.Equal(-Iterations, counter.Value);
-        }
+        Assert.Equal(-Iterations, counter.Value);
     }
 }

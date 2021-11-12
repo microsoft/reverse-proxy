@@ -13,132 +13,131 @@ using Xunit;
 using Yarp.ReverseProxy.Common;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.ReverseProxy
+namespace Yarp.ReverseProxy;
+
+public class HttpForwarderCancellationTests
 {
-    public class HttpForwarderCancellationTests
-    {
 #if NET
-        [Fact]
-        public async Task ServerSendsHttp2Reset_ReadToClientIsCanceled()
-        {
-            var readAsyncCalled = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+    [Fact]
+    public async Task ServerSendsHttp2Reset_ReadToClientIsCanceled()
+    {
+        var readAsyncCalled = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            var test = new TestEnvironment(
-                async context =>
-                {
-                    Assert.Equal("HTTP/2", context.Request.Protocol);
-
-                    await context.Response.Body.WriteAsync(Encoding.UTF8.GetBytes("Hello"));
-                    await context.Response.CompleteAsync();
-
-                    await readAsyncCalled.Task;
-
-                    var resetFeature = context.Features.Get<IHttpResetFeature>();
-                    Assert.NotNull(resetFeature);
-                    resetFeature.Reset(0); // NO_ERROR
-                },
-                proxyBuilder => { },
-                proxyApp =>
-                {
-                    proxyApp.Use(next => context =>
-                    {
-                        context.Request.Body = new ReadDelegatingStream(context.Request.Body, async (memory, cancellation) =>
-                        {
-                            Assert.False(cancellation.IsCancellationRequested);
-                            readAsyncCalled.SetResult();
-
-                            var startTime = DateTime.UtcNow;
-                            while (DateTime.UtcNow.Subtract(startTime) < TimeSpan.FromSeconds(10))
-                            {
-                                cancellation.ThrowIfCancellationRequested();
-                                await Task.Delay(10, cancellation);
-                            }
-
-                            throw new InvalidOperationException("Cancellation was not requested");
-                        });
-
-                        return next(context);
-                    });
-                },
-                useHttpsOnDestination: true,
-                useHttpsOnProxy: true);
-
-            await test.Invoke(async uri =>
+        var test = new TestEnvironment(
+            async context =>
             {
-                var content = new InfiniteHttpContent();
+                Assert.Equal("HTTP/2", context.Request.Protocol);
 
-                var request = new HttpRequestMessage(HttpMethod.Post, uri)
-                {
-                    Version = HttpVersion.Version20,
-                    Content = content
-                };
+                await context.Response.Body.WriteAsync(Encoding.UTF8.GetBytes("Hello"));
+                await context.Response.CompleteAsync();
 
-                using var client = new HttpClient(new HttpClientHandler
+                await readAsyncCalled.Task;
+
+                var resetFeature = context.Features.Get<IHttpResetFeature>();
+                Assert.NotNull(resetFeature);
+                resetFeature.Reset(0); // NO_ERROR
+                },
+            proxyBuilder => { },
+            proxyApp =>
+            {
+                proxyApp.Use(next => context =>
                 {
-                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                    context.Request.Body = new ReadDelegatingStream(context.Request.Body, async (memory, cancellation) =>
+                    {
+                        Assert.False(cancellation.IsCancellationRequested);
+                        readAsyncCalled.SetResult();
+
+                        var startTime = DateTime.UtcNow;
+                        while (DateTime.UtcNow.Subtract(startTime) < TimeSpan.FromSeconds(10))
+                        {
+                            cancellation.ThrowIfCancellationRequested();
+                            await Task.Delay(10, cancellation);
+                        }
+
+                        throw new InvalidOperationException("Cancellation was not requested");
+                    });
+
+                    return next(context);
                 });
+            },
+            useHttpsOnDestination: true,
+            useHttpsOnProxy: true);
 
-                using var response = await client.SendAsync(request);
+        await test.Invoke(async uri =>
+        {
+            var content = new InfiniteHttpContent();
 
-                response.EnsureSuccessStatusCode();
+            var request = new HttpRequestMessage(HttpMethod.Post, uri)
+            {
+                Version = HttpVersion.Version20,
+                Content = content
+            };
 
-                var responseString = await response.Content.ReadAsStringAsync();
-                Assert.Equal("Hello", responseString);
-
-                await Assert.ThrowsAsync<OperationCanceledException>(() => content.Completion.Task);
+            using var client = new HttpClient(new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
             });
+
+            using var response = await client.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+
+            var responseString = await response.Content.ReadAsStringAsync();
+            Assert.Equal("Hello", responseString);
+
+            await Assert.ThrowsAsync<OperationCanceledException>(() => content.Completion.Task);
+        });
+    }
+
+    private sealed class InfiniteHttpContent : HttpContent
+    {
+        public TaskCompletionSource Completion { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        protected override Task SerializeToStreamAsync(Stream stream, TransportContext context)
+        {
+            throw new NotImplementedException();
         }
 
-        private sealed class InfiniteHttpContent : HttpContent
+        protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context, CancellationToken cancellationToken)
         {
-            public TaskCompletionSource Completion { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+            var buffer = new byte[1024];
+            new Random(42).NextBytes(buffer);
 
-            protected override Task SerializeToStreamAsync(Stream stream, TransportContext context)
+            while (true)
             {
-                throw new NotImplementedException();
-            }
-
-            protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context, CancellationToken cancellationToken)
-            {
-                var buffer = new byte[1024];
-                new Random(42).NextBytes(buffer);
-
-                while (true)
+                try
                 {
-                    try
-                    {
-                        await stream.WriteAsync(buffer, cancellationToken);
-                    }
-                    catch (Exception ex)
-                    {
-                        Completion.SetException(ex);
-                        return;
-                    }
+                    await stream.WriteAsync(buffer, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    Completion.SetException(ex);
+                    return;
                 }
             }
-
-            protected override bool TryComputeLength(out long length)
-            {
-                length = -1;
-                return false;
-            }
         }
+
+        protected override bool TryComputeLength(out long length)
+        {
+            length = -1;
+            return false;
+        }
+    }
 #endif
 
-        private sealed class ReadDelegatingStream : DelegatingStream
+    private sealed class ReadDelegatingStream : DelegatingStream
+    {
+        private readonly Func<Memory<byte>, CancellationToken, ValueTask<int>> _readAsync;
+
+        public ReadDelegatingStream(Stream stream, Func<Memory<byte>, CancellationToken, ValueTask<int>> readAsync)
+            : base(stream)
         {
-            private readonly Func<Memory<byte>, CancellationToken, ValueTask<int>> _readAsync;
+            _readAsync = readAsync;
+        }
 
-            public ReadDelegatingStream(Stream stream, Func<Memory<byte>, CancellationToken, ValueTask<int>> readAsync)
-                : base(stream)
-            {
-                _readAsync = readAsync;
-            }
-
-            public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
-            {
-                return _readAsync(buffer, cancellationToken);
-            }
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            return _readAsync(buffer, cancellationToken);
         }
     }
 }

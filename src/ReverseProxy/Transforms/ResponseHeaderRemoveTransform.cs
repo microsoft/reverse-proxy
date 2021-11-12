@@ -4,44 +4,43 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Yarp.ReverseProxy.Transforms
+namespace Yarp.ReverseProxy.Transforms;
+
+/// <summary>
+/// Removes a response header.
+/// </summary>
+public class ResponseHeaderRemoveTransform : ResponseTransform
 {
-    /// <summary>
-    /// Removes a response header.
-    /// </summary>
-    public class ResponseHeaderRemoveTransform : ResponseTransform
+    public ResponseHeaderRemoveTransform(string headerName, ResponseCondition condition)
     {
-        public ResponseHeaderRemoveTransform(string headerName, ResponseCondition condition)
+        if (string.IsNullOrEmpty(headerName))
         {
-            if (string.IsNullOrEmpty(headerName))
-            {
-                throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
-            }
-
-            HeaderName = headerName;
-            Condition = condition;
+            throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
         }
 
-        internal string HeaderName { get; }
+        HeaderName = headerName;
+        Condition = condition;
+    }
 
-        internal ResponseCondition Condition { get; }
+    internal string HeaderName { get; }
 
-        // Assumes the response status code has been set on the HttpContext already.
-        /// <inheritdoc/>
-        public override ValueTask ApplyAsync(ResponseTransformContext context)
+    internal ResponseCondition Condition { get; }
+
+    // Assumes the response status code has been set on the HttpContext already.
+    /// <inheritdoc/>
+    public override ValueTask ApplyAsync(ResponseTransformContext context)
+    {
+        if (context is null)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            if (Condition == ResponseCondition.Always
-                || Success(context) == (Condition == ResponseCondition.Success))
-            {
-                context.HttpContext.Response.Headers.Remove(HeaderName);
-            }
-
-            return default;
+            throw new ArgumentNullException(nameof(context));
         }
+
+        if (Condition == ResponseCondition.Always
+            || Success(context) == (Condition == ResponseCondition.Success))
+        {
+            context.HttpContext.Response.Headers.Remove(HeaderName);
+        }
+
+        return default;
     }
 }

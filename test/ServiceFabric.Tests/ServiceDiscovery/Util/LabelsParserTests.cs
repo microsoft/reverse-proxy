@@ -11,16 +11,16 @@ using Yarp.ReverseProxy.LoadBalancing;
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.SessionAffinity;
 
-namespace Yarp.ReverseProxy.ServiceFabric.Tests
-{
-    public class LabelsParserTests
-    {
-        private static readonly Uri _testServiceName = new Uri("fabric:/App1/Svc1");
+namespace Yarp.ReverseProxy.ServiceFabric.Tests;
 
-        [Fact]
-        public void BuildCluster_CompleteLabels_Works()
-        {
-            var labels = new Dictionary<string, string>()
+public class LabelsParserTests
+{
+    private static readonly Uri _testServiceName = new Uri("fabric:/App1/Svc1");
+
+    [Fact]
+    public void BuildCluster_CompleteLabels_Works()
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Enable", "true" },
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
@@ -65,158 +65,158 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.HttpClient.WebProxy.UseDefaultCredentials", "false" },
             };
 
-            var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
+        var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
-            var expectedCluster = new ClusterConfig
+        var expectedCluster = new ClusterConfig
+        {
+            ClusterId = "MyCoolClusterId",
+            LoadBalancingPolicy = LoadBalancingPolicies.LeastRequests,
+            SessionAffinity = new SessionAffinityConfig
             {
-                ClusterId = "MyCoolClusterId",
-                LoadBalancingPolicy = LoadBalancingPolicies.LeastRequests,
-                SessionAffinity = new SessionAffinityConfig
+                Enabled = true,
+                Policy = SessionAffinityConstants.Policies.Cookie,
+                FailurePolicy = SessionAffinityConstants.FailurePolicies.Return503Error,
+                AffinityKeyName = "Key1",
+                Cookie = new SessionAffinityCookieConfig
+                {
+                    Domain = "localhost",
+                    Expiration = TimeSpan.FromHours(3),
+                    HttpOnly = true,
+                    IsEssential = true,
+                    MaxAge = TimeSpan.FromDays(1),
+                    Path = "mypath",
+                    SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                    SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest
+                }
+            },
+            HttpRequest = new ForwarderRequestConfig
+            {
+                ActivityTimeout = TimeSpan.FromSeconds(17),
+                Version = new Version(1, 1),
+                AllowResponseBuffering = true,
+#if NET
+                VersionPolicy = System.Net.Http.HttpVersionPolicy.RequestVersionExact
+#endif
+            },
+            HealthCheck = new HealthCheckConfig
+            {
+                Active = new ActiveHealthCheckConfig
                 {
                     Enabled = true,
-                    Policy = SessionAffinityConstants.Policies.Cookie,
-                    FailurePolicy = SessionAffinityConstants.FailurePolicies.Return503Error,
-                    AffinityKeyName = "Key1",
-                    Cookie = new SessionAffinityCookieConfig
-                    {
-                        Domain = "localhost",
-                        Expiration = TimeSpan.FromHours(3),
-                        HttpOnly = true,
-                        IsEssential = true,
-                        MaxAge = TimeSpan.FromDays(1),
-                        Path = "mypath",
-                        SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
-                        SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest
-                    }
+                    Interval = TimeSpan.FromSeconds(5),
+                    Timeout = TimeSpan.FromSeconds(6),
+                    Path = "/api/health",
+                    Policy = "MyActiveHealthPolicy"
                 },
-                HttpRequest = new ForwarderRequestConfig
+                Passive = new PassiveHealthCheckConfig
                 {
-                    ActivityTimeout = TimeSpan.FromSeconds(17),
-                    Version = new Version(1, 1),
-                    AllowResponseBuffering = true,
-#if NET
-                    VersionPolicy = System.Net.Http.HttpVersionPolicy.RequestVersionExact
-#endif
-                },
-                HealthCheck = new HealthCheckConfig
-                {
-                    Active = new ActiveHealthCheckConfig
-                    {
-                        Enabled = true,
-                        Interval = TimeSpan.FromSeconds(5),
-                        Timeout = TimeSpan.FromSeconds(6),
-                        Path = "/api/health",
-                        Policy = "MyActiveHealthPolicy"
-                    },
-                    Passive = new PassiveHealthCheckConfig
-                    {
-                        Enabled = true,
-                        Policy = "MyPassiveHealthPolicy",
-                        ReactivationPeriod = TimeSpan.FromSeconds(7)
-                    }
-                },
-                Metadata = new Dictionary<string, string>
+                    Enabled = true,
+                    Policy = "MyPassiveHealthPolicy",
+                    ReactivationPeriod = TimeSpan.FromSeconds(7)
+                }
+            },
+            Metadata = new Dictionary<string, string>
                 {
                     { "Foo", "Bar" },
                 },
-                HttpClient = new HttpClientConfig
-                {
-                    DangerousAcceptAnyServerCertificate = true,
+            HttpClient = new HttpClientConfig
+            {
+                DangerousAcceptAnyServerCertificate = true,
 #if NET
-                    EnableMultipleHttp2Connections = false,
-                    RequestHeaderEncoding = "utf-8",
+                EnableMultipleHttp2Connections = false,
+                RequestHeaderEncoding = "utf-8",
 #endif
-                    MaxConnectionsPerServer = 1000,
-                    SslProtocols = SslProtocols.Tls12,
-                    WebProxy = new WebProxyConfig
-                    {
-                        Address = new Uri("https://10.20.30.40"),
-                        BypassOnLocal = true,
-                        UseDefaultCredentials = false,
-                    }
+                MaxConnectionsPerServer = 1000,
+                SslProtocols = SslProtocols.Tls12,
+                WebProxy = new WebProxyConfig
+                {
+                    Address = new Uri("https://10.20.30.40"),
+                    BypassOnLocal = true,
+                    UseDefaultCredentials = false,
                 }
-            };
-            cluster.Should().BeEquivalentTo(expectedCluster);
-        }
+            }
+        };
+        cluster.Should().BeEquivalentTo(expectedCluster);
+    }
 
-        [Fact]
-        public void BuildCluster_IncompleteLabels_UsesDefaultValues()
-        {
-            var labels = new Dictionary<string, string>()
+    [Fact]
+    public void BuildCluster_IncompleteLabels_UsesDefaultValues()
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Backend.SessionAffinity.AffinityKeyName", "Key1" }
             };
 
-            var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
+        var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
-            var expectedCluster = new ClusterConfig
+        var expectedCluster = new ClusterConfig
+        {
+            ClusterId = "MyCoolClusterId",
+            SessionAffinity = new SessionAffinityConfig
             {
-                ClusterId = "MyCoolClusterId",
-                SessionAffinity = new SessionAffinityConfig
+                AffinityKeyName = "Key1",
+                Cookie = new SessionAffinityCookieConfig()
+            },
+            HttpRequest = new ForwarderRequestConfig(),
+            HealthCheck = new HealthCheckConfig
+            {
+                Active = new ActiveHealthCheckConfig(),
+                Passive = new PassiveHealthCheckConfig()
+            },
+            Metadata = new Dictionary<string, string>(),
+            HttpClient = new HttpClientConfig
+            {
+                WebProxy = new WebProxyConfig
                 {
-                    AffinityKeyName = "Key1",
-                    Cookie = new SessionAffinityCookieConfig()
-                },
-                HttpRequest = new ForwarderRequestConfig(),
-                HealthCheck = new HealthCheckConfig
-                {
-                    Active = new ActiveHealthCheckConfig(),
-                    Passive = new PassiveHealthCheckConfig()
-                },
-                Metadata = new Dictionary<string, string>(),
-                HttpClient = new HttpClientConfig
-                {
-                    WebProxy = new WebProxyConfig
-                    {
-                    }
                 }
-            };
-            cluster.Should().BeEquivalentTo(expectedCluster);
-        }
+            }
+        };
+        cluster.Should().BeEquivalentTo(expectedCluster);
+    }
 
-        [Theory]
-        [InlineData("true", true)]
-        [InlineData("True", true)]
-        [InlineData("TRUE", true)]
-        [InlineData("false", false)]
-        [InlineData("False", false)]
-        [InlineData("FALSE", false)]
-        [InlineData(null, null)]
-        [InlineData("", null)]
-        public void BuildCluster_HealthCheckOptions_Enabled_Valid(string label, bool? expected)
-        {
-            var labels = new Dictionary<string, string>()
+    [Theory]
+    [InlineData("true", true)]
+    [InlineData("True", true)]
+    [InlineData("TRUE", true)]
+    [InlineData("false", false)]
+    [InlineData("False", false)]
+    [InlineData("FALSE", false)]
+    [InlineData(null, null)]
+    [InlineData("", null)]
+    public void BuildCluster_HealthCheckOptions_Enabled_Valid(string label, bool? expected)
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Backend.HealthCheck.Active.Enabled", label },
             };
 
-            var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
+        var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
-            cluster.HealthCheck.Active.Enabled.Should().Be(expected);
-        }
+        cluster.HealthCheck.Active.Enabled.Should().Be(expected);
+    }
 
-        [Theory]
-        [InlineData("notbool")]
-        [InlineData(" ")]
-        public void BuildCluster_HealthCheckOptions_Enabled_Invalid(string label)
-        {
-            var labels = new Dictionary<string, string>()
+    [Theory]
+    [InlineData("notbool")]
+    [InlineData(" ")]
+    public void BuildCluster_HealthCheckOptions_Enabled_Invalid(string label)
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Backend.HealthCheck.Active.Enabled", label },
             };
 
-            Action action = () => LabelsParser.BuildCluster(_testServiceName, labels, null);
+        Action action = () => LabelsParser.BuildCluster(_testServiceName, labels, null);
 
-            action.Should().Throw<ConfigException>();
-        }
+        action.Should().Throw<ConfigException>();
+    }
 
-        [Fact]
-        public void BuildCluster_MissingBackendId_UsesServiceName()
-        {
-            var labels = new Dictionary<string, string>()
+    [Fact]
+    public void BuildCluster_MissingBackendId_UsesServiceName()
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.Quota.Burst", "2.3" },
                 { "YARP.Backend.Partitioning.Count", "5" },
@@ -225,46 +225,46 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Backend.HealthCheck.Active.Interval", "00:00:5" },
             };
 
-            var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
+        var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
-            cluster.ClusterId.Should().Be(_testServiceName.ToString());
-        }
+        cluster.ClusterId.Should().Be(_testServiceName.ToString());
+    }
 
-        [Theory]
-        [InlineData("")]
-        [InlineData(null)]
-        public void BuildCluster_NullTimespan(string value)
-        {
-            var labels = new Dictionary<string, string>()
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void BuildCluster_NullTimespan(string value)
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.HealthCheck.Active.Interval", value },
             };
 
-            var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
+        var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
-            cluster.HealthCheck.Active.Interval.Should().BeNull();
-        }
+        cluster.HealthCheck.Active.Interval.Should().BeNull();
+    }
 
-        [Theory]
-        [InlineData("YARP.Backend.HealthCheck.Active.Interval", "1S")]
-        [InlineData("YARP.Backend.HealthCheck.Active.Timeout", "foobar")]
-        public void BuildCluster_InvalidValues_Throws(string key, string invalidValue)
-        {
-            var labels = new Dictionary<string, string>()
+    [Theory]
+    [InlineData("YARP.Backend.HealthCheck.Active.Interval", "1S")]
+    [InlineData("YARP.Backend.HealthCheck.Active.Timeout", "foobar")]
+    public void BuildCluster_InvalidValues_Throws(string key, string invalidValue)
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { key, invalidValue },
             };
 
-            Func<ClusterConfig> func = () => LabelsParser.BuildCluster(_testServiceName, labels, null);
+        Func<ClusterConfig> func = () => LabelsParser.BuildCluster(_testServiceName, labels, null);
 
-            func.Should().Throw<ConfigException>().WithMessage($"Could not convert label {key}='{invalidValue}' *");
-        }
+        func.Should().Throw<ConfigException>().WithMessage($"Could not convert label {key}='{invalidValue}' *");
+    }
 
-        [Fact]
-        public void BuildRoutes_SingleRoute_Works()
-        {
-            var labels = new Dictionary<string, string>()
+    [Fact]
+    public void BuildRoutes_SingleRoute_Works()
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
@@ -285,9 +285,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Routes.MyRoute.Transforms.[1].When", "Success" },
             };
 
-            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
+        var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<RouteConfig>
+        var expectedRoutes = new List<RouteConfig>
             {
                 new RouteConfig
                 {
@@ -336,21 +336,21 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     }
                 },
             };
-            routes.Should().BeEquivalentTo(expectedRoutes);
-        }
+        routes.Should().BeEquivalentTo(expectedRoutes);
+    }
 
-        [Fact]
-        public void BuildRoutes_IncompleteRoute_UsesDefaults()
-        {
-            var labels = new Dictionary<string, string>()
+    [Fact]
+    public void BuildRoutes_IncompleteRoute_UsesDefaults()
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
             };
 
-            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
+        var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<RouteConfig>
+        var expectedRoutes = new List<RouteConfig>
             {
                 new RouteConfig
                 {
@@ -363,24 +363,24 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     Metadata = new Dictionary<string, string>(),
                 },
             };
-            routes.Should().BeEquivalentTo(expectedRoutes);
-        }
+        routes.Should().BeEquivalentTo(expectedRoutes);
+    }
 
-        /// <summary>
-        /// The LabelParser is not expected to invoke route parsing logic, and should treat the objects as plain data containers.
-        /// </summary>
-        [Fact]
-        public void BuildRoutes_SingleRouteWithSemanticallyInvalidRule_WorksAndDoesNotThrow()
-        {
-            var labels = new Dictionary<string, string>()
+    /// <summary>
+    /// The LabelParser is not expected to invoke route parsing logic, and should treat the objects as plain data containers.
+    /// </summary>
+    [Fact]
+    public void BuildRoutes_SingleRouteWithSemanticallyInvalidRule_WorksAndDoesNotThrow()
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Routes.MyRoute.Hosts", "'this invalid thing" },
             };
 
-            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
+        var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<RouteConfig>
+        var expectedRoutes = new List<RouteConfig>
             {
                 new RouteConfig
                 {
@@ -393,28 +393,28 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     Metadata = new Dictionary<string, string>(),
                 },
             };
-            routes.Should().BeEquivalentTo(expectedRoutes);
-        }
+        routes.Should().BeEquivalentTo(expectedRoutes);
+    }
 
-        [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        public void BuildRoutes_MissingBackendId_UsesServiceName(int scenario)
-        {
-            var labels = new Dictionary<string, string>()
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    public void BuildRoutes_MissingBackendId_UsesServiceName(int scenario)
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
                 { "YARP.Routes.MyRoute.Order", "2" },
             };
 
-            if (scenario == 1)
-            {
-                labels.Add("YARP.Backend.BackendId", string.Empty);
-            }
+        if (scenario == 1)
+        {
+            labels.Add("YARP.Backend.BackendId", string.Empty);
+        }
 
-            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
+        var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<RouteConfig>
+        var expectedRoutes = new List<RouteConfig>
             {
                 new RouteConfig
                 {
@@ -428,20 +428,20 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     Metadata = new Dictionary<string, string>(),
                 },
             };
-            routes.Should().BeEquivalentTo(expectedRoutes);
-        }
+        routes.Should().BeEquivalentTo(expectedRoutes);
+    }
 
-        [Fact]
-        public void BuildRoutes_MissingHost_Works()
-        {
-            var labels = new Dictionary<string, string>()
+    [Fact]
+    public void BuildRoutes_MissingHost_Works()
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Routes.MyRoute.Path", "/{**catchall}" },
             };
 
-            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
+        var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<RouteConfig>
+        var expectedRoutes = new List<RouteConfig>
             {
                 new RouteConfig
                 {
@@ -454,44 +454,44 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     Metadata = new Dictionary<string, string>(),
                 },
             };
-            routes.Should().BeEquivalentTo(expectedRoutes);
-        }
+        routes.Should().BeEquivalentTo(expectedRoutes);
+    }
 
-        [Fact]
-        public void BuildRoutes_InvalidOrder_Throws()
-        {
-            var labels = new Dictionary<string, string>()
+    [Fact]
+    public void BuildRoutes_InvalidOrder_Throws()
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
                 { "YARP.Routes.MyRoute.Order", "this is no number" },
             };
 
-            Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+        Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            func.Should()
-                .Throw<ConfigException>()
-                .WithMessage("Could not convert label YARP.Routes.MyRoute.Order='this is no number' *");
-        }
+        func.Should()
+            .Throw<ConfigException>()
+            .WithMessage("Could not convert label YARP.Routes.MyRoute.Order='this is no number' *");
+    }
 
-        [Theory]
-        [InlineData("justcharacters")]
-        [InlineData("UppercaseCharacters")]
-        [InlineData("numbers1234")]
-        [InlineData("Under_Score")]
-        [InlineData("Hyphen-Hyphen")]
-        public void BuildRoutes_ValidRouteName_Works(string routeName)
-        {
-            var labels = new Dictionary<string, string>()
+    [Theory]
+    [InlineData("justcharacters")]
+    [InlineData("UppercaseCharacters")]
+    [InlineData("numbers1234")]
+    [InlineData("Under_Score")]
+    [InlineData("Hyphen-Hyphen")]
+    public void BuildRoutes_ValidRouteName_Works(string routeName)
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { $"YARP.Routes.{routeName}.Hosts", "example.com" },
                 { $"YARP.Routes.{routeName}.Order", "2" },
             };
 
-            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
+        var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<RouteConfig>
+        var expectedRoutes = new List<RouteConfig>
             {
                 new RouteConfig
                 {
@@ -505,113 +505,113 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     Metadata = new Dictionary<string, string>(),
                 },
             };
-            routes.Should().BeEquivalentTo(expectedRoutes);
-        }
+        routes.Should().BeEquivalentTo(expectedRoutes);
+    }
 
-        [Theory]
-        [InlineData("YARP.Routes..Priority", "that was an empty route name")]
-        [InlineData("YARP.Routes..Hosts", "that was an empty route name")]
-        [InlineData("YARP.Routes.  .Hosts", "that was an empty route name")]
-        [InlineData("YARP.Routes..", "that was an empty route name")]
-        [InlineData("YARP.Routes...", "that was an empty route name")]
-        [InlineData("YARP.Routes.FunnyChars!.Hosts", "some value")]
-        [InlineData("YARP.Routes.'FunnyChars'.Priority", "some value")]
-        [InlineData("YARP.Routes.FunnyChárs.Metadata", "some value")]
-        [InlineData("YARP.Routes.Funny+Chars.Hosts", "some value")]
-        public void BuildRoutes_InvalidRouteName_Throws(string invalidKey, string value)
-        {
-            var labels = new Dictionary<string, string>()
+    [Theory]
+    [InlineData("YARP.Routes..Priority", "that was an empty route name")]
+    [InlineData("YARP.Routes..Hosts", "that was an empty route name")]
+    [InlineData("YARP.Routes.  .Hosts", "that was an empty route name")]
+    [InlineData("YARP.Routes..", "that was an empty route name")]
+    [InlineData("YARP.Routes...", "that was an empty route name")]
+    [InlineData("YARP.Routes.FunnyChars!.Hosts", "some value")]
+    [InlineData("YARP.Routes.'FunnyChars'.Priority", "some value")]
+    [InlineData("YARP.Routes.FunnyChárs.Metadata", "some value")]
+    [InlineData("YARP.Routes.Funny+Chars.Hosts", "some value")]
+    public void BuildRoutes_InvalidRouteName_Throws(string invalidKey, string value)
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
                 { "YARP.Routes.MyRoute.Priority", "2" },
                 { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
             };
-            labels[invalidKey] = value;
+        labels[invalidKey] = value;
 
-            Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+        Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            func.Should()
-                .Throw<ConfigException>()
-                .WithMessage($"Invalid route name '*', should only contain alphanumerical characters, underscores or hyphens.");
-        }
+        func.Should()
+            .Throw<ConfigException>()
+            .WithMessage($"Invalid route name '*', should only contain alphanumerical characters, underscores or hyphens.");
+    }
 
-        [Theory]
-        [InlineData("YARP.Routes.MyRoute.Transforms. .ResponseHeader", "Blank transform index")]
-        [InlineData("YARP.Routes.MyRoute.Transforms.string.ResponseHeader", "string header name not accepted.. just [num]")]
-        [InlineData("YARP.Routes.MyRoute.Transforms.1.Response", "needs square brackets")]
-        public void BuildRoutes_InvalidTransformIndex_Throws(string invalidKey, string value)
-        {
-            var labels = new Dictionary<string, string>()
+    [Theory]
+    [InlineData("YARP.Routes.MyRoute.Transforms. .ResponseHeader", "Blank transform index")]
+    [InlineData("YARP.Routes.MyRoute.Transforms.string.ResponseHeader", "string header name not accepted.. just [num]")]
+    [InlineData("YARP.Routes.MyRoute.Transforms.1.Response", "needs square brackets")]
+    public void BuildRoutes_InvalidTransformIndex_Throws(string invalidKey, string value)
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
                 { "YARP.Routes.MyRoute.Priority", "2" },
                 { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
             };
-            labels[invalidKey] = value;
+        labels[invalidKey] = value;
 
-            Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+        Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            func.Should()
-                .Throw<ConfigException>()
-                .WithMessage($"Invalid transform index '*', should be transform index wrapped in square brackets.");
-        }
+        func.Should()
+            .Throw<ConfigException>()
+            .WithMessage($"Invalid transform index '*', should be transform index wrapped in square brackets.");
+    }
 
-        [Theory]
-        [InlineData("YARP.Routes.MyRoute.MatchHeaders. .Name", "x-header-name")]
-        [InlineData("YARP.Routes.MyRoute.MatchHeaders.string.Name", "x-header-name")]
-        [InlineData("YARP.Routes.MyRoute.MatchHeaders.1.Name", "x-header-name")]
-        public void BuildRoutes_InvalidHeaderMatchIndex_Throws(string invalidKey, string value)
-        {
-            // Arrange
-            var labels = new Dictionary<string, string>()
+    [Theory]
+    [InlineData("YARP.Routes.MyRoute.MatchHeaders. .Name", "x-header-name")]
+    [InlineData("YARP.Routes.MyRoute.MatchHeaders.string.Name", "x-header-name")]
+    [InlineData("YARP.Routes.MyRoute.MatchHeaders.1.Name", "x-header-name")]
+    public void BuildRoutes_InvalidHeaderMatchIndex_Throws(string invalidKey, string value)
+    {
+        // Arrange
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
                 { "YARP.Routes.MyRoute.Priority", "2" },
                 { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
             };
-            labels[invalidKey] = value;
+        labels[invalidKey] = value;
 
-            // Act
-            Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+        // Act
+        Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            // Assert
-            func.Should()
-                .Throw<ConfigException>()
-                .WithMessage($"Invalid header matching index '*', should only contain alphanumerical characters, underscores or hyphens.");
-        }
+        // Assert
+        func.Should()
+            .Throw<ConfigException>()
+            .WithMessage($"Invalid header matching index '*', should only contain alphanumerical characters, underscores or hyphens.");
+    }
 
-        [Theory]
-        [InlineData("YARP.Routes.MyRoute.MatchHeaders.[0].UnknownProperty", "some value")]
-        public void BuildRoutes_InvalidHeaderMatchProperty_Throws(string invalidKey, string value)
-        {
-            // Arrange
-            var labels = new Dictionary<string, string>()
+    [Theory]
+    [InlineData("YARP.Routes.MyRoute.MatchHeaders.[0].UnknownProperty", "some value")]
+    public void BuildRoutes_InvalidHeaderMatchProperty_Throws(string invalidKey, string value)
+    {
+        // Arrange
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
                 { "YARP.Routes.MyRoute.Priority", "2" },
                 { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
             };
-            labels[invalidKey] = value;
+        labels[invalidKey] = value;
 
-            // Act
-            Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
+        // Act
+        Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            // Assert
-            func.Should()
-                .Throw<ConfigException>()
-                .WithMessage($"Invalid header matching property '*', only valid values are Name, Values, IsCaseSensitive and Mode.");
-        }
+        // Assert
+        func.Should()
+            .Throw<ConfigException>()
+            .WithMessage($"Invalid header matching property '*', only valid values are Name, Values, IsCaseSensitive and Mode.");
+    }
 
-        [Theory]
-        [InlineData("YARP.Routes.MyRoute0.MatchHeaders.[0].Values", "apples, oranges, grapes", new string[] { "apples", "oranges", "grapes" })]
-        [InlineData("YARP.Routes.MyRoute0.MatchHeaders.[0].Values", "apples,,oranges,grapes", new string[] { "apples", "", "oranges", "grapes" })]
-        public void BuildRoutes_MatchHeadersWithCSVs_Works(string invalidKey, string value, string[] expected)
-        {
-            var labels = new Dictionary<string, string>()
+    [Theory]
+    [InlineData("YARP.Routes.MyRoute0.MatchHeaders.[0].Values", "apples, oranges, grapes", new string[] { "apples", "oranges", "grapes" })]
+    [InlineData("YARP.Routes.MyRoute0.MatchHeaders.[0].Values", "apples,,oranges,grapes", new string[] { "apples", "", "oranges", "grapes" })]
+    public void BuildRoutes_MatchHeadersWithCSVs_Works(string invalidKey, string value, string[] expected)
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Routes.MyRoute0.Hosts", "example0.com" },
@@ -619,11 +619,11 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Routes.MyRoute0.MatchHeaders.[0].Name", "x-test-header" },
                 { "YARP.Routes.MyRoute0.MatchHeaders.[0].Mode", "ExactHeader" },
             };
-            labels[invalidKey] = value;
+        labels[invalidKey] = value;
 
-            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
+        var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<RouteConfig>
+        var expectedRoutes = new List<RouteConfig>
             {
                 new RouteConfig
                 {
@@ -641,39 +641,39 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     ClusterId = "MyCoolClusterId",
                 }
             };
-            routes.Should().BeEquivalentTo(expectedRoutes);
-        }
+        routes.Should().BeEquivalentTo(expectedRoutes);
+    }
 
-        [Theory]
-        [InlineData("", "")]
-        [InlineData("NotEven.TheNamespace", "some value")]
-        [InlineData("YARP.", "some value")]
-        [InlineData("Routes.", "some value")]
-        [InlineData("YARP.Routes.", "some value")]
-        [InlineData("YARP.Routes.MyRoute.MatchHeaders", "some value")]
-        [InlineData("YARP.Routes.MyRoute.MatchHeaders.", "some value")]
-        [InlineData("YARP.Routes.MyRoute...MatchHeaders", "some value")]
-        [InlineData("YARP.Routes.MyRoute.Transforms", "some value")]
-        [InlineData("YARP.Routes.MyRoute.Transforms.", "some value")]
-        [InlineData("YARP.Routes.MyRoute...Transforms", "some value")]
-        [InlineData("YARP.Routes.MyRoute.Transform.", "some value")]
-        [InlineData("YARP.Routes", "some value")]
-        [InlineData("YARP..Routes.", "some value")]
-        [InlineData("YARP.....Routes.", "some value")]
-        public void BuildRoutes_InvalidLabelKeys_IgnoresAndDoesNotThrow(string invalidKey, string value)
-        {
-            var labels = new Dictionary<string, string>()
+    [Theory]
+    [InlineData("", "")]
+    [InlineData("NotEven.TheNamespace", "some value")]
+    [InlineData("YARP.", "some value")]
+    [InlineData("Routes.", "some value")]
+    [InlineData("YARP.Routes.", "some value")]
+    [InlineData("YARP.Routes.MyRoute.MatchHeaders", "some value")]
+    [InlineData("YARP.Routes.MyRoute.MatchHeaders.", "some value")]
+    [InlineData("YARP.Routes.MyRoute...MatchHeaders", "some value")]
+    [InlineData("YARP.Routes.MyRoute.Transforms", "some value")]
+    [InlineData("YARP.Routes.MyRoute.Transforms.", "some value")]
+    [InlineData("YARP.Routes.MyRoute...Transforms", "some value")]
+    [InlineData("YARP.Routes.MyRoute.Transform.", "some value")]
+    [InlineData("YARP.Routes", "some value")]
+    [InlineData("YARP..Routes.", "some value")]
+    [InlineData("YARP.....Routes.", "some value")]
+    public void BuildRoutes_InvalidLabelKeys_IgnoresAndDoesNotThrow(string invalidKey, string value)
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
                 { "YARP.Routes.MyRoute.Order", "2" },
                 { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
             };
-            labels[invalidKey] = value;
+        labels[invalidKey] = value;
 
-            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
+        var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<RouteConfig>
+        var expectedRoutes = new List<RouteConfig>
             {
                 new RouteConfig
                 {
@@ -690,13 +690,13 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     },
                 },
             };
-            routes.Should().BeEquivalentTo(expectedRoutes);
-        }
+        routes.Should().BeEquivalentTo(expectedRoutes);
+    }
 
-        [Fact]
-        public void BuildRoutes_MultipleRoutes_Works()
-        {
-            var labels = new Dictionary<string, string>()
+    [Fact]
+    public void BuildRoutes_MultipleRoutes_Works()
+    {
+        var labels = new Dictionary<string, string>()
             {
                 { "YARP.Backend.BackendId", "MyCoolClusterId" },
                 { "YARP.Routes.MyRoute.Hosts", "example.com" },
@@ -709,9 +709,9 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                 { "YARP.Routes.EvenCoolerRoute.Order", "3" },
             };
 
-            var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
+        var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
-            var expectedRoutes = new List<RouteConfig>
+        var expectedRoutes = new List<RouteConfig>
             {
                 new RouteConfig
                 {
@@ -748,7 +748,6 @@ namespace Yarp.ReverseProxy.ServiceFabric.Tests
                     Metadata = new Dictionary<string, string>(),
                 },
             };
-            routes.Should().BeEquivalentTo(expectedRoutes);
-        }
+        routes.Should().BeEquivalentTo(expectedRoutes);
     }
 }

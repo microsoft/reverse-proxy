@@ -6,37 +6,36 @@ using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Threading;
 
-namespace Yarp.Tests.Common
-{
-    internal static class TestEventListener
-    {
-        private static readonly AsyncLocal<List<EventWrittenEventArgs>> _eventsAsyncLocal = new AsyncLocal<List<EventWrittenEventArgs>>();
-        private static readonly InternalEventListener _listener = new InternalEventListener();
+namespace Yarp.Tests.Common;
 
-        public static List<EventWrittenEventArgs> Collect()
+internal static class TestEventListener
+{
+    private static readonly AsyncLocal<List<EventWrittenEventArgs>> _eventsAsyncLocal = new AsyncLocal<List<EventWrittenEventArgs>>();
+    private static readonly InternalEventListener _listener = new InternalEventListener();
+
+    public static List<EventWrittenEventArgs> Collect()
+    {
+        return _eventsAsyncLocal.Value = new List<EventWrittenEventArgs>();
+    }
+
+    private sealed class InternalEventListener : EventListener
+    {
+        protected override void OnEventSourceCreated(EventSource eventSource)
         {
-            return _eventsAsyncLocal.Value = new List<EventWrittenEventArgs>();
+            if (eventSource.Name == "Yarp.ReverseProxy")
+            {
+                EnableEvents(eventSource, EventLevel.LogAlways, EventKeywords.All);
+            }
         }
 
-        private sealed class InternalEventListener : EventListener
+        protected override void OnEventWritten(EventWrittenEventArgs eventData)
         {
-            protected override void OnEventSourceCreated(EventSource eventSource)
+            if (eventData.EventId == 0)
             {
-                if (eventSource.Name == "Yarp.ReverseProxy")
-                {
-                    EnableEvents(eventSource, EventLevel.LogAlways, EventKeywords.All);
-                }
+                throw new Exception($"EventSource error received: {eventData.Payload[0]}");
             }
 
-            protected override void OnEventWritten(EventWrittenEventArgs eventData)
-            {
-                if (eventData.EventId == 0)
-                {
-                    throw new Exception($"EventSource error received: {eventData.Payload[0]}");
-                }
-
-                _eventsAsyncLocal.Value?.Add(eventData);
-            }
+            _eventsAsyncLocal.Value?.Add(eventData);
         }
     }
 }

@@ -3,82 +3,81 @@
 
 using Xunit;
 
-namespace Yarp.ReverseProxy.Utilities.Tests
+namespace Yarp.ReverseProxy.Utilities.Tests;
+
+public class CaseInsensitiveEqualHelperTests
 {
-    public class CaseInsensitiveEqualHelperTests
+    [Fact]
+    public void Equals_Same_Instance_Returns_True()
     {
-        [Fact]
-        public void Equals_Same_Instance_Returns_True()
-        {
-            var list1 = new string[] { "item1", "item2" };
+        var list1 = new string[] { "item1", "item2" };
 
-            var equals = CaseInsensitiveEqualHelper.Equals(list1, list1);
+        var equals = CaseInsensitiveEqualHelper.Equals(list1, list1);
 
-            Assert.True(equals);
-        }
+        Assert.True(equals);
+    }
 
-        [Fact]
-        public void Equals_Empty_List_Returns_True()
-        {
-            var list1 = new string[] { };
+    [Fact]
+    public void Equals_Empty_List_Returns_True()
+    {
+        var list1 = new string[] { };
 
-            var list2 = new string[] { };
+        var list2 = new string[] { };
 
-            var equals = CaseInsensitiveEqualHelper.Equals(list1, list2);
+        var equals = CaseInsensitiveEqualHelper.Equals(list1, list2);
 
-            Assert.True(equals);
-        }
+        Assert.True(equals);
+    }
 
-        [Fact]
-        public void Equals_List_Same_Value_Returns_True()
-        {
-            var list1 = new string[] { "item1", "item2" };
+    [Fact]
+    public void Equals_List_Same_Value_Returns_True()
+    {
+        var list1 = new string[] { "item1", "item2" };
 
-            var list2 = new string[] { "item1", "item2" };
+        var list2 = new string[] { "item1", "item2" };
 
-            var equals = CaseInsensitiveEqualHelper.Equals(list1, list2);
+        var equals = CaseInsensitiveEqualHelper.Equals(list1, list2);
 
-            Assert.True(equals);
-        }
+        Assert.True(equals);
+    }
 
-        [Fact]
-        public void Equals_List_Different_Value_Returns_False()
-        {
-            var list1 = new string[] { "item1", "item2" };
+    [Fact]
+    public void Equals_List_Different_Value_Returns_False()
+    {
+        var list1 = new string[] { "item1", "item2" };
 
-            var list2 = new string[] { "item3", "item4" };
+        var list2 = new string[] { "item3", "item4" };
 
-            var equals = CaseInsensitiveEqualHelper.Equals(list1, list2);
+        var equals = CaseInsensitiveEqualHelper.Equals(list1, list2);
 
-            Assert.False(equals);
-        }
+        Assert.False(equals);
+    }
 
-        [Fact]
-        public void Equals_First_List_Null_Returns_False()
-        {
-            var list2 = new string[] { "item1", "item2" };
+    [Fact]
+    public void Equals_First_List_Null_Returns_False()
+    {
+        var list2 = new string[] { "item1", "item2" };
 
-            var equals = CaseInsensitiveEqualHelper.Equals(null, list2);
+        var equals = CaseInsensitiveEqualHelper.Equals(null, list2);
 
-            Assert.False(equals);
-        }
+        Assert.False(equals);
+    }
 
-        [Fact]
-        public void Equals_Second_List_Null_Returns_False()
-        {
-            var list1 = new string[] { "item1", "item2" };
+    [Fact]
+    public void Equals_Second_List_Null_Returns_False()
+    {
+        var list1 = new string[] { "item1", "item2" };
 
-            var equals = CaseInsensitiveEqualHelper.Equals(list1, null);
+        var equals = CaseInsensitiveEqualHelper.Equals(list1, null);
 
-            Assert.False(equals);
-        }
+        Assert.False(equals);
+    }
 
-        [Fact]
-        public void Equals_Null_List_Returns_True()
-        {
-            var equals = CaseInsensitiveEqualHelper.Equals(list1: null, list2: null);
+    [Fact]
+    public void Equals_Null_List_Returns_True()
+    {
+        var equals = CaseInsensitiveEqualHelper.Equals(list1: null, list2: null);
 
-            Assert.True(equals);
-        }
+        Assert.True(equals);
     }
 }

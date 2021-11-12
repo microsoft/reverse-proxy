@@ -5,33 +5,32 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Yarp.ReverseProxy.Model;
 
-namespace Yarp.ReverseProxy.LoadBalancing
+namespace Yarp.ReverseProxy.LoadBalancing;
+
+internal sealed class LeastRequestsLoadBalancingPolicy : ILoadBalancingPolicy
 {
-    internal sealed class LeastRequestsLoadBalancingPolicy : ILoadBalancingPolicy
+    public string Name => LoadBalancingPolicies.LeastRequests;
+
+    public DestinationState? PickDestination(HttpContext context, ClusterState cluster, IReadOnlyList<DestinationState> availableDestinations)
     {
-        public string Name => LoadBalancingPolicies.LeastRequests;
-
-        public DestinationState? PickDestination(HttpContext context, ClusterState cluster, IReadOnlyList<DestinationState> availableDestinations)
+        if (availableDestinations.Count == 0)
         {
-            if (availableDestinations.Count == 0)
-            {
-                return null;
-            }
-
-            var destinationCount = availableDestinations.Count;
-            var leastRequestsDestination = availableDestinations[0];
-            var leastRequestsCount = leastRequestsDestination.ConcurrentRequestCount;
-            for (var i = 1; i < destinationCount; i++)
-            {
-                var destination = availableDestinations[i];
-                var endpointRequestCount = destination.ConcurrentRequestCount;
-                if (endpointRequestCount < leastRequestsCount)
-                {
-                    leastRequestsDestination = destination;
-                    leastRequestsCount = endpointRequestCount;
-                }
-            }
-            return leastRequestsDestination;
+            return null;
         }
+
+        var destinationCount = availableDestinations.Count;
+        var leastRequestsDestination = availableDestinations[0];
+        var leastRequestsCount = leastRequestsDestination.ConcurrentRequestCount;
+        for (var i = 1; i < destinationCount; i++)
+        {
+            var destination = availableDestinations[i];
+            var endpointRequestCount = destination.ConcurrentRequestCount;
+            if (endpointRequestCount < leastRequestsCount)
+            {
+                leastRequestsDestination = destination;
+                leastRequestsCount = endpointRequestCount;
+            }
+        }
+        return leastRequestsDestination;
     }
 }

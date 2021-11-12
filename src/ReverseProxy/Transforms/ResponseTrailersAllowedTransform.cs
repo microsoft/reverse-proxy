@@ -11,66 +11,65 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Primitives;
 
-namespace Yarp.ReverseProxy.Transforms
+namespace Yarp.ReverseProxy.Transforms;
+
+/// <summary>
+/// Copies only allowed response trailers.
+/// </summary>
+public class ResponseTrailersAllowedTransform : ResponseTrailersTransform
 {
-    /// <summary>
-    /// Copies only allowed response trailers.
-    /// </summary>
-    public class ResponseTrailersAllowedTransform : ResponseTrailersTransform
+    public ResponseTrailersAllowedTransform(string[] allowedHeaders)
     {
-        public ResponseTrailersAllowedTransform(string[] allowedHeaders)
+        if (allowedHeaders is null)
         {
-            if (allowedHeaders is null)
-            {
-                throw new ArgumentNullException(nameof(allowedHeaders));
-            }
-
-            AllowedHeaders = allowedHeaders;
-            AllowedHeadersSet = new HashSet<string>(allowedHeaders, StringComparer.OrdinalIgnoreCase);
+            throw new ArgumentNullException(nameof(allowedHeaders));
         }
 
-        internal string[] AllowedHeaders { get; }
+        AllowedHeaders = allowedHeaders;
+        AllowedHeadersSet = new HashSet<string>(allowedHeaders, StringComparer.OrdinalIgnoreCase);
+    }
 
-        private HashSet<string> AllowedHeadersSet { get; }
+    internal string[] AllowedHeaders { get; }
 
-        /// <inheritdoc/>
-        public override ValueTask ApplyAsync(ResponseTrailersTransformContext context)
+    private HashSet<string> AllowedHeadersSet { get; }
+
+    /// <inheritdoc/>
+    public override ValueTask ApplyAsync(ResponseTrailersTransformContext context)
+    {
+        if (context is null)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            Debug.Assert(context.ProxyResponse != null);
-            Debug.Assert(!context.HeadersCopied);
-
-            // See https://github.com/microsoft/reverse-proxy/blob/51d797986b1fea03500a1ad173d13a1176fb5552/src/ReverseProxy/Forwarder/HttpTransformer.cs#L85-L99
-            // NOTE: Deliberately not using `context.Response.SupportsTrailers()`, `context.Response.AppendTrailer(...)`
-            // because they lookup `IHttpResponseTrailersFeature` for every call. Here we do it just once instead.
-            var responseTrailersFeature = context.HttpContext.Features.Get<IHttpResponseTrailersFeature>();
-            var outgoingTrailers = responseTrailersFeature?.Trailers;
-            if (outgoingTrailers != null && !outgoingTrailers.IsReadOnly)
-            {
-                // Note that trailers, if any, should already have been declared in Proxy's response
-                CopyResponseHeaders(context.ProxyResponse.TrailingHeaders, outgoingTrailers);
-            }
-
-            context.HeadersCopied = true;
-
-            return default;
+            throw new ArgumentNullException(nameof(context));
         }
 
-        // See https://github.com/microsoft/reverse-proxy/blob/51d797986b1fea03500a1ad173d13a1176fb5552/src/ReverseProxy/Forwarder/HttpTransformer.cs#L102-L115
-        private void CopyResponseHeaders(HttpHeaders source, IHeaderDictionary destination)
+        Debug.Assert(context.ProxyResponse != null);
+        Debug.Assert(!context.HeadersCopied);
+
+        // See https://github.com/microsoft/reverse-proxy/blob/51d797986b1fea03500a1ad173d13a1176fb5552/src/ReverseProxy/Forwarder/HttpTransformer.cs#L85-L99
+        // NOTE: Deliberately not using `context.Response.SupportsTrailers()`, `context.Response.AppendTrailer(...)`
+        // because they lookup `IHttpResponseTrailersFeature` for every call. Here we do it just once instead.
+        var responseTrailersFeature = context.HttpContext.Features.Get<IHttpResponseTrailersFeature>();
+        var outgoingTrailers = responseTrailersFeature?.Trailers;
+        if (outgoingTrailers != null && !outgoingTrailers.IsReadOnly)
         {
-            foreach (var header in source)
+            // Note that trailers, if any, should already have been declared in Proxy's response
+            CopyResponseHeaders(context.ProxyResponse.TrailingHeaders, outgoingTrailers);
+        }
+
+        context.HeadersCopied = true;
+
+        return default;
+    }
+
+    // See https://github.com/microsoft/reverse-proxy/blob/51d797986b1fea03500a1ad173d13a1176fb5552/src/ReverseProxy/Forwarder/HttpTransformer.cs#L102-L115
+    private void CopyResponseHeaders(HttpHeaders source, IHeaderDictionary destination)
+    {
+        foreach (var header in source)
+        {
+            var headerName = header.Key;
+            if (AllowedHeadersSet.Contains(headerName))
             {
-                var headerName = header.Key;
-                if (AllowedHeadersSet.Contains(headerName))
-                {
-                    Debug.Assert(header.Value is string[]);
-                    destination.Append(headerName, header.Value as string[] ?? header.Value.ToArray());
-                }
+                Debug.Assert(header.Value is string[]);
+                destination.Append(headerName, header.Value as string[] ?? header.Value.ToArray());
             }
         }
     }

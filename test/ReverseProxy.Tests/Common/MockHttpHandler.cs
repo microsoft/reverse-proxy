@@ -6,26 +6,25 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Yarp.Tests.Common
+namespace Yarp.Tests.Common;
+
+internal class MockHttpHandler : HttpMessageHandler
 {
-    internal class MockHttpHandler : HttpMessageHandler
+    private readonly Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> _func;
+
+    public MockHttpHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> func)
     {
-        private readonly Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> _func;
+        _func = func ?? throw new ArgumentNullException(nameof(func));
+    }
 
-        public MockHttpHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> func)
-        {
-            _func = func ?? throw new ArgumentNullException(nameof(func));
-        }
+    public static HttpMessageInvoker CreateClient(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> func)
+    {
+        var handler = new MockHttpHandler(func);
+        return new HttpMessageInvoker(handler);
+    }
 
-        public static HttpMessageInvoker CreateClient(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> func)
-        {
-            var handler = new MockHttpHandler(func);
-            return new HttpMessageInvoker(handler);
-        }
-
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            return _func(request, cancellationToken);
-        }
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        return _func(request, cancellationToken);
     }
 }

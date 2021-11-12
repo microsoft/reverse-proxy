@@ -15,169 +15,171 @@ using Xunit;
 using Yarp.ReverseProxy.Common;
 using Yarp.ReverseProxy.Forwarder;
 
-namespace Yarp.ReverseProxy
+namespace Yarp.ReverseProxy;
+
+public class Expect100ContinueTests
 {
-    public class Expect100ContinueTests
+    [Theory]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, 200)]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, 200)]
+    [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, 200)]
+    [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false, 200)]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, 400)]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, 400)]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, 400)]
+    [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, 400)]
+    public async Task PostExpect100_BodyNotUploadedIfFailed(HttpProtocols proxyProtocol, HttpProtocols destProtocol, bool useContentLength, int destResponseCode)
     {
-        [Theory]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, 200)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, 200)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, 200)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false, 200)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, 400)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, 400)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, 400)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, 400)]
-        public async Task PostExpect100_BodyNotUploadedIfFailed(HttpProtocols proxyProtocol, HttpProtocols destProtocol, bool useContentLength, int destResponseCode)
-        {
-            var headerTcs = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
-            var bodyTcs = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var headerTcs = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var bodyTcs = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            var contentString = new string('a', 1024 * 1024 * 10);
-            var test = new TestEnvironment(
-                async context =>
-                {
-                    if ((context.Request.Protocol == "HTTP/1.1" && destProtocol != HttpProtocols.Http1)
-                        || (context.Request.Protocol == "HTTP/2.0" && destProtocol != HttpProtocols.Http2))
-                    {
-                        headerTcs.SetException(new Exception($"Unexpected request protocol {context.Request.Protocol}"));
-                        return;
-                    }
-                    else if (context.Request.Headers.TryGetValue(HeaderNames.Expect, out var expectHeader))
-                    {
-                        headerTcs.SetResult(expectHeader);
-                    }
-                    else
-                    {
-                        headerTcs.SetException(new Exception("Missing 'Expect' header in request"));
-                        return;
-                    }
-
-                    if (destResponseCode == 200)
-                    {
-                        // 100 response code is sent automatically on reading Body.
-                        await ReadContent(context, bodyTcs, Encoding.UTF8.GetByteCount(contentString));
-                    }
-
-                    context.Response.StatusCode = destResponseCode;
-                },
-                proxyBuilder => {
-                    proxyBuilder.Services.AddSingleton<IForwarderHttpClientFactory, TestForwarderHttpClientFactory>();
-                },
-                proxyApp => { },
-                proxyProtocol: proxyProtocol,
-                useHttpsOnDestination: true,
-                useHttpsOnProxy: true,
-                configTransformer: (c, r) =>
-                {
-                    c = c with
-                    {
-                        HttpRequest = new ForwarderRequestConfig
-                        {
-                            Version = destProtocol == HttpProtocols.Http2 ? HttpVersion.Version20 : HttpVersion.Version11,
-                        }
-                    };
-                    return (c, r);
-                });
-
-            await test.Invoke(async uri =>
+        var contentString = new string('a', 1024 * 1024 * 10);
+        var test = new TestEnvironment(
+            async context =>
             {
-                await ProcessHttpRequest(new Uri(uri), proxyProtocol, contentString, useContentLength, destResponseCode, false, destResponseCode == 200);
-
-                Assert.True(headerTcs.Task.IsCompleted);
-                var expectHeader = await headerTcs.Task;
-                var expectValue = Assert.Single(expectHeader);
-                Assert.Equal("100-continue", expectValue);
-
-                if (destResponseCode == 200)
+                if ((context.Request.Protocol == "HTTP/1.1" && destProtocol != HttpProtocols.Http1)
+                    || (context.Request.Protocol == "HTTP/2.0" && destProtocol != HttpProtocols.Http2))
                 {
-                    Assert.True(bodyTcs.Task.IsCompleted);
-                    var actualString = await bodyTcs.Task;
-                    Assert.Equal(contentString, actualString);
+                    headerTcs.SetException(new Exception($"Unexpected request protocol {context.Request.Protocol}"));
+                    return;
+                }
+                else if (context.Request.Headers.TryGetValue(HeaderNames.Expect, out var expectHeader))
+                {
+                    headerTcs.SetResult(expectHeader);
                 }
                 else
                 {
-                    Assert.False(bodyTcs.Task.IsCompleted);
+                    headerTcs.SetException(new Exception("Missing 'Expect' header in request"));
+                    return;
                 }
-            });
-        }
 
-        [Theory]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, true, 200)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, true, 200)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, true, 200)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, false, 400)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, true, 400)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, false, 400)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, true, 400)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false, false, 400)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false, true, 400)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, false, 400)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, true, 400)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, false, false, 400)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, false, true, 400)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, false, 400)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, true, 400)]
-        public async Task PostExpect100_ResponseWithPayload(HttpProtocols proxyProtocol, HttpProtocols destProtocol, bool useContentLength, bool cancelResponse, int responseCode)
-        {
-            var requestBodyTcs = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
-
-            var contentString = new string('a', 1024 * 1024 * 10);
-            var test = new TestEnvironment(
-                async context =>
+                if (destResponseCode == 200)
                 {
-                    await ReadContent(context, requestBodyTcs, Encoding.UTF8.GetByteCount(contentString));
+                        // 100 response code is sent automatically on reading Body.
+                        await ReadContent(context, bodyTcs, Encoding.UTF8.GetByteCount(contentString));
+                }
 
-                    context.Response.StatusCode = responseCode;
-
-                    var responseBody = Encoding.UTF8.GetBytes(contentString + "Response");
-                    if (useContentLength)
-                    {
-                        context.Response.Headers.ContentLength = responseBody.Length;
-                    }
-
-                    if (cancelResponse)
-                    {
-                        await context.Response.BodyWriter.WriteAsync(responseBody.AsMemory(0, responseBody.Length/2));
-                        context.Abort();
-                    }
-                    else
-                    {
-                        await context.Response.Body.WriteAsync(responseBody.AsMemory());
-                    }
-                },
-                proxyBuilder => {
-                    proxyBuilder.Services.AddSingleton<IForwarderHttpClientFactory, TestForwarderHttpClientFactory>();
-                },
-                proxyApp => { },
-                proxyProtocol: proxyProtocol,
-                useHttpsOnDestination: true,
-                useHttpsOnProxy: true,
-                configTransformer: (c, r) =>
-                {
-                    c = c with
-                    {
-                        HttpRequest = new ForwarderRequestConfig
-                        {
-                            Version = destProtocol == HttpProtocols.Http2 ? HttpVersion.Version20 : HttpVersion.Version11,
-                        }
-                    };
-                    return (c, r);
-                });
-
-            await test.Invoke(async uri =>
+                context.Response.StatusCode = destResponseCode;
+            },
+            proxyBuilder =>
             {
-                await ProcessHttpRequest(new Uri(uri), proxyProtocol, contentString, useContentLength, responseCode, cancelResponse, true, async response =>
+                proxyBuilder.Services.AddSingleton<IForwarderHttpClientFactory, TestForwarderHttpClientFactory>();
+            },
+            proxyApp => { },
+            proxyProtocol: proxyProtocol,
+            useHttpsOnDestination: true,
+            useHttpsOnProxy: true,
+            configTransformer: (c, r) =>
+            {
+                c = c with
                 {
-                    Assert.Equal(responseCode, (int)response.StatusCode);
-
-                    var actualResponse = await response.Content.ReadAsStringAsync();
-                    Assert.Equal(contentString + "Response", actualResponse);
-                });
+                    HttpRequest = new ForwarderRequestConfig
+                    {
+                        Version = destProtocol == HttpProtocols.Http2 ? HttpVersion.Version20 : HttpVersion.Version11,
+                    }
+                };
+                return (c, r);
             });
-        }
 
-        // Fix was implemented in https://github.com/dotnet/runtime/pull/58548
+        await test.Invoke(async uri =>
+        {
+            await ProcessHttpRequest(new Uri(uri), proxyProtocol, contentString, useContentLength, destResponseCode, false, destResponseCode == 200);
+
+            Assert.True(headerTcs.Task.IsCompleted);
+            var expectHeader = await headerTcs.Task;
+            var expectValue = Assert.Single(expectHeader);
+            Assert.Equal("100-continue", expectValue);
+
+            if (destResponseCode == 200)
+            {
+                Assert.True(bodyTcs.Task.IsCompleted);
+                var actualString = await bodyTcs.Task;
+                Assert.Equal(contentString, actualString);
+            }
+            else
+            {
+                Assert.False(bodyTcs.Task.IsCompleted);
+            }
+        });
+    }
+
+    [Theory]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, true, 200)]
+    [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, true, 200)]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, true, 200)]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, false, 400)]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, true, 400)]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, false, 400)]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, true, 400)]
+    [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false, false, 400)]
+    [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false, true, 400)]
+    [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, false, 400)]
+    [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, true, 400)]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, false, false, 400)]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, false, true, 400)]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, false, 400)]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, true, 400)]
+    public async Task PostExpect100_ResponseWithPayload(HttpProtocols proxyProtocol, HttpProtocols destProtocol, bool useContentLength, bool cancelResponse, int responseCode)
+    {
+        var requestBodyTcs = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var contentString = new string('a', 1024 * 1024 * 10);
+        var test = new TestEnvironment(
+            async context =>
+            {
+                await ReadContent(context, requestBodyTcs, Encoding.UTF8.GetByteCount(contentString));
+
+                context.Response.StatusCode = responseCode;
+
+                var responseBody = Encoding.UTF8.GetBytes(contentString + "Response");
+                if (useContentLength)
+                {
+                    context.Response.Headers.ContentLength = responseBody.Length;
+                }
+
+                if (cancelResponse)
+                {
+                    await context.Response.BodyWriter.WriteAsync(responseBody.AsMemory(0, responseBody.Length / 2));
+                    context.Abort();
+                }
+                else
+                {
+                    await context.Response.Body.WriteAsync(responseBody.AsMemory());
+                }
+            },
+            proxyBuilder =>
+            {
+                proxyBuilder.Services.AddSingleton<IForwarderHttpClientFactory, TestForwarderHttpClientFactory>();
+            },
+            proxyApp => { },
+            proxyProtocol: proxyProtocol,
+            useHttpsOnDestination: true,
+            useHttpsOnProxy: true,
+            configTransformer: (c, r) =>
+            {
+                c = c with
+                {
+                    HttpRequest = new ForwarderRequestConfig
+                    {
+                        Version = destProtocol == HttpProtocols.Http2 ? HttpVersion.Version20 : HttpVersion.Version11,
+                    }
+                };
+                return (c, r);
+            });
+
+        await test.Invoke(async uri =>
+        {
+            await ProcessHttpRequest(new Uri(uri), proxyProtocol, contentString, useContentLength, responseCode, cancelResponse, true, async response =>
+            {
+                Assert.Equal(responseCode, (int)response.StatusCode);
+
+                var actualResponse = await response.Content.ReadAsStringAsync();
+                Assert.Equal(contentString + "Response", actualResponse);
+            });
+        });
+    }
+
+    // Fix was implemented in https://github.com/dotnet/runtime/pull/58548
 #if NET7_0_OR_GREATER
         [Theory]
         [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false)]
@@ -238,93 +240,92 @@ namespace Yarp.ReverseProxy
         }
 #endif
 
-        private static async Task ReadContent(Microsoft.AspNetCore.Http.HttpContext context, TaskCompletionSource<string> bodyTcs, int byteCount)
+    private static async Task ReadContent(Microsoft.AspNetCore.Http.HttpContext context, TaskCompletionSource<string> bodyTcs, int byteCount)
+    {
+        try
         {
-            try
+            var buffer = new byte[byteCount];
+            var readCount = 0;
+            var totalReadCount = 0;
+            do
             {
-                var buffer = new byte[byteCount];
-                var readCount = 0;
-                var totalReadCount = 0;
-                do
-                {
-                    readCount = await context.Request.Body.ReadAsync(buffer, totalReadCount, buffer.Length - totalReadCount);
-                    totalReadCount += readCount;
-                } while (readCount != 0);
+                readCount = await context.Request.Body.ReadAsync(buffer, totalReadCount, buffer.Length - totalReadCount);
+                totalReadCount += readCount;
+            } while (readCount != 0);
 
-                var actualString = Encoding.UTF8.GetString(buffer);
-                bodyTcs.SetResult(actualString);
-            }
-            catch (Exception e)
-            {
-                bodyTcs.SetException(e);
-            }
+            var actualString = Encoding.UTF8.GetString(buffer);
+            bodyTcs.SetResult(actualString);
+        }
+        catch (Exception e)
+        {
+            bodyTcs.SetException(e);
+        }
+    }
+
+    private async Task ProcessHttpRequest(
+        Uri proxyHostUri,
+        HttpProtocols protocol,
+        string contentString,
+        bool useContentLength,
+        int expectedCode,
+        bool cancelResponse,
+        bool contentRead,
+        Func<HttpResponseMessage, Task> responseAction = null)
+    {
+        using var handler = new SocketsHttpHandler() { Expect100ContinueTimeout = TimeSpan.FromSeconds(60) };
+        handler.UseProxy = false;
+        handler.AllowAutoRedirect = false;
+        handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
+        using var client = new HttpClient(handler);
+        using var message = new HttpRequestMessage(HttpMethod.Post, proxyHostUri);
+        message.Version = protocol == HttpProtocols.Http2 ? HttpVersion.Version20 : HttpVersion.Version11;
+        message.Headers.ExpectContinue = true;
+
+        var content = Encoding.UTF8.GetBytes(contentString);
+        using var contentStream = new MemoryStream(content);
+        message.Content = new StreamContent(contentStream);
+        if (useContentLength)
+        {
+            message.Content.Headers.ContentLength = content.Length;
+        }
+        else
+        {
+            message.Headers.TransferEncodingChunked = true;
         }
 
-        private async Task ProcessHttpRequest(
-            Uri proxyHostUri,
-            HttpProtocols protocol,
-            string contentString,
-            bool useContentLength,
-            int expectedCode,
-            bool cancelResponse,
-            bool contentRead,
-            Func<HttpResponseMessage, Task> responseAction = null)
+        if (!cancelResponse)
         {
-            using var handler = new SocketsHttpHandler() { Expect100ContinueTimeout = TimeSpan.FromSeconds(60) };
-            handler.UseProxy = false;
-            handler.AllowAutoRedirect = false;
-            handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
-            using var client = new HttpClient(handler);
-            using var message = new HttpRequestMessage(HttpMethod.Post, proxyHostUri);
-            message.Version = protocol == HttpProtocols.Http2 ? HttpVersion.Version20 : HttpVersion.Version11;
-            message.Headers.ExpectContinue = true;
+            using var response = await client.SendAsync(message);
 
-            var content = Encoding.UTF8.GetBytes(contentString);
-            using var contentStream = new MemoryStream(content);
-            message.Content = new StreamContent(contentStream);
-            if (useContentLength)
+            Assert.Equal(expectedCode, (int)response.StatusCode);
+            if (contentRead)
             {
-                message.Content.Headers.ContentLength = content.Length;
-            }
-            else
-            {
-                message.Headers.TransferEncodingChunked = true;
-            }
-
-            if (!cancelResponse)
-            {
-                using var response = await client.SendAsync(message);
-
-                Assert.Equal(expectedCode, (int)response.StatusCode);
-                if (contentRead)
-                {
-                    Assert.Equal(content.Length, contentStream.Position);
-                }
-                else
-                {
-                    Assert.Equal(0, contentStream.Position);
-                }
-
-                if (responseAction != null)
-                {
-                    await responseAction(response);
-                }
-            }
-            else
-            {
-                var exception = await Assert.ThrowsAsync<HttpRequestException>(() => client.SendAsync(message));
-                Assert.Equal(typeof(IOException), exception.InnerException.GetType());
                 Assert.Equal(content.Length, contentStream.Position);
             }
-        }
-
-        private class TestForwarderHttpClientFactory : ForwarderHttpClientFactory
-        {
-            protected override void ConfigureHandler(ForwarderHttpClientContext context, SocketsHttpHandler handler)
+            else
             {
-                base.ConfigureHandler(context, handler);
-                handler.Expect100ContinueTimeout = TimeSpan.FromSeconds(60);
+                Assert.Equal(0, contentStream.Position);
             }
+
+            if (responseAction != null)
+            {
+                await responseAction(response);
+            }
+        }
+        else
+        {
+            var exception = await Assert.ThrowsAsync<HttpRequestException>(() => client.SendAsync(message));
+            Assert.Equal(typeof(IOException), exception.InnerException.GetType());
+            Assert.Equal(content.Length, contentStream.Position);
+        }
+    }
+
+    private class TestForwarderHttpClientFactory : ForwarderHttpClientFactory
+    {
+        protected override void ConfigureHandler(ForwarderHttpClientContext context, SocketsHttpHandler handler)
+        {
+            base.ConfigureHandler(context, handler);
+            handler.Expect100ContinueTimeout = TimeSpan.FromSeconds(60);
         }
     }
 }

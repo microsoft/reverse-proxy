@@ -15,456 +15,455 @@ using Xunit;
 using Yarp.ReverseProxy.Common;
 using Yarp.ReverseProxy.Forwarder;
 
-namespace Yarp.ReverseProxy
+namespace Yarp.ReverseProxy;
+
+public class HeaderTests
 {
-    public class HeaderTests
+    [Fact]
+    public async Task ProxyAsync_EmptyRequestHeader_Proxied()
     {
-        [Fact]
-        public async Task ProxyAsync_EmptyRequestHeader_Proxied()
-        {
-            var refererReceived = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
-            var customReceived = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var refererReceived = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var customReceived = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            IForwarderErrorFeature proxyError = null;
-            Exception unhandledError = null;
+        IForwarderErrorFeature proxyError = null;
+        Exception unhandledError = null;
 
-            var test = new TestEnvironment(
-                context =>
-                {
-                    if (context.Request.Headers.TryGetValue(HeaderNames.Referer, out var header))
-                    {
-                        refererReceived.SetResult(header);
-                    }
-                    else
-                    {
-                        refererReceived.SetException(new Exception($"Missing '{HeaderNames.Referer}' header in request"));
-                    }
-
-                    if (context.Request.Headers.TryGetValue("custom", out header))
-                    {
-                        customReceived.SetResult(header);
-                    }
-                    else
-                    {
-                        customReceived.SetException(new Exception($"Missing 'custom' header in request"));
-                    }
-
-
-                    return Task.CompletedTask;
-                },
-                proxyBuilder => { },
-                proxyApp =>
-                {
-                    proxyApp.Use(async (context, next) =>
-                    {
-                        try
-                        {
-                            Assert.True(context.Request.Headers.TryGetValue(HeaderNames.Referer, out var header));
-                            var value = Assert.Single(header);
-                            Assert.True(StringValues.IsNullOrEmpty(value));
-
-                            Assert.True(context.Request.Headers.TryGetValue("custom", out header));
-                            value = Assert.Single(header);
-                            Assert.True(StringValues.IsNullOrEmpty(value));
-
-                            await next();
-                            proxyError = context.Features.Get<IForwarderErrorFeature>();
-                        }
-                        catch (Exception ex)
-                        {
-                            unhandledError = ex;
-                            throw;
-                        }
-                    });
-                },
-                proxyProtocol: HttpProtocols.Http1);
-
-            await test.Invoke(async proxyUri =>
+        var test = new TestEnvironment(
+            context =>
             {
-                var proxyHostUri = new Uri(proxyUri);
-
-                using var tcpClient = new TcpClient(proxyHostUri.Host, proxyHostUri.Port);
-                await using var stream = tcpClient.GetStream();
-                await stream.WriteAsync(Encoding.ASCII.GetBytes("GET / HTTP/1.1\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Host: {proxyHostUri.Host}:{proxyHostUri.Port}\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Content-Length: 0\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Connection: close\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Referer: \r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"custom: \r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
-                var buffer = new byte[4096];
-                var responseBuilder = new StringBuilder();
-                while (true)
+                if (context.Request.Headers.TryGetValue(HeaderNames.Referer, out var header))
                 {
-                    var count = await stream.ReadAsync(buffer);
-                    if (count == 0)
-                    {
-                        break;
-                    }
-                    responseBuilder.Append(Encoding.ASCII.GetString(buffer, 0, count));
+                    refererReceived.SetResult(header);
                 }
-                var response = responseBuilder.ToString();
-
-                Assert.Null(proxyError);
-                Assert.Null(unhandledError);
-
-                Assert.StartsWith("HTTP/1.1 200 OK", response);
-
-                Assert.True(refererReceived.Task.IsCompleted);
-                var refererHeader = await refererReceived.Task;
-                var referer = Assert.Single(refererHeader);
-                Assert.True(StringValues.IsNullOrEmpty(referer));
-
-                Assert.True(customReceived.Task.IsCompleted);
-                var customHeader = await customReceived.Task;
-                var custom = Assert.Single(customHeader);
-                Assert.True(StringValues.IsNullOrEmpty(custom));
-            });
-        }
-
-        [Fact]
-        public async Task ProxyAsync_EmptyResponseHeader_Proxied()
-        {
-            IForwarderErrorFeature proxyError = null;
-            Exception unhandledError = null;
-
-            var test = new TestEnvironment(
-                context =>
+                else
                 {
-                    context.Response.Headers.Add(HeaderNames.Referer, "");
-                    context.Response.Headers.Add("custom", "");
-                    return Task.CompletedTask;
-                },
-                proxyBuilder => { },
-                proxyApp =>
+                    refererReceived.SetException(new Exception($"Missing '{HeaderNames.Referer}' header in request"));
+                }
+
+                if (context.Request.Headers.TryGetValue("custom", out header))
                 {
-                    proxyApp.Use(async (context, next) =>
-                    {
-                        try
-                        {
-                            await next();
+                    customReceived.SetResult(header);
+                }
+                else
+                {
+                    customReceived.SetException(new Exception($"Missing 'custom' header in request"));
+                }
 
-                            Assert.True(context.Response.Headers.TryGetValue(HeaderNames.Referer, out var header));
-                            var value = Assert.Single(header);
-                            Assert.True(StringValues.IsNullOrEmpty(value));
 
-                            Assert.True(context.Response.Headers.TryGetValue("custom", out header));
-                            value = Assert.Single(header);
-                            Assert.True(StringValues.IsNullOrEmpty(value));
-
-                            proxyError = context.Features.Get<IForwarderErrorFeature>();
-                        }
-                        catch (Exception ex)
-                        {
-                            unhandledError = ex;
-                            throw;
-                        }
-                    });
-                },
-                proxyProtocol: HttpProtocols.Http1);
-
-            await test.Invoke(async proxyUri =>
+                return Task.CompletedTask;
+            },
+            proxyBuilder => { },
+            proxyApp =>
             {
-                var proxyHostUri = new Uri(proxyUri);
-
-                using var tcpClient = new TcpClient(proxyHostUri.Host, proxyHostUri.Port);
-                await using var stream = tcpClient.GetStream();
-                await stream.WriteAsync(Encoding.ASCII.GetBytes("GET / HTTP/1.1\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Host: {proxyHostUri.Host}:{proxyHostUri.Port}\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Content-Length: 0\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Connection: close\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
-                var buffer = new byte[4096];
-                var responseBuilder = new StringBuilder();
-                while (true)
+                proxyApp.Use(async (context, next) =>
                 {
-                    var count = await stream.ReadAsync(buffer);
-                    if (count == 0)
+                    try
                     {
-                        break;
+                        Assert.True(context.Request.Headers.TryGetValue(HeaderNames.Referer, out var header));
+                        var value = Assert.Single(header);
+                        Assert.True(StringValues.IsNullOrEmpty(value));
+
+                        Assert.True(context.Request.Headers.TryGetValue("custom", out header));
+                        value = Assert.Single(header);
+                        Assert.True(StringValues.IsNullOrEmpty(value));
+
+                        await next();
+                        proxyError = context.Features.Get<IForwarderErrorFeature>();
                     }
-                    responseBuilder.Append(Encoding.ASCII.GetString(buffer, 0, count));
+                    catch (Exception ex)
+                    {
+                        unhandledError = ex;
+                        throw;
+                    }
+                });
+            },
+            proxyProtocol: HttpProtocols.Http1);
+
+        await test.Invoke(async proxyUri =>
+        {
+            var proxyHostUri = new Uri(proxyUri);
+
+            using var tcpClient = new TcpClient(proxyHostUri.Host, proxyHostUri.Port);
+            await using var stream = tcpClient.GetStream();
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("GET / HTTP/1.1\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Host: {proxyHostUri.Host}:{proxyHostUri.Port}\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Content-Length: 0\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Connection: close\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Referer: \r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"custom: \r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
+            var buffer = new byte[4096];
+            var responseBuilder = new StringBuilder();
+            while (true)
+            {
+                var count = await stream.ReadAsync(buffer);
+                if (count == 0)
+                {
+                    break;
                 }
-                var response = responseBuilder.ToString();
+                responseBuilder.Append(Encoding.ASCII.GetString(buffer, 0, count));
+            }
+            var response = responseBuilder.ToString();
 
-                Assert.Null(proxyError);
-                Assert.Null(unhandledError);
+            Assert.Null(proxyError);
+            Assert.Null(unhandledError);
 
-                var lines = response.Split("\r\n");
-                Assert.Equal("HTTP/1.1 200 OK", lines[0]);
+            Assert.StartsWith("HTTP/1.1 200 OK", response);
+
+            Assert.True(refererReceived.Task.IsCompleted);
+            var refererHeader = await refererReceived.Task;
+            var referer = Assert.Single(refererHeader);
+            Assert.True(StringValues.IsNullOrEmpty(referer));
+
+            Assert.True(customReceived.Task.IsCompleted);
+            var customHeader = await customReceived.Task;
+            var custom = Assert.Single(customHeader);
+            Assert.True(StringValues.IsNullOrEmpty(custom));
+        });
+    }
+
+    [Fact]
+    public async Task ProxyAsync_EmptyResponseHeader_Proxied()
+    {
+        IForwarderErrorFeature proxyError = null;
+        Exception unhandledError = null;
+
+        var test = new TestEnvironment(
+            context =>
+            {
+                context.Response.Headers.Add(HeaderNames.Referer, "");
+                context.Response.Headers.Add("custom", "");
+                return Task.CompletedTask;
+            },
+            proxyBuilder => { },
+            proxyApp =>
+            {
+                proxyApp.Use(async (context, next) =>
+                {
+                    try
+                    {
+                        await next();
+
+                        Assert.True(context.Response.Headers.TryGetValue(HeaderNames.Referer, out var header));
+                        var value = Assert.Single(header);
+                        Assert.True(StringValues.IsNullOrEmpty(value));
+
+                        Assert.True(context.Response.Headers.TryGetValue("custom", out header));
+                        value = Assert.Single(header);
+                        Assert.True(StringValues.IsNullOrEmpty(value));
+
+                        proxyError = context.Features.Get<IForwarderErrorFeature>();
+                    }
+                    catch (Exception ex)
+                    {
+                        unhandledError = ex;
+                        throw;
+                    }
+                });
+            },
+            proxyProtocol: HttpProtocols.Http1);
+
+        await test.Invoke(async proxyUri =>
+        {
+            var proxyHostUri = new Uri(proxyUri);
+
+            using var tcpClient = new TcpClient(proxyHostUri.Host, proxyHostUri.Port);
+            await using var stream = tcpClient.GetStream();
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("GET / HTTP/1.1\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Host: {proxyHostUri.Host}:{proxyHostUri.Port}\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Content-Length: 0\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Connection: close\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
+            var buffer = new byte[4096];
+            var responseBuilder = new StringBuilder();
+            while (true)
+            {
+                var count = await stream.ReadAsync(buffer);
+                if (count == 0)
+                {
+                    break;
+                }
+                responseBuilder.Append(Encoding.ASCII.GetString(buffer, 0, count));
+            }
+            var response = responseBuilder.ToString();
+
+            Assert.Null(proxyError);
+            Assert.Null(unhandledError);
+
+            var lines = response.Split("\r\n");
+            Assert.Equal("HTTP/1.1 200 OK", lines[0]);
                 // Order varies across vesions.
                 // Assert.Equal("Content-Length: 0", lines[1]);
                 // Assert.Equal("Connection: close", lines[2]);
                 // Assert.StartsWith("Date: ", lines[3]);
                 // Assert.Equal("Server: Kestrel", lines[4]);
                 Assert.Equal("Referer: ", lines[5]);
-                Assert.Equal("custom: ", lines[6]);
-                Assert.Equal("", lines[7]);
-            });
-        }
+            Assert.Equal("custom: ", lines[6]);
+            Assert.Equal("", lines[7]);
+        });
+    }
 
 #if NET
-        [Theory]
-        [InlineData("http://www.ěščřžýáíé.com", "utf-8")]
-        [InlineData("http://www.çáéôîèñøæ.com", "iso-8859-1")]
-        public async Task ProxyAsync_RequestWithEncodedHeaderValue(string headerValue, string encodingName)
-        {
-            var encoding = Encoding.GetEncoding(encodingName);
-            var tcs = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
+    [Theory]
+    [InlineData("http://www.ěščřžýáíé.com", "utf-8")]
+    [InlineData("http://www.çáéôîèñøæ.com", "iso-8859-1")]
+    public async Task ProxyAsync_RequestWithEncodedHeaderValue(string headerValue, string encodingName)
+    {
+        var encoding = Encoding.GetEncoding(encodingName);
+        var tcs = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            IForwarderErrorFeature proxyError = null;
-            Exception unhandledError = null;
+        IForwarderErrorFeature proxyError = null;
+        Exception unhandledError = null;
 
-            var test = new TestEnvironment(
-                context =>
-                {
-                    if (context.Request.Headers.TryGetValue(HeaderNames.Referer, out var header))
-                    {
-                        tcs.SetResult(header);
-                    }
-                    else
-                    {
-                        tcs.SetException(new Exception($"Missing '{HeaderNames.Referer}' header in request"));
-                    }
-                    return Task.CompletedTask;
-                },
-                proxyBuilder => { },
-                proxyApp =>
-                {
-                    proxyApp.Use(async (context, next) =>
-                    {
-                        try
-                        {
-                            Assert.True(context.Request.Headers.TryGetValue(HeaderNames.Referer, out var header));
-                            var value = Assert.Single(header);
-                            Assert.Equal(headerValue, value);
-
-                            await next();
-                            proxyError = context.Features.Get<IForwarderErrorFeature>();
-                        }
-                        catch (Exception ex)
-                        {
-                            unhandledError = ex;
-                            throw;
-                        }
-                    });
-                },
-                proxyProtocol: HttpProtocols.Http1, headerEncoding: encoding);
-
-            await test.Invoke(async proxyUri =>
+        var test = new TestEnvironment(
+            context =>
             {
-                var proxyHostUri = new Uri(proxyUri);
-
-                using var tcpClient = new TcpClient(proxyHostUri.Host, proxyHostUri.Port);
-                await using var stream = tcpClient.GetStream();
-                await stream.WriteAsync(Encoding.ASCII.GetBytes("GET / HTTP/1.1\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Host: {proxyHostUri.Host}:{proxyHostUri.Port}\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Content-Length: 0\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Connection: close\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Referer: "));
-                await stream.WriteAsync(encoding.GetBytes(headerValue));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
-                var buffer = new byte[4096];
-                var responseBuilder = new StringBuilder();
-                while (true)
+                if (context.Request.Headers.TryGetValue(HeaderNames.Referer, out var header))
                 {
-                    var count = await stream.ReadAsync(buffer);
-                    if (count == 0)
-                    {
-                        break;
-                    }
-                    responseBuilder.Append(Encoding.ASCII.GetString(buffer, 0, count));
+                    tcs.SetResult(header);
                 }
-                var response = responseBuilder.ToString();
-
-                Assert.Null(proxyError);
-                Assert.Null(unhandledError);
-
-                Assert.StartsWith("HTTP/1.1 200 OK", response);
-
-                Assert.True(tcs.Task.IsCompleted);
-                var refererHeader = await tcs.Task;
-                var referer = Assert.Single(refererHeader);
-                Assert.Equal(headerValue, referer);
-            });
-        }
-
-        [Theory]
-        [InlineData("http://www.ěščřžýáíé.com", "utf-8")]
-        [InlineData("http://www.çáéôîèñøæ.com", "iso-8859-1")]
-        public async Task ProxyAsync_ResponseWithEncodedHeaderValue(string headerValue, string encodingName)
-        {
-            var encoding = Encoding.GetEncoding(encodingName);
-
-            var tcpListener = new TcpListener(IPAddress.Loopback, 0);
-            tcpListener.Start();
-            var destinationTask = Task.Run(async () =>
-            {
-                using var tcpClient = await tcpListener.AcceptTcpClientAsync();
-                await using var stream = tcpClient.GetStream();
-                var buffer = new byte[4096];
-                var requestBuilder = new StringBuilder();
-                while (true)
+                else
                 {
-                    var count = await stream.ReadAsync(buffer);
-                    if (count == 0)
-                    {
-                        break;
-                    }
-
-                    requestBuilder.Append(encoding.GetString(buffer, 0, count));
-
-                    // End of the request
-                    if (requestBuilder.Length >= 4 &&
-                        requestBuilder[^4] == '\r' && requestBuilder[^3] == '\n' &&
-                        requestBuilder[^2] == '\r' && requestBuilder[^1] == '\n')
-                    {
-                        break;
-                    }
+                    tcs.SetException(new Exception($"Missing '{HeaderNames.Referer}' header in request"));
                 }
-
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"HTTP/1.1 200 OK\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Content-Length: 0\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Connection: close\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Test-Extra: pingu\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Location: "));
-                await stream.WriteAsync(encoding.GetBytes(headerValue));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
-            });
-
-            IForwarderErrorFeature proxyError = null;
-            Exception unhandledError = null;
-
-            using var proxy = TestEnvironment.CreateProxy(HttpProtocols.Http1, false, false, encoding, "cluster1", $"http://{tcpListener.LocalEndpoint}",
-                proxyServices => { },
-                proxyBuilder => { },
-                proxyApp =>
-                {
-                    proxyApp.Use(async (context, next) =>
-                    {
-                        try
-                        {
-                            await next();
-                            proxyError = context.Features.Get<IForwarderErrorFeature>();
-                        }
-                        catch (Exception ex)
-                        {
-                            unhandledError = ex;
-                            throw;
-                        }
-                    });
-                },
-                (c, r) => (c, r));
-
-            await proxy.StartAsync();
-
-            try
+                return Task.CompletedTask;
+            },
+            proxyBuilder => { },
+            proxyApp =>
             {
-                using var httpClient = new HttpClient();
-                using var response = await httpClient.GetAsync(proxy.GetAddress());
-
-                Assert.NotNull(proxyError);
-                Assert.Equal(ForwarderError.ResponseHeaders, proxyError.Error);
-                var ioe = Assert.IsType<InvalidOperationException>(proxyError.Exception);
-                Assert.StartsWith("Invalid non-ASCII or control character in header: ", ioe.Message);
-                Assert.Null(unhandledError);
-
-                Assert.Equal(HttpStatusCode.BadGateway, response.StatusCode);
-
-                Assert.False(response.Headers.TryGetValues(HeaderNames.Location, out _));
-                Assert.False(response.Headers.TryGetValues("Test-Extra", out _));
-
-                Assert.True(destinationTask.IsCompleted);
-                await destinationTask;
-            }
-            finally
-            {
-                await proxy.StopAsync();
-                tcpListener.Stop();
-            }
-        }
-#endif
-
-        [Fact]
-        public async Task ContentLengthAndTransferEncoding_ContentLengthRemoved()
-        {
-            var proxyTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
-            var appTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
-
-            var test = new TestEnvironment(
-                context =>
+                proxyApp.Use(async (context, next) =>
                 {
                     try
                     {
-                        Assert.Null(context.Request.ContentLength);
-                        Assert.Equal("chunked", context.Request.Headers[HeaderNames.TransferEncoding]);
-                        appTcs.SetResult(0);
+                        Assert.True(context.Request.Headers.TryGetValue(HeaderNames.Referer, out var header));
+                        var value = Assert.Single(header);
+                        Assert.Equal(headerValue, value);
+
+                        await next();
+                        proxyError = context.Features.Get<IForwarderErrorFeature>();
                     }
                     catch (Exception ex)
                     {
-                        appTcs.SetException(ex);
+                        unhandledError = ex;
+                        throw;
                     }
-                    return Task.CompletedTask;
-                },
-                proxyBuilder => { },
-                proxyApp =>
-                {
-                    proxyApp.Use(async (context, next) =>
-                    {
-                        try
-                        {
-                            Assert.Equal(11, context.Request.ContentLength);
-                            Assert.Equal("chunked", context.Request.Headers[HeaderNames.TransferEncoding]);
-                            proxyTcs.SetResult(0);
-                        }
-                        catch (Exception ex)
-                        {
-                            proxyTcs.SetException(ex);
-                        }
+                });
+            },
+            proxyProtocol: HttpProtocols.Http1, headerEncoding: encoding);
 
-                        await next();
-                    });
-                },
-                proxyProtocol: HttpProtocols.Http1);
+        await test.Invoke(async proxyUri =>
+        {
+            var proxyHostUri = new Uri(proxyUri);
 
-            await test.Invoke(async proxyUri =>
+            using var tcpClient = new TcpClient(proxyHostUri.Host, proxyHostUri.Port);
+            await using var stream = tcpClient.GetStream();
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("GET / HTTP/1.1\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Host: {proxyHostUri.Host}:{proxyHostUri.Port}\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Content-Length: 0\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Connection: close\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Referer: "));
+            await stream.WriteAsync(encoding.GetBytes(headerValue));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
+            var buffer = new byte[4096];
+            var responseBuilder = new StringBuilder();
+            while (true)
             {
-                var proxyHostUri = new Uri(proxyUri);
-
-                using var tcpClient = new TcpClient(proxyHostUri.Host, proxyHostUri.Port);
-                await using var stream = tcpClient.GetStream();
-                await stream.WriteAsync(Encoding.ASCII.GetBytes("GET / HTTP/1.1\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Host: {proxyHostUri.Host}:{proxyHostUri.Port}\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Content-Length: 11\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Transfer-Encoding: chunked\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Connection: close\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"b\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"Hello World\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"0\r\n"));
-                await stream.WriteAsync(Encoding.ASCII.GetBytes($"\r\n"));
-                var buffer = new byte[4096];
-                var responseBuilder = new StringBuilder();
-                while (true)
+                var count = await stream.ReadAsync(buffer);
+                if (count == 0)
                 {
-                    var count = await stream.ReadAsync(buffer);
-                    if (count == 0)
-                    {
-                        break;
-                    }
-                    responseBuilder.Append(Encoding.ASCII.GetString(buffer, 0, count));
+                    break;
                 }
-                var response = responseBuilder.ToString();
+                responseBuilder.Append(Encoding.ASCII.GetString(buffer, 0, count));
+            }
+            var response = responseBuilder.ToString();
 
-                await proxyTcs.Task;
-                await appTcs.Task;
+            Assert.Null(proxyError);
+            Assert.Null(unhandledError);
 
-                Assert.StartsWith("HTTP/1.1 200 OK", response);
-            });
+            Assert.StartsWith("HTTP/1.1 200 OK", response);
+
+            Assert.True(tcs.Task.IsCompleted);
+            var refererHeader = await tcs.Task;
+            var referer = Assert.Single(refererHeader);
+            Assert.Equal(headerValue, referer);
+        });
+    }
+
+    [Theory]
+    [InlineData("http://www.ěščřžýáíé.com", "utf-8")]
+    [InlineData("http://www.çáéôîèñøæ.com", "iso-8859-1")]
+    public async Task ProxyAsync_ResponseWithEncodedHeaderValue(string headerValue, string encodingName)
+    {
+        var encoding = Encoding.GetEncoding(encodingName);
+
+        var tcpListener = new TcpListener(IPAddress.Loopback, 0);
+        tcpListener.Start();
+        var destinationTask = Task.Run(async () =>
+        {
+            using var tcpClient = await tcpListener.AcceptTcpClientAsync();
+            await using var stream = tcpClient.GetStream();
+            var buffer = new byte[4096];
+            var requestBuilder = new StringBuilder();
+            while (true)
+            {
+                var count = await stream.ReadAsync(buffer);
+                if (count == 0)
+                {
+                    break;
+                }
+
+                requestBuilder.Append(encoding.GetString(buffer, 0, count));
+
+                    // End of the request
+                    if (requestBuilder.Length >= 4 &&
+                    requestBuilder[^4] == '\r' && requestBuilder[^3] == '\n' &&
+                    requestBuilder[^2] == '\r' && requestBuilder[^1] == '\n')
+                {
+                    break;
+                }
+            }
+
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"HTTP/1.1 200 OK\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Content-Length: 0\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Connection: close\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Test-Extra: pingu\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Location: "));
+            await stream.WriteAsync(encoding.GetBytes(headerValue));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
+        });
+
+        IForwarderErrorFeature proxyError = null;
+        Exception unhandledError = null;
+
+        using var proxy = TestEnvironment.CreateProxy(HttpProtocols.Http1, false, false, encoding, "cluster1", $"http://{tcpListener.LocalEndpoint}",
+            proxyServices => { },
+            proxyBuilder => { },
+            proxyApp =>
+            {
+                proxyApp.Use(async (context, next) =>
+                {
+                    try
+                    {
+                        await next();
+                        proxyError = context.Features.Get<IForwarderErrorFeature>();
+                    }
+                    catch (Exception ex)
+                    {
+                        unhandledError = ex;
+                        throw;
+                    }
+                });
+            },
+            (c, r) => (c, r));
+
+        await proxy.StartAsync();
+
+        try
+        {
+            using var httpClient = new HttpClient();
+            using var response = await httpClient.GetAsync(proxy.GetAddress());
+
+            Assert.NotNull(proxyError);
+            Assert.Equal(ForwarderError.ResponseHeaders, proxyError.Error);
+            var ioe = Assert.IsType<InvalidOperationException>(proxyError.Exception);
+            Assert.StartsWith("Invalid non-ASCII or control character in header: ", ioe.Message);
+            Assert.Null(unhandledError);
+
+            Assert.Equal(HttpStatusCode.BadGateway, response.StatusCode);
+
+            Assert.False(response.Headers.TryGetValues(HeaderNames.Location, out _));
+            Assert.False(response.Headers.TryGetValues("Test-Extra", out _));
+
+            Assert.True(destinationTask.IsCompleted);
+            await destinationTask;
         }
+        finally
+        {
+            await proxy.StopAsync();
+            tcpListener.Stop();
+        }
+    }
+#endif
+
+    [Fact]
+    public async Task ContentLengthAndTransferEncoding_ContentLengthRemoved()
+    {
+        var proxyTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var appTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var test = new TestEnvironment(
+            context =>
+            {
+                try
+                {
+                    Assert.Null(context.Request.ContentLength);
+                    Assert.Equal("chunked", context.Request.Headers[HeaderNames.TransferEncoding]);
+                    appTcs.SetResult(0);
+                }
+                catch (Exception ex)
+                {
+                    appTcs.SetException(ex);
+                }
+                return Task.CompletedTask;
+            },
+            proxyBuilder => { },
+            proxyApp =>
+            {
+                proxyApp.Use(async (context, next) =>
+                {
+                    try
+                    {
+                        Assert.Equal(11, context.Request.ContentLength);
+                        Assert.Equal("chunked", context.Request.Headers[HeaderNames.TransferEncoding]);
+                        proxyTcs.SetResult(0);
+                    }
+                    catch (Exception ex)
+                    {
+                        proxyTcs.SetException(ex);
+                    }
+
+                    await next();
+                });
+            },
+            proxyProtocol: HttpProtocols.Http1);
+
+        await test.Invoke(async proxyUri =>
+        {
+            var proxyHostUri = new Uri(proxyUri);
+
+            using var tcpClient = new TcpClient(proxyHostUri.Host, proxyHostUri.Port);
+            await using var stream = tcpClient.GetStream();
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("GET / HTTP/1.1\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Host: {proxyHostUri.Host}:{proxyHostUri.Port}\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Content-Length: 11\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Transfer-Encoding: chunked\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Connection: close\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"b\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Hello World\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"0\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"\r\n"));
+            var buffer = new byte[4096];
+            var responseBuilder = new StringBuilder();
+            while (true)
+            {
+                var count = await stream.ReadAsync(buffer);
+                if (count == 0)
+                {
+                    break;
+                }
+                responseBuilder.Append(Encoding.ASCII.GetString(buffer, 0, count));
+            }
+            var response = responseBuilder.ToString();
+
+            await proxyTcs.Task;
+            await appTcs.Task;
+
+            Assert.StartsWith("HTTP/1.1 200 OK", response);
+        });
     }
 }

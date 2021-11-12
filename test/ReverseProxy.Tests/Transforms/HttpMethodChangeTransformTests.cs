@@ -6,26 +6,25 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
-namespace Yarp.ReverseProxy.Transforms.Tests
+namespace Yarp.ReverseProxy.Transforms.Tests;
+
+public class HttpMethodChangeTransformTests
 {
-    public class HttpMethodChangeTransformTests
+    [Theory]
+    [InlineData("PUT", "POST", "PUT", "POST")]
+    [InlineData("PUT", "POST", "POST", "POST")]
+    [InlineData("PUT", "POST", "GET", "GET")]
+    public async Task HttpMethodChange_Works(string fromMethod, string toMethod, string requestMethod, string expected)
     {
-        [Theory]
-        [InlineData("PUT", "POST", "PUT", "POST")]
-        [InlineData("PUT", "POST", "POST", "POST")]
-        [InlineData("PUT", "POST", "GET", "GET")]
-        public async Task HttpMethodChange_Works(string fromMethod, string toMethod, string requestMethod, string expected)
+        var httpContext = new DefaultHttpContext();
+        var request = new HttpRequestMessage() { Method = new HttpMethod(requestMethod) };
+        var context = new RequestTransformContext()
         {
-            var httpContext = new DefaultHttpContext();
-            var request = new HttpRequestMessage() { Method = new HttpMethod(requestMethod) };
-            var context = new RequestTransformContext()
-            {
-                HttpContext = httpContext,
-                ProxyRequest = request,
-            };
-            var transform = new HttpMethodChangeTransform(fromMethod, toMethod);
-            await transform.ApplyAsync(context);
-            Assert.Equal(expected, request.Method.Method);
-        }
+            HttpContext = httpContext,
+            ProxyRequest = request,
+        };
+        var transform = new HttpMethodChangeTransform(fromMethod, toMethod);
+        await transform.ApplyAsync(context);
+        Assert.Equal(expected, request.Method.Method);
     }
 }

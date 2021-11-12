@@ -6,52 +6,51 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http.Features;
 
-namespace Yarp.ReverseProxy.Transforms
+namespace Yarp.ReverseProxy.Transforms;
+
+/// <summary>
+/// Removes a response trailer.
+/// </summary>
+public class ResponseTrailerRemoveTransform : ResponseTrailersTransform
 {
-    /// <summary>
-    /// Removes a response trailer.
-    /// </summary>
-    public class ResponseTrailerRemoveTransform : ResponseTrailersTransform
+    public ResponseTrailerRemoveTransform(string headerName, ResponseCondition condition)
     {
-        public ResponseTrailerRemoveTransform(string headerName, ResponseCondition condition)
+        if (string.IsNullOrEmpty(headerName))
         {
-            if (string.IsNullOrEmpty(headerName))
-            {
-                throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
-            }
-
-            HeaderName = headerName;
-            Condition = condition;
+            throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
         }
 
-        internal string HeaderName { get; }
+        HeaderName = headerName;
+        Condition = condition;
+    }
 
-        internal ResponseCondition Condition { get; }
+    internal string HeaderName { get; }
 
-        // Assumes the response status code has been set on the HttpContext already.
-        /// <inheritdoc/>
-        public override ValueTask ApplyAsync(ResponseTrailersTransformContext context)
+    internal ResponseCondition Condition { get; }
+
+    // Assumes the response status code has been set on the HttpContext already.
+    /// <inheritdoc/>
+    public override ValueTask ApplyAsync(ResponseTrailersTransformContext context)
+    {
+        if (context is null)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            Debug.Assert(context.ProxyResponse != null);
-
-            if (Condition == ResponseCondition.Always
-                || Success(context) == (Condition == ResponseCondition.Success))
-            {
-                var responseTrailersFeature = context.HttpContext.Features.Get<IHttpResponseTrailersFeature>();
-                var responseTrailers = responseTrailersFeature?.Trailers;
-                // Support should have already been checked by the caller.
-                Debug.Assert(responseTrailers != null);
-                Debug.Assert(!responseTrailers.IsReadOnly);
-
-                responseTrailers.Remove(HeaderName);
-            }
-
-            return default;
+            throw new ArgumentNullException(nameof(context));
         }
+
+        Debug.Assert(context.ProxyResponse != null);
+
+        if (Condition == ResponseCondition.Always
+            || Success(context) == (Condition == ResponseCondition.Success))
+        {
+            var responseTrailersFeature = context.HttpContext.Features.Get<IHttpResponseTrailersFeature>();
+            var responseTrailers = responseTrailersFeature?.Trailers;
+            // Support should have already been checked by the caller.
+            Debug.Assert(responseTrailers != null);
+            Debug.Assert(!responseTrailers.IsReadOnly);
+
+            responseTrailers.Remove(HeaderName);
+        }
+
+        return default;
     }
 }

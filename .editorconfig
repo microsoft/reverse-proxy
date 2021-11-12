@@ -228,6 +228,7 @@ csharp_using_directive_placement = outside_namespace:error
 # csharp_prefer_static_local_function = true:suggestion
 # csharp_prefer_simple_using_statement = true:suggestion
 # csharp_style_prefer_switch_expression = true:suggestion
+csharp_style_namespace_declarations=file_scoped:suggestion
 
 # New-line options
 # https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-formatting-conventions?view=vs-2019#new-line-options
