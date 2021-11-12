@@ -6,7 +6,7 @@
 
 #if NETCOREAPP3_1
 
-#define INTERNAL_NULLABLE_ATTRIBUTESnamespace
+#define INTERNAL_NULLABLE_ATTRIBUTES
 
 namespace System.Diagnostics.CodeAnalysis;
 
