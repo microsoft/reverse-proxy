@@ -6,40 +6,39 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Kubernetes.Testing.Models;
 using System.Threading.Tasks;
 
-namespace Microsoft.Kubernetes.Testing
+namespace Microsoft.Kubernetes.Testing;
+
+[Route("api/{version}/{plural}")]
+public class ResourceApiController : Controller
 {
-    [Route("api/{version}/{plural}")]
-    public class ResourceApiController : Controller
+    private readonly ITestCluster _testCluster;
+
+    public ResourceApiController(ITestCluster testCluster)
     {
-        private readonly ITestCluster _testCluster;
+        _testCluster = testCluster;
+    }
 
-        public ResourceApiController(ITestCluster testCluster)
-        {
-            _testCluster = testCluster;
-        }
+    [FromRoute]
+    public string Version { get; set; }
 
-        [FromRoute]
-        public string Version { get; set; }
-
-        [FromRoute]
-        public string Plural { get; set; }
+    [FromRoute]
+    public string Plural { get; set; }
 
 
-        [HttpGet]
-        public async Task<IActionResult> ListAsync(ListParameters parameters)
-        {
-            var list = await _testCluster.ListResourcesAsync(string.Empty, Version, Plural, parameters);
+    [HttpGet]
+    public async Task<IActionResult> ListAsync(ListParameters parameters)
+    {
+        var list = await _testCluster.ListResourcesAsync(string.Empty, Version, Plural, parameters);
 
-            var result = new KubernetesList<ResourceObject>(
-                apiVersion: Version,
-                kind: "PodList",
-                metadata: new V1ListMeta(
-                    continueProperty: list.Continue,
-                    remainingItemCount: null,
-                    resourceVersion: list.ResourceVersion),
-                items: list.Items);
+        var result = new KubernetesList<ResourceObject>(
+            apiVersion: Version,
+            kind: "PodList",
+            metadata: new V1ListMeta(
+                continueProperty: list.Continue,
+                remainingItemCount: null,
+                resourceVersion: list.ResourceVersion),
+            items: list.Items);
 
-            return new ObjectResult(result);
-        }
+        return new ObjectResult(result);
     }
 }

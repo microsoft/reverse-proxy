@@ -1,16 +1,15 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Kubernetes.ResourceKinds
+namespace Microsoft.Kubernetes.ResourceKinds;
+
+public interface IResourceKindElement
 {
-    public interface IResourceKindElement
-    {
-        ElementMergeStrategy MergeStrategy { get; }
+    ElementMergeStrategy MergeStrategy { get; }
 
-        public string MergeKey { get; }
+    public string MergeKey { get; }
 
-        IResourceKindElement GetPropertyElementType(string name);
+    IResourceKindElement GetPropertyElementType(string name);
 
-        IResourceKindElement GetCollectionElementType();
-    }
+    IResourceKindElement GetCollectionElementType();
 }

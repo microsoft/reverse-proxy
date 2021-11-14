@@ -4,16 +4,15 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SampleClient.Scenarios
+namespace SampleClient.Scenarios;
+
+/// <summary>
+/// Interface for the implementation of a scenario that can be executed asynchronously.
+/// </summary>
+internal interface IScenario
 {
     /// <summary>
-    /// Interface for the implementation of a scenario that can be executed asynchronously.
+    /// Executes the scenario asynchronously.
     /// </summary>
-    internal interface IScenario
-    {
-        /// <summary>
-        /// Executes the scenario asynchronously.
-        /// </summary>
-        Task ExecuteAsync(CommandLineArgs args, CancellationToken cancellation);
-    }
+    Task ExecuteAsync(CommandLineArgs args, CancellationToken cancellation);
 }

@@ -12,21 +12,21 @@ using Yarp.ReverseProxy.Model;
 using Yarp.Telemetry.Consumption;
 using Yarp.ReverseProxy.Transforms;
 
-namespace Yarp.ReverseProxy.Sample
+namespace Yarp.ReverseProxy.Sample;
+
+/// <summary>
+/// ASP .NET Core pipeline initialization.
+/// </summary>
+public class Startup
 {
     /// <summary>
-    /// ASP .NET Core pipeline initialization.
+    /// This method gets called by the runtime. Use this method to add services to the container.
     /// </summary>
-    public class Startup
+    public void ConfigureServices(IServiceCollection services)
     {
-        /// <summary>
-        /// This method gets called by the runtime. Use this method to add services to the container.
-        /// </summary>
-        public void ConfigureServices(IServiceCollection services)
+        services.AddControllers();
+        var routes = new[]
         {
-            services.AddControllers();
-            var routes = new[]
-            {
                 new RouteConfig()
                 {
                     RouteId = "route1",
@@ -37,8 +37,8 @@ namespace Yarp.ReverseProxy.Sample
                     }
                 }
             };
-            var clusters = new[]
-            {
+        var clusters = new[]
+        {
                 new ClusterConfig()
                 {
                     ClusterId = "cluster1",
@@ -50,16 +50,16 @@ namespace Yarp.ReverseProxy.Sample
                 }
             };
 
-            services.AddReverseProxy()
-                .LoadFromMemory(routes, clusters)
-                .ConfigureHttpClient((context, handler) =>
-                {
-                    handler.Expect100ContinueTimeout = TimeSpan.FromMilliseconds(300);
-                })
-                .AddTransformFactory<MyTransformFactory>()
-                .AddTransforms<MyTransformProvider>()
-                .AddTransforms(transformBuilderContext =>
-                {
+        services.AddReverseProxy()
+            .LoadFromMemory(routes, clusters)
+            .ConfigureHttpClient((context, handler) =>
+            {
+                handler.Expect100ContinueTimeout = TimeSpan.FromMilliseconds(300);
+            })
+            .AddTransformFactory<MyTransformFactory>()
+            .AddTransforms<MyTransformProvider>()
+            .AddTransforms(transformBuilderContext =>
+            {
                     // For each route+cluster pair decide if we want to add transforms, and if so, which?
                     // This logic is re-run each time a route is rebuilt.
 
@@ -67,66 +67,65 @@ namespace Yarp.ReverseProxy.Sample
 
                     // Only do this for routes that require auth.
                     if (string.Equals("token", transformBuilderContext.Route.AuthorizationPolicy))
+                {
+                    transformBuilderContext.AddRequestTransform(async transformContext =>
                     {
-                        transformBuilderContext.AddRequestTransform(async transformContext =>
-                        {
                             // AuthN and AuthZ will have already been completed after request routing.
                             var ticket = await transformContext.HttpContext.AuthenticateAsync("token");
-                            var tokenService = transformContext.HttpContext.RequestServices.GetRequiredService<TokenService>();
-                            var token = await tokenService.GetAuthTokenAsync(ticket.Principal);
-                            transformContext.ProxyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                        });
-                    }
+                        var tokenService = transformContext.HttpContext.RequestServices.GetRequiredService<TokenService>();
+                        var token = await tokenService.GetAuthTokenAsync(ticket.Principal);
+                        transformContext.ProxyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    });
+                }
 
-                    transformBuilderContext.AddResponseTransform(context =>
-                    {
+                transformBuilderContext.AddResponseTransform(context =>
+                {
                         // Suppress the response body from errors.
                         // The status code was already copied.
                         if (context.ProxyResponse?.IsSuccessStatusCode == false)
-                        {
-                            context.SuppressResponseBody = true;
-                        }
-
-                        return default;
-                    });
-                });
-
-            services.AddHttpContextAccessor();
-            services.AddSingleton<IMetricsConsumer<ForwarderMetrics>, ForwarderMetricsConsumer>();
-            services.AddTelemetryConsumer<ForwarderTelemetryConsumer>();
-            services.AddTelemetryListeners();
-        }
-
-        /// <summary>
-        /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        /// </summary>
-        public void Configure(IApplicationBuilder app)
-        {
-            app.UseRouting();
-            app.UseAuthorization();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-                endpoints.MapReverseProxy(proxyPipeline =>
-                {
-                    // Custom endpoint selection
-                    proxyPipeline.Use((context, next) =>
                     {
-                        var someCriteria = false; // MeetsCriteria(context);
-                        if (someCriteria)
-                        {
-                            var availableDestinationsFeature = context.Features.Get<IReverseProxyFeature>();
-                            var destination = availableDestinationsFeature.AvailableDestinations[0]; // PickDestination(availableDestinationsFeature.Destinations);
-                            // Load balancing will no-op if we've already reduced the list of available destinations to 1.
-                            availableDestinationsFeature.AvailableDestinations = destination;
-                        }
+                        context.SuppressResponseBody = true;
+                    }
 
-                        return next();
-                    });
-                    proxyPipeline.UseSessionAffinity();
-                    proxyPipeline.UseLoadBalancing();
+                    return default;
                 });
             });
-        }
+
+        services.AddHttpContextAccessor();
+        services.AddSingleton<IMetricsConsumer<ForwarderMetrics>, ForwarderMetricsConsumer>();
+        services.AddTelemetryConsumer<ForwarderTelemetryConsumer>();
+        services.AddTelemetryListeners();
+    }
+
+    /// <summary>
+    /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    /// </summary>
+    public void Configure(IApplicationBuilder app)
+    {
+        app.UseRouting();
+        app.UseAuthorization();
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+            endpoints.MapReverseProxy(proxyPipeline =>
+            {
+                    // Custom endpoint selection
+                    proxyPipeline.Use((context, next) =>
+                {
+                    var someCriteria = false; // MeetsCriteria(context);
+                        if (someCriteria)
+                    {
+                        var availableDestinationsFeature = context.Features.Get<IReverseProxyFeature>();
+                        var destination = availableDestinationsFeature.AvailableDestinations[0]; // PickDestination(availableDestinationsFeature.Destinations);
+                                                                                                 // Load balancing will no-op if we've already reduced the list of available destinations to 1.
+                            availableDestinationsFeature.AvailableDestinations = destination;
+                    }
+
+                    return next();
+                });
+                proxyPipeline.UseSessionAffinity();
+                proxyPipeline.UseLoadBalancing();
+            });
+        });
     }
 }
