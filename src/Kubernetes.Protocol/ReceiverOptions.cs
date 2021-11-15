@@ -3,10 +3,9 @@
 
 using System;
 
-namespace Yarp.Kubernetes.Protocol
+namespace Yarp.Kubernetes.Protocol;
+
+public class ReceiverOptions
 {
-    public class ReceiverOptions
-    {
-        public Uri ControllerUrl { get; set; }
-    }
+    public Uri ControllerUrl { get; set; }
 }

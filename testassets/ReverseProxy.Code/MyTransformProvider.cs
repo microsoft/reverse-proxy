@@ -6,58 +6,57 @@ using System.Net.Http;
 using Yarp.ReverseProxy.Transforms;
 using Yarp.ReverseProxy.Transforms.Builder;
 
-namespace Yarp.ReverseProxy.Sample
+namespace Yarp.ReverseProxy.Sample;
+
+internal class MyTransformProvider : ITransformProvider
 {
-    internal class MyTransformProvider : ITransformProvider
+    public void ValidateRoute(TransformRouteValidationContext context)
     {
-        public void ValidateRoute(TransformRouteValidationContext context)
+        // Check all routes for a custom property and validate the associated transform data.
+        string value = null;
+        if (context.Route.Metadata?.TryGetValue("CustomMetadata", out value) ?? false)
         {
-            // Check all routes for a custom property and validate the associated transform data.
-            string value = null;
-            if (context.Route.Metadata?.TryGetValue("CustomMetadata", out value) ?? false)
+            if (string.IsNullOrEmpty(value))
             {
-                if (string.IsNullOrEmpty(value))
-                {
-                    context.Errors.Add(new ArgumentException("A non-empty CustomMetadata value is required"));
-                }
+                context.Errors.Add(new ArgumentException("A non-empty CustomMetadata value is required"));
             }
         }
+    }
 
-        public void ValidateCluster(TransformClusterValidationContext context)
+    public void ValidateCluster(TransformClusterValidationContext context)
+    {
+        // Check all clusters for a custom property and validate the associated transform data.
+        string value = null;
+        if (context.Cluster.Metadata?.TryGetValue("CustomMetadata", out value) ?? false)
         {
-            // Check all clusters for a custom property and validate the associated transform data.
-            string value = null;
-            if (context.Cluster.Metadata?.TryGetValue("CustomMetadata", out value) ?? false)
+            if (string.IsNullOrEmpty(value))
             {
-                if (string.IsNullOrEmpty(value))
-                {
-                    context.Errors.Add(new ArgumentException("A non-empty CustomMetadata value is required"));
-                }
+                context.Errors.Add(new ArgumentException("A non-empty CustomMetadata value is required"));
             }
         }
+    }
 
-        public void Apply(TransformBuilderContext transformBuildContext)
+    public void Apply(TransformBuilderContext transformBuildContext)
+    {
+        // Check all routes for a custom property and add the associated transform.
+        string value = null;
+        if ((transformBuildContext.Route.Metadata?.TryGetValue("CustomMetadata", out value) ?? false)
+            || (transformBuildContext.Cluster?.Metadata?.TryGetValue("CustomMetadata", out value) ?? false))
         {
-            // Check all routes for a custom property and add the associated transform.
-            string value = null;
-            if ((transformBuildContext.Route.Metadata?.TryGetValue("CustomMetadata", out value) ?? false)
-                || (transformBuildContext.Cluster?.Metadata?.TryGetValue("CustomMetadata", out value) ?? false))
+            if (string.IsNullOrEmpty(value))
             {
-                if (string.IsNullOrEmpty(value))
-                {
-                    throw new ArgumentException("A non-empty CustomMetadata value is required");
-                }
+                throw new ArgumentException("A non-empty CustomMetadata value is required");
+            }
 
-                transformBuildContext.AddRequestTransform(transformContext =>
-                {
+            transformBuildContext.AddRequestTransform(transformContext =>
+            {
 #if NET
-                    transformContext.ProxyRequest.Options.Set(new HttpRequestOptionsKey<string>("CustomMetadata"), value);
+                transformContext.ProxyRequest.Options.Set(new HttpRequestOptionsKey<string>("CustomMetadata"), value);
 #else
-                    transformContext.ProxyRequest.Properties["CustomMetadata"] = value;
+                transformContext.ProxyRequest.Properties["CustomMetadata"] = value;
 #endif
-                    return default;
-                });
-            }
+                return default;
+            });
         }
     }
 }

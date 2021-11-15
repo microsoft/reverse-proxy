@@ -4,26 +4,25 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace Yarp.ReverseProxy.Sample
+namespace Yarp.ReverseProxy.Sample;
+
+/// <summary>
+/// Class that contains the entrypoint for the Reverse Proxy sample app.
+/// </summary>
+public class Program
 {
     /// <summary>
-    /// Class that contains the entrypoint for the Reverse Proxy sample app.
+    /// Entrypoint of the application.
     /// </summary>
-    public class Program
+    public static void Main(string[] args)
     {
-        /// <summary>
-        /// Entrypoint of the application.
-        /// </summary>
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
-
-        private static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+        CreateHostBuilder(args).Build().Run();
     }
+
+    private static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            });
 }

@@ -12,93 +12,92 @@ using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Transforms;
 using Yarp.ReverseProxy.Transforms.Builder;
 
-namespace Yarp.ReverseProxy.Sample
+namespace Yarp.ReverseProxy.Sample;
+
+/// <summary>
+/// ASP .NET Core pipeline initialization.
+/// </summary>
+public class Startup
 {
     /// <summary>
-    /// ASP .NET Core pipeline initialization.
+    /// This method gets called by the runtime. Use this method to add services to the container.
     /// </summary>
-    public class Startup
+    public void ConfigureServices(IServiceCollection services)
     {
-        /// <summary>
-        /// This method gets called by the runtime. Use this method to add services to the container.
-        /// </summary>
-        public void ConfigureServices(IServiceCollection services)
+        services.AddHttpForwarder();
+    }
+
+    /// <summary>
+    /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    /// </summary>
+    public void Configure(IApplicationBuilder app, IHttpForwarder httpProxy)
+    {
+        var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
         {
-            services.AddHttpForwarder();
-        }
+            UseProxy = false,
+            AllowAutoRedirect = false,
+            AutomaticDecompression = DecompressionMethods.None,
+            UseCookies = false
+        });
 
-        /// <summary>
-        /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        /// </summary>
-        public void Configure(IApplicationBuilder app, IHttpForwarder httpProxy)
+        var transformBuilder = app.ApplicationServices.GetRequiredService<ITransformBuilder>();
+        var transformer = transformBuilder.Create(context =>
         {
-            var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
+            context.AddQueryRemoveKey("param1");
+            context.AddQueryValue("area", "xx2", false);
+            context.AddOriginalHost(false);
+        });
+
+        // or var transformer = new CustomTransformer();
+        // or var transformer = HttpTransformer.Default;
+
+        var requestConfig = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
+
+        app.UseRouting();
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.Map("/{**catch-all}", async httpContext =>
             {
-                UseProxy = false,
-                AllowAutoRedirect = false,
-                AutomaticDecompression = DecompressionMethods.None,
-                UseCookies = false
-            });
-
-            var transformBuilder = app.ApplicationServices.GetRequiredService<ITransformBuilder>();
-            var transformer = transformBuilder.Create(context =>
-            {
-                context.AddQueryRemoveKey("param1");
-                context.AddQueryValue("area", "xx2", false);
-                context.AddOriginalHost(false);
-            });
-
-            // or var transformer = new CustomTransformer();
-            // or var transformer = HttpTransformer.Default;
-
-            var requestConfig = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
-
-            app.UseRouting();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.Map("/{**catch-all}", async httpContext =>
+                await httpProxy.SendAsync(httpContext, "https://example.com", httpClient, requestConfig, transformer);
+                var errorFeature = httpContext.GetForwarderErrorFeature();
+                if (errorFeature != null)
                 {
-                    await httpProxy.SendAsync(httpContext, "https://example.com", httpClient, requestConfig, transformer);
-                    var errorFeature = httpContext.GetForwarderErrorFeature();
-                    if (errorFeature != null)
-                    {
-                        var error = errorFeature.Error;
-                        var exception = errorFeature.Exception;
-                    }
-                });
-            });
-        }
-
-        private class CustomTransformer : HttpTransformer
-        {
-            public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
-            {
-                // Copy all request headers
-                await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
-
-                // Customize the query string:
-                var queryContext = new QueryTransformContext(httpContext.Request);
-                queryContext.Collection.Remove("param1");
-                queryContext.Collection["area"] = "xx2";
-
-                // Assign the custom uri. Be careful about extra slashes when concatenating here.
-                proxyRequest.RequestUri = new Uri(destinationPrefix + httpContext.Request.Path + queryContext.QueryString);
-
-                // Suppress the original request header, use the one from the destination Uri.
-                proxyRequest.Headers.Host = null;
-            }
-
-            public override ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
-            {
-                // Suppress the response body from errors.
-                // The status code was already copied.
-                if (!proxyResponse.IsSuccessStatusCode)
-                {
-                    return new ValueTask<bool>(false);
+                    var error = errorFeature.Error;
+                    var exception = errorFeature.Exception;
                 }
+            });
+        });
+    }
 
-                return base.TransformResponseAsync(httpContext, proxyResponse);
+    private class CustomTransformer : HttpTransformer
+    {
+        public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
+        {
+            // Copy all request headers
+            await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+
+            // Customize the query string:
+            var queryContext = new QueryTransformContext(httpContext.Request);
+            queryContext.Collection.Remove("param1");
+            queryContext.Collection["area"] = "xx2";
+
+            // Assign the custom uri. Be careful about extra slashes when concatenating here.
+            proxyRequest.RequestUri = new Uri(destinationPrefix + httpContext.Request.Path + queryContext.QueryString);
+
+            // Suppress the original request header, use the one from the destination Uri.
+            proxyRequest.Headers.Host = null;
+        }
+
+        public override ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+        {
+            // Suppress the response body from errors.
+            // The status code was already copied.
+            if (!proxyResponse.IsSuccessStatusCode)
+            {
+                return new ValueTask<bool>(false);
             }
+
+            return base.TransformResponseAsync(httpContext, proxyResponse);
         }
     }
 }

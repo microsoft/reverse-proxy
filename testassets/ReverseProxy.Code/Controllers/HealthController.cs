@@ -4,33 +4,32 @@
 using Microsoft.AspNetCore.Mvc;
 using Yarp.ReverseProxy.Health;
 
-namespace Yarp.ReverseProxy.Sample.Controllers
+namespace Yarp.ReverseProxy.Sample.Controllers;
+
+/// <summary>
+/// Controller for health check api.
+/// </summary>
+[ApiController]
+public class HealthController : ControllerBase
 {
+    private readonly IActiveHealthCheckMonitor _healthCheckMonitor;
+
     /// <summary>
-    /// Controller for health check api.
+    /// Initializes a new instance of the <see cref="HealthController" /> class.
     /// </summary>
-    [ApiController]
-    public class HealthController : ControllerBase
+    public HealthController(IActiveHealthCheckMonitor healthCheckMonitor)
     {
-        private readonly IActiveHealthCheckMonitor _healthCheckMonitor;
+        _healthCheckMonitor = healthCheckMonitor;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="HealthController" /> class.
-        /// </summary>
-        public HealthController(IActiveHealthCheckMonitor healthCheckMonitor)
-        {
-            _healthCheckMonitor = healthCheckMonitor;
-        }
-
-        /// <summary>
-        /// Returns 200 if Proxy is healthy.
-        /// </summary>
-        [HttpGet]
-        [Route("/api/health")]
-        public IActionResult CheckHealth()
-        {
-            // TODO: Implement health controller, use guid in route.
-            return _healthCheckMonitor.InitialProbeCompleted ? Ok() : StatusCode(503);
-        }
+    /// <summary>
+    /// Returns 200 if Proxy is healthy.
+    /// </summary>
+    [HttpGet]
+    [Route("/api/health")]
+    public IActionResult CheckHealth()
+    {
+        // TODO: Implement health controller, use guid in route.
+        return _healthCheckMonitor.InitialProbeCompleted ? Ok() : StatusCode(503);
     }
 }

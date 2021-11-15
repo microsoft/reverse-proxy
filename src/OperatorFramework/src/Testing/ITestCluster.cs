@@ -5,12 +5,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Kubernetes.Testing.Models;
 using System.Threading.Tasks;
 
-namespace Microsoft.Kubernetes.Testing
-{
-    public interface ITestCluster
-    {
-        Task UnhandledRequest(HttpContext context);
+namespace Microsoft.Kubernetes.Testing;
 
-        Task<ListResult> ListResourcesAsync(string group, string version, string plural, ListParameters parameters);
-    }
+public interface ITestCluster
+{
+    Task UnhandledRequest(HttpContext context);
+
+    Task<ListResult> ListResourcesAsync(string group, string version, string plural, ListParameters parameters);
 }

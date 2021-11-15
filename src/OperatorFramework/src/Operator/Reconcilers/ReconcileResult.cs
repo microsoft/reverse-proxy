@@ -4,39 +4,38 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.Kubernetes.Operator
+namespace Microsoft.Kubernetes.Operator;
+
+public struct ReconcileResult : IEquatable<ReconcileResult>
 {
-    public struct ReconcileResult : IEquatable<ReconcileResult>
+    public bool Requeue { get; set; }
+    public TimeSpan RequeueAfter { get; set; }
+    public Exception Error { get; set; }
+
+    public override bool Equals(object obj)
     {
-        public bool Requeue { get; set; }
-        public TimeSpan RequeueAfter { get; set; }
-        public Exception Error { get; set; }
+        return obj is ReconcileResult result && Equals(result);
+    }
 
-        public override bool Equals(object obj)
-        {
-            return obj is ReconcileResult result && Equals(result);
-        }
+    public bool Equals(ReconcileResult other)
+    {
+        return Requeue == other.Requeue &&
+               RequeueAfter.Equals(other.RequeueAfter) &&
+               EqualityComparer<Exception>.Default.Equals(Error, other.Error);
+    }
 
-        public bool Equals(ReconcileResult other)
-        {
-            return Requeue == other.Requeue &&
-                   RequeueAfter.Equals(other.RequeueAfter) &&
-                   EqualityComparer<Exception>.Default.Equals(Error, other.Error);
-        }
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Requeue, RequeueAfter, Error);
+    }
 
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Requeue, RequeueAfter, Error);
-        }
+    public static bool operator ==(ReconcileResult left, ReconcileResult right)
+    {
+        return left.Equals(right);
+    }
 
-        public static bool operator ==(ReconcileResult left, ReconcileResult right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(ReconcileResult left, ReconcileResult right)
-        {
-            return !(left == right);
-        }
+    public static bool operator !=(ReconcileResult left, ReconcileResult right)
+    {
+        return !(left == right);
     }
 }

@@ -5,21 +5,20 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Yarp.ReverseProxy.Configuration;
 
-namespace Yarp.Kubernetes.Protocol
-{
-    public static class MessageConfigProviderExtensions
-    {
-        public static IReverseProxyBuilder LoadFromMessages(this IReverseProxyBuilder builder)
-        {
-            if (builder == null)
-            {
-                throw new ArgumentNullException(nameof(builder));
-            }
+namespace Yarp.Kubernetes.Protocol;
 
-            var provider = new MessageConfigProvider();
-            builder.Services.AddSingleton<IProxyConfigProvider>(provider);
-            builder.Services.AddSingleton<IUpdateConfig>(provider);
-            return builder;
+public static class MessageConfigProviderExtensions
+{
+    public static IReverseProxyBuilder LoadFromMessages(this IReverseProxyBuilder builder)
+    {
+        if (builder == null)
+        {
+            throw new ArgumentNullException(nameof(builder));
         }
+
+        var provider = new MessageConfigProvider();
+        builder.Services.AddSingleton<IProxyConfigProvider>(provider);
+        builder.Services.AddSingleton<IUpdateConfig>(provider);
+        return builder;
     }
 }
