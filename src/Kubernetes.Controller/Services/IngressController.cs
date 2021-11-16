@@ -9,6 +9,7 @@ using k8s;
 using k8s.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Kubernetes;
 using Microsoft.Kubernetes.Controller.Hosting;
 using Microsoft.Kubernetes.Controller.Informers;
@@ -27,10 +28,13 @@ namespace Yarp.Kubernetes.Controller.Services;
 public class IngressController : BackgroundHostedService
 {
     private readonly IResourceInformerRegistration[] _registrations;
+    private readonly IResourceInformer<V1Ingress> _ingressInformer;
     private readonly IWorkQueue<QueueItem> _queue;
     private readonly ICache _cache;
     private readonly IReconciler _reconciler;
     private readonly QueueItem _ingressChangeQueueItem;
+
+    private IResourceInformerRegistration _ingressRegistration;
 
     public IngressController(
         ICache cache,
@@ -38,6 +42,7 @@ public class IngressController : BackgroundHostedService
         IResourceInformer<V1Ingress> ingressInformer,
         IResourceInformer<V1Service> serviceInformer,
         IResourceInformer<V1Endpoints> endpointsInformer,
+        IResourceInformer<V1IngressClass> ingressClassInformer,
         IHostApplicationLifetime hostApplicationLifetime,
         ILogger<IngressController> logger)
         : base(hostApplicationLifetime, logger)
@@ -57,6 +62,11 @@ public class IngressController : BackgroundHostedService
             throw new ArgumentNullException(nameof(endpointsInformer));
         }
 
+        if (ingressClassInformer is null)
+        {
+            throw new ArgumentNullException(nameof(ingressClassInformer));
+        }
+
         if (hostApplicationLifetime is null)
         {
             throw new ArgumentNullException(nameof(hostApplicationLifetime));
@@ -69,16 +79,21 @@ public class IngressController : BackgroundHostedService
 
         _registrations = new[]
         {
-            ingressInformer.Register(Notification),
+            ingressClassInformer.Register(Notification),
             serviceInformer.Register(Notification),
             endpointsInformer.Register(Notification),
         };
+
+        ingressClassInformer.StartWatching();
+        serviceInformer.StartWatching();
+        endpointsInformer.StartWatching();
 
         _queue = new ProcessingRateLimitedQueue<QueueItem>(perSecond: 0.5, burst: 1);
 
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         _reconciler = reconciler ?? throw new ArgumentNullException(nameof(reconciler));
         _reconciler.OnAttach(TargetAttached);
+        _ingressInformer = ingressInformer;
 
         _ingressChangeQueueItem = new QueueItem("Ingress Change", null);
     }
@@ -95,6 +110,8 @@ public class IngressController : BackgroundHostedService
             {
                 registration.Dispose();
             }
+
+            _ingressRegistration?.Dispose();
 
             _queue.Dispose();
         }
@@ -125,8 +142,10 @@ public class IngressController : BackgroundHostedService
     /// <param name="resource">The information as provided by the Kubernets API server.</param>
     private void Notification(WatchEventType eventType, V1Ingress resource)
     {
-        _cache.Update(eventType, resource);
-        _queue.Add(_ingressChangeQueueItem);
+        if (_cache.Update(eventType, resource))
+        {
+            _queue.Add(_ingressChangeQueueItem);
+        }
     }
 
     /// <summary>
@@ -158,6 +177,16 @@ public class IngressController : BackgroundHostedService
     }
 
     /// <summary>
+    /// Called by the informer with real-time resource updates.
+    /// </summary>
+    /// <param name="eventType">Indicates if the resource new, updated, or deleted.</param>
+    /// <param name="resource">The information as provided by the Kubernetes API server.</param>
+    private void Notification(WatchEventType eventType, V1IngressClass resource)
+    {
+        _cache.Update(eventType, resource);
+    }
+
+    /// <summary>
     /// Called once at startup by the hosting infrastructure. This function must remain running
     /// for the entire lifetime of an application.
     /// </summary>
@@ -170,6 +199,13 @@ public class IngressController : BackgroundHostedService
         {
             await registration.ReadyAsync(cancellationToken).ConfigureAwait(false);
         }
+
+        // It can take some time for the changes to be processed (in large clusters)
+        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).ConfigureAwait(false);
+
+        // Start syncing ingress objects only once the other items have been synchronised
+        _ingressRegistration = _ingressInformer.Register(Notification);
+        _ingressInformer.StartWatching();
 
         // At this point we know that all of the Ingress and Endpoint caches are at least in sync
         // with cluster's state as of the start of this controller.

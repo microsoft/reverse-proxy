@@ -9,9 +9,13 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using k8s;
 using k8s.Models;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Kubernetes;
+using Moq;
 using Newtonsoft.Json.Linq;
 using Xunit;
+using Yarp.Kubernetes.Controller;
 using Yarp.Kubernetes.Controller.Caching;
 using Yarp.Kubernetes.Controller.Converters;
 using Yarp.Kubernetes.Controller.Services;
@@ -31,7 +35,8 @@ public class IngressControllerTests
     [InlineData("multiple-ingresses-one-svc")]
     public async Task ParsingTests(string name)
     {
-        var cache = await GetKubernetesInfo(name).ConfigureAwait(false);
+        var ingressClass = KubeResourceGenerator.CreateIngressClass("yarp", "microsoft.com/ingress-yarp", true);
+        var cache = await GetKubernetesInfo(name, ingressClass).ConfigureAwait(false);
         var configContext = new YarpConfigContext();
         var ingresses = cache.GetIngresses().ToArray();
 
@@ -65,14 +70,24 @@ public class IngressControllerTests
         Assert.True(JToken.DeepEquals(JToken.Parse(json), JToken.Parse(other)));
     }
 
-    private async Task<ICache> GetKubernetesInfo(string name)
+    private async Task<ICache> GetKubernetesInfo(string name, V1IngressClass ingressClass)
     {
-        var cache = new IngressCache();
+        var mockLogger = new Mock<ILogger<IngressCache>>();
+        var mockOptions = new Mock<IOptions<YarpOptions>>();
+
+        mockOptions.SetupGet(o => o.Value).Returns(new YarpOptions { ControllerClass = "microsoft.com/ingress-yarp" });
+
+        var cache = new IngressCache(mockOptions.Object, mockLogger.Object);
 
         var typeMap = new Dictionary<string, Type>();
         typeMap.Add("networking.k8s.io/v1/Ingress", typeof(V1Ingress));
         typeMap.Add("v1/Service", typeof(V1Service));
         typeMap.Add("v1/Endpoints", typeof(V1Endpoints));
+
+        if (ingressClass != null)
+        {
+            cache.Update(WatchEventType.Added, ingressClass);
+        }
 
         var kubeObjects = await Yaml.LoadAllFromFileAsync(Path.Combine("testassets", name, "ingress.yaml"), typeMap).ConfigureAwait(false);
         foreach (var obj in kubeObjects)

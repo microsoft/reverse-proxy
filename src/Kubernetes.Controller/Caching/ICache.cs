@@ -16,7 +16,8 @@ namespace Yarp.Kubernetes.Controller.Caching;
 /// </summary>
 public interface ICache
 {
-    void Update(WatchEventType eventType, V1Ingress ingress);
+    void Update(WatchEventType eventType, V1IngressClass ingressClass);
+    bool Update(WatchEventType eventType, V1Ingress ingress);
     ImmutableList<string> Update(WatchEventType eventType, V1Service service);
     ImmutableList<string> Update(WatchEventType eventType, V1Endpoints endpoints);
     bool TryGetReconcileData(NamespacedName key, out ReconcileData data);
