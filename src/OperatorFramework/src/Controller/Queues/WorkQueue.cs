@@ -78,7 +78,7 @@ public class WorkQueue<TItem> : IWorkQueue<TItem>
             {
                 await _semaphore.WaitAsync(linkedTokenSource.Token);
 
-                await OnGetAsync(cancellationToken);
+                await OnGetAsync(linkedTokenSource.Token);
             }
             catch (OperationCanceledException)
             {

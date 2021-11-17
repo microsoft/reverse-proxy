@@ -19,7 +19,7 @@ public struct QueueItem : IEquatable<QueueItem>
     }
 
     /// <summary>
-    /// This identifies an Ingress which must be dispatched because it, or a related resource, has changed.
+    /// This identifies that a change has occured and either configuration requires to be rebuilt, or needs to be dispatched.
     /// </summary>
     public string Change { get; }
 

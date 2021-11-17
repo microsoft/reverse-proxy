@@ -74,7 +74,7 @@ public class IngressController : BackgroundHostedService
             endpointsInformer.Register(Notification),
         };
 
-        _queue = new ProcessingRateLimitedQueue<QueueItem>(0.5, 1);
+        _queue = new ProcessingRateLimitedQueue<QueueItem>(perSecond: 0.5, burst: 1);
 
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         _reconciler = reconciler ?? throw new ArgumentNullException(nameof(reconciler));
