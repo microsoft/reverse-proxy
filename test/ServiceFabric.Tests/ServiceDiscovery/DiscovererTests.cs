@@ -115,12 +115,12 @@ public class DiscovererTests : TestAutoMockBase
 
         var expectedClusters = new[]
         {
-                ClusterWithDestinations(_testServiceName, labels,
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[0], partitions[0]),
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[1], partitions[0]),
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[2], partitions[1]),
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[3], partitions[1])),
-            };
+            ClusterWithDestinations(_testServiceName, labels,
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[0], partitions[0]),
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[1], partitions[0]),
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[2], partitions[1]),
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[3], partitions[1])),
+        };
         var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
         routes.Should().BeEquivalentTo(expectedRoutes);
@@ -148,12 +148,12 @@ public class DiscovererTests : TestAutoMockBase
 
         var expectedClusters = new[]
         {
-                ClusterWithDestinations(_testServiceName, labels,
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[0], partitions[0]),
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[1], partitions[0]),
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[2], partitions[1]),
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[3], partitions[1])),
-            };
+            ClusterWithDestinations(_testServiceName, labels,
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[0], partitions[0]),
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[1], partitions[0]),
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[2], partitions[1]),
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[3], partitions[1])),
+        };
         var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
         routes.Should().BeEquivalentTo(expectedRoutes);
@@ -185,13 +185,13 @@ public class DiscovererTests : TestAutoMockBase
 
         var expectedClusters = new[]
         {
-                ClusterWithDestinations(_testServiceName, labels1,
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica1, partition1)),
-                ClusterWithDestinations(_testServiceName, labels2,
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica2, partition2)),
-                ClusterWithDestinations(_testServiceName, labels3,
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica3, partition3)),
-            };
+            ClusterWithDestinations(_testServiceName, labels1,
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica1, partition1)),
+            ClusterWithDestinations(_testServiceName, labels2,
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica2, partition2)),
+            ClusterWithDestinations(_testServiceName, labels3,
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica3, partition3)),
+        };
         var expectedRoutes = new List<RouteConfig>();
         expectedRoutes.AddRange(LabelsParser.BuildRoutes(_testServiceName, labels1));
         expectedRoutes.AddRange(LabelsParser.BuildRoutes(_testServiceName, labels2));
@@ -228,9 +228,9 @@ public class DiscovererTests : TestAutoMockBase
 
         var expectedClusters = new[]
         {
-                ClusterWithDestinations(_testServiceName, gatewayEnabledLabels,
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica1, partition1)),
-            };
+            ClusterWithDestinations(_testServiceName, gatewayEnabledLabels,
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica1, partition1)),
+        };
         var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, gatewayEnabledLabels);
 
         clusters.Should().BeEquivalentTo(expectedClusters);
@@ -285,12 +285,12 @@ public class DiscovererTests : TestAutoMockBase
     {
         _scenarioOptions = new ServiceFabricDiscoveryOptions { ReportReplicasHealth = true };
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Enable", "true" },
-                { "YARP.Backend.BackendId", "SomeClusterId" },
-                { "YARP.Routes.MyRoute.Hosts", "example.com" },
-                { "YARP.Routes.MyRoute.Order", "not a number" },
-            };
+        {
+            { "YARP.Enable", "true" },
+            { "YARP.Backend.BackendId", "SomeClusterId" },
+            { "YARP.Routes.MyRoute.Hosts", "example.com" },
+            { "YARP.Routes.MyRoute.Order", "not a number" },
+        };
         ApplicationWrapper application;
         Mock_AppsResponse(
             application = CreateApp_1Service_SingletonPartition_1Replica("MyApp", "MyService", out var service, out var replica, out var partition));
@@ -301,9 +301,9 @@ public class DiscovererTests : TestAutoMockBase
 
         var expectedClusters = new[]
         {
-                ClusterWithDestinations(_testServiceName, labels,
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica, partition)),
-            };
+            ClusterWithDestinations(_testServiceName, labels,
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica, partition)),
+        };
         var expectedRoutes = new List<RouteConfig>();
 
         clusters.Should().BeEquivalentTo(expectedClusters);
@@ -330,8 +330,8 @@ public class DiscovererTests : TestAutoMockBase
 
         var expectedClusters = new[]
         {
-                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, DestinationConfig>()),
-            };
+            LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, DestinationConfig>()),
+        };
         var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
         clusters.Should().BeEquivalentTo(expectedClusters);
@@ -360,8 +360,8 @@ public class DiscovererTests : TestAutoMockBase
 
         var expectedClusters = new[]
         {
-                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, DestinationConfig>()),
-            };
+            LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, DestinationConfig>()),
+        };
         var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
         clusters.Should().BeEquivalentTo(expectedClusters);
@@ -392,8 +392,8 @@ public class DiscovererTests : TestAutoMockBase
 
         var expectedClusters = new[]
         {
-                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, DestinationConfig>()),
-            };
+            LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, DestinationConfig>()),
+        };
         var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
         clusters.Should().BeEquivalentTo(expectedClusters);
@@ -423,9 +423,9 @@ public class DiscovererTests : TestAutoMockBase
 
         var expectedClusters = new[]
         {
-                ClusterWithDestinations(_testServiceName, labels,
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica, partition, "ExampleTeamHealthEndpoint")),
-            };
+            ClusterWithDestinations(_testServiceName, labels,
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica, partition, "ExampleTeamHealthEndpoint")),
+        };
         var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
         clusters.Should().BeEquivalentTo(expectedClusters);
@@ -468,11 +468,11 @@ public class DiscovererTests : TestAutoMockBase
 
         var expectedClusters = new[]
         {
-                ClusterWithDestinations(_testServiceName, labels,
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[0], partitions[0]),
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[1], partitions[0]),
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[2], partitions[1])),
-            };
+            ClusterWithDestinations(_testServiceName, labels,
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[0], partitions[0]),
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[1], partitions[0]),
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replicas[2], partitions[1])),
+        };
         var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
         clusters.Should().BeEquivalentTo(expectedClusters);
@@ -499,9 +499,9 @@ public class DiscovererTests : TestAutoMockBase
 
         var expectedClusters = new[]
         {
-                ClusterWithDestinations(_testServiceName, labels,
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica, partition)),
-            };
+            ClusterWithDestinations(_testServiceName, labels,
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica, partition)),
+        };
         var expectedRoutes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
         clusters.Should().BeEquivalentTo(expectedClusters);
@@ -535,9 +535,9 @@ public class DiscovererTests : TestAutoMockBase
 
         var expectedClusters = new[]
         {
-                ClusterWithDestinations(_testServiceName, labels,
-                    SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica, partition)),
-            };
+            ClusterWithDestinations(_testServiceName, labels,
+                SFTestHelpers.BuildDestinationFromReplicaAndPartition(replica, partition)),
+        };
 
         clusters.Should().BeEquivalentTo(expectedClusters);
         _healthReports.Should().HaveCount(2);
@@ -568,8 +568,8 @@ public class DiscovererTests : TestAutoMockBase
 
         var expectedClusters = new[]
         {
-                LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, DestinationConfig>()),
-            };
+            LabelsParser.BuildCluster(_testServiceName, labels, new Dictionary<string, DestinationConfig>()),
+        };
 
         clusters.Should().BeEquivalentTo(expectedClusters);
         _healthReports.Should().HaveCount(1);

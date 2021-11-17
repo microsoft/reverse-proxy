@@ -52,12 +52,12 @@ internal sealed class WebSocketsTelemetryStream : DelegatingStream
         return context.Features.Get<IForwarderErrorFeature>()?.Error switch
         {
             // Either side disconnected without sending a WebSocket close
-            ForwarderError.UpgradeRequestClient => WebSocketCloseReason.ClientDisconnect,
-            ForwarderError.UpgradeRequestCanceled => WebSocketCloseReason.ClientDisconnect,
-            ForwarderError.UpgradeResponseClient => WebSocketCloseReason.ClientDisconnect,
-            ForwarderError.UpgradeResponseCanceled => WebSocketCloseReason.ClientDisconnect,
-            ForwarderError.UpgradeRequestDestination => WebSocketCloseReason.ServerDisconnect,
-            ForwarderError.UpgradeResponseDestination => WebSocketCloseReason.ServerDisconnect,
+            ForwarderError.UpgradeRequestClient         => WebSocketCloseReason.ClientDisconnect,
+            ForwarderError.UpgradeRequestCanceled       => WebSocketCloseReason.ClientDisconnect,
+            ForwarderError.UpgradeResponseClient        => WebSocketCloseReason.ClientDisconnect,
+            ForwarderError.UpgradeResponseCanceled      => WebSocketCloseReason.ClientDisconnect,
+            ForwarderError.UpgradeRequestDestination    => WebSocketCloseReason.ServerDisconnect,
+            ForwarderError.UpgradeResponseDestination   => WebSocketCloseReason.ServerDisconnect,
 
             // Both sides gracefully closed the underlying connection without sending a WebSocket close
             // Neither side is doing what we recognize as WebSockets ¯\_(ツ)_/¯

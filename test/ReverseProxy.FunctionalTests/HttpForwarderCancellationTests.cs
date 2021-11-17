@@ -36,7 +36,7 @@ public class HttpForwarderCancellationTests
                 var resetFeature = context.Features.Get<IHttpResetFeature>();
                 Assert.NotNull(resetFeature);
                 resetFeature.Reset(0); // NO_ERROR
-                },
+            },
             proxyBuilder => { },
             proxyApp =>
             {

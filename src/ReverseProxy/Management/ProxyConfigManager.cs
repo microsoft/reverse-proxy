@@ -597,9 +597,9 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
     private static class Log
     {
         private static readonly Action<ILogger, string, Exception?> _clusterAdded = LoggerMessage.Define<string>(
-                LogLevel.Debug,
-                EventIds.ClusterAdded,
-                "Cluster '{clusterId}' has been added.");
+            LogLevel.Debug,
+            EventIds.ClusterAdded,
+            "Cluster '{clusterId}' has been added.");
 
         private static readonly Action<ILogger, string, Exception?> _clusterChanged = LoggerMessage.Define<string>(
             LogLevel.Debug,
@@ -707,4 +707,3 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         }
     }
 }
-

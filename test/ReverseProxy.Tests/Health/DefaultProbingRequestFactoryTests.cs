@@ -51,9 +51,9 @@ public class DefaultProbingRequestFactoryTests
             },
             version
 #if NET
-                , HttpVersionPolicy.RequestVersionExact
+            , HttpVersionPolicy.RequestVersionExact
 #endif
-                );
+            );
         var destinationModel = new DestinationModel(new DestinationConfig { Address = "https://localhost:10000/" });
         var factory = new DefaultProbingRequestFactory();
 
@@ -67,9 +67,9 @@ public class DefaultProbingRequestFactoryTests
 
     private ClusterModel GetClusterConfig(string id, ActiveHealthCheckConfig healthCheckOptions, Version version
 #if NET
-            , HttpVersionPolicy versionPolicy = HttpVersionPolicy.RequestVersionExact
+        , HttpVersionPolicy versionPolicy = HttpVersionPolicy.RequestVersionExact
 #endif
-            )
+        )
     {
         return new ClusterModel(
             new ClusterConfig
@@ -84,9 +84,9 @@ public class DefaultProbingRequestFactoryTests
                     ActivityTimeout = TimeSpan.FromSeconds(60),
                     Version = version,
 #if NET
-                        VersionPolicy = versionPolicy,
+                    VersionPolicy = versionPolicy,
 #endif
-                    }
+                }
             },
             new HttpMessageInvoker(new HttpClientHandler()));
     }

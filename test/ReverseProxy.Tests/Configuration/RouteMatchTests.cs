@@ -14,14 +14,14 @@ public class RouteMatchTests
         {
             Headers = new[]
             {
-                    new RouteHeader()
-                    {
-                        Name = "Hi",
-                        Values = new[] { "v1", "v2" },
-                        IsCaseSensitive = true,
-                        Mode = HeaderMatchMode.HeaderPrefix,
-                    }
-                },
+                new RouteHeader()
+                {
+                    Name = "Hi",
+                    Values = new[] { "v1", "v2" },
+                    IsCaseSensitive = true,
+                    Mode = HeaderMatchMode.HeaderPrefix,
+                }
+            },
             Hosts = new[] { "foo:90" },
             Methods = new[] { "GET", "POST" },
             Path = "/p",
@@ -30,14 +30,14 @@ public class RouteMatchTests
         {
             Headers = new[]
             {
-                    new RouteHeader()
-                    {
-                        Name = "hi",
-                        Values = new[] { "v1", "v2" },
-                        IsCaseSensitive = true,
-                        Mode = HeaderMatchMode.HeaderPrefix,
-                    }
-                },
+                new RouteHeader()
+                {
+                    Name = "hi",
+                    Values = new[] { "v1", "v2" },
+                    IsCaseSensitive = true,
+                    Mode = HeaderMatchMode.HeaderPrefix,
+                }
+            },
             Hosts = new[] { "foo:90" },
             Methods = new[] { "GET", "POST" },
             Path = "/P",
@@ -57,14 +57,14 @@ public class RouteMatchTests
         {
             Headers = new[]
             {
-                    new RouteHeader()
-                    {
-                        Name = "Hi",
-                        Values = new[] { "v1", "v2" },
-                        IsCaseSensitive = true,
-                        Mode = HeaderMatchMode.HeaderPrefix,
-                    }
-                },
+                new RouteHeader()
+                {
+                    Name = "Hi",
+                    Values = new[] { "v1", "v2" },
+                    IsCaseSensitive = true,
+                    Mode = HeaderMatchMode.HeaderPrefix,
+                }
+            },
             Hosts = new[] { "foo:90" },
             Methods = new[] { "GET", "POST" },
             Path = "/p",
@@ -73,14 +73,14 @@ public class RouteMatchTests
         {
             Headers = new[]
             {
-                    new RouteHeader()
-                    {
-                        Name = "Bye",
-                        Values = new[] { "v1", "v2" },
-                        IsCaseSensitive = true,
-                        Mode = HeaderMatchMode.HeaderPrefix,
-                    }
+                new RouteHeader()
+                {
+                    Name = "Bye",
+                    Values = new[] { "v1", "v2" },
+                    IsCaseSensitive = true,
+                    Mode = HeaderMatchMode.HeaderPrefix,
                 }
+            }
         };
         var c = a with { Hosts = new[] { "bar:90" } };
         var d = a with { Methods = new[] { "PUT", "POST" } };

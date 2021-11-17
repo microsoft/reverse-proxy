@@ -107,9 +107,9 @@ public class ProxyConfigManagerTests
         {
             ClusterId = "cluster1",
             Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
-                {
-                    { "d1", new DestinationConfig { Address = TestAddress } }
-                }
+            {
+                { "d1", new DestinationConfig { Address = TestAddress } }
+            }
         };
         var route = new RouteConfig
         {
@@ -155,9 +155,9 @@ public class ProxyConfigManagerTests
         {
             ClusterId = "cluster1",
             Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
-                {
-                    { "d1", new DestinationConfig { Address = TestAddress } }
-                },
+            {
+                { "d1", new DestinationConfig { Address = TestAddress } }
+            },
             HttpClient = new HttpClientConfig
             {
                 SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
@@ -281,11 +281,11 @@ public class ProxyConfigManagerTests
             endpoints,
             new List<ClusterConfig>()
             {
-                    new ClusterConfig
-                    {
-                        ClusterId = "c1",
-                        HealthCheck = new HealthCheckConfig { Active = new ActiveHealthCheckConfig { Enabled = true } }
-                    }
+                new ClusterConfig
+                {
+                    ClusterId = "c1",
+                    HealthCheck = new HealthCheckConfig { Active = new ActiveHealthCheckConfig { Enabled = true } }
+                }
             });
         await signaled.Task.DefaultTimeout();
 
@@ -301,9 +301,9 @@ public class ProxyConfigManagerTests
         {
             ClusterId = "cluster1",
             Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
-                {
-                    { "d1", new DestinationConfig { Address = TestAddress } }
-                },
+            {
+                { "d1", new DestinationConfig { Address = TestAddress } }
+            },
             HttpRequest = new ForwarderRequestConfig() { Version = new Version(1, 2) }
         };
 
@@ -422,9 +422,9 @@ public class ProxyConfigManagerTests
         {
             ClusterId = "cluster1",
             Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
-                {
-                    { "d1", new DestinationConfig() { Address = "http://localhost" } }
-                },
+            {
+                { "d1", new DestinationConfig() { Address = "http://localhost" } }
+            },
             Metadata = new Dictionary<string, string>
             {
                 ["Order"] = "47"
@@ -475,9 +475,9 @@ public class ProxyConfigManagerTests
         {
             ClusterId = "cluster1",
             Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
-                {
-                    { "d1", new DestinationConfig() { Address = "http://localhost" } }
-                }
+            {
+                { "d1", new DestinationConfig() { Address = "http://localhost" } }
+            }
         };
         var services = CreateServices(new List<RouteConfig>(), new List<ClusterConfig>() { cluster }, proxyBuilder =>
         {

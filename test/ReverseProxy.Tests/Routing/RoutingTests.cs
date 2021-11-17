@@ -25,13 +25,13 @@ public class RoutingTests
     {
         var routes = new[]
         {
-                new RouteConfig()
-                {
-                    RouteId = "route1",
-                    ClusterId = "cluster1",
-                    Match = new RouteMatch { Path = "/api/{**catchall}" }
-                }
-            };
+            new RouteConfig()
+            {
+                RouteId = "route1",
+                ClusterId = "cluster1",
+                Match = new RouteMatch { Path = "/api/{**catchall}" }
+            }
+        };
 
         using var host = await CreateHostAsync(routes);
         var client = host.GetTestClient();
@@ -51,13 +51,13 @@ public class RoutingTests
     {
         var routes = new[]
         {
-                new RouteConfig()
-                {
-                    RouteId = "route1",
-                    ClusterId = "cluster1",
-                    Match = new RouteMatch { Hosts = new[] { "*.example.com" } }
-                }
-            };
+            new RouteConfig()
+            {
+                RouteId = "route1",
+                ClusterId = "cluster1",
+                Match = new RouteMatch { Hosts = new[] { "*.example.com" } }
+            }
+        };
 
         using var host = await CreateHostAsync(routes);
         var client = host.GetTestClient();
@@ -77,24 +77,24 @@ public class RoutingTests
     {
         var routes = new[]
         {
-                new RouteConfig()
+            new RouteConfig()
+            {
+                RouteId = "route1",
+                ClusterId = "cluster1",
+                Match = new RouteMatch
                 {
-                    RouteId = "route1",
-                    ClusterId = "cluster1",
-                    Match = new RouteMatch
+                    Path = "/{**catchall}",
+                    Headers = new[]
                     {
-                        Path = "/{**catchall}",
-                        Headers = new[]
+                        new RouteHeader()
                         {
-                            new RouteHeader()
-                            {
-                                Name = "header1",
-                                Values = new[] { "value1" },
-                            }
+                            Name = "header1",
+                            Values = new[] { "value1" },
                         }
                     }
                 }
-            };
+            }
+        };
 
         using var host = await CreateHostAsync(routes);
         var client = host.GetTestClient();
@@ -131,63 +131,63 @@ public class RoutingTests
     {
         var routes = new[]
         {
-                new RouteConfig()
+            new RouteConfig()
+            {
+                RouteId = "route1",
+                ClusterId = "cluster1",
+                Match = new RouteMatch
                 {
-                    RouteId = "route1",
-                    ClusterId = "cluster1",
-                    Match = new RouteMatch
+                    Path = "/{**catchall}",
+                    Headers = new[]
                     {
-                        Path = "/{**catchall}",
-                        Headers = new[]
+                        new RouteHeader()
                         {
-                            new RouteHeader()
-                            {
-                                Name = "header1",
-                                Values = new[] { "value1" },
-                            }
-                        }
-                    }
-                },
-                new RouteConfig()
-                {
-                    RouteId = "route2",
-                    ClusterId = "cluster1",
-                    Match = new RouteMatch
-                    {
-                        Path = "/{**catchall}",
-                        Headers = new[]
-                        {
-                            new RouteHeader()
-                            {
-                                Name = "header2",
-                                Values = new[] { "value2" },
-                            }
-                        }
-                    }
-                },
-                new RouteConfig()
-                {
-                    RouteId = "route3",
-                    ClusterId = "cluster1",
-                    Match = new RouteMatch
-                    {
-                        Path = "/{**catchall}",
-                        Headers = new[]
-                        {
-                            new RouteHeader()
-                            {
-                                Name = "header1",
-                                Values = new[] { "value1" },
-                            },
-                            new RouteHeader()
-                            {
-                                Name = "header2",
-                                Values = new[] { "value2" },
-                            }
+                            Name = "header1",
+                            Values = new[] { "value1" },
                         }
                     }
                 }
-            };
+            },
+            new RouteConfig()
+            {
+                RouteId = "route2",
+                ClusterId = "cluster1",
+                Match = new RouteMatch
+                {
+                    Path = "/{**catchall}",
+                    Headers = new[]
+                    {
+                        new RouteHeader()
+                        {
+                            Name = "header2",
+                            Values = new[] { "value2" },
+                        }
+                    }
+                }
+            },
+            new RouteConfig()
+            {
+                RouteId = "route3",
+                ClusterId = "cluster1",
+                Match = new RouteMatch
+                {
+                    Path = "/{**catchall}",
+                    Headers = new[]
+                    {
+                        new RouteHeader()
+                        {
+                            Name = "header1",
+                            Values = new[] { "value1" },
+                        },
+                        new RouteHeader()
+                        {
+                            Name = "header2",
+                            Values = new[] { "value2" },
+                        }
+                    }
+                }
+            }
+        };
 
         using var host = await CreateHostAsync(routes);
         var client = host.GetTestClient();
@@ -242,49 +242,49 @@ public class RoutingTests
     {
         var routes = new[]
         {
-                new RouteConfig()
+            new RouteConfig()
+            {
+                RouteId = "route1",
+                ClusterId = "cluster1",
+                Match = new RouteMatch { Path = "/route1" }
+            },
+            new RouteConfig()
+            {
+                RouteId = "route2",
+                ClusterId = "cluster1",
+                Match = new RouteMatch
                 {
-                    RouteId = "route1",
-                    ClusterId = "cluster1",
-                    Match = new RouteMatch { Path = "/route1" }
-                },
-                new RouteConfig()
+                    Path = "/{**catchall}",
+                    Methods = new[] { "GET" },
+                }
+            },
+            new RouteConfig()
+            {
+                RouteId = "route3",
+                ClusterId = "cluster1",
+                Match = new RouteMatch
                 {
-                    RouteId = "route2",
-                    ClusterId = "cluster1",
-                    Match = new RouteMatch
+                    Hosts = new[] { "localhost" }
+                }
+            },
+            new RouteConfig()
+            {
+                RouteId = "route4",
+                ClusterId = "cluster1",
+                Match = new RouteMatch
+                {
+                    Path = "/{**catchall}",
+                    Headers = new[]
                     {
-                        Path = "/{**catchall}",
-                        Methods = new[] { "GET" },
-                    }
-                },
-                new RouteConfig()
-                {
-                    RouteId = "route3",
-                    ClusterId = "cluster1",
-                    Match = new RouteMatch
-                    {
-                        Hosts = new[] { "localhost" }
-                    }
-                },
-                new RouteConfig()
-                {
-                    RouteId = "route4",
-                    ClusterId = "cluster1",
-                    Match = new RouteMatch
-                    {
-                        Path = "/{**catchall}",
-                        Headers = new[]
+                        new RouteHeader()
                         {
-                            new RouteHeader()
-                            {
-                                Name = "header1",
-                                Values = new[] { "value1" },
-                            },
-                        }
+                            Name = "header1",
+                            Values = new[] { "value1" },
+                        },
                     }
                 }
-            };
+            }
+        };
 
         using var host = await CreateHostAsync(routes);
         var client = host.GetTestClient();
@@ -324,15 +324,15 @@ public class RoutingTests
     {
         var clusters = new[]
         {
-                new ClusterConfig()
+            new ClusterConfig()
+            {
+                ClusterId = "cluster1",
+                Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                 {
-                    ClusterId = "cluster1",
-                    Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        { "d1", new DestinationConfig() { Address = "http://localhost/" }  }
-                    }
+                    { "d1", new DestinationConfig() { Address = "http://localhost/" }  }
                 }
-            };
+            }
+        };
 
         return new HostBuilder()
             .ConfigureWebHost(webHost =>

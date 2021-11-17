@@ -11,7 +11,7 @@ namespace Yarp.ReverseProxy.LoadBalancing;
 
 internal sealed class RoundRobinLoadBalancingPolicy : ILoadBalancingPolicy
 {
-    private readonly ConditionalWeakTable<ClusterState, AtomicCounter> _counters = new();
+    private readonly ConditionalWeakTable<ClusterState, AtomicCounter> _counters = new ();
 
     public string Name => LoadBalancingPolicies.RoundRobin;
 

@@ -126,7 +126,7 @@ internal sealed class StreamCopyHttpContent : HttpContent
 #else
     private
 #endif
-            async Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
+        async Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
     {
         if (Interlocked.Exchange(ref _started, 1) == 1)
         {

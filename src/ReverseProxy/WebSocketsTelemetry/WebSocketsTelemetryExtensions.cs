@@ -21,8 +21,8 @@ public static class WebSocketsTelemetryExtensions
     {
         return app.Use(next =>
         {
-                // Avoid exposing another extension method (AddWebSocketsTelemetry) just because of IClock
-                var clock = app.ApplicationServices.GetServices<IClock>().FirstOrDefault() ?? new Clock();
+            // Avoid exposing another extension method (AddWebSocketsTelemetry) just because of IClock
+            var clock = app.ApplicationServices.GetServices<IClock>().FirstOrDefault() ?? new Clock();
             return new WebSocketsTelemetryMiddleware(next, clock).InvokeAsync;
         });
     }

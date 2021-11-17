@@ -223,11 +223,11 @@ internal sealed class Discoverer : IDiscoverer
             Address = endpointUri.AbsoluteUri,
             Health = healthEndpointUri?.AbsoluteUri,
             Metadata = new Dictionary<string, string>
-                {
-                    { "PartitionId", partition.Id.ToString() ?? string.Empty },
-                    { "NamedPartitionName", partition.Name ?? string.Empty },
-                    { "ReplicaId", replica.Id.ToString() ?? string.Empty }
-                }
+            {
+                { "PartitionId", partition.Id.ToString() ?? string.Empty },
+                { "NamedPartitionName", partition.Name ?? string.Empty },
+                { "ReplicaId", replica.Id.ToString() ?? string.Empty }
+            }
         };
     }
 

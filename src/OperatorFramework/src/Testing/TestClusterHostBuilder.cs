@@ -40,39 +40,39 @@ public class TestClusterHostBuilder
             CurrentContext = "test-context",
             Contexts = new[]
             {
-                    new Context
+                new Context
+                {
+                    Name = "test-context",
+                    ContextDetails = new ContextDetails
                     {
-                        Name = "test-context",
-                        ContextDetails = new ContextDetails
-                        {
-                            Namespace = "test-namespace",
-                            Cluster = "test-cluster",
-                            User = "test-user",
-                        }
+                        Namespace = "test-namespace",
+                        Cluster = "test-cluster",
+                        User = "test-user",
                     }
-                },
+                }
+            },
             Clusters = new[]
             {
-                    new Cluster
+                new Cluster
+                {
+                    Name = "test-cluster",
+                    ClusterEndpoint = new ClusterEndpoint
                     {
-                        Name = "test-cluster",
-                        ClusterEndpoint = new ClusterEndpoint
-                        {
-                            Server = ServerUrl,
-                        }
+                        Server = ServerUrl,
                     }
-                },
+                }
+            },
             Users = new[]
             {
-                    new User
+                new User
+                {
+                    Name = "test-user",
+                    UserCredentials = new UserCredentials
                     {
-                        Name = "test-user",
-                        UserCredentials = new UserCredentials
-                        {
-                            Token = "test-token",
-                        }
+                        Token = "test-token",
                     }
-                },
+                }
+            },
         };
 
         var clientConfiguration = KubernetesClientConfiguration.BuildConfigFromConfigObject(kubeConfig);

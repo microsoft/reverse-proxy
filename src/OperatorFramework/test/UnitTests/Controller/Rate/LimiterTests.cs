@@ -185,9 +185,9 @@ public class LimiterTests
 
                 var waits = new List<Task>
                 {
-                        limiter.WaitAsync(cancellation.Token),
-                        limiter.WaitAsync(cancellation.Token),
-                        limiter.WaitAsync(cancellation.Token),
+                    limiter.WaitAsync(cancellation.Token),
+                    limiter.WaitAsync(cancellation.Token),
+                    limiter.WaitAsync(cancellation.Token),
                 };
 
                 var taskOne = await Task.WhenAny(waits).ConfigureAwait(false);

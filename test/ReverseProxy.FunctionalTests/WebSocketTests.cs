@@ -78,8 +78,8 @@ public class WebSocketTests
             var targetUri = new Uri(new Uri(uri, UriKind.Absolute), "rawupgrade");
             using var request = new HttpRequestMessage(HttpMethod.Get, targetUri);
 
-                // TODO: https://github.com/microsoft/reverse-proxy/issues/255 Until this is fixed the "Upgrade: WebSocket" header is required.
-                request.Headers.TryAddWithoutValidation("Upgrade", "WebSocket");
+            // TODO: https://github.com/microsoft/reverse-proxy/issues/255 Until this is fixed the "Upgrade: WebSocket" header is required.
+            request.Headers.TryAddWithoutValidation("Upgrade", "WebSocket");
 
             request.Headers.TryAddWithoutValidation("Connection", "upgrade");
             request.Version = new Version(1, 1);
@@ -89,14 +89,14 @@ public class WebSocketTests
             Assert.Equal(HttpStatusCode.SwitchingProtocols, response.StatusCode);
 
 #if NET
-                using var rawStream = await response.Content.ReadAsStreamAsync(cts.Token);
+            using var rawStream = await response.Content.ReadAsStreamAsync(cts.Token);
 #elif NETCOREAPP3_1
-                using var rawStream = await response.Content.ReadAsStreamAsync();
+            using var rawStream = await response.Content.ReadAsStreamAsync();
 #else
 #error A target framework was added to the project and needs to be added to this condition.
 #endif
 
-                var buffer = new byte[1];
+            var buffer = new byte[1];
             for (var i = 0; i <= 255; i++)
             {
                 buffer[0] = (byte)i;
@@ -138,13 +138,13 @@ public class WebSocketTests
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 #if NET
-                Assert.Equal("Hello World", await response.Content.ReadAsStringAsync(cts.Token));
+            Assert.Equal("Hello World", await response.Content.ReadAsStringAsync(cts.Token));
 #elif NETCOREAPP3_1
-                Assert.Equal("Hello World", await response.Content.ReadAsStringAsync());
+            Assert.Equal("Hello World", await response.Content.ReadAsStringAsync());
 #else
 #error A target framework was added to the project and needs to be added to this condition.
 #endif
-            }, cts.Token);
+        }, cts.Token);
     }
 
     private static TestEnvironment CreateTestEnvironment(bool forceUpgradable = false)
@@ -169,8 +169,8 @@ public class WebSocketTests
             proxyBuilder => { },
             proxyApp =>
             {
-                    // Mimic the IIS issue https://github.com/microsoft/reverse-proxy/issues/255
-                    proxyApp.Use((context, next) =>
+                // Mimic the IIS issue https://github.com/microsoft/reverse-proxy/issues/255
+                proxyApp.Use((context, next) =>
                 {
                     if (forceUpgradable && !(context.Features.Get<IHttpUpgradeFeature>()?.IsUpgradableRequest == true))
                     {

@@ -194,12 +194,12 @@ public class HeaderTests
 
             var lines = response.Split("\r\n");
             Assert.Equal("HTTP/1.1 200 OK", lines[0]);
-                // Order varies across vesions.
-                // Assert.Equal("Content-Length: 0", lines[1]);
-                // Assert.Equal("Connection: close", lines[2]);
-                // Assert.StartsWith("Date: ", lines[3]);
-                // Assert.Equal("Server: Kestrel", lines[4]);
-                Assert.Equal("Referer: ", lines[5]);
+            // Order varies across vesions.
+            // Assert.Equal("Content-Length: 0", lines[1]);
+            // Assert.Equal("Connection: close", lines[2]);
+            // Assert.StartsWith("Date: ", lines[3]);
+            // Assert.Equal("Server: Kestrel", lines[4]);
+            Assert.Equal("Referer: ", lines[5]);
             Assert.Equal("custom: ", lines[6]);
             Assert.Equal("", lines[7]);
         });
@@ -317,8 +317,8 @@ public class HeaderTests
 
                 requestBuilder.Append(encoding.GetString(buffer, 0, count));
 
-                    // End of the request
-                    if (requestBuilder.Length >= 4 &&
+                // End of the request
+                if (requestBuilder.Length >= 4 &&
                     requestBuilder[^4] == '\r' && requestBuilder[^3] == '\n' &&
                     requestBuilder[^2] == '\r' && requestBuilder[^1] == '\n')
                 {

@@ -115,15 +115,15 @@ public class TestEnvironment
                     ClusterId = clusterId,
                     Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                     {
-                            { "destination1",  new DestinationConfig() { Address = destinationAddress } }
+                        { "destination1",  new DestinationConfig() { Address = destinationAddress } }
                     },
                     HttpClient = new HttpClientConfig
                     {
                         DangerousAcceptAnyServerCertificate = useHttpsOnDestination,
 #if NET
-                            RequestHeaderEncoding = requestHeaderEncoding?.WebName,
+                        RequestHeaderEncoding = requestHeaderEncoding?.WebName,
 #endif
-                        }
+                    }
                 };
                 (cluster, route) = configTransformer(cluster, route);
                 var proxyBuilder = services.AddReverseProxy().LoadFromMemory(new[] { route }, new[] { cluster });
@@ -148,7 +148,7 @@ public class TestEnvironment
             {
                 config.AddInMemoryCollection(new Dictionary<string, string>()
                 {
-                        { "Logging:LogLevel:Microsoft.AspNetCore.Hosting.Diagnostics", "Information" }
+                    { "Logging:LogLevel:Microsoft.AspNetCore.Hosting.Diagnostics", "Information" }
                 });
             })
             .ConfigureLogging((hostingContext, loggingBuilder) =>
@@ -163,12 +163,12 @@ public class TestEnvironment
                     .UseKestrel(kestrel =>
                     {
 #if NET
-                            if (requestHeaderEncoding != null)
+                        if (requestHeaderEncoding != null)
                         {
                             kestrel.RequestHeaderEncodingSelector = _ => requestHeaderEncoding;
                         }
 #endif
-                            kestrel.Listen(IPAddress.Loopback, 0, listenOptions =>
+                        kestrel.Listen(IPAddress.Loopback, 0, listenOptions =>
                         {
                             listenOptions.Protocols = protocols;
                             if (useHttps)

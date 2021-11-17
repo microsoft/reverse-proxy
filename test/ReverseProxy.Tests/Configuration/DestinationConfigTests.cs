@@ -49,9 +49,9 @@ public class DestinationConfigTests
         Assert.False(options1.Equals(options1 with
         {
             Metadata = new Dictionary<string, string>
-                {
-                    { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" }
-                }
+            {
+                { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" }
+            }
         }));
     }
 
