@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Kubernetes;
+using Yarp.Kubernetes.Controller.Caching;
 using Yarp.Kubernetes.Controller.Converters;
 using Yarp.Kubernetes.Controller.Dispatching;
 using Yarp.Kubernetes.Protocol;
@@ -19,12 +21,14 @@ namespace Yarp.Kubernetes.Controller.Services;
 /// </summary>
 public partial class Reconciler : IReconciler
 {
+    private readonly ICache _cache;
     private readonly IDispatcher _dispatcher;
     private Action<IDispatchTarget> _attached;
     private readonly ILogger<Reconciler> _logger;
 
-    public Reconciler(IDispatcher dispatcher, ILogger<Reconciler> logger)
+    public Reconciler(ICache cache, IDispatcher dispatcher, ILogger<Reconciler> logger)
     {
+        _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
         _dispatcher.OnAttach(Attached);
         _logger = logger;
@@ -40,26 +44,37 @@ public partial class Reconciler : IReconciler
         _attached?.Invoke(target);
     }
 
-    public async Task ProcessAsync(IDispatchTarget target, NamespacedName key, ReconcileData data, CancellationToken cancellationToken)
+    public async Task ProcessAsync(CancellationToken cancellationToken)
     {
         try
         {
+            var ingresses = _cache.GetIngresses().ToArray();
+
             var message = new Message
             {
                 MessageType = MessageType.Update,
-                Key = $"{key.Namespace}:{key.Name}"
+                Key = string.Empty,
             };
-            var context = new YarpIngressContext(data.Ingress, data.ServiceList, data.EndpointsList);
-            YarpParser.CovertFromKubernetesIngress(context);
 
-            message.Cluster = context.Clusters;
-            message.Routes = context.Routes;
+            var configContext = new YarpConfigContext();
+
+            foreach (var ingress in ingresses)
+            {
+                if (_cache.TryGetReconcileData(new NamespacedName(ingress.Metadata.NamespaceProperty, ingress.Metadata.Name), out var data))
+                {
+                    var ingressContext = new YarpIngressContext(ingress, data.ServiceList, data.EndpointsList);
+                    YarpParser.ConvertFromKubernetesIngress(ingressContext, configContext);
+                }
+            }
+
+            message.Cluster = configContext.BuildClusterConfig();
+            message.Routes = configContext.Routes;
 
             var bytes = JsonSerializer.SerializeToUtf8Bytes(message);
 
             _logger.LogInformation(JsonSerializer.Serialize(message));
 
-            await _dispatcher.SendAsync(target, bytes, cancellationToken).ConfigureAwait(false);
+            await _dispatcher.SendAsync(null, bytes, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

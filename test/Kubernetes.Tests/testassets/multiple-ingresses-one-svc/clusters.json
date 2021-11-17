@@ -1,0 +1,23 @@
+[
+  {
+    "ClusterId": "repro-service:http",
+    "LoadBalancingPolicy": null,
+    "SessionAffinity": null,
+    "HealthCheck": null,
+    "HttpClient": null,
+    "HttpRequest": null,
+    "Destinations": {
+      "http://10.244.1.11:80": {
+        "Address": "http://10.244.1.11:80",
+        "Health": null,
+        "Metadata": null
+      },
+      "http://10.244.1.12:80": {
+        "Address": "http://10.244.1.12:80",
+        "Health": null,
+        "Metadata": null
+      }
+    },
+    "Metadata": null
+  }
+]

@@ -120,7 +120,7 @@ public class NamespaceCache
         }
     }
 
-    public void Update(WatchEventType eventType, V1Service service)
+    public ImmutableList<string> Update(WatchEventType eventType, V1Service service)
     {
         if (service is null)
         {
@@ -137,6 +137,15 @@ public class NamespaceCache
             else if (eventType == WatchEventType.Deleted)
             {
                 _serviceData.Remove(serviceName);
+            }
+
+            if (_serviceToIngressNames.TryGetValue(serviceName, out var ingressNames))
+            {
+                return ingressNames;
+            }
+            else
+            {
+                return ImmutableList<string>.Empty;
             }
         }
     }
@@ -185,6 +194,11 @@ public class NamespaceCache
                 return ImmutableList<string>.Empty;
             }
         }
+    }
+
+    public IEnumerable<IngressData> GetIngresses()
+    {
+        return _ingressData.Values;
     }
 
     public bool TryLookup(NamespacedName key, out ReconcileData data)

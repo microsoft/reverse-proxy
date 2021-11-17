@@ -1,10 +1,10 @@
 [
   {
-    "RouteId": "minimal-ingress:/foo",
+    "RouteId": "hostname-routing:/",
     "Match": {
       "Methods": null,
-      "Hosts": [],
-      "Path": "/foo/{**catch-all}",
+      "Hosts": [ "foo.bar.com" ],
+      "Path": "/{**catch-all}",
       "Headers": null,
       "QueryParameters": null
     },
