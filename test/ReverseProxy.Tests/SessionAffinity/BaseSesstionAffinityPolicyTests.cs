@@ -46,7 +46,7 @@ public class BaseSesstionAffinityPolicyTests
         var cluster = new ClusterState("cluster");
         var affinityResult = provider.FindAffinitizedDestinations(context, cluster, _defaultOptions, allDestinations);
 
-        if(unprotectCalled)
+        if (unprotectCalled)
         {
             dataProtector.Verify(p => p.Unprotect(It.Is<byte[]>(b => b.SequenceEqual(expectedEncryptedKey))), Times.Once);
         }
