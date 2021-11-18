@@ -74,41 +74,41 @@ public class WebSocketsTelemetryTests
 
     public enum Behavior
     {
-        ClosesConnection                = 1,
-        SendsClose_WaitsForClose        = 2,
-        SendsClose_ClosesConnection     = 4 | ClosesConnection,
-        WaitsForClose_SendsClose        = 8,
-        WaitsForClose_ClosesConnection  = 16 | ClosesConnection,
+        ClosesConnection = 1,
+        SendsClose_WaitsForClose = 2,
+        SendsClose_ClosesConnection = 4 | ClosesConnection,
+        WaitsForClose_SendsClose = 8,
+        WaitsForClose_ClosesConnection = 16 | ClosesConnection,
     }
 
     [Theory]
     // Both sides close the connection - race between which is noticed first
-    [InlineData(Behavior.ClosesConnection,                  Behavior.ClosesConnection,                  WebSocketCloseReason.Unknown, WebSocketCloseReason.ClientDisconnect, WebSocketCloseReason.ServerDisconnect)]
+    [InlineData(Behavior.ClosesConnection, Behavior.ClosesConnection, WebSocketCloseReason.Unknown, WebSocketCloseReason.ClientDisconnect, WebSocketCloseReason.ServerDisconnect)]
     // One side sends a graceful close
-    [InlineData(Behavior.SendsClose_ClosesConnection,       Behavior.WaitsForClose_ClosesConnection,    WebSocketCloseReason.ClientGracefulClose)]
-    [InlineData(Behavior.SendsClose_WaitsForClose,          Behavior.WaitsForClose_ClosesConnection,    WebSocketCloseReason.ClientGracefulClose)]
-    [InlineData(Behavior.WaitsForClose_ClosesConnection,    Behavior.SendsClose_ClosesConnection,       WebSocketCloseReason.ServerGracefulClose)]
-    [InlineData(Behavior.WaitsForClose_ClosesConnection,    Behavior.SendsClose_WaitsForClose,          WebSocketCloseReason.ServerGracefulClose)]
+    [InlineData(Behavior.SendsClose_ClosesConnection, Behavior.WaitsForClose_ClosesConnection, WebSocketCloseReason.ClientGracefulClose)]
+    [InlineData(Behavior.SendsClose_WaitsForClose, Behavior.WaitsForClose_ClosesConnection, WebSocketCloseReason.ClientGracefulClose)]
+    [InlineData(Behavior.WaitsForClose_ClosesConnection, Behavior.SendsClose_ClosesConnection, WebSocketCloseReason.ServerGracefulClose)]
+    [InlineData(Behavior.WaitsForClose_ClosesConnection, Behavior.SendsClose_WaitsForClose, WebSocketCloseReason.ServerGracefulClose)]
     // One side sends a graceful close while the other disconnects - race between which is noticed first
-    [InlineData(Behavior.SendsClose_WaitsForClose,          Behavior.ClosesConnection,                  WebSocketCloseReason.ClientGracefulClose, WebSocketCloseReason.ServerDisconnect)]
-    [InlineData(Behavior.SendsClose_ClosesConnection,       Behavior.ClosesConnection,                  WebSocketCloseReason.ClientGracefulClose, WebSocketCloseReason.ServerDisconnect)]
-    [InlineData(Behavior.ClosesConnection,                  Behavior.SendsClose_ClosesConnection,       WebSocketCloseReason.ServerGracefulClose, WebSocketCloseReason.ClientDisconnect)]
-    [InlineData(Behavior.ClosesConnection,                  Behavior.SendsClose_WaitsForClose,          WebSocketCloseReason.ServerGracefulClose, WebSocketCloseReason.ClientDisconnect)]
+    [InlineData(Behavior.SendsClose_WaitsForClose, Behavior.ClosesConnection, WebSocketCloseReason.ClientGracefulClose, WebSocketCloseReason.ServerDisconnect)]
+    [InlineData(Behavior.SendsClose_ClosesConnection, Behavior.ClosesConnection, WebSocketCloseReason.ClientGracefulClose, WebSocketCloseReason.ServerDisconnect)]
+    [InlineData(Behavior.ClosesConnection, Behavior.SendsClose_ClosesConnection, WebSocketCloseReason.ServerGracefulClose, WebSocketCloseReason.ClientDisconnect)]
+    [InlineData(Behavior.ClosesConnection, Behavior.SendsClose_WaitsForClose, WebSocketCloseReason.ServerGracefulClose, WebSocketCloseReason.ClientDisconnect)]
     // One side closes the connection while the other is waiting for messages
-    [InlineData(Behavior.ClosesConnection,                  Behavior.WaitsForClose_SendsClose,          WebSocketCloseReason.ClientDisconnect)]
-    [InlineData(Behavior.ClosesConnection,                  Behavior.WaitsForClose_ClosesConnection,    WebSocketCloseReason.ClientDisconnect)]
-    [InlineData(Behavior.WaitsForClose_SendsClose,          Behavior.ClosesConnection,                  WebSocketCloseReason.ServerDisconnect)]
-    [InlineData(Behavior.WaitsForClose_ClosesConnection,    Behavior.ClosesConnection,                  WebSocketCloseReason.ServerDisconnect)]
+    [InlineData(Behavior.ClosesConnection, Behavior.WaitsForClose_SendsClose, WebSocketCloseReason.ClientDisconnect)]
+    [InlineData(Behavior.ClosesConnection, Behavior.WaitsForClose_ClosesConnection, WebSocketCloseReason.ClientDisconnect)]
+    [InlineData(Behavior.WaitsForClose_SendsClose, Behavior.ClosesConnection, WebSocketCloseReason.ServerDisconnect)]
+    [InlineData(Behavior.WaitsForClose_ClosesConnection, Behavior.ClosesConnection, WebSocketCloseReason.ServerDisconnect)]
     // Graceful, mutual close - other side closes as a reaction to receiving close
-    [InlineData(Behavior.SendsClose_WaitsForClose,          Behavior.WaitsForClose_SendsClose,          WebSocketCloseReason.ClientGracefulClose)]
-    [InlineData(Behavior.SendsClose_ClosesConnection,       Behavior.WaitsForClose_SendsClose,          WebSocketCloseReason.ClientGracefulClose)]
-    [InlineData(Behavior.WaitsForClose_SendsClose,          Behavior.SendsClose_WaitsForClose,          WebSocketCloseReason.ServerGracefulClose)]
-    [InlineData(Behavior.WaitsForClose_SendsClose,          Behavior.SendsClose_ClosesConnection,       WebSocketCloseReason.ServerGracefulClose)]
+    [InlineData(Behavior.SendsClose_WaitsForClose, Behavior.WaitsForClose_SendsClose, WebSocketCloseReason.ClientGracefulClose)]
+    [InlineData(Behavior.SendsClose_ClosesConnection, Behavior.WaitsForClose_SendsClose, WebSocketCloseReason.ClientGracefulClose)]
+    [InlineData(Behavior.WaitsForClose_SendsClose, Behavior.SendsClose_WaitsForClose, WebSocketCloseReason.ServerGracefulClose)]
+    [InlineData(Behavior.WaitsForClose_SendsClose, Behavior.SendsClose_ClosesConnection, WebSocketCloseReason.ServerGracefulClose)]
     // Graceful, mutual close - both sides close at the same time - race between which is noticed first
-    [InlineData(Behavior.SendsClose_WaitsForClose,          Behavior.SendsClose_WaitsForClose,          WebSocketCloseReason.ClientGracefulClose, WebSocketCloseReason.ServerGracefulClose)]
-    [InlineData(Behavior.SendsClose_WaitsForClose,          Behavior.SendsClose_ClosesConnection,       WebSocketCloseReason.ClientGracefulClose, WebSocketCloseReason.ServerGracefulClose)]
-    [InlineData(Behavior.SendsClose_ClosesConnection,       Behavior.SendsClose_WaitsForClose,          WebSocketCloseReason.ClientGracefulClose, WebSocketCloseReason.ServerGracefulClose)]
-    [InlineData(Behavior.SendsClose_ClosesConnection,       Behavior.SendsClose_ClosesConnection,       WebSocketCloseReason.ClientGracefulClose, WebSocketCloseReason.ServerGracefulClose)]
+    [InlineData(Behavior.SendsClose_WaitsForClose, Behavior.SendsClose_WaitsForClose, WebSocketCloseReason.ClientGracefulClose, WebSocketCloseReason.ServerGracefulClose)]
+    [InlineData(Behavior.SendsClose_WaitsForClose, Behavior.SendsClose_ClosesConnection, WebSocketCloseReason.ClientGracefulClose, WebSocketCloseReason.ServerGracefulClose)]
+    [InlineData(Behavior.SendsClose_ClosesConnection, Behavior.SendsClose_WaitsForClose, WebSocketCloseReason.ClientGracefulClose, WebSocketCloseReason.ServerGracefulClose)]
+    [InlineData(Behavior.SendsClose_ClosesConnection, Behavior.SendsClose_ClosesConnection, WebSocketCloseReason.ClientGracefulClose, WebSocketCloseReason.ServerGracefulClose)]
     public async Task ConnectionClosed_BlameAttributedCorrectly(Behavior clientBehavior, Behavior serverBehavior, params WebSocketCloseReason[] expectedReasons)
     {
         var telemetry = await TestAsync(
