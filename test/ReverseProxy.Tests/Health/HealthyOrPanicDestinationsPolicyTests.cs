@@ -16,11 +16,11 @@ public class HealthyOrPanicDestinationsPolicyTests
 
         var allDestinations = new[]
         {
-                new DestinationState("d1") { Health = { Active = DestinationHealth.Healthy } },
-                new DestinationState("d2") { Health = { Active = DestinationHealth.Unhealthy } },
-                new DestinationState("d2") { Health = { Passive = DestinationHealth.Healthy } },
-                new DestinationState("d4")
-            };
+            new DestinationState("d1") { Health = { Active = DestinationHealth.Healthy } },
+            new DestinationState("d2") { Health = { Active = DestinationHealth.Unhealthy } },
+            new DestinationState("d2") { Health = { Passive = DestinationHealth.Healthy } },
+            new DestinationState("d4")
+        };
         var policy = new HealthyOrPanicDestinationsPolicy();
 
         var availableDestinations = policy.GetAvailalableDestinations(cluster, allDestinations);
@@ -38,11 +38,11 @@ public class HealthyOrPanicDestinationsPolicyTests
 
         var allDestinations = new[]
         {
-                new DestinationState("d1") { Health = { Active = DestinationHealth.Unhealthy } },
-                new DestinationState("d2") { Health = { Passive = DestinationHealth.Unhealthy } },
-                new DestinationState("d2") { Health = { Active = DestinationHealth.Unhealthy, Passive = DestinationHealth.Healthy } },
-                new DestinationState("d4")  { Health = { Active = DestinationHealth.Unhealthy, Passive = DestinationHealth.Unhealthy } }
-            };
+            new DestinationState("d1") { Health = { Active = DestinationHealth.Unhealthy } },
+            new DestinationState("d2") { Health = { Passive = DestinationHealth.Unhealthy } },
+            new DestinationState("d2") { Health = { Active = DestinationHealth.Unhealthy, Passive = DestinationHealth.Healthy } },
+            new DestinationState("d4")  { Health = { Active = DestinationHealth.Unhealthy, Passive = DestinationHealth.Unhealthy } }
+        };
         var policy = new HealthyOrPanicDestinationsPolicy();
 
         var availableDestinations = policy.GetAvailalableDestinations(cluster, allDestinations);

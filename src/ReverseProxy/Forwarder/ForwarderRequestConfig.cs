@@ -54,9 +54,9 @@ public sealed record ForwarderRequestConfig
 
         return ActivityTimeout == other.ActivityTimeout
 #if NET
-                && VersionPolicy == other.VersionPolicy
+            && VersionPolicy == other.VersionPolicy
 #endif
-                && Version == other.Version
+            && Version == other.Version
             && AllowResponseBuffering == other.AllowResponseBuffering;
     }
 
@@ -64,10 +64,9 @@ public sealed record ForwarderRequestConfig
     {
         return HashCode.Combine(ActivityTimeout,
 #if NET
-                VersionPolicy,
+            VersionPolicy,
 #endif
-                Version,
+            Version,
             AllowResponseBuffering);
     }
 }
-

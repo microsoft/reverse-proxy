@@ -13,7 +13,7 @@ public
 #else
 internal
 #endif
-        sealed class KestrelMetrics
+    sealed class KestrelMetrics
 {
     public KestrelMetrics() => Timestamp = DateTime.UtcNow;
 

@@ -25,11 +25,11 @@ public class PathRouteValuesTransformTests
         using var services = serviceCollection.BuildServiceProvider();
 
         var routeValues = new Dictionary<string, object>
-            {
-                { "a", "6" },
-                { "b", "7" },
-                { "c", "8" },
-            };
+        {
+            { "a", "6" },
+            { "b", "7" },
+            { "c", "8" },
+        };
 
         var httpContext = new DefaultHttpContext();
         httpContext.Request.RouteValues = new RouteValueDictionary(routeValues);
@@ -55,11 +55,11 @@ public class PathRouteValuesTransformTests
         using var services = serviceCollection.BuildServiceProvider();
 
         var routeValues = new Dictionary<string, object>
-            {
-                { "a", "abc" },
-                { "b", "def" },
-                { "remainder", "klm/nop/qrs" },
-            };
+        {
+            { "a", "abc" },
+            { "b", "def" },
+            { "remainder", "klm/nop/qrs" },
+        };
 
         var httpContext = new DefaultHttpContext();
         httpContext.Request.RouteValues = new RouteValueDictionary(routeValues);

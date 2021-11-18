@@ -192,154 +192,154 @@ public class ForwarderHttpClientFactoryTests : TestAutoMockBase
     {
         return new[]
         {
-                new object[] {
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = null,
-                    },
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = null,
-                    },
+            new object[] {
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = null,
                 },
-                new object[] {
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = null,
-                    },
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = false,
-                        MaxConnectionsPerServer = null,
-                    },
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = null,
                 },
-                new object[] {
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = null,
-                    },
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = false,
-                        MaxConnectionsPerServer = null,
-                    },
+            },
+            new object[] {
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = null,
                 },
-                new object[] {
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = null,
-                    },
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = false,
-                        MaxConnectionsPerServer = null,
-                    },
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = false,
+                    MaxConnectionsPerServer = null,
                 },
-                new object[] {
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = null,
-                    },
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = 10,
-                    },
+            },
+            new object[] {
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = null,
                 },
-                new object[] {
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = 10,
-                    },
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = null,
-                    },
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = false,
+                    MaxConnectionsPerServer = null,
                 },
-                new object[] {
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = 10,
-                    },
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = 20,
-                    },
+            },
+            new object[] {
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = null,
                 },
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = false,
+                    MaxConnectionsPerServer = null,
+                },
+            },
+            new object[] {
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = null,
+                },
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = 10,
+                },
+            },
+            new object[] {
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = 10,
+                },
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = null,
+                },
+            },
+            new object[] {
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = 10,
+                },
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = 20,
+                },
+            },
 #if NET
-                new object[] {
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = 10,
-                        EnableMultipleHttp2Connections = true
-                    },
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = 10,
-                        EnableMultipleHttp2Connections = false
-                    },
+            new object[] {
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = 10,
+                    EnableMultipleHttp2Connections = true
                 },
-                new object[] {
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = 10,
-                    },
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = 10,
-                        RequestHeaderEncoding = Encoding.UTF8.WebName,
-                    },
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = 10,
+                    EnableMultipleHttp2Connections = false
                 },
-                new object[] {
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = 10,
-                        RequestHeaderEncoding = Encoding.UTF8.WebName,
-                    },
-                    new HttpClientConfig
-                    {
-                        SslProtocols = SslProtocols.Tls11,
-                        DangerousAcceptAnyServerCertificate = true,
-                        MaxConnectionsPerServer = 10,
-                        RequestHeaderEncoding = Encoding.Latin1.WebName,
-                    },
-                }
+            },
+            new object[] {
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = 10,
+                },
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = 10,
+                    RequestHeaderEncoding = Encoding.UTF8.WebName,
+                },
+            },
+            new object[] {
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = 10,
+                    RequestHeaderEncoding = Encoding.UTF8.WebName,
+                },
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = 10,
+                    RequestHeaderEncoding = Encoding.Latin1.WebName,
+                },
+            }
 #endif
-            };
+        };
     }
 
     public static SocketsHttpHandler GetHandler(HttpMessageInvoker client)
@@ -362,11 +362,11 @@ public class ForwarderHttpClientFactoryTests : TestAutoMockBase
     private (string name, Func<SocketsHttpHandler, object> extractor)[] GetAllExtractors()
     {
         return new (string name, Func<SocketsHttpHandler, object> extractor)[] {
-                ("SslProtocols", h => h.SslOptions.EnabledSslProtocols),
-                ("DangerousAcceptAnyServerCertificate", h => h.SslOptions.RemoteCertificateValidationCallback),
-                ("ClientCertificate", h => h.SslOptions.ClientCertificates),
-                ("MaxConnectionsPerServer", h => h.MaxConnectionsPerServer),
-                ("WebProxy", h => h.Proxy)
-            };
+            ("SslProtocols", h => h.SslOptions.EnabledSslProtocols),
+            ("DangerousAcceptAnyServerCertificate", h => h.SslOptions.RemoteCertificateValidationCallback),
+            ("ClientCertificate", h => h.SslOptions.ClientCertificates),
+            ("MaxConnectionsPerServer", h => h.MaxConnectionsPerServer),
+            ("WebProxy", h => h.Proxy)
+        };
     }
 }

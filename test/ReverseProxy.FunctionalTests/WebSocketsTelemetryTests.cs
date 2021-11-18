@@ -116,8 +116,8 @@ public class WebSocketsTelemetryTests
             {
                 using var client = new ClientWebSocket();
 
-                    // Keep sending messages from the client in order to observe a server disconnect sooner
-                    client.Options.KeepAliveInterval = TimeSpan.FromMilliseconds(10);
+                // Keep sending messages from the client in order to observe a server disconnect sooner
+                client.Options.KeepAliveInterval = TimeSpan.FromMilliseconds(10);
 
                 await client.ConnectAsync(uri, CancellationToken.None);
                 var webSocket = new WebSocketAdapter(client);

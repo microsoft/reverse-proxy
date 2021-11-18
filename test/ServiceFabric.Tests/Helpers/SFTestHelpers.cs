@@ -58,19 +58,19 @@ internal static class SFTestHelpers
     internal static Dictionary<string, string> DummyLabels(string backendId, bool enableGateway = true, bool activeHealthChecks = false)
     {
         return new Dictionary<string, string>()
-            {
-                { "YARP.Enable", enableGateway ? "true" : "false" },
-                { "YARP.Backend.BackendId", backendId },
-                { "YARP.Backend.HealthCheck.Active.Enabled", activeHealthChecks ? "true" : "false" },
-                { "YARP.Backend.HealthCheck.Active.Interval", "5" },
-                { "YARP.Backend.HealthCheck.Active.Timeout", "5" },
-                { "YARP.Backend.HealthCheck.Active.Port", "8787" },
-                { "YARP.Backend.HealthCheck.Active.Path", "/api/health" },
-                { "YARP.Backend.HealthCheck.Active.Policy", "ConsecutiveFailures" },
-                { "YARP.Metadata.Foo", "Bar" },
-                { "YARP.Routes.MyRoute.Hosts", "example.com" },
-                { "YARP.Routes.MyRoute.Priority", "2" },
-            };
+        {
+            { "YARP.Enable", enableGateway ? "true" : "false" },
+            { "YARP.Backend.BackendId", backendId },
+            { "YARP.Backend.HealthCheck.Active.Enabled", activeHealthChecks ? "true" : "false" },
+            { "YARP.Backend.HealthCheck.Active.Interval", "5" },
+            { "YARP.Backend.HealthCheck.Active.Timeout", "5" },
+            { "YARP.Backend.HealthCheck.Active.Port", "8787" },
+            { "YARP.Backend.HealthCheck.Active.Path", "/api/health" },
+            { "YARP.Backend.HealthCheck.Active.Policy", "ConsecutiveFailures" },
+            { "YARP.Metadata.Foo", "Bar" },
+            { "YARP.Routes.MyRoute.Hosts", "example.com" },
+            { "YARP.Routes.MyRoute.Priority", "2" },
+        };
     }
 
     /// <summary>
@@ -100,9 +100,9 @@ internal static class SFTestHelpers
                 Health = healthAddressUri,
                 Metadata = new Dictionary<string, string>
             {
-                    { "PartitionId", partition.Id.ToString() ?? string.Empty },
-                    { "NamedPartitionName", partition.Name ?? string.Empty },
-                    { "ReplicaId", replica.Id.ToString() ?? string.Empty }
+                { "PartitionId", partition.Id.ToString() ?? string.Empty },
+                { "NamedPartitionName", partition.Name ?? string.Empty },
+                { "ReplicaId", replica.Id.ToString() ?? string.Empty }
             }
             });
     }

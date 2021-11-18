@@ -234,9 +234,9 @@ internal sealed class ResponseTransformFactory : ITransformFactory
             TransformHelpers.CheckTooManyParameters(transformValues, expected: 1);
             var headersList = allowedTrailers.Split(';', options: StringSplitOptions.RemoveEmptyEntries
 #if NET
-                 | StringSplitOptions.TrimEntries
+                | StringSplitOptions.TrimEntries
 #endif
-                 );
+                );
             context.AddResponseTrailersAllowed(headersList);
         }
         else

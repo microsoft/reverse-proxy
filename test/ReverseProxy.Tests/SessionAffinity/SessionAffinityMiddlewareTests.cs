@@ -53,10 +53,10 @@ public class SessionAffinityMiddlewareTests
             (expectedMode, status, foundDestination, p => invokedMode = p.Name));
         var nextInvoked = false;
         var middleware = new SessionAffinityMiddleware(c =>
-        {
-            nextInvoked = true;
-            return Task.CompletedTask;
-        },
+            {
+                nextInvoked = true;
+                return Task.CompletedTask;
+            },
             policies.Select(p => p.Object), new IAffinityFailurePolicy[0],
             new Mock<ILogger<SessionAffinityMiddleware>>().Object);
         var context = new DefaultHttpContext();
@@ -102,10 +102,10 @@ public class SessionAffinityMiddlewareTests
         var nextInvoked = false;
         var logger = AffinityTestHelper.GetLogger<SessionAffinityMiddleware>();
         var middleware = new SessionAffinityMiddleware(c =>
-        {
-            nextInvoked = true;
-            return Task.CompletedTask;
-        },
+            {
+                nextInvoked = true;
+                return Task.CompletedTask;
+            },
             policies.Select(p => p.Object), failurePolicies.Select(p => p.Object),
             logger.Object);
         var context = new DefaultHttpContext();

@@ -36,14 +36,14 @@ public class CustomResourceDefinitionGenerator : ICustomResourceDefinitionGenera
         {
             SchemaType = SchemaType.OpenApi3,
             TypeMappers =
-                {
-                    new ObjectTypeMapper(
-                        typeof(V1ObjectMeta),
-                        new JsonSchema
-                        {
-                            Type = JsonObjectType.Object,
-                        }),
-                },
+            {
+                new ObjectTypeMapper(
+                    typeof(V1ObjectMeta),
+                    new JsonSchema
+                    {
+                        Type = JsonObjectType.Object,
+                    }),
+            },
         };
 
         _serializerSettings = new JsonSerializerSettings
@@ -55,9 +55,9 @@ public class CustomResourceDefinitionGenerator : ICustomResourceDefinitionGenera
             ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
             ContractResolver = new ReadOnlyJsonContractResolver(),
             Converters = new List<JsonConverter>
-                {
-                    new Iso8601TimeSpanConverter(),
-                },
+            {
+                new Iso8601TimeSpanConverter(),
+            },
         };
     }
 
@@ -87,11 +87,11 @@ public class CustomResourceDefinitionGenerator : ICustomResourceDefinitionGenera
                 scope: scope,
                 versions: new List<V1CustomResourceDefinitionVersion>
                 {
-                        new V1CustomResourceDefinitionVersion(
-                            name: names.ApiVersion,
-                            served: true,
-                            storage: true,
-                            schema: new V1CustomResourceValidation(schema)),
+                    new V1CustomResourceDefinitionVersion(
+                        name: names.ApiVersion,
+                        served: true,
+                        storage: true,
+                        schema: new V1CustomResourceValidation(schema)),
                 })));
     }
 

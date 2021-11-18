@@ -62,11 +62,11 @@ public sealed record HttpClientConfig
                && DangerousAcceptAnyServerCertificate == other.DangerousAcceptAnyServerCertificate
                && MaxConnectionsPerServer == other.MaxConnectionsPerServer
 #if NET
-                   && EnableMultipleHttp2Connections == other.EnableMultipleHttp2Connections
+               && EnableMultipleHttp2Connections == other.EnableMultipleHttp2Connections
                // Comparing by reference is fine here since Encoding.GetEncoding returns the same instance for each encoding.
                && RequestHeaderEncoding == other.RequestHeaderEncoding
 #endif
-                   && WebProxy == other.WebProxy;
+               && WebProxy == other.WebProxy;
     }
 
     public override int GetHashCode()
@@ -75,9 +75,9 @@ public sealed record HttpClientConfig
             DangerousAcceptAnyServerCertificate,
             MaxConnectionsPerServer,
 #if NET
-                EnableMultipleHttp2Connections,
+            EnableMultipleHttp2Connections,
             RequestHeaderEncoding,
 #endif
-                WebProxy);
+            WebProxy);
     }
 }

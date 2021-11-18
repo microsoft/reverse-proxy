@@ -14,11 +14,11 @@ public class RateLimitingQueueTests
     public void AddRateLimitedCallsWhenAndAddDelay()
     {
         var whenResults = new Dictionary<string, TimeSpan>
-            {
-                { "one", TimeSpan.FromMilliseconds(15) },
-                { "two", TimeSpan.FromMilliseconds(0) },
-                { "three", TimeSpan.FromMilliseconds(30) },
-           };
+        {
+            { "one", TimeSpan.FromMilliseconds(15) },
+            { "two", TimeSpan.FromMilliseconds(0) },
+            { "three", TimeSpan.FromMilliseconds(30) },
+       };
         var whenCalls = new List<string>();
         var rateLimiter = new FakeRateLimiter<string>
         {
@@ -41,16 +41,16 @@ public class RateLimitingQueueTests
 
         Assert.Equal(new[]
         {
-                "one",
-                "two",
-                "three"
-            }, whenCalls);
+            "one",
+            "two",
+            "three"
+        }, whenCalls);
 
         Assert.Equal(new[]
         {
-                ("one", TimeSpan.FromMilliseconds(15)),
-                ("two", TimeSpan.FromMilliseconds(0)),
-                ("three", TimeSpan.FromMilliseconds(30))
-            }, addAfterCalls);
+            ("one", TimeSpan.FromMilliseconds(15)),
+            ("two", TimeSpan.FromMilliseconds(0)),
+            ("three", TimeSpan.FromMilliseconds(30))
+        }, addAfterCalls);
     }
 }

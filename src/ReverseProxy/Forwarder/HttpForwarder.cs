@@ -788,7 +788,7 @@ internal sealed class HttpForwarder : IHttpForwarder
 #if NET
                 var versionPolicy = ProtocolHelper.GetVersionPolicy(msg.VersionPolicy);
 #else
-                    var versionPolicy = "RequestVersionOrLower";
+                var versionPolicy = "RequestVersionOrLower";
 #endif
                 _proxying(logger, msg.RequestUri!.AbsoluteUri, version, versionPolicy, streaming, null);
             }

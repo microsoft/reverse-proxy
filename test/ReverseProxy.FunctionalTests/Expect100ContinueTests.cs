@@ -55,8 +55,8 @@ public class Expect100ContinueTests
 
                 if (destResponseCode == 200)
                 {
-                        // 100 response code is sent automatically on reading Body.
-                        await ReadContent(context, bodyTcs, Encoding.UTF8.GetByteCount(contentString));
+                    // 100 response code is sent automatically on reading Body.
+                    await ReadContent(context, bodyTcs, Encoding.UTF8.GetByteCount(contentString));
                 }
 
                 context.Response.StatusCode = destResponseCode;
@@ -181,63 +181,63 @@ public class Expect100ContinueTests
 
     // Fix was implemented in https://github.com/dotnet/runtime/pull/58548
 #if NET7_0_OR_GREATER
-        [Theory]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, false)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http1, false)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true)]
-        [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true)]
-        [InlineData(HttpProtocols.Http2, HttpProtocols.Http1, true)]
-        public async Task PostExpect100_SkipRequestBodyWithUnsuccesfulResponseCode(HttpProtocols proxyProtocol, HttpProtocols destProtocol, bool useContentLength)
-        {
-            var requestBodyTcs = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+    [Theory]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false)]
+    [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false)]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, false)]
+    [InlineData(HttpProtocols.Http2, HttpProtocols.Http1, false)]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true)]
+    [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true)]
+    [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true)]
+    [InlineData(HttpProtocols.Http2, HttpProtocols.Http1, true)]
+    public async Task PostExpect100_SkipRequestBodyWithUnsuccesfulResponseCode(HttpProtocols proxyProtocol, HttpProtocols destProtocol, bool useContentLength)
+    {
+        var requestBodyTcs = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            var contentString = new string('a', 1024 * 1024 * 10);
-            var test = new TestEnvironment(
-                async context =>
-                {
-                    context.Response.StatusCode = 400;
-
-                    var responseBody = Encoding.UTF8.GetBytes(contentString + "Response");
-                    if (useContentLength)
-                    {
-                        context.Response.Headers.ContentLength = responseBody.Length;
-                    }
-
-                    await context.Response.Body.WriteAsync(responseBody.AsMemory());
-                },
-                proxyBuilder => {
-                    proxyBuilder.Services.AddSingleton<IForwarderHttpClientFactory, TestForwarderHttpClientFactory>();
-                },
-                proxyApp => { },
-                proxyProtocol: proxyProtocol,
-                useHttpsOnDestination: true,
-                useHttpsOnProxy: true,
-                configTransformer: (c, r) =>
-                {
-                    c = c with
-                    {
-                        HttpRequest = new ForwarderRequestConfig
-                        {
-                            Version = destProtocol == HttpProtocols.Http2 ? HttpVersion.Version20 : HttpVersion.Version11,
-                        }
-                    };
-                    return (c, r);
-                });
-
-            await test.Invoke(async uri =>
+        var contentString = new string('a', 1024 * 1024 * 10);
+        var test = new TestEnvironment(
+            async context =>
             {
-                await ProcessHttpRequest(new Uri(uri), proxyProtocol, contentString, useContentLength, 400, cancelResponse:false, contentRead: false, async response =>
-                {
-                    Assert.Equal(400, (int)response.StatusCode);
+                context.Response.StatusCode = 400;
 
-                    var actualResponse = await response.Content.ReadAsStringAsync();
-                    Assert.Equal(contentString + "Response", actualResponse);
-                });
+                var responseBody = Encoding.UTF8.GetBytes(contentString + "Response");
+                if (useContentLength)
+                {
+                    context.Response.Headers.ContentLength = responseBody.Length;
+                }
+
+                await context.Response.Body.WriteAsync(responseBody.AsMemory());
+            },
+            proxyBuilder => {
+                proxyBuilder.Services.AddSingleton<IForwarderHttpClientFactory, TestForwarderHttpClientFactory>();
+            },
+            proxyApp => { },
+            proxyProtocol: proxyProtocol,
+            useHttpsOnDestination: true,
+            useHttpsOnProxy: true,
+            configTransformer: (c, r) =>
+            {
+                c = c with
+                {
+                    HttpRequest = new ForwarderRequestConfig
+                    {
+                        Version = destProtocol == HttpProtocols.Http2 ? HttpVersion.Version20 : HttpVersion.Version11,
+                    }
+                };
+                return (c, r);
             });
-        }
+
+        await test.Invoke(async uri =>
+        {
+            await ProcessHttpRequest(new Uri(uri), proxyProtocol, contentString, useContentLength, 400, cancelResponse:false, contentRead: false, async response =>
+            {
+                Assert.Equal(400, (int)response.StatusCode);
+
+                var actualResponse = await response.Content.ReadAsStringAsync();
+                Assert.Equal(contentString + "Response", actualResponse);
+            });
+        });
+    }
 #endif
 
     private static async Task ReadContent(Microsoft.AspNetCore.Http.HttpContext context, TaskCompletionSource<string> bodyTcs, int byteCount)

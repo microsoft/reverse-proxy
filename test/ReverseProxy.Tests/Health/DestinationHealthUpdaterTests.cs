@@ -102,9 +102,9 @@ public class DestinationHealthUpdaterTests
         var updater = new DestinationHealthUpdater(new Mock<ITimerFactory>().Object, GetClusterUpdater(), new Mock<ILogger<DestinationHealthUpdater>>().Object);
 
         var newHealthStates = new[] {
-                new NewActiveDestinationHealth(destination0, DestinationHealth.Unhealthy), new NewActiveDestinationHealth(destination1, DestinationHealth.Healthy),
-                new NewActiveDestinationHealth(destination2, DestinationHealth.Unhealthy), new NewActiveDestinationHealth(destination3, DestinationHealth.Healthy)
-            };
+            new NewActiveDestinationHealth(destination0, DestinationHealth.Unhealthy), new NewActiveDestinationHealth(destination1, DestinationHealth.Healthy),
+            new NewActiveDestinationHealth(destination2, DestinationHealth.Unhealthy), new NewActiveDestinationHealth(destination3, DestinationHealth.Healthy)
+        };
         updater.SetActive(cluster, newHealthStates);
 
         foreach (var newHealthState in newHealthStates)

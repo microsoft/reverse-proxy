@@ -57,11 +57,11 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-                  <ServiceTypes>
-                    <StatelessServiceType ServiceTypeName='AnotherService'>
-                    </StatelessServiceType>
-                  </ServiceTypes>
-                </ServiceManifest>";
+              <ServiceTypes>
+                <StatelessServiceType ServiceTypeName='AnotherService'>
+                </StatelessServiceType>
+              </ServiceTypes>
+            </ServiceManifest>";
 
         var labels = await RunScenarioAsync();
 
@@ -74,11 +74,11 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-                  <ServiceTypes>
-                    <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
-                    </StatelessServiceType>
-                  </ServiceTypes>
-                </ServiceManifest>";
+              <ServiceTypes>
+                <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
+                </StatelessServiceType>
+              </ServiceTypes>
+            </ServiceManifest>";
 
         var labels = await RunScenarioAsync();
 
@@ -90,23 +90,23 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-                <ServiceTypes>
-                    <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
-                        <Extensions>
-                        </Extensions>
-                    </StatelessServiceType>
-                    <StatelessServiceType ServiceTypeName='AnotherServiceType'>
-                        <Extensions>
-                            <Extension Name='YARP-preview'>
-                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
-                                <Label Key='YARP.Enable'>true</Label>
-                            </Labels>
-                            </Extension>
-                        </Extensions>
-                    </StatelessServiceType>
-                </ServiceTypes>
-                </ServiceManifest>
-                ";
+            <ServiceTypes>
+                <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
+                    <Extensions>
+                    </Extensions>
+                </StatelessServiceType>
+                <StatelessServiceType ServiceTypeName='AnotherServiceType'>
+                    <Extensions>
+                        <Extension Name='YARP-preview'>
+                        <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                            <Label Key='YARP.Enable'>true</Label>
+                        </Labels>
+                        </Extension>
+                    </Extensions>
+                </StatelessServiceType>
+            </ServiceTypes>
+            </ServiceManifest>
+            ";
 
         var labels = await RunScenarioAsync();
 
@@ -118,19 +118,19 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-                <ServiceTypes>
-                    <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
-                        <Extensions>
-                            <Extension Name='AnotherExtension'>
-                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
-                                <Label Key='Bla'>foo</Label>
-                            </Labels>
-                            </Extension>
-                        </Extensions>
-                    </StatelessServiceType>
-                </ServiceTypes>
-                </ServiceManifest>
-                ";
+            <ServiceTypes>
+                <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
+                    <Extensions>
+                        <Extension Name='AnotherExtension'>
+                        <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                            <Label Key='Bla'>foo</Label>
+                        </Labels>
+                        </Extension>
+                    </Extensions>
+                </StatelessServiceType>
+            </ServiceTypes>
+            </ServiceManifest>
+            ";
 
         var labels = await RunScenarioAsync();
 
@@ -142,28 +142,28 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-                <ServiceTypes>
-                    <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
-                        <Extensions>
-                            <Extension Name='YARP-preview'>
-                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
-                                <Label Key='YARP.Enable'>true</Label>
-                                <Label Key='YARP.foo'>bar</Label>
-                            </Labels>
-                            </Extension>
-                        </Extensions>
-                    </StatelessServiceType>
-                </ServiceTypes>
-                </ServiceManifest>
-                ";
+            <ServiceTypes>
+                <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
+                    <Extensions>
+                        <Extension Name='YARP-preview'>
+                        <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                            <Label Key='YARP.Enable'>true</Label>
+                            <Label Key='YARP.foo'>bar</Label>
+                        </Labels>
+                        </Extension>
+                    </Extensions>
+                </StatelessServiceType>
+            </ServiceTypes>
+            </ServiceManifest>
+            ";
 
         var labels = await RunScenarioAsync();
 
         labels.Should().Equal(
             new Dictionary<string, string>
             {
-                    { "YARP.Enable", "true" },
-                    { "YARP.foo", "bar" },
+                { "YARP.Enable", "true" },
+                { "YARP.foo", "bar" },
             });
     }
 
@@ -172,19 +172,19 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-                  <ServiceTypes>
-                    <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
-                      <Extensions>
-                        <Extension Name='YARP-preview'>
-                          <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
-                            <Label Key='YARP.Enable'>true</Label>
-                            <Label Key='YARP.foo'>[SomeAppParam]</Label>
-                          </Labels>
-                        </Extension>
-                      </Extensions>
-                    </StatelessServiceType>
-                  </ServiceTypes>
-                </ServiceManifest>";
+              <ServiceTypes>
+                <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
+                  <Extensions>
+                    <Extension Name='YARP-preview'>
+                      <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                        <Label Key='YARP.Enable'>true</Label>
+                        <Label Key='YARP.foo'>[SomeAppParam]</Label>
+                      </Labels>
+                    </Extension>
+                  </Extensions>
+                </StatelessServiceType>
+              </ServiceTypes>
+            </ServiceManifest>";
 
         _appParams["someAppParam"] = "replaced successfully!";
 
@@ -193,8 +193,8 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
         labels.Should().Equal(
             new Dictionary<string, string>
             {
-                    { "YARP.Enable", "true" },
-                    { "YARP.foo", "replaced successfully!" },
+                { "YARP.Enable", "true" },
+                { "YARP.foo", "replaced successfully!" },
             });
     }
 
@@ -203,27 +203,27 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-                  <ServiceTypes>
-                    <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
-                      <Extensions>
-                        <Extension Name='YARP-preview'>
-                          <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
-                            <Label Key='YARP.Enable'>true</Label>
-                            <Label Key='YARP.foo'>[NonExistingAppParam]</Label>
-                          </Labels>
-                        </Extension>
-                      </Extensions>
-                    </StatelessServiceType>
-                  </ServiceTypes>
-                </ServiceManifest>";
+              <ServiceTypes>
+                <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
+                  <Extensions>
+                    <Extension Name='YARP-preview'>
+                      <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                        <Label Key='YARP.Enable'>true</Label>
+                        <Label Key='YARP.foo'>[NonExistingAppParam]</Label>
+                      </Labels>
+                    </Extension>
+                  </Extensions>
+                </StatelessServiceType>
+              </ServiceTypes>
+            </ServiceManifest>";
 
         var labels = await RunScenarioAsync();
 
         labels.Should().Equal(
             new Dictionary<string, string>
             {
-                    { "YARP.Enable", "true" },
-                    { "YARP.foo", string.Empty },
+                { "YARP.Enable", "true" },
+                { "YARP.foo", string.Empty },
             });
     }
 
@@ -232,33 +232,33 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-                <ServiceTypes>
-                    <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
-                        <Extensions>
-                            <Extension Name='AnotherExtension'>
-                            <Labels>
-                                <Label Key='NotThisONe'>I said not this one</Label>
-                            </Labels>
-                            </Extension>
-                            <Extension Name='YARP-preview'>
-                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
-                                <Label Key='YARP.Enable'>true</Label>
-                                <Label Key='YARP.routes.route1.Hosts'>example.com</Label>
-                            </Labels>
-                            </Extension>
-                        </Extensions>
-                    </StatelessServiceType>
-                </ServiceTypes>
-                </ServiceManifest>
-                ";
+            <ServiceTypes>
+                <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
+                    <Extensions>
+                        <Extension Name='AnotherExtension'>
+                        <Labels>
+                            <Label Key='NotThisONe'>I said not this one</Label>
+                        </Labels>
+                        </Extension>
+                        <Extension Name='YARP-preview'>
+                        <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                            <Label Key='YARP.Enable'>true</Label>
+                            <Label Key='YARP.routes.route1.Hosts'>example.com</Label>
+                        </Labels>
+                        </Extension>
+                    </Extensions>
+                </StatelessServiceType>
+            </ServiceTypes>
+            </ServiceManifest>
+            ";
 
         var labels = await RunScenarioAsync();
 
         labels.Should().Equal(
             new Dictionary<string, string>
             {
-                    { "YARP.Enable", "true" },
-                    { "YARP.routes.route1.Hosts", "example.com" },
+                { "YARP.Enable", "true" },
+                { "YARP.routes.route1.Hosts", "example.com" },
             });
     }
 
@@ -267,24 +267,24 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-                <ServiceTypes>
-                    <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
-                        <Extensions>
-                            <Extension Name='YARP-preview'>
-                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
-                                <Label Key='YARP.EnableDynamicOverrides'>true</Label>
-                            </Labels>
-                            </Extension>
-                        </Extensions>
-                    </StatelessServiceType>
-                </ServiceTypes>
-                </ServiceManifest>
-                ";
+            <ServiceTypes>
+                <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
+                    <Extensions>
+                        <Extension Name='YARP-preview'>
+                        <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                            <Label Key='YARP.EnableDynamicOverrides'>true</Label>
+                        </Labels>
+                        </Extension>
+                    </Extensions>
+                </StatelessServiceType>
+            </ServiceTypes>
+            </ServiceManifest>
+            ";
         _namingServiceProperties =
             new Dictionary<string, string>
             {
-                    { "YARP.Enable", "true" },
-                    { "YARP.routes.route1.Hosts", "example.com" },
+                { "YARP.Enable", "true" },
+                { "YARP.routes.route1.Hosts", "example.com" },
             };
 
         var labels = await RunScenarioAsync();
@@ -292,9 +292,9 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
         labels.Should().Equal(
             new Dictionary<string, string>
             {
-                    { "YARP.Enable", "true" },
-                    { "YARP.routes.route1.Hosts", "example.com" },
-                    { "YARP.EnableDynamicOverrides", "true" },
+                { "YARP.Enable", "true" },
+                { "YARP.routes.route1.Hosts", "example.com" },
+                { "YARP.EnableDynamicOverrides", "true" },
             });
     }
 
@@ -303,24 +303,24 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-                <ServiceTypes>
-                    <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
-                        <Extensions>
-                            <Extension Name='YARP-preview'>
-                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
-                                <Label Key='YARP.EnableDynamicOverrides'>True</Label>
-                            </Labels>
-                            </Extension>
-                        </Extensions>
-                    </StatelessServiceType>
-                </ServiceTypes>
-                </ServiceManifest>
-                ";
+            <ServiceTypes>
+                <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
+                    <Extensions>
+                        <Extension Name='YARP-preview'>
+                        <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                            <Label Key='YARP.EnableDynamicOverrides'>True</Label>
+                        </Labels>
+                        </Extension>
+                    </Extensions>
+                </StatelessServiceType>
+            </ServiceTypes>
+            </ServiceManifest>
+            ";
         _namingServiceProperties =
             new Dictionary<string, string>
             {
-                    { "YARP.Enable", "true" },
-                    { "YARP.routes.route1.Hosts", "example.com" },
+                { "YARP.Enable", "true" },
+                { "YARP.routes.route1.Hosts", "example.com" },
             };
 
         var labels = await RunScenarioAsync();
@@ -328,9 +328,9 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
         labels.Should().Equal(
             new Dictionary<string, string>
             {
-                    { "YARP.Enable", "true" },
-                    { "YARP.routes.route1.Hosts", "example.com" },
-                    { "YARP.EnableDynamicOverrides", "True" },
+                { "YARP.Enable", "true" },
+                { "YARP.routes.route1.Hosts", "example.com" },
+                { "YARP.EnableDynamicOverrides", "True" },
             });
     }
 
@@ -339,25 +339,25 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-                <ServiceTypes>
-                    <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
-                        <Extensions>
-                            <Extension Name='YARP-preview'>
-                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
-                                <Label Key='YARP.EnableDynamicOverrides'>true</Label>
-                            </Labels>
-                            </Extension>
-                        </Extensions>
-                    </StatelessServiceType>
-                </ServiceTypes>
-                </ServiceManifest>
-                ";
+            <ServiceTypes>
+                <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
+                    <Extensions>
+                        <Extension Name='YARP-preview'>
+                        <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                            <Label Key='YARP.EnableDynamicOverrides'>true</Label>
+                        </Labels>
+                        </Extension>
+                    </Extensions>
+                </StatelessServiceType>
+            </ServiceTypes>
+            </ServiceManifest>
+            ";
         _namingServiceProperties =
             new Dictionary<string, string>
             {
-                    { "YARP.Enable", "true" },
-                    { "YARp.Enable", "false" },
-                    { "WhatIsThisNamespace.value", "42" },
+                { "YARP.Enable", "true" },
+                { "YARp.Enable", "false" },
+                { "WhatIsThisNamespace.value", "42" },
             };
 
         var labels = await RunScenarioAsync();
@@ -365,8 +365,8 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
         labels.Should().Equal(
             new Dictionary<string, string>
             {
-                    { "YARP.Enable", "true" },
-                    { "YARP.EnableDynamicOverrides", "true" },
+                { "YARP.Enable", "true" },
+                { "YARP.EnableDynamicOverrides", "true" },
             });
     }
 
@@ -375,25 +375,25 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-                <ServiceTypes>
-                    <StatefulService ServiceTypeName='{ServiceTypeName}'>
-                        <Extensions>
-                             <Extension Name='YARP-preview'>
-                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
-                                <Label Key='YARP.Enable'>true</Label>
-                                <Label Key='YARP.EnableDynamicOverrides'>true</Label>
-                                <Label Key='YARP.routes.route1.Hosts'>example.com</Label>
-                             </Labels>
-                             </Extension>
-                        </Extensions>
-                    </StatefulService>
-                </ServiceTypes>
-                </ServiceManifest>
-                ";
+            <ServiceTypes>
+                <StatefulService ServiceTypeName='{ServiceTypeName}'>
+                    <Extensions>
+                         <Extension Name='YARP-preview'>
+                         <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                            <Label Key='YARP.Enable'>true</Label>
+                            <Label Key='YARP.EnableDynamicOverrides'>true</Label>
+                            <Label Key='YARP.routes.route1.Hosts'>example.com</Label>
+                         </Labels>
+                         </Extension>
+                    </Extensions>
+                </StatefulService>
+            </ServiceTypes>
+            </ServiceManifest>
+            ";
         _namingServiceProperties =
             new Dictionary<string, string>
             {
-                    { "YARP.Enable", "false" },
+                { "YARP.Enable", "false" },
             };
 
         var labels = await RunScenarioAsync();
@@ -401,9 +401,9 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
         labels.Should().Equal(
             new Dictionary<string, string>
             {
-                    { "YARP.Enable", "false" },
-                    { "YARP.routes.route1.Hosts", "example.com" },
-                    { "YARP.EnableDynamicOverrides", "true" },
+                { "YARP.Enable", "false" },
+                { "YARP.routes.route1.Hosts", "example.com" },
+                { "YARP.EnableDynamicOverrides", "true" },
             });
     }
 
@@ -412,25 +412,25 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-                <ServiceTypes>
-                    <StatefulService ServiceTypeName='{ServiceTypeName}'>
-                        <Extensions>
-                             <Extension Name='YARP-preview'>
-                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
-                                <Label Key='YARP.Enable'>true</Label>
-                                <Label Key='YARP.EnableDynamicOverrides'>true</Label>
-                                <Label Key='YARP.routes.route1.Hosts'>example.com</Label>
-                             </Labels>
-                             </Extension>
-                        </Extensions>
-                    </StatefulService>
-                </ServiceTypes>
-                </ServiceManifest>
-                ";
+            <ServiceTypes>
+                <StatefulService ServiceTypeName='{ServiceTypeName}'>
+                    <Extensions>
+                         <Extension Name='YARP-preview'>
+                         <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                            <Label Key='YARP.Enable'>true</Label>
+                            <Label Key='YARP.EnableDynamicOverrides'>true</Label>
+                            <Label Key='YARP.routes.route1.Hosts'>example.com</Label>
+                         </Labels>
+                         </Extension>
+                    </Extensions>
+                </StatefulService>
+            </ServiceTypes>
+            </ServiceManifest>
+            ";
         _namingServiceProperties =
             new Dictionary<string, string>
             {
-                    { "YARP.Routes.route1.HOST", "another.example.com" },
+                { "YARP.Routes.route1.HOST", "another.example.com" },
             };
 
         var labels = await RunScenarioAsync();
@@ -438,10 +438,10 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
         labels.Should().Equal(
             new Dictionary<string, string>
             {
-                    { "YARP.Enable", "true" },
-                    { "YARP.routes.route1.Hosts", "example.com" },
-                    { "YARP.EnableDynamicOverrides", "true" },
-                    { "YARP.Routes.route1.HOST", "another.example.com" },
+                { "YARP.Enable", "true" },
+                { "YARP.routes.route1.Hosts", "example.com" },
+                { "YARP.EnableDynamicOverrides", "true" },
+                { "YARP.Routes.route1.HOST", "another.example.com" },
             });
     }
 
@@ -450,25 +450,25 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-                <ServiceTypes>
-                    <StatefulService ServiceTypeName='{ServiceTypeName}'>
-                        <Extensions>
-                             <Extension Name='YARP-preview'>
-                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
-                                <Label Key='YARP.Enable'>true</Label>
-                                <Label Key='YARP.EnableDynamicOverrides'>false</Label>
-                                <Label Key='YARP.routes.route1.host'>example.com</Label>
-                             </Labels>
-                             </Extension>
-                        </Extensions>
-                    </StatefulService>
-                </ServiceTypes>
-                </ServiceManifest>
-                ";
+            <ServiceTypes>
+                <StatefulService ServiceTypeName='{ServiceTypeName}'>
+                    <Extensions>
+                         <Extension Name='YARP-preview'>
+                         <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                            <Label Key='YARP.Enable'>true</Label>
+                            <Label Key='YARP.EnableDynamicOverrides'>false</Label>
+                            <Label Key='YARP.routes.route1.host'>example.com</Label>
+                         </Labels>
+                         </Extension>
+                    </Extensions>
+                </StatefulService>
+            </ServiceTypes>
+            </ServiceManifest>
+            ";
         _namingServiceProperties =
             new Dictionary<string, string>
             {
-                    { "YARP.Enable", "false" },
+                { "YARP.Enable", "false" },
             };
 
         var labels = await RunScenarioAsync();
@@ -476,9 +476,9 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
         labels.Should().Equal(
             new Dictionary<string, string>
             {
-                    { "YARP.Enable", "true" },
-                    { "YARP.routes.route1.host", "example.com" },
-                    { "YARP.EnableDynamicOverrides", "false" },
+                { "YARP.Enable", "true" },
+                { "YARP.routes.route1.host", "example.com" },
+                { "YARP.EnableDynamicOverrides", "false" },
             });
 
         Mock<ICachedServiceFabricCaller>().Verify(m => m.EnumeratePropertiesAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Never());
@@ -489,26 +489,26 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-                <ServiceTypes>
-                    <StatefulService ServiceTypeName='{ServiceTypeName}'>
-                        <Extensions>
-                             <Extension Name='YARP-preview'>
-                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
-                                <Label Key='YARP.Enable'>true</Label>
-                                <Label Key='YARP.EnableDynamicOverrides'>true</Label>
-                                <Label Key='YARP.routes.ROUTE1.Hosts'>example.com</Label>
-                                <Label Key='YARP.routes.route1.hosts'>another.example.com</Label>
-                             </Labels>
-                             </Extension>
-                        </Extensions>
-                    </StatefulService>
-                </ServiceTypes>
-                </ServiceManifest>
-                ";
+            <ServiceTypes>
+                <StatefulService ServiceTypeName='{ServiceTypeName}'>
+                    <Extensions>
+                         <Extension Name='YARP-preview'>
+                         <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                            <Label Key='YARP.Enable'>true</Label>
+                            <Label Key='YARP.EnableDynamicOverrides'>true</Label>
+                            <Label Key='YARP.routes.ROUTE1.Hosts'>example.com</Label>
+                            <Label Key='YARP.routes.route1.hosts'>another.example.com</Label>
+                         </Labels>
+                         </Extension>
+                    </Extensions>
+                </StatefulService>
+            </ServiceTypes>
+            </ServiceManifest>
+            ";
         _namingServiceProperties =
             new Dictionary<string, string>
             {
-                    { "YARP.routes.Route1.HOSTS", "etc.example.com" },
+                { "YARP.routes.Route1.HOSTS", "etc.example.com" },
             };
 
         var labels = await RunScenarioAsync();
@@ -516,11 +516,11 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
         labels.Should().Equal(
             new Dictionary<string, string>
             {
-                    { "YARP.Enable", "true" },
-                    { "YARP.routes.ROUTE1.Hosts", "example.com" },
-                    { "YARP.routes.route1.hosts", "another.example.com" },
-                    { "YARP.routes.Route1.HOSTS", "etc.example.com" },
-                    { "YARP.EnableDynamicOverrides", "true" },
+                { "YARP.Enable", "true" },
+                { "YARP.routes.ROUTE1.Hosts", "example.com" },
+                { "YARP.routes.route1.hosts", "another.example.com" },
+                { "YARP.routes.Route1.HOSTS", "etc.example.com" },
+                { "YARP.EnableDynamicOverrides", "true" },
             });
     }
 
@@ -529,24 +529,24 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-                <ServiceTypes>
-                    <StatefulService ServiceTypeName='{ServiceTypeName}'>
-                        <Extensions>
-                             <Extension Name='YARP-preview'>
-                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
-                                <Label Key='YARP.Enable'>true</Label>
-                                <Label Key='YARP.routes.route1.host'>example.com</Label>
-                             </Labels>
-                             </Extension>
-                        </Extensions>
-                    </StatefulService>
-                </ServiceTypes>
-                </ServiceManifest>
-                ";
+            <ServiceTypes>
+                <StatefulService ServiceTypeName='{ServiceTypeName}'>
+                    <Extensions>
+                         <Extension Name='YARP-preview'>
+                         <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                            <Label Key='YARP.Enable'>true</Label>
+                            <Label Key='YARP.routes.route1.host'>example.com</Label>
+                         </Labels>
+                         </Extension>
+                    </Extensions>
+                </StatefulService>
+            </ServiceTypes>
+            </ServiceManifest>
+            ";
         _namingServiceProperties =
             new Dictionary<string, string>
             {
-                    { "YARP.Enable", "false" },
+                { "YARP.Enable", "false" },
             };
 
         var labels = await RunScenarioAsync();
@@ -554,8 +554,8 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
         labels.Should().Equal(
             new Dictionary<string, string>
             {
-                    { "YARP.Enable", "true" },
-                    { "YARP.routes.route1.host", "example.com" },
+                { "YARP.Enable", "true" },
+                { "YARP.routes.route1.host", "example.com" },
             });
 
         Mock<ICachedServiceFabricCaller>().Verify(m => m.EnumeratePropertiesAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Never());
@@ -576,21 +576,21 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         _rawServiceManifest =
             $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-                <ServiceTypes>
-                    <StatefulService ServiceTypeName='{ServiceTypeName}'>
-                        <Extensions>
-                             <Extension Name='YARP-preview'>
-                             <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
-                                <Label Key='YARP.Enable'>true</Label>
-                                <Label Key='YARP.routes.route1.host'>example.com</Label>
-                                <Label Key='YARP.routes.route1.host'>example.com</Label>
-                             </Labels>
-                             </Extension>
-                        </Extensions>
-                    </StatefulService>
-                </ServiceTypes>
-                </ServiceManifest>
-                ";
+            <ServiceTypes>
+                <StatefulService ServiceTypeName='{ServiceTypeName}'>
+                    <Extensions>
+                         <Extension Name='YARP-preview'>
+                         <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                            <Label Key='YARP.Enable'>true</Label>
+                            <Label Key='YARP.routes.route1.host'>example.com</Label>
+                            <Label Key='YARP.routes.route1.host'>example.com</Label>
+                         </Labels>
+                         </Extension>
+                    </Extensions>
+                </StatefulService>
+            </ServiceTypes>
+            </ServiceManifest>
+            ";
 
         Func<Task> func = () => RunScenarioAsync();
 
@@ -603,19 +603,19 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
         var longBadString = new string('*', 1024 * 1024);
         _rawServiceManifest =
         $@"<ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-            <ServiceTypes>
-                <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
-                    <Extensions>
-                        <Extension Name='YARP-preview'>
-                        <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
-                             <Label Key='YARP.foo'>'{longBadString}'</Label>
-                          </Labels>
-                        </Extension>
-                    </Extensions>
-                </StatelessServiceType>
-            </ServiceTypes>
-            </ServiceManifest>
-            ";
+        <ServiceTypes>
+            <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
+                <Extensions>
+                    <Extension Name='YARP-preview'>
+                    <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                         <Label Key='YARP.foo'>'{longBadString}'</Label>
+                      </Labels>
+                    </Extension>
+                </Extensions>
+            </StatelessServiceType>
+        </ServiceTypes>
+        </ServiceManifest>
+        ";
 
         Func<Task> func = () => RunScenarioAsync();
 
@@ -627,23 +627,23 @@ public class ServiceExtensionLabelsProviderTests : TestAutoMockBase
     {
         _rawServiceManifest =
             $@"
-                <!DOCTYPE xxe [
-                    <!ENTITY  chybeta  ""Melicious DTD value here."">
-                ]>
-                < ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
-                <ServiceTypes>
-                    <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
-                        <Extensions>
-                            <Extension Name='YARP-preview'>
-                            <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
-                                <Label Key='YARP.foo'>bar</Label>
-                            </Labels>
-                            </Extension>
-                        </Extensions>
-                    </StatelessServiceType>
-                </ServiceTypes>
-                </ServiceManifest>
-                ";
+            <!DOCTYPE xxe [
+                <!ENTITY  chybeta  ""Melicious DTD value here."">
+            ]>
+            < ServiceManifest xmlns='{ServiceExtensionLabelsProvider.XNSServiceManifest}'>
+            <ServiceTypes>
+                <StatelessServiceType ServiceTypeName='{ServiceTypeName}'>
+                    <Extensions>
+                        <Extension Name='YARP-preview'>
+                        <Labels xmlns='{ServiceExtensionLabelsProvider.XNSFabricNoSchema}'>
+                            <Label Key='YARP.foo'>bar</Label>
+                        </Labels>
+                        </Extension>
+                    </Extensions>
+                </StatelessServiceType>
+            </ServiceTypes>
+            </ServiceManifest>
+            ";
 
         Func<Task> func = () => RunScenarioAsync();
 

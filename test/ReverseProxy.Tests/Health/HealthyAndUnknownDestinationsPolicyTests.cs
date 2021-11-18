@@ -25,15 +25,15 @@ public class HealtyAndUnknownDesitnationsPolicyTests
 
         var allDestinations = new[]
         {
-                new DestinationState("d1") { Health = { Active = DestinationHealth.Healthy } },
-                new DestinationState("d2") { Health = { Active = DestinationHealth.Unhealthy } },
-                new DestinationState("d3") { Health = { Active = DestinationHealth.Unhealthy, Passive = DestinationHealth.Healthy } },
-                new DestinationState("d4") { Health = { Passive = DestinationHealth.Unhealthy } },
-                new DestinationState("d5") { Health = { Passive = DestinationHealth.Healthy } },
-                new DestinationState("d6") { Health = { Active = DestinationHealth.Healthy, Passive = DestinationHealth.Unhealthy } },
-                new DestinationState("d7") { Health = { Active = DestinationHealth.Unhealthy, Passive = DestinationHealth.Unhealthy } },
-                new DestinationState("d8")
-            };
+            new DestinationState("d1") { Health = { Active = DestinationHealth.Healthy } },
+            new DestinationState("d2") { Health = { Active = DestinationHealth.Unhealthy } },
+            new DestinationState("d3") { Health = { Active = DestinationHealth.Unhealthy, Passive = DestinationHealth.Healthy } },
+            new DestinationState("d4") { Health = { Passive = DestinationHealth.Unhealthy } },
+            new DestinationState("d5") { Health = { Passive = DestinationHealth.Healthy } },
+            new DestinationState("d6") { Health = { Active = DestinationHealth.Healthy, Passive = DestinationHealth.Unhealthy } },
+            new DestinationState("d7") { Health = { Active = DestinationHealth.Unhealthy, Passive = DestinationHealth.Unhealthy } },
+            new DestinationState("d8")
+        };
         var policy = new HealthyAndUnknownDestinationsPolicy();
 
         var availableDestinations = policy.GetAvailalableDestinations(cluster, allDestinations);
@@ -51,13 +51,13 @@ public class HealtyAndUnknownDesitnationsPolicyTests
         var cluster = new ClusterConfig() { ClusterId = "cluster1", HealthCheck = config };
         var allDestinations = new[]
         {
-                new DestinationState("d1") { Health = { Active = DestinationHealth.Healthy } },
-                new DestinationState("d2") { Health = { Active = DestinationHealth.Unhealthy, Passive = DestinationHealth.Healthy } },
-                new DestinationState("d3") { Health = { Passive = DestinationHealth.Healthy } },
-                new DestinationState("d4"),
-                new DestinationState("d5") { Health = { Active = DestinationHealth.Healthy, Passive = DestinationHealth.Unhealthy } },
-                new DestinationState("d6") { Health = { Active = DestinationHealth.Unhealthy, Passive = DestinationHealth.Unhealthy } }
-            };
+            new DestinationState("d1") { Health = { Active = DestinationHealth.Healthy } },
+            new DestinationState("d2") { Health = { Active = DestinationHealth.Unhealthy, Passive = DestinationHealth.Healthy } },
+            new DestinationState("d3") { Health = { Passive = DestinationHealth.Healthy } },
+            new DestinationState("d4"),
+            new DestinationState("d5") { Health = { Active = DestinationHealth.Healthy, Passive = DestinationHealth.Unhealthy } },
+            new DestinationState("d6") { Health = { Active = DestinationHealth.Unhealthy, Passive = DestinationHealth.Unhealthy } }
+        };
         var policy = new HealthyAndUnknownDestinationsPolicy();
 
         var availableDestinations = policy.GetAvailalableDestinations(cluster, allDestinations);

@@ -78,11 +78,11 @@ public class OperatorHandlerTests
                 namespaceProperty: "test-namespace",
                 ownerReferences: new[]
                 {
-                        new V1OwnerReference(
-                            uid: typical.Uid(),
-                            apiVersion: typical.ApiVersion,
-                            kind: typical.Kind,
-                            name: typical.Name())
+                    new V1OwnerReference(
+                        uid: typical.Uid(),
+                        apiVersion: typical.ApiVersion,
+                        kind: typical.Kind,
+                        name: typical.Name())
                 }));
 
         typicalInformer.Callback(WatchEventType.Added, typical);
