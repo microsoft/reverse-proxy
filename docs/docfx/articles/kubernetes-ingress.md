@@ -28,7 +28,7 @@ Before we continue with this tutorial, make sure you have the following ready...
 So, in the meantime we need to build the YARP ingress controller locally and deploy it. In the root of the repository, run:
 
 ```
-docker build . -t <REGISTRY_NAME>/yarp-controller:<TAG> -f .\src\ReverseProxy.Kubernetes.Controller\Dockerfile
+docker build . -t <REGISTRY_NAME>/yarp-controller:<TAG> -f .\src\Kubernetes.Controller\Dockerfile
 docker push <REGISTRY_NAME>/yarp-controller:<TAG>
 ```
 
