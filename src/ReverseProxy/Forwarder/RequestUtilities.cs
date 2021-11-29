@@ -276,14 +276,10 @@ public static class RequestUtilities
 
             if (!request.Headers.TryAddWithoutValidation(headerName, headerValue))
             {
-                if (request.Content is null && _contentHeaders.Contains(headerName))
-                {
-                    request.Content = new EmptyHttpContent();
-                }
+                var content = request.Content ??= new EmptyHttpContent();
 
-                var added = request.Content?.Headers.TryAddWithoutValidation(headerName, headerValue);
-                // TODO: Log
-                Debug.Assert(added.GetValueOrDefault(), $"A header was dropped; {headerName}: {headerValue}");
+                var added = content.Headers.TryAddWithoutValidation(headerName, headerValue);
+                Debug.Assert(added, $"A header was dropped; {headerName}: {headerValue}");
             }
         }
         else
@@ -311,19 +307,15 @@ public static class RequestUtilities
 
             if (!request.Headers.TryAddWithoutValidation(headerName, headerValues))
             {
-                if (request.Content is null && _contentHeaders.Contains(headerName))
-                {
-                    request.Content = new EmptyHttpContent();
-                }
+                var content = request.Content ??= new EmptyHttpContent();
 
-                var added = request.Content?.Headers.TryAddWithoutValidation(headerName, headerValues);
-                // TODO: Log
-                Debug.Assert(added.GetValueOrDefault(), $"A header was dropped; {headerName}: {string.Join(", ", headerValues)}");
+                var added = content.Headers.TryAddWithoutValidation(headerName, headerValues);
+                Debug.Assert(added, $"A header was dropped; {headerName}: {string.Join(", ", headerValues)}");
             }
         }
 
 #if DEBUG
-        if (request.Content is EmptyHttpContent content && content.Headers.TryGetValues(HeaderNames.ContentLength, out var contentLength))
+        if (request.Content is EmptyHttpContent && request.Content.Headers.TryGetValues(HeaderNames.ContentLength, out var contentLength))
         {
             Debug.Assert(contentLength.Single() == "0", "An actual content should have been set");
         }
