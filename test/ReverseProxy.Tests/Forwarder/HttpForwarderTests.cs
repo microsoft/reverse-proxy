@@ -1093,7 +1093,7 @@ public class HttpForwarderTests
         httpContext.Request.Method = "POST";
         httpContext.Request.Body = new CallbackReadStream(async (memory, ct) =>
         {
-            if (reads >= expectedReads)
+            if (memory.Length == 0 || reads >= expectedReads)
             {
                 return 0;
             }
@@ -1501,7 +1501,7 @@ public class HttpForwarderTests
         Assert.Empty(httpContext.Response.Headers);
         var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
         Assert.Equal(ForwarderError.ResponseBodyCanceled, errorFeature.Error);
-        Assert.IsType<OperationCanceledException>(errorFeature.Exception);
+        Assert.IsType<TaskCanceledException>(errorFeature.Exception);
 
         AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
         events.AssertContainProxyStages(hasRequestContent: false);
@@ -1542,7 +1542,7 @@ public class HttpForwarderTests
         Assert.Equal("bytes", httpContext.Response.Headers[HeaderNames.AcceptRanges]);
         var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
         Assert.Equal(ForwarderError.ResponseBodyCanceled, errorFeature.Error);
-        Assert.IsType<OperationCanceledException>(errorFeature.Exception);
+        Assert.IsType<TaskCanceledException>(errorFeature.Exception);
 
         AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
         events.AssertContainProxyStages(hasRequestContent: false);
