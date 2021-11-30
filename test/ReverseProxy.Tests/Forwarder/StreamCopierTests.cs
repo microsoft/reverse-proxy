@@ -104,13 +104,13 @@ public class StreamCopierTests : TestAutoMockBase
 
         using var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
         cts.Cancel();
-        var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, new Clock(), cts, cts.Token);
+        var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, new ManualClock(), cts, cts.Token);
         Assert.Equal(StreamCopyResult.Canceled, result);
         Assert.IsAssignableFrom<OperationCanceledException>(error);
 
         AssertContentTransferred(events, isRequest,
             contentLength: 0,
-            iops: 0,
+            iops: 1,
             firstReadTime: TimeSpan.Zero,
             readTime: TimeSpan.Zero,
             writeTime: TimeSpan.Zero);
@@ -306,6 +306,11 @@ public class StreamCopierTests : TestAutoMockBase
 
         public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
         {
+            if (buffer.Length == 0)
+            {
+                return new ValueTask<int>(0);
+            }
+
             _clock.AdvanceClockBy(_waitTime);
             return base.ReadAsync(buffer.Slice(0, Math.Min(buffer.Length, MaxBytesPerRead)), cancellationToken);
         }
