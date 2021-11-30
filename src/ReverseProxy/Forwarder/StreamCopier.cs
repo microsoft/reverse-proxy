@@ -47,14 +47,14 @@ internal static class StreamCopier
 
                 telemetry?.AfterRead(read);
 
+                // Success, reset the activity monitor.
+                activityToken.ResetTimeout();
+
                 // End of the source stream.
                 if (read == 0)
                 {
                     return (StreamCopyResult.Success, null);
                 }
-
-                // Success, reset the activity monitor.
-                activityToken.ResetTimeout();
 
                 await output.WriteAsync(buffer.AsMemory(0, read), cancellation);
 
