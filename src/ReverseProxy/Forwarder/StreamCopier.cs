@@ -43,26 +43,6 @@ internal static class StreamCopier
         {
             while (true)
             {
-                read = await input.ReadAsync(buffer.AsMemory(), cancellation);
-
-                telemetry?.AfterRead(read);
-
-                // Success, reset the activity monitor.
-                activityToken.ResetTimeout();
-
-                // End of the source stream.
-                if (read == 0)
-                {
-                    return (StreamCopyResult.Success, null);
-                }
-
-                await output.WriteAsync(buffer.AsMemory(0, read), cancellation);
-
-                telemetry?.AfterWrite();
-
-                // Success, reset the activity monitor.
-                activityToken.ResetTimeout();
-
                 read = 0;
 
                 // Issue a zero-byte read to the input stream to defer buffer allocation until data is available.
@@ -85,6 +65,26 @@ internal static class StreamCopier
 
                     buffer = ArrayPool<byte>.Shared.Rent(DefaultBufferSize);
                 }
+
+                read = await input.ReadAsync(buffer.AsMemory(), cancellation);
+
+                telemetry?.AfterRead(read);
+
+                // Success, reset the activity monitor.
+                activityToken.ResetTimeout();
+
+                // End of the source stream.
+                if (read == 0)
+                {
+                    return (StreamCopyResult.Success, null);
+                }
+
+                await output.WriteAsync(buffer.AsMemory(0, read), cancellation);
+
+                telemetry?.AfterWrite();
+
+                // Success, reset the activity monitor.
+                activityToken.ResetTimeout();
             }
         }
         catch (Exception ex)
