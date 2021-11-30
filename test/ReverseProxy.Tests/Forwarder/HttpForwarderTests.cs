@@ -2299,6 +2299,11 @@ public class HttpForwarderTests
 
         public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
         {
+            if (buffer.Length == 0)
+            {
+                return new ValueTask<int>(0);
+            }
+
             cancellationToken.ThrowIfCancellationRequested();
             if (_firstRead && !ThrowOnFirstRead)
             {
@@ -2456,7 +2461,10 @@ public class HttpForwarderTests
 
         public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            OnCompleted();
+            if (buffer.Length != 0)
+            {
+                OnCompleted();
+            }
             return new ValueTask<int>(0);
         }
     }
