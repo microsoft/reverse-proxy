@@ -31,6 +31,11 @@ When you're done, you can run the `deactivate` function to undo the changes to y
 
 If you're having trouble building the project, or developing in Visual Studio, please file an issue to let us know and we'll help out (and fix our scripts/tools as needed)!
 
+# Testing
+
+The command to build and run all tests: `build.cmd/sh -test`.
+To run specific test you may use XunitMethodName property: `dotnet build /t:Test /p:XunitMethodName={FullyQualifiedNamespace}.{ClassName}.{MethodName}`
+
 # Getting started
 
 - See our [Getting Started](https://microsoft.github.io/reverse-proxy/articles/getting-started.html) docs.
