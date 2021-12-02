@@ -34,7 +34,8 @@ If you're having trouble building the project, or developing in Visual Studio, p
 # Testing
 
 The command to build and run all tests: `build.cmd/sh -test`.
-To run specific test you may use XunitMethodName property: `dotnet build /t:Test /p:XunitMethodName={FullyQualifiedNamespace}.{ClassName}.{MethodName}`
+To run specific test you may use XunitMethodName property: `dotnet build /t:Test /p:XunitMethodName={FullyQualifiedNamespace}.{ClassName}.{MethodName}`.
+The tests can also be run from Visual Studio if launched using `startvs.cmd`.
 
 # Getting started
 
