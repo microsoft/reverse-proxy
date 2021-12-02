@@ -30,7 +30,7 @@ The proxy will listen to HTTP requests on port 5000, and HTTPS on port 5001. The
   - Specifying that the proxy configuration will come from the config file (altrenatively it could be specified via code).
   - Telling ASP.NET to use its routing service, to register the routes from YARP into its routing table, and use YARP to handle those requests.
 - [appsettings.json](appsettings.json) - The configuration file for the .NET app, including sections for Kestrel, logging and the YARP proxy configuration. 
-- [Properties/launchsettings.json](Properties/launchsettings.json) - A configuration file used by Visual Studio to tell it how to start the app when debugging.
+- [Properties/launchSettings.json](Properties/launchSettings.json) - A configuration file used by Visual Studio to tell it how to start the app when debugging.
 
 ## Getting started
 
@@ -59,4 +59,4 @@ The proxy will listen to HTTP requests on port 5000, and HTTPS on port 5001. The
 - Change the routes and destinations used by the proxy.
 - A web server sample is available in the [SampleServer](../SampleServer) folder. It will output the request headers as part of the response body so they can be examined with a browser.
     - The URLs the server listens to can be changed on the command line, so that multiple instances can be run. 
-     eg ```dotnet run ../SampleServer --Urls "http://localhost:10000;https://localhost:10010"```
+     eg ```dotnet run --project ../SampleServer --Urls "http://localhost:10000;https://localhost:10010"```
