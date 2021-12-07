@@ -26,11 +26,14 @@ public class TlsFrameHelperTests
         InvalidClientHello(clientHello, id, shouldPass: false);
     }
 
-    [Theory]
-    [MemberData(nameof(InvalidClientHelloDataTruncatedBytes))]
-    public void SniHelper_TruncatedData_Fails(int id, byte[] clientHello)
+    [Fact]
+    public void SniHelper_TruncatedData_Fails()
     {
-        InvalidClientHello(clientHello, id, shouldPass: false);
+        // moving inside one test because there are more than 3000 cases and they overflow subresults
+        foreach ((int id, byte[] clientHello) in InvalidClientHelloDataTruncatedBytes())
+        {
+            InvalidClientHello(clientHello, id, shouldPass: false);
+        }
     }
 
     private void InvalidClientHello(byte[] clientHello, int id, bool shouldPass)
@@ -129,7 +132,7 @@ public class TlsFrameHelperTests
         }
     }
 
-    public static IEnumerable<object[]> InvalidClientHelloDataTruncatedBytes()
+    public static IEnumerable<Tuple<int, byte[]>> InvalidClientHelloDataTruncatedBytes()
     {
         // converting to base64 first to remove duplicated test cases
         var uniqueInvalidHellos = new HashSet<string>();
@@ -150,7 +153,7 @@ public class TlsFrameHelperTests
         foreach (string invalidClientHello in uniqueInvalidHellos)
         {
             id++;
-            yield return new object[] { id, Convert.FromBase64String(invalidClientHello) };
+            yield return new Tuple<int, byte[]>(id, Convert.FromBase64String(invalidClientHello));
         }
     }
 
