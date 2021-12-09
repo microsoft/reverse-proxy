@@ -73,6 +73,11 @@ internal sealed class WebSocketsTelemetryStream : DelegatingStream
     {
         var readTask = base.ReadAsync(buffer, cancellationToken);
 
+        if (buffer.Length == 0)
+        {
+            return readTask;
+        }
+
         if (readTask.IsCompletedSuccessfully)
         {
             var read = readTask.GetAwaiter().GetResult();
