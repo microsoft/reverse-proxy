@@ -141,7 +141,7 @@ public class TlsFrameHelperTests
             }
         }
 
-        for (int i = 0; i < s_validClientHello.Length - 1; i++)
+        for (int i = 0; i < s_validClientHello.Length + 1; i++)
         {
             uniqueInvalidHellos.Add(Convert.ToBase64String(s_validClientHello.Take(i).ToArray()));
         }
