@@ -68,6 +68,20 @@ public class HttpTransformerTests
     }
 
     [Fact]
+    public async Task TransformRequestAsync_KeepOriginalHost()
+    {
+        var transformer = HttpTransformer.Empty;
+        var httpContext = new DefaultHttpContext();
+        var proxyRequest = new HttpRequestMessage(HttpMethod.Get, "https://localhost");
+
+        httpContext.Request.Host = new HostString("example.com:3456");
+
+        await transformer.TransformRequestAsync(httpContext, proxyRequest, "prefix");
+
+        Assert.Equal("example.com:3456", proxyRequest.Headers.Host);
+    }
+
+    [Fact]
     public async Task TransformRequestAsync_TETrailers_Copied()
     {
         var transformer = HttpTransformer.Default;
