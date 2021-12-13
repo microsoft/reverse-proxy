@@ -23,9 +23,16 @@ public class HttpTransformer
     /// </summary>
     public static readonly HttpTransformer Default;
 
+    /// <summary>
+    /// A default set of transforms that copies all request and response fields and headers, except for some
+    /// protocol specific values.
+    /// </summary>
+    public static readonly HttpTransformer Empty;
+
     static HttpTransformer()
     {
         Default = TransformBuilder.CreateTransformer(new TransformBuilderContext());
+        Empty = new HttpTransformer();
     }
 
     /// <summary>
