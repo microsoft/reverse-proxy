@@ -21,12 +21,13 @@ public class HttpTransformer
     /// A default set of transforms that adds X-Forwarded-* headers, removes the original Host value and
     /// copies all other request and response fields and headers, except for some protocol specific values.
     /// </summary>
-    public static readonly HttpTransformer Default;
+    public static readonly HttpTransformer Default = TransformBuilder.CreateTransformer(new TransformBuilderContext());
 
-    static HttpTransformer()
-    {
-        Default = TransformBuilder.CreateTransformer(new TransformBuilderContext());
-    }
+    /// <summary>
+    /// An empty transformer that copies all request and response fields and headers, except for some
+    /// protocol specific values.
+    /// </summary>
+    public static readonly HttpTransformer Empty = new HttpTransformer();
 
     /// <summary>
     /// Used to create derived instances.
