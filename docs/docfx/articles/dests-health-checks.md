@@ -62,11 +62,11 @@ var clusters = new[]
 };
 ```
 
-In the examples above, YARP will proactively probe each destination for health every 10 seconds with timeout of 5 seconds (set in config via `Interval` and `Timeout`). The active health probes will happen regardless if there is any load on the destinations from dispatching requests. The probing URLs will be `https://localhost:10000/api/health` for `destination1` (based on config settings `Address` and `Path`) and `https://localhost:10020/MyHealth/api/health` for `destination2` (based on config settings `Health` and `Path`).
+In the examples above, YARP will proactively probe each destination for health every 10 seconds with a timeout of 5 seconds (set in config via `Interval` and `Timeout`). The active health probes will happen regardless of whether there is any load on the destinations from dispatching requests. The probing URLs will be `https://localhost:10000/api/health` for `destination1` (based on config settings `Address` and `Path`) and `https://localhost:10020/MyHealth/api/health` for `destination2` (based on config settings `Health` and `Path`).
 
-Per chosen policy (set in config via `Policy`), each destination will keep track of returned unhealthy HTTP response codes (2xx is considered healthy). When a destination returns unhealthy HTTP response code 3 times in a row (set in config via `Threshold`), it will be marked `Unhealthy` and it will not receive additional incoming traffic. All requests in flight to the destination will be left intact to finish on their own.
+Per chosen policy (set in config via `Policy`), each destination will keep track of returned unhealthy HTTP response codes (2xx is considered healthy). When a destination returns an unhealthy HTTP response code or fails to respond 3 times in a row (set in config via `Threshold`), it will be marked `Unhealthy` and it will not receive additional incoming traffic. All requests in flight to the destination will be left intact to finish on their own.
 
-YARP will keep probing the unhealthy destination at the same rate, i.e. every 10 seconds with timeout of 5 seconds. When there is first healthy response, the destination will be marked `Healthy` and will be used for routing of incoming traffic again.
+YARP will keep probing the unhealthy destination at the same rate, i.e. every 10 seconds with a timeout of 5 seconds. When receiving the first healthy response, the destination will be marked `Healthy` and will be used for routing of incoming traffic again.
 
 ### Configuration
 All but one of active health check settings are specified on the cluster level in `Cluster/HealthCheck/Active` section. The only exception is an optional `Destination/Health` element specifying a separate active health check endpoint. The actual health probing URI is constructed as `Destination/Address` (or `Destination/Health` when it's set) + `Cluster/HealthCheck/Active/Path`.
