@@ -15,7 +15,7 @@ COPY ["src/Kubernetes.Controller/Yarp.Kubernetes.Controller.csproj", "src/Kubern
 COPY ["src/Kubernetes.Protocol/Yarp.Kubernetes.Protocol.csproj", "src/Kubernetes.Protocol/"]
 COPY ["src/ReverseProxy/Yarp.ReverseProxy.csproj", "src/ReverseProxy/"]
 COPY ["src/Directory.Build.props", "src/"]
-COPY ["Directory.Build.*", ""]
+COPY ["Directory.Build.*", "./"]
 COPY ["global.json", ""]
 COPY ["NuGet.config", ""]
 
