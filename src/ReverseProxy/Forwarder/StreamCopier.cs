@@ -20,7 +20,7 @@ internal static class StreamCopier
     // Based on performance investigations, see https://github.com/microsoft/reverse-proxy/pull/330#issuecomment-758851852.
     private const int DefaultBufferSize = 65536;
 
-    public static ValueTask<(StreamCopyResult, Exception?)> CopyAsync(bool isRequest, Stream input, Stream output, IClock clock, ActivityCancellationTokenSource activityToken, CancellationToken cancellation)
+    public static ValueTask<(StreamCopyResult, Exception?)> CopyAsync(bool isRequest, Stream input, Stream output, long? promisedContentLength, IClock clock, ActivityCancellationTokenSource activityToken, CancellationToken cancellation)
     {
         Debug.Assert(input is not null);
         Debug.Assert(output is not null);
@@ -32,13 +32,14 @@ internal static class StreamCopier
             ? new StreamCopierTelemetry(isRequest, clock)
             : null;
 
-        return CopyAsync(input, output, telemetry, activityToken, cancellation);
+        return CopyAsync(input, output, promisedContentLength, telemetry, activityToken, cancellation);
     }
 
-    private static async ValueTask<(StreamCopyResult, Exception?)> CopyAsync(Stream input, Stream output, StreamCopierTelemetry? telemetry, ActivityCancellationTokenSource activityToken, CancellationToken cancellation)
+    private static async ValueTask<(StreamCopyResult, Exception?)> CopyAsync(Stream input, Stream output, long? promisedContentLength, StreamCopierTelemetry? telemetry, ActivityCancellationTokenSource activityToken, CancellationToken cancellation)
     {
         var buffer = ArrayPool<byte>.Shared.Rent(DefaultBufferSize);
         var read = 0;
+        long contentLength = 0;
         try
         {
             while (true)
@@ -67,8 +68,9 @@ internal static class StreamCopier
                 }
 
                 read = await input.ReadAsync(buffer.AsMemory(), cancellation);
+                contentLength += read;
 
-                telemetry?.AfterRead(read);
+                telemetry?.AfterRead(contentLength);
 
                 // Success, reset the activity monitor.
                 activityToken.ResetTimeout();
@@ -76,7 +78,16 @@ internal static class StreamCopier
                 // End of the source stream.
                 if (read == 0)
                 {
-                    return (StreamCopyResult.Success, null);
+                    if (!promisedContentLength.HasValue || contentLength == promisedContentLength)
+                    {
+                        return (StreamCopyResult.Success, null);
+                    }
+                    else
+                    {
+                        return (StreamCopyResult.InputError,
+                            new Exception($"Sent {contentLength} request content bytes, but Content-Length promised {promisedContentLength}."));
+                    }
+                    
                 }
 
                 await output.WriteAsync(buffer.AsMemory(0, read), cancellation);
@@ -91,7 +102,7 @@ internal static class StreamCopier
         {
             if (read == 0)
             {
-                telemetry?.AfterRead(0);
+                telemetry?.AfterRead(contentLength);
             }
             else
             {
@@ -140,9 +151,9 @@ internal static class StreamCopier
             _nextTransferringEvent = _lastTime + _timeBetweenTransferringEvents;
         }
 
-        public void AfterRead(int read)
+        public void AfterRead(long contentLength)
         {
-            _contentLength += read;
+            _contentLength = contentLength;
             _iops++;
 
             var readStop = _clock.GetStopwatchTime();

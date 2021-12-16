@@ -44,14 +44,16 @@ internal sealed class StreamCopyHttpContent : HttpContent
     private readonly ActivityCancellationTokenSource _activityToken;
     private readonly TaskCompletionSource<(StreamCopyResult, Exception?)> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private int _started;
+    private readonly long? _requiredContentLength;
 
-    public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IClock clock, ActivityCancellationTokenSource activityToken)
+    public StreamCopyHttpContent(Stream source, long? contentLength, bool autoFlushHttpClientOutgoingStream, IClock clock, ActivityCancellationTokenSource activityToken)
     {
         _source = source ?? throw new ArgumentNullException(nameof(source));
         _autoFlushHttpClientOutgoingStream = autoFlushHttpClientOutgoingStream;
         _clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
         _activityToken = activityToken;
+        _requiredContentLength = contentLength;
     }
 
     /// <summary>
@@ -181,7 +183,7 @@ internal sealed class StreamCopyHttpContent : HttpContent
                 return;
             }
 
-            var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, _clock, _activityToken, cancellationToken);
+            var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, _requiredContentLength, _clock, _activityToken, cancellationToken);
             _tcs.TrySetResult((result, error));
 
             // Check for errors that weren't the result of the destination failing.

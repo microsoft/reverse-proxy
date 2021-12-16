@@ -29,7 +29,7 @@ public class StreamCopierTests : TestAutoMockBase
         var destination = new MemoryStream();
 
         using var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
-        await StreamCopier.CopyAsync(isRequest, source, destination, new Clock(), cts, cts.Token);
+        await StreamCopier.CopyAsync(isRequest, source, destination, SourceSize, new Clock(), cts, cts.Token);
 
         Assert.False(cts.Token.IsCancellationRequested);
 
@@ -51,7 +51,7 @@ public class StreamCopierTests : TestAutoMockBase
         var destination = new MemoryStream();
 
         using var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
-        var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, clock, cts, cts.Token);
+        var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, null, clock, cts, cts.Token);
         Assert.Equal(StreamCopyResult.InputError, result);
         Assert.IsAssignableFrom<IOException>(error);
 
@@ -80,7 +80,7 @@ public class StreamCopierTests : TestAutoMockBase
         var destination = new SlowStream(new ThrowStream(), clock, destinationWaitTime);
 
         using var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
-        var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, clock, cts, cts.Token);
+        var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, SourceSize, clock, cts, cts.Token);
         Assert.Equal(StreamCopyResult.OutputError, result);
         Assert.IsAssignableFrom<IOException>(error);
 
@@ -104,7 +104,7 @@ public class StreamCopierTests : TestAutoMockBase
 
         using var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
         cts.Cancel();
-        var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, new ManualClock(), cts, cts.Token);
+        var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, null, new ManualClock(), cts, cts.Token);
         Assert.Equal(StreamCopyResult.Canceled, result);
         Assert.IsAssignableFrom<OperationCanceledException>(error);
 
@@ -137,6 +137,7 @@ public class StreamCopierTests : TestAutoMockBase
             isRequest,
             new SlowStream(source, clock, sourceWaitTime),
             new SlowStream(destination, clock, destinationWaitTime),
+            SourceSize,
             clock,
             cts,
             cts.Token);
@@ -174,6 +175,7 @@ public class StreamCopierTests : TestAutoMockBase
             isRequest,
             new SlowStream(source, clock, sourceWaitTime) { MaxBytesPerRead = BytesPerRead },
             new SlowStream(destination, clock, destinationWaitTime),
+            SourceSize,
             clock,
             cts,
             cts.Token);
