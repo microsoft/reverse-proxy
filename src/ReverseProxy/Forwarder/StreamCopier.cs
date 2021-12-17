@@ -20,7 +20,7 @@ internal static class StreamCopier
     // Based on performance investigations, see https://github.com/microsoft/reverse-proxy/pull/330#issuecomment-758851852.
     private const int DefaultBufferSize = 65536;
 
-    public static ValueTask<(StreamCopyResult, Exception?)> CopyAsync(bool isRequest, Stream input, Stream output, long? promisedContentLength, IClock clock, ActivityCancellationTokenSource activityToken, CancellationToken cancellation)
+    public static ValueTask<(StreamCopyResult, Exception?)> CopyAsync(bool isRequest, Stream input, Stream output, long promisedContentLength, IClock clock, ActivityCancellationTokenSource activityToken, CancellationToken cancellation)
     {
         Debug.Assert(input is not null);
         Debug.Assert(output is not null);
@@ -78,7 +78,7 @@ internal static class StreamCopier
                 // End of the source stream.
                 if (read == 0)
                 {
-                    if (!promisedContentLength.HasValue || contentLength == promisedContentLength)
+                    if (promisedContentLength < 0 || contentLength == promisedContentLength)
                     {
                         return (StreamCopyResult.Success, null);
                     }

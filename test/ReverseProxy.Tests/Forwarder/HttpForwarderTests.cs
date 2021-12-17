@@ -682,10 +682,13 @@ public class HttpForwarderTests
     }
 
     [Theory]
-    [InlineData(1, "")]
-    [InlineData(1, "aa")]
-    [InlineData(2, "a")]
-    public async Task RequestWithBodies_WrongContentLength(long contentLength, string body)
+    [InlineData("1.1", 1, "")]
+    [InlineData("1.1", 1, "aa")]
+    [InlineData("1.1", 2, "a")]
+    [InlineData("2.0", 1, "")]
+    [InlineData("2.0", 1, "aa")]
+    [InlineData("2.0", 2, "a")]
+    public async Task RequestWithBodies_WrongContentLength(string version, long contentLength, string body)
     {
         var events = TestEventListener.Collect();
 
@@ -699,7 +702,7 @@ public class HttpForwarderTests
         var client = MockHttpHandler.CreateClient(
             async (HttpRequestMessage request, CancellationToken cancellationToken) =>
             {
-                Assert.Equal(new Version(2, 0), request.Version);
+                Assert.Equal(new Version(version), request.Version);
 
                 Assert.NotNull(request.Content);
 
@@ -717,7 +720,12 @@ public class HttpForwarderTests
                 return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
             });
 
-        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+        var options = new ForwarderRequestConfig
+        {
+            Version = new Version(version),
+        };
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, options);
 
         Assert.Equal(ForwarderError.RequestBodyClient, proxyError);
         Assert.Equal(StatusCodes.Status400BadRequest, httpContext.Response.StatusCode);
