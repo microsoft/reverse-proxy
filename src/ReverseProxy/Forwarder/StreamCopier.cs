@@ -35,7 +35,7 @@ internal static class StreamCopier
         return CopyAsync(input, output, promisedContentLength, telemetry, activityToken, cancellation);
     }
 
-    private static async ValueTask<(StreamCopyResult, Exception?)> CopyAsync(Stream input, Stream output, long? promisedContentLength, StreamCopierTelemetry? telemetry, ActivityCancellationTokenSource activityToken, CancellationToken cancellation)
+    private static async ValueTask<(StreamCopyResult, Exception?)> CopyAsync(Stream input, Stream output, long promisedContentLength, StreamCopierTelemetry? telemetry, ActivityCancellationTokenSource activityToken, CancellationToken cancellation)
     {
         var buffer = ArrayPool<byte>.Shared.Rent(DefaultBufferSize);
         var read = 0;

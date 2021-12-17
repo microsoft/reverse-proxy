@@ -684,6 +684,7 @@ public class HttpForwarderTests
     [Theory]
     [InlineData(1, "")]
     [InlineData(1, "aa")]
+    [InlineData(2, "a")]
     public async Task RequestWithBodies_WrongContentLength(long contentLength, string body)
     {
         var events = TestEventListener.Collect();
