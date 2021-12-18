@@ -27,7 +27,7 @@ The proxy will listen to HTTP requests on port 5000, and HTTPS on port 5001. The
 - [Program.cs](Program.cs) - Provides the main entrypoint for .NET which uses an WebHostBuilder to initialize the server which listens for http requests. Typically, this file does not need to be modified for any proxy scenarios.
 - [Startup.cs](Startup.cs) - Provides a class that is used to configure and control how http requests are handled by the server. In this sample, it does the bare minimum of:
   - Adding proxy functionality to the services collection.
-  - Specifying that the proxy configuration will come from the config file (altrenatively it could be specified via code).
+  - Specifying that the proxy configuration will come from the config file (alternatively it could be specified via code).
   - Telling ASP.NET to use its routing service, to register the routes from YARP into its routing table, and use YARP to handle those requests.
 - [appsettings.json](appsettings.json) - The configuration file for the .NET app, including sections for Kestrel, logging and the YARP proxy configuration. 
 - [Properties/launchSettings.json](Properties/launchSettings.json) - A configuration file used by Visual Studio to tell it how to start the app when debugging.
