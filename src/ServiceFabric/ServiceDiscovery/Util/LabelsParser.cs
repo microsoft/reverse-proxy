@@ -116,6 +116,7 @@ internal static class LabelsParser
             string hosts = null;
             string path = null;
             int? order = null;
+            string authorizationPolicy = null;
             var metadata = new Dictionary<string, string>();
             var headerMatches = new Dictionary<string, RouteHeaderFields>();
             var transforms = new Dictionary<string, Dictionary<string, string>>();
@@ -224,6 +225,10 @@ internal static class LabelsParser
                 {
                     order = ConvertLabelValue<int?>(kvp.Key, kvp.Value);
                 }
+                else if (ContainsKey("AuthorizationPolicy", routeLabelKey, out _))
+                {
+                    authorizationPolicy = kvp.Value;
+                }
             }
 
             var route = new RouteConfig
@@ -245,7 +250,8 @@ internal static class LabelsParser
                 Order = order,
                 ClusterId = backendId,
                 Metadata = metadata,
-                Transforms = transforms.Count > 0 ? transforms.Select(tr => tr.Value).ToList().AsReadOnly() : null
+                Transforms = transforms.Count > 0 ? transforms.Select(tr => tr.Value).ToList().AsReadOnly() : null,
+                AuthorizationPolicy = authorizationPolicy,
             };
             routes.Add(route);
         }

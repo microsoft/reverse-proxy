@@ -283,6 +283,7 @@ public class LabelsParserTests
             { "YARP.Routes.MyRoute.Transforms.[1].ResponseHeader", "X-Ping" },
             { "YARP.Routes.MyRoute.Transforms.[1].Append", "Pong" },
             { "YARP.Routes.MyRoute.Transforms.[1].When", "Success" },
+            { "YARP.Routes.MyRoute.AuthorizationPolicy", "Policy1" },
         };
 
         var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
@@ -333,7 +334,8 @@ public class LabelsParserTests
                         {"Append", "Pong"},
                         {"When", "Success"}
                     }
-                }
+                },
+                AuthorizationPolicy = "Policy1",
             },
         };
         routes.Should().BeEquivalentTo(expectedRoutes);
