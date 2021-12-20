@@ -56,8 +56,10 @@ public class HttpForwarderTests
         httpContext.Request.Headers.Add(":authority", "example.com:3456");
         httpContext.Request.Headers.Add("x-ms-request-test", "request");
         httpContext.Request.Headers.Add("Content-Language", "requestLanguage");
-        httpContext.Request.Headers.Add("Content-Length", "1");
-        httpContext.Request.Body = StringToStream("request content");
+
+        var requestBody = "request content";
+        httpContext.Request.Headers.Add("Content-Length", requestBody.Length.ToString());
+        httpContext.Request.Body = StringToStream(requestBody);
         httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
 
         var proxyResponseStream = new MemoryStream();
@@ -630,16 +632,16 @@ public class HttpForwarderTests
     }
 
     [Theory]
-    [InlineData("POST", "HTTP/2", "")]
-    [InlineData("PATCH", "HTTP/2", "")]
-    [InlineData("UNKNOWN", "HTTP/2", "")]
-    [InlineData("UNKNOWN", "HTTP/1.1", "Content-Length:10")]
-    [InlineData("UNKNOWN", "HTTP/1.1", "transfer-encoding:Chunked")]
-    [InlineData("GET", "HTTP/1.1", "Content-Length:10")]
-    [InlineData("GET", "HTTP/2", "Content-Length:10")]
-    [InlineData("HEAD", "HTTP/1.1", "transfer-encoding:Chunked")]
-    [InlineData("HEAD", "HTTP/2", "transfer-encoding:Chunked")]
-    public async Task RequestWithBodies_HasHttpContent(string method, string protocol, string headers)
+    [InlineData("POST", "HTTP/2", "", "")]
+    [InlineData("PATCH", "HTTP/2", "", "")]
+    [InlineData("UNKNOWN", "HTTP/2", "", "")]
+    [InlineData("UNKNOWN", "HTTP/1.1", "Content-Length:10", "aaaaaaaaaa")]
+    [InlineData("UNKNOWN", "HTTP/1.1", "transfer-encoding:Chunked", "")]
+    [InlineData("GET", "HTTP/1.1", "Content-Length:10", "aaaaaaaaaa")]
+    [InlineData("GET", "HTTP/2", "Content-Length:10", "aaaaaaaaaa")]
+    [InlineData("HEAD", "HTTP/1.1", "transfer-encoding:Chunked", "")]
+    [InlineData("HEAD", "HTTP/2", "transfer-encoding:Chunked", "")]
+    public async Task RequestWithBodies_HasHttpContent(string method, string protocol, string headers, string body)
     {
         var events = TestEventListener.Collect();
 
@@ -653,6 +655,7 @@ public class HttpForwarderTests
             var value = parts[1];
             httpContext.Request.Headers[key] = value;
         }
+        httpContext.Request.Body = StringToStream(body);
 
         var destinationPrefix = "https://localhost/";
         var sut = CreateProxy();
@@ -661,6 +664,95 @@ public class HttpForwarderTests
             {
                 Assert.Equal(new Version(2, 0), request.Version);
                 Assert.Equal(method, request.Method.Method, StringComparer.OrdinalIgnoreCase);
+
+                Assert.NotNull(request.Content);
+
+                // Must consume the body
+                await request.Content.CopyToWithCancellationAsync(Stream.Null);
+
+                return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+            });
+
+        await sut.SendAsync(httpContext, destinationPrefix, client);
+
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages();
+    }
+
+    [Theory]
+    [InlineData("1.1", 1, "")]
+    [InlineData("1.1", 1, "aa")]
+    [InlineData("1.1", 2, "a")]
+    [InlineData("2.0", 1, "")]
+    [InlineData("2.0", 1, "aa")]
+    [InlineData("2.0", 2, "a")]
+    public async Task RequestWithBodies_WrongContentLength(string version, long contentLength, string body)
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.ContentLength = contentLength;
+        httpContext.Request.Body = StringToStream(body);
+
+        var destinationPrefix = "https://localhost/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                Assert.Equal(new Version(version), request.Version);
+
+                Assert.NotNull(request.Content);
+
+                // Must throw
+                try
+                {
+                    await request.Content.CopyToWithCancellationAsync(Stream.Null);
+                }
+                catch (HttpRequestException ex)
+                {
+                    Assert.Contains("Content-Length", ex.InnerException.InnerException.Message);
+                    throw ex;
+                }
+
+                return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+            });
+
+        var options = new ForwarderRequestConfig
+        {
+            Version = new Version(version),
+        };
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, options);
+
+        Assert.Equal(ForwarderError.RequestBodyClient, proxyError);
+        Assert.Equal(StatusCodes.Status400BadRequest, httpContext.Response.StatusCode);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.RequestBodyClient, errorFeature.Error);
+        Assert.IsType<AggregateException>(errorFeature.Exception);
+
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart, ForwarderStage.RequestContentTransferStart });
+    }
+
+    [Fact]
+    public async Task RequestWithBodies_WithoutContentLength()
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Protocol = "HTTP/2";
+        httpContext.Request.Body = StringToStream("request content");
+
+        var destinationPrefix = "https://localhost/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                Assert.Equal(new Version(2, 0), request.Version);
 
                 Assert.NotNull(request.Content);
 
@@ -1102,7 +1194,7 @@ public class HttpForwarderTests
             memory.Span[0] = (byte)'a';
             return 1;
         });
-        httpContext.Request.ContentLength = 1;
+        httpContext.Request.ContentLength = expectedReads;
 
         var proxyResponseStream = new MemoryStream();
         httpContext.Response.Body = proxyResponseStream;
