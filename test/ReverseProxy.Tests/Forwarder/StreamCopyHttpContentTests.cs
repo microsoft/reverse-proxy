@@ -24,7 +24,7 @@ public class StreamCopyHttpContentTests
 
         contentCancellation ??= ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
 
-        return new StreamCopyHttpContent(source, null, autoFlushHttpClientOutgoingStream, clock, contentCancellation);
+        return new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream, clock, contentCancellation);
     }
 
     [Fact]

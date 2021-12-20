@@ -406,7 +406,6 @@ internal sealed class HttpForwarder : IHttpForwarder
             // but for now, out of an abundance of caution, we only do it for requests that look like gRPC.
             return new StreamCopyHttpContent(
                 source: request.Body,
-                contentLength: request.Headers.ContentLength,
                 autoFlushHttpClientOutgoingStream: isStreamingRequest,
                 clock: _clock,
                 activityToken);
