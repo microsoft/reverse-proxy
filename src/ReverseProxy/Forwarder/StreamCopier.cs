@@ -70,6 +70,11 @@ internal static class StreamCopier
 
                 read = await input.ReadAsync(buffer.AsMemory(), cancellation);
                 contentLength += read;
+                // Normally this is enforced by the server, but it could get out of sync if something in the proxy modified the body.
+                if (promisedContentLength != UnknownLength && contentLength > promisedContentLength)
+                {
+                    return (StreamCopyResult.InputError, new InvalidOperationException("More bytes received than the specified Content-Length."));
+                }
 
                 telemetry?.AfterRead(contentLength);
 
