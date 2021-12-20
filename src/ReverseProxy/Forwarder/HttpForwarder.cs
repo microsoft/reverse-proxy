@@ -644,6 +644,7 @@ internal sealed class HttpForwarder : IHttpForwarder
         if (destinationResponseContent != null)
         {
             using var destinationResponseStream = await destinationResponseContent.ReadAsStreamAsync();
+            // The response content-length is enforced by the server.
             return await StreamCopier.CopyAsync(isRequest: false, destinationResponseStream, clientResponseStream, -1, _clock, activityCancellationSource, activityCancellationSource.Token);
         }
 

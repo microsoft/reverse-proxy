@@ -183,6 +183,7 @@ internal sealed class StreamCopyHttpContent : HttpContent
                 return;
             }
 
+            // Check that the content-length matches the request body size. This can be removed in .NET 7 now that SocketsHttpHandler enforces this: https://github.com/dotnet/runtime/issues/62258.
             var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, _promisedContentLength, _clock, _activityToken, cancellationToken);
             _tcs.TrySetResult((result, error));
 

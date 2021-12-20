@@ -78,16 +78,16 @@ internal static class StreamCopier
                 // End of the source stream.
                 if (read == 0)
                 {
-                    if (promisedContentLength < 0 || contentLength == promisedContentLength)
+                    if (promisedContentLength == UnknownLength || contentLength == promisedContentLength)
                     {
                         return (StreamCopyResult.Success, null);
                     }
                     else
                     {
+                        // This can happen if something in the proxy consumes or modifies part or all of the request body before proxying.
                         return (StreamCopyResult.InputError,
                             new Exception($"Sent {contentLength} request content bytes, but Content-Length promised {promisedContentLength}."));
                     }
-                    
                 }
 
                 await output.WriteAsync(buffer.AsMemory(0, read), cancellation);
