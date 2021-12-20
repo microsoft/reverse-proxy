@@ -53,7 +53,7 @@ internal sealed class StreamCopyHttpContent : HttpContent
         _clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
         _activityToken = activityToken;
-        _promisedContentLength = contentLength ?? -1;
+        _promisedContentLength = contentLength ?? StreamCopier.UnknownLength;
     }
 
     /// <summary>

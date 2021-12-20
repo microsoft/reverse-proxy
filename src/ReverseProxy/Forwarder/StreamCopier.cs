@@ -19,6 +19,7 @@ internal static class StreamCopier
 {
     // Based on performance investigations, see https://github.com/microsoft/reverse-proxy/pull/330#issuecomment-758851852.
     private const int DefaultBufferSize = 65536;
+    public static readonly long UnknownLength = -1;
 
     public static ValueTask<(StreamCopyResult, Exception?)> CopyAsync(bool isRequest, Stream input, Stream output, long promisedContentLength, IClock clock, ActivityCancellationTokenSource activityToken, CancellationToken cancellation)
     {
@@ -86,7 +87,7 @@ internal static class StreamCopier
                     {
                         // This can happen if something in the proxy consumes or modifies part or all of the request body before proxying.
                         return (StreamCopyResult.InputError,
-                            new Exception($"Sent {contentLength} request content bytes, but Content-Length promised {promisedContentLength}."));
+                            new InvalidOperationException($"Sent {contentLength} request content bytes, but Content-Length promised {promisedContentLength}."));
                     }
                 }
 

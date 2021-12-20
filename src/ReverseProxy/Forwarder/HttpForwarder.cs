@@ -586,8 +586,8 @@ internal sealed class HttpForwarder : IHttpForwarder
         // :: Step 7-A-2: Copy duplex streams
         using var destinationStream = await destinationResponse.Content.ReadAsStreamAsync();
 
-        var requestTask = StreamCopier.CopyAsync(isRequest: true, clientStream, destinationStream, context.Request.ContentLength ?? -1, _clock, activityCancellationSource, activityCancellationSource.Token).AsTask();
-        var responseTask = StreamCopier.CopyAsync(isRequest: false, destinationStream, clientStream, -1, _clock, activityCancellationSource, activityCancellationSource.Token).AsTask();
+        var requestTask = StreamCopier.CopyAsync(isRequest: true, clientStream, destinationStream, StreamCopier.UnknownLength, _clock, activityCancellationSource, activityCancellationSource.Token).AsTask();
+        var responseTask = StreamCopier.CopyAsync(isRequest: false, destinationStream, clientStream, StreamCopier.UnknownLength, _clock, activityCancellationSource, activityCancellationSource.Token).AsTask();
 
         // Make sure we report the first failure.
         var firstTask = await Task.WhenAny(requestTask, responseTask);
@@ -645,7 +645,7 @@ internal sealed class HttpForwarder : IHttpForwarder
         {
             using var destinationResponseStream = await destinationResponseContent.ReadAsStreamAsync();
             // The response content-length is enforced by the server.
-            return await StreamCopier.CopyAsync(isRequest: false, destinationResponseStream, clientResponseStream, -1, _clock, activityCancellationSource, activityCancellationSource.Token);
+            return await StreamCopier.CopyAsync(isRequest: false, destinationResponseStream, clientResponseStream, StreamCopier.UnknownLength, _clock, activityCancellationSource, activityCancellationSource.Token);
         }
 
         return (StreamCopyResult.Success, null);
