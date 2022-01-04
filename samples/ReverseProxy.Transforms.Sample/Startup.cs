@@ -34,9 +34,8 @@ namespace Yarp.Sample
             services.AddReverseProxy()
                 .LoadFromConfig(_configuration.GetSection("ReverseProxy"))
                 .AddTransforms<MyTransformProvider>() // Adds custom transforms via code.
-                .AddTransformFactory<MyTransformFactory>() // Adds custom transforms via config.
-                                                           // Add transforms inline
-                .AddTransforms(transformBuilderContext =>
+                .AddTransformFactory<MyTransformFactory>() // Adds custom transforms via config.                                        
+                .AddTransforms(transformBuilderContext =>  // Add transforms inline
                 {
                     // For each route+cluster pair decide if we want to add transforms, and if so, which?
                     // This logic is re-run each time a route is rebuilt.
