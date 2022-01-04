@@ -80,7 +80,7 @@ public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
 ```C#
 private class CustomTransformer : HttpTransformer
 {
-    public override async Task TransformRequestAsync(HttpContext httpContext,
+    public override async ValueTask TransformRequestAsync(HttpContext httpContext,
         HttpRequestMessage proxyRequest, string destinationPrefix)
     {
         // Copy headers normally and then remove the original host.

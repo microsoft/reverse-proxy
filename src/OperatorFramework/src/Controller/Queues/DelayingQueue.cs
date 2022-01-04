@@ -35,7 +35,7 @@ public class DelayingQueue<TItem> : Composition.WorkQueueBase<TItem>, IDelayingQ
         : base(@base ?? new WorkQueue<TItem>())
     {
         _waitingLoopTask = Task.Run(WaitingLoopAsync);
-        _clock = clock ?? new SystemClock(); ;
+        _clock = clock ?? new SystemClock();
     }
 
     /// <summary>
