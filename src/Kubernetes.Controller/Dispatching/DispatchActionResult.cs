@@ -26,6 +26,7 @@ public class DispatchActionResult : IActionResult, IDispatchTarget
     private Task _task = Task.CompletedTask;
     private readonly object _taskSync = new();
     private HttpContext _httpContext;
+    // some config options use enums, we need to enable conversion from string based representations
     private static readonly JsonSerializerOptions _jsonOptions = new() {Converters = {new JsonStringEnumConverter()}};
 
     public DispatchActionResult(IDispatcher dispatcher)
