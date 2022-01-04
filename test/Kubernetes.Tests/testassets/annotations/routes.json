@@ -1,0 +1,23 @@
+[
+  {
+    "RouteId": "minimal-ingress:/foo",
+    "Match": {
+      "Methods": null,
+      "Hosts": [],
+      "Path": "/foo/{**catch-all}",
+      "Headers": null
+    },
+    "Order": null,
+    "ClusterId": "frontend:80",
+    "AuthorizationPolicy": "authzpolicy",
+    "CorsPolicy": "corspolicy",
+    "Metadata": null,
+    "Transforms": [
+      { "PathPrefix": "/apis" },
+      {
+        "RequestHeader": "header1",
+        "Append": "bar"
+      }
+    ]
+  }
+]

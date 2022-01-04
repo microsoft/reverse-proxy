@@ -5,26 +5,42 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using FluentAssertions.Json;
 using k8s;
 using k8s.Models;
 using Microsoft.Kubernetes;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using Xunit;
 using Yarp.Kubernetes.Controller.Caching;
 using Yarp.Kubernetes.Controller.Converters;
 using Yarp.Kubernetes.Controller.Services;
+using JsonConverter = Newtonsoft.Json.JsonConverter;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace IngressController.Tests;
 
 public class IngressControllerTests
 {
+    public IngressControllerTests()
+    {
+        JsonConvert.DefaultSettings = () => new JsonSerializerSettings() {
+            NullValueHandling = NullValueHandling.Ignore,
+            Converters = {new StringEnumConverter()}
+        };
+    }
+
     [Theory]
     [InlineData("basic-ingress")]
     [InlineData("multiple-endpoints-ports")]
     [InlineData("https")]
     [InlineData("exact-match")]
+    [InlineData("annotations")]
     [InlineData("mapped-port")]
     [InlineData("hostname-routing")]
     [InlineData("multiple-ingresses")]
@@ -43,9 +59,9 @@ public class IngressControllerTests
                 YarpParser.ConvertFromKubernetesIngress(ingressContext, configContext);
             }
         }
-
-        VerifyClusters(JsonSerializer.Serialize(configContext.BuildClusterConfig()), name);
-        VerifyRoutes(JsonSerializer.Serialize(configContext.Routes), name);
+        var options = new JsonSerializerOptions { Converters = {new JsonStringEnumConverter()} };
+        VerifyClusters(JsonSerializer.Serialize(configContext.BuildClusterConfig(), options), name);
+        VerifyRoutes(JsonSerializer.Serialize(configContext.Routes, options), name);
     }
 
     private static void VerifyClusters(string clusterJson, string name)
@@ -58,11 +74,39 @@ public class IngressControllerTests
         VerifyJson(routesJson, name, "routes.json");
     }
 
+        private static string StripNullProperties(string json)
+        {
+            using var reader = new JsonTextReader(new StringReader(json));
+            var sb = new StringBuilder();
+            using var sw = new StringWriter(sb);
+            using var writer = new JsonTextWriter(sw);
+            while (reader.Read())
+            {
+                var token = reader.TokenType;
+                var value = reader.Value;
+                if(reader.TokenType == JsonToken.PropertyName)
+                {
+                    reader.Read();
+                    if (reader.TokenType == JsonToken.Null)
+                    {
+                        continue;
+                    }
+                    writer.WriteToken(token, value);
+                }
+                writer.WriteToken(reader.TokenType, reader.Value);
+            }
+
+            return sb.ToString();
+        }
     private static void VerifyJson(string json, string name, string fileName)
     {
         var other = File.ReadAllText(Path.Combine("testassets", name, fileName));
+        json = StripNullProperties(json);
+        other = StripNullProperties(other);
 
-        Assert.True(JToken.DeepEquals(JToken.Parse(json), JToken.Parse(other)));
+        var actual = JToken.Parse(json);
+        var jOther = JToken.Parse(other);
+        actual.Should().BeEquivalentTo(jOther);
     }
 
     private async Task<ICache> GetKubernetesInfo(string name)

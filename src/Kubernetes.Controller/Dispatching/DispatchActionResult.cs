@@ -4,6 +4,7 @@
 using System;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -25,6 +26,7 @@ public class DispatchActionResult : IActionResult, IDispatchTarget
     private Task _task = Task.CompletedTask;
     private readonly object _taskSync = new();
     private HttpContext _httpContext;
+    private static readonly JsonSerializerOptions _jsonOptions = new() {Converters = {new JsonStringEnumConverter()}};
 
     public DispatchActionResult(IDispatcher dispatcher)
     {
@@ -57,7 +59,7 @@ public class DispatchActionResult : IActionResult, IDispatchTarget
             var utf8Bytes = JsonSerializer.SerializeToUtf8Bytes(new Message
             {
                 MessageType = MessageType.Heartbeat
-            });
+                }, _jsonOptions);
 
             while (!cancellationToken.IsCancellationRequested)
             {

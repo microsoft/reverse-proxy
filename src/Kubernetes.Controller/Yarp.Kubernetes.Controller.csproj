@@ -10,6 +10,7 @@
     <ItemGroup>
       <ProjectReference Include="..\OperatorFramework\src\Controller\Microsoft.Kubernetes.Controller.csproj" />
       <ProjectReference Include="..\Kubernetes.Protocol\Yarp.Kubernetes.Protocol.csproj" />
+
     </ItemGroup>
 
     <ItemGroup>
@@ -17,6 +18,8 @@
         <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
         <PackageReference Include="Serilog.Formatting.Compact" Version="1.1.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+        <PackageReference Condition=" '$(TargetFramework)' != 'net6.0' " Include="System.Text.Json" Version="6.0.0-*" />
+
     </ItemGroup>
 
 </Project>

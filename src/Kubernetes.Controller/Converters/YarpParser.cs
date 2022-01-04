@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using k8s.Models;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.Kubernetes.Controller.Caching;
 using Yarp.Kubernetes.Controller.Services;
+using Yarp.ReverseProxy.LoadBalancing;
 
 namespace Yarp.Kubernetes.Controller.Converters;
 
@@ -29,6 +32,7 @@ internal static class YarpParser
         {
             HandleIngressRule(ingressContext, ingressContext.Endpoints, defaultSubsets, rule, configContext);
         }
+
     }
 
     private static void HandleIngressRule(YarpIngressContext ingressContext, List<Endpoints> endpoints, IList<V1EndpointSubset> defaultSubsets, V1IngressRule rule, YarpConfigContext configContext)
@@ -65,6 +69,10 @@ internal static class YarpParser
 
         var cluster = clusters[key];
         cluster.ClusterId = key;
+        cluster.LoadBalancingPolicy = ingressContext.Options.LoadBalancingPolicy;
+        cluster.SessionAffinity = ingressContext.Options.SessionAffinity;
+        cluster.HealthCheck = ingressContext.Options.HealthCheck;
+        cluster.HttpClientConfig = ingressContext.Options.HttpClientConfig;
 
         // make sure cluster is present
         foreach (var subset in subsets ?? Enumerable.Empty<V1EndpointSubset>())
@@ -87,7 +95,10 @@ internal static class YarpParser
                         Path = pathMatch
                     },
                     ClusterId = cluster.ClusterId,
-                    RouteId = $"{ingressContext.Ingress.Metadata.Name}:{path.Path}"
+                    RouteId = $"{ingressContext.Ingress.Metadata.Name}:{path.Path}",
+                    Transforms = ingressContext.Options.Transforms,
+                    AuthorizationPolicy = ingressContext.Options.AuthorizationPolicy,
+                    CorsPolicy = ingressContext.Options.CorsPolicy,
                 });
 
                 // Add destination for every endpoint address
@@ -126,6 +137,7 @@ internal static class YarpParser
     private static YarpIngressOptions HandleAnnotations(YarpIngressContext context, V1ObjectMeta metadata)
     {
         var options = context.Options;
+        var jsonOptions = new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() } };
         var annotations = metadata.Annotations;
         if (annotations == null)
         {
@@ -134,7 +146,35 @@ internal static class YarpParser
 
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/backend-protocol", out var http))
         {
-            options.Https = http.Equals("https", StringComparison.OrdinalIgnoreCase);
+        	options.Https = http.Equals("https", StringComparison.OrdinalIgnoreCase);
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/transforms", out var transforms))
+        {
+            options.Transforms = JsonSerializer.Deserialize<List<Dictionary<string,string>>>(transforms,jsonOptions);
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/authorization-policy", out var authorizationPolicy))
+        {
+            options.AuthorizationPolicy = authorizationPolicy;
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/cors-policy", out var corsPolicy))
+        {
+            options.CorsPolicy = corsPolicy;
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/session-affinity", out var sessionAffinity))
+        {
+            options.SessionAffinity = JsonSerializer.Deserialize<SessionAffinityConfig>(sessionAffinity, jsonOptions);
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/load-balancing", out var loadBalancing))
+        {
+            options.LoadBalancingPolicy = loadBalancing;
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/http-client", out var httpClientConfig))
+        {
+            options.HttpClientConfig = JsonSerializer.Deserialize<HttpClientConfig>(httpClientConfig,jsonOptions);
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/health-check", out var healthCheck))
+        {
+            options.HealthCheck = JsonSerializer.Deserialize<HealthCheckConfig>(healthCheck,jsonOptions);
         }
 
         // metadata to support:
