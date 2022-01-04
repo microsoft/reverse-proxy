@@ -35,7 +35,7 @@ namespace Yarp.Sample
                 .LoadFromConfig(_configuration.GetSection("ReverseProxy"))
                 .AddTransforms<MyTransformProvider>() // Adds custom transforms via code.
                 .AddTransformFactory<MyTransformFactory>() // Adds custom transforms via config.
-                // Add transforms inline
+                                                           // Add transforms inline
                 .AddTransforms(transformBuilderContext =>
                 {
                     // For each route+cluster pair decide if we want to add transforms, and if so, which?
@@ -55,7 +55,7 @@ namespace Yarp.Sample
                             transformContext.ProxyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
                         });
                     }
-                }); ;
+                });
         }
 
         /// <summary>
