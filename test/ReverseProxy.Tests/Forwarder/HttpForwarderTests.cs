@@ -881,7 +881,7 @@ public class HttpForwarderTests
 
     [Theory]
     [MemberData(nameof(RequestMultiHeadersData))]
-    public async Task RequestWithMultiHeaders(string headerName, string[] headers, string[] expectedHeader)
+    public async Task RequestWithMultiHeaders(string version, string headerName, string[] headers, string[] expectedHeader)
     {
         var events = TestEventListener.Collect();
 
@@ -894,8 +894,7 @@ public class HttpForwarderTests
         var client = MockHttpHandler.CreateClient(
             (HttpRequestMessage request, CancellationToken cancellationToken) =>
             {
-
-                Assert.Equal(new Version(2, 0), request.Version);
+                Assert.Equal(new Version(version), request.Version);
                 Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
                 Assert.True(request.Headers.TryGetValues(headerName, out var sentHeaders));
                 Assert.NotNull(sentHeaders);
@@ -905,7 +904,7 @@ public class HttpForwarderTests
                 return Task.FromResult(response);
             });
 
-        await sut.SendAsync(httpContext, destinationPrefix, client);
+        await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = new Version(version) });
 
         Assert.Null(httpContext.Features.Get<IForwarderErrorFeature>());
         Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
@@ -916,7 +915,7 @@ public class HttpForwarderTests
 
     [Theory]
     [MemberData(nameof(RequestEmptyMultiHeadersData))]
-    public async Task RequestWithEmptyMultiHeaders(string headerName, string[] headers)
+    public async Task RequestWithEmptyMultiHeaders(string version, string headerName, string[] headers)
     {
         var events = TestEventListener.Collect();
 
@@ -929,8 +928,7 @@ public class HttpForwarderTests
         var client = MockHttpHandler.CreateClient(
             (HttpRequestMessage request, CancellationToken cancellationToken) =>
             {
-
-                Assert.Equal(new Version(2, 0), request.Version);
+                Assert.Equal(new Version(version), request.Version);
                 Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
                 Assert.True(request.Headers.Contains(headerName)); // HttpHeaders removes empty headers
                 Assert.Null(request.Headers.GetValues(headerName));
@@ -939,7 +937,7 @@ public class HttpForwarderTests
                 return Task.FromResult(response);
             });
 
-        await sut.SendAsync(httpContext, destinationPrefix, client);
+        await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = new Version(version) });
 
         Assert.Null(httpContext.Features.Get<IForwarderErrorFeature>());
         Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
@@ -1004,7 +1002,10 @@ public class HttpForwarderTests
         {
             foreach (var value in MultiValues())
             {
-                yield return new object[] { header, value, value };
+                foreach (var version in new[] { "1.1", "2.0" })
+                {
+                    yield return new object[] { version, header, value, value };
+                }
             }
         }
     }
@@ -1015,7 +1016,10 @@ public class HttpForwarderTests
         {
             foreach (var value in MultiValues())
             {
-                yield return new object[] { header, value, value.Where(s => !string.IsNullOrEmpty(s)).ToArray() };
+                foreach (var version in new[] { "1.1", "2.0" })
+                {
+                    yield return new object[] { version, header, value, value.Where(s => !string.IsNullOrEmpty(s)).ToArray() };
+                }
             }
         }
     }
@@ -1024,7 +1028,10 @@ public class HttpForwarderTests
     {
         foreach (var header in RequestMultiHeaderNames())
         {
-            yield return new object[] { header, new[] { "", "" } };
+            foreach (var version in new[] { "1.1", "2.0" })
+            {
+                yield return new object[] { version, header, new[] { "", "" } };
+            }
         }
     }
 
@@ -1032,7 +1039,10 @@ public class HttpForwarderTests
     {
         foreach (var header in ResponseMultiHeaderNames())
         {
-            yield return new object[] { header, new[] { "", "" } };
+            foreach (var version in new[] { "1.1", "2.0" })
+            {
+                yield return new object[] { version, header, new[] { "", "" } };
+            }
         }
     }
 
@@ -2292,7 +2302,7 @@ public class HttpForwarderTests
 
     [Theory]
     [MemberData(nameof(ResponseMultiHeadersData))]
-    public async Task ResponseWithMultiHeaders(string headerName, string[] headers, string[] expectedHeader)
+    public async Task ResponseWithMultiHeaders(string version, string headerName, string[] headers, string[] expectedHeader)
     {
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Method = "GET";
@@ -2311,7 +2321,7 @@ public class HttpForwarderTests
                 return response;
             });
 
-        await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = new Version(2, 0) });
+        await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = new Version(version) });
 
         Assert.Equal((int)HttpStatusCode.MethodNotAllowed, httpContext.Response.StatusCode);
         Assert.Contains(headerName, httpContext.Response.Headers);
@@ -2320,7 +2330,7 @@ public class HttpForwarderTests
 
     [Theory]
     [MemberData(nameof(ResponseEmptyMultiHeadersData))]
-    public async Task ResponseWithEmptyMultiHeaders(string headerName, string[] headers)
+    public async Task ResponseWithEmptyMultiHeaders(string version, string headerName, string[] headers)
     {
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Method = "GET";
@@ -2339,7 +2349,7 @@ public class HttpForwarderTests
                 return response;
             });
 
-        await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = new Version(2, 0) });
+        await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = new Version(version) });
 
         Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
         Assert.Contains(headerName, httpContext.Response.Headers);
