@@ -153,4 +153,83 @@ public class RequestUtilitiesTests
             Assert.False(isValid, c.ToString());
         }
     }
+
+#if NET6_0_OR_GREATER
+    [Theory]
+    [InlineData(null, "a", "a")]
+    [InlineData("a", "", "a;")]
+    [InlineData("", "a", ";a")]
+    [InlineData("a", "b", "a;b")]
+    [InlineData(null, "a;b", "a;b")]
+    [InlineData("a;b", "", "a;b;")]
+    [InlineData("", "a;b", ";a;b")]
+    [InlineData("a;b", "c", "a;b;c")]
+    [InlineData("a", "b;c", "a;b;c")]
+    [InlineData("a;b", "c;d", "a;b;c;d")]
+    [InlineData("a", "b c", "a;b c")]
+    [InlineData("a b", "c", "a b;c")]
+    public void Concat(string stringValues, string inputHeaderStringValues, string expectedOutput)
+    {
+        var request = new HttpRequestMessage();
+        foreach (var value in inputHeaderStringValues.Split(';'))
+        {
+            request.Headers.TryAddWithoutValidation("foo", value);
+        }
+        request.Headers.TryAddWithoutValidation("bar", inputHeaderStringValues.Split(';'));
+
+        var headerStringValues = request.Headers.NonValidated["foo"];
+        var actualValues = RequestUtilities.Concat(stringValues?.Split(';'), headerStringValues);
+        Assert.Equal(expectedOutput.Split(';'), actualValues);
+
+        headerStringValues = request.Headers.NonValidated["bar"];
+        actualValues = RequestUtilities.Concat(stringValues?.Split(';'), headerStringValues);
+        Assert.Equal(expectedOutput.Split(';'), actualValues);
+    }
+#endif
+
+    [Theory]
+    [InlineData("a")]
+    [InlineData("a b")]
+    [InlineData("a", "b")]
+    [InlineData("a", "b c", "d")]
+    [InlineData("")]
+    [InlineData("", "")]
+    [InlineData("a", "")]
+    [InlineData("", "a")]
+    [InlineData("", "a", "b")]
+    [InlineData("", "a", "")]
+    [InlineData("a", "", "b")]
+    public void TryGetValues(params string[] headerValues)
+    {
+        var request = new HttpRequestMessage();
+        foreach (var value in headerValues)
+        {
+            request.Headers.TryAddWithoutValidation("foo", value);
+        }
+        request.Headers.TryAddWithoutValidation("bar", headerValues);
+
+        Assert.True(RequestUtilities.TryGetValues(request.Headers, "foo", out var actualValues));
+        Assert.Equal(headerValues, actualValues);
+
+        Assert.True(RequestUtilities.TryGetValues(request.Headers, "bar", out actualValues));
+        Assert.Equal(headerValues, actualValues);
+    }
+
+    [Theory]
+    [InlineData("a", "a", true)]
+    [InlineData("b", "a", false)]
+    [InlineData("a;b", "a", true)]
+    [InlineData("a;b", "b", true)]
+    [InlineData("a;b", "c", false)]
+    [InlineData("", "a", false)]
+    public void ContainsHeader(string headers, string headerName, bool expectedContains)
+    {
+        var request = new HttpRequestMessage();
+        foreach (var name in headers.Split(';', StringSplitOptions.RemoveEmptyEntries))
+        {
+            request.Headers.TryAddWithoutValidation(name, "foo");
+        }
+
+        Assert.Equal(expectedContains, RequestUtilities.ContainsHeader(request.Headers, headerName));
+    }
 }
