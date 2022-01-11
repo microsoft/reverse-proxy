@@ -839,13 +839,19 @@ public class HttpForwarderTests
     }
 #endif
 
-    [Fact]
-    public async Task RequestWithCookieHeaders()
+    [Theory]
+    // This is an invalid format per spec but may happen due to https://github.com/dotnet/aspnetcore/issues/26461
+    [InlineData("testA=A_Cookie", "testB=B_Cookie", "testC=C_Cookie")]
+    [InlineData("testA=A_Value", "testB=B_Value", "testC=C_Value")]
+    [InlineData("testA=A_Value, testB=B_Value", "testC=C_Value")]
+    [InlineData("testA=A_Value", "", "testB=B_Value, testC=C_Value")]
+    [InlineData("testA=A_Value, testB=B_Value, testC=C_Value")]
+    [InlineData("", "")]
+    public async Task RequestWithCookieHeaders(params string[] cookies)
     {
         var events = TestEventListener.Collect();
 
-        // This is an invalid format per spec but may happen due to https://github.com/dotnet/aspnetcore/issues/26461
-        var cookies = new [] { "testA=A_Cookie", "testB=B_Cookie", "testC=C_Cookie" };
+        
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Method = "GET";
         httpContext.Request.Headers.Add(HeaderNames.Cookie, cookies);
