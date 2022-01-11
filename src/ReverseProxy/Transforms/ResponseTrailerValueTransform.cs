@@ -45,9 +45,9 @@ public class ResponseTrailerValueTransform : ResponseTrailersTransform
         if (Condition == ResponseCondition.Always
             || Success(context) == (Condition == ResponseCondition.Success))
         {
-            var existingHeader = TakeHeader(context, HeaderName);
             if (Append)
             {
+                var existingHeader = TakeHeader(context, HeaderName);
                 var value = StringValues.Concat(existingHeader, Value);
                 SetHeader(context, HeaderName, value);
             }
