@@ -960,6 +960,7 @@ public class HttpForwarderTests
             HeaderNames.AcceptCharset,
             HeaderNames.AcceptEncoding,
             HeaderNames.AcceptLanguage,
+            HeaderNames.ContentLanguage,
             HeaderNames.Via
         };
 
@@ -1010,7 +1011,7 @@ public class HttpForwarderTests
             {
                 foreach (var version in new[] { "1.1", "2.0" })
                 {
-                    yield return new object[] { version, header, value, value };
+                    yield return new object[] { version, header, value, value.Where(s => !string.IsNullOrEmpty(s)).ToArray() };
                 }
             }
         }
@@ -2320,7 +2321,7 @@ public class HttpForwarderTests
             {
                 await Task.Yield();
 
-                var response = new HttpResponseMessage(HttpStatusCode.MethodNotAllowed);
+                var response = new HttpResponseMessage(HttpStatusCode.OK);
 
                 response.Headers.TryAddWithoutValidation(headerName, headers);
 
@@ -2329,7 +2330,7 @@ public class HttpForwarderTests
 
         await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = new Version(version) });
 
-        Assert.Equal((int)HttpStatusCode.MethodNotAllowed, httpContext.Response.StatusCode);
+        Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
         Assert.Contains(headerName, httpContext.Response.Headers);
         Assert.Equal(expectedHeader, httpContext.Response.Headers[headerName]);
     }
