@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using Yarp.ReverseProxy.Health;
 
 namespace Yarp.ReverseProxy.Configuration;
 
@@ -35,10 +34,6 @@ public sealed record ActiveHealthCheckConfig
     /// HTTP health check endpoint path.
     /// </summary>
     public string? Path { get; init; }
-    /// <summary>
-    /// Delegate for Notification of negative test
-    /// </summary>
-    public UnhealthyNotification? OnUnhealthy { get; init; }
 
     public bool Equals(ActiveHealthCheckConfig? other)
     {
@@ -51,8 +46,7 @@ public sealed record ActiveHealthCheckConfig
             && Interval == other.Interval
             && Timeout == other.Timeout
             && string.Equals(Policy, other.Policy, StringComparison.OrdinalIgnoreCase)
-            && string.Equals(Path, other.Path, StringComparison.Ordinal)
-            && OnUnhealthy == OnUnhealthy;
+            && string.Equals(Path, other.Path, StringComparison.Ordinal);
     }
 
     public override int GetHashCode()
@@ -61,7 +55,6 @@ public sealed record ActiveHealthCheckConfig
             Interval,
             Timeout,
             Policy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
-            Path?.GetHashCode(StringComparison.Ordinal),
-            OnUnhealthy);
+            Path?.GetHashCode(StringComparison.Ordinal));
     }
 }

@@ -6,8 +6,6 @@ using Yarp.ReverseProxy.Model;
 
 namespace Yarp.ReverseProxy.Health;
 
-public delegate void UnhealthyNotification(string address);
-
 /// <summary>
 /// Active health check evaluation policy.
 /// </summary>
@@ -24,6 +22,4 @@ public interface IActiveHealthCheckPolicy
     /// <param name="cluster">Cluster.</param>
     /// <param name="probingResults">Destination probing results.</param>
     void ProbingCompleted(ClusterState cluster, IReadOnlyList<DestinationProbingResult> probingResults);
-
-    UnhealthyNotification? OnUnhealthy { get; set; }
 }

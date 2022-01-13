@@ -116,8 +116,6 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
 
         var timeout = config.Timeout ?? _monitorOptions.DefaultTimeout;
 
-        var OnUnhealthy = config.OnUnhealthy;
-
         for (var i = 0; i < probeTasks.Length; i++)
         {
             probeTasks[i] = ProbeDestinationAsync(cluster, allDestinations[i], timeout);
@@ -131,7 +129,6 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
         try
         {
             var policy = _policies.GetRequiredServiceById(config.Policy, HealthCheckConstants.ActivePolicy.ConsecutiveFailures);
-            policy.OnUnhealthy = OnUnhealthy;
             policy.ProbingCompleted(cluster, probeResults);
         }
         catch (Exception ex)

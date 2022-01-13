@@ -21,10 +21,6 @@ internal sealed class ConsecutiveFailuresHealthPolicy : IActiveHealthCheckPolicy
 
     public string Name => HealthCheckConstants.ActivePolicy.ConsecutiveFailures;
 
-  
-
-    public UnhealthyNotification? OnUnhealthy { get; set; }
-
     public ConsecutiveFailuresHealthPolicy(IOptions<ConsecutiveFailuresHealthPolicyOptions> options, IDestinationHealthUpdater healthUpdater)
     {
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
@@ -47,20 +43,10 @@ internal sealed class ConsecutiveFailuresHealthPolicy : IActiveHealthCheckPolicy
 
             var count = _failureCounters.GetOrCreateValue(destination);
             var newHealth = EvaluateHealthState(threshold, probingResults[i].Response, count);
-            if (newHealth != DestinationHealth.Healthy)
-            {
-                NotifyUnhealthy(destination);
-            }
             newHealthStates[i] = new NewActiveDestinationHealth(destination, newHealth);
         }
 
         _healthUpdater.SetActive(cluster, newHealthStates);
-    }
-
-    private void NotifyUnhealthy(DestinationState destination)
-    {
-        var url = destination.Model.Config.Address;
-        OnUnhealthy?.Invoke(url);
     }
 
     private double GetFailureThreshold(ClusterState cluster)
