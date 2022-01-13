@@ -20,6 +20,8 @@ using Moq;
 using Xunit;
 using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Utilities;
+using System.Net.Http.Headers;
+using Microsoft.Extensions.Primitives;
 
 namespace Yarp.ReverseProxy.Forwarder.Tests;
 
@@ -902,9 +904,18 @@ public class HttpForwarderTests
             {
                 Assert.Equal(new Version(version), request.Version);
                 Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
-                Assert.True(request.Headers.TryGetValues(headerName, out var sentHeaders));
+                IEnumerable<string>? sentHeaders;
+                if (headerName.StartsWith("Content"))
+                {
+                    Assert.True(request.Content.Headers.TryGetValues(headerName, out sentHeaders));
+                }
+                else
+                {
+                    Assert.True(request.Headers.TryGetValues(headerName, out sentHeaders));
+                }
+
                 Assert.NotNull(sentHeaders);
-                Assert.Equal(expectedHeader, sentHeaders);
+                Assert.True(AreEqualIgnoringEmptyStrings(sentHeaders, expectedHeader));
 
                 var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
                 return Task.FromResult(response);
@@ -919,6 +930,7 @@ public class HttpForwarderTests
         events.AssertContainProxyStages(hasRequestContent: false);
     }
 
+#if NET6_0_OR_GREATER
     [Theory]
     [MemberData(nameof(RequestEmptyMultiHeadersData))]
     public async Task RequestWithEmptyMultiHeaders(string version, string headerName, string[] headers)
@@ -936,8 +948,17 @@ public class HttpForwarderTests
             {
                 Assert.Equal(new Version(version), request.Version);
                 Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
-                Assert.True(request.Headers.Contains(headerName)); // HttpHeaders removes empty headers
-                Assert.Null(request.Headers.GetValues(headerName));
+                HeaderStringValues sentHeaders;
+                if (headerName.StartsWith("Content"))
+                {
+                    Assert.True(request.Content.Headers.NonValidated.TryGetValues(headerName, out sentHeaders));
+                }
+                else
+                {
+                    Assert.True(request.Headers.NonValidated.TryGetValues(headerName, out sentHeaders));
+                }
+                var value = Assert.Single(sentHeaders);
+                Assert.True(StringValues.IsNullOrEmpty(value));
 
                 var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
                 return Task.FromResult(response);
@@ -951,6 +972,10 @@ public class HttpForwarderTests
         AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
         events.AssertContainProxyStages(hasRequestContent: false);
     }
+#endif
+
+    internal static bool AreEqualIgnoringEmptyStrings(IEnumerable<string> left, IEnumerable<string> right)
+    => Enumerable.SequenceEqual(left.Where(s => !string.IsNullOrEmpty(s)).ToArray(), right.Where(s => !string.IsNullOrEmpty(s)).ToArray());
 
     public static IEnumerable<string> RequestMultiHeaderNames()
     {
@@ -960,7 +985,9 @@ public class HttpForwarderTests
             HeaderNames.AcceptCharset,
             HeaderNames.AcceptEncoding,
             HeaderNames.AcceptLanguage,
+            HeaderNames.ContentEncoding,
             HeaderNames.ContentLanguage,
+            HeaderNames.ContentType,
             HeaderNames.Via
         };
 
@@ -975,7 +1002,11 @@ public class HttpForwarderTests
         var headers = new[]
         {
             HeaderNames.AcceptRanges,
-            HeaderNames.Allow, // should be in at least HttpStatusCode.MethodNotAllowed and must not be modified by proxy
+            HeaderNames.Allow,
+            HeaderNames.ContentEncoding,
+            HeaderNames.ContentLanguage,
+            HeaderNames.ContentRange,
+            HeaderNames.ContentType,
             HeaderNames.SetCookie,
             HeaderNames.Via,
             HeaderNames.Warning,
@@ -1011,7 +1042,7 @@ public class HttpForwarderTests
             {
                 foreach (var version in new[] { "1.1", "2.0" })
                 {
-                    yield return new object[] { version, header, value, value.Where(s => !string.IsNullOrEmpty(s)).ToArray() };
+                    yield return new object[] { version, header, value, value };
                 }
             }
         }
@@ -1025,7 +1056,7 @@ public class HttpForwarderTests
             {
                 foreach (var version in new[] { "1.1", "2.0" })
                 {
-                    yield return new object[] { version, header, value, value.Where(s => !string.IsNullOrEmpty(s)).ToArray() };
+                    yield return new object[] { version, header, value, value };
                 }
             }
         }
@@ -2323,7 +2354,10 @@ public class HttpForwarderTests
 
                 var response = new HttpResponseMessage(HttpStatusCode.OK);
 
-                response.Headers.TryAddWithoutValidation(headerName, headers);
+                if (!response.Headers.TryAddWithoutValidation(headerName, headers))
+                {
+                    Assert.True(response.Content.Headers.TryAddWithoutValidation(headerName, headers));
+                }
 
                 return response;
             });
@@ -2331,8 +2365,11 @@ public class HttpForwarderTests
         await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = new Version(version) });
 
         Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
-        Assert.Contains(headerName, httpContext.Response.Headers);
-        Assert.Equal(expectedHeader, httpContext.Response.Headers[headerName]);
+        if ( !(headerName.StartsWith("Content") && headerName == "Allow"))
+        {
+            Assert.Contains(headerName, httpContext.Response.Headers);
+            Assert.True(AreEqualIgnoringEmptyStrings(expectedHeader, httpContext.Response.Headers[headerName]));
+        }
     }
 
     [Theory]
@@ -2351,7 +2388,10 @@ public class HttpForwarderTests
 
                 var response = new HttpResponseMessage(HttpStatusCode.OK);
 
-                response.Headers.TryAddWithoutValidation(headerName, headers);
+                if (!response.Headers.TryAddWithoutValidation(headerName, headers))
+                {
+                    Assert.True(response.Content.Headers.TryAddWithoutValidation(headerName, headers));
+                }
 
                 return response;
             });
@@ -2359,8 +2399,6 @@ public class HttpForwarderTests
         await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = new Version(version) });
 
         Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
-        Assert.Contains(headerName, httpContext.Response.Headers);
-        Assert.Empty(httpContext.Response.Headers[headerName]);
     }
 
     [Theory]
