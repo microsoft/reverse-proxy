@@ -106,6 +106,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Minimal.Sample
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Kubernetes.UnitTests", "src\OperatorFramework\test\UnitTests\Microsoft.Kubernetes.UnitTests.csproj", "{D6599484-5A3F-471C-87B0-7014C56F14CE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Delegate.Sample", "samples\ReverseProxy.Delegate.Sample\ReverseProxy.Delegate.Sample.csproj", "{CC0674E5-0110-4238-AE7C-7B72100A0F21}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -418,6 +420,14 @@ Global
 		{D6599484-5A3F-471C-87B0-7014C56F14CE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D6599484-5A3F-471C-87B0-7014C56F14CE}.Release|x64.ActiveCfg = Release|Any CPU
 		{D6599484-5A3F-471C-87B0-7014C56F14CE}.Release|x64.Build.0 = Release|Any CPU
+		{CC0674E5-0110-4238-AE7C-7B72100A0F21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC0674E5-0110-4238-AE7C-7B72100A0F21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC0674E5-0110-4238-AE7C-7B72100A0F21}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CC0674E5-0110-4238-AE7C-7B72100A0F21}.Debug|x64.Build.0 = Debug|Any CPU
+		{CC0674E5-0110-4238-AE7C-7B72100A0F21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC0674E5-0110-4238-AE7C-7B72100A0F21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC0674E5-0110-4238-AE7C-7B72100A0F21}.Release|x64.ActiveCfg = Release|Any CPU
+		{CC0674E5-0110-4238-AE7C-7B72100A0F21}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -466,6 +476,7 @@ Global
 		{EB5663B9-31BA-4930-A302-4B87B8DEB74A} = {32B6B967-6EAF-42A1-9FD6-A59F752FF76B}
 		{AA34BE13-7193-4036-A886-A7EE6CD36940} = {149C61A2-D9F8-49B9-9F9B-3C953FEF53AA}
 		{D6599484-5A3F-471C-87B0-7014C56F14CE} = {E96BB4D7-EECC-4A78-BC7D-E167663FD6F2}
+		{CC0674E5-0110-4238-AE7C-7B72100A0F21} = {149C61A2-D9F8-49B9-9F9B-3C953FEF53AA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {31F6924A-E427-4830-96E9-B47CEB7BFE78}
