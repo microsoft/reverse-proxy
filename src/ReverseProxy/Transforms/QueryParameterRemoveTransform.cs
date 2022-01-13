@@ -28,7 +28,7 @@ public class QueryParameterRemoveTransform : RequestTransform
     {
         if (context == null)
         {
-            throw new System.ArgumentNullException(nameof(context));
+            throw new ArgumentNullException(nameof(context));
         }
 
         context.Query.Collection.Remove(Key);

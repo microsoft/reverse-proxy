@@ -522,15 +522,12 @@ internal sealed class HttpForwarder : IHttpForwarder
 
     private static void RestoreUpgradeHeaders(HttpContext context, HttpResponseMessage response)
     {
-        if (response.Headers.TryGetValues(HeaderNames.Connection, out var connectionValues)
-            && response.Headers.TryGetValues(HeaderNames.Upgrade, out var upgradeValues))
+        // We don't use RequestUtilities.TryGetValues for the Connection as we do want value validation.
+        // HttpHeaders.TryGetValues will handle the parsing and split the values for us.
+        if (RequestUtilities.TryGetValues(response.Headers, HeaderNames.Upgrade, out var upgradeValues)
+            && response.Headers.TryGetValues(HeaderNames.Connection, out var connectionValues))
         {
-            var upgradeStringValues = StringValues.Empty;
-            foreach (var value in upgradeValues)
-            {
-                upgradeStringValues = StringValues.Concat(upgradeStringValues, value);
-            }
-            context.Response.Headers.TryAdd(HeaderNames.Upgrade, upgradeStringValues);
+            context.Response.Headers.TryAdd(HeaderNames.Upgrade, upgradeValues);
 
             foreach (var value in connectionValues)
             {

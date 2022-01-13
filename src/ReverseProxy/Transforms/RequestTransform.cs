@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Forwarder;
@@ -30,19 +31,18 @@ public abstract class RequestTransform
     {
         if (string.IsNullOrEmpty(headerName))
         {
-            throw new System.ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
+            throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
         }
 
-        var existingValues = StringValues.Empty;
-        if (context.ProxyRequest.Headers.TryGetValues(headerName, out var values))
+        var proxyRequest = context.ProxyRequest;
+
+        if (RequestUtilities.TryGetValues(proxyRequest.Headers, headerName, out var existingValues))
         {
-            context.ProxyRequest.Headers.Remove(headerName);
-            existingValues = (string[])values;
+            proxyRequest.Headers.Remove(headerName);
         }
-        else if (context.ProxyRequest.Content?.Headers.TryGetValues(headerName, out values) ?? false)
+        else if (proxyRequest.Content is { } content && RequestUtilities.TryGetValues(content.Headers, headerName, out existingValues))
         {
-            context.ProxyRequest.Content.Headers.Remove(headerName);
-            existingValues = (string[])values!;
+            content.Headers.Remove(headerName);
         }
         else if (!context.HeadersCopied)
         {
@@ -59,30 +59,30 @@ public abstract class RequestTransform
     {
         if (context is null)
         {
-            throw new System.ArgumentNullException(nameof(context));
+            throw new ArgumentNullException(nameof(context));
         }
 
         if (string.IsNullOrEmpty(headerName))
         {
-            throw new System.ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
+            throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
         }
 
         RequestUtilities.AddHeader(context.ProxyRequest, headerName, values);
     }
 
     /// <summary>
-    /// Removed the given header from the HttpRequestMessage or HttpContent where applicable.
+    /// Removes the given header from the HttpRequestMessage or HttpContent where applicable.
     /// </summary>
     public static void RemoveHeader(RequestTransformContext context, string headerName)
     {
         if (context is null)
         {
-            throw new System.ArgumentNullException(nameof(context));
+            throw new ArgumentNullException(nameof(context));
         }
 
         if (string.IsNullOrEmpty(headerName))
         {
-            throw new System.ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
+            throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
         }
 
         RequestUtilities.RemoveHeader(context.ProxyRequest, headerName);

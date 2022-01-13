@@ -38,16 +38,16 @@ public class RequestHeaderValueTransform : RequestTransform
             throw new ArgumentNullException(nameof(context));
         }
 
-        var existingValues = TakeHeader(context, HeaderName);
-
         if (Append)
         {
+            var existingValues = TakeHeader(context, HeaderName);
             var values = StringValues.Concat(existingValues, Value);
             AddHeader(context, HeaderName, values);
         }
         else
         {
             // Set
+            RemoveHeader(context, HeaderName);
             AddHeader(context, HeaderName, Value);
         }
 
