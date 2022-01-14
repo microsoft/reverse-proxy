@@ -125,6 +125,7 @@ public class HeaderTests
         });
     }
 
+#if NET6_0_OR_GREATER
     [Fact]
     public async Task ProxyAsync_EmptyResponseHeader_Proxied()
     {
@@ -206,6 +207,7 @@ public class HeaderTests
             Assert.Equal("", lines[7]);
         });
     }
+#endif
 
 #if NET
     [Theory]
@@ -575,7 +577,6 @@ public class HeaderTests
         var values = new string[][] {
             new[] { "testA=A_Value", "testB=B_Value", "testC=C_Value" },
             new[] { "testA=A_Value, testB=B_Value", "testC=C_Value" },
-            new[] { "testA=A_Value", "",  "testB=B_Value, testC=C_Value" },
             new[] { "testA=A_Value, testB=B_Value, testC=C_Value" },
         };
 

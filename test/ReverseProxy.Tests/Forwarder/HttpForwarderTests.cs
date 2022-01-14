@@ -904,7 +904,7 @@ public class HttpForwarderTests
             {
                 Assert.Equal(new Version(version), request.Version);
                 Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
-                IEnumerable<string> sentHeaders;
+                IEnumerable<string>? sentHeaders;
                 if (headerName.StartsWith("Content"))
                 {
                     Assert.True(request.Content.Headers.TryGetValues(headerName, out sentHeaders));
@@ -1065,6 +1065,17 @@ public class HttpForwarderTests
     public static IEnumerable<object[]> RequestEmptyMultiHeadersData()
     {
         foreach (var header in RequestMultiHeaderNames())
+        {
+            foreach (var version in new[] { "1.1", "2.0" })
+            {
+                yield return new object[] { version, header, new[] { "", "" } };
+            }
+        }
+    }
+
+    public static IEnumerable<object[]> ResponseEmptyMultiHeadersData()
+    {
+        foreach (var header in ResponseMultiHeaderNames())
         {
             foreach (var version in new[] { "1.1", "2.0" })
             {
@@ -2327,6 +2338,7 @@ public class HttpForwarderTests
         Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
     }
 
+#if NET6_0_OR_GREATER
     [Theory]
     [MemberData(nameof(ResponseMultiHeadersData))]
     public async Task ResponseWithMultiHeaders(string version, string headerName, string[] headers)
@@ -2354,9 +2366,10 @@ public class HttpForwarderTests
         await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = new Version(version) });
 
         Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
-        Assert.Contains(headerName, httpContext.Response.Headers);
-        Assert.Equal(headers, httpContext.Response.Headers[headerName]);
+        Assert.True(httpContext.Response.Headers.TryGetValue(headerName, out var sentHeaders));
+        Assert.True(sentHeaders.Equals(headers));
     }
+#endif
 
     [Theory]
     [MemberData(nameof(GetProhibitedHeaders))]
