@@ -904,7 +904,7 @@ public class HttpForwarderTests
             {
                 Assert.Equal(new Version(version), request.Version);
                 Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
-                IEnumerable<string>? sentHeaders;
+                IEnumerable<string> sentHeaders;
                 if (headerName.StartsWith("Content"))
                 {
                     Assert.True(request.Content.Headers.TryGetValues(headerName, out sentHeaders));
