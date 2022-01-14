@@ -134,7 +134,7 @@ public class HeaderTests
         var test = new TestEnvironment(
             context =>
             {
-                context.Response.Headers.Add(HeaderNames.Referer, "");
+                context.Response.Headers.Add(HeaderNames.WWWAuthenticate, "");
                 context.Response.Headers.Add("custom", "");
                 return Task.CompletedTask;
             },
@@ -147,7 +147,7 @@ public class HeaderTests
                     {
                         await next();
 
-                        Assert.True(context.Response.Headers.TryGetValue(HeaderNames.Referer, out var header));
+                        Assert.True(context.Response.Headers.TryGetValue(HeaderNames.WWWAuthenticate, out var header));
                         var value = Assert.Single(header);
                         Assert.True(StringValues.IsNullOrEmpty(value));
 
@@ -201,7 +201,7 @@ public class HeaderTests
             // Assert.Equal("Connection: close", lines[2]);
             // Assert.StartsWith("Date: ", lines[3]);
             // Assert.Equal("Server: Kestrel", lines[4]);
-            Assert.Equal("Referer: ", lines[5]);
+            Assert.Equal("WWW-Authenticate: ", lines[5]);
             Assert.Equal("custom: ", lines[6]);
             Assert.Equal("", lines[7]);
         });
@@ -577,7 +577,6 @@ public class HeaderTests
             new[] { "testA=A_Value, testB=B_Value", "testC=C_Value" },
             new[] { "testA=A_Value", "",  "testB=B_Value, testC=C_Value" },
             new[] { "testA=A_Value, testB=B_Value, testC=C_Value" },
-            new[] { "", "" }
         };
 
         foreach (var value in values)
@@ -601,5 +600,116 @@ public class HeaderTests
         {
             yield return new object[] { HeaderNames.Cookie, value, string.Join("; ", value).TrimEnd() };
         }
+    }
+
+    public static IEnumerable<object[]> ResponseMultiHeadersData()
+    {
+        foreach (var header in ResponseMultiHeaderNames())
+        {
+            foreach (var value in MultiValues())
+            {
+                yield return new object[] { header, value, value };
+            }
+        }
+    }
+
+    public static IEnumerable<string> ResponseMultiHeaderNames()
+    {
+        var headers = new[]
+        {
+            HeaderNames.AcceptRanges,
+            HeaderNames.Allow,
+            HeaderNames.ContentEncoding,
+            HeaderNames.ContentLanguage,
+            HeaderNames.ContentRange,
+            HeaderNames.ContentType,
+            HeaderNames.SetCookie,
+            HeaderNames.Via,
+            HeaderNames.Warning,
+            HeaderNames.WWWAuthenticate
+        };
+
+        foreach (var header in headers)
+        {
+            yield return header;
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(ResponseMultiHeadersData))]
+    public async Task MultiValueResponseHeaders(string headerName, string[] values, string[] expectedValues)
+    {
+        IForwarderErrorFeature proxyError = null;
+        Exception unhandledError = null;
+
+        var test = new TestEnvironment(
+            context =>
+            {
+                Assert.True(context.Response.Headers.TryAdd(headerName, values));
+                return Task.CompletedTask;
+            },
+            proxyBuilder => { },
+            proxyApp =>
+            {
+                proxyApp.Use(async (context, next) =>
+                {
+                    try
+                    {
+                        await next();
+
+                        Assert.True(context.Response.Headers.TryGetValue(headerName, out var header));
+                        Assert.Equal(values.Length, header.Count);
+                        for (var i = 0; i < values.Length; ++i)
+                        {
+                            Assert.Equal(values[i], header[i]);
+                        }
+
+                        proxyError = context.Features.Get<IForwarderErrorFeature>();
+                    }
+                    catch (Exception ex)
+                    {
+                        unhandledError = ex;
+                        throw;
+                    }
+                });
+            },
+            proxyProtocol: HttpProtocols.Http1);
+
+        await test.Invoke(async proxyUri =>
+        {
+            var proxyHostUri = new Uri(proxyUri);
+
+            using var tcpClient = new TcpClient(proxyHostUri.Host, proxyHostUri.Port);
+            await using var stream = tcpClient.GetStream();
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("GET / HTTP/1.1\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Host: {proxyHostUri.Host}:{proxyHostUri.Port}\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Content-Length: 0\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Connection: close\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
+            var buffer = new byte[4096];
+            var responseBuilder = new StringBuilder();
+            while (true)
+            {
+                var count = await stream.ReadAsync(buffer);
+                if (count == 0)
+                {
+                    break;
+                }
+                responseBuilder.Append(Encoding.ASCII.GetString(buffer, 0, count));
+            }
+            var response = responseBuilder.ToString();
+
+            Assert.Null(proxyError);
+            Assert.Null(unhandledError);
+
+            var lines = response.Split("\r\n");
+            Assert.Equal("HTTP/1.1 200 OK", lines[0]);
+            foreach (var expected in expectedValues)
+            {
+                var test = lines.Contains($"{headerName}: {expected}");
+                Assert.Contains($"{headerName}: {expected}", lines);
+            }
+        });
     }
 }

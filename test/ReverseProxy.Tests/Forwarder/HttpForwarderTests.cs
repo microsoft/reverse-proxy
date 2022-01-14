@@ -889,7 +889,7 @@ public class HttpForwarderTests
 
     [Theory]
     [MemberData(nameof(RequestMultiHeadersData))]
-    public async Task RequestWithMultiHeaders(string version, string headerName, string[] headers, string[] expectedHeader)
+    public async Task RequestWithMultiHeaders(string version, string headerName, string[] headers)
     {
         var events = TestEventListener.Collect();
 
@@ -904,7 +904,7 @@ public class HttpForwarderTests
             {
                 Assert.Equal(new Version(version), request.Version);
                 Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
-                IEnumerable<string>? sentHeaders;
+                IEnumerable<string> sentHeaders;
                 if (headerName.StartsWith("Content"))
                 {
                     Assert.True(request.Content.Headers.TryGetValues(headerName, out sentHeaders));
@@ -915,7 +915,7 @@ public class HttpForwarderTests
                 }
 
                 Assert.NotNull(sentHeaders);
-                Assert.True(AreEqualIgnoringEmptyStrings(sentHeaders, expectedHeader));
+                Assert.True(AreEqualIgnoringEmptyStrings(sentHeaders, headers));
 
                 var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
                 return Task.FromResult(response);
@@ -957,8 +957,7 @@ public class HttpForwarderTests
                 {
                     Assert.True(request.Headers.NonValidated.TryGetValues(headerName, out sentHeaders));
                 }
-                var value = Assert.Single(sentHeaders);
-                Assert.True(StringValues.IsNullOrEmpty(value));
+                Assert.Equal(sentHeaders, headers);
 
                 var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
                 return Task.FromResult(response);
@@ -1042,7 +1041,7 @@ public class HttpForwarderTests
             {
                 foreach (var version in new[] { "1.1", "2.0" })
                 {
-                    yield return new object[] { version, header, value, value };
+                    yield return new object[] { version, header, value };
                 }
             }
         }
@@ -1052,12 +1051,13 @@ public class HttpForwarderTests
     {
         foreach (var header in ResponseMultiHeaderNames())
         {
-            foreach (var value in MultiValues())
+            foreach (var version in new[] { "1.1", "2.0" })                
             {
-                foreach (var version in new[] { "1.1", "2.0" })
+                foreach (var value in MultiValues())
                 {
-                    yield return new object[] { version, header, value, value };
+                    yield return new object[] { version, header, value };
                 }
+                yield return new object[] { version, header, new[] { "", "" } };
             }
         }
     }
@@ -1065,17 +1065,6 @@ public class HttpForwarderTests
     public static IEnumerable<object[]> RequestEmptyMultiHeadersData()
     {
         foreach (var header in RequestMultiHeaderNames())
-        {
-            foreach (var version in new[] { "1.1", "2.0" })
-            {
-                yield return new object[] { version, header, new[] { "", "" } };
-            }
-        }
-    }
-
-    public static IEnumerable<object[]> ResponseEmptyMultiHeadersData()
-    {
-        foreach (var header in ResponseMultiHeaderNames())
         {
             foreach (var version in new[] { "1.1", "2.0" })
             {
@@ -2340,7 +2329,7 @@ public class HttpForwarderTests
 
     [Theory]
     [MemberData(nameof(ResponseMultiHeadersData))]
-    public async Task ResponseWithMultiHeaders(string version, string headerName, string[] headers, string[] expectedHeader)
+    public async Task ResponseWithMultiHeaders(string version, string headerName, string[] headers)
     {
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Method = "GET";
@@ -2365,40 +2354,8 @@ public class HttpForwarderTests
         await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = new Version(version) });
 
         Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
-        if ( !(headerName.StartsWith("Content") && headerName == "Allow"))
-        {
-            Assert.Contains(headerName, httpContext.Response.Headers);
-            Assert.True(AreEqualIgnoringEmptyStrings(expectedHeader, httpContext.Response.Headers[headerName]));
-        }
-    }
-
-    [Theory]
-    [MemberData(nameof(ResponseEmptyMultiHeadersData))]
-    public async Task ResponseWithEmptyMultiHeaders(string version, string headerName, string[] headers)
-    {
-        var httpContext = new DefaultHttpContext();
-        httpContext.Request.Method = "GET";
-
-        var destinationPrefix = "https://localhost:123/a/b/";
-        var sut = CreateProxy();
-        var client = MockHttpHandler.CreateClient(
-            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-            {
-                await Task.Yield();
-
-                var response = new HttpResponseMessage(HttpStatusCode.OK);
-
-                if (!response.Headers.TryAddWithoutValidation(headerName, headers))
-                {
-                    Assert.True(response.Content.Headers.TryAddWithoutValidation(headerName, headers));
-                }
-
-                return response;
-            });
-
-        await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig { Version = new Version(version) });
-
-        Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
+        Assert.Contains(headerName, httpContext.Response.Headers);
+        Assert.Equal(headers, httpContext.Response.Headers[headerName]);
     }
 
     [Theory]
