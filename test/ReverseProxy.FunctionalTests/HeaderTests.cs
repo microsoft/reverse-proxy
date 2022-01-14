@@ -708,7 +708,6 @@ public class HeaderTests
             Assert.Equal("HTTP/1.1 200 OK", lines[0]);
             foreach (var expected in expectedValues)
             {
-                var test = lines.Contains($"{headerName}: {expected}");
                 Assert.Contains($"{headerName}: {expected}", lines);
             }
         });
