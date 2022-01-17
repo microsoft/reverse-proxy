@@ -915,7 +915,7 @@ public class HttpForwarderTests
                 }
 
                 Assert.NotNull(sentHeaders);
-                Assert.True(AreEqualIgnoringEmptyStrings(sentHeaders, headers));
+                AreEqualIgnoringEmptyStrings(sentHeaders, headers);
 
                 var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
                 return Task.FromResult(response);
@@ -973,7 +973,7 @@ public class HttpForwarderTests
     }
 #endif
 
-    internal static bool AreEqualIgnoringEmptyStrings(IEnumerable<string> left, IEnumerable<string> right)
+    internal static void AreEqualIgnoringEmptyStrings(IEnumerable<string> left, IEnumerable<string> right)
     => Assert.Equal(left.Where(s => !string.IsNullOrEmpty(s)), right.Where(s => !string.IsNullOrEmpty(s)));
 
     public static IEnumerable<string> RequestMultiHeaderNames()
