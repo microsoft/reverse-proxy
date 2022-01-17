@@ -536,18 +536,7 @@ public class HeaderTests
             await stream.WriteAsync(Encoding.ASCII.GetBytes($"Connection: close\r\n"));
             await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
             await stream.WriteAsync(Encoding.ASCII.GetBytes($"\r\n"));
-            var buffer = new byte[4096];
-            var responseBuilder = new StringBuilder();
-            while (true)
-            {
-                var count = await stream.ReadAsync(buffer);
-                if (count == 0)
-                {
-                    break;
-                }
-                responseBuilder.Append(Encoding.ASCII.GetString(buffer, 0, count));
-            }
-            var response = responseBuilder.ToString();
+            var response = await new StreamReader(stream).ReadToEndAsync();
 
             await proxyTcs.Task;
             await appTcs.Task;
@@ -688,18 +677,7 @@ public class HeaderTests
             await stream.WriteAsync(Encoding.ASCII.GetBytes($"Connection: close\r\n"));
             await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
             await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
-            var buffer = new byte[4096];
-            var responseBuilder = new StringBuilder();
-            while (true)
-            {
-                var count = await stream.ReadAsync(buffer);
-                if (count == 0)
-                {
-                    break;
-                }
-                responseBuilder.Append(Encoding.ASCII.GetString(buffer, 0, count));
-            }
-            var response = responseBuilder.ToString();
+            var response = await new StreamReader(stream).ReadToEndAsync();
 
             Assert.Null(proxyError);
             Assert.Null(unhandledError);

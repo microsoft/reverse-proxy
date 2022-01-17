@@ -974,7 +974,7 @@ public class HttpForwarderTests
 #endif
 
     internal static bool AreEqualIgnoringEmptyStrings(IEnumerable<string> left, IEnumerable<string> right)
-    => Enumerable.SequenceEqual(left.Where(s => !string.IsNullOrEmpty(s)).ToArray(), right.Where(s => !string.IsNullOrEmpty(s)).ToArray());
+    => Assert.Equal(left.Where(s => !string.IsNullOrEmpty(s)), right.Where(s => !string.IsNullOrEmpty(s)));
 
     public static IEnumerable<string> RequestMultiHeaderNames()
     {
