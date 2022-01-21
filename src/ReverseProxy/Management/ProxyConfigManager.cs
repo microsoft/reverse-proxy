@@ -176,22 +176,32 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
 
     private void RegisterConfigChangeListeners()
     {
-        _configChangeMonitor = new CancellationTokenSource();
-        _configChangeMonitor.Token.Register(ReloadConfig, this);
+        // Use a central change token to avoid races between different sources.
+        var source = new CancellationTokenSource();
+        _configChangeMonitor = source;
 
         foreach (var config in _configs)
         {
+            if (config.GetConfigFailed)
+            {
+                // We can't listen for changes if the last load failed.
+                continue;
+            }
+
             config.CallbackCleanup?.Dispose();
             var token = config.LatestConfig.ChangeToken;
             if (token.ActiveChangeCallbacks)
             {
-                config.CallbackCleanup = token.RegisterChangeCallback(SignalChange, _configChangeMonitor);
+                config.CallbackCleanup = token.RegisterChangeCallback(SignalChange, source);
             }
             else
             {
-                // TODO: Enable polling by adding a timeout to _configChangeMonitor?
+                // TODO: Enable polling by adding a timeout to _configChangeMonitor?                
             }
         }
+
+        // Don't register until we're done hooking everything up to avoid cancellation races.
+        source.Token.Register(ReloadConfig, this);
 
         static void SignalChange(object obj)
         {
@@ -202,10 +212,11 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
 
     private class ConfigInstance
     {
-        public IProxyConfig LastKnownGoodConfig { get; set; }
+        public IProxyConfig? LastKnownGoodConfig { get; set; }
+        public IProxyConfig? LastKnownBadConfig { get; set; }
         public IProxyConfig LatestConfig { get; set; }
 
-        public bool IsLatestInvalid { get; set; }
+        public bool GetConfigFailed { get; set; }
 
         public HashSet<string> PriorRouteIds { get; set; }
         public HashSet<string> PriorClusterIds { get; set; }
@@ -213,9 +224,9 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         public IDisposable CallbackCleanup { get; set; }
     }
 
-    private static void ReloadConfig(object state)
+    private static void ReloadConfig(object? state)
     {
-        var manager = (ProxyConfigManager)state;
+        var manager = (ProxyConfigManager)state!;
         _ = manager.ReloadConfigAsync();
     }
 
@@ -227,11 +238,12 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         {
             try
             {
+                _configs[i].GetConfigFailed = false;
                 _configs[i].LatestConfig = _providers[i].GetConfig();
             }
             catch (Exception ex)
             {
-                _configs[i].IsLatestInvalid = true;
+                _configs[i].GetConfigFailed = true;
                 Log.ErrorReloadingConfig(_logger, ex);
                 // If we can't load the config then we can't listen for changes anymore.
                 // return;
@@ -266,12 +278,18 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         for (var i = 0; i < _configs.Length; i++)
         {
             var instance = _configs[i];
+            if (SkipInstance(instance))
+            {
+                continue;
+            }
+
             var (configuredClusters, clusterErrors) = await VerifyClustersAsync(instance.LatestConfig.Clusters, cancellation: default);
             var (configuredRoutes, routeErrors) = await VerifyRoutesAsync(instance.LatestConfig.Routes, configuredClusters, cancellation: default);
 
             if (routeErrors.Count > 0 || clusterErrors.Count > 0)
             {
-                instance.IsLatestInvalid = true;
+                instance.LastKnownBadConfig = instance.LatestConfig;
+                // TODO: Don't throw yet, apply the other configs first.
                 throw new AggregateException("The proxy config is invalid.", routeErrors.Concat(clusterErrors));
             }
 
@@ -280,7 +298,15 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
             routesChanged |= UpdateRuntimeRoutes(instance, configuredRoutes);
 
             instance.LastKnownGoodConfig = instance.LatestConfig;
-            instance.IsLatestInvalid = false;
+            instance.LastKnownBadConfig = null;
+        }
+
+        static bool SkipInstance(ConfigInstance instance)
+        {
+            // This one didn't change.
+            return instance.GetConfigFailed
+                || instance.LastKnownGoodConfig == instance.LatestConfig
+                || instance.LastKnownBadConfig == instance.LatestConfig;
         }
 
         return routesChanged;
