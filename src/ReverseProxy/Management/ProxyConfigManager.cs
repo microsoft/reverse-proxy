@@ -51,8 +51,10 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
     private readonly IClusterDestinationsUpdater _clusterDestinationsUpdater;
 
     private List<Endpoint>? _endpoints;
-    private CancellationTokenSource _cancellationTokenSource = new();
-    private IChangeToken _changeToken;
+    private CancellationTokenSource _endpointsChangeSource = new();
+    private IChangeToken _endpointsChangeToken;
+
+    private CancellationTokenSource _configChangeSource = new();
 
     public ProxyConfigManager(
         ILogger<ProxyConfigManager> logger,
@@ -88,7 +90,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         _conventions = new List<Action<EndpointBuilder>>();
         DefaultBuilder = new ReverseProxyConventionBuilder(_conventions);
 
-        _changeToken = new CancellationChangeToken(_cancellationTokenSource.Token);
+        _endpointsChangeToken = new CancellationChangeToken(_endpointsChangeSource.Token);
     }
 
     public ReverseProxyConventionBuilder DefaultBuilder { get; }
@@ -137,12 +139,9 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
     }
 
     /// <inheritdoc/>
-    public override IChangeToken GetChangeToken() => Volatile.Read(ref _changeToken);
+    public override IChangeToken GetChangeToken() => Volatile.Read(ref _endpointsChangeToken);
 
-    // IProxyConfigManager
-
-    /// <inheritdoc/>
-    public async Task<EndpointDataSource> InitialLoadAsync()
+    internal async Task<EndpointDataSource> InitialLoadAsync()
     {
         // Trigger the first load immediately and throw if it fails.
         // We intend this to crash the app so we don't try listening for further changes.
@@ -173,19 +172,19 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         return this;
     }
 
-    private CancellationTokenSource _configChangeMonitor = new();
-
     private void RegisterConfigChangeListeners()
     {
         // Use a central change token to avoid races between different sources.
         var source = new CancellationTokenSource();
-        _configChangeMonitor = source;
+        _configChangeSource = source;
+        var poll = false;
 
         foreach (var config in _configs)
         {
             if (config.GetConfigFailed)
             {
-                // We can't listen for changes if the last load failed.
+                // We can't register for change notifications if the last load failed.
+                poll = true;
                 continue;
             }
 
@@ -197,8 +196,14 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
             }
             else
             {
-                // TODO: Enable polling by adding a timeout to _configChangeMonitor?                
+                poll = true;
             }
+        }
+
+        if (poll)
+        {
+            // TODO: Configurable
+            source.CancelAfter(TimeSpan.FromSeconds(60));
         }
 
         // Don't register until we're done hooking everything up to avoid cancellation races.
@@ -208,6 +213,12 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         {
             var token = (CancellationTokenSource)obj;
             token.Cancel();
+        }
+
+        static void ReloadConfig(object? state)
+        {
+            var manager = (ProxyConfigManager)state!;
+            _ = manager.ReloadConfigAsync();
         }
     }
 
@@ -225,16 +236,11 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         public IDisposable? CallbackCleanup { get; set; }
     }
 
-    private static void ReloadConfig(object? state)
-    {
-        var manager = (ProxyConfigManager)state!;
-        _ = manager.ReloadConfigAsync();
-    }
-
     private async Task ReloadConfigAsync()
     {
-        _configChangeMonitor.Dispose();
+        _configChangeSource.Dispose();
 
+        var sourcesChanged = false;
         var routes = new List<RouteConfig>();
         var clusters = new List<ClusterConfig>();
         for (var i = 0; i < _providers.Length; i++)
@@ -242,8 +248,12 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
             var instance = _configs[i];
             try
             {
-                instance.GetConfigFailed = false;
-                instance.LatestConfig = _providers[i].GetConfig();
+                if (instance.LatestConfig.ChangeToken.HasChanged)
+                {
+                    sourcesChanged = true;
+                    instance.GetConfigFailed = false;
+                    instance.LatestConfig = _providers[i].GetConfig();
+                }
             }
             catch (Exception ex)
             {
@@ -254,6 +264,13 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
             // If we couldn't get a new config, re-use the last one.
             routes.AddRange(instance.LatestConfig.Routes);
             clusters.AddRange(instance.LatestConfig.Clusters);
+        }
+
+        if (!sourcesChanged)
+        {
+            // Polling mode, only reload if at least one provider changed.
+            RegisterConfigChangeListeners();
+            return;
         }
 
         try
@@ -639,14 +656,14 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
             // These steps are done in a specific order to ensure callers always see a consistent state.
 
             // Step 1 - capture old token
-            var oldCancellationTokenSource = _cancellationTokenSource;
+            var oldCancellationTokenSource = _endpointsChangeSource;
 
             // Step 2 - update endpoints
             Volatile.Write(ref _endpoints, endpoints);
 
             // Step 3 - create new change token
-            _cancellationTokenSource = new CancellationTokenSource();
-            Volatile.Write(ref _changeToken, new CancellationChangeToken(_cancellationTokenSource.Token));
+            _endpointsChangeSource = new CancellationTokenSource();
+            Volatile.Write(ref _endpointsChangeToken, new CancellationChangeToken(_endpointsChangeSource.Token));
 
             // Step 4 - trigger old token
             oldCancellationTokenSource?.Cancel();
@@ -662,7 +679,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
 
     public void Dispose()
     {
-        _configChangeMonitor?.Dispose();
+        _configChangeSource?.Dispose();
         foreach (var instance in _configs)
         {
             instance.CallbackCleanup?.Dispose();
