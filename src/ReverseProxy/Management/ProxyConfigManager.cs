@@ -35,7 +35,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
 {
     private static readonly IReadOnlyDictionary<string, ClusterConfig> _emptyClusterDictionary = new ReadOnlyDictionary<string, ClusterConfig>(new Dictionary<string, ClusterConfig>());
 
-    private readonly object _syncRoot = new object();
+    private readonly object _syncRoot = new();
     private readonly ILogger<ProxyConfigManager> _logger;
     private readonly IProxyConfigProvider[] _providers;
     private readonly ConfigInstance[] _configs;
@@ -52,7 +52,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
     private readonly IClusterDestinationsUpdater _clusterDestinationsUpdater;
 
     private List<Endpoint>? _endpoints;
-    private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+    private CancellationTokenSource _cancellationTokenSource = new();
     private IChangeToken _changeToken;
 
     public ProxyConfigManager(
@@ -147,17 +147,22 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
     {
         // Trigger the first load immediately and throw if it fails.
         // We intend this to crash the app so we don't try listening for further changes.
+        var routes = new List<RouteConfig>();
+        var clusters = new List<ClusterConfig>();
         try
         {
             for (var i = 0; i < _providers.Length; i++)
             {
+                var config = _providers[i].GetConfig();
                 _configs[i] = new ConfigInstance
                 {
-                    LatestConfig = _providers[i].GetConfig(),
+                    LatestConfig = config,
                 };
+                routes.AddRange(config.Routes ?? Array.Empty<RouteConfig>());
+                clusters.AddRange(config.Clusters ?? Array.Empty<ClusterConfig>());
             }
 
-            await ApplyConfigAsync();
+            await ApplyConfigAsync(routes.AsReadOnly(), clusters.AsReadOnly());
 
             RegisterConfigChangeListeners();
         }
@@ -172,7 +177,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         return this;
     }
 
-    private CancellationTokenSource _configChangeMonitor = new CancellationTokenSource();
+    private CancellationTokenSource _configChangeMonitor = new();
 
     private void RegisterConfigChangeListeners()
     {
@@ -212,14 +217,9 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
 
     private class ConfigInstance
     {
-        public IProxyConfig? LastKnownGoodConfig { get; set; }
-        public IProxyConfig? LastKnownBadConfig { get; set; }
         public IProxyConfig LatestConfig { get; set; }
 
         public bool GetConfigFailed { get; set; }
-
-        public HashSet<string> PriorRouteIds { get; set; }
-        public HashSet<string> PriorClusterIds { get; set; }
 
         public IDisposable CallbackCleanup { get; set; }
     }
@@ -234,25 +234,30 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
     {
         _configChangeMonitor.Dispose();
 
+        var routes = new List<RouteConfig>();
+        var clusters = new List<ClusterConfig>();
         for (var i = 0; i < _providers.Length; i++)
         {
+            var instance = _configs[i];
             try
             {
-                _configs[i].GetConfigFailed = false;
-                _configs[i].LatestConfig = _providers[i].GetConfig();
+                instance.GetConfigFailed = false;
+                instance.LatestConfig = _providers[i].GetConfig();
             }
             catch (Exception ex)
             {
-                _configs[i].GetConfigFailed = true;
+                instance.GetConfigFailed = true;
                 Log.ErrorReloadingConfig(_logger, ex);
-                // If we can't load the config then we can't listen for changes anymore.
-                // return;
             }
+
+            // If we couldn't get a new config, re-use the last one.
+            routes.AddRange(instance.LatestConfig.Routes);
+            clusters.AddRange(instance.LatestConfig.Clusters);
         }
 
         try
         {
-            var hasChanged = await ApplyConfigAsync();
+            var hasChanged = await ApplyConfigAsync(routes.AsReadOnly(), clusters.AsReadOnly());
             lock (_syncRoot)
             {
                 // Skip if changes are signaled before the endpoints are initialized for the first time.
@@ -272,42 +277,21 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
     }
 
     // Throws for validation failures
-    private async Task<bool> ApplyConfigAsync()
+    private async Task<bool> ApplyConfigAsync(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
     {
         var routesChanged = false;
-        for (var i = 0; i < _configs.Length; i++)
+
+        var (configuredClusters, clusterErrors) = await VerifyClustersAsync(clusters, cancellation: default);
+        var (configuredRoutes, routeErrors) = await VerifyRoutesAsync(routes, configuredClusters, cancellation: default);
+
+        if (routeErrors.Count > 0 || clusterErrors.Count > 0)
         {
-            var instance = _configs[i];
-            if (SkipInstance(instance))
-            {
-                continue;
-            }
-
-            var (configuredClusters, clusterErrors) = await VerifyClustersAsync(instance.LatestConfig.Clusters, cancellation: default);
-            var (configuredRoutes, routeErrors) = await VerifyRoutesAsync(instance.LatestConfig.Routes, configuredClusters, cancellation: default);
-
-            if (routeErrors.Count > 0 || clusterErrors.Count > 0)
-            {
-                instance.LastKnownBadConfig = instance.LatestConfig;
-                // TODO: Don't throw yet, apply the other configs first.
-                throw new AggregateException("The proxy config is invalid.", routeErrors.Concat(clusterErrors));
-            }
-
-            // Update clusters first because routes need to reference them.
-            UpdateRuntimeClusters(instance, configuredClusters.Values);
-            routesChanged |= UpdateRuntimeRoutes(instance, configuredRoutes);
-
-            instance.LastKnownGoodConfig = instance.LatestConfig;
-            instance.LastKnownBadConfig = null;
+            throw new AggregateException("The proxy config is invalid.", routeErrors.Concat(clusterErrors));
         }
 
-        static bool SkipInstance(ConfigInstance instance)
-        {
-            // This one didn't change.
-            return instance.GetConfigFailed
-                || instance.LastKnownGoodConfig == instance.LatestConfig
-                || instance.LastKnownBadConfig == instance.LatestConfig;
-        }
+        // Update clusters first because routes need to reference them.
+        UpdateRuntimeClusters(configuredClusters.Values);
+        routesChanged |= UpdateRuntimeRoutes(configuredRoutes);
 
         return routesChanged;
     }
@@ -424,7 +408,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         return (configuredClusters, errors);
     }
 
-    private void UpdateRuntimeClusters(ConfigInstance instance, IEnumerable<ClusterConfig> incomingClusters)
+    private void UpdateRuntimeClusters(IEnumerable<ClusterConfig> incomingClusters)
     {
         var desiredClusters = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -500,27 +484,27 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
             }
         }
 
-        if (instance.PriorClusterIds != null)
+        // Directly enumerate the ConcurrentDictionary to limit locking and copying.
+        foreach (var existingClusterPair in _clusters)
         {
-            foreach (var priorClusterId in instance.PriorClusterIds)
+            var existingCluster = existingClusterPair.Value;
+            if (!desiredClusters.Contains(existingCluster.ClusterId))
             {
-                if (!desiredClusters.Contains(priorClusterId))
+                // NOTE 1: Remove is safe to do within the `foreach` loop on ConcurrentDictionary
+                //
+                // NOTE 2: Removing the cluster from _clusters is safe and existing
+                // ASP .NET Core endpoints will continue to work with their existing behavior (until those endpoints are updated)
+                // and the Garbage Collector won't destroy this cluster object while it's referenced elsewhere.
+                Log.ClusterRemoved(_logger, existingCluster.ClusterId);
+                var removed = _clusters.TryRemove(existingCluster.ClusterId, out var _);
+                Debug.Assert(removed);
+                    
+                foreach (var listener in _clusterChangeListeners)
                 {
-                    // NOTE: Removing the cluster from _clusters is safe and existing
-                    // ASP .NET Core endpoints will continue to work with their existing behavior (until those endpoints are updated)
-                    // and the Garbage Collector won't destroy this cluster object while it's referenced elsewhere.
-                    if (_clusters.TryRemove(priorClusterId, out var priorCluster))
-                    {
-                        Log.ClusterRemoved(_logger, priorClusterId);
-                        foreach (var listener in _clusterChangeListeners)
-                        {
-                            listener.OnClusterRemoved(priorCluster);
-                        }
-                    }
+                    listener.OnClusterRemoved(existingCluster);
                 }
             }
         }
-        instance.PriorClusterIds = desiredClusters;
     }
 
     private bool UpdateRuntimeDestinations(IReadOnlyDictionary<string, DestinationConfig>? incomingDestinations, ConcurrentDictionary<string, DestinationState> currentDestinations)
@@ -578,7 +562,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         return changed;
     }
 
-    private bool UpdateRuntimeRoutes(ConfigInstance instance, IList<RouteConfig> incomingRoutes)
+    private bool UpdateRuntimeRoutes(IList<RouteConfig> incomingRoutes)
     {
         var desiredRoutes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var changed = false;
@@ -619,24 +603,23 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
             }
         }
 
-        if (instance.PriorRouteIds != null)
+        // Directly enumerate the ConcurrentDictionary to limit locking and copying.
+        foreach (var existingRoutePair in _routes)
         {
-            foreach (var priorRouteId in instance.PriorRouteIds)
+            var routeId = existingRoutePair.Value.RouteId;
+            if (!desiredRoutes.Contains(routeId))
             {
-                if (!desiredRoutes.Contains(priorRouteId))
-                {
-                    // NOTE: Removing the route from _routes is safe and existing
+                    // NOTE 1: Remove is safe to do within the `foreach` loop on ConcurrentDictionary
+                    //
+                    // NOTE 2: Removing the route from _routes is safe and existing
                     // ASP.NET Core endpoints will continue to work with their existing behavior since
                     // their copy of `RouteModel` is immutable and remains operational in whichever state is was in.
-                    if (_routes.TryRemove(priorRouteId, out var priorCluster))
-                    {
-                        Log.RouteRemoved(_logger, priorRouteId);
+                    Log.RouteRemoved(_logger, routeId);
+                    var removed = _routes.TryRemove(routeId, out var _);
+                    Debug.Assert(removed);
                         changed = true;
-                    }
-                }
             }
         }
-        instance.PriorRouteIds = desiredRoutes;
 
         return changed;
     }
