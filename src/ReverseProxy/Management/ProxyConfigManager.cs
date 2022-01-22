@@ -8,7 +8,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -154,10 +153,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
             for (var i = 0; i < _providers.Length; i++)
             {
                 var config = _providers[i].GetConfig();
-                _configs[i] = new ConfigInstance
-                {
-                    LatestConfig = config,
-                };
+                _configs[i] = new ConfigInstance(config);
                 routes.AddRange(config.Routes ?? Array.Empty<RouteConfig>());
                 clusters.AddRange(config.Clusters ?? Array.Empty<ClusterConfig>());
             }
@@ -217,11 +213,16 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
 
     private class ConfigInstance
     {
+        public ConfigInstance(IProxyConfig config)
+        {
+            LatestConfig = config;
+        }
+
         public IProxyConfig LatestConfig { get; set; }
 
         public bool GetConfigFailed { get; set; }
 
-        public IDisposable CallbackCleanup { get; set; }
+        public IDisposable? CallbackCleanup { get; set; }
     }
 
     private static void ReloadConfig(object? state)
@@ -279,8 +280,6 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
     // Throws for validation failures
     private async Task<bool> ApplyConfigAsync(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
     {
-        var routesChanged = false;
-
         var (configuredClusters, clusterErrors) = await VerifyClustersAsync(clusters, cancellation: default);
         var (configuredRoutes, routeErrors) = await VerifyRoutesAsync(routes, configuredClusters, cancellation: default);
 
@@ -291,8 +290,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
 
         // Update clusters first because routes need to reference them.
         UpdateRuntimeClusters(configuredClusters.Values);
-        routesChanged |= UpdateRuntimeRoutes(configuredRoutes);
-
+        var routesChanged = UpdateRuntimeRoutes(configuredRoutes);
         return routesChanged;
     }
 
@@ -498,7 +496,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
                 Log.ClusterRemoved(_logger, existingCluster.ClusterId);
                 var removed = _clusters.TryRemove(existingCluster.ClusterId, out var _);
                 Debug.Assert(removed);
-                    
+
                 foreach (var listener in _clusterChangeListeners)
                 {
                     listener.OnClusterRemoved(existingCluster);
@@ -609,15 +607,15 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
             var routeId = existingRoutePair.Value.RouteId;
             if (!desiredRoutes.Contains(routeId))
             {
-                    // NOTE 1: Remove is safe to do within the `foreach` loop on ConcurrentDictionary
-                    //
-                    // NOTE 2: Removing the route from _routes is safe and existing
-                    // ASP.NET Core endpoints will continue to work with their existing behavior since
-                    // their copy of `RouteModel` is immutable and remains operational in whichever state is was in.
-                    Log.RouteRemoved(_logger, routeId);
-                    var removed = _routes.TryRemove(routeId, out var _);
-                    Debug.Assert(removed);
-                        changed = true;
+                // NOTE 1: Remove is safe to do within the `foreach` loop on ConcurrentDictionary
+                //
+                // NOTE 2: Removing the route from _routes is safe and existing
+                // ASP.NET Core endpoints will continue to work with their existing behavior since
+                // their copy of `RouteModel` is immutable and remains operational in whichever state is was in.
+                Log.RouteRemoved(_logger, routeId);
+                var removed = _routes.TryRemove(routeId, out var _);
+                Debug.Assert(removed);
+                changed = true;
             }
         }
 
