@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -45,7 +46,10 @@ public class ForwarderHttpClientFactory : IForwarderHttpClientFactory
             UseProxy = false,
             AllowAutoRedirect = false,
             AutomaticDecompression = DecompressionMethods.None,
-            UseCookies = false
+            UseCookies = false,
+#if NET6_0_OR_GREATER
+            ActivityHeadersPropagator = Propagator
+#endif
 
             // NOTE: MaxResponseHeadersLength = 64, which means up to 64 KB of headers are allowed by default as of .NET Core 3.1.
         };
@@ -67,6 +71,15 @@ public class ForwarderHttpClientFactory : IForwarderHttpClientFactory
     {
         return context.OldClient != null && context.NewConfig == context.OldConfig;
     }
+#if NET6_0_OR_GREATER
+    /// <summary>
+    /// Wraps custom propagator and keeps header removal logic by default.
+    /// </summary>
+    protected virtual DistributedContextPropagator? Propagator
+    {
+        get => new ReverseProxyPropagator(DistributedContextPropagator.CreateDefaultPropagator());
+    }
+#endif
 
     /// <summary>
     /// Allows configuring the <see cref="SocketsHttpHandler"/> instance. The base implementation
