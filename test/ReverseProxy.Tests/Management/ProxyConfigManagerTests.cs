@@ -26,14 +26,43 @@ using Yarp.ReverseProxy.Routing;
 
 namespace Yarp.ReverseProxy.Management.Tests;
 
+// TODO:
+// Two sources with errors in one.
+// Two sources with errors in both.
+// Duplicate route/cluster id across configs
+// Active source changes
+// Polling, passive source changes
+// Reload errors
+
 public class ProxyConfigManagerTests
 {
-    private IServiceProvider CreateServices(List<RouteConfig> routes, List<ClusterConfig> clusters, Action<IReverseProxyBuilder> configureProxy = null)
+    private static IServiceProvider CreateServices(List<RouteConfig> routes, List<ClusterConfig> clusters, Action<IReverseProxyBuilder> configureProxy = null)
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddLogging();
         serviceCollection.AddRouting();
         var proxyBuilder = serviceCollection.AddReverseProxy().LoadFromMemory(routes, clusters);
+        serviceCollection.TryAddSingleton(new Mock<IWebHostEnvironment>().Object);
+        var activeHealthPolicy = new Mock<IActiveHealthCheckPolicy>();
+        activeHealthPolicy.SetupGet(p => p.Name).Returns("activePolicyA");
+        serviceCollection.AddSingleton(activeHealthPolicy.Object);
+        configureProxy?.Invoke(proxyBuilder);
+        var services = serviceCollection.BuildServiceProvider();
+        var routeBuilder = services.GetRequiredService<ProxyEndpointFactory>();
+        routeBuilder.SetProxyPipeline(context => Task.CompletedTask);
+        return services;
+    }
+
+    private static IServiceProvider CreateServices(IEnumerable<IProxyConfigProvider> configProviders, Action<IReverseProxyBuilder> configureProxy = null)
+    {
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddLogging();
+        serviceCollection.AddRouting();
+        var proxyBuilder = serviceCollection.AddReverseProxy();
+        foreach (var configProvider in configProviders)
+        {
+            serviceCollection.AddSingleton(configProvider);
+        }
         serviceCollection.TryAddSingleton(new Mock<IWebHostEnvironment>().Object);
         var activeHealthPolicy = new Mock<IActiveHealthCheckPolicy>();
         activeHealthPolicy.SetupGet(p => p.Name).Returns("activePolicyA");
@@ -142,6 +171,178 @@ public class ProxyConfigManagerTests
         var actualDestinations = clusterState.Destinations.Values;
         var destination = Assert.Single(actualDestinations);
         Assert.Equal("d1", destination.DestinationId);
+        Assert.NotNull(destination.Model);
+        Assert.Equal(TestAddress, destination.Model.Config.Address);
+    }
+
+    [Fact]
+    public async Task BuildConfig_TwoDistinctConfigs_Works()
+    {
+        const string TestAddress = "https://localhost:123/";
+
+        var cluster1 = new ClusterConfig
+        {
+            ClusterId = "cluster1",
+            Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "d1", new DestinationConfig { Address = TestAddress } }
+            }
+        };
+        var route1 = new RouteConfig
+        {
+            RouteId = "route1",
+            ClusterId = "cluster1",
+            Match = new RouteMatch { Path = "/" }
+        };
+
+        var cluster2 = new ClusterConfig
+        {
+            ClusterId = "cluster2",
+            Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "d2", new DestinationConfig { Address = TestAddress } }
+            }
+        };
+        var route2 = new RouteConfig
+        {
+            RouteId = "route2",
+            ClusterId = "cluster2",
+            Match = new RouteMatch { Path = "/" }
+        };
+
+        var config1 = new InMemoryConfigProvider(new List<RouteConfig>() { route1 }, new List<ClusterConfig>() { cluster1 });
+        var config2 = new InMemoryConfigProvider(new List<RouteConfig>() { route2 }, new List<ClusterConfig>() { cluster2 });
+
+        var services = CreateServices(new[] { config1, config2 });
+
+        var manager = services.GetRequiredService<ProxyConfigManager>();
+        var dataSource = await manager.InitialLoadAsync();
+
+        Assert.NotNull(dataSource);
+        var endpoints = dataSource.Endpoints;
+        Assert.Equal(2, endpoints.Count);
+
+        var routeConfig = endpoints[0].Metadata.GetMetadata<RouteModel>();
+        Assert.NotNull(routeConfig);
+        Assert.Equal("route1", routeConfig.Config.RouteId);
+
+        var clusterState = routeConfig.Cluster;
+        Assert.NotNull(clusterState);
+
+        Assert.Equal("cluster1", clusterState.ClusterId);
+        Assert.NotNull(clusterState.Destinations);
+        Assert.NotNull(clusterState.Model);
+        Assert.NotNull(clusterState.Model.HttpClient);
+        Assert.Same(clusterState, routeConfig.Cluster);
+
+        var actualDestinations = clusterState.Destinations.Values;
+        var destination = Assert.Single(actualDestinations);
+        Assert.Equal("d1", destination.DestinationId);
+        Assert.NotNull(destination.Model);
+        Assert.Equal(TestAddress, destination.Model.Config.Address);
+
+        routeConfig = endpoints[1].Metadata.GetMetadata<RouteModel>();
+        Assert.NotNull(routeConfig);
+        Assert.Equal("route2", routeConfig.Config.RouteId);
+
+        clusterState = routeConfig.Cluster;
+        Assert.NotNull(clusterState);
+
+        Assert.Equal("cluster2", clusterState.ClusterId);
+        Assert.NotNull(clusterState.Destinations);
+        Assert.NotNull(clusterState.Model);
+        Assert.NotNull(clusterState.Model.HttpClient);
+        Assert.Same(clusterState, routeConfig.Cluster);
+
+        actualDestinations = clusterState.Destinations.Values;
+        destination = Assert.Single(actualDestinations);
+        Assert.Equal("d2", destination.DestinationId);
+        Assert.NotNull(destination.Model);
+        Assert.Equal(TestAddress, destination.Model.Config.Address);
+    }
+
+    [Fact]
+    public async Task BuildConfig_TwoOverlappingConfigs_Works()
+    {
+        const string TestAddress = "https://localhost:123/";
+
+        var cluster1 = new ClusterConfig
+        {
+            ClusterId = "cluster1",
+            Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "d1", new DestinationConfig { Address = TestAddress } }
+            }
+        };
+        var cluster2 = new ClusterConfig
+        {
+            ClusterId = "cluster2",
+            Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "d2", new DestinationConfig { Address = TestAddress } }
+            }
+        };
+
+        var route1 = new RouteConfig
+        {
+            RouteId = "route1",
+            ClusterId = "cluster1",
+            Match = new RouteMatch { Path = "/" }
+        };
+        var route2 = new RouteConfig
+        {
+            RouteId = "route2",
+            ClusterId = "cluster2",
+            Match = new RouteMatch { Path = "/" }
+        };
+
+        var config1 = new InMemoryConfigProvider(new List<RouteConfig>() { route2 }, new List<ClusterConfig>() { cluster1 });
+        var config2 = new InMemoryConfigProvider(new List<RouteConfig>() { route1 }, new List<ClusterConfig>() { cluster2 });
+
+        var services = CreateServices(new[] { config1, config2 });
+
+        var manager = services.GetRequiredService<ProxyConfigManager>();
+        var dataSource = await manager.InitialLoadAsync();
+
+        Assert.NotNull(dataSource);
+        var endpoints = dataSource.Endpoints;
+        Assert.Equal(2, endpoints.Count);
+
+        var routeConfig = endpoints[0].Metadata.GetMetadata<RouteModel>();
+        Assert.NotNull(routeConfig);
+        Assert.Equal("route1", routeConfig.Config.RouteId);
+
+        var clusterState = routeConfig.Cluster;
+        Assert.NotNull(clusterState);
+
+        Assert.Equal("cluster1", clusterState.ClusterId);
+        Assert.NotNull(clusterState.Destinations);
+        Assert.NotNull(clusterState.Model);
+        Assert.NotNull(clusterState.Model.HttpClient);
+        Assert.Same(clusterState, routeConfig.Cluster);
+
+        var actualDestinations = clusterState.Destinations.Values;
+        var destination = Assert.Single(actualDestinations);
+        Assert.Equal("d1", destination.DestinationId);
+        Assert.NotNull(destination.Model);
+        Assert.Equal(TestAddress, destination.Model.Config.Address);
+
+        routeConfig = endpoints[1].Metadata.GetMetadata<RouteModel>();
+        Assert.NotNull(routeConfig);
+        Assert.Equal("route2", routeConfig.Config.RouteId);
+
+        clusterState = routeConfig.Cluster;
+        Assert.NotNull(clusterState);
+
+        Assert.Equal("cluster2", clusterState.ClusterId);
+        Assert.NotNull(clusterState.Destinations);
+        Assert.NotNull(clusterState.Model);
+        Assert.NotNull(clusterState.Model.HttpClient);
+        Assert.Same(clusterState, routeConfig.Cluster);
+
+        actualDestinations = clusterState.Destinations.Values;
+        destination = Assert.Single(actualDestinations);
+        Assert.Equal("d2", destination.DestinationId);
         Assert.NotNull(destination.Model);
         Assert.Equal(TestAddress, destination.Model.Config.Address);
     }
