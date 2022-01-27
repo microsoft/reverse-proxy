@@ -71,15 +71,6 @@ public class ForwarderHttpClientFactory : IForwarderHttpClientFactory
     {
         return context.OldClient != null && context.NewConfig == context.OldConfig;
     }
-#if NET6_0_OR_GREATER
-    /// <summary>
-    /// Wraps custom propagator and keeps header removal logic by default.
-    /// </summary>
-    protected virtual DistributedContextPropagator? Propagator
-    {
-        get => new ReverseProxyPropagator(DistributedContextPropagator.CreateDefaultPropagator());
-    }
-#endif
 
     /// <summary>
     /// Allows configuring the <see cref="SocketsHttpHandler"/> instance. The base implementation
