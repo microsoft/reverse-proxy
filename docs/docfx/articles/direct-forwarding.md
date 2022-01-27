@@ -60,17 +60,16 @@ public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
     var requestConfig = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
 
     app.UseRouting();
-    app.UseAuthorization();
     app.UseEndpoints(endpoints =>
     {
         endpoints.Map("/{**catch-all}", async httpContext =>
         {
             var error = await forwarder.SendAsync(httpContext, "https://localhost:10000/",
-                httpClient, requestConfig, transformer);
+                httpClient, requestOptions, transformer);
             // Check if the operation was successful
             if (error != ForwarderError.None)
             {
-                var errorFeature = httpContext.GetForwarderErrorFeature();
+                var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
                 var exception = errorFeature.Exception;
             }
         });
@@ -84,9 +83,18 @@ private class CustomTransformer : HttpTransformer
     public override async ValueTask TransformRequestAsync(HttpContext httpContext,
         HttpRequestMessage proxyRequest, string destinationPrefix)
     {
-        // Copy headers normally and then remove the original host.
-        // Use the destination host from proxyRequest.RequestUri instead.
+        // Copy all request headers
         await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+
+        // Customize the query string:
+        var queryContext = new QueryTransformContext(httpContext.Request);
+        queryContext.Collection.Remove("param1");
+        queryContext.Collection["area"] = "xx2";
+
+        // Assign the custom uri. Be careful about extra slashes when concatenating here. RequestUtilities.MakeDestinationAddress is a safe default.
+        proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress("https://example.com", httpContext.Request.Path, queryContext.QueryString);
+
+        // Suppress the original request header, use the one from the destination Uri.
         proxyRequest.Headers.Host = null;
     }
 }

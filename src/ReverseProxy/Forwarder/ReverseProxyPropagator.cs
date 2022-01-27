@@ -10,11 +10,17 @@ using System.Net.Http;
 
 namespace Yarp.ReverseProxy.Forwarder;
 
+/// <summary>
+/// A default propagator that removes headers.
+/// </summary>
 public sealed class ReverseProxyPropagator : DistributedContextPropagator
 {
     private readonly DistributedContextPropagator _innerPropagator;
     private readonly string[] _headersToRemove;
 
+    /// <summary>
+    /// ReverseProxyPropagator removes headers pointed out in innerPropagator.
+    /// </summary>
     public ReverseProxyPropagator(DistributedContextPropagator innerPropagator)
     {
         _innerPropagator = innerPropagator ?? throw new ArgumentNullException(nameof(innerPropagator));
