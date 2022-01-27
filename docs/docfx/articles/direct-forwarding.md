@@ -53,7 +53,7 @@ public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
         UseProxy = false,
         AllowAutoRedirect = false,
         AutomaticDecompression = DecompressionMethods.None,
-        UseCookies = false
+        UseCookies = false,
         ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
     });
     var transformer = new CustomTransformer(); // or HttpTransformer.Default;

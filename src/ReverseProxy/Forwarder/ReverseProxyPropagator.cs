@@ -11,7 +11,7 @@ using System.Net.Http;
 namespace Yarp.ReverseProxy.Forwarder;
 
 /// <summary>
-/// A default propagator that removes headers.
+/// Removes existing headers and then delegates to the inner propagator.
 /// </summary>
 public sealed class ReverseProxyPropagator : DistributedContextPropagator
 {
