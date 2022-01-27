@@ -65,11 +65,11 @@ public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
         endpoints.Map("/{**catch-all}", async httpContext =>
         {
             var error = await forwarder.SendAsync(httpContext, "https://localhost:10000/",
-                httpClient, requestOptions, transformer);
+                httpClient, requestConfig, transformer);
             // Check if the operation was successful
             if (error != ForwarderError.None)
             {
-                var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+                var errorFeature = httpContext.GetForwarderErrorFeature();
                 var exception = errorFeature.Exception;
             }
         });
