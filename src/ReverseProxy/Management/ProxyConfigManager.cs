@@ -153,6 +153,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
             for (var i = 0; i < _providers.Length; i++)
             {
                 var config = _providers[i].GetConfig();
+                ValidateConfigProperties(config);
                 _configs[i] = new ConfigState(config);
                 routes.AddRange(config.Routes ?? Array.Empty<RouteConfig>());
                 clusters.AddRange(config.Clusters ?? Array.Empty<ClusterConfig>());
@@ -187,7 +188,9 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
             {
                 if (instance.LatestConfig.ChangeToken.HasChanged)
                 {
-                    instance.LatestConfig = _providers[i].GetConfig();
+                    var config = _providers[i].GetConfig();
+                    ValidateConfigProperties(config);
+                    instance.LatestConfig = config;
                     instance.LoadFailed = false;
                     sourcesChanged = true;
                 }
@@ -199,8 +202,8 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
             }
 
             // If we didn't/couldn't get a new config then re-use the last one.
-            routes.AddRange(instance.LatestConfig.Routes);
-            clusters.AddRange(instance.LatestConfig.Clusters);
+            routes.AddRange(instance.LatestConfig.Routes ?? Array.Empty<RouteConfig>());
+            clusters.AddRange(instance.LatestConfig.Clusters ?? Array.Empty<ClusterConfig>());
         }
 
         if (!sourcesChanged)
@@ -231,6 +234,18 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         ListenForConfigChanges();
     }
 
+    private static void ValidateConfigProperties(IProxyConfig config)
+    {
+        if (config == null)
+        {
+            throw new InvalidOperationException($"{nameof(IProxyConfigProvider.GetConfig)} returned a null value.");
+        }
+        if (config.ChangeToken == null)
+        {
+            throw new InvalidOperationException($"{nameof(IProxyConfig.ChangeToken)} has a null value.");
+        }
+    }
+
     private void ListenForConfigChanges()
     {
         // Use a central change token to avoid overlap between different sources.
@@ -259,14 +274,13 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
             }
         }
 
-        if (poll)
-        {
-            // TODO: Configurable
-            source.CancelAfter(TimeSpan.FromMinutes(5));
-        }
-
         // Don't register until we're done hooking everything up to avoid cancellation races.
         source.Token.Register(ReloadConfig, this);
+
+        if (poll)
+        {
+            source.CancelAfter(TimeSpan.FromMinutes(5));
+        }
 
         static void SignalChange(object obj)
         {

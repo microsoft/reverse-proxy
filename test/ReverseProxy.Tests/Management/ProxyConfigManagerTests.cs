@@ -26,10 +26,6 @@ using Yarp.ReverseProxy.Routing;
 
 namespace Yarp.ReverseProxy.Management.Tests;
 
-// Active source changes
-// Polling, passive source changes
-// Reload errors
-
 public class ProxyConfigManagerTests
 {
     private static IServiceProvider CreateServices(List<RouteConfig> routes, List<ClusterConfig> clusters, Action<IReverseProxyBuilder> configureProxy = null)
@@ -447,6 +443,57 @@ public class ProxyConfigManagerTests
 
         Assert.NotNull(readEndpoints1);
         Assert.NotNull(readEndpoints2);
+    }
+
+    [Fact]
+    public async Task GetChangeToken_MultipleConfigs_SignalsChange()
+    {
+        var config1 = new InMemoryConfigProvider(new List<RouteConfig>(), new List<ClusterConfig>());
+        var config2 = new InMemoryConfigProvider(new List<RouteConfig>(), new List<ClusterConfig>());
+        var services = CreateServices(new[] { config1, config2 });
+        var configManager = services.GetRequiredService<ProxyConfigManager>();
+        var dataSource = await configManager.InitialLoadAsync();
+        _ = configManager.Endpoints; // Lazily creates endpoints the first time, activates change notifications.
+
+        var signaled1 = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var signaled2 = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        IReadOnlyList<Endpoint> readEndpoints1 = null;
+        IReadOnlyList<Endpoint> readEndpoints2 = null;
+
+        var changeToken1 = dataSource.GetChangeToken();
+        changeToken1.RegisterChangeCallback(
+            _ =>
+            {
+                readEndpoints1 = dataSource.Endpoints;
+                signaled1.SetResult(1);
+            }, null);
+
+        // updating should signal the current change token
+        Assert.False(signaled1.Task.IsCompleted);
+        config1.Update(new List<RouteConfig>() { new RouteConfig() { RouteId = "r1", Match = new RouteMatch { Path = "/" } } }, new List<ClusterConfig>());
+        await signaled1.Task.DefaultTimeout();
+
+        var changeToken2 = dataSource.GetChangeToken();
+        changeToken2.RegisterChangeCallback(
+            _ =>
+            {
+                readEndpoints2 = dataSource.Endpoints;
+                signaled2.SetResult(1);
+            }, null);
+
+        // updating again should only signal the new change token
+        Assert.False(signaled2.Task.IsCompleted);
+        config2.Update(new List<RouteConfig>() { new RouteConfig() { RouteId = "r2", Match = new RouteMatch { Path = "/" } } }, new List<ClusterConfig>());
+        await signaled2.Task.DefaultTimeout();
+
+        var endpoint = Assert.Single(readEndpoints1);
+        Assert.Equal("r1", endpoint.DisplayName);
+
+        Assert.NotNull(readEndpoints2);
+        Assert.Equal(2, readEndpoints2.Count);
+        // Ordering is unstable due to dictionary storage.
+        readEndpoints2.Single(e => string.Equals(e.DisplayName, "r1"));
+        readEndpoints2.Single(e => string.Equals(e.DisplayName, "r2"));
     }
 
     [Fact]
