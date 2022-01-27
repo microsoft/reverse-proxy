@@ -26,10 +26,6 @@ using Yarp.ReverseProxy.Routing;
 
 namespace Yarp.ReverseProxy.Management.Tests;
 
-// TODO:
-// Two sources with errors in one.
-// Two sources with errors in both.
-// Duplicate route/cluster id across configs
 // Active source changes
 // Polling, passive source changes
 // Reload errors
@@ -222,7 +218,8 @@ public class ProxyConfigManagerTests
         var endpoints = dataSource.Endpoints;
         Assert.Equal(2, endpoints.Count);
 
-        var routeConfig = endpoints[0].Metadata.GetMetadata<RouteModel>();
+        // The order is unstable because routes are stored in a dictionary.
+        var routeConfig = endpoints.Single(e => string.Equals(e.DisplayName, "route1")).Metadata.GetMetadata<RouteModel>();
         Assert.NotNull(routeConfig);
         Assert.Equal("route1", routeConfig.Config.RouteId);
 
@@ -241,7 +238,7 @@ public class ProxyConfigManagerTests
         Assert.NotNull(destination.Model);
         Assert.Equal(TestAddress, destination.Model.Config.Address);
 
-        routeConfig = endpoints[1].Metadata.GetMetadata<RouteModel>();
+        routeConfig = endpoints.Single(e => string.Equals(e.DisplayName, "route2")).Metadata.GetMetadata<RouteModel>();
         Assert.NotNull(routeConfig);
         Assert.Equal("route2", routeConfig.Config.RouteId);
 
@@ -308,7 +305,8 @@ public class ProxyConfigManagerTests
         var endpoints = dataSource.Endpoints;
         Assert.Equal(2, endpoints.Count);
 
-        var routeConfig = endpoints[0].Metadata.GetMetadata<RouteModel>();
+        // The order is unstable because routes are stored in a dictionary.
+        var routeConfig = endpoints.Single(e => string.Equals(e.DisplayName, "route1")).Metadata.GetMetadata<RouteModel>();
         Assert.NotNull(routeConfig);
         Assert.Equal("route1", routeConfig.Config.RouteId);
 
@@ -327,7 +325,7 @@ public class ProxyConfigManagerTests
         Assert.NotNull(destination.Model);
         Assert.Equal(TestAddress, destination.Model.Config.Address);
 
-        routeConfig = endpoints[1].Metadata.GetMetadata<RouteModel>();
+        routeConfig = endpoints.Single(e => string.Equals(e.DisplayName, "route2")).Metadata.GetMetadata<RouteModel>();
         Assert.NotNull(routeConfig);
         Assert.Equal("route2", routeConfig.Config.RouteId);
 
