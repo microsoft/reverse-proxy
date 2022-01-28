@@ -107,6 +107,20 @@ public class ProxyConfigManagerTests
     }
 
     [Fact]
+    public async Task Lookup_StartsEmpty()
+    {
+        var services = CreateServices(new List<RouteConfig>(), new List<ClusterConfig>());
+        var manager = services.GetRequiredService<ProxyConfigManager>();
+        var lookup = services.GetRequiredService<IProxyStateLookup>();
+        await manager.InitialLoadAsync();
+
+        Assert.Empty(lookup.GetRoutes());
+        Assert.Empty(lookup.GetClusters());
+        Assert.False(lookup.TryGetRoute("route1", out var _));
+        Assert.False(lookup.TryGetCluster("cluster1", out var _));
+    }
+
+    [Fact]
     public async Task GetChangeToken_InitialValue()
     {
         var services = CreateServices(new List<RouteConfig>(), new List<ClusterConfig>());
@@ -142,6 +156,7 @@ public class ProxyConfigManagerTests
         var services = CreateServices(new List<RouteConfig>() { route }, new List<ClusterConfig>() { cluster });
 
         var manager = services.GetRequiredService<ProxyConfigManager>();
+        var lookup = services.GetRequiredService<IProxyStateLookup>();
         var dataSource = await manager.InitialLoadAsync();
 
         Assert.NotNull(dataSource);
@@ -150,6 +165,10 @@ public class ProxyConfigManagerTests
         var routeConfig = endpoint.Metadata.GetMetadata<RouteModel>();
         Assert.NotNull(routeConfig);
         Assert.Equal("route1", routeConfig.Config.RouteId);
+        Assert.True(lookup.TryGetRoute("route1", out var routeModel));
+        Assert.Equal(route, routeModel.Config);
+        routeModel = Assert.Single(lookup.GetRoutes());
+        Assert.Equal(route, routeModel.Config);
 
         var clusterState = routeConfig.Cluster;
         Assert.NotNull(clusterState);
@@ -159,6 +178,10 @@ public class ProxyConfigManagerTests
         Assert.NotNull(clusterState.Model);
         Assert.NotNull(clusterState.Model.HttpClient);
         Assert.Same(clusterState, routeConfig.Cluster);
+        Assert.True(lookup.TryGetCluster("cluster1", out clusterState));
+        Assert.Equal(cluster, clusterState.Model.Config);
+        clusterState = Assert.Single(lookup.GetClusters());
+        Assert.Equal(cluster, clusterState.Model.Config);
 
         var actualDestinations = clusterState.Destinations.Values;
         var destination = Assert.Single(actualDestinations);

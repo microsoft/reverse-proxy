@@ -6,11 +6,12 @@ using System.Collections.Generic;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
-using Yarp.Telemetry.Consumption;
 using Yarp.ReverseProxy.Transforms;
+using Yarp.Telemetry.Consumption;
 
 namespace Yarp.ReverseProxy.Sample;
 
@@ -46,6 +47,14 @@ public class Startup
                 Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                 {
                     { "destination1", new DestinationConfig() { Address = "https://localhost:10000" } }
+                }
+            },
+            new ClusterConfig()
+            {
+                ClusterId = "cluster2",
+                Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+                {
+                    { "destination2", new DestinationConfig() { Address = "https://localhost:10001" } }
                 }
             }
         };
@@ -100,7 +109,7 @@ public class Startup
     /// <summary>
     /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     /// </summary>
-    public void Configure(IApplicationBuilder app)
+    public void Configure(IApplicationBuilder app, IProxyStateLookup lookup)
     {
         app.UseRouting();
         app.UseAuthorization();
@@ -112,6 +121,11 @@ public class Startup
                 // Custom endpoint selection
                 proxyPipeline.Use((context, next) =>
                 {
+                    if (lookup.TryGetCluster("cluster2", out var cluster))
+                    {
+                        context.ReassignProxyRequest(cluster);
+                    }
+
                     var someCriteria = false; // MeetsCriteria(context);
                     if (someCriteria)
                     {
