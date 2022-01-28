@@ -1,8 +1,5 @@
 # Configuration Files
 
-Introduced: preview1
-Updated: preview5
-
 ## Introduction
 The reverse proxy can load configuration for routes and clusters from files using the IConfiguration abstraction from Microsoft.Extensions. The examples given here use JSON, but any IConfiguration source should work. The configuration will also be updated without restarting the proxy if the source file changes.
 
