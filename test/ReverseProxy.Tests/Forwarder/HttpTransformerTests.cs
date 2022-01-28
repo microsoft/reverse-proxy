@@ -36,13 +36,6 @@ public class HttpTransformerTests
 #else
         "Alt-Svc",
 #endif
-#if NET6_0_OR_GREATER
-        HeaderNames.TraceParent,
-        HeaderNames.RequestId,
-        HeaderNames.TraceState,
-        HeaderNames.Baggage,
-        HeaderNames.CorrelationContext,
-#endif
     };
 
     [Fact]

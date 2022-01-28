@@ -83,15 +83,6 @@ public static class RequestUtilities
 #else
         "Alt-Svc",
 #endif
-
-#if NET6_0_OR_GREATER
-        // Distributed context headers
-        HeaderNames.TraceParent,
-        HeaderNames.RequestId,
-        HeaderNames.TraceState,
-        HeaderNames.Baggage,
-        HeaderNames.CorrelationContext,
-#endif
     };
 
     // Headers marked as HttpHeaderType.Content in
