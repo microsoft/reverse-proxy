@@ -55,6 +55,23 @@ There are important differences when reloading configuration vs the first config
 
 Once the new configuration has been validated and applied, the proxy will register a callback with the new `IChangeToken`. Note if there are multiple reloads signaled in close succession, the proxy may skip some and load the next available configuration as soon as it's ready. Each `IProxyConfig` contains the full configuration state so nothing will be lost.
 
+## Multiple Configuration Sources
+As of 1.1, YARP supports loading the proxy configuration from multiple sources. Multiple `IProxyConfigProvider`'s can be registered as singleton services and all will be resolved and combine. The sources may be the same or different types such as IConfiguration or InMemory. Routes can reference clusters from other sources. Note merging partial config from different sources for a given route or cluster is not supported.
+
+```
+    services.AddReverseProxy()
+        .LoadFromConfig(Configuration.GetSection("ReverseProxy1"))
+        .LoadFromConfig(Configuration.GetSection("ReverseProxy2"));
+```
+or
+```
+
+    services.AddReverseProxy()
+        .LoadFromMemory(routes, clusters)
+        .LoadFromConfig(Configuration.GetSection("ReverseProxy"));
+```
+
+
 ## Example
 The following is an example `IProxyConfigProvider` that has routes and clusters manually loaded into it.
 
