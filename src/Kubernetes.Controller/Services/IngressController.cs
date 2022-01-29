@@ -9,7 +9,6 @@ using k8s;
 using k8s.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.Kubernetes;
 using Microsoft.Kubernetes.Controller.Hosting;
 using Microsoft.Kubernetes.Controller.Informers;
@@ -28,13 +27,12 @@ namespace Yarp.Kubernetes.Controller.Services;
 public class IngressController : BackgroundHostedService
 {
     private readonly IResourceInformerRegistration[] _registrations;
-    private readonly IResourceInformer<V1Ingress> _ingressInformer;
-    private readonly IWorkQueue<QueueItem> _queue;
     private readonly ICache _cache;
     private readonly IReconciler _reconciler;
-    private readonly QueueItem _ingressChangeQueueItem;
 
-    private IResourceInformerRegistration _ingressRegistration;
+    private bool _registrationsReady;
+    private readonly IWorkQueue<QueueItem> _queue;
+    private readonly QueueItem _ingressChangeQueueItem;
 
     public IngressController(
         ICache cache,
@@ -79,23 +77,26 @@ public class IngressController : BackgroundHostedService
 
         _registrations = new[]
         {
-            ingressClassInformer.Register(Notification),
             serviceInformer.Register(Notification),
             endpointsInformer.Register(Notification),
+            ingressClassInformer.Register(Notification),
+            ingressInformer.Register(Notification)
         };
 
-        ingressClassInformer.StartWatching();
+        _registrationsReady = false;
         serviceInformer.StartWatching();
         endpointsInformer.StartWatching();
+        ingressClassInformer.StartWatching();
+        ingressInformer.StartWatching();
 
         _queue = new ProcessingRateLimitedQueue<QueueItem>(perSecond: 0.5, burst: 1);
 
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         _reconciler = reconciler ?? throw new ArgumentNullException(nameof(reconciler));
         _reconciler.OnAttach(TargetAttached);
-        _ingressInformer = ingressInformer;
 
         _ingressChangeQueueItem = new QueueItem("Ingress Change", null);
+
     }
 
     /// <summary>
@@ -110,8 +111,6 @@ public class IngressController : BackgroundHostedService
             {
                 registration.Dispose();
             }
-
-            _ingressRegistration?.Dispose();
 
             _queue.Dispose();
         }
@@ -144,8 +143,18 @@ public class IngressController : BackgroundHostedService
     {
         if (_cache.Update(eventType, resource))
         {
-            _queue.Add(_ingressChangeQueueItem);
+            NoficationIngressChanged();
         }
+    }
+
+    private void NoficationIngressChanged()
+    {
+        if (!_registrationsReady)
+        {
+            return;
+        }
+
+        _queue.Add(_ingressChangeQueueItem);
     }
 
     /// <summary>
@@ -158,7 +167,7 @@ public class IngressController : BackgroundHostedService
         var ingressNames = _cache.Update(eventType, resource);
         if (ingressNames.Count > 0)
         {
-            _queue.Add(_ingressChangeQueueItem);
+            NoficationIngressChanged();
         }
     }
 
@@ -172,7 +181,7 @@ public class IngressController : BackgroundHostedService
         var ingressNames = _cache.Update(eventType, resource);
         if (ingressNames.Count > 0)
         {
-            _queue.Add(_ingressChangeQueueItem);
+            NoficationIngressChanged();
         }
     }
 
@@ -200,15 +209,10 @@ public class IngressController : BackgroundHostedService
             await registration.ReadyAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        // It can take some time for the changes to be processed (in large clusters)
-        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).ConfigureAwait(false);
-
-        // Start syncing ingress objects only once the other items have been synchronised
-        _ingressRegistration = _ingressInformer.Register(Notification);
-        _ingressInformer.StartWatching();
-
         // At this point we know that all of the Ingress and Endpoint caches are at least in sync
         // with cluster's state as of the start of this controller.
+        _registrationsReady = true;
+        NoficationIngressChanged();
 
         // Now begin one loop to process work until an application shudown is requested.
         while (!cancellationToken.IsCancellationRequested)

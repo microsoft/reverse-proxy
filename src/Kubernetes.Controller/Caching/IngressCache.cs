@@ -145,19 +145,12 @@ public class IngressCache : ICache
 
     private bool IsYarpIngress(V1IngressSpec spec)
     {
-        if (spec.IngressClassName != null && _ingressClassData.ContainsKey(spec.IngressClassName))
+        if (spec.IngressClassName != null)
         {
-            // Match on ingressClassName
-            return true;
+            return _ingressClassData.ContainsKey(spec.IngressClassName);
         }
 
-        if (spec.IngressClassName == null && _isDefaultController)
-        {
-            // Yarp is the default ingress controller
-            return true;
-        }
-
-        return false;
+        return _isDefaultController;
     }
 
     private NamespaceCache Namespace(string key)
