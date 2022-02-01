@@ -113,7 +113,7 @@ internal static class YarpParser
                 return $"{ingressServiceBackend.Name}.{namespaceName}:{ingressServiceBackend.Port.Number}";
             }
 
-            if (!string.IsNullOrWhiteSpace(ingressServiceBackend.Name))
+            if (!string.IsNullOrWhiteSpace(ingressServiceBackend.Port.Name))
             {
                 return $"{ingressServiceBackend.Name}.{namespaceName}:{ingressServiceBackend.Port.Name}";
             }
