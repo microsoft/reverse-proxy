@@ -1,6 +1,6 @@
 [
   {
-    "ClusterId": "frontend:80",
+    "ClusterId": "frontend.foo:80",
     "LoadBalancingPolicy": null,
     "SessionAffinity": null,
     "HealthCheck": null,
