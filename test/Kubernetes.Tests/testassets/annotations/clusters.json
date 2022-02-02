@@ -1,6 +1,6 @@
 [
   {
-    "ClusterId": "frontend:80",
+    "ClusterId": "frontend.default:80",
     "LoadBalancingPolicy": "Random",
     "SessionAffinity": {
       "Enabled": true,
