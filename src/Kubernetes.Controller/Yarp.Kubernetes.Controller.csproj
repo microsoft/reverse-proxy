@@ -19,6 +19,7 @@
         <PackageReference Include="Serilog.Formatting.Compact" Version="1.1.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
         <PackageReference Condition=" '$(TargetFramework)' != 'net6.0' " Include="System.Text.Json" Version="6.0.0-*" />
+        <PackageReference Include="YamlDotNet" Version="11.2.1" />
 
     </ItemGroup>
 

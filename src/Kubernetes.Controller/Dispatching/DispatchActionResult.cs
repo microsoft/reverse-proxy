@@ -27,7 +27,6 @@ public class DispatchActionResult : IActionResult, IDispatchTarget
     private readonly object _taskSync = new();
     private HttpContext _httpContext;
     // some config options use enums, we need to enable conversion from string based representations
-    private static readonly JsonSerializerOptions _jsonOptions = new() {Converters = {new JsonStringEnumConverter()}};
 
     public DispatchActionResult(IDispatcher dispatcher)
     {
@@ -60,7 +59,7 @@ public class DispatchActionResult : IActionResult, IDispatchTarget
             var utf8Bytes = JsonSerializer.SerializeToUtf8Bytes(new Message
             {
                 MessageType = MessageType.Heartbeat
-                }, _jsonOptions);
+            });
 
             while (!cancellationToken.IsCancellationRequested)
             {

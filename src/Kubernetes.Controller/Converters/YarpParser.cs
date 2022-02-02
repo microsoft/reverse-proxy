@@ -8,11 +8,13 @@ using Yarp.ReverseProxy.Configuration;
 using Yarp.Kubernetes.Controller.Caching;
 using Yarp.Kubernetes.Controller.Services;
 using Yarp.ReverseProxy.LoadBalancing;
+using YamlDotNet.Serialization;
 
 namespace Yarp.Kubernetes.Controller.Converters;
 
 internal static class YarpParser
 {
+    private static Deserializer YamlDeserializer = new();
     internal static void ConvertFromKubernetesIngress(YarpIngressContext ingressContext, YarpConfigContext configContext)
     {
         var spec = ingressContext.Ingress.Spec;
@@ -137,7 +139,6 @@ internal static class YarpParser
     private static YarpIngressOptions HandleAnnotations(YarpIngressContext context, V1ObjectMeta metadata)
     {
         var options = context.Options;
-        var jsonOptions = new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() } };
         var annotations = metadata.Annotations;
         if (annotations == null)
         {
@@ -150,7 +151,8 @@ internal static class YarpParser
         }
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/transforms", out var transforms))
         {
-            options.Transforms = JsonSerializer.Deserialize<List<Dictionary<string,string>>>(transforms,jsonOptions);
+
+            options.Transforms = YamlDeserializer.Deserialize<List<Dictionary<string,string>>>(transforms);
         }
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/authorization-policy", out var authorizationPolicy))
         {
@@ -162,7 +164,7 @@ internal static class YarpParser
         }
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/session-affinity", out var sessionAffinity))
         {
-            options.SessionAffinity = JsonSerializer.Deserialize<SessionAffinityConfig>(sessionAffinity, jsonOptions);
+            options.SessionAffinity = YamlDeserializer.Deserialize<SessionAffinityConfig>(sessionAffinity);
         }
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/load-balancing", out var loadBalancing))
         {
@@ -170,11 +172,11 @@ internal static class YarpParser
         }
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/http-client", out var httpClientConfig))
         {
-            options.HttpClientConfig = JsonSerializer.Deserialize<HttpClientConfig>(httpClientConfig,jsonOptions);
+            options.HttpClientConfig = YamlDeserializer.Deserialize<HttpClientConfig>(httpClientConfig);
         }
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/health-check", out var healthCheck))
         {
-            options.HealthCheck = JsonSerializer.Deserialize<HealthCheckConfig>(healthCheck,jsonOptions);
+            options.HealthCheck = YamlDeserializer.Deserialize<HealthCheckConfig>(healthCheck);
         }
 
         // metadata to support:

@@ -22,7 +22,6 @@ public class Receiver : BackgroundHostedService
     private readonly ReceiverOptions _options;
     private readonly Limiter _limiter;
     private readonly IUpdateConfig _proxyConfigProvider;
-    private static readonly JsonSerializerOptions _jsonOptions = new() {Converters = {new JsonStringEnumConverter()}};
 
     public Receiver(
         IOptions<ReceiverOptions> options,
@@ -70,7 +69,7 @@ public class Receiver : BackgroundHostedService
                         break;
                     }
 
-                    var message = System.Text.Json.JsonSerializer.Deserialize<Message>(json, _jsonOptions);
+                    var message = System.Text.Json.JsonSerializer.Deserialize<Message>(json);
                     Logger.LogInformation("Received {MessageType} for {MessageKey}", message.MessageType, message.Key);
 
                     Logger.LogInformation(json);
