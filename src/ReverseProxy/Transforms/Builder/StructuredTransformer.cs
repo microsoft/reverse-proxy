@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -27,9 +28,9 @@ internal sealed class StructuredTransformer : HttpTransformer
         ShouldCopyRequestHeaders = copyRequestHeaders;
         ShouldCopyResponseHeaders = copyResponseHeaders;
         ShouldCopyResponseTrailers = copyResponseTrailers;
-        RequestTransforms = requestTransforms ?? throw new ArgumentNullException(nameof(requestTransforms));
-        ResponseTransforms = responseTransforms ?? throw new ArgumentNullException(nameof(responseTransforms));
-        ResponseTrailerTransforms = responseTrailerTransforms ?? throw new ArgumentNullException(nameof(responseTrailerTransforms));
+        RequestTransforms = requestTransforms?.ToArray() ?? throw new ArgumentNullException(nameof(requestTransforms));
+        ResponseTransforms = responseTransforms?.ToArray() ?? throw new ArgumentNullException(nameof(responseTransforms));
+        ResponseTrailerTransforms = responseTrailerTransforms?.ToArray() ?? throw new ArgumentNullException(nameof(responseTrailerTransforms));
     }
 
     /// <summary>
@@ -50,17 +51,17 @@ internal sealed class StructuredTransformer : HttpTransformer
     /// <summary>
     /// Request transforms.
     /// </summary>
-    internal IList<RequestTransform> RequestTransforms { get; }
+    internal RequestTransform[] RequestTransforms { get; }
 
     /// <summary>
     /// Response header transforms.
     /// </summary>
-    internal IList<ResponseTransform> ResponseTransforms { get; }
+    internal ResponseTransform[] ResponseTransforms { get; }
 
     /// <summary>
     /// Response trailer transforms.
     /// </summary>
-    internal IList<ResponseTrailersTransform> ResponseTrailerTransforms { get; }
+    internal ResponseTrailersTransform[] ResponseTrailerTransforms { get; }
 
     public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
     {
@@ -69,7 +70,7 @@ internal sealed class StructuredTransformer : HttpTransformer
             await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
         }
 
-        if (RequestTransforms.Count == 0)
+        if (RequestTransforms.Length == 0)
         {
             return;
         }
@@ -101,7 +102,7 @@ internal sealed class StructuredTransformer : HttpTransformer
             await base.TransformResponseAsync(httpContext, proxyResponse);
         }
 
-        if (ResponseTransforms.Count == 0)
+        if (ResponseTransforms.Length == 0)
         {
             return true;
         }
@@ -128,7 +129,7 @@ internal sealed class StructuredTransformer : HttpTransformer
             await base.TransformResponseTrailersAsync(httpContext, proxyResponse);
         }
 
-        if (ResponseTrailerTransforms.Count == 0)
+        if (ResponseTrailerTransforms.Length == 0)
         {
             return;
         }

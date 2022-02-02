@@ -167,7 +167,7 @@ internal static class LabelsParser
 #if NET
                         headerMatches[headerIndex].Values = kvp.Value.Split(',', StringSplitOptions.TrimEntries);
 #elif NETCOREAPP3_1
-                            headerMatches[headerIndex].Values = kvp.Value.Split(',').Select(val => val.Trim()).ToList();
+                        headerMatches[headerIndex].Values = kvp.Value.Split(',').Select(val => val.Trim()).ToList();
 #else
 #error A target framework was added to the project and needs to be added to this condition.
 #endif

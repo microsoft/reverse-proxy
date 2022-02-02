@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Primitives;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Transforms;
 
@@ -33,15 +35,13 @@ public abstract class ResponseTrailersTransform
     {
         if (context is null)
         {
-            throw new System.ArgumentNullException(nameof(context));
+            throw new ArgumentNullException(nameof(context));
         }
 
         if (string.IsNullOrEmpty(headerName))
         {
-            throw new System.ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
+            throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
         }
-
-        var existingValues = StringValues.Empty;
 
         Debug.Assert(context.ProxyResponse != null);
 
@@ -51,15 +51,13 @@ public abstract class ResponseTrailersTransform
         Debug.Assert(responseTrailers != null);
         Debug.Assert(!responseTrailers.IsReadOnly);
 
-        if (responseTrailers.TryGetValue(headerName, out var responseValues))
+        if (responseTrailers.TryGetValue(headerName, out var existingValues))
         {
             responseTrailers.Remove(headerName);
-            existingValues = responseValues;
         }
-        else if (!context.HeadersCopied
-            && context.ProxyResponse.TrailingHeaders.TryGetValues(headerName, out var values))
+        else if (!context.HeadersCopied)
         {
-            existingValues = (string[])values;
+            RequestUtilities.TryGetValues(context.ProxyResponse.TrailingHeaders, headerName, out existingValues);
         }
 
         return existingValues;

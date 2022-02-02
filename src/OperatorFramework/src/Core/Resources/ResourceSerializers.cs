@@ -38,9 +38,9 @@ public class ResourceSerializers : IResourceSerializers
             ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
             ContractResolver = new ReadOnlyJsonContractResolver(),
             Converters = new List<JsonConverter>
-                {
-                    new Iso8601TimeSpanConverter(),
-                },
+            {
+                new Iso8601TimeSpanConverter(),
+            },
         };
     }
 

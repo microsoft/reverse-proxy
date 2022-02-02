@@ -71,8 +71,8 @@ public static class ReverseProxyServiceCollectionExtensions
 
         builder.Services.AddSingleton<IProxyConfigProvider>(sp =>
         {
-                // This is required because we're capturing the configuration via a closure
-                return new ConfigurationConfigProvider(sp.GetRequiredService<ILogger<ConfigurationConfigProvider>>(), config);
+            // This is required because we're capturing the configuration via a closure
+            return new ConfigurationConfigProvider(sp.GetRequiredService<ILogger<ConfigurationConfigProvider>>(), config);
         });
 
         return builder;

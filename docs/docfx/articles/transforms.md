@@ -1,7 +1,5 @@
 # Request and Response Transforms
 
-Introduced: preview2
-
 ## Introduction
 When proxying a request it's common to modify parts of the request or response to adapt to the destination server's requirements or to flow additional data such as the client's original IP address. This process is implemented via Transforms. Types of transforms are defined globally for the application and then individual routes supply the parameters to enable and configure those transforms. The original request objects are not modified by these transforms, only the proxy requests.
 

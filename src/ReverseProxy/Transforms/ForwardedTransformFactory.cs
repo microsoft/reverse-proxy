@@ -167,7 +167,7 @@ internal sealed class ForwardedTransformFactory : ITransformFactory
             if (transformValues.TryGetValue(ProtoKey, out headerValue))
             {
                 xExpected++;
-                xProtoAction = Enum.Parse<ForwardedTransformActions>(headerValue); ;
+                xProtoAction = Enum.Parse<ForwardedTransformActions>(headerValue);
             }
 
             TransformHelpers.CheckTooManyParameters(transformValues, xExpected);

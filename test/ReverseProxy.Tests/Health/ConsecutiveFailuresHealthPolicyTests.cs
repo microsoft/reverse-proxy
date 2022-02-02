@@ -24,13 +24,13 @@ public class ConsecutiveFailuresHealthPolicyTests
         var cluster1 = GetClusterInfo("cluster0", destinationCount: 2, failureThreshold: 3);
 
         var probingResults0 = new[] {
-                new DestinationProbingResult(cluster0.Destinations.Values.First(), new HttpResponseMessage(HttpStatusCode.InternalServerError), null),
-                new DestinationProbingResult(cluster0.Destinations.Values.Skip(1).First(), new HttpResponseMessage(HttpStatusCode.OK), null)
-            };
+            new DestinationProbingResult(cluster0.Destinations.Values.First(), new HttpResponseMessage(HttpStatusCode.InternalServerError), null),
+            new DestinationProbingResult(cluster0.Destinations.Values.Skip(1).First(), new HttpResponseMessage(HttpStatusCode.OK), null)
+        };
         var probingResults1 = new[] {
-                new DestinationProbingResult(cluster1.Destinations.Values.First(), new HttpResponseMessage(HttpStatusCode.OK), null),
-                new DestinationProbingResult(cluster1.Destinations.Values.Skip(1).First(), null, new InvalidOperationException())
-            };
+            new DestinationProbingResult(cluster1.Destinations.Values.First(), new HttpResponseMessage(HttpStatusCode.OK), null),
+            new DestinationProbingResult(cluster1.Destinations.Values.Skip(1).First(), null, new InvalidOperationException())
+        };
 
         Assert.Equal(HealthCheckConstants.ActivePolicy.ConsecutiveFailures, policy.Name);
 
@@ -71,9 +71,9 @@ public class ConsecutiveFailuresHealthPolicyTests
         var cluster = GetClusterInfo("cluster0", destinationCount: 2);
 
         var probingResults = new[] {
-                new DestinationProbingResult(cluster.Destinations.Values.First(), new HttpResponseMessage(HttpStatusCode.InternalServerError), null),
-                new DestinationProbingResult(cluster.Destinations.Values.Skip(1).First(), new HttpResponseMessage(HttpStatusCode.OK), null)
-            };
+            new DestinationProbingResult(cluster.Destinations.Values.First(), new HttpResponseMessage(HttpStatusCode.InternalServerError), null),
+            new DestinationProbingResult(cluster.Destinations.Values.Skip(1).First(), new HttpResponseMessage(HttpStatusCode.OK), null)
+        };
 
         for (var i = 0; i < 2; i++)
         {
@@ -99,9 +99,9 @@ public class ConsecutiveFailuresHealthPolicyTests
         var cluster = GetClusterInfo("cluster0", destinationCount: 2);
 
         var probingResults = new[] {
-                new DestinationProbingResult(cluster.Destinations.Values.First(), new HttpResponseMessage(HttpStatusCode.InternalServerError), null),
-                new DestinationProbingResult(cluster.Destinations.Values.Skip(1).First(), new HttpResponseMessage(HttpStatusCode.OK), null)
-            };
+            new DestinationProbingResult(cluster.Destinations.Values.First(), new HttpResponseMessage(HttpStatusCode.InternalServerError), null),
+            new DestinationProbingResult(cluster.Destinations.Values.Skip(1).First(), new HttpResponseMessage(HttpStatusCode.OK), null)
+        };
 
         for (var i = 0; i < 2; i++)
         {

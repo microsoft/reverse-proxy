@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -45,7 +46,10 @@ public class ForwarderHttpClientFactory : IForwarderHttpClientFactory
             UseProxy = false,
             AllowAutoRedirect = false,
             AutomaticDecompression = DecompressionMethods.None,
-            UseCookies = false
+            UseCookies = false,
+#if NET6_0_OR_GREATER
+            ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
+#endif
 
             // NOTE: MaxResponseHeadersLength = 64, which means up to 64 KB of headers are allowed by default as of .NET Core 3.1.
         };

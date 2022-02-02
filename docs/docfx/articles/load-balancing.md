@@ -1,7 +1,5 @@
 # Load Balancing
 
-Introduced: preview8
-
 ## Introduction
 
 Whenever there are multiple healthy destinations available, YARP has to decide which one to use for a given request.

@@ -1,0 +1,34 @@
+[
+  {
+    "RouteId": "the-ingress.ns-one:/",
+    "Match": {
+      "Methods": null,
+      "Hosts": [ "subdomain1.example.com" ],
+      "Path": "/{**catch-all}",
+      "Headers": null,
+      "QueryParameters": null
+    },
+    "Order": null,
+    "ClusterId": "the-service.ns-one:http",
+    "AuthorizationPolicy": null,
+    "CorsPolicy": null,
+    "Metadata": null,
+    "Transforms": null
+  },
+  {
+    "RouteId": "the-ingress.ns-two:/",
+    "Match": {
+      "Methods": null,
+      "Hosts": [ "subdomain2.example.com" ],
+      "Path": "/{**catch-all}",
+      "Headers": null,
+      "QueryParameters": null
+    },
+    "Order": null,
+    "ClusterId": "the-service.ns-two:http",
+    "AuthorizationPolicy": null,
+    "CorsPolicy": null,
+    "Metadata": null,
+    "Transforms": null
+  }
+]

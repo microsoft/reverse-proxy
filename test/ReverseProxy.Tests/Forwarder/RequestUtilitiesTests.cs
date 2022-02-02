@@ -120,13 +120,13 @@ public class RequestUtilitiesTests
     {
         var valids = new char[]
         {
-                 '!', '$', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/',
-                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                ':', ';', '=', '@',
-                'A', 'B', 'C', 'D', 'E', 'F','G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-                '_',
-                'a', 'b', 'c', 'd', 'e', 'f','g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-                '~'
+            '!', '$', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            ':', ';', '=', '@',
+            'A', 'B', 'C', 'D', 'E', 'F','G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+            '_',
+            'a', 'b', 'c', 'd', 'e', 'f','g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+            '~'
         };
         foreach (var c in valids)
         {
@@ -141,10 +141,10 @@ public class RequestUtilitiesTests
     {
         var invalids = new char[]
         {
-                // Controls
-                (char)0x00, (char)0x01, (char)0x02, (char)0x03, (char)0x04, (char)0x05, (char)0x06, (char)0x00, (char)0x07, (char)0x08, (char)0x09, (char)0x0A, (char)0x0B, (char)0x0C, (char)0x0D, (char)0x0E, (char)0x0F,
-                (char)0x10, (char)0x11, (char)0x02, (char)0x13, (char)0x14, (char)0x15, (char)0x16, (char)0x10, (char)0x17, (char)0x18, (char)0x19, (char)0x1A, (char)0x1B, (char)0x1C, (char)0x1D, (char)0x1E, (char)0x1F,
-                ' ', '"', '#', '%', '<', '>', '?', '[', '\\', ']', '^', '`', '{', '|', '}'
+            // Controls
+            (char)0x00, (char)0x01, (char)0x02, (char)0x03, (char)0x04, (char)0x05, (char)0x06, (char)0x00, (char)0x07, (char)0x08, (char)0x09, (char)0x0A, (char)0x0B, (char)0x0C, (char)0x0D, (char)0x0E, (char)0x0F,
+            (char)0x10, (char)0x11, (char)0x02, (char)0x13, (char)0x14, (char)0x15, (char)0x16, (char)0x10, (char)0x17, (char)0x18, (char)0x19, (char)0x1A, (char)0x1B, (char)0x1C, (char)0x1D, (char)0x1E, (char)0x1F,
+            ' ', '"', '#', '%', '<', '>', '?', '[', '\\', ']', '^', '`', '{', '|', '}'
         };
         foreach (var c in invalids)
         {
@@ -152,5 +152,84 @@ public class RequestUtilitiesTests
 
             Assert.False(isValid, c.ToString());
         }
+    }
+
+#if NET6_0_OR_GREATER
+    [Theory]
+    [InlineData(null, "a", "a")]
+    [InlineData("a", "", "a;")]
+    [InlineData("", "a", ";a")]
+    [InlineData("a", "b", "a;b")]
+    [InlineData(null, "a;b", "a;b")]
+    [InlineData("a;b", "", "a;b;")]
+    [InlineData("", "a;b", ";a;b")]
+    [InlineData("a;b", "c", "a;b;c")]
+    [InlineData("a", "b;c", "a;b;c")]
+    [InlineData("a;b", "c;d", "a;b;c;d")]
+    [InlineData("a", "b c", "a;b c")]
+    [InlineData("a b", "c", "a b;c")]
+    public void Concat(string stringValues, string inputHeaderStringValues, string expectedOutput)
+    {
+        var request = new HttpRequestMessage();
+        foreach (var value in inputHeaderStringValues.Split(';'))
+        {
+            request.Headers.TryAddWithoutValidation("foo", value);
+        }
+        request.Headers.TryAddWithoutValidation("bar", inputHeaderStringValues.Split(';'));
+
+        var headerStringValues = request.Headers.NonValidated["foo"];
+        var actualValues = RequestUtilities.Concat(stringValues?.Split(';'), headerStringValues);
+        Assert.Equal(expectedOutput.Split(';'), actualValues);
+
+        headerStringValues = request.Headers.NonValidated["bar"];
+        actualValues = RequestUtilities.Concat(stringValues?.Split(';'), headerStringValues);
+        Assert.Equal(expectedOutput.Split(';'), actualValues);
+    }
+#endif
+
+    [Theory]
+    [InlineData("a")]
+    [InlineData("a b")]
+    [InlineData("a", "b")]
+    [InlineData("a", "b c", "d")]
+    [InlineData("")]
+    [InlineData("", "")]
+    [InlineData("a", "")]
+    [InlineData("", "a")]
+    [InlineData("", "a", "b")]
+    [InlineData("", "a", "")]
+    [InlineData("a", "", "b")]
+    public void TryGetValues(params string[] headerValues)
+    {
+        var request = new HttpRequestMessage();
+        foreach (var value in headerValues)
+        {
+            request.Headers.TryAddWithoutValidation("foo", value);
+        }
+        request.Headers.TryAddWithoutValidation("bar", headerValues);
+
+        Assert.True(RequestUtilities.TryGetValues(request.Headers, "foo", out var actualValues));
+        Assert.Equal(headerValues, actualValues);
+
+        Assert.True(RequestUtilities.TryGetValues(request.Headers, "bar", out actualValues));
+        Assert.Equal(headerValues, actualValues);
+    }
+
+    [Theory]
+    [InlineData("a", "a", true)]
+    [InlineData("b", "a", false)]
+    [InlineData("a;b", "a", true)]
+    [InlineData("a;b", "b", true)]
+    [InlineData("a;b", "c", false)]
+    [InlineData("", "a", false)]
+    public void ContainsHeader(string headers, string headerName, bool expectedContains)
+    {
+        var request = new HttpRequestMessage();
+        foreach (var name in headers.Split(';', StringSplitOptions.RemoveEmptyEntries))
+        {
+            request.Headers.TryAddWithoutValidation(name, "foo");
+        }
+
+        Assert.Equal(expectedContains, RequestUtilities.ContainsHeader(request.Headers, headerName));
     }
 }

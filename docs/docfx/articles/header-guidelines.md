@@ -38,6 +38,11 @@ This response header is used with HTTP/3 upgrades and only applies to the immedi
 ### TraceParent, Request-Id, TraceState, Baggage, Correlation-Context
 
 These headers relate to distributed tracing. They are automatically removed on .NET 6 or later so that the forwarding HttpClient can replace them with updated values.
+You can opt out of modifying these headers by setting `SocketsHttpHandler.ActivityHeadersPropagator ` to `null`:
+```C#
+services.AddReverseProxy()
+    .ConfigureHttpClient((_, handler) => handler.ActivityHeadersPropagator = null);
+```
 
 ## Other Header Guidelines
 

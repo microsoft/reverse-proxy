@@ -21,27 +21,27 @@ public class QueryParameterMatcherPolicyTests
         // Most specific to least
         var endpoints = new[]
         {
-                (0, CreateEndpoint("queryparam", new[] { "abc" }, QueryParameterMatchMode.Exact, isCaseSensitive: true)),
+            (0, CreateEndpoint("queryparam", new[] { "abc" }, QueryParameterMatchMode.Exact, isCaseSensitive: true)),
 
-                (0, CreateEndpoint("queryparam", new[] { "abc" }, QueryParameterMatchMode.Exact)),
-                (0, CreateEndpoint("queryparam", new[] { "abc", "def" }, QueryParameterMatchMode.Exact)),
-                (0, CreateEndpoint("queryparam2", new[] { "abc", "def" }, QueryParameterMatchMode.Exact)),
+            (0, CreateEndpoint("queryparam", new[] { "abc" }, QueryParameterMatchMode.Exact)),
+            (0, CreateEndpoint("queryparam", new[] { "abc", "def" }, QueryParameterMatchMode.Exact)),
+            (0, CreateEndpoint("queryparam2", new[] { "abc", "def" }, QueryParameterMatchMode.Exact)),
 
-                (0, CreateEndpoint("queryparam", new[] { "abc" }, QueryParameterMatchMode.Contains, isCaseSensitive: true)),
+            (0, CreateEndpoint("queryparam", new[] { "abc" }, QueryParameterMatchMode.Contains, isCaseSensitive: true)),
 
-                (0, CreateEndpoint("queryparam", new[] { "abc" }, QueryParameterMatchMode.Contains)),
-                (0, CreateEndpoint("queryparam", new[] { "abc", "def" }, QueryParameterMatchMode.Contains)),
-                (0, CreateEndpoint("queryparam2", new[] { "abc", "def" }, QueryParameterMatchMode.Contains)),
+            (0, CreateEndpoint("queryparam", new[] { "abc" }, QueryParameterMatchMode.Contains)),
+            (0, CreateEndpoint("queryparam", new[] { "abc", "def" }, QueryParameterMatchMode.Contains)),
+            (0, CreateEndpoint("queryparam2", new[] { "abc", "def" }, QueryParameterMatchMode.Contains)),
 
-                (0, CreateEndpoint("queryparam", new[] { "abc" }, QueryParameterMatchMode.Prefix)),
-                (0, CreateEndpoint("queryparam", new[] { "abc", "def" }, QueryParameterMatchMode.Prefix)),
-                (0, CreateEndpoint("queryparam2", new[] { "abc", "def" }, QueryParameterMatchMode.Prefix)),
+            (0, CreateEndpoint("queryparam", new[] { "abc" }, QueryParameterMatchMode.Prefix)),
+            (0, CreateEndpoint("queryparam", new[] { "abc", "def" }, QueryParameterMatchMode.Prefix)),
+            (0, CreateEndpoint("queryparam2", new[] { "abc", "def" }, QueryParameterMatchMode.Prefix)),
 
-                (0, CreateEndpoint("queryparam", new string[0], QueryParameterMatchMode.Exists, isCaseSensitive: true)),
-                (0, CreateEndpoint("queryparam", new string[0], QueryParameterMatchMode.Exists)),
-                (0, CreateEndpoint("queryparam", new string[0], QueryParameterMatchMode.Exists, isCaseSensitive: true)),
-                (0, CreateEndpoint("queryparam", new string[0], QueryParameterMatchMode.Exists)),
-            };
+            (0, CreateEndpoint("queryparam", new string[0], QueryParameterMatchMode.Exists, isCaseSensitive: true)),
+            (0, CreateEndpoint("queryparam", new string[0], QueryParameterMatchMode.Exists)),
+            (0, CreateEndpoint("queryparam", new string[0], QueryParameterMatchMode.Exists, isCaseSensitive: true)),
+            (0, CreateEndpoint("queryparam", new string[0], QueryParameterMatchMode.Exists)),
+        };
         var sut = new QueryParameterMatcherPolicy();
 
         for (var i = 0; i < endpoints.Length; i++)
@@ -69,31 +69,31 @@ public class QueryParameterMatcherPolicyTests
         // Most specific to least
         var endpoints = new[]
         {
-                (0, CreateEndpoint(new[]
-                {
-                    new QueryParameterMatcher("queryparam", new string[0], QueryParameterMatchMode.Exists, isCaseSensitive: true),
-                    new QueryParameterMatcher("queryparam", new[] { "abc" }, QueryParameterMatchMode.Prefix, isCaseSensitive: true),
-                    new QueryParameterMatcher("queryparam", new[] { "abc" }, QueryParameterMatchMode.Contains, isCaseSensitive: true),
-                    new QueryParameterMatcher("queryparam", new[] { "abc" }, QueryParameterMatchMode.Exact, isCaseSensitive: true)
+            (0, CreateEndpoint(new[]
+            {
+                new QueryParameterMatcher("queryparam", new string[0], QueryParameterMatchMode.Exists, isCaseSensitive: true),
+                new QueryParameterMatcher("queryparam", new[] { "abc" }, QueryParameterMatchMode.Prefix, isCaseSensitive: true),
+                new QueryParameterMatcher("queryparam", new[] { "abc" }, QueryParameterMatchMode.Contains, isCaseSensitive: true),
+                new QueryParameterMatcher("queryparam", new[] { "abc" }, QueryParameterMatchMode.Exact, isCaseSensitive: true)
 
-                })),
+            })),
 
-                (1, CreateEndpoint(new[]
-                {
-                    new QueryParameterMatcher("queryparam", new[] { "abc" }, QueryParameterMatchMode.Contains, isCaseSensitive: true),
-                    new QueryParameterMatcher("queryparam", new[] { "abc" }, QueryParameterMatchMode.Exact, isCaseSensitive: true)
-                })),
-                (1, CreateEndpoint(new[]
-                {
-                    new QueryParameterMatcher("queryparam", new string[0], QueryParameterMatchMode.Exists, isCaseSensitive: true),
-                    new QueryParameterMatcher("queryparam", new[] { "abc" }, QueryParameterMatchMode.Exact, isCaseSensitive: true)
-                })),
+            (1, CreateEndpoint(new[]
+            {
+                new QueryParameterMatcher("queryparam", new[] { "abc" }, QueryParameterMatchMode.Contains, isCaseSensitive: true),
+                new QueryParameterMatcher("queryparam", new[] { "abc" }, QueryParameterMatchMode.Exact, isCaseSensitive: true)
+            })),
+            (1, CreateEndpoint(new[]
+            {
+                new QueryParameterMatcher("queryparam", new string[0], QueryParameterMatchMode.Exists, isCaseSensitive: true),
+                new QueryParameterMatcher("queryparam", new[] { "abc" }, QueryParameterMatchMode.Exact, isCaseSensitive: true)
+            })),
 
-                (2, CreateEndpoint("queryparam", new[] { "abc" })),
+            (2, CreateEndpoint("queryparam", new[] { "abc" })),
 
-                (3, CreateEndpoint(Array.Empty<QueryParameterMatcher>())),
+            (3, CreateEndpoint(Array.Empty<QueryParameterMatcher>())),
 
-            };
+        };
         var sut = new QueryParameterMatcherPolicy();
 
         for (var i = 0; i < endpoints.Length; i++)
@@ -120,18 +120,18 @@ public class QueryParameterMatcherPolicyTests
     {
         var scenarios = new[]
         {
-                CreateEndpoint("org-id", new string[0], QueryParameterMatchMode.Exists),
-                CreateEndpoint("org-id", new[] { "abc" }),
-                CreateEndpoint("org-id", new[] { "abc", "def" }),
-                CreateEndpoint("org-id", new string[0], QueryParameterMatchMode.Exists, isDynamic: true),
-                CreateEndpoint("org-id", new[] { "abc" }, isDynamic: true),
-                CreateEndpoint("org-id", null, QueryParameterMatchMode.Exists, isDynamic: true),
-                CreateEndpoint(new[]
-                {
-                    new QueryParameterMatcher("queryParam", new string[0], QueryParameterMatchMode.Exists, isCaseSensitive: true),
-                    new QueryParameterMatcher("queryParam", new[] { "abc" }, QueryParameterMatchMode.Exact, isCaseSensitive: true)
-                })
-            };
+            CreateEndpoint("org-id", new string[0], QueryParameterMatchMode.Exists),
+            CreateEndpoint("org-id", new[] { "abc" }),
+            CreateEndpoint("org-id", new[] { "abc", "def" }),
+            CreateEndpoint("org-id", new string[0], QueryParameterMatchMode.Exists, isDynamic: true),
+            CreateEndpoint("org-id", new[] { "abc" }, isDynamic: true),
+            CreateEndpoint("org-id", null, QueryParameterMatchMode.Exists, isDynamic: true),
+            CreateEndpoint(new[]
+            {
+                new QueryParameterMatcher("queryParam", new string[0], QueryParameterMatchMode.Exists, isCaseSensitive: true),
+                new QueryParameterMatcher("queryParam", new[] { "abc" }, QueryParameterMatchMode.Exact, isCaseSensitive: true)
+            })
+        };
         var sut = new QueryParameterMatcherPolicy();
         var endpointSelectorPolicy = (IEndpointSelectorPolicy)sut;
 
@@ -358,9 +358,9 @@ public class QueryParameterMatcherPolicyTests
     {
         var endpoint = CreateEndpoint(new[]
         {
-                new QueryParameterMatcher("queryParam1", new[] { "value1" }, QueryParameterMatchMode.Exact, isCaseSensitive: false),
-                new QueryParameterMatcher("queryParam2", new[] { "value2" }, QueryParameterMatchMode.Exact, isCaseSensitive: false)
-            });
+            new QueryParameterMatcher("queryParam1", new[] { "value1" }, QueryParameterMatchMode.Exact, isCaseSensitive: false),
+            new QueryParameterMatcher("queryParam2", new[] { "value2" }, QueryParameterMatchMode.Exact, isCaseSensitive: false)
+        });
 
         var context = new DefaultHttpContext();
         var queryStr = new List<string>();

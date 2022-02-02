@@ -37,8 +37,8 @@ public class TestClusterStartup
 
         app.Use(next => async context =>
         {
-                // This is a no-op, but very convenient for setting a breakpoint to see per-request details.
-                await next(context);
+            // This is a no-op, but very convenient for setting a breakpoint to see per-request details.
+            await next(context);
         });
         app.UseRouting();
         app.UseEndpoints(endpoints => endpoints.MapControllers());

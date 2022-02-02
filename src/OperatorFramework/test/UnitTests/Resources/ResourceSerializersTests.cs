@@ -24,9 +24,9 @@ public class ResourceSerializersTests
                 name: "the-name"),
             rules: new[]
             {
-                    new V1PolicyRule(
-                        resourceNames: new []{"*"},
-                        verbs: new []{"*"}),
+                new V1PolicyRule(
+                    resourceNames: new []{"*"},
+                    verbs: new []{"*"}),
             });
 
         var json = Serializers.SerializeJson(resource);
@@ -43,19 +43,19 @@ public class ResourceSerializersTests
     public void DictionarySerializesToJson()
     {
         var dictionary = new Dictionary<string, object> {
-                { "apiVersion", $"{V1Role.KubeGroup}/{V1Role.KubeApiVersion}" },
-                { "kind", V1Role.KubeKind },
-                { "metadata", new Dictionary<string, object>{
-                    { "name", "the-name" } ,
-                    { "namespace", "the-namespace" } ,
-                }},
-                { "rules", new List<object>{
-                    new Dictionary<string, object>{
-                        { "resourceNames", new List<object> { "*" } },
-                        { "verbs", new List<object> { "*" } },
-                    },
-                }},
-            };
+            { "apiVersion", $"{V1Role.KubeGroup}/{V1Role.KubeApiVersion}" },
+            { "kind", V1Role.KubeKind },
+            { "metadata", new Dictionary<string, object>{
+                { "name", "the-name" } ,
+                { "namespace", "the-namespace" } ,
+            }},
+            { "rules", new List<object>{
+                new Dictionary<string, object>{
+                    { "resourceNames", new List<object> { "*" } },
+                    { "verbs", new List<object> { "*" } },
+                },
+            }},
+        };
 
         var json = Serializers.SerializeJson(dictionary);
 
@@ -127,19 +127,19 @@ rules:
     public void ConvertDictionaryToResource()
     {
         var dictionary = new Dictionary<string, object> {
-                { "apiVersion", $"{V1Role.KubeGroup}/{V1Role.KubeApiVersion}" },
-                { "kind", V1Role.KubeKind },
-                { "metadata", new Dictionary<string, object>{
-                    { "name", "the-name" } ,
-                    { "namespace", "the-namespace" } ,
-                }},
-                { "rules", new List<object>{
-                    new Dictionary<string, object>{
-                        { "resourceNames", new List<object> { "*" } },
-                        { "verbs", new List<object> { "*" } },
-                    },
-                }},
-            };
+            { "apiVersion", $"{V1Role.KubeGroup}/{V1Role.KubeApiVersion}" },
+            { "kind", V1Role.KubeKind },
+            { "metadata", new Dictionary<string, object>{
+                { "name", "the-name" } ,
+                { "namespace", "the-namespace" } ,
+            }},
+            { "rules", new List<object>{
+                new Dictionary<string, object>{
+                    { "resourceNames", new List<object> { "*" } },
+                    { "verbs", new List<object> { "*" } },
+                },
+            }},
+        };
 
         var role = Serializers.Convert<V1Role>(dictionary);
 

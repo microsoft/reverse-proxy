@@ -1,6 +1,6 @@
 [
   {
-    "ClusterId": "repro-service:http",
+    "ClusterId": "repro-service.foo:http",
     "LoadBalancingPolicy": null,
     "SessionAffinity": null,
     "HealthCheck": null,

@@ -20,14 +20,14 @@ public class FabricServiceEndpointSelectorTests
         var endpointAddress = "https://localhost:123/valid";
 
         var endpoints = $@"{{
-                'Endpoints': {{
-                    'DifferentServiceEndpoint1': 'https://localhost:123/query',
-                    'DifferentServiceEndpoint2': 'https://loopback:123/query',
-                    '{listenerName}': '{endpointAddress}',
-                    'DifferentServiceEndpoint3': 'https://localhost:456/query',
-                    'DifferentServiceEndpoint4': 'https://loopback:456/query'
-                }}
-            }}".Replace("'", "\"");
+            'Endpoints': {{
+                'DifferentServiceEndpoint1': 'https://localhost:123/query',
+                'DifferentServiceEndpoint2': 'https://loopback:123/query',
+                '{listenerName}': '{endpointAddress}',
+                'DifferentServiceEndpoint3': 'https://localhost:456/query',
+                'DifferentServiceEndpoint4': 'https://loopback:456/query'
+            }}
+        }}".Replace("'", "\"");
 
         var fabricServiceEndpoint = new FabricServiceEndpoint(
             listenerNames: new[] { listenerName },
@@ -48,13 +48,13 @@ public class FabricServiceEndpointSelectorTests
         var allowedScheme = "https";
 
         var endpoints = $@"{{
-                'Endpoints': {{
-                    'SelectedServiceEndpoint': 'https://localhost:123/selected',
-                    'notSelected1': 'https://loopback:123/query',
-                    'notSelected2': 'https://localhost:456/query',
-                    'notSelected3': 'https://loopback:456/query'
-                }}
-            }}".Replace("'", "\"");
+            'Endpoints': {{
+                'SelectedServiceEndpoint': 'https://localhost:123/selected',
+                'notSelected1': 'https://loopback:123/query',
+                'notSelected2': 'https://localhost:456/query',
+                'notSelected3': 'https://loopback:456/query'
+            }}
+        }}".Replace("'", "\"");
         var fabricServiceEndpoint = new FabricServiceEndpoint(
             listenerNames: new[] { string.Empty },
             allowedSchemePredicate: (scheme) => scheme == allowedScheme,
@@ -76,14 +76,14 @@ public class FabricServiceEndpointSelectorTests
         var endpointAddress = "https://localhost:123/valid";
 
         var endpoints = $@"{{
-                'Endpoints': {{
-                    'DifferentServiceEndpoint1': 'https://localhost:123/query',
-                    'DifferentServiceEndpoint2': 'https://loopback:123/query',
-                    '{listenerName}': '{endpointAddress}',
-                    'DifferentServiceEndpoint3': 'https://localhost:456/query',
-                    'DifferentServiceEndpoint4': 'https://loopback:456/query'
-                }}
-            }}".Replace("'", "\"");
+            'Endpoints': {{
+                'DifferentServiceEndpoint1': 'https://localhost:123/query',
+                'DifferentServiceEndpoint2': 'https://loopback:123/query',
+                '{listenerName}': '{endpointAddress}',
+                'DifferentServiceEndpoint3': 'https://localhost:456/query',
+                'DifferentServiceEndpoint4': 'https://loopback:456/query'
+            }}
+        }}".Replace("'", "\"");
 
         var fabricServiceEndpoint = new FabricServiceEndpoint(
             listenerNames: new[] { listenerName },
@@ -105,13 +105,13 @@ public class FabricServiceEndpointSelectorTests
         var allowedScheme = "https";
 
         var endpoints = $@"{{
-                'Endpoints': {{
-                    'DifferentServiceEndpoint1': 'https://localhost:123/query',
-                    'DifferentServiceEndpoint2': 'https://loopback:123/query',
-                    'DifferentServiceEndpoint3': 'https://localhost:456/query',
-                    'DifferentServiceEndpoint4': 'https://loopback:456/query'
-                }}
-            }}".Replace("'", "\"");
+            'Endpoints': {{
+                'DifferentServiceEndpoint1': 'https://localhost:123/query',
+                'DifferentServiceEndpoint2': 'https://loopback:123/query',
+                'DifferentServiceEndpoint3': 'https://localhost:456/query',
+                'DifferentServiceEndpoint4': 'https://loopback:456/query'
+            }}
+        }}".Replace("'", "\"");
 
         var fabricServiceEndpoint = new FabricServiceEndpoint(
             listenerNames: new[] { listenerName },
@@ -134,14 +134,14 @@ public class FabricServiceEndpointSelectorTests
         var endpointAddress = "https://localhost:123/valid";
 
         var endpoints = $@"{{
-                'Endpoints': {{
-                    'DifferentServiceEndpoint1': 'https://localhost:123/query',
-                    'DifferentServiceEndpoint2': 'https://loopback:123/query',
-                    '{listenerName}': '{endpointAddress}',
-                    'DifferentServiceEndpoint3': 'https://localhost:456/query',
-                    'DifferentServiceEndpoint4': 'https://loopback:456/query'
-                }}
-            }}".Replace("'", "\"");
+            'Endpoints': {{
+                'DifferentServiceEndpoint1': 'https://localhost:123/query',
+                'DifferentServiceEndpoint2': 'https://loopback:123/query',
+                '{listenerName}': '{endpointAddress}',
+                'DifferentServiceEndpoint3': 'https://localhost:456/query',
+                'DifferentServiceEndpoint4': 'https://loopback:456/query'
+            }}
+        }}".Replace("'", "\"");
 
         var fabricServiceEndpoint = new FabricServiceEndpoint(
             listenerNames: new[] { listenerName },
@@ -164,14 +164,14 @@ public class FabricServiceEndpointSelectorTests
         var endpointAddress = "https://localhost:123/valid";
 
         var endpoints = $@"{{
-                'Endpoints': {{
-                    'DifferentServiceEndpoint1': '/malformed',
-                    'DifferentServiceEndpoint2': '/malformed',
-                    '{listenerName}': '{endpointAddress}',
-                    'DifferentServiceEndpoint3': '/malformed',
-                    'DifferentServiceEndpoint4': '/malformed'
-                }}
-            }}".Replace("'", "\"");
+            'Endpoints': {{
+                'DifferentServiceEndpoint1': '/malformed',
+                'DifferentServiceEndpoint2': '/malformed',
+                '{listenerName}': '{endpointAddress}',
+                'DifferentServiceEndpoint3': '/malformed',
+                'DifferentServiceEndpoint4': '/malformed'
+            }}
+        }}".Replace("'", "\"");
 
         var fabricServiceEndpoint = new FabricServiceEndpoint(
             listenerNames: new[] { listenerName },
@@ -194,14 +194,14 @@ public class FabricServiceEndpointSelectorTests
         var endpointAddress = "https://localhost:123/valid";
 
         var endpoints = $@"{{
-                'Endpoints': {{
-                    'DifferentServiceEndpoint1': '/malformed',
-                    'DifferentServiceEndpoint2': '/malformed',
-                    'ValidServiceEndpoint': '{endpointAddress}',
-                    'DifferentServiceEndpoint3': '/malformed',
-                    'DifferentServiceEndpoint4': '/malformed'
-                }}
-            }}".Replace("'", "\"");
+            'Endpoints': {{
+                'DifferentServiceEndpoint1': '/malformed',
+                'DifferentServiceEndpoint2': '/malformed',
+                'ValidServiceEndpoint': '{endpointAddress}',
+                'DifferentServiceEndpoint3': '/malformed',
+                'DifferentServiceEndpoint4': '/malformed'
+            }}
+        }}".Replace("'", "\"");
 
         var fabricServiceEndpoint = new FabricServiceEndpoint(
             listenerNames: new[] { listenerName },
@@ -224,12 +224,12 @@ public class FabricServiceEndpointSelectorTests
         var endpointAddress = "https://localhost:123/valid";
 
         var endpoints = $@"{{
-                'Endpoints': {{
-                    'DifferentServiceEndpoint1': '/malformed',
-                    'ServiceEndpointSecure': 'http://localhost/invalidScheme',
-                    'ValidServiceEndpoint': '{endpointAddress}'
-                }}
-            }}".Replace("'", "\"");
+            'Endpoints': {{
+                'DifferentServiceEndpoint1': '/malformed',
+                'ServiceEndpointSecure': 'http://localhost/invalidScheme',
+                'ValidServiceEndpoint': '{endpointAddress}'
+            }}
+        }}".Replace("'", "\"");
 
         var fabricServiceEndpoint = new FabricServiceEndpoint(
             listenerNames: listenerNames,
@@ -251,11 +251,11 @@ public class FabricServiceEndpointSelectorTests
         var allowedScheme = "https";
 
         var endpoints = $@"{{
-                'Endpoints': {{
-                    'DifferentServiceEndpoint1': '/malformed',
-                    '{listenerName}': 'http://localhost/invalidScheme',
-                }}
-            }}".Replace("'", "\"");
+            'Endpoints': {{
+                'DifferentServiceEndpoint1': '/malformed',
+                '{listenerName}': 'http://localhost/invalidScheme',
+            }}
+        }}".Replace("'", "\"");
 
         var fabricServiceEndpoint = new FabricServiceEndpoint(
             listenerNames: new[] { listenerName },
@@ -278,14 +278,14 @@ public class FabricServiceEndpointSelectorTests
         var endpointAddress = "/alsoMalformed";
 
         var endpoints = $@"{{
-                'Endpoints': {{
-                    'DifferentServiceEndpoint1': '/malformed',
-                    'DifferentServiceEndpoint2': '/malformed',
-                    '{listenerName}': '{endpointAddress}',
-                    'DifferentServiceEndpoint3': '/malformed',
-                    'DifferentServiceEndpoint4': '/malformed'
-                }}
-            }}".Replace("'", "\"");
+            'Endpoints': {{
+                'DifferentServiceEndpoint1': '/malformed',
+                'DifferentServiceEndpoint2': '/malformed',
+                '{listenerName}': '{endpointAddress}',
+                'DifferentServiceEndpoint3': '/malformed',
+                'DifferentServiceEndpoint4': '/malformed'
+            }}
+        }}".Replace("'", "\"");
 
         var fabricServiceEndpoint = new FabricServiceEndpoint(
             listenerNames: new[] { listenerName },
@@ -308,14 +308,14 @@ public class FabricServiceEndpointSelectorTests
         var endpointAddress = "/alsoMalformed";
 
         var endpoints = $@"{{
-                'Endpoints': {{
-                    'DifferentServiceEndpoint1': '/malformed',
-                    'DifferentServiceEndpoint2': '/malformed',
-                    '{listenerName}': '{endpointAddress}',
-                    'DifferentServiceEndpoint3': '/malformed',
-                    'DifferentServiceEndpoint4': '/malformed'
-                }}
-            }}".Replace("'", "\"");
+            'Endpoints': {{
+                'DifferentServiceEndpoint1': '/malformed',
+                'DifferentServiceEndpoint2': '/malformed',
+                '{listenerName}': '{endpointAddress}',
+                'DifferentServiceEndpoint3': '/malformed',
+                'DifferentServiceEndpoint4': '/malformed'
+            }}
+        }}".Replace("'", "\"");
 
         var fabricServiceEndpoint = new FabricServiceEndpoint(
             listenerNames: new[] { listenerName },

@@ -429,14 +429,14 @@ public class ProxyEndpointFactoryTests
                 Path = "/",
                 Headers = new[]
                 {
-                        new RouteHeader()
-                        {
-                            Name = "header1",
-                            Values = new[] { "value1" },
-                            Mode = HeaderMatchMode.HeaderPrefix,
-                            IsCaseSensitive = true,
-                        }
+                    new RouteHeader()
+                    {
+                        Name = "header1",
+                        Values = new[] { "value1" },
+                        Mode = HeaderMatchMode.HeaderPrefix,
+                        IsCaseSensitive = true,
                     }
+                }
             },
         };
         var cluster = new ClusterState("cluster1");
@@ -474,19 +474,19 @@ public class ProxyEndpointFactoryTests
                 Path = "/",
                 Headers = new[]
                 {
-                        new RouteHeader()
-                        {
-                            Name = "header1",
-                            Values = new[] { "value1" },
-                            Mode = HeaderMatchMode.HeaderPrefix,
-                            IsCaseSensitive = true,
-                        },
-                        new RouteHeader()
-                        {
-                            Name = "header2",
-                            Mode = HeaderMatchMode.Exists,
-                        }
+                    new RouteHeader()
+                    {
+                        Name = "header1",
+                        Values = new[] { "value1" },
+                        Mode = HeaderMatchMode.HeaderPrefix,
+                        IsCaseSensitive = true,
+                    },
+                    new RouteHeader()
+                    {
+                        Name = "header2",
+                        Mode = HeaderMatchMode.Exists,
                     }
+                }
             },
         };
         var cluster = new ClusterState("cluster1");

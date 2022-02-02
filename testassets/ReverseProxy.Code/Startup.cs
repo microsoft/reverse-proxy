@@ -27,28 +27,28 @@ public class Startup
         services.AddControllers();
         var routes = new[]
         {
-                new RouteConfig()
+            new RouteConfig()
+            {
+                RouteId = "route1",
+                ClusterId = "cluster1",
+                Match = new RouteMatch
                 {
-                    RouteId = "route1",
-                    ClusterId = "cluster1",
-                    Match = new RouteMatch
-                    {
-                        Path = "{**catch-all}"
-                    }
+                    Path = "{**catch-all}"
                 }
-            };
+            }
+        };
         var clusters = new[]
         {
-                new ClusterConfig()
+            new ClusterConfig()
+            {
+                ClusterId = "cluster1",
+                SessionAffinity = new SessionAffinityConfig { Enabled = true, Policy = "Cookie", AffinityKeyName = ".Yarp.ReverseProxy.Affinity" },
+                Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                 {
-                    ClusterId = "cluster1",
-                    SessionAffinity = new SessionAffinityConfig { Enabled = true, Policy = "Cookie", AffinityKeyName = ".Yarp.ReverseProxy.Affinity" },
-                    Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        { "destination1", new DestinationConfig() { Address = "https://localhost:10000" } }
-                    }
+                    { "destination1", new DestinationConfig() { Address = "https://localhost:10000" } }
                 }
-            };
+            }
+        };
 
         services.AddReverseProxy()
             .LoadFromMemory(routes, clusters)
@@ -60,18 +60,18 @@ public class Startup
             .AddTransforms<MyTransformProvider>()
             .AddTransforms(transformBuilderContext =>
             {
-                    // For each route+cluster pair decide if we want to add transforms, and if so, which?
-                    // This logic is re-run each time a route is rebuilt.
+                // For each route+cluster pair decide if we want to add transforms, and if so, which?
+                // This logic is re-run each time a route is rebuilt.
 
-                    transformBuilderContext.AddPathPrefix("/prefix");
+                transformBuilderContext.AddPathPrefix("/prefix");
 
-                    // Only do this for routes that require auth.
-                    if (string.Equals("token", transformBuilderContext.Route.AuthorizationPolicy))
+                // Only do this for routes that require auth.
+                if (string.Equals("token", transformBuilderContext.Route.AuthorizationPolicy))
                 {
                     transformBuilderContext.AddRequestTransform(async transformContext =>
                     {
-                            // AuthN and AuthZ will have already been completed after request routing.
-                            var ticket = await transformContext.HttpContext.AuthenticateAsync("token");
+                        // AuthN and AuthZ will have already been completed after request routing.
+                        var ticket = await transformContext.HttpContext.AuthenticateAsync("token");
                         var tokenService = transformContext.HttpContext.RequestServices.GetRequiredService<TokenService>();
                         var token = await tokenService.GetAuthTokenAsync(ticket.Principal);
                         transformContext.ProxyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -80,9 +80,9 @@ public class Startup
 
                 transformBuilderContext.AddResponseTransform(context =>
                 {
-                        // Suppress the response body from errors.
-                        // The status code was already copied.
-                        if (context.ProxyResponse?.IsSuccessStatusCode == false)
+                    // Suppress the response body from errors.
+                    // The status code was already copied.
+                    if (context.ProxyResponse?.IsSuccessStatusCode == false)
                     {
                         context.SuppressResponseBody = true;
                     }
@@ -109,16 +109,16 @@ public class Startup
             endpoints.MapControllers();
             endpoints.MapReverseProxy(proxyPipeline =>
             {
-                    // Custom endpoint selection
-                    proxyPipeline.Use((context, next) =>
+                // Custom endpoint selection
+                proxyPipeline.Use((context, next) =>
                 {
                     var someCriteria = false; // MeetsCriteria(context);
-                        if (someCriteria)
+                    if (someCriteria)
                     {
                         var availableDestinationsFeature = context.Features.Get<IReverseProxyFeature>();
                         var destination = availableDestinationsFeature.AvailableDestinations[0]; // PickDestination(availableDestinationsFeature.Destinations);
-                                                                                                 // Load balancing will no-op if we've already reduced the list of available destinations to 1.
-                            availableDestinationsFeature.AvailableDestinations = destination;
+                        // Load balancing will no-op if we've already reduced the list of available destinations to 1.
+                        availableDestinationsFeature.AvailableDestinations = destination;
                     }
 
                     return next();

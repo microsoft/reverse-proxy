@@ -21,12 +21,13 @@ public class HttpTransformer
     /// A default set of transforms that adds X-Forwarded-* headers, removes the original Host value and
     /// copies all other request and response fields and headers, except for some protocol specific values.
     /// </summary>
-    public static readonly HttpTransformer Default;
+    public static readonly HttpTransformer Default = TransformBuilder.CreateTransformer(new TransformBuilderContext());
 
-    static HttpTransformer()
-    {
-        Default = TransformBuilder.CreateTransformer(new TransformBuilderContext());
-    }
+    /// <summary>
+    /// An empty transformer that copies all request and response fields and headers, except for some
+    /// protocol specific values.
+    /// </summary>
+    public static readonly HttpTransformer Empty = new HttpTransformer();
 
     /// <summary>
     /// Used to create derived instances.
@@ -129,8 +130,8 @@ public class HttpTransformer
         // remove the received Content-Length field prior to forwarding such
         // a message downstream.
         if (proxyResponse.Content != null
-            && proxyResponse.Headers.TryGetValues(HeaderNames.TransferEncoding, out var _)
-            && proxyResponse.Content.Headers.TryGetValues(HeaderNames.ContentLength, out var _))
+            && RequestUtilities.ContainsHeader(proxyResponse.Headers, HeaderNames.TransferEncoding)
+            && RequestUtilities.ContainsHeader(proxyResponse.Content.Headers, HeaderNames.ContentLength))
         {
             httpContext.Response.Headers.Remove(HeaderNames.ContentLength);
         }
@@ -163,6 +164,20 @@ public class HttpTransformer
 
     private static void CopyResponseHeaders(HttpHeaders source, IHeaderDictionary destination)
     {
+        // We want to append to any prior values, if any.
+        // Not using Append here because it skips empty headers.
+#if NET6_0_OR_GREATER
+        foreach (var header in source.NonValidated)
+        {
+            var headerName = header.Key;
+            if (RequestUtilities.ShouldSkipResponseHeader(headerName))
+            {
+                continue;
+            }
+
+            destination[headerName] = RequestUtilities.Concat(destination[headerName], header.Value);
+        }
+#else
         foreach (var header in source)
         {
             var headerName = header.Key;
@@ -173,10 +188,8 @@ public class HttpTransformer
 
             Debug.Assert(header.Value is string[]);
             var values = header.Value as string[] ?? header.Value.ToArray();
-            // We want to append to any prior values, if any.
-            // Not using Append here because it skips empty headers.
-            values = StringValues.Concat(destination[headerName], values);
-            destination[headerName] = values;
+            destination[headerName] = StringValues.Concat(destination[headerName], values);
         }
+#endif
     }
 }

@@ -57,7 +57,7 @@ internal static class YarpParser
         }
 
         // Each ingress rule path can only be for one service
-        var key = ingressServiceBackend.Port.Number.HasValue ? $"{ingressServiceBackend?.Name}:{ingressServiceBackend?.Port.Number}" : $"{ingressServiceBackend?.Name}:{ingressServiceBackend?.Port.Name}";
+        var key = UpstreamName(ingressContext.Ingress.Metadata.NamespaceProperty, ingressServiceBackend);
         if (!clusters.ContainsKey(key))
         {
             clusters.Add(key, new ClusterTransfer());
@@ -87,7 +87,7 @@ internal static class YarpParser
                         Path = pathMatch
                     },
                     ClusterId = cluster.ClusterId,
-                    RouteId = $"{ingressContext.Ingress.Metadata.Name}:{path.Path}"
+                    RouteId = $"{ingressContext.Ingress.Metadata.Name}.{ingressContext.Ingress.Metadata.NamespaceProperty}:{path.Path}"
                 });
 
                 // Add destination for every endpoint address
@@ -102,6 +102,24 @@ internal static class YarpParser
                 }
             }
         }
+    }
+
+    private static string UpstreamName(string namespaceName, V1IngressServiceBackend ingressServiceBackend)
+    {
+        if (ingressServiceBackend != null)
+        {
+            if (ingressServiceBackend.Port.Number.HasValue && ingressServiceBackend.Port.Number.Value > 0)
+            {
+                return $"{ingressServiceBackend.Name}.{namespaceName}:{ingressServiceBackend.Port.Number}";
+            }
+
+            if (!string.IsNullOrWhiteSpace(ingressServiceBackend.Port.Name))
+            {
+                return $"{ingressServiceBackend.Name}.{namespaceName}:{ingressServiceBackend.Port.Name}";
+            }
+        }
+
+        return $"{namespaceName}-INVALID";
     }
 
     private static string FixupPathMatch(V1HTTPIngressPath path)

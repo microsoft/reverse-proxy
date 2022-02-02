@@ -135,6 +135,11 @@ public class StreamCopyHttpContentTests
 
         var source = new ReadDelegatingStream(new MemoryStream(), async (buffer, cancellation) =>
         {
+            if (buffer.Length == 0)
+            {
+                return 0;
+            }
+
             Assert.False(cancellation.IsCancellationRequested);
             await tcs.Task;
             Assert.True(cancellation.IsCancellationRequested);
@@ -160,6 +165,11 @@ public class StreamCopyHttpContentTests
 
         var source = new ReadDelegatingStream(new MemoryStream(), async (buffer, cancellation) =>
         {
+            if (buffer.Length == 0)
+            {
+                return 0;
+            }
+
             Assert.False(cancellation.IsCancellationRequested);
             await tcs.Task;
             Assert.True(cancellation.IsCancellationRequested);

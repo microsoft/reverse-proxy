@@ -345,8 +345,8 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             DangerousAcceptAnyServerCertificate = section.ReadBool(nameof(HttpClientConfig.DangerousAcceptAnyServerCertificate)),
             MaxConnectionsPerServer = section.ReadInt32(nameof(HttpClientConfig.MaxConnectionsPerServer)),
 #if NET
-                EnableMultipleHttp2Connections = section.ReadBool(nameof(HttpClientConfig.EnableMultipleHttp2Connections)),
-                RequestHeaderEncoding = section[nameof(HttpClientConfig.RequestHeaderEncoding)],
+            EnableMultipleHttp2Connections = section.ReadBool(nameof(HttpClientConfig.EnableMultipleHttp2Connections)),
+            RequestHeaderEncoding = section[nameof(HttpClientConfig.RequestHeaderEncoding)],
 #endif
             WebProxy = webProxy
         };
@@ -364,7 +364,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             ActivityTimeout = section.ReadTimeSpan(nameof(ForwarderRequestConfig.ActivityTimeout)),
             Version = section.ReadVersion(nameof(ForwarderRequestConfig.Version)),
 #if NET
-                VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(ForwarderRequestConfig.VersionPolicy)),
+            VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(ForwarderRequestConfig.VersionPolicy)),
 #endif
             AllowResponseBuffering = section.ReadBool(nameof(ForwarderRequestConfig.AllowResponseBuffering))
         };

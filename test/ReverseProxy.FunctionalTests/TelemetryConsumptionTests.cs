@@ -101,32 +101,32 @@ public class TelemetryConsumptionTests
 
         var expected = new[]
         {
-                "OnRequestStart-Kestrel",
-                "OnForwarderInvoke",
-                "OnForwarderStart",
-                "OnForwarderStage-SendAsyncStart",
+            "OnRequestStart-Kestrel",
+            "OnForwarderInvoke",
+            "OnForwarderStart",
+            "OnForwarderStage-SendAsyncStart",
 #if NET
-                "OnRequestStart",
-                "OnConnectStart",
-                "OnConnectStop",
-                "OnHandshakeStart",
-                "OnHandshakeStop",
-                "OnConnectionEstablished",
+            "OnRequestStart",
+            "OnConnectStart",
+            "OnConnectStop",
+            "OnHandshakeStart",
+            "OnHandshakeStop",
+            "OnConnectionEstablished",
 #if NET6_0_OR_GREATER
-                "OnRequestLeftQueue",
+            "OnRequestLeftQueue",
 #endif
-                "OnRequestHeadersStart",
-                "OnRequestHeadersStop",
-                "OnResponseHeadersStart",
-                "OnResponseHeadersStop",
-                "OnRequestStop",
+            "OnRequestHeadersStart",
+            "OnRequestHeadersStop",
+            "OnResponseHeadersStart",
+            "OnResponseHeadersStop",
+            "OnRequestStop",
 #endif
-                "OnForwarderStage-SendAsyncStop",
-                "OnForwarderStage-ResponseContentTransferStart",
-                "OnContentTransferred",
-                "OnForwarderStop",
-                "OnRequestStop-Kestrel"
-            };
+            "OnForwarderStage-SendAsyncStop",
+            "OnForwarderStage-ResponseContentTransferStart",
+            "OnContentTransferred",
+            "OnForwarderStop",
+            "OnRequestStop-Kestrel"
+        };
 
         foreach (var consumerType in new[] { typeof(TelemetryConsumer), typeof(SecondTelemetryConsumer) })
         {
@@ -158,19 +158,19 @@ public class TelemetryConsumptionTests
 
         var expected = new[]
         {
-                "OnRequestStart",
-                "OnConnectStart",
-                "OnConnectStop",
-                "OnConnectionEstablished",
+            "OnRequestStart",
+            "OnConnectStart",
+            "OnConnectStop",
+            "OnConnectionEstablished",
 #if NET6_0_OR_GREATER
-                "OnRequestLeftQueue",
+            "OnRequestLeftQueue",
 #endif
-                "OnRequestHeadersStart",
-                "OnRequestHeadersStop",
-                "OnResponseHeadersStart",
-                "OnResponseHeadersStop",
-                "OnRequestStop"
-            };
+            "OnRequestHeadersStart",
+            "OnRequestHeadersStop",
+            "OnResponseHeadersStart",
+            "OnResponseHeadersStop",
+            "OnRequestStop"
+        };
 
         foreach (var consumerType in new[] { typeof(TelemetryConsumer), typeof(SecondTelemetryConsumer) })
         {
@@ -186,7 +186,7 @@ public class TelemetryConsumptionTests
         IForwarderTelemetryConsumer,
         IKestrelTelemetryConsumer
 #if NET
-            ,
+        ,
         IHttpTelemetryConsumer,
         INameResolutionTelemetryConsumer,
         INetSecurityTelemetryConsumer,
@@ -247,8 +247,8 @@ public class TelemetryConsumptionTests
         public void OnRequestStart(DateTime timestamp, string connectionId, string requestId, string httpVersion, string path, string method) => AddStage($"{nameof(OnRequestStart)}-Kestrel", timestamp);
         public void OnRequestStop(DateTime timestamp, string connectionId, string requestId, string httpVersion, string path, string method) => AddStage($"{nameof(OnRequestStop)}-Kestrel", timestamp);
 #else
-            public void OnRequestStart(DateTime timestamp, string connectionId, string requestId) => AddStage($"{nameof(OnRequestStart)}-Kestrel", timestamp);
-            public void OnRequestStop(DateTime timestamp, string connectionId, string requestId) => AddStage($"{nameof(OnRequestStop)}-Kestrel", timestamp);
+        public void OnRequestStart(DateTime timestamp, string connectionId, string requestId) => AddStage($"{nameof(OnRequestStart)}-Kestrel", timestamp);
+        public void OnRequestStop(DateTime timestamp, string connectionId, string requestId) => AddStage($"{nameof(OnRequestStop)}-Kestrel", timestamp);
 #endif
     }
 
@@ -270,14 +270,14 @@ public class TelemetryConsumptionTests
 
                 services.AddSingleton<IMetricsConsumer<ForwarderMetrics>>(consumer);
 #if NET
-                    services.AddSingleton<IMetricsConsumer<KestrelMetrics>>(consumer);
+                services.AddSingleton<IMetricsConsumer<KestrelMetrics>>(consumer);
                 services.AddSingleton<IMetricsConsumer<HttpMetrics>>(consumer);
                 services.AddSingleton<IMetricsConsumer<SocketsMetrics>>(consumer);
                 services.AddSingleton<IMetricsConsumer<NetSecurityMetrics>>(consumer);
                 services.AddSingleton<IMetricsConsumer<NameResolutionMetrics>>(consumer);
 #endif
 
-                    services.AddTelemetryListeners();
+                services.AddTelemetryListeners();
             },
             proxyApp => { },
             useHttpsOnDestination: true);
@@ -289,22 +289,22 @@ public class TelemetryConsumptionTests
 
             try
             {
-                    // Do some arbitrary DNS work to get metrics, since we're connecting to localhost
-                    _ = await Dns.GetHostAddressesAsync("microsoft.com");
+                // Do some arbitrary DNS work to get metrics, since we're connecting to localhost
+                _ = await Dns.GetHostAddressesAsync("microsoft.com");
             }
             catch { }
 
             await Task.WhenAll(
                 WaitAsync(() => consumer.ProxyMetrics.LastOrDefault()?.RequestsStarted > 0, nameof(ForwarderMetrics))
 #if NET
-                    ,
+                ,
                 WaitAsync(() => consumer.KestrelMetrics.LastOrDefault()?.TotalConnections > 0, nameof(KestrelMetrics)),
                 WaitAsync(() => consumer.HttpMetrics.LastOrDefault()?.RequestsStarted > 0, nameof(HttpMetrics)),
                 WaitAsync(() => consumer.SocketsMetrics.LastOrDefault()?.OutgoingConnectionsEstablished > 0, nameof(SocketsMetrics)),
                 WaitAsync(() => consumer.NetSecurityMetrics.LastOrDefault()?.TotalTlsHandshakes > 0, nameof(NetSecurityMetrics)),
                 WaitAsync(() => consumer.NameResolutionMetrics.LastOrDefault()?.DnsLookupsRequested > 0, nameof(NameResolutionMetrics))
 #endif
-                    );
+                );
         });
 
         VerifyTimestamp(consumer.ProxyMetrics.Last().Timestamp);
@@ -339,7 +339,7 @@ public class TelemetryConsumptionTests
     private sealed class MetricsConsumer :
         IMetricsConsumer<ForwarderMetrics>
 #if NET
-            ,
+        ,
         IMetricsConsumer<KestrelMetrics>,
         IMetricsConsumer<HttpMetrics>,
         IMetricsConsumer<NameResolutionMetrics>,
