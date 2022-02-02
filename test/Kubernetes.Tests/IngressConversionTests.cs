@@ -20,7 +20,6 @@ using Xunit;
 using Yarp.Kubernetes.Controller.Caching;
 using Yarp.Kubernetes.Controller.Converters;
 using Yarp.Kubernetes.Controller.Services;
-using JsonConverter = Newtonsoft.Json.JsonConverter;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace IngressController.Tests;
@@ -46,6 +45,7 @@ public class IngressControllerTests
     [InlineData("multiple-ingresses")]
     [InlineData("multiple-ingresses-one-svc")]
     [InlineData("multiple-namespaces")]
+    [InlineData("route-metadata")]
     public async Task ParsingTests(string name)
     {
         var cache = await GetKubernetesInfo(name).ConfigureAwait(false);

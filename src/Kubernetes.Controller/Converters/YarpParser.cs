@@ -98,6 +98,7 @@ internal static class YarpParser
                     Transforms = ingressContext.Options.Transforms,
                     AuthorizationPolicy = ingressContext.Options.AuthorizationPolicy,
                     CorsPolicy = ingressContext.Options.CorsPolicy,
+                    Metadata = ingressContext.Options.Metadata,
                 });
 
                 // Add destination for every endpoint address
@@ -192,6 +193,10 @@ internal static class YarpParser
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/health-check", out var healthCheck))
         {
             options.HealthCheck = YamlDeserializer.Deserialize<HealthCheckConfig>(healthCheck);
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/metadata", out var routeMetadata))
+        {
+            options.Metadata = YamlDeserializer.Deserialize<Dictionary<string, string>>(routeMetadata);
         }
 
         // metadata to support:
