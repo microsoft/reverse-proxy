@@ -88,13 +88,13 @@ public class DistributedTracingTests
             var downstreamTraceId = downstreamContext.TraceId.ToHexString();
             var downstreamSpanId = downstreamContext.SpanId.ToHexString();
 #else
-                // 3.1 does not have ActivityContext
-                Assert.Equal(client.TraceStateString, proxy[TraceState]);
-                Assert.Equal(client.TraceStateString, downstream[TraceState]);
-                var proxyTraceId = proxy[TraceParent].ToString().Split('-')[1];
-                var proxySpanId = proxy[TraceParent].ToString().Split('-')[2];
-                var downstreamTraceId = downstream[TraceParent].ToString().Split('-')[1];
-                var downstreamSpanId = downstream[TraceParent].ToString().Split('-')[2];
+            // 3.1 does not have ActivityContext
+            Assert.Equal(client.TraceStateString, proxy[TraceState]);
+            Assert.Equal(client.TraceStateString, downstream[TraceState]);
+            var proxyTraceId = proxy[TraceParent].ToString().Split('-')[1];
+            var proxySpanId = proxy[TraceParent].ToString().Split('-')[2];
+            var downstreamTraceId = downstream[TraceParent].ToString().Split('-')[1];
+            var downstreamSpanId = downstream[TraceParent].ToString().Split('-')[2];
 #endif
 
             Assert.Equal(client.TraceId.ToHexString(), proxyTraceId);
@@ -103,8 +103,8 @@ public class DistributedTracingTests
 #if NET6_0_OR_GREATER
             Assert.NotEqual(proxySpanId, downstreamSpanId);
 #else
-                // Before 6.0, YARP is just pass-through as far as distributed tracing is concerned
-                Assert.Equal(proxySpanId, downstreamSpanId);
+            // Before 6.0, YARP is just pass-through as far as distributed tracing is concerned
+            Assert.Equal(proxySpanId, downstreamSpanId);
 #endif
         }
         else
@@ -118,8 +118,8 @@ public class DistributedTracingTests
 #if NET6_0_OR_GREATER
             Assert.NotEqual(proxyId, downstreamId);
 #else
-                // Before 6.0, YARP is just pass-through as far as distributed tracing is concerned
-                Assert.Equal(proxyId, downstreamId);
+            // Before 6.0, YARP is just pass-through as far as distributed tracing is concerned
+            Assert.Equal(proxyId, downstreamId);
 #endif
         }
     }

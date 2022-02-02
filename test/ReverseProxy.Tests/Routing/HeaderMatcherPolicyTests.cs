@@ -21,23 +21,23 @@ public class HeaderMatcherPolicyTests
         // Most specific to least
         var endpoints = new[]
         {
-                (0, CreateEndpoint("header", new[] { "abc" }, HeaderMatchMode.ExactHeader, isCaseSensitive: true)),
+            (0, CreateEndpoint("header", new[] { "abc" }, HeaderMatchMode.ExactHeader, isCaseSensitive: true)),
 
-                (0, CreateEndpoint("header", new[] { "abc" }, HeaderMatchMode.ExactHeader)),
-                (0, CreateEndpoint("header", new[] { "abc", "def" }, HeaderMatchMode.ExactHeader)),
-                (0, CreateEndpoint("header2", new[] { "abc", "def" }, HeaderMatchMode.ExactHeader)),
+            (0, CreateEndpoint("header", new[] { "abc" }, HeaderMatchMode.ExactHeader)),
+            (0, CreateEndpoint("header", new[] { "abc", "def" }, HeaderMatchMode.ExactHeader)),
+            (0, CreateEndpoint("header2", new[] { "abc", "def" }, HeaderMatchMode.ExactHeader)),
 
-                (0, CreateEndpoint("header", new[] { "abc" }, HeaderMatchMode.HeaderPrefix, isCaseSensitive: true)),
+            (0, CreateEndpoint("header", new[] { "abc" }, HeaderMatchMode.HeaderPrefix, isCaseSensitive: true)),
 
-                (0, CreateEndpoint("header", new[] { "abc" }, HeaderMatchMode.HeaderPrefix)),
-                (0, CreateEndpoint("header", new[] { "abc", "def" }, HeaderMatchMode.HeaderPrefix)),
-                (0, CreateEndpoint("header2", new[] { "abc", "def" }, HeaderMatchMode.HeaderPrefix)),
+            (0, CreateEndpoint("header", new[] { "abc" }, HeaderMatchMode.HeaderPrefix)),
+            (0, CreateEndpoint("header", new[] { "abc", "def" }, HeaderMatchMode.HeaderPrefix)),
+            (0, CreateEndpoint("header2", new[] { "abc", "def" }, HeaderMatchMode.HeaderPrefix)),
 
-                (0, CreateEndpoint("header", new string[0], HeaderMatchMode.Exists, isCaseSensitive: true)),
-                (0, CreateEndpoint("header", new string[0], HeaderMatchMode.Exists)),
-                (0, CreateEndpoint("header", new string[0], HeaderMatchMode.Exists, isCaseSensitive: true)),
-                (0, CreateEndpoint("header", new string[0], HeaderMatchMode.Exists)),
-            };
+            (0, CreateEndpoint("header", new string[0], HeaderMatchMode.Exists, isCaseSensitive: true)),
+            (0, CreateEndpoint("header", new string[0], HeaderMatchMode.Exists)),
+            (0, CreateEndpoint("header", new string[0], HeaderMatchMode.Exists, isCaseSensitive: true)),
+            (0, CreateEndpoint("header", new string[0], HeaderMatchMode.Exists)),
+        };
         var sut = new HeaderMatcherPolicy();
 
         for (var i = 0; i < endpoints.Length; i++)
@@ -65,30 +65,30 @@ public class HeaderMatcherPolicyTests
         // Most specific to least
         var endpoints = new[]
         {
-                (0, CreateEndpoint(new[]
-                {
-                    new HeaderMatcher("header", new string[0], HeaderMatchMode.Exists, isCaseSensitive: true),
-                    new HeaderMatcher("header", new[] { "abc" }, HeaderMatchMode.HeaderPrefix, isCaseSensitive: true),
-                    new HeaderMatcher("header", new[] { "cbcabc" }, HeaderMatchMode.Contains, isCaseSensitive: true),
-                    new HeaderMatcher("header", new[] { "abc" }, HeaderMatchMode.ExactHeader, isCaseSensitive: true)
-                })),
+            (0, CreateEndpoint(new[]
+            {
+                new HeaderMatcher("header", new string[0], HeaderMatchMode.Exists, isCaseSensitive: true),
+                new HeaderMatcher("header", new[] { "abc" }, HeaderMatchMode.HeaderPrefix, isCaseSensitive: true),
+                new HeaderMatcher("header", new[] { "cbcabc" }, HeaderMatchMode.Contains, isCaseSensitive: true),
+                new HeaderMatcher("header", new[] { "abc" }, HeaderMatchMode.ExactHeader, isCaseSensitive: true)
+            })),
 
-                (1, CreateEndpoint(new[]
-                {
-                    new HeaderMatcher("header", new[] { "cbcabc" }, HeaderMatchMode.Contains, isCaseSensitive: true),
-                    new HeaderMatcher("header", new[] { "abc" }, HeaderMatchMode.ExactHeader, isCaseSensitive: true)
-                })),
-                (1, CreateEndpoint(new[]
-                {
-                    new HeaderMatcher("header", new string[0], HeaderMatchMode.Exists, isCaseSensitive: true),
-                    new HeaderMatcher("header", new[] { "abc" }, HeaderMatchMode.ExactHeader, isCaseSensitive: true)
-                })),
+            (1, CreateEndpoint(new[]
+            {
+                new HeaderMatcher("header", new[] { "cbcabc" }, HeaderMatchMode.Contains, isCaseSensitive: true),
+                new HeaderMatcher("header", new[] { "abc" }, HeaderMatchMode.ExactHeader, isCaseSensitive: true)
+            })),
+            (1, CreateEndpoint(new[]
+            {
+                new HeaderMatcher("header", new string[0], HeaderMatchMode.Exists, isCaseSensitive: true),
+                new HeaderMatcher("header", new[] { "abc" }, HeaderMatchMode.ExactHeader, isCaseSensitive: true)
+            })),
 
-                (2, CreateEndpoint("header", new[] { "abc" })),
+            (2, CreateEndpoint("header", new[] { "abc" })),
 
-                (3, CreateEndpoint(Array.Empty<HeaderMatcher>())),
+            (3, CreateEndpoint(Array.Empty<HeaderMatcher>())),
 
-            };
+        };
         var sut = new HeaderMatcherPolicy();
 
         for (var i = 0; i < endpoints.Length; i++)
@@ -115,18 +115,18 @@ public class HeaderMatcherPolicyTests
     {
         var scenarios = new[]
         {
-                CreateEndpoint("org-id", new string[0], HeaderMatchMode.Exists),
-                CreateEndpoint("org-id", new[] { "abc" }),
-                CreateEndpoint("org-id", new[] { "abc", "def" }),
-                CreateEndpoint("org-id", new string[0], HeaderMatchMode.Exists, isDynamic: true),
-                CreateEndpoint("org-id", new[] { "abc" }, isDynamic: true),
-                CreateEndpoint("org-id", null, HeaderMatchMode.Exists, isDynamic: true),
-                CreateEndpoint(new[]
-                {
-                    new HeaderMatcher("header", new string[0], HeaderMatchMode.Exists, isCaseSensitive: true),
-                    new HeaderMatcher("header", new[] { "abc" }, HeaderMatchMode.ExactHeader, isCaseSensitive: true)
-                })
-            };
+            CreateEndpoint("org-id", new string[0], HeaderMatchMode.Exists),
+            CreateEndpoint("org-id", new[] { "abc" }),
+            CreateEndpoint("org-id", new[] { "abc", "def" }),
+            CreateEndpoint("org-id", new string[0], HeaderMatchMode.Exists, isDynamic: true),
+            CreateEndpoint("org-id", new[] { "abc" }, isDynamic: true),
+            CreateEndpoint("org-id", null, HeaderMatchMode.Exists, isDynamic: true),
+            CreateEndpoint(new[]
+            {
+                new HeaderMatcher("header", new string[0], HeaderMatchMode.Exists, isCaseSensitive: true),
+                new HeaderMatcher("header", new[] { "abc" }, HeaderMatchMode.ExactHeader, isCaseSensitive: true)
+            })
+        };
         var sut = new HeaderMatcherPolicy();
         var endpointSelectorPolicy = (IEndpointSelectorPolicy)sut;
 
@@ -351,9 +351,9 @@ public class HeaderMatcherPolicyTests
     {
         var endpoint = CreateEndpoint(new[]
         {
-                new HeaderMatcher("header1", new[] { "value1" }, HeaderMatchMode.ExactHeader, isCaseSensitive: false),
-                new HeaderMatcher("header2", new[] { "value2" }, HeaderMatchMode.ExactHeader, isCaseSensitive: false)
-            });
+            new HeaderMatcher("header1", new[] { "value1" }, HeaderMatchMode.ExactHeader, isCaseSensitive: false),
+            new HeaderMatcher("header2", new[] { "value2" }, HeaderMatchMode.ExactHeader, isCaseSensitive: false)
+        });
 
         var context = new DefaultHttpContext();
         if (sendHeader1)

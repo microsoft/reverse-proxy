@@ -95,8 +95,8 @@ public class ForwardedTransformExtensionsTests : TransformExtentionsTestsBase
         var actions = (ForwardedTransformActions[])Enum.GetValues(typeof(ForwardedTransformActions));
         var addTransformFuncs = new (Func<TransformBuilderContext, string, ForwardedTransformActions, TransformBuilderContext>, string)[]
         {
-                (ForwardedTransformExtensions.AddXForwardedFor, "For"), (ForwardedTransformExtensions.AddXForwardedPrefix, "Prefix"),
-                (ForwardedTransformExtensions.AddXForwardedHost, "Host"), (ForwardedTransformExtensions.AddXForwardedProto, "Proto")
+            (ForwardedTransformExtensions.AddXForwardedFor, "For"), (ForwardedTransformExtensions.AddXForwardedPrefix, "Prefix"),
+            (ForwardedTransformExtensions.AddXForwardedHost, "Host"), (ForwardedTransformExtensions.AddXForwardedProto, "Proto")
         };
 
         return addTransformFuncs.Join(actions, _ => true, _ => true, (t, a) => new object[] { t.Item1, t.Item2, a });

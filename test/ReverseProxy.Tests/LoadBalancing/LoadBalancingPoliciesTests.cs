@@ -30,10 +30,10 @@ public class LoadBalancingPoliciesTests : TestAutoMockBase
     {
         var destinations = new[]
         {
-                new DestinationState("d1"),
-                new DestinationState("d2"),
-                new DestinationState("d3")
-            };
+            new DestinationState("d1"),
+            new DestinationState("d2"),
+            new DestinationState("d3")
+        };
 
         var context = new DefaultHttpContext();
         var loadBalancer = Create<FirstLoadBalancingPolicy>();
@@ -51,10 +51,10 @@ public class LoadBalancingPoliciesTests : TestAutoMockBase
     {
         var destinations = new[]
         {
-                new DestinationState("d1"),
-                new DestinationState("d2"),
-                new DestinationState("d3")
-            };
+            new DestinationState("d1"),
+            new DestinationState("d2"),
+            new DestinationState("d3")
+        };
 
         const int Iterations = 10;
         var random = new Random(42);
@@ -76,10 +76,10 @@ public class LoadBalancingPoliciesTests : TestAutoMockBase
     {
         var destinations = new[]
         {
-                new DestinationState("d1"),
-                new DestinationState("d2"),
-                new DestinationState("d3")
-            };
+            new DestinationState("d1"),
+            new DestinationState("d2"),
+            new DestinationState("d3")
+        };
         destinations[0].ConcurrentRequestCount++;
 
         const int Iterations = 10;
@@ -105,10 +105,10 @@ public class LoadBalancingPoliciesTests : TestAutoMockBase
     {
         var destinations = new[]
         {
-                new DestinationState("d1"),
-                new DestinationState("d2"),
-                new DestinationState("d3")
-            };
+            new DestinationState("d1"),
+            new DestinationState("d2"),
+            new DestinationState("d3")
+        };
         destinations[0].ConcurrentRequestCount++;
 
         var context = new DefaultHttpContext();
@@ -127,10 +127,10 @@ public class LoadBalancingPoliciesTests : TestAutoMockBase
     {
         var destinations = new[]
         {
-                new DestinationState("d1"),
-                new DestinationState("d2"),
-                new DestinationState("d3")
-            };
+            new DestinationState("d1"),
+            new DestinationState("d2"),
+            new DestinationState("d3")
+        };
         destinations[0].ConcurrentRequestCount++;
 
         var context = new DefaultHttpContext();

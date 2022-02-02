@@ -21,49 +21,49 @@ public class LabelsParserTests
     public void BuildCluster_CompleteLabels_Works()
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Enable", "true" },
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Backend.LoadBalancingPolicy", "LeastRequests" },
-                { "YARP.Backend.SessionAffinity.Enabled", "true" },
-                { "YARP.Backend.SessionAffinity.Policy", "Cookie" },
-                { "YARP.Backend.SessionAffinity.FailurePolicy", "Return503Error" },
-                { "YARP.Backend.SessionAffinity.AffinityKeyName", "Key1" },
-                { "YARP.Backend.SessionAffinity.Cookie.Domain", "localhost" },
-                { "YARP.Backend.SessionAffinity.Cookie.Expiration", "03:00:00" },
-                { "YARP.Backend.SessionAffinity.Cookie.HttpOnly", "true" },
-                { "YARP.Backend.SessionAffinity.Cookie.IsEssential", "true" },
-                { "YARP.Backend.SessionAffinity.Cookie.MaxAge", "1.00:00:00" },
-                { "YARP.Backend.SessionAffinity.Cookie.Path", "mypath" },
-                { "YARP.Backend.SessionAffinity.Cookie.SameSite", "Strict" },
-                { "YARP.Backend.SessionAffinity.Cookie.SecurePolicy", "SameAsRequest" },
-                { "YARP.Backend.HttpRequest.ActivityTimeout", "00:00:17" },
-                { "YARP.Backend.HttpRequest.AllowResponseBuffering", "true" },
-                { "YARP.Backend.HttpRequest.Version", "1.1" },
+        {
+            { "YARP.Enable", "true" },
+            { "YARP.Backend.BackendId", "MyCoolClusterId" },
+            { "YARP.Backend.LoadBalancingPolicy", "LeastRequests" },
+            { "YARP.Backend.SessionAffinity.Enabled", "true" },
+            { "YARP.Backend.SessionAffinity.Policy", "Cookie" },
+            { "YARP.Backend.SessionAffinity.FailurePolicy", "Return503Error" },
+            { "YARP.Backend.SessionAffinity.AffinityKeyName", "Key1" },
+            { "YARP.Backend.SessionAffinity.Cookie.Domain", "localhost" },
+            { "YARP.Backend.SessionAffinity.Cookie.Expiration", "03:00:00" },
+            { "YARP.Backend.SessionAffinity.Cookie.HttpOnly", "true" },
+            { "YARP.Backend.SessionAffinity.Cookie.IsEssential", "true" },
+            { "YARP.Backend.SessionAffinity.Cookie.MaxAge", "1.00:00:00" },
+            { "YARP.Backend.SessionAffinity.Cookie.Path", "mypath" },
+            { "YARP.Backend.SessionAffinity.Cookie.SameSite", "Strict" },
+            { "YARP.Backend.SessionAffinity.Cookie.SecurePolicy", "SameAsRequest" },
+            { "YARP.Backend.HttpRequest.ActivityTimeout", "00:00:17" },
+            { "YARP.Backend.HttpRequest.AllowResponseBuffering", "true" },
+            { "YARP.Backend.HttpRequest.Version", "1.1" },
 #if NET
-                { "YARP.Backend.HttpRequest.VersionPolicy", "RequestVersionExact" },
+            { "YARP.Backend.HttpRequest.VersionPolicy", "RequestVersionExact" },
 #endif
-                { "YARP.Backend.HealthCheck.Active.Enabled", "true" },
-                { "YARP.Backend.HealthCheck.Active.Interval", "00:00:05" },
-                { "YARP.Backend.HealthCheck.Active.Timeout", "00:00:06" },
-                { "YARP.Backend.HealthCheck.Active.Policy", "MyActiveHealthPolicy" },
-                { "YARP.Backend.HealthCheck.Active.Path", "/api/health" },
-                { "YARP.Backend.HealthCheck.Passive.Enabled", "true" },
-                { "YARP.Backend.HealthCheck.Passive.Policy", "MyPassiveHealthPolicy" },
-                { "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", "00:00:07" },
-                { "YARP.Backend.Metadata.Foo", "Bar" },
+            { "YARP.Backend.HealthCheck.Active.Enabled", "true" },
+            { "YARP.Backend.HealthCheck.Active.Interval", "00:00:05" },
+            { "YARP.Backend.HealthCheck.Active.Timeout", "00:00:06" },
+            { "YARP.Backend.HealthCheck.Active.Policy", "MyActiveHealthPolicy" },
+            { "YARP.Backend.HealthCheck.Active.Path", "/api/health" },
+            { "YARP.Backend.HealthCheck.Passive.Enabled", "true" },
+            { "YARP.Backend.HealthCheck.Passive.Policy", "MyPassiveHealthPolicy" },
+            { "YARP.Backend.HealthCheck.Passive.ReactivationPeriod", "00:00:07" },
+            { "YARP.Backend.Metadata.Foo", "Bar" },
 
-                { "YARP.Backend.HttpClient.DangerousAcceptAnyServerCertificate", "true" },
-                { "YARP.Backend.HttpClient.MaxConnectionsPerServer", "1000" },
-                { "YARP.Backend.HttpClient.SslProtocols", "Tls12" },
+            { "YARP.Backend.HttpClient.DangerousAcceptAnyServerCertificate", "true" },
+            { "YARP.Backend.HttpClient.MaxConnectionsPerServer", "1000" },
+            { "YARP.Backend.HttpClient.SslProtocols", "Tls12" },
 #if NET
-                { "YARP.Backend.HttpClient.EnableMultipleHttp2Connections", "false" },
-                { "YARP.Backend.HttpClient.RequestHeaderEncoding", "utf-8" },
+            { "YARP.Backend.HttpClient.EnableMultipleHttp2Connections", "false" },
+            { "YARP.Backend.HttpClient.RequestHeaderEncoding", "utf-8" },
 #endif
-                { "YARP.Backend.HttpClient.WebProxy.Address", "https://10.20.30.40" },
-                { "YARP.Backend.HttpClient.WebProxy.BypassOnLocal", "true" },
-                { "YARP.Backend.HttpClient.WebProxy.UseDefaultCredentials", "false" },
-            };
+            { "YARP.Backend.HttpClient.WebProxy.Address", "https://10.20.30.40" },
+            { "YARP.Backend.HttpClient.WebProxy.BypassOnLocal", "true" },
+            { "YARP.Backend.HttpClient.WebProxy.UseDefaultCredentials", "false" },
+        };
 
         var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
@@ -116,9 +116,9 @@ public class LabelsParserTests
                 }
             },
             Metadata = new Dictionary<string, string>
-                {
-                    { "Foo", "Bar" },
-                },
+            {
+                { "Foo", "Bar" },
+            },
             HttpClient = new HttpClientConfig
             {
                 DangerousAcceptAnyServerCertificate = true,
@@ -143,10 +143,10 @@ public class LabelsParserTests
     public void BuildCluster_IncompleteLabels_UsesDefaultValues()
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Backend.SessionAffinity.AffinityKeyName", "Key1" }
-            };
+        {
+            { "YARP.Backend.BackendId", "MyCoolClusterId" },
+            { "YARP.Backend.SessionAffinity.AffinityKeyName", "Key1" }
+        };
 
         var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
@@ -187,10 +187,10 @@ public class LabelsParserTests
     public void BuildCluster_HealthCheckOptions_Enabled_Valid(string label, bool? expected)
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Backend.HealthCheck.Active.Enabled", label },
-            };
+        {
+            { "YARP.Backend.BackendId", "MyCoolClusterId" },
+            { "YARP.Backend.HealthCheck.Active.Enabled", label },
+        };
 
         var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
@@ -203,10 +203,10 @@ public class LabelsParserTests
     public void BuildCluster_HealthCheckOptions_Enabled_Invalid(string label)
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Backend.HealthCheck.Active.Enabled", label },
-            };
+        {
+            { "YARP.Backend.BackendId", "MyCoolClusterId" },
+            { "YARP.Backend.HealthCheck.Active.Enabled", label },
+        };
 
         Action action = () => LabelsParser.BuildCluster(_testServiceName, labels, null);
 
@@ -217,13 +217,13 @@ public class LabelsParserTests
     public void BuildCluster_MissingBackendId_UsesServiceName()
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.Quota.Burst", "2.3" },
-                { "YARP.Backend.Partitioning.Count", "5" },
-                { "YARP.Backend.Partitioning.KeyExtractor", "Header('x-ms-organization-id')" },
-                { "YARP.Backend.Partitioning.Algorithm", "SHA256" },
-                { "YARP.Backend.HealthCheck.Active.Interval", "00:00:5" },
-            };
+        {
+            { "YARP.Backend.Quota.Burst", "2.3" },
+            { "YARP.Backend.Partitioning.Count", "5" },
+            { "YARP.Backend.Partitioning.KeyExtractor", "Header('x-ms-organization-id')" },
+            { "YARP.Backend.Partitioning.Algorithm", "SHA256" },
+            { "YARP.Backend.HealthCheck.Active.Interval", "00:00:5" },
+        };
 
         var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
@@ -236,9 +236,9 @@ public class LabelsParserTests
     public void BuildCluster_NullTimespan(string value)
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.HealthCheck.Active.Interval", value },
-            };
+        {
+            { "YARP.Backend.HealthCheck.Active.Interval", value },
+        };
 
         var cluster = LabelsParser.BuildCluster(_testServiceName, labels, null);
 
@@ -251,10 +251,10 @@ public class LabelsParserTests
     public void BuildCluster_InvalidValues_Throws(string key, string invalidValue)
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { key, invalidValue },
-            };
+        {
+            { "YARP.Backend.BackendId", "MyCoolClusterId" },
+            { key, invalidValue },
+        };
 
         Func<ClusterConfig> func = () => LabelsParser.BuildCluster(_testServiceName, labels, null);
 
@@ -265,77 +265,77 @@ public class LabelsParserTests
     public void BuildRoutes_SingleRoute_Works()
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Routes.MyRoute.Hosts", "example.com" },
-                { "YARP.Routes.MyRoute.Order", "2" },
-                { "YARP.Routes.MyRoute.MatchHeaders.[0].Mode", "ExactHeader" },
-                { "YARP.Routes.MyRoute.MatchHeaders.[0].Name", "x-company-key" },
-                { "YARP.Routes.MyRoute.MatchHeaders.[0].Values", "contoso" },
-                { "YARP.Routes.MyRoute.MatchHeaders.[0].IsCaseSensitive", "true" },
-                { "YARP.Routes.MyRoute.MatchHeaders.[1].Mode", "ExactHeader" },
-                { "YARP.Routes.MyRoute.MatchHeaders.[1].Name", "x-environment" },
-                { "YARP.Routes.MyRoute.MatchHeaders.[1].Values", "dev, uat" },
-                { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
-                { "YARP.Routes.MyRoute.Transforms.[0].ResponseHeader", "X-Foo" },
-                { "YARP.Routes.MyRoute.Transforms.[0].Append", "Bar" },
-                { "YARP.Routes.MyRoute.Transforms.[0].When", "Always" },
-                { "YARP.Routes.MyRoute.Transforms.[1].ResponseHeader", "X-Ping" },
-                { "YARP.Routes.MyRoute.Transforms.[1].Append", "Pong" },
-                { "YARP.Routes.MyRoute.Transforms.[1].When", "Success" },
-            };
+        {
+            { "YARP.Backend.BackendId", "MyCoolClusterId" },
+            { "YARP.Routes.MyRoute.Hosts", "example.com" },
+            { "YARP.Routes.MyRoute.Order", "2" },
+            { "YARP.Routes.MyRoute.MatchHeaders.[0].Mode", "ExactHeader" },
+            { "YARP.Routes.MyRoute.MatchHeaders.[0].Name", "x-company-key" },
+            { "YARP.Routes.MyRoute.MatchHeaders.[0].Values", "contoso" },
+            { "YARP.Routes.MyRoute.MatchHeaders.[0].IsCaseSensitive", "true" },
+            { "YARP.Routes.MyRoute.MatchHeaders.[1].Mode", "ExactHeader" },
+            { "YARP.Routes.MyRoute.MatchHeaders.[1].Name", "x-environment" },
+            { "YARP.Routes.MyRoute.MatchHeaders.[1].Values", "dev, uat" },
+            { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
+            { "YARP.Routes.MyRoute.Transforms.[0].ResponseHeader", "X-Foo" },
+            { "YARP.Routes.MyRoute.Transforms.[0].Append", "Bar" },
+            { "YARP.Routes.MyRoute.Transforms.[0].When", "Always" },
+            { "YARP.Routes.MyRoute.Transforms.[1].ResponseHeader", "X-Ping" },
+            { "YARP.Routes.MyRoute.Transforms.[1].Append", "Pong" },
+            { "YARP.Routes.MyRoute.Transforms.[1].When", "Success" },
+        };
 
         var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
         var expectedRoutes = new List<RouteConfig>
+        {
+            new RouteConfig
             {
-                new RouteConfig
+                RouteId = "MyCoolClusterId:MyRoute",
+                Match = new RouteMatch
                 {
-                    RouteId = "MyCoolClusterId:MyRoute",
-                    Match = new RouteMatch
+                    Hosts = new[] { "example.com" },
+                    Headers = new List<RouteHeader>
                     {
-                        Hosts = new[] { "example.com" },
-                        Headers = new List<RouteHeader>
+                        new RouteHeader()
                         {
-                            new RouteHeader()
-                            {
-                                Mode = HeaderMatchMode.ExactHeader,
-                                Name = "x-company-key",
-                                Values = new string[]{"contoso"},
-                                IsCaseSensitive = true
-                            },
-                            new RouteHeader()
-                            {
-                                Mode = HeaderMatchMode.ExactHeader,
-                                Name = "x-environment",
-                                Values = new string[]{"dev", "uat"},
-                                IsCaseSensitive = false
-                            }
-                        }
-                    },
-                    Order = 2,
-                    ClusterId = "MyCoolClusterId",
-                    Metadata = new Dictionary<string, string>
-                    {
-                        { "Foo", "Bar" },
-                    },
-                    Transforms = new List<IReadOnlyDictionary<string, string>>
-                    {
-                        new Dictionary<string, string>
-                        {
-                            {"ResponseHeader", "X-Foo"},
-                            {"Append", "Bar"},
-                            {"When", "Always"}
+                            Mode = HeaderMatchMode.ExactHeader,
+                            Name = "x-company-key",
+                            Values = new string[]{"contoso"},
+                            IsCaseSensitive = true
                         },
-                        new Dictionary<string, string>
+                        new RouteHeader()
                         {
-                            {"ResponseHeader", "X-Ping"},
-                            {"Append", "Pong"},
-                            {"When", "Success"}
+                            Mode = HeaderMatchMode.ExactHeader,
+                            Name = "x-environment",
+                            Values = new string[]{"dev", "uat"},
+                            IsCaseSensitive = false
                         }
                     }
                 },
-            };
+                Order = 2,
+                ClusterId = "MyCoolClusterId",
+                Metadata = new Dictionary<string, string>
+                {
+                    { "Foo", "Bar" },
+                },
+                Transforms = new List<IReadOnlyDictionary<string, string>>
+                {
+                    new Dictionary<string, string>
+                    {
+                        {"ResponseHeader", "X-Foo"},
+                        {"Append", "Bar"},
+                        {"When", "Always"}
+                    },
+                    new Dictionary<string, string>
+                    {
+                        {"ResponseHeader", "X-Ping"},
+                        {"Append", "Pong"},
+                        {"When", "Success"}
+                    }
+                }
+            },
+        };
         routes.Should().BeEquivalentTo(expectedRoutes);
     }
 
@@ -343,26 +343,26 @@ public class LabelsParserTests
     public void BuildRoutes_IncompleteRoute_UsesDefaults()
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Routes.MyRoute.Hosts", "example.com" },
-            };
+        {
+            { "YARP.Backend.BackendId", "MyCoolClusterId" },
+            { "YARP.Routes.MyRoute.Hosts", "example.com" },
+        };
 
         var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
         var expectedRoutes = new List<RouteConfig>
+        {
+            new RouteConfig
             {
-                new RouteConfig
+                RouteId = "MyCoolClusterId:MyRoute",
+                Match = new RouteMatch
                 {
-                    RouteId = "MyCoolClusterId:MyRoute",
-                    Match = new RouteMatch
-                    {
-                        Hosts = new[] { "example.com" },
-                    },
-                    ClusterId = "MyCoolClusterId",
-                    Metadata = new Dictionary<string, string>(),
+                    Hosts = new[] { "example.com" },
                 },
-            };
+                ClusterId = "MyCoolClusterId",
+                Metadata = new Dictionary<string, string>(),
+            },
+        };
         routes.Should().BeEquivalentTo(expectedRoutes);
     }
 
@@ -373,26 +373,26 @@ public class LabelsParserTests
     public void BuildRoutes_SingleRouteWithSemanticallyInvalidRule_WorksAndDoesNotThrow()
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Routes.MyRoute.Hosts", "'this invalid thing" },
-            };
+        {
+            { "YARP.Backend.BackendId", "MyCoolClusterId" },
+            { "YARP.Routes.MyRoute.Hosts", "'this invalid thing" },
+        };
 
         var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
         var expectedRoutes = new List<RouteConfig>
+        {
+            new RouteConfig
             {
-                new RouteConfig
+                RouteId = "MyCoolClusterId:MyRoute",
+                Match = new RouteMatch
                 {
-                    RouteId = "MyCoolClusterId:MyRoute",
-                    Match = new RouteMatch
-                    {
-                        Hosts = new[] { "'this invalid thing" },
-                    },
-                    ClusterId = "MyCoolClusterId",
-                    Metadata = new Dictionary<string, string>(),
+                    Hosts = new[] { "'this invalid thing" },
                 },
-            };
+                ClusterId = "MyCoolClusterId",
+                Metadata = new Dictionary<string, string>(),
+            },
+        };
         routes.Should().BeEquivalentTo(expectedRoutes);
     }
 
@@ -402,10 +402,10 @@ public class LabelsParserTests
     public void BuildRoutes_MissingBackendId_UsesServiceName(int scenario)
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Routes.MyRoute.Hosts", "example.com" },
-                { "YARP.Routes.MyRoute.Order", "2" },
-            };
+        {
+            { "YARP.Routes.MyRoute.Hosts", "example.com" },
+            { "YARP.Routes.MyRoute.Order", "2" },
+        };
 
         if (scenario == 1)
         {
@@ -415,19 +415,19 @@ public class LabelsParserTests
         var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
         var expectedRoutes = new List<RouteConfig>
+        {
+            new RouteConfig
             {
-                new RouteConfig
+                RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
+                Match = new RouteMatch
                 {
-                    RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
-                    Match = new RouteMatch
-                    {
-                        Hosts = new[] { "example.com" },
-                    },
-                    Order = 2,
-                    ClusterId = _testServiceName.ToString(),
-                    Metadata = new Dictionary<string, string>(),
+                    Hosts = new[] { "example.com" },
                 },
-            };
+                Order = 2,
+                ClusterId = _testServiceName.ToString(),
+                Metadata = new Dictionary<string, string>(),
+            },
+        };
         routes.Should().BeEquivalentTo(expectedRoutes);
     }
 
@@ -435,25 +435,25 @@ public class LabelsParserTests
     public void BuildRoutes_MissingHost_Works()
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Routes.MyRoute.Path", "/{**catchall}" },
-            };
+        {
+            { "YARP.Routes.MyRoute.Path", "/{**catchall}" },
+        };
 
         var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
         var expectedRoutes = new List<RouteConfig>
+        {
+            new RouteConfig
             {
-                new RouteConfig
+                RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
+                Match = new RouteMatch
                 {
-                    RouteId = $"{Uri.EscapeDataString(_testServiceName.ToString())}:MyRoute",
-                    Match = new RouteMatch
-                    {
-                        Path = "/{**catchall}",
-                    },
-                    ClusterId = _testServiceName.ToString(),
-                    Metadata = new Dictionary<string, string>(),
+                    Path = "/{**catchall}",
                 },
-            };
+                ClusterId = _testServiceName.ToString(),
+                Metadata = new Dictionary<string, string>(),
+            },
+        };
         routes.Should().BeEquivalentTo(expectedRoutes);
     }
 
@@ -461,11 +461,11 @@ public class LabelsParserTests
     public void BuildRoutes_InvalidOrder_Throws()
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Routes.MyRoute.Hosts", "example.com" },
-                { "YARP.Routes.MyRoute.Order", "this is no number" },
-            };
+        {
+            { "YARP.Backend.BackendId", "MyCoolClusterId" },
+            { "YARP.Routes.MyRoute.Hosts", "example.com" },
+            { "YARP.Routes.MyRoute.Order", "this is no number" },
+        };
 
         Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
 
@@ -483,28 +483,28 @@ public class LabelsParserTests
     public void BuildRoutes_ValidRouteName_Works(string routeName)
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { $"YARP.Routes.{routeName}.Hosts", "example.com" },
-                { $"YARP.Routes.{routeName}.Order", "2" },
-            };
+        {
+            { "YARP.Backend.BackendId", "MyCoolClusterId" },
+            { $"YARP.Routes.{routeName}.Hosts", "example.com" },
+            { $"YARP.Routes.{routeName}.Order", "2" },
+        };
 
         var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
         var expectedRoutes = new List<RouteConfig>
+        {
+            new RouteConfig
             {
-                new RouteConfig
+                RouteId = $"MyCoolClusterId:{routeName}",
+                Match = new RouteMatch
                 {
-                    RouteId = $"MyCoolClusterId:{routeName}",
-                    Match = new RouteMatch
-                    {
-                        Hosts = new[] { "example.com" },
-                    },
-                    Order = 2,
-                    ClusterId = "MyCoolClusterId",
-                    Metadata = new Dictionary<string, string>(),
+                    Hosts = new[] { "example.com" },
                 },
-            };
+                Order = 2,
+                ClusterId = "MyCoolClusterId",
+                Metadata = new Dictionary<string, string>(),
+            },
+        };
         routes.Should().BeEquivalentTo(expectedRoutes);
     }
 
@@ -521,12 +521,12 @@ public class LabelsParserTests
     public void BuildRoutes_InvalidRouteName_Throws(string invalidKey, string value)
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Routes.MyRoute.Hosts", "example.com" },
-                { "YARP.Routes.MyRoute.Priority", "2" },
-                { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
-            };
+        {
+            { "YARP.Backend.BackendId", "MyCoolClusterId" },
+            { "YARP.Routes.MyRoute.Hosts", "example.com" },
+            { "YARP.Routes.MyRoute.Priority", "2" },
+            { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
+        };
         labels[invalidKey] = value;
 
         Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
@@ -543,12 +543,12 @@ public class LabelsParserTests
     public void BuildRoutes_InvalidTransformIndex_Throws(string invalidKey, string value)
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Routes.MyRoute.Hosts", "example.com" },
-                { "YARP.Routes.MyRoute.Priority", "2" },
-                { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
-            };
+        {
+            { "YARP.Backend.BackendId", "MyCoolClusterId" },
+            { "YARP.Routes.MyRoute.Hosts", "example.com" },
+            { "YARP.Routes.MyRoute.Priority", "2" },
+            { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
+        };
         labels[invalidKey] = value;
 
         Func<List<RouteConfig>> func = () => LabelsParser.BuildRoutes(_testServiceName, labels);
@@ -566,12 +566,12 @@ public class LabelsParserTests
     {
         // Arrange
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Routes.MyRoute.Hosts", "example.com" },
-                { "YARP.Routes.MyRoute.Priority", "2" },
-                { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
-            };
+        {
+            { "YARP.Backend.BackendId", "MyCoolClusterId" },
+            { "YARP.Routes.MyRoute.Hosts", "example.com" },
+            { "YARP.Routes.MyRoute.Priority", "2" },
+            { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
+        };
         labels[invalidKey] = value;
 
         // Act
@@ -589,12 +589,12 @@ public class LabelsParserTests
     {
         // Arrange
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Routes.MyRoute.Hosts", "example.com" },
-                { "YARP.Routes.MyRoute.Priority", "2" },
-                { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
-            };
+        {
+            { "YARP.Backend.BackendId", "MyCoolClusterId" },
+            { "YARP.Routes.MyRoute.Hosts", "example.com" },
+            { "YARP.Routes.MyRoute.Priority", "2" },
+            { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
+        };
         labels[invalidKey] = value;
 
         // Act
@@ -612,35 +612,35 @@ public class LabelsParserTests
     public void BuildRoutes_MatchHeadersWithCSVs_Works(string invalidKey, string value, string[] expected)
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Routes.MyRoute0.Hosts", "example0.com" },
-                { "YARP.Routes.MyRoute0.Metadata.Foo", "bar" },
-                { "YARP.Routes.MyRoute0.MatchHeaders.[0].Name", "x-test-header" },
-                { "YARP.Routes.MyRoute0.MatchHeaders.[0].Mode", "ExactHeader" },
-            };
+        {
+            { "YARP.Backend.BackendId", "MyCoolClusterId" },
+            { "YARP.Routes.MyRoute0.Hosts", "example0.com" },
+            { "YARP.Routes.MyRoute0.Metadata.Foo", "bar" },
+            { "YARP.Routes.MyRoute0.MatchHeaders.[0].Name", "x-test-header" },
+            { "YARP.Routes.MyRoute0.MatchHeaders.[0].Mode", "ExactHeader" },
+        };
         labels[invalidKey] = value;
 
         var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
         var expectedRoutes = new List<RouteConfig>
+        {
+            new RouteConfig
             {
-                new RouteConfig
+                RouteId = $"MyCoolClusterId:MyRoute0",
+                Match = new RouteMatch
                 {
-                    RouteId = $"MyCoolClusterId:MyRoute0",
-                    Match = new RouteMatch
-                    {
-                        Hosts = new[] { "example0.com" },
-                        Headers = new List<RouteHeader>() {
-                            new RouteHeader(){Name = "x-test-header", Mode = HeaderMatchMode.ExactHeader, Values = expected},
-                        }
-                    },
-                    Metadata = new Dictionary<string, string>(){
-                        { "Foo", "bar"}
-                    },
-                    ClusterId = "MyCoolClusterId",
-                }
-            };
+                    Hosts = new[] { "example0.com" },
+                    Headers = new List<RouteHeader>() {
+                        new RouteHeader(){Name = "x-test-header", Mode = HeaderMatchMode.ExactHeader, Values = expected},
+                    }
+                },
+                Metadata = new Dictionary<string, string>(){
+                    { "Foo", "bar"}
+                },
+                ClusterId = "MyCoolClusterId",
+            }
+        };
         routes.Should().BeEquivalentTo(expectedRoutes);
     }
 
@@ -663,33 +663,33 @@ public class LabelsParserTests
     public void BuildRoutes_InvalidLabelKeys_IgnoresAndDoesNotThrow(string invalidKey, string value)
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Routes.MyRoute.Hosts", "example.com" },
-                { "YARP.Routes.MyRoute.Order", "2" },
-                { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
-            };
+        {
+            { "YARP.Backend.BackendId", "MyCoolClusterId" },
+            { "YARP.Routes.MyRoute.Hosts", "example.com" },
+            { "YARP.Routes.MyRoute.Order", "2" },
+            { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
+        };
         labels[invalidKey] = value;
 
         var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
         var expectedRoutes = new List<RouteConfig>
+        {
+            new RouteConfig
             {
-                new RouteConfig
+                RouteId = "MyCoolClusterId:MyRoute",
+                Match = new RouteMatch
                 {
-                    RouteId = "MyCoolClusterId:MyRoute",
-                    Match = new RouteMatch
-                    {
-                        Hosts = new[] { "example.com" },
-                    },
-                    Order = 2,
-                    ClusterId = "MyCoolClusterId",
-                    Metadata = new Dictionary<string, string>
-                    {
-                        { "Foo", "Bar" },
-                    },
+                    Hosts = new[] { "example.com" },
                 },
-            };
+                Order = 2,
+                ClusterId = "MyCoolClusterId",
+                Metadata = new Dictionary<string, string>
+                {
+                    { "Foo", "Bar" },
+                },
+            },
+        };
         routes.Should().BeEquivalentTo(expectedRoutes);
     }
 
@@ -697,57 +697,57 @@ public class LabelsParserTests
     public void BuildRoutes_MultipleRoutes_Works()
     {
         var labels = new Dictionary<string, string>()
-            {
-                { "YARP.Backend.BackendId", "MyCoolClusterId" },
-                { "YARP.Routes.MyRoute.Hosts", "example.com" },
-                { "YARP.Routes.MyRoute.Path", "v2/{**rest}" },
-                { "YARP.Routes.MyRoute.Order", "1" },
-                { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
-                { "YARP.Routes.CoolRoute.Hosts", "example.net" },
-                { "YARP.Routes.CoolRoute.Order", "2" },
-                { "YARP.Routes.EvenCoolerRoute.Hosts", "example.org" },
-                { "YARP.Routes.EvenCoolerRoute.Order", "3" },
-            };
+        {
+            { "YARP.Backend.BackendId", "MyCoolClusterId" },
+            { "YARP.Routes.MyRoute.Hosts", "example.com" },
+            { "YARP.Routes.MyRoute.Path", "v2/{**rest}" },
+            { "YARP.Routes.MyRoute.Order", "1" },
+            { "YARP.Routes.MyRoute.Metadata.Foo", "Bar" },
+            { "YARP.Routes.CoolRoute.Hosts", "example.net" },
+            { "YARP.Routes.CoolRoute.Order", "2" },
+            { "YARP.Routes.EvenCoolerRoute.Hosts", "example.org" },
+            { "YARP.Routes.EvenCoolerRoute.Order", "3" },
+        };
 
         var routes = LabelsParser.BuildRoutes(_testServiceName, labels);
 
         var expectedRoutes = new List<RouteConfig>
+        {
+            new RouteConfig
             {
-                new RouteConfig
+                RouteId = "MyCoolClusterId:MyRoute",
+                Match = new RouteMatch
                 {
-                    RouteId = "MyCoolClusterId:MyRoute",
-                    Match = new RouteMatch
-                    {
-                        Hosts = new[] { "example.com" },
-                        Path = "v2/{**rest}",
-                    },
-                    Order = 1,
-                    ClusterId = "MyCoolClusterId",
-                    Metadata = new Dictionary<string, string> { { "Foo", "Bar" } },
+                    Hosts = new[] { "example.com" },
+                    Path = "v2/{**rest}",
                 },
-                new RouteConfig
+                Order = 1,
+                ClusterId = "MyCoolClusterId",
+                Metadata = new Dictionary<string, string> { { "Foo", "Bar" } },
+            },
+            new RouteConfig
+            {
+                RouteId = "MyCoolClusterId:CoolRoute",
+                Match = new RouteMatch
                 {
-                    RouteId = "MyCoolClusterId:CoolRoute",
-                    Match = new RouteMatch
-                    {
-                        Hosts = new[] { "example.net" },
-                    },
-                    Order = 2,
-                    ClusterId = "MyCoolClusterId",
-                    Metadata = new Dictionary<string, string>(),
+                    Hosts = new[] { "example.net" },
                 },
-                new RouteConfig
+                Order = 2,
+                ClusterId = "MyCoolClusterId",
+                Metadata = new Dictionary<string, string>(),
+            },
+            new RouteConfig
+            {
+                RouteId = "MyCoolClusterId:EvenCoolerRoute",
+                Match = new RouteMatch
                 {
-                    RouteId = "MyCoolClusterId:EvenCoolerRoute",
-                    Match = new RouteMatch
-                    {
-                        Hosts = new[] { "example.org" },
-                    },
-                    Order = 3,
-                    ClusterId = "MyCoolClusterId",
-                    Metadata = new Dictionary<string, string>(),
+                    Hosts = new[] { "example.org" },
                 },
-            };
+                Order = 3,
+                ClusterId = "MyCoolClusterId",
+                Metadata = new Dictionary<string, string>(),
+            },
+        };
         routes.Should().BeEquivalentTo(expectedRoutes);
     }
 }

@@ -250,12 +250,12 @@ public class ConfigValidatorTests
                 Path = "/",
                 Headers = new[]
                 {
-                        new RouteHeader()
-                        {
-                            Name = "header1",
-                            Values = new[] { "value1" },
-                        }
-                    },
+                    new RouteHeader()
+                    {
+                        Name = "header1",
+                        Values = new[] { "value1" },
+                    }
+                },
             },
             ClusterId = "cluster1",
         };
@@ -279,12 +279,12 @@ public class ConfigValidatorTests
                 Path = "/",
                 QueryParameters = new[]
                 {
-                        new RouteQueryParameter()
-                        {
-                            Name = "queryparam1",
-                            Values = new[] { "value1" },
-                        }
-                    },
+                    new RouteQueryParameter()
+                    {
+                        Name = "queryparam1",
+                        Values = new[] { "value1" },
+                    }
+                },
             },
             ClusterId = "cluster1",
         };
@@ -308,12 +308,12 @@ public class ConfigValidatorTests
                 Path = "/",
                 Headers = new[]
                 {
-                        new RouteHeader()
-                        {
-                            Name = "header1",
-                            Mode = HeaderMatchMode.Exists
-                        }
-                    },
+                    new RouteHeader()
+                    {
+                        Name = "header1",
+                        Mode = HeaderMatchMode.Exists
+                    }
+                },
             },
             ClusterId = "cluster1",
         };
@@ -337,12 +337,12 @@ public class ConfigValidatorTests
                 Path = "/",
                 QueryParameters = new[]
                 {
-                        new RouteQueryParameter()
-                        {
-                            Name = "queryparam1",
-                            Mode = QueryParameterMatchMode.Exists
-                        }
-                    },
+                    new RouteQueryParameter()
+                    {
+                        Name = "queryparam1",
+                        Mode = QueryParameterMatchMode.Exists
+                    }
+                },
             },
             ClusterId = "cluster1",
         };

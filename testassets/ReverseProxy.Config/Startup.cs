@@ -46,16 +46,16 @@ public class Startup
             endpoints.MapControllers();
             endpoints.MapReverseProxy(proxyPipeline =>
             {
-                    // Custom endpoint selection
-                    proxyPipeline.Use((context, next) =>
+                // Custom endpoint selection
+                proxyPipeline.Use((context, next) =>
                 {
                     var someCriteria = false; // MeetsCriteria(context);
-                        if (someCriteria)
+                    if (someCriteria)
                     {
                         var availableDestinationsFeature = context.Features.Get<IReverseProxyFeature>();
                         var destination = availableDestinationsFeature.AvailableDestinations[0]; // PickDestination(availableDestinationsFeature.Destinations);
-                                                                                                 // Load balancing will no-op if we've already reduced the list of available destinations to 1.
-                            availableDestinationsFeature.AvailableDestinations = destination;
+                        // Load balancing will no-op if we've already reduced the list of available destinations to 1.
+                        availableDestinationsFeature.AvailableDestinations = destination;
                     }
 
                     return next();

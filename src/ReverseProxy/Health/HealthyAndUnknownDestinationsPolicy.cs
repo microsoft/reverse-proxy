@@ -24,8 +24,8 @@ internal class HealthyAndUnknownDestinationsPolicy : IAvailableDestinationsPolic
         {
             availableDestinations = allDestinations.Where(destination =>
             {
-                    // Only consider the current state if those checks are enabled.
-                    var healthState = destination.Health;
+                // Only consider the current state if those checks are enabled.
+                var healthState = destination.Health;
                 var active = activeEnabled ? healthState.Active : DestinationHealth.Unknown;
                 var passive = passiveEnabled ? healthState.Passive : DestinationHealth.Unknown;
 

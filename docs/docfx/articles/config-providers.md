@@ -1,7 +1,5 @@
 # Extensibility: Configuration Providers
 
-Introduced: preview4
-
 ## Introduction
 The [Basic Yarp Sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/BasicYarpSample) show proxy confuguration being loaded from appsettings.json. Instead proxy configuration can be loaded programmatically from the source of your choosing. You do this by providing a couple of classes implementing [IProxyConfigProvider](xref:Yarp.ReverseProxy.Configuration.IProxyConfigProvider) and [IProxyConfig](xref:Yarp.ReverseProxy.Configuration.IProxyConfig).
 

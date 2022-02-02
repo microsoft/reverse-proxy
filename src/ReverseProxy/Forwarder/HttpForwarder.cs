@@ -522,15 +522,12 @@ internal sealed class HttpForwarder : IHttpForwarder
 
     private static void RestoreUpgradeHeaders(HttpContext context, HttpResponseMessage response)
     {
-        if (response.Headers.TryGetValues(HeaderNames.Connection, out var connectionValues)
-            && response.Headers.TryGetValues(HeaderNames.Upgrade, out var upgradeValues))
+        // We don't use RequestUtilities.TryGetValues for the Connection as we do want value validation.
+        // HttpHeaders.TryGetValues will handle the parsing and split the values for us.
+        if (RequestUtilities.TryGetValues(response.Headers, HeaderNames.Upgrade, out var upgradeValues)
+            && response.Headers.TryGetValues(HeaderNames.Connection, out var connectionValues))
         {
-            var upgradeStringValues = StringValues.Empty;
-            foreach (var value in upgradeValues)
-            {
-                upgradeStringValues = StringValues.Concat(upgradeStringValues, value);
-            }
-            context.Response.Headers.TryAdd(HeaderNames.Upgrade, upgradeStringValues);
+            context.Response.Headers.TryAdd(HeaderNames.Upgrade, upgradeValues);
 
             foreach (var value in connectionValues)
             {
@@ -585,8 +582,8 @@ internal sealed class HttpForwarder : IHttpForwarder
         // :: Step 7-A-2: Copy duplex streams
         using var destinationStream = await destinationResponse.Content.ReadAsStreamAsync();
 
-        var requestTask = StreamCopier.CopyAsync(isRequest: true, clientStream, destinationStream, _clock, activityCancellationSource, activityCancellationSource.Token).AsTask();
-        var responseTask = StreamCopier.CopyAsync(isRequest: false, destinationStream, clientStream, _clock, activityCancellationSource, activityCancellationSource.Token).AsTask();
+        var requestTask = StreamCopier.CopyAsync(isRequest: true, clientStream, destinationStream, StreamCopier.UnknownLength, _clock, activityCancellationSource, activityCancellationSource.Token).AsTask();
+        var responseTask = StreamCopier.CopyAsync(isRequest: false, destinationStream, clientStream, StreamCopier.UnknownLength, _clock, activityCancellationSource, activityCancellationSource.Token).AsTask();
 
         // Make sure we report the first failure.
         var firstTask = await Task.WhenAny(requestTask, responseTask);
@@ -643,7 +640,8 @@ internal sealed class HttpForwarder : IHttpForwarder
         if (destinationResponseContent != null)
         {
             using var destinationResponseStream = await destinationResponseContent.ReadAsStreamAsync();
-            return await StreamCopier.CopyAsync(isRequest: false, destinationResponseStream, clientResponseStream, _clock, activityCancellationSource, activityCancellationSource.Token);
+            // The response content-length is enforced by the server.
+            return await StreamCopier.CopyAsync(isRequest: false, destinationResponseStream, clientResponseStream, StreamCopier.UnknownLength, _clock, activityCancellationSource, activityCancellationSource.Token);
         }
 
         return (StreamCopyResult.Success, null);
@@ -788,7 +786,7 @@ internal sealed class HttpForwarder : IHttpForwarder
 #if NET
                 var versionPolicy = ProtocolHelper.GetVersionPolicy(msg.VersionPolicy);
 #else
-                    var versionPolicy = "RequestVersionOrLower";
+                var versionPolicy = "RequestVersionOrLower";
 #endif
                 _proxying(logger, msg.RequestUri!.AbsoluteUri, version, versionPolicy, streaming, null);
             }

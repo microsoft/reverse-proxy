@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.AspNetCore.Http;
@@ -80,16 +81,7 @@ public static class RequestUtilities
 #if NET
         HeaderNames.AltSvc,
 #else
-            "Alt-Svc",
-#endif
-
-#if NET6_0_OR_GREATER
-        // Distributed context headers
-        HeaderNames.TraceParent,
-        HeaderNames.RequestId,
-        HeaderNames.TraceState,
-        HeaderNames.Baggage,
-        HeaderNames.CorrelationContext,
+        "Alt-Svc",
 #endif
     };
 
@@ -233,11 +225,11 @@ public static class RequestUtilities
     // bool[] would use 3 cache lines (Array info + 128 bytes)
     // So we use 128 bits rather than 128 bytes/bools
     private static readonly uint[] ValidPathChars = {
-            0b_0000_0000__0000_0000__0000_0000__0000_0000, // 0x00 - 0x1F
-            0b_0010_1111__1111_1111__1111_1111__1101_0010, // 0x20 - 0x3F
-            0b_1000_0111__1111_1111__1111_1111__1111_1111, // 0x40 - 0x5F
-            0b_0100_0111__1111_1111__1111_1111__1111_1110, // 0x60 - 0x7F
-        };
+        0b_0000_0000__0000_0000__0000_0000__0000_0000, // 0x00 - 0x1F
+        0b_0010_1111__1111_1111__1111_1111__1101_0010, // 0x20 - 0x3F
+        0b_1000_0111__1111_1111__1111_1111__1111_1111, // 0x40 - 0x5F
+        0b_0100_0111__1111_1111__1111_1111__1111_1110, // 0x60 - 0x7F
+    };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static bool IsValidPathChar(char c)
@@ -247,8 +239,8 @@ public static class RequestUtilities
         var i = (int)c;
 
         // Array is in chunks of 32 bits, so get offset by dividing by 32
-        var offset = i >> 5;        // i / 32;
-                                    // Significant bit position is the remainder of the above calc; i % 32 => i & 31
+        var offset = i >> 5; // i / 32;
+        // Significant bit position is the remainder of the above calc; i % 32 => i & 31
         var significantBit = 1u << (i & 31);
 
         // Check offset in bounds and check if significant bit set
@@ -343,5 +335,96 @@ public static class RequestUtilities
         {
             request.Headers.Remove(headerName);
         }
+    }
+
+#if NET6_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static StringValues Concat(in StringValues existing, in HeaderStringValues values)
+    {
+        if (values.Count <= 1)
+        {
+            return StringValues.Concat(existing, values.ToString());
+        }
+        else
+        {
+            return ConcatSlow(existing, values);
+        }
+
+        static StringValues ConcatSlow(in StringValues existing, in HeaderStringValues values)
+        {
+            Debug.Assert(values.Count > 1);
+
+            var count = existing.Count;
+            var newArray = new string[count + values.Count];
+
+            if (count == 1)
+            {
+                newArray[0] = existing.ToString();
+            }
+            else
+            {
+                existing.ToArray().CopyTo(newArray, 0);
+            }
+
+            foreach (var value in values)
+            {
+                newArray[count++] = value;
+            }
+            Debug.Assert(count == newArray.Length);
+
+            return newArray;
+        }
+    }
+#endif
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static bool TryGetValues(HttpHeaders headers, string headerName, out StringValues values)
+    {
+#if NET6_0_OR_GREATER
+        if (headers.NonValidated.TryGetValues(headerName, out var headerStringValues))
+        {
+            if (headerStringValues.Count <= 1)
+            {
+                values = headerStringValues.ToString();
+            }
+            else
+            {
+                values = ToArray(headerStringValues);
+            }
+            return true;
+        }
+
+        static StringValues ToArray(in HeaderStringValues values)
+        {
+            var array = new string[values.Count];
+            var i = 0;
+            foreach (var value in values)
+            {
+                array[i++] = value;
+            }
+            Debug.Assert(i == array.Length);
+            return array;
+        }
+#else
+        if (headers.TryGetValues(headerName, out var headerValues))
+        {
+            Debug.Assert(headerValues is string[]);
+            values = headerValues as string[] ?? headerValues.ToArray();
+            return true;
+        }
+#endif
+
+        values = default;
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static bool ContainsHeader(HttpHeaders headers, string headerName)
+    {
+#if NET6_0_OR_GREATER
+        return headers.NonValidated.Contains(headerName);
+#else
+        return headers.TryGetValues(headerName, out _);
+#endif
     }
 }

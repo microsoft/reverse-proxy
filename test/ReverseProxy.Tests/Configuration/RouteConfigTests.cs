@@ -21,22 +21,22 @@ public class RouteConfigTests
             {
                 Headers = new[]
                 {
-                        new RouteHeader()
-                        {
-                            Name = "Hi",
-                            Values = new[] { "v1", "v2" },
-                            IsCaseSensitive = true,
-                            Mode = HeaderMatchMode.HeaderPrefix,
-                        }
-                    },
+                    new RouteHeader()
+                    {
+                        Name = "Hi",
+                        Values = new[] { "v1", "v2" },
+                        IsCaseSensitive = true,
+                        Mode = HeaderMatchMode.HeaderPrefix,
+                    }
+                },
                 Hosts = new[] { "foo:90" },
                 Methods = new[] { "GET", "POST" },
                 Path = "/p",
             },
             Metadata = new Dictionary<string, string>()
-                {
-                    { "m", "m1" }
-                },
+            {
+                { "m", "m1" }
+            },
             Order = 1,
             RouteId = "R",
         };
@@ -49,22 +49,22 @@ public class RouteConfigTests
             {
                 Headers = new[]
                 {
-                        new RouteHeader()
-                        {
-                            Name = "hi",
-                            Values = new[] { "v1", "v2" },
-                            IsCaseSensitive = true,
-                            Mode = HeaderMatchMode.HeaderPrefix,
-                        }
-                    },
+                    new RouteHeader()
+                    {
+                        Name = "hi",
+                        Values = new[] { "v1", "v2" },
+                        IsCaseSensitive = true,
+                        Mode = HeaderMatchMode.HeaderPrefix,
+                    }
+                },
                 Hosts = new[] { "foo:90" },
                 Methods = new[] { "GET", "POST" },
                 Path = "/P"
             },
             Metadata = new Dictionary<string, string>()
-                {
-                    { "m", "m1" }
-                },
+            {
+                { "m", "m1" }
+            },
             Order = 1,
             RouteId = "r",
         };
@@ -88,22 +88,22 @@ public class RouteConfigTests
             {
                 Headers = new[]
                 {
-                        new RouteHeader()
-                        {
-                            Name = "Hi",
-                            Values = new[] { "v1", "v2" },
-                            IsCaseSensitive = true,
-                            Mode = HeaderMatchMode.HeaderPrefix,
-                        }
-                    },
+                    new RouteHeader()
+                    {
+                        Name = "Hi",
+                        Values = new[] { "v1", "v2" },
+                        IsCaseSensitive = true,
+                        Mode = HeaderMatchMode.HeaderPrefix,
+                    }
+                },
                 Hosts = new[] { "foo:90" },
                 Methods = new[] { "GET", "POST" },
                 Path = "/p",
             },
             Metadata = new Dictionary<string, string>()
-                {
-                    { "m", "m1" }
-                },
+            {
+                { "m", "m1" }
+            },
             Order = 1,
             RouteId = "R",
         };
@@ -142,30 +142,30 @@ public class RouteConfigTests
             {
                 Headers = new[]
                 {
-                        new RouteHeader()
-                        {
-                            Name = "Hi",
-                            Values = new[] { "v1", "v2" },
-                            IsCaseSensitive = true,
-                            Mode = HeaderMatchMode.HeaderPrefix,
-                        }
-                    },
+                    new RouteHeader()
+                    {
+                        Name = "Hi",
+                        Values = new[] { "v1", "v2" },
+                        IsCaseSensitive = true,
+                        Mode = HeaderMatchMode.HeaderPrefix,
+                    }
+                },
                 Hosts = new[] { "foo:90" },
                 Methods = new[] { "GET", "POST" },
                 Path = "/p",
             },
             Metadata = new Dictionary<string, string>()
-                {
-                    { "m", "m1" }
-                },
+            {
+                { "m", "m1" }
+            },
             Transforms = new[]
             {
-                    new Dictionary<string, string>
-                    {
-                        { "key", "value" },
-                        { "key1", "" }
-                    }
-                },
+                new Dictionary<string, string>
+                {
+                    { "key", "value" },
+                    { "key1", "" }
+                }
+            },
             Order = 1,
             RouteId = "R",
         };

@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Primitives;

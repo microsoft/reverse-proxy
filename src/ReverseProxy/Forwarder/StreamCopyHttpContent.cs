@@ -126,7 +126,7 @@ internal sealed class StreamCopyHttpContent : HttpContent
 #else
     private
 #endif
-            async Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
+        async Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
     {
         if (Interlocked.Exchange(ref _started, 1) == 1)
         {
@@ -181,7 +181,8 @@ internal sealed class StreamCopyHttpContent : HttpContent
                 return;
             }
 
-            var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, _clock, _activityToken, cancellationToken);
+            // Check that the content-length matches the request body size. This can be removed in .NET 7 now that SocketsHttpHandler enforces this: https://github.com/dotnet/runtime/issues/62258.
+            var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, Headers.ContentLength ?? StreamCopier.UnknownLength, _clock, _activityToken, cancellationToken);
             _tcs.TrySetResult((result, error));
 
             // Check for errors that weren't the result of the destination failing.

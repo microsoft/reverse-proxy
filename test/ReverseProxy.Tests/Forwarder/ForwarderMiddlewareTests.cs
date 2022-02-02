@@ -60,7 +60,7 @@ public class ForwarderMiddlewareTests : TestAutoMockBase
 
         httpContext.Features.Set<IReverseProxyFeature>(
             new ReverseProxyFeature()
-            {
+        {
                 AvailableDestinations = new List<DestinationState>() { destination1 }.AsReadOnly(),
                 Cluster = clusterModel,
                 Route = routeConfig,
@@ -78,9 +78,9 @@ public class ForwarderMiddlewareTests : TestAutoMockBase
                     requestOptions.ActivityTimeout == httpRequestOptions.ActivityTimeout
                     && requestOptions.Version == httpRequestOptions.Version
 #if NET
-                        && requestOptions.VersionPolicy == httpRequestOptions.VersionPolicy
+                    && requestOptions.VersionPolicy == httpRequestOptions.VersionPolicy
 #endif
-                        ),
+                    ),
                 It.IsAny<HttpTransformer>()))
             .Returns(
                 async () =>

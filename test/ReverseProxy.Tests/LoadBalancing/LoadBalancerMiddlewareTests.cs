@@ -42,9 +42,9 @@ public class LoadBalancerMiddlewareTests
         const string PolicyName = "NonExistentPolicy";
         var context = CreateContext(PolicyName, new[]
         {
-                new DestinationState("destination1"),
-                new DestinationState("destination2")
-            });
+            new DestinationState("destination1"),
+            new DestinationState("destination2")
+        });
 
         var sut = CreateMiddleware(_ => Task.CompletedTask);
 
@@ -57,8 +57,8 @@ public class LoadBalancerMiddlewareTests
     {
         var context = CreateContext(LoadBalancingPolicies.FirstAlphabetical, new[]
         {
-                new DestinationState("destination1")
-            });
+            new DestinationState("destination1")
+        });
 
         var sut = CreateMiddleware(_ => Task.CompletedTask);
 
@@ -79,9 +79,9 @@ public class LoadBalancerMiddlewareTests
         // Selects the alphabetically first available destination.
         var context = CreateContext(LoadBalancingPolicies.FirstAlphabetical, new[]
         {
-                new DestinationState("destination2"),
-                new DestinationState("destination1"),
-            });
+            new DestinationState("destination2"),
+            new DestinationState("destination1"),
+        });
 
         var sut = CreateMiddleware(_ => Task.CompletedTask, new FirstLoadBalancingPolicy());
 
@@ -124,9 +124,9 @@ public class LoadBalancerMiddlewareTests
 
         var context = CreateContext(PolicyName, new[]
         {
-                new DestinationState("destination1"),
-                new DestinationState("destination2")
-            });
+            new DestinationState("destination1"),
+            new DestinationState("destination2")
+        });
 
         var policy = new Mock<ILoadBalancingPolicy>();
         policy
@@ -158,9 +158,9 @@ public class LoadBalancerMiddlewareTests
     {
         var destinations = new[]
         {
-                new DestinationState("destination1"),
-                new DestinationState("destination2")
-            };
+            new DestinationState("destination1"),
+            new DestinationState("destination2")
+        };
         var context = CreateContext(loadBalancingPolicy: null, destinations);
 
         var policy = new Mock<ILoadBalancingPolicy>();

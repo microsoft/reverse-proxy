@@ -51,7 +51,7 @@ public class TransformBuilderTests
         Assert.Empty(results.ResponseTransforms);
         Assert.Empty(results.ResponseTrailerTransforms);
 
-        Assert.Equal(6, results.RequestTransforms.Count);
+        Assert.Equal(6, results.RequestTransforms.Length);
         var hostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderOriginalHostTransform>());
         Assert.False(hostTransform.UseOriginalHost);
         var forTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
@@ -94,7 +94,7 @@ public class TransformBuilderTests
         Assert.Empty(results.ResponseTransforms);
         Assert.Empty(results.ResponseTrailerTransforms);
 
-        Assert.Equal(6, results.RequestTransforms.Count);
+        Assert.Equal(6, results.RequestTransforms.Length);
         var hostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderOriginalHostTransform>());
         Assert.False(hostTransform.UseOriginalHost);
         var forTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
@@ -116,8 +116,8 @@ public class TransformBuilderTests
         var transformBuilder = CreateTransformBuilder();
         var transforms = new[]
         {
-                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase), // Empty
-            };
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase), // Empty
+        };
 
         var route = new RouteConfig() { Transforms = transforms };
         var errors = transformBuilder.ValidateRoute(route);
@@ -134,17 +134,17 @@ public class TransformBuilderTests
         var transformBuilder = CreateTransformBuilder();
         var transforms = new[]
         {
-                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) // Unknown transform
-                {
-                    {  "string1", "value1" },
-                    {  "string2", "value2" }
-                },
-                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) // Unknown transform
-                {
-                    {  "string3", "value3" },
-                    {  "string4", "value4" }
-                },
-            };
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) // Unknown transform
+            {
+                {  "string1", "value1" },
+                {  "string2", "value2" }
+            },
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) // Unknown transform
+            {
+                {  "string3", "value3" },
+                {  "string4", "value4" }
+            },
+        };
 
         var route = new RouteConfig() { Transforms = transforms };
         var errors = transformBuilder.ValidateRoute(route);
@@ -212,7 +212,7 @@ public class TransformBuilderTests
         Assert.Equal(1, provider2.ApplyCalls);
         Assert.Equal(1, provider3.ApplyCalls);
 
-        Assert.Equal(3, transforms.ResponseTrailerTransforms.Count);
+        Assert.Equal(3, transforms.ResponseTrailerTransforms.Length);
     }
 
     [Fact]
@@ -221,15 +221,15 @@ public class TransformBuilderTests
         var transformBuilder = CreateTransformBuilder();
         var transforms = new[]
         {
-                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    {  "RequestHeadersCopy", "false" }
-                },
-                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    {  "X-Forwarded", "Off" }
-                },
-            };
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                {  "RequestHeadersCopy", "false" }
+            },
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                {  "X-Forwarded", "Off" }
+            },
+        };
 
         var route = new RouteConfig() { Transforms = transforms };
         var errors = transformBuilder.ValidateRoute(route);
@@ -259,22 +259,22 @@ public class TransformBuilderTests
         var transforms = new List<Dictionary<string, string>>();
         // Disable default forwarders
         transforms.Add(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                {  "X-Forwarded", "Off" }
-            });
+        {
+            {  "X-Forwarded", "Off" }
+        });
         if (useOriginalHost.HasValue)
         {
             transforms.Add(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    {  "RequestHeaderOriginalHost", useOriginalHost.ToString() }
-                });
+            {
+                {  "RequestHeaderOriginalHost", useOriginalHost.ToString() }
+            });
         }
         if (copyHeaders.HasValue)
         {
             transforms.Add(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    {  "RequestHeadersCopy", copyHeaders.ToString() }
-                });
+            {
+                {  "RequestHeadersCopy", copyHeaders.ToString() }
+            });
         }
 
         var route = new RouteConfig() { Transforms = transforms };
@@ -339,27 +339,27 @@ public class TransformBuilderTests
         var transforms = new List<Dictionary<string, string>>();
         // Disable default forwarders
         transforms.Add(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                {  "X-Forwarded", "Off" }
-            });
+        {
+            {  "X-Forwarded", "Off" }
+        });
         transforms.Add(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                {  "RequestHeader", "Host" },
-                {  "Set", "CustomHost" }
-            });
+        {
+            {  "RequestHeader", "Host" },
+            {  "Set", "CustomHost" }
+        });
         if (useOriginalHost.HasValue)
         {
             transforms.Add(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    {  "RequestHeaderOriginalHost", useOriginalHost.ToString() }
-                });
+            {
+                {  "RequestHeaderOriginalHost", useOriginalHost.ToString() }
+            });
         }
         if (copyHeaders.HasValue)
         {
             transforms.Add(new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    {  "RequestHeadersCopy", copyHeaders.ToString() }
-                });
+            {
+                {  "RequestHeadersCopy", copyHeaders.ToString() }
+            });
         }
 
         var route = new RouteConfig() { Transforms = transforms };
@@ -385,22 +385,22 @@ public class TransformBuilderTests
         var transformBuilder = CreateTransformBuilder();
         var transforms = new[]
         {
-                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    {  "RequestHeadersCopy", "false" }
-                },
-                new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                {
-                    {  "Forwarded", "proto" }
-                },
-            };
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                {  "RequestHeadersCopy", "false" }
+            },
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                {  "Forwarded", "proto" }
+            },
+        };
 
         var route = new RouteConfig() { Transforms = transforms };
         var errors = transformBuilder.ValidateRoute(route);
         Assert.Empty(errors);
 
         var results = transformBuilder.BuildInternal(route, new ClusterConfig());
-        Assert.Equal(5, results.RequestTransforms.Count);
+        Assert.Equal(5, results.RequestTransforms.Length);
         Assert.All(
             results.RequestTransforms.Skip(1).Select(t => (dynamic)t),
             t =>

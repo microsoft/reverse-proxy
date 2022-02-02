@@ -33,6 +33,7 @@ public class IngressControllerTests
     [InlineData("hostname-routing")]
     [InlineData("multiple-ingresses")]
     [InlineData("multiple-ingresses-one-svc")]
+    [InlineData("multiple-namespaces")]
     public async Task ParsingTests(string name)
     {
         var ingressClass = KubeResourceGenerator.CreateIngressClass("yarp", "microsoft.com/ingress-yarp", true);

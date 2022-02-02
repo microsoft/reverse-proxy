@@ -24,26 +24,26 @@ public class ClusterConfigTests
         {
             ClusterId = "cluster1",
             Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+            {
                 {
+                    "destinationA",
+                    new DestinationConfig
                     {
-                        "destinationA",
-                        new DestinationConfig
-                        {
-                            Address = "https://localhost:10000/destA",
-                            Health = "https://localhost:20000/destA",
-                            Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } }
-                        }
-                    },
-                    {
-                        "destinationB",
-                        new DestinationConfig
-                        {
-                            Address = "https://localhost:10000/destB",
-                            Health = "https://localhost:20000/destB",
-                            Metadata = new Dictionary<string, string> { { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" } }
-                        }
+                        Address = "https://localhost:10000/destA",
+                        Health = "https://localhost:20000/destA",
+                        Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } }
                     }
                 },
+                {
+                    "destinationB",
+                    new DestinationConfig
+                    {
+                        Address = "https://localhost:10000/destB",
+                        Health = "https://localhost:20000/destB",
+                        Metadata = new Dictionary<string, string> { { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" } }
+                    }
+                }
+            },
             HealthCheck = new HealthCheckConfig
             {
                 Passive = new PassiveHealthCheckConfig
@@ -104,26 +104,26 @@ public class ClusterConfigTests
         {
             ClusterId = "cluster1",
             Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+            {
                 {
+                    "destinationA",
+                    new DestinationConfig
                     {
-                        "destinationA",
-                        new DestinationConfig
-                        {
-                            Address = "https://localhost:10000/destA",
-                            Health = "https://localhost:20000/destA",
-                            Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } }
-                        }
-                    },
-                    {
-                        "destinationB",
-                        new DestinationConfig
-                        {
-                            Address = "https://localhost:10000/destB",
-                            Health = "https://localhost:20000/destB",
-                            Metadata = new Dictionary<string, string> { { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" } }
-                        }
+                        Address = "https://localhost:10000/destA",
+                        Health = "https://localhost:20000/destA",
+                        Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } }
                     }
                 },
+                {
+                    "destinationB",
+                    new DestinationConfig
+                    {
+                        Address = "https://localhost:10000/destB",
+                        Health = "https://localhost:20000/destB",
+                        Metadata = new Dictionary<string, string> { { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" } }
+                    }
+                }
+            },
             HealthCheck = new HealthCheckConfig
             {
                 Passive = new PassiveHealthCheckConfig
@@ -195,26 +195,26 @@ public class ClusterConfigTests
         {
             ClusterId = "cluster1",
             Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+            {
                 {
+                    "destinationA",
+                    new DestinationConfig
                     {
-                        "destinationA",
-                        new DestinationConfig
-                        {
-                            Address = "https://localhost:10000/destA",
-                            Health = "https://localhost:20000/destA",
-                            Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } }
-                        }
-                    },
-                    {
-                        "destinationB",
-                        new DestinationConfig
-                        {
-                            Address = "https://localhost:10000/destB",
-                            Health = "https://localhost:20000/destB",
-                            Metadata = new Dictionary<string, string> { { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" } }
-                        }
+                        Address = "https://localhost:10000/destA",
+                        Health = "https://localhost:20000/destA",
+                        Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } }
                     }
                 },
+                {
+                    "destinationB",
+                    new DestinationConfig
+                    {
+                        Address = "https://localhost:10000/destB",
+                        Health = "https://localhost:20000/destB",
+                        Metadata = new Dictionary<string, string> { { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" } }
+                    }
+                }
+            },
             HealthCheck = new HealthCheckConfig
             {
                 Passive = new PassiveHealthCheckConfig
@@ -382,41 +382,41 @@ public class ClusterConfigTests
 #endif
             },
             Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+            {
                 {
+                    "destinationA",
+                    new DestinationConfig
                     {
-                        "destinationA",
-                        new DestinationConfig
-                        {
-                            Address = "https://localhost:10000/destA",
-                            Health = "https://localhost:20000/destA",
-                            Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } }
-                        }
-                    },
-                    {
-                        "destinationB",
-                        new DestinationConfig
-                        {
-                            Address = "https://localhost:10000/destB",
-                            Health = "https://localhost:20000/destB",
-                            Metadata = new Dictionary<string, string> { { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" } }
-                        }
+                        Address = "https://localhost:10000/destA",
+                        Health = "https://localhost:20000/destA",
+                        Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } }
                     }
                 },
+                {
+                    "destinationB",
+                    new DestinationConfig
+                    {
+                        Address = "https://localhost:10000/destB",
+                        Health = "https://localhost:20000/destB",
+                        Metadata = new Dictionary<string, string> { { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" } }
+                    }
+                }
+            },
             Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
         };
 
         var options = new JsonSerializerOptions
         {
             // Future 6.0 builds will contain the fix to these missing converters
-            //#if !NET6_0_OR_GREATER
+//#if !NET6_0_OR_GREATER
             Converters =
-                {
-                    // TimeSpans https://github.com/dotnet/runtime/issues/29932
-                    new TimeSpanConverter(),
-                    // Version https://github.com/dotnet/runtime/pull/41384
-                    new VersionConverter()
-                }
-            //#endif
+            {
+                // TimeSpans https://github.com/dotnet/runtime/issues/29932
+                new TimeSpanConverter(),
+                // Version https://github.com/dotnet/runtime/pull/41384
+                new VersionConverter()
+            }
+//#endif
         };
         var json = JsonSerializer.Serialize(cluster1, options);
         var cluster2 = JsonSerializer.Deserialize<ClusterConfig>(json, options);

@@ -15,35 +15,28 @@ public class HttpTransformerTests
 {
     private static readonly string[] RestrictedHeaders = new[]
     {
-            HeaderNames.Connection,
-            HeaderNames.TransferEncoding,
-            HeaderNames.KeepAlive,
-            HeaderNames.Upgrade,
-            "Proxy-Connection",
-            "Proxy-Authenticate",
-            "Proxy-Authentication-Info",
-            "Proxy-Authorization",
-            "Proxy-Features",
-            "Proxy-Instruction",
-            "Security-Scheme",
-            "ALPN",
-            "Close",
-            "HTTP2-Settings",
-            HeaderNames.UpgradeInsecureRequests,
-            HeaderNames.TE,
+        HeaderNames.Connection,
+        HeaderNames.TransferEncoding,
+        HeaderNames.KeepAlive,
+        HeaderNames.Upgrade,
+        "Proxy-Connection",
+        "Proxy-Authenticate",
+        "Proxy-Authentication-Info",
+        "Proxy-Authorization",
+        "Proxy-Features",
+        "Proxy-Instruction",
+        "Security-Scheme",
+        "ALPN",
+        "Close",
+        "HTTP2-Settings",
+        HeaderNames.UpgradeInsecureRequests,
+        HeaderNames.TE,
 #if NET
-            HeaderNames.AltSvc,
+        HeaderNames.AltSvc,
 #else
-            "Alt-Svc",
+        "Alt-Svc",
 #endif
-#if NET6_0_OR_GREATER
-            HeaderNames.TraceParent,
-            HeaderNames.RequestId,
-            HeaderNames.TraceState,
-            HeaderNames.Baggage,
-            HeaderNames.CorrelationContext,
-#endif
-        };
+    };
 
     [Fact]
     public async Task TransformRequestAsync_RemovesRestrictedHeaders()
@@ -65,6 +58,20 @@ public class HttpTransformerTests
         }
 
         Assert.Null(proxyRequest.Content);
+    }
+
+    [Fact]
+    public async Task TransformRequestAsync_KeepOriginalHost()
+    {
+        var transformer = HttpTransformer.Empty;
+        var httpContext = new DefaultHttpContext();
+        var proxyRequest = new HttpRequestMessage(HttpMethod.Get, "https://localhost");
+
+        httpContext.Request.Host = new HostString("example.com:3456");
+
+        await transformer.TransformRequestAsync(httpContext, proxyRequest, "prefix");
+
+        Assert.Equal("example.com:3456", proxyRequest.Headers.Host);
     }
 
     [Fact]
