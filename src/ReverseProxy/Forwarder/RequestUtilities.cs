@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.AspNetCore.Http;
@@ -81,15 +82,6 @@ public static class RequestUtilities
         HeaderNames.AltSvc,
 #else
         "Alt-Svc",
-#endif
-
-#if NET6_0_OR_GREATER
-        // Distributed context headers
-        HeaderNames.TraceParent,
-        HeaderNames.RequestId,
-        HeaderNames.TraceState,
-        HeaderNames.Baggage,
-        HeaderNames.CorrelationContext,
 #endif
     };
 
@@ -343,5 +335,96 @@ public static class RequestUtilities
         {
             request.Headers.Remove(headerName);
         }
+    }
+
+#if NET6_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static StringValues Concat(in StringValues existing, in HeaderStringValues values)
+    {
+        if (values.Count <= 1)
+        {
+            return StringValues.Concat(existing, values.ToString());
+        }
+        else
+        {
+            return ConcatSlow(existing, values);
+        }
+
+        static StringValues ConcatSlow(in StringValues existing, in HeaderStringValues values)
+        {
+            Debug.Assert(values.Count > 1);
+
+            var count = existing.Count;
+            var newArray = new string[count + values.Count];
+
+            if (count == 1)
+            {
+                newArray[0] = existing.ToString();
+            }
+            else
+            {
+                existing.ToArray().CopyTo(newArray, 0);
+            }
+
+            foreach (var value in values)
+            {
+                newArray[count++] = value;
+            }
+            Debug.Assert(count == newArray.Length);
+
+            return newArray;
+        }
+    }
+#endif
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static bool TryGetValues(HttpHeaders headers, string headerName, out StringValues values)
+    {
+#if NET6_0_OR_GREATER
+        if (headers.NonValidated.TryGetValues(headerName, out var headerStringValues))
+        {
+            if (headerStringValues.Count <= 1)
+            {
+                values = headerStringValues.ToString();
+            }
+            else
+            {
+                values = ToArray(headerStringValues);
+            }
+            return true;
+        }
+
+        static StringValues ToArray(in HeaderStringValues values)
+        {
+            var array = new string[values.Count];
+            var i = 0;
+            foreach (var value in values)
+            {
+                array[i++] = value;
+            }
+            Debug.Assert(i == array.Length);
+            return array;
+        }
+#else
+        if (headers.TryGetValues(headerName, out var headerValues))
+        {
+            Debug.Assert(headerValues is string[]);
+            values = headerValues as string[] ?? headerValues.ToArray();
+            return true;
+        }
+#endif
+
+        values = default;
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static bool ContainsHeader(HttpHeaders headers, string headerName)
+    {
+#if NET6_0_OR_GREATER
+        return headers.NonValidated.Contains(headerName);
+#else
+        return headers.TryGetValues(headerName, out _);
+#endif
     }
 }

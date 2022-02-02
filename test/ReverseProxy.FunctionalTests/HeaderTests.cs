@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
@@ -123,6 +126,7 @@ public class HeaderTests
         });
     }
 
+#if NET6_0_OR_GREATER
     [Fact]
     public async Task ProxyAsync_EmptyResponseHeader_Proxied()
     {
@@ -132,7 +136,7 @@ public class HeaderTests
         var test = new TestEnvironment(
             context =>
             {
-                context.Response.Headers.Add(HeaderNames.Referer, "");
+                context.Response.Headers.Add(HeaderNames.WWWAuthenticate, "");
                 context.Response.Headers.Add("custom", "");
                 return Task.CompletedTask;
             },
@@ -145,7 +149,7 @@ public class HeaderTests
                     {
                         await next();
 
-                        Assert.True(context.Response.Headers.TryGetValue(HeaderNames.Referer, out var header));
+                        Assert.True(context.Response.Headers.TryGetValue(HeaderNames.WWWAuthenticate, out var header));
                         var value = Assert.Single(header);
                         Assert.True(StringValues.IsNullOrEmpty(value));
 
@@ -199,11 +203,12 @@ public class HeaderTests
             // Assert.Equal("Connection: close", lines[2]);
             // Assert.StartsWith("Date: ", lines[3]);
             // Assert.Equal("Server: Kestrel", lines[4]);
-            Assert.Equal("Referer: ", lines[5]);
+            Assert.Equal("WWW-Authenticate: ", lines[5]);
             Assert.Equal("custom: ", lines[6]);
             Assert.Equal("", lines[7]);
         });
     }
+#endif
 
 #if NET
     [Theory]
@@ -464,6 +469,226 @@ public class HeaderTests
             await appTcs.Task;
 
             Assert.StartsWith("HTTP/1.1 200 OK", response);
+        });
+    }
+
+    [Theory]
+    [MemberData(nameof(RequestMultiHeadersData))]
+    public async Task MultiValueRequestHeaders(string headerName, string[] values, string expectedValues)
+    {
+        var proxyTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var appTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var test = new TestEnvironment(
+            context =>
+            {
+                try
+                {
+                    Assert.True(context.Request.Headers.TryGetValue(headerName, out var headerValues));
+                    Assert.Single(headerValues);
+                    Assert.Equal(expectedValues, headerValues);
+                    appTcs.SetResult(0);
+                }
+                catch (Exception ex)
+                {
+                    appTcs.SetException(ex);
+                }
+                return Task.CompletedTask;
+            },
+            proxyBuilder => { },
+            proxyApp =>
+            {
+                proxyApp.Use(async (context, next) =>
+                {
+                    try
+                    {
+                        Assert.True(context.Request.Headers.TryGetValue(headerName, out var headerValues));
+                        Assert.Equal(values.Length, headerValues.Count);
+                        for (var i = 0; i < values.Length; ++i)
+                        {
+                            Assert.Equal(values[i], headerValues[i]);
+                        }
+                        proxyTcs.SetResult(0);
+                    }
+                    catch (Exception ex)
+                    {
+                        proxyTcs.SetException(ex);
+                    }
+
+                    await next();
+                });
+            },
+            proxyProtocol: HttpProtocols.Http1);
+
+        await test.Invoke(async proxyUri =>
+        {
+            var proxyHostUri = new Uri(proxyUri);
+
+            using var tcpClient = new TcpClient(proxyHostUri.Host, proxyHostUri.Port);
+            await using var stream = tcpClient.GetStream();
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("GET / HTTP/1.1\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Host: {proxyHostUri.Host}:{proxyHostUri.Port}\r\n"));
+
+            foreach (var value in values)
+            {
+                await stream.WriteAsync(Encoding.ASCII.GetBytes($"{headerName}: {value}\r\n"));
+            }
+
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Connection: close\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"\r\n"));
+            var response = await new StreamReader(stream).ReadToEndAsync();
+
+            await proxyTcs.Task;
+            await appTcs.Task;
+
+            Assert.StartsWith("HTTP/1.1 200 OK", response);
+        });
+    }
+    public static IEnumerable<string> RequestMultiHeaderNames()
+    {
+        var headers = new[]
+        {
+            HeaderNames.Accept,
+            HeaderNames.AcceptCharset,
+            HeaderNames.AcceptEncoding,
+            HeaderNames.AcceptLanguage,
+            HeaderNames.Via
+        };
+
+        foreach (var header in headers)
+        {
+            yield return header;
+        }
+    }
+
+    public static IEnumerable<string[]> MultiValues()
+    {
+        var values = new string[][] {
+            new[] { "testA=A_Value", "testB=B_Value", "testC=C_Value" },
+            new[] { "testA=A_Value, testB=B_Value", "testC=C_Value" },
+            new[] { "testA=A_Value, testB=B_Value, testC=C_Value" },
+        };
+
+        foreach (var value in values)
+        {
+            yield return value;
+        }
+    }
+
+    public static IEnumerable<object[]> RequestMultiHeadersData()
+    {
+        foreach (var header in RequestMultiHeaderNames())
+        {
+            foreach (var value in MultiValues())
+            {
+                yield return new object[] { header, value, string.Join(", ", value).TrimEnd() }; 
+            }
+        }
+
+        // Special separator ";" for Cookie header
+        foreach (var value in MultiValues())
+        {
+            yield return new object[] { HeaderNames.Cookie, value, string.Join("; ", value).TrimEnd() };
+        }
+    }
+
+    public static IEnumerable<object[]> ResponseMultiHeadersData()
+    {
+        foreach (var header in ResponseMultiHeaderNames())
+        {
+            foreach (var value in MultiValues())
+            {
+                yield return new object[] { header, value, value };
+            }
+        }
+    }
+
+    public static IEnumerable<string> ResponseMultiHeaderNames()
+    {
+        var headers = new[]
+        {
+            HeaderNames.AcceptRanges,
+            HeaderNames.Allow,
+            HeaderNames.ContentEncoding,
+            HeaderNames.ContentLanguage,
+            HeaderNames.ContentRange,
+            HeaderNames.ContentType,
+            HeaderNames.SetCookie,
+            HeaderNames.Via,
+            HeaderNames.Warning,
+            HeaderNames.WWWAuthenticate
+        };
+
+        foreach (var header in headers)
+        {
+            yield return header;
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(ResponseMultiHeadersData))]
+    public async Task MultiValueResponseHeaders(string headerName, string[] values, string[] expectedValues)
+    {
+        IForwarderErrorFeature proxyError = null;
+        Exception unhandledError = null;
+
+        var test = new TestEnvironment(
+            context =>
+            {
+                Assert.True(context.Response.Headers.TryAdd(headerName, values));
+                return Task.CompletedTask;
+            },
+            proxyBuilder => { },
+            proxyApp =>
+            {
+                proxyApp.Use(async (context, next) =>
+                {
+                    try
+                    {
+                        await next();
+
+                        Assert.True(context.Response.Headers.TryGetValue(headerName, out var header));
+                        Assert.Equal(values.Length, header.Count);
+                        for (var i = 0; i < values.Length; ++i)
+                        {
+                            Assert.Equal(values[i], header[i]);
+                        }
+
+                        proxyError = context.Features.Get<IForwarderErrorFeature>();
+                    }
+                    catch (Exception ex)
+                    {
+                        unhandledError = ex;
+                        throw;
+                    }
+                });
+            },
+            proxyProtocol: HttpProtocols.Http1);
+
+        await test.Invoke(async proxyUri =>
+        {
+            var proxyHostUri = new Uri(proxyUri);
+
+            using var tcpClient = new TcpClient(proxyHostUri.Host, proxyHostUri.Port);
+            await using var stream = tcpClient.GetStream();
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("GET / HTTP/1.1\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Host: {proxyHostUri.Host}:{proxyHostUri.Port}\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Content-Length: 0\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes($"Connection: close\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
+            await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
+            var response = await new StreamReader(stream).ReadToEndAsync();
+
+            Assert.Null(proxyError);
+            Assert.Null(unhandledError);
+
+            var lines = response.Split("\r\n");
+            Assert.Equal("HTTP/1.1 200 OK", lines[0]);
+            foreach (var expected in expectedValues)
+            {
+                Assert.Contains($"{headerName}: {expected}", lines);
+            }
         });
     }
 }

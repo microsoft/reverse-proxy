@@ -3,6 +3,8 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Net.Http.Headers;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Transforms;
 
@@ -34,12 +36,16 @@ public class RequestHeaderOriginalHostTransform : RequestTransform
             if (!context.HeadersCopied)
             {
                 // Don't override a custom host
-                context.ProxyRequest.Headers.Host ??= context.HttpContext.Request.Host.Value;
+                if (!RequestUtilities.ContainsHeader(context.ProxyRequest.Headers, HeaderNames.Host))
+                {
+                    context.ProxyRequest.Headers.TryAddWithoutValidation(HeaderNames.Host, context.HttpContext.Request.Host.Value);
+                }
             }
         }
         else if (context.HeadersCopied
             // Don't remove a custom host, only the original
-            && string.Equals(context.HttpContext.Request.Host.Value, context.ProxyRequest.Headers.Host, StringComparison.Ordinal))
+            && RequestUtilities.TryGetValues(context.ProxyRequest.Headers, HeaderNames.Host, out var existingHost)
+            && string.Equals(context.HttpContext.Request.Host.Value, existingHost.ToString(), StringComparison.Ordinal))
         {
             // Remove it after the copy, use the destination host instead.
             context.ProxyRequest.Headers.Host = null;

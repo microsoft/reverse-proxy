@@ -51,7 +51,7 @@ public class TransformBuilderTests
         Assert.Empty(results.ResponseTransforms);
         Assert.Empty(results.ResponseTrailerTransforms);
 
-        Assert.Equal(6, results.RequestTransforms.Count);
+        Assert.Equal(6, results.RequestTransforms.Length);
         var hostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderOriginalHostTransform>());
         Assert.False(hostTransform.UseOriginalHost);
         var forTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
@@ -94,7 +94,7 @@ public class TransformBuilderTests
         Assert.Empty(results.ResponseTransforms);
         Assert.Empty(results.ResponseTrailerTransforms);
 
-        Assert.Equal(6, results.RequestTransforms.Count);
+        Assert.Equal(6, results.RequestTransforms.Length);
         var hostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderOriginalHostTransform>());
         Assert.False(hostTransform.UseOriginalHost);
         var forTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
@@ -212,7 +212,7 @@ public class TransformBuilderTests
         Assert.Equal(1, provider2.ApplyCalls);
         Assert.Equal(1, provider3.ApplyCalls);
 
-        Assert.Equal(3, transforms.ResponseTrailerTransforms.Count);
+        Assert.Equal(3, transforms.ResponseTrailerTransforms.Length);
     }
 
     [Fact]
@@ -400,7 +400,7 @@ public class TransformBuilderTests
         Assert.Empty(errors);
 
         var results = transformBuilder.BuildInternal(route, new ClusterConfig());
-        Assert.Equal(5, results.RequestTransforms.Count);
+        Assert.Equal(5, results.RequestTransforms.Length);
         Assert.All(
             results.RequestTransforms.Skip(1).Select(t => (dynamic)t),
             t =>
