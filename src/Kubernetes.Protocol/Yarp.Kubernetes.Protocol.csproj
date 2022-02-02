@@ -8,10 +8,6 @@
   <ItemGroup>
     <ProjectReference Include="..\OperatorFramework\src\Controller\Microsoft.Kubernetes.Controller.csproj" />
     <ProjectReference Include="..\ReverseProxy\Yarp.ReverseProxy.csproj" />
-
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Condition=" '$(TargetFramework)' != 'net6.0' " Include="System.Text.Json" Version="6.0.0-*" />
-  </ItemGroup>
 </Project>

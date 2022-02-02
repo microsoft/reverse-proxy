@@ -4,7 +4,6 @@
 using System;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -26,7 +25,6 @@ public class DispatchActionResult : IActionResult, IDispatchTarget
     private Task _task = Task.CompletedTask;
     private readonly object _taskSync = new();
     private HttpContext _httpContext;
-    // some config options use enums, we need to enable conversion from string based representations
 
     public DispatchActionResult(IDispatcher dispatcher)
     {
