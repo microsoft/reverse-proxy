@@ -5,11 +5,14 @@ using k8s.Models;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.Kubernetes.Controller.Caching;
 using Yarp.Kubernetes.Controller.Services;
+using Yarp.ReverseProxy.LoadBalancing;
+using YamlDotNet.Serialization;
 
 namespace Yarp.Kubernetes.Controller.Converters;
 
 internal static class YarpParser
 {
+    private static Deserializer YamlDeserializer = new();
     internal static void ConvertFromKubernetesIngress(YarpIngressContext ingressContext, YarpConfigContext configContext)
     {
         var spec = ingressContext.Ingress.Spec;
@@ -65,6 +68,10 @@ internal static class YarpParser
 
         var cluster = clusters[key];
         cluster.ClusterId = key;
+        cluster.LoadBalancingPolicy = ingressContext.Options.LoadBalancingPolicy;
+        cluster.SessionAffinity = ingressContext.Options.SessionAffinity;
+        cluster.HealthCheck = ingressContext.Options.HealthCheck;
+        cluster.HttpClientConfig = ingressContext.Options.HttpClientConfig;
 
         // make sure cluster is present
         foreach (var subset in subsets ?? Enumerable.Empty<V1EndpointSubset>())
@@ -87,7 +94,10 @@ internal static class YarpParser
                         Path = pathMatch
                     },
                     ClusterId = cluster.ClusterId,
-                    RouteId = $"{ingressContext.Ingress.Metadata.Name}.{ingressContext.Ingress.Metadata.NamespaceProperty}:{path.Path}"
+                    RouteId = $"{ingressContext.Ingress.Metadata.Name}.{ingressContext.Ingress.Metadata.NamespaceProperty}:{path.Path}",
+                    Transforms = ingressContext.Options.Transforms,
+                    AuthorizationPolicy = ingressContext.Options.AuthorizationPolicy,
+                    CorsPolicy = ingressContext.Options.CorsPolicy,
                 });
 
                 // Add destination for every endpoint address
@@ -152,7 +162,36 @@ internal static class YarpParser
 
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/backend-protocol", out var http))
         {
-            options.Https = http.Equals("https", StringComparison.OrdinalIgnoreCase);
+        	options.Https = http.Equals("https", StringComparison.OrdinalIgnoreCase);
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/transforms", out var transforms))
+        {
+
+            options.Transforms = YamlDeserializer.Deserialize<List<Dictionary<string,string>>>(transforms);
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/authorization-policy", out var authorizationPolicy))
+        {
+            options.AuthorizationPolicy = authorizationPolicy;
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/cors-policy", out var corsPolicy))
+        {
+            options.CorsPolicy = corsPolicy;
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/session-affinity", out var sessionAffinity))
+        {
+            options.SessionAffinity = YamlDeserializer.Deserialize<SessionAffinityConfig>(sessionAffinity);
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/load-balancing", out var loadBalancing))
+        {
+            options.LoadBalancingPolicy = loadBalancing;
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/http-client", out var httpClientConfig))
+        {
+            options.HttpClientConfig = YamlDeserializer.Deserialize<HttpClientConfig>(httpClientConfig);
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/health-check", out var healthCheck))
+        {
+            options.HealthCheck = YamlDeserializer.Deserialize<HealthCheckConfig>(healthCheck);
         }
 
         // metadata to support:
