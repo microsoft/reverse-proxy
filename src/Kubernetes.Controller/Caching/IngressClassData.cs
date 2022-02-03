@@ -24,7 +24,7 @@ namespace Yarp.Kubernetes.Controller.Caching
             IsDefault = GetDefaultAnnotation(ingressClass);
         }
 
-        public V1IngressClass IngressClass { get; set; }
+        public V1IngressClass IngressClass { get; }
 
         public bool IsDefault { get; }
 

@@ -45,7 +45,7 @@ public class IngressCache : ICache
         {
 #pragma warning disable CA1303 // Do not pass literals as localized parameters
             _logger.LogInformation(
-                "Ignoring {IngressClassNamespace}/{IngressClassName} as the spec.controller is not the same of this ingress",
+                "Ignoring {IngressClassNamespace}/{IngressClassName} as the spec.controller is not the same as this ingress",
                 ingressClass.Metadata.NamespaceProperty,
                 ingressClass.Metadata.Name);
 #pragma warning restore CA1303 // Do not pass literals as localized parameters
@@ -147,7 +147,10 @@ public class IngressCache : ICache
     {
         if (spec.IngressClassName != null)
         {
-            return _ingressClassData.ContainsKey(spec.IngressClassName);
+            lock (_sync)
+            {
+                return _ingressClassData.ContainsKey(spec.IngressClassName);
+            }
         }
 
         return _isDefaultController;
