@@ -4,7 +4,7 @@ metadata:
   name: minimal-ingress
   namespace: default
   annotations:
-    yarp.ingress.kubernetes.io/metadata: |
+    yarp.ingress.kubernetes.io/route-metadata: |
       foo: bar
       another-key: another-value
 spec:

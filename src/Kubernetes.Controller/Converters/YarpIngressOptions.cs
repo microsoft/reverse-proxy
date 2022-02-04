@@ -16,5 +16,5 @@ internal sealed class YarpIngressOptions
     public string LoadBalancingPolicy { get; set; }
     public string CorsPolicy { get; set; }
     public HealthCheckConfig HealthCheck { get; set; }
-    public Dictionary<string, string> Metadata { get; set; }
+    public Dictionary<string, string> RouteMetadata { get; set; }
 }
