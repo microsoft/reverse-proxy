@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Yarp.Kubernetes.Controller.Dispatching;
 
 namespace Yarp.Kubernetes.Controller.Services;
 
@@ -12,22 +11,15 @@ namespace Yarp.Kubernetes.Controller.Services;
 /// </summary>
 public struct QueueItem : IEquatable<QueueItem>
 {
-    public QueueItem(string change, IDispatchTarget dispatchTarget)
+    public QueueItem(string change)
     {
         Change = change;
-        DispatchTarget = dispatchTarget;
     }
 
     /// <summary>
     /// This identifies that a change has occured and either configuration requires to be rebuilt, or needs to be dispatched.
     /// </summary>
     public string Change { get; }
-
-    /// <summary>
-    /// This idenitifies a single target if the work item is caused by a new connection, otherwise null
-    /// if the information should be sent to all current connections.
-    /// </summary>
-    public IDispatchTarget DispatchTarget { get; }
 
     public override bool Equals(object obj)
     {
@@ -36,13 +28,12 @@ public struct QueueItem : IEquatable<QueueItem>
 
     public bool Equals(QueueItem other)
     {
-        return Change.Equals(other.Change, StringComparison.Ordinal) &&
-               EqualityComparer<IDispatchTarget>.Default.Equals(DispatchTarget, other.DispatchTarget);
+        return Change.Equals(other.Change, StringComparison.Ordinal);
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Change, DispatchTarget);
+        return HashCode.Combine(Change);
     }
 
     public static bool operator ==(QueueItem left, QueueItem right)

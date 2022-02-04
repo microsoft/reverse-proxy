@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using k8s;
@@ -14,7 +14,8 @@ using Microsoft.Kubernetes.Controller.Hosting;
 using Microsoft.Kubernetes.Controller.Informers;
 using Microsoft.Kubernetes.Controller.Queues;
 using Yarp.Kubernetes.Controller.Caching;
-using Yarp.Kubernetes.Controller.Dispatching;
+using Yarp.Kubernetes.Controller.Configuration;
+using Yarp.Kubernetes.Controller.Converters;
 
 namespace Yarp.Kubernetes.Controller.Services;
 
@@ -28,7 +29,7 @@ public class IngressController : BackgroundHostedService
 {
     private readonly IResourceInformerRegistration[] _registrations;
     private readonly ICache _cache;
-    private readonly IReconciler _reconciler;
+    private readonly IUpdateConfig _proxyConfigProvider;
 
     private bool _registrationsReady;
     private readonly IWorkQueue<QueueItem> _queue;
@@ -36,7 +37,7 @@ public class IngressController : BackgroundHostedService
 
     public IngressController(
         ICache cache,
-        IReconciler reconciler,
+        IUpdateConfig proxyConfigProvider,
         IResourceInformer<V1Ingress> ingressInformer,
         IResourceInformer<V1Service> serviceInformer,
         IResourceInformer<V1Endpoints> endpointsInformer,
@@ -45,6 +46,8 @@ public class IngressController : BackgroundHostedService
         ILogger<IngressController> logger)
         : base(hostApplicationLifetime, logger)
     {
+        _proxyConfigProvider = proxyConfigProvider ?? throw new ArgumentNullException(nameof(proxyConfigProvider));
+
         if (ingressInformer is null)
         {
             throw new ArgumentNullException(nameof(ingressInformer));
@@ -90,13 +93,9 @@ public class IngressController : BackgroundHostedService
         ingressInformer.StartWatching();
 
         _queue = new ProcessingRateLimitedQueue<QueueItem>(perSecond: 0.5, burst: 1);
-
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-        _reconciler = reconciler ?? throw new ArgumentNullException(nameof(reconciler));
-        _reconciler.OnAttach(TargetAttached);
 
-        _ingressChangeQueueItem = new QueueItem("Ingress Change", null);
-
+        _ingressChangeQueueItem = new QueueItem("Ingress Change");
     }
 
     /// <summary>
@@ -116,22 +115,6 @@ public class IngressController : BackgroundHostedService
         }
 
         base.Dispose(disposing);
-    }
-
-    /// <summary>
-    /// Called each time a new connection arrives on the /api/dispatch endpoint.
-    /// All of the currently-known Ingress names are queued up to be sent
-    /// to the new target.
-    /// </summary>
-    /// <param name="target">The interface to target a connected client.</param>
-    private void TargetAttached(IDispatchTarget target)
-    {
-        var keys = new List<NamespacedName>();
-        _cache.GetKeys(keys);
-        if (keys.Count > 0)
-        {
-            _queue.Add(new QueueItem("Target Attached", target));
-        }
     }
 
     /// <summary>
@@ -226,7 +209,7 @@ public class IngressController : BackgroundHostedService
 
             try
             {
-                await _reconciler.ProcessAsync(cancellationToken).ConfigureAwait(false);
+                Reconcile();
 
                 // calling Done after GetAsync informs the queue
                 // that the item is no longer being actively processed
@@ -244,5 +227,26 @@ public class IngressController : BackgroundHostedService
                 _queue.Add(item);
             }
         }
+    }
+
+    private void Reconcile()
+    {
+        var ingresses = _cache.GetIngresses().ToArray();
+
+        var configContext = new YarpConfigContext();
+
+        foreach (var ingress in ingresses)
+        {
+            if (_cache.TryGetReconcileData(new NamespacedName(ingress.Metadata.NamespaceProperty, ingress.Metadata.Name), out var data))
+            {
+                var ingressContext = new YarpIngressContext(ingress, data.ServiceList, data.EndpointsList);
+                YarpParser.ConvertFromKubernetesIngress(ingressContext, configContext);
+            }
+        }
+
+        var clusters= configContext.BuildClusterConfig();
+        var routes = configContext.Routes;
+
+        _proxyConfigProvider.Update(routes, clusters);
     }
 }

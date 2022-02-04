@@ -9,7 +9,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\OperatorFramework\src\Controller\Microsoft.Kubernetes.Controller.csproj" />
-      <ProjectReference Include="..\Kubernetes.Protocol\Yarp.Kubernetes.Protocol.csproj" />
+      <ProjectReference Include="..\ReverseProxy\Yarp.ReverseProxy.csproj" />
     </ItemGroup>
 
     <ItemGroup>

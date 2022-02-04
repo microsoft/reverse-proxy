@@ -8,8 +8,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Yarp.Kubernetes.Controller.Caching;
-using Yarp.Kubernetes.Controller.Dispatching;
+using Yarp.Kubernetes.Controller.Configuration;
 using Yarp.Kubernetes.Controller.Services;
+using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.Kubernetes.Controller;
 
@@ -34,8 +35,6 @@ public class Startup
         // Add components implemented by this application
         services.AddHostedService<IngressController>();
         services.AddSingleton<ICache, IngressCache>();
-        services.AddTransient<IReconciler, Reconciler>();
-        services.AddSingleton<IDispatcher, Dispatcher>();
         services.Configure<YarpOptions>(_configuration.GetSection("Yarp"));
 
         // Register the necessary Kubernetes resource informers
@@ -44,8 +43,12 @@ public class Startup
         services.RegisterResourceInformer<V1Endpoints>();
         services.RegisterResourceInformer<V1IngressClass>();
 
-        // Add ASP.NET Core controller support
-        services.AddControllers();
+        // Add the reverse proxy functionality
+        services.AddReverseProxy();
+
+        var provider = new InMemoryConfigProvider();
+        services.AddSingleton<IProxyConfigProvider>(provider);
+        services.AddSingleton<IUpdateConfig>(provider);
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -62,9 +65,7 @@ public class Startup
 
         app.UseEndpoints(endpoints =>
         {
-            endpoints.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+            endpoints.MapReverseProxy();
         });
     }
 }

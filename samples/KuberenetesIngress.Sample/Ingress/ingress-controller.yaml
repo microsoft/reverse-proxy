@@ -109,13 +109,17 @@ metadata:
   namespace: yarp
 spec:
   ports:
-  - name: api
-    port: 8000
+  - name: proxy
+    port: 80
     protocol: TCP
     targetPort: 8000
+  - name: proxy-ssl
+    port: 443
+    protocol: TCP
+    targetPort: 8443
   selector:
     app: ingress-yarp-controller
-  type: ClusterIP
+  type: LoadBalancer
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -140,7 +144,10 @@ spec:
         image: <REGISTRY_NAME>/yarp-controller:<TAG>
         ports:
         - containerPort: 8000
-          name: api
+          name: proxy
+          protocol: TCP
+        - containerPort: 8443
+          name: proxy-ssl
           protocol: TCP
         env:
         - name: ASPNETCORE_URLS
