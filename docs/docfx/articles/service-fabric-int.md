@@ -77,16 +77,17 @@ services.AddReverseProxy()
 
 ## SF service enlistment
 YARP integration is enabled and configured per each SF service. The configuration is specified in the `Service Manifest` as a service extension named `YARP-preview` containing a set of labels defining specific YARP parameters. The parameter's name is set as `Key` attribute of `<Label>` element and the value is the element's content.
-
+// what means star?
 These are the supported parameters:
 - `YARP.Enable` - indicates whether the service opt-ins to serving traffic through YARP. Default `false`
 - `YARP.EnableDynamicOverrides` - indicates whether application parameters replacement is enabled on the service. Default `false`
-- `YARP.Backend.LoadBalancingPolicy` - configures YARP load balancing policy. Optional parameter
+- `YARP.Backend.LoadBalancingPolicy` - configures YARP [load balancing policy](load-balancing.md). Optional parameter
 - `YARP.Backend.SessionAffinity.*` - configures YARP session affinity. Available parameters and their meanings are provided on [the respective documentation page](session-affinity.md). Optional parameter
 - `YARP.Backend.HttpRequest.*` - sets proxied HTTP request properties. Available parameters and their meanings are provided on [the respective documentation page](http-client-config.md) in 'HttpRequest' section. Optional parameter
-- `YARP.Backend.HealthCheck.Active.*` - configures YARP active health checks to be run against the given service. Available parameters and their meanings are provided on [the respective documentation page](dests-health-checks.md). There is one label in this group `YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName` which is not covered by that document because it's SF specific. Its purpose is explained below. Optional parameter
+// more specific links
+- `YARP.Backend.HealthCheck.Active.*` - configures YARP active health checks to be run against the given service. Available parameters and their meanings are provided on [the respective documentation page](dests-health-checks.md#Active-health-checks). There is one label in this group `YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName` which is not covered by that document because it's SF specific. Its purpose is explained below. Optional parameter
 - `YARP.Backend.HealthCheck.Active.ServiceFabric.ListenerName` - sets an explicit listener name for the health probing endpoint for each replica/instance that is used to probe replica/instance health state and is stored on the `Destination.Health` property in YARP's model. Optional parameter
-- `YARP.Backend.HealthCheck.Passive.*` - configures YARP passive health checks to be run against the given service. Available parameters and their meanings are provided on [the respective documentation page](dests-health-checks.md). Optional parameter
+- `YARP.Backend.HealthCheck.Passive.*` - configures YARP passive health checks to be run against the given service. Available parameters and their meanings are provided on [the respective documentation page](dests-health-checks.md#Passive-health-checks). Optional parameter
 - `YARP.Backend.Metadata.*` - sets the cluster's metadata. Optional parameter
 - `YARP.Backend.BackendId` - overrides the cluster's Id. Default cluster's Id is the SF service name. Optional parameter
 - `YARP.Backend.ServiceFabric.ListenerName` - sets an explicit listener name for the main service's endpoint for each replica/instance that is used to route client requests to and is stored on the `Destination.Address` property in YARP's model. Optional parameter

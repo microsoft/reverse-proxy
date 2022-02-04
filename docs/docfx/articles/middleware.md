@@ -25,7 +25,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 } 
 ```
 
-The parmeterless `MapReverseProxy()` in [ReverseProxyIEndpointRouteBuilderExtensions](xref:Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions) overload includes all standard proxy middleware for [session affinity](session-affinity.md), [load balancing](load-balancing.md), [passive health checks](dests-health-checks.md), and the final proxying of the request. Each of these check the configuration of the matched route, cluster, and destination and perform their task accordingly.
+The parmeterless `MapReverseProxy()` in [ReverseProxyIEndpointRouteBuilderExtensions](xref:Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions) overload includes all standard proxy middleware for [session affinity](session-affinity.md), [load balancing](load-balancing.md), [passive health checks](dests-health-checks.md#Passive-health-checks), and the final proxying of the request. Each of these check the configuration of the matched route, cluster, and destination and perform their task accordingly.
 
 ## Adding Middleware
 
@@ -123,6 +123,7 @@ proxyPipeline.Use(async (context, next) =>
 });
 ```
 
+// Don't get it how to update Destination if it is in IReadOnlyList
 `DestinationState` implements `IReadOnlyList<DestinationState>` so a single destination can be assigned to `AvailableDestinations` without creating a new list.
 
 ### Error handling

@@ -54,7 +54,7 @@ And then add:
 
 YARP is implemented as a ASP.NET Core component, and so the majority of the sample code is in Startup.cs. 
 
-YARP can use configuration files or a custom provider to define the routes and endpoints for the proxy. This sample uses config files and is initialized in the `ConfigureServices` method. 
+YARP can use [configuration files or a custom provider](#Configuration) to define the routes and endpoints for the proxy. This sample uses config files and is initialized in the `ConfigureServices` method. 
 
 The `Configure` method defines the ASP.NET pipeline for processing requests. The reverse proxy is plugged into ASP.NET endpoint routing, and then has its own sub-pipeline for the proxy. Here proxy pipeline modules, such as load balancing, can be added to customize the handling of the request. 
 
@@ -76,6 +76,7 @@ public void ConfigureServices(IServiceCollection services)
 
 public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 {
+// what does it mean and do?
     if (env.IsDevelopment())
     {
         app.UseDeveloperExceptionPage();
