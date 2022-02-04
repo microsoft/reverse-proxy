@@ -583,6 +583,27 @@ public class ProxyConfigManagerTests
     }
 
     [Fact]
+    public async Task LoadAsync_MultipleSourcesWithValidationErrors_Throws()
+    {
+        var route1 = new RouteConfig { RouteId = "route1", Match = new RouteMatch { Hosts = null }, ClusterId = "cluster1" };
+        var provider1 = new InMemoryConfigProvider(new List<RouteConfig>() { route1 }, new List<ClusterConfig>());
+        var cluster1 = new ClusterConfig { ClusterId = "cluster1", HttpClient = new HttpClientConfig { MaxConnectionsPerServer = -1 } };
+        var provider2 = new InMemoryConfigProvider(new List<RouteConfig>(), new List<ClusterConfig>() { cluster1 });
+        var services = CreateServices(new[] { provider1, provider2 });
+        var configManager = services.GetRequiredService<ProxyConfigManager>();
+
+        var ioEx = await Assert.ThrowsAsync<InvalidOperationException>(() => configManager.InitialLoadAsync());
+        Assert.Equal("Unable to load or apply the proxy configuration.", ioEx.Message);
+        var agex = Assert.IsType<AggregateException>(ioEx.InnerException);
+
+        Assert.Equal(2, agex.InnerExceptions.Count);
+        var argex = Assert.IsType<ArgumentException>(agex.InnerExceptions.First());
+        Assert.StartsWith($"Route 'route1' requires Hosts or Path specified", argex.Message);
+        argex = Assert.IsType<ArgumentException>(agex.InnerExceptions.Skip(1).First());
+        Assert.StartsWith($"Max connections per server limit set on the cluster 'cluster1' must be positive.", argex.Message);
+    }
+
+    [Fact]
     public async Task LoadAsync_ConfigFilterRouteActions_CanFixBrokenRoute()
     {
         var route1 = new RouteConfig { RouteId = "route1", Match = new RouteMatch { Hosts = null }, Order = 1, ClusterId = "cluster1" };

@@ -152,9 +152,10 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
 
             for (var i = 0; i < _providers.Length; i++)
             {
-                var config = _providers[i].GetConfig();
+                var provider = _providers[i];
+                var config = provider.GetConfig();
                 ValidateConfigProperties(config);
-                _configs[i] = new ConfigState(config);
+                _configs[i] = new ConfigState(provider, config);
                 routes.AddRange(config.Routes ?? Array.Empty<RouteConfig>());
                 clusters.AddRange(config.Clusters ?? Array.Empty<ClusterConfig>());
             }
@@ -181,14 +182,13 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         var sourcesChanged = false;
         var routes = new List<RouteConfig>();
         var clusters = new List<ClusterConfig>();
-        for (var i = 0; i < _providers.Length; i++)
+        foreach (var instance in _configs)
         {
-            var instance = _configs[i];
             try
             {
                 if (instance.LatestConfig.ChangeToken.HasChanged)
                 {
-                    var config = _providers[i].GetConfig();
+                    var config = instance.Provider.GetConfig();
                     ValidateConfigProperties(config);
                     instance.LatestConfig = config;
                     instance.LoadFailed = false;
@@ -206,29 +206,26 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
             clusters.AddRange(instance.LatestConfig.Clusters ?? Array.Empty<ClusterConfig>());
         }
 
-        if (!sourcesChanged)
+        // Only reload if at least one provider changed.
+        if (sourcesChanged)
         {
-            // Polling mode, only reload if at least one provider changed.
-            ListenForConfigChanges();
-            return;
-        }
-
-        try
-        {
-            var hasChanged = await ApplyConfigAsync(routes, clusters);
-            lock (_syncRoot)
+            try
             {
-                // Skip if changes are signaled before the endpoints are initialized for the first time.
-                // The endpoint conventions might not be ready yet.
-                if (hasChanged && _endpoints != null)
+                var hasChanged = await ApplyConfigAsync(routes, clusters);
+                lock (_syncRoot)
                 {
-                    CreateEndpoints();
+                    // Skip if changes are signaled before the endpoints are initialized for the first time.
+                    // The endpoint conventions might not be ready yet.
+                    if (hasChanged && _endpoints != null)
+                    {
+                        CreateEndpoints();
+                    }
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            Log.ErrorApplyingConfig(_logger, ex);
+            catch (Exception ex)
+            {
+                Log.ErrorApplyingConfig(_logger, ex);
+            }
         }
 
         ListenForConfigChanges();
@@ -274,18 +271,23 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
             }
         }
 
-        // Don't register until we're done hooking everything up to avoid cancellation races.
-        source.Token.Register(ReloadConfig, this);
-
         if (poll)
         {
             source.CancelAfter(TimeSpan.FromMinutes(5));
         }
 
+        // Don't register until we're done hooking everything up to avoid cancellation races.
+        source.Token.Register(ReloadConfig, this);
+
         static void SignalChange(object obj)
         {
             var token = (CancellationTokenSource)obj;
-            token.Cancel();
+            try
+            {
+                token.Cancel();
+            }
+            // Don't throw if the source was already disposed.
+            catch (ObjectDisposedException) { }
         }
 
         static void ReloadConfig(object? state)
@@ -680,7 +682,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
 
     public void Dispose()
     {
-        _configChangeSource?.Dispose();
+        _configChangeSource.Dispose();
         foreach (var instance in _configs)
         {
             instance.CallbackCleanup?.Dispose();
@@ -689,10 +691,13 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
 
     private class ConfigState
     {
-        public ConfigState(IProxyConfig config)
+        public ConfigState(IProxyConfigProvider provider, IProxyConfig config)
         {
+            Provider = provider;
             LatestConfig = config;
         }
+
+        public IProxyConfigProvider Provider { get; }
 
         public IProxyConfig LatestConfig { get; set; }
 
@@ -751,7 +756,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         private static readonly Action<ILogger, Exception> _errorReloadingConfig = LoggerMessage.Define(
             LogLevel.Error,
             EventIds.ErrorReloadingConfig,
-            "Failed to reload config. Unable to listen for future changes.");
+            "Failed to reload config. Unable to register for change notifications, polling for changes until successful.");
 
         private static readonly Action<ILogger, Exception> _errorApplyingConfig = LoggerMessage.Define(
             LogLevel.Error,

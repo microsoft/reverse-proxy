@@ -40,7 +40,7 @@ The proxy will validate the given configuration and if it's invalid, an exceptio
 The configuration objects and collections supplied to the proxy should be read-only and not modified once they have been handed to the proxy via `GetConfig()`. 
 
 ### Reload
-If the `IChangeToken` supports `ActiveChangeCallbacks`, once the proxy has processed the initial set of configuration it will register a callback with this token. Note the proxy does not support polling for changes.
+If the `IChangeToken` supports `ActiveChangeCallbacks`, once the proxy has processed the initial set of configuration it will register a callback with this token. If the provider does not support callbacks then `HasChanged` will be polled every 5 minutes.
 
 When the provider wants to provide new configuration to the proxy it should:
 - load that configuration in the background. 
