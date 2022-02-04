@@ -34,6 +34,22 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 } 
 ```
 
+## Multiple Configuration Sources
+As of 1.1, YARP supports loading the proxy configuration from multiple sources. LoadFromConfig may be called multiple times referencing different IConfiguration sections or may be combine with a different config source like InMemory. Routes can reference clusters from other sources. Note merging partial config from different sources for a given route or cluster is not supported.
+
+```
+    services.AddReverseProxy()
+        .LoadFromConfig(Configuration.GetSection("ReverseProxy1"))
+        .LoadFromConfig(Configuration.GetSection("ReverseProxy2"));
+```
+or
+```
+
+    services.AddReverseProxy()
+        .LoadFromMemory(routes, clusters)
+        .LoadFromConfig(Configuration.GetSection("ReverseProxy"));
+```
+
 ## Configuration contract
 File-based configuration is dynamically mapped to the types in [Yarp.ReverseProxy.Configuration](xref:Yarp.ReverseProxy.Configuration) namespace by an [IProxyConfigProvider](xref:Yarp.ReverseProxy.Configuration.IProxyConfigProvider) implementation converts at application start and each time the configuration changes.
 

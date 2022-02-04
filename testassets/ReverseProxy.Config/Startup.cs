@@ -31,6 +31,7 @@ public class Startup
         services.AddControllers();
         services.AddReverseProxy()
             .LoadFromConfig(_configuration.GetSection("ReverseProxy"))
+            .LoadFromConfig(_configuration.GetSection("ReverseProxy2"))
             .AddConfigFilter<CustomConfigFilter>();
     }
 
