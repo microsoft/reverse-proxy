@@ -18,6 +18,10 @@ public sealed class FakeResourceInformer<TResource> : IResourceInformer<TResourc
     {
     }
 
+    public void StartWatching()
+    {
+    }
+
     public Task ReadyAsync(CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
