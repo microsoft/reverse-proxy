@@ -1,6 +1,6 @@
 # Service Fabric Integration
 
-Introduced: preview8
+Note: This functionality has been replaced by https://github.com/microsoft/service-fabric-yarp
 
 YARP can be integrated with Service Fabric as a reverse proxy managing HTTP/HTTPS traffic ingress to a Service Fabric cluster, including support for gRPC and Web Sockets. Currently, the integration module is shipped as a separate package and has a limited support of SF availability and scalability scenarios, but it will be gradually improved over time to support more advanced SF deployment schemes.
 

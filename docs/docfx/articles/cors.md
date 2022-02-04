@@ -1,7 +1,5 @@
 # Cross-Origin Requests (CORS)
 
-Introduced: preview3
-
 ## Introduction
 
 The reverse proxy can handle cross-origin requests before they are proxied to the destination servers. This can reduce load on the destination servers and ensure consistent policies are implemented across your applications.

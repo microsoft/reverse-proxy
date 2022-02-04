@@ -1,0 +1,47 @@
+[
+  {
+    "ClusterId": "frontend.default:80",
+    "LoadBalancingPolicy": "Random",
+    "SessionAffinity": {
+      "Enabled": true,
+      "Policy": "Cookie",
+      "FailurePolicy": "Redistribute",
+      "AffinityKeyName": "Key1",
+      "Cookie": {
+        "Domain": "localhost",
+        "Expiration": null,
+        "HttpOnly": true,
+        "IsEssential": true,
+        "MaxAge": null,
+        "Path": "mypath",
+        "SameSite": "Strict",
+        "SecurePolicy": "Always"
+      }
+    },
+    "HealthCheck": {
+      "Active": {
+        "Enabled": true,
+        "Interval": "00:00:10",
+        "Timeout": "00:00:10",
+        "Policy": "ConsecutiveFailures",
+        "Path": "/api/health"
+      }
+    },
+    "HttpClient": {
+      "SslProtocols": "Ssl3",
+      "MaxConnectionsPerServer": 2,
+      "ActivityContextHeaders": null,
+      "WebProxy": null,
+      "DangerousAcceptAnyServerCertificate": true
+    },
+    "HttpRequest": null,
+    "Destinations": {
+      "http://10.244.2.38:80": {
+        "Address": "http://10.244.2.38:80",
+        "Health": null,
+        "Metadata": null
+      }
+    },
+    "Metadata": null
+  }
+]

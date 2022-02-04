@@ -1,6 +1,6 @@
 [
   {
-    "ClusterId": "repro-1-service.foo:http",
+    "ClusterId": "the-service.ns-one:http",
     "LoadBalancingPolicy": null,
     "SessionAffinity": null,
     "HealthCheck": null,
@@ -21,7 +21,7 @@
     "Metadata": null
   },
   {
-    "ClusterId": "repro-2-service.foo:http",
+    "ClusterId": "the-service.ns-two:http",
     "LoadBalancingPolicy": null,
     "SessionAffinity": null,
     "HealthCheck": null,

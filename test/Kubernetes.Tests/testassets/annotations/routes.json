@@ -5,14 +5,19 @@
       "Methods": null,
       "Hosts": [],
       "Path": "/foo/{**catch-all}",
-      "Headers": null,
-      "QueryParameters": null
+      "Headers": null
     },
     "Order": null,
     "ClusterId": "frontend.default:80",
-    "AuthorizationPolicy": null,
-    "CorsPolicy": null,
+    "AuthorizationPolicy": "authzpolicy",
+    "CorsPolicy": "corspolicy",
     "Metadata": null,
-    "Transforms": null
+    "Transforms": [
+      { "PathPrefix": "/apis" },
+      {
+        "RequestHeader": "header1",
+        "Append": "bar"
+      }
+    ]
   }
 ]

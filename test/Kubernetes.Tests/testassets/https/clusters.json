@@ -1,6 +1,6 @@
 [
   {
-    "ClusterId": "frontend:443",
+    "ClusterId": "frontend.default:443",
     "LoadBalancingPolicy": null,
     "SessionAffinity": null,
     "HealthCheck": null,

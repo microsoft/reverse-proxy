@@ -1,0 +1,81 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minimal-ingress
+  namespace: default
+  annotations:
+    yarp.ingress.kubernetes.io/authorization-policy: authzpolicy
+    yarp.ingress.kubernetes.io/cors-policy: corspolicy
+    yarp.ingress.kubernetes.io/load-balancing: Random
+    yarp.ingress.kubernetes.io/health-check: |
+      Active:
+        Enabled: true
+        Interval: '00:00:10'
+        Timeout: '00:00:10'
+        Policy: ConsecutiveFailures
+        Path: "/api/health"
+
+
+    yarp.ingress.kubernetes.io/http-client: |
+      SslProtocols: Ssl3
+      MaxConnectionsPerServer: 2
+      DangerousAcceptAnyServerCertificate: true
+
+    yarp.ingress.kubernetes.io/session-affinity: |
+      Enabled: true
+      Policy: Cookie
+      FailurePolicy: Redistribute
+      AffinityKeyName: Key1
+      Cookie:
+        Domain: localhost
+        Expiration:
+        HttpOnly: true
+        IsEssential: true
+        MaxAge:
+        Path: mypath
+        SameSite: Strict
+        SecurePolicy: Always
+
+
+    yarp.ingress.kubernetes.io/transforms: |
+      - PathPrefix: "/apis"
+      - RequestHeader: header1
+        Append: bar
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /foo
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: default
+spec:
+  selector:
+    app: frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: frontend
+  namespace: default
+subsets:
+  - addresses:
+      - ip: 10.244.2.38
+    ports:
+      - name: http
+        port: 80
+        protocol: TCP
