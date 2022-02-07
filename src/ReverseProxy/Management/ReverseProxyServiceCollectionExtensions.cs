@@ -13,6 +13,9 @@ using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Routing;
 using Yarp.ReverseProxy.Transforms.Builder;
 using Yarp.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Model;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Server.HttpSys;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -149,4 +152,21 @@ public static class ReverseProxyServiceCollectionExtensions
         });
         return builder;
     }
+
+#if NET6_0_OR_GREATER
+    /// <summary>
+    /// Adds a singleton <see cref="Yarp.ReverseProxy.Delegation.IHttpSysDelegationRuleManager"/> implementation to manage Http.sys delegation rules created from cluster config.
+    /// </summary>
+    public static IReverseProxyBuilder AddHttpSysDelegation(this IReverseProxyBuilder builder)
+    {
+        builder.Services.AddSingleton(p =>
+            p.GetRequiredService<IServer>().Features?.Get<IServerDelegationFeature>()
+            ?? throw new InvalidOperationException($"{typeof(IHttpSysRequestDelegationFeature).FullName} is missing. Http.sys delegation is only supported when using the Http.sys server"));
+        builder.Services.AddSingleton<Yarp.ReverseProxy.Delegation.HttpSysDelegationRuleManager>();
+        builder.Services.AddSingleton<Yarp.ReverseProxy.Delegation.IHttpSysDelegationRuleManager>(p => p.GetRequiredService<Yarp.ReverseProxy.Delegation.HttpSysDelegationRuleManager>());
+        builder.Services.AddSingleton<IClusterChangeListener>(p => p.GetRequiredService<Yarp.ReverseProxy.Delegation.HttpSysDelegationRuleManager>());
+
+        return builder;
+    }
+#endif
 }

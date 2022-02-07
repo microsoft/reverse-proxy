@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.AspNetCore.Server.HttpSys;
+
 namespace Yarp.ReverseProxy.Forwarder;
 
 /// <summary>
@@ -98,4 +100,16 @@ public enum ForwarderError : int
     /// The configured destinations may have been excluded due to heath or other considerations.
     /// </summary>
     NoAvailableDestinations,
+
+#if NET6_0_OR_GREATER
+    /// <summary>
+    /// Failed to get the <see cref="DelegationRule"/> for the chosen destination from the <see cref="Yarp.ReverseProxy.Delegation.IHttpSysDelegationRuleManager"/>.
+    /// </summary>
+    HttpSysDelegationRuleNotFound,
+
+    /// <summary>
+    /// Failed to delegate the request to chosen destination.
+    /// </summary>
+    HttpSysDelegationFailed,
+#endif
 }

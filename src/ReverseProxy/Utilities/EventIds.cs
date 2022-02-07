@@ -54,4 +54,8 @@ internal static class EventIds
     public static readonly EventId ForwardingError = new EventId(48, "ForwardingError");
     public static readonly EventId ActiveDestinationHealthStateIsSetToUnhealthy = new EventId(49, "ActiveDestinationHealthStateIsSetToUnhealthy");
     public static readonly EventId ActiveDestinationHealthStateIsSet = new EventId(50, "ActiveDestinationHealthStateIsSet");
+    public static readonly EventId CreateDelegationRuleFailed = new EventId(51, "CreateDelegationRuleFailed");
+    public static readonly EventId DelegationRuleNotFound = new EventId(52, "DelegationRuleNotFound");
+    public static readonly EventId DelegatingRequest = new EventId(53, "DelegatingRequest");
+    public static readonly EventId DelegationFailed = new EventId(54, "DelegationFailed");
 }
