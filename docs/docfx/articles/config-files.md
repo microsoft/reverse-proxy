@@ -33,7 +33,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     }); 
 } 
 ```
-**Note**: Steps of configuration initialization has its specific order that fully described [here](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-6.0#middleware-order).
+**Note**: For details about middleware ordering see [here](https://docs.microsoft.com/aspnet/core/fundamentals/middleware/#middleware-order).
 
 ## Configuration contract
 File-based configuration is dynamically mapped to the types in [Yarp.ReverseProxy.Configuration](xref:Yarp.ReverseProxy.Configuration) namespace by an [IProxyConfigProvider](xref:Yarp.ReverseProxy.Configuration.IProxyConfigProvider) implementation converts at application start and each time the configuration changes.
@@ -72,7 +72,7 @@ Example:
 The routes section is an unordered collection of route matches and their associated configuration. A route requires at least the following fields:
 - RouteId - a unique name
 - ClusterId - refers to the name of an entry in the clusters section.
-- Match - contains either a Hosts array or a Path pattern string. Path is an ASP.NET Core route template that can be defined as [explained here](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/routing?view=aspnetcore-6.0#route-templates).
+- Match - contains either a Hosts array or a Path pattern string. Path is an ASP.NET Core route template that can be defined as [explained here](https://docs.microsoft.com/aspnet/core/fundamentals/routing#route-templates).
 
 //what is matches precedence? Like here https://docs.microsoft.com/en-us/aspnet/core/fundamentals/routing?view=aspnetcore-6.0#url-matching ?
 
@@ -139,7 +139,7 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
         "MetaData" : { // List of key value pairs that can be used by custom extensions
           "MyName" : "MyValue"
         },
-        "Transforms" : [ // List of transforms. See "Transforms" for more details
+        "Transforms" : [ // List of transforms. See the Transforms article for more details
           {
             "RequestHeader": "MyHeader",
             "Set": "MyValue",
@@ -211,4 +211,5 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
   }
 }
 ```
-For more information please see [this article](diagnosing-yarp-issues.md#logging) for looging setup and [this one](http-client-config.md) about HTTP client configuration.
+
+For more information see [logging configuration](diagnosing-yarp-issues.md#logging) and [HTTP client configuration](http-client-config.md).
