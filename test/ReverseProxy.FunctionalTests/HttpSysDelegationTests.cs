@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 #if NET6_0_OR_GREATER
 using System;
 using System.Collections.Generic;
@@ -12,24 +15,23 @@ using Yarp.ReverseProxy.Common;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Delegation;
 using Yarp.ReverseProxy.Forwarder;
-using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy;
 
 public partial class HttpSysDelegationTests
 {
-    [HttpSysFact]
+    [HttpSysDelegationFact]
     public async Task RequestDelegated()
     {
         IForwarderErrorFeature proxyError = null;
         Exception unhandledError = null;
-        var expectedResone = "Hello World!";
-        var queueName = nameof(HttpSysDelegationTests) + ThreadStaticRandom.Instance.Next().ToString("x8");
+        var expectedRepsone = "Hello World!";
+        var queueName = nameof(HttpSysDelegationTests) + Random.Shared.Next().ToString("x8");
 
         var test = new HttpSysTestEnvironment(
             destinationServices => { },
             destinationHttpSysOptions => destinationHttpSysOptions.RequestQueueName = queueName,
-            destinationApp => destinationApp.Run(context => context.Response.WriteAsync(expectedResone)),
+            destinationApp => destinationApp.Run(context => context.Response.WriteAsync(expectedRepsone)),
             proxyServices => { },
             proxyBuilder =>
             {
@@ -85,8 +87,19 @@ public partial class HttpSysDelegationTests
 
             Assert.Null(proxyError);
             Assert.Null(unhandledError);
-            Assert.Equal(expectedResone, response);
+            Assert.Equal(expectedRepsone, response);
         });
+    }
+
+    private class HttpSysDelegationFactAttribute : FactAttribute
+    {
+        public HttpSysDelegationFactAttribute()
+        {
+            if (!OperatingSystem.IsWindows())
+            {
+                Skip = "Http.sys tests are only supported on Windows";
+            }
+        }
     }
 }
 #endif

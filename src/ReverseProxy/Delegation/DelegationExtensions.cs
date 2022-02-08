@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 #if NET6_0_OR_GREATER
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;

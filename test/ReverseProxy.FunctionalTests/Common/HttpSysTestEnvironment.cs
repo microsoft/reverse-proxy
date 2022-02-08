@@ -140,7 +140,7 @@ public class HttpSysTestEnvironment
                .ConfigureServices(configureServices)
                .UseHttpSys(options =>
                {
-                   options.UrlPrefixes.Add(UrlPrefix.Create("http", "localhost", Helpers.GetFreePort(), "/"));
+                   options.UrlPrefixes.Add(UrlPrefix.Create("http", "localhost", "0", "/"));
                    configureHttpSys(options);
                })
                .Configure(configureApp);

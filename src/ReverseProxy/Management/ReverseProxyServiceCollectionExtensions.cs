@@ -3,19 +3,22 @@
 
 using System;
 using System.Net.Http;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Configuration.ConfigProvider;
-using Yarp.ReverseProxy.Management;
 using Yarp.ReverseProxy.Forwarder;
+using Yarp.ReverseProxy.Management;
+using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Routing;
 using Yarp.ReverseProxy.Transforms.Builder;
 using Yarp.ReverseProxy.Utilities;
-using Yarp.ReverseProxy.Model;
-using Microsoft.AspNetCore.Hosting.Server;
-using Microsoft.AspNetCore.Server.HttpSys;
+#if NET6_0_OR_GREATER
+using Yarp.ReverseProxy.Delegation;
+#endif
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -159,12 +162,13 @@ public static class ReverseProxyServiceCollectionExtensions
     /// </summary>
     public static IReverseProxyBuilder AddHttpSysDelegation(this IReverseProxyBuilder builder)
     {
-        builder.Services.AddSingleton(p =>
+        // https://github.com/dotnet/aspnetcore/issues/40043
+        builder.Services.TryAddSingleton(p =>
             p.GetRequiredService<IServer>().Features?.Get<IServerDelegationFeature>()
             ?? throw new InvalidOperationException($"{typeof(IHttpSysRequestDelegationFeature).FullName} is missing. Http.sys delegation is only supported when using the Http.sys server"));
-        builder.Services.AddSingleton<Yarp.ReverseProxy.Delegation.HttpSysDelegationRuleManager>();
-        builder.Services.AddSingleton<Yarp.ReverseProxy.Delegation.IHttpSysDelegationRuleManager>(p => p.GetRequiredService<Yarp.ReverseProxy.Delegation.HttpSysDelegationRuleManager>());
-        builder.Services.AddSingleton<IClusterChangeListener>(p => p.GetRequiredService<Yarp.ReverseProxy.Delegation.HttpSysDelegationRuleManager>());
+        builder.Services.AddSingleton<HttpSysDelegationRuleManager>();
+        builder.Services.AddSingleton<IHttpSysDelegationRuleManager>(p => p.GetRequiredService<HttpSysDelegationRuleManager>());
+        builder.Services.AddSingleton<IClusterChangeListener>(p => p.GetRequiredService<HttpSysDelegationRuleManager>());
 
         return builder;
     }
