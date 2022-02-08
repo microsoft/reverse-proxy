@@ -34,6 +34,8 @@
   href: distributed-tracing.md
 - name: gRPC
   href: grpc.md
+- name: Service Fabric Integration
+  href: service-fabric-int.md
 - name: Packages references
   href: packages-refs.md
 - name: Diagnosing proxy issues
