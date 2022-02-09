@@ -154,7 +154,7 @@ public class ForwarderTelemetry : IForwarderTelemetryConsumer
 ```
 
 And then register the class as part of `Configure Services`, for example:
-// Does the order matter here?
+
 ```C#
 public void ConfigureServices(IServiceCollection services)
 {

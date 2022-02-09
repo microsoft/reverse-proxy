@@ -68,13 +68,12 @@ Example:
 ```
 
 ### Routes
-// how they could be unordered if they have order field?
-The routes section is an unordered collection of route matches and their associated configuration. A route requires at least the following fields:
+
+The routes section is an unordered collection (this can be overridden by setting the `Order` field) of route matches and their associated configuration. A route requires at least the following fields:
 - RouteId - a unique name
 - ClusterId - refers to the name of an entry in the clusters section.
 - Match - contains either a Hosts array or a Path pattern string. Path is an ASP.NET Core route template that can be defined as [explained here](https://docs.microsoft.com/aspnet/core/fundamentals/routing#route-templates).
-
-//what is matches precedence? Like here https://docs.microsoft.com/en-us/aspnet/core/fundamentals/routing?view=aspnetcore-6.0#url-matching ?
+For matching precedence see https://docs.microsoft.com/aspnet/core/fundamentals/routing#url-matching
 
 [Headers](header-routing.md), [Authorization](authn-authz.md), [CORS](cors.md), and other route based policies can be configured on each route entry. For additional fields see [RouteConfig](xref:Yarp.ReverseProxy.Configuration.RouteConfig).
 

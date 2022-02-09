@@ -76,7 +76,6 @@ public void ConfigureServices(IServiceCollection services)
 
 public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 {
-// what does it mean and do?
     if (env.IsDevelopment())
     {
         app.UseDeveloperExceptionPage();

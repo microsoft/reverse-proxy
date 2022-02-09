@@ -123,7 +123,6 @@ proxyPipeline.Use(async (context, next) =>
 });
 ```
 
-// Don't get it how to update Destination if it is in IReadOnlyList
 `DestinationState` implements `IReadOnlyList<DestinationState>` so a single destination can be assigned to `AvailableDestinations` without creating a new list.
 
 ### Error handling

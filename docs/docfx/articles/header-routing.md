@@ -8,9 +8,8 @@ title: Header Routing
 Proxy routes specified in [config](config-files.md) or via [code](config-providers.md) must include at least a path or host to match against. In addition to these, a route can also specify one or more headers that must be present on the request.
 
 ### Precedence
-// what is method here?
-// any example how change Order property?
-The default route match precedence order is 1) path, 2) method, 3) host, 4) headers 5) query parameters. That means a route which specifies methods and no headers will match before a route which specifies headers and no methods. This can be overridden by setting the `Order` property on a route.
+
+The default route match precedence order is 1) path, 2) method, 3) host, 4) headers 5) query parameters. That means a route which specifies methods and no headers will match before a route which specifies headers and no methods. This can be overridden by setting the `Order` property on a route (see example in [config properties](config-files.md#all-config-properties)).
 
 ## Configuration
 
@@ -267,7 +266,6 @@ A request with the following header will match against route1.
 ```
 Header1: Value1
 ```
-// but route4 has two values with ExactHeader mode, how it is possible?
 A header with multiple values is not currently supported and will _not_ match.
 ```
 Header1: Value1, Value2
