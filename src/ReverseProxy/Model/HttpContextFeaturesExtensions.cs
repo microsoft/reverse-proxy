@@ -40,4 +40,24 @@ public static class HttpContextFeaturesExtensions
     {
         return context.Features.Get<IForwarderErrorFeature>();
     }
+
+    // Compare to ProxyPipelineInitializerMiddleware
+    /// <summary>
+    /// Replaces the assigned cluster and destinations in <see cref="IReverseProxyFeature"/> with the new <see cref="ClusterState"/>,
+    /// causing the request to be sent to the new cluster instead.
+    /// </summary>
+    public static void ReassignProxyRequest(this HttpContext context, ClusterState cluster)
+    {
+        var oldFeature = context.GetReverseProxyFeature();
+        var destinations = cluster.DestinationsState;
+        var newFeature = new ReverseProxyFeature()
+        {
+            Route = oldFeature.Route,
+            Cluster = cluster.Model,
+            AllDestinations = destinations.AllDestinations,
+            AvailableDestinations = destinations.AvailableDestinations,
+            ProxiedDestination = oldFeature.ProxiedDestination,
+        };
+        context.Features.Set<IReverseProxyFeature>(newFeature);
+    }
 }

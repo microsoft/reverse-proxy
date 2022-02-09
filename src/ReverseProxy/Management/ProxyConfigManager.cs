@@ -30,7 +30,7 @@ namespace Yarp.ReverseProxy.Management;
 /// in a thread-safe manner while avoiding locks on the hot path.
 /// </summary>
 // https://github.com/dotnet/aspnetcore/blob/cbe16474ce9db7ff588aed89596ff4df5c3f62e1/src/Mvc/Mvc.Core/src/Routing/ActionEndpointDataSourceBase.cs
-internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
+internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup, IDisposable
 {
     private static readonly IReadOnlyDictionary<string, ClusterConfig> _emptyClusterDictionary = new ReadOnlyDictionary<string, ClusterConfig>(new Dictionary<string, ClusterConfig>());
 
@@ -678,6 +678,39 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         var transforms = _transformBuilder.Build(source, cluster?.Model?.Config);
 
         return new RouteModel(source, cluster, transforms);
+    }
+
+    public bool TryGetRoute(string id, [NotNullWhen(true)] out RouteModel? route)
+    {
+        if (_routes.TryGetValue(id, out var routeState))
+        {
+            route = routeState.Model;
+            return true;
+        }
+
+        route = null;
+        return false;
+    }
+
+    public IEnumerable<RouteModel> GetRoutes()
+    {
+        foreach (var (_, route) in _routes)
+        {
+            yield return route.Model;
+        }
+    }
+
+    public bool TryGetCluster(string id, [NotNullWhen(true)] out ClusterState? cluster)
+    {
+        return _clusters.TryGetValue(id, out cluster!);
+    }
+
+    public IEnumerable<ClusterState> GetClusters()
+    {
+        foreach (var (_, cluster) in _clusters)
+        {
+            yield return cluster;
+        }
     }
 
     public void Dispose()
