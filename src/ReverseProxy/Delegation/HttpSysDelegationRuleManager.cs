@@ -16,7 +16,8 @@ namespace Yarp.ReverseProxy.Delegation;
 
 internal sealed class HttpSysDelegationRuleManager : IHttpSysDelegationRuleManager, IClusterChangeListener, IDisposable
 {
-    private readonly IServerDelegationFeature _delegationFeature;
+    private readonly bool _delegationEnabled;
+    private readonly IServerDelegationFeature? _delegationFeature;
     private readonly ILogger<HttpSysDelegationRuleManager> _logger;
     private readonly ConcurrentDictionary<RuleKey, DelegationRule> _rules;
     private readonly ConcurrentDictionary<string, HashSet<RuleKey>> _rulesPerCluster;
@@ -24,10 +25,11 @@ internal sealed class HttpSysDelegationRuleManager : IHttpSysDelegationRuleManag
     private bool _disposed;
 
     public HttpSysDelegationRuleManager(
-            IServerDelegationFeature delegationFeature,
+            IServerDelegationFeature? delegationFeature,
             ILogger<HttpSysDelegationRuleManager> logger)
     {
-        _delegationFeature = delegationFeature ?? throw new ArgumentNullException(nameof(delegationFeature));
+        _delegationEnabled = delegationFeature != null;
+        _delegationFeature = delegationFeature;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         _rules = new ConcurrentDictionary<RuleKey, DelegationRule>();
@@ -46,7 +48,7 @@ internal sealed class HttpSysDelegationRuleManager : IHttpSysDelegationRuleManag
 
     public void OnClusterAdded(ClusterState cluster)
     {
-        if (!_disposed)
+        if (!_disposed && _delegationEnabled)
         {
             AddOrUpdateRules(cluster);
         }
@@ -54,7 +56,7 @@ internal sealed class HttpSysDelegationRuleManager : IHttpSysDelegationRuleManag
 
     public void OnClusterChanged(ClusterState cluster)
     {
-        if (!_disposed)
+        if (!_disposed && _delegationEnabled)
         {
             AddOrUpdateRules(cluster);
         }
@@ -62,7 +64,7 @@ internal sealed class HttpSysDelegationRuleManager : IHttpSysDelegationRuleManag
 
     public void OnClusterRemoved(ClusterState cluster)
     {
-        if (!_disposed)
+        if (!_disposed && _delegationEnabled)
         {
             RemoveRules(cluster.ClusterId);
         }
@@ -111,7 +113,7 @@ internal sealed class HttpSysDelegationRuleManager : IHttpSysDelegationRuleManag
                 {
                     try
                     {
-                        var rule = _delegationFeature.CreateDelegationRule(queueName, incomingDestination.Model.Config.Address);
+                        var rule = _delegationFeature!.CreateDelegationRule(queueName, incomingDestination.Model.Config.Address);
                         added = _rules.TryAdd(ruleKey, rule);
                         if (!added)
                         {

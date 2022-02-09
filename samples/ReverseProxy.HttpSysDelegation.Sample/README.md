@@ -16,11 +16,10 @@ There are four parts to enable YARP delegation support:
 ```c#
 builder.WebHost.UseHttpSys();
 ```
-- Add YARP services and Http.sys delegation
+- Add YARP services
 ```c#
 builder.Services.AddReverseProxy()
-    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
-    .AddHttpSysDelegation();
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 ```
 - Add YARP to the request pipeline. 
 

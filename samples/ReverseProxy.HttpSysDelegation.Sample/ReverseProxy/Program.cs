@@ -5,8 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 Debug.Assert(OperatingSystem.IsWindows());
 builder.WebHost.UseHttpSys();
 builder.Services.AddReverseProxy()
-    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
-    .AddHttpSysDelegation();
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 var app = builder.Build();
 

@@ -33,10 +33,7 @@ public partial class HttpSysDelegationTests
             destinationHttpSysOptions => destinationHttpSysOptions.RequestQueueName = queueName,
             destinationApp => destinationApp.Run(context => context.Response.WriteAsync(expectedRepsone)),
             proxyServices => { },
-            proxyBuilder =>
-            {
-                proxyBuilder.AddHttpSysDelegation();
-            },
+            proxyBuilder => { },
             proxyApp =>
             {
                 proxyApp.Use(async (context, next) =>

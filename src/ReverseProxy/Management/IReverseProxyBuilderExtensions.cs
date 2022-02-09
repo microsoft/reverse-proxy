@@ -2,18 +2,24 @@
 // Licensed under the MIT License.
 
 using System.Linq;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.LoadBalancing;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Routing;
 using Yarp.ReverseProxy.SessionAffinity;
 using Yarp.ReverseProxy.Transforms;
 using Yarp.ReverseProxy.Utilities;
+#if NET6_0_OR_GREATER
+using Yarp.ReverseProxy.Delegation;
+#endif
 
 namespace Yarp.ReverseProxy.Management;
 
@@ -110,6 +116,26 @@ internal static class IReverseProxyBuilderExtensions
     public static IReverseProxyBuilder AddPassiveHealthCheck(this IReverseProxyBuilder builder)
     {
         builder.Services.AddSingleton<IPassiveHealthCheckPolicy, TransportFailureRateHealthPolicy>();
+        return builder;
+    }
+
+    public static IReverseProxyBuilder AddHttpSysDelegation(this IReverseProxyBuilder builder)
+    {
+#if NET6_0_OR_GREATER
+        builder.Services.AddSingleton(p =>
+        {
+            // IServerDelegationFeature isn't added to DI  https://github.com/dotnet/aspnetcore/issues/40043
+            // IServerDelegationFeature may not be set if not http.sys server or the OS doesn't support delegation
+            var delegationFeature = p.GetRequiredService<IServer>().Features?.Get<IServerDelegationFeature>();
+            return new HttpSysDelegationRuleManager(
+                delegationFeature,
+                p.GetRequiredService<ILogger<HttpSysDelegationRuleManager>>());
+        });
+
+        builder.Services.AddSingleton<IHttpSysDelegationRuleManager>(p => p.GetRequiredService<HttpSysDelegationRuleManager>());
+        builder.Services.AddSingleton<IClusterChangeListener>(p => p.GetRequiredService<HttpSysDelegationRuleManager>());
+#endif
+
         return builder;
     }
 }

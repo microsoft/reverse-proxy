@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 
 #if NET6_0_OR_GREATER
+using System;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.Extensions.DependencyInjection;
 using Yarp.ReverseProxy.Delegation;
 
@@ -18,10 +21,13 @@ public static class AppBuilderDelegationExtensions
     /// </summary>
     /// <remarks>
     /// This middleware only works with the ASP.NET Core Http.sys server implementation.
-    /// A <see cref="IHttpSysDelegationRuleManager"/> must be registered with DI. This can be done by calling <see cref="ReverseProxyServiceCollectionExtensions.AddHttpSysDelegation(IReverseProxyBuilder)"/>.
     /// </remarks>
     public static IReverseProxyApplicationBuilder UseHttpSysDelegation(this IReverseProxyApplicationBuilder builder)
     {
+        // IServerDelegationFeature isn't added to DI  https://github.com/dotnet/aspnetcore/issues/40043
+        _ = builder.ApplicationServices.GetRequiredService<IServer>().Features?.Get<IServerDelegationFeature>()
+            ?? throw new NotSupportedException($"{typeof(IHttpSysRequestDelegationFeature).FullName} is not available. Http.sys delegation is only supported when using the Http.sys server");
+
         builder.UseMiddleware<HttpSysDelegationMiddleware>();
         return builder;
     }
