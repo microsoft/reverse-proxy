@@ -38,7 +38,7 @@ internal sealed class HttpSysDelegationRuleManager : IHttpSysDelegationRuleManag
     {
         _ = destination ?? throw new ArgumentNullException(nameof(destination));
 
-        var queueName = destination.GetHttpSysQueueName();
+        var queueName = destination.GetHttpSysDelegationQueue();
 
         delegationRule = null;
         return queueName != null && _rules.TryGetValue(new RuleKey(destination.DestinationId, queueName), out delegationRule);
@@ -83,7 +83,7 @@ internal sealed class HttpSysDelegationRuleManager : IHttpSysDelegationRuleManag
 
     private void AddOrUpdateRules(ClusterState cluster)
     {
-        var incomingDestinations = cluster.DestinationsState.AllDestinations.Where(dest => dest.ShouldUseHttpSysQueueDelegation()).ToList();
+        var incomingDestinations = cluster.DestinationsState.AllDestinations.Where(dest => dest.ShouldUseHttpSysDelegation()).ToList();
 
         if (!incomingDestinations.Any() && !_rulesPerCluster.ContainsKey(cluster.ClusterId))
         {
@@ -102,7 +102,7 @@ internal sealed class HttpSysDelegationRuleManager : IHttpSysDelegationRuleManag
         {
             foreach (var incomingDestination in incomingDestinations)
             {
-                var queueName = incomingDestination.GetHttpSysQueueName();
+                var queueName = incomingDestination.GetHttpSysDelegationQueue();
                 Debug.Assert(queueName != null);
                 var ruleKey = new RuleKey(incomingDestination.DestinationId, queueName);
 

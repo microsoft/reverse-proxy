@@ -182,7 +182,7 @@ public class HttpSysDelegationMiddlewareTests : TestAutoMockBase
         var metadata = new Dictionary<string, string>();
         if (queueName != null)
         {
-            metadata.Add(DelegationExtensions.HttpSysQueueNameMetadataKey, queueName);
+            metadata.Add(DelegationExtensions.HttpSysDelegationQueueMetadataKey, queueName);
         }
 
         var config = new DestinationConfig()

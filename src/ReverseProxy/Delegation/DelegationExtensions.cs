@@ -9,28 +9,28 @@ namespace Yarp.ReverseProxy.Delegation;
 
 internal static class DelegationExtensions
 {
-    public const string HttpSysQueueNameMetadataKey = "HttpSysQueueName";
+    public const string HttpSysDelegationQueueMetadataKey = "HttpSysDelegationQueue";
 
-    public static string? GetHttpSysQueueName(this DestinationConfig destinationConfig)
+    public static string? GetHttpSysDelegationQueue(this DestinationConfig destinationConfig)
     {
-        return destinationConfig?.Metadata?.TryGetValue(HttpSysQueueNameMetadataKey, out var name) ?? false
+        return destinationConfig?.Metadata?.TryGetValue(HttpSysDelegationQueueMetadataKey, out var name) ?? false
             ? name
             : null;
     }
 
-    public static string? GetHttpSysQueueName(this DestinationState destination)
+    public static string? GetHttpSysDelegationQueue(this DestinationState destination)
     {
-        return destination?.Model?.Config?.GetHttpSysQueueName();
+        return destination?.Model?.Config?.GetHttpSysDelegationQueue();
     }
 
-    public static bool ShouldUseHttpSysQueueDelegation(this DestinationConfig destination)
+    public static bool ShouldUseHttpSysDelegation(this DestinationConfig destination)
     {
-        return destination.GetHttpSysQueueName() != null;
+        return destination.GetHttpSysDelegationQueue() != null;
     }
 
-    public static bool ShouldUseHttpSysQueueDelegation(this DestinationState destination)
+    public static bool ShouldUseHttpSysDelegation(this DestinationState destination)
     {
-        return destination.GetHttpSysQueueName() != null;
+        return destination.GetHttpSysDelegationQueue() != null;
     }
 }
 #endif

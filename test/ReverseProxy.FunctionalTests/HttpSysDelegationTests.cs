@@ -64,7 +64,7 @@ public partial class HttpSysDelegationTests
                     Address = cluster.Destinations.First().Value.Address,
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
-                        { DelegationExtensions.HttpSysQueueNameMetadataKey, queueName },
+                        { DelegationExtensions.HttpSysDelegationQueueMetadataKey, queueName },
                     },
                 };
 
@@ -95,9 +95,10 @@ public partial class HttpSysDelegationTests
     {
         public HttpSysDelegationFactAttribute()
         {
-            if (!OperatingSystem.IsWindows())
+            // Htty.sys delegation was added to Windows in the 21H2 release but back ported through RS5 (1809)
+            if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 1809))
             {
-                Skip = "Http.sys tests are only supported on Windows";
+                Skip = "Http.sys tests are only supported on Windows versions >= 10.0.1809";
             }
         }
     }

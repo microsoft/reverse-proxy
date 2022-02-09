@@ -245,13 +245,13 @@ public class HttpSysDelegationRuleManagerTests : TestAutoMockBase
     private void VerifyCreateDelegationRuleCalled(DestinationState destination)
     {
         Mock<IServerDelegationFeature>()
-            .Verify(m => m.CreateDelegationRule(destination.GetHttpSysQueueName(), destination.Model.Config.Address), Times.Once());
+            .Verify(m => m.CreateDelegationRule(destination.GetHttpSysDelegationQueue(), destination.Model.Config.Address), Times.Once());
     }
 
     private void VerifyCreateDelegationRuleNotCalled(DestinationState destination)
     {
         Mock<IServerDelegationFeature>()
-            .Verify(m => m.CreateDelegationRule(destination.GetHttpSysQueueName(), destination.Model.Config.Address), Times.Never());
+            .Verify(m => m.CreateDelegationRule(destination.GetHttpSysDelegationQueue(), destination.Model.Config.Address), Times.Never());
     }
 
     private void VerifyRuleAdded(HttpSysDelegationRuleManager sut, DestinationState destination)
@@ -279,7 +279,7 @@ public class HttpSysDelegationRuleManagerTests : TestAutoMockBase
         var metadata = new Dictionary<string, string>();
         if (queueName != null)
         {
-            metadata.Add(DelegationExtensions.HttpSysQueueNameMetadataKey, queueName);
+            metadata.Add(DelegationExtensions.HttpSysDelegationQueueMetadataKey, queueName);
         }
 
         var config = new DestinationConfig()
