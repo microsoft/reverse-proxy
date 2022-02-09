@@ -25,4 +25,3 @@ The following samples are provided:
 | [Using IHttpProxy Directly](ReverseProxy.Direct.Sample) | Shows how to use IHttpProxy, which performs the proxy operation, directly without using YARP's configuration, pipeline etc. |
 | [Kubernetes Ingress](KubernetesIngress)  | Shows how to use YARP as a Kubernetes ingress controller  |
 | [Prometheus](Prometheus) | Shows how to consume the YARP telemetry library and export metrics to external telemetry such as Prometheus |
-| [Service Fabric](ReverseProxy.ServiceFabric.Sample) | Shows how to integrate YARP with Service Fabric, pulling the configuration for Routes, Clusters and Destinations directly from Service Fabric. |

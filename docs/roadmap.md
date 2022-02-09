@@ -8,7 +8,7 @@ We are planning our next steps, we think the outline will probably look somethin
 
 - 1.0.x - Servicing high impact issues found by customers deploying 1.0 (bug fixes, small features)
 - 1.1 - Larger feedback items, non-breaking API changes
-- 2.0+ - Major features eg Kubernetes, Service Fabric, HTTP/3
+- 2.0+ - Major features eg Kubernetes, HTTP/3
 
 The cadence for these will depend on the issues reported by customers.
 
