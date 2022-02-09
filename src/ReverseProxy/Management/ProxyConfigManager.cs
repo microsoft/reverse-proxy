@@ -30,7 +30,7 @@ namespace Yarp.ReverseProxy.Management;
 /// in a thread-safe manner while avoiding locks on the hot path.
 /// </summary>
 // https://github.com/dotnet/aspnetcore/blob/cbe16474ce9db7ff588aed89596ff4df5c3f62e1/src/Mvc/Mvc.Core/src/Routing/ActionEndpointDataSourceBase.cs
-internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable, IProxyStateLookup
+internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup, IDisposable
 {
     private static readonly IReadOnlyDictionary<string, ClusterConfig> _emptyClusterDictionary = new ReadOnlyDictionary<string, ClusterConfig>(new Dictionary<string, ClusterConfig>());
 

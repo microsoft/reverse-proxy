@@ -2,7 +2,7 @@
 
 ## Introduction
 
-A/B testing and rolling upgrades require procedures for dynamically assigning incoming traffic to evaluate changes in the destination application. YARP does not have a built in model for this, but it does expose some infrastructure useful for building such a system. See [issue #126](https://github.com/microsoft/reverse-proxy/issues/126) for additional details about this scenario.
+A/B testing and rolling upgrades require procedures for dynamically assigning incoming traffic to evaluate changes in the destination application. YARP does not have a built-in model for this, but it does expose some infrastructure useful for building such a system. See [issue #126](https://github.com/microsoft/reverse-proxy/issues/126) for additional details about this scenario.
 
 ## Example
 
@@ -39,7 +39,7 @@ A/B testing and rolling upgrades require procedures for dynamically assigning in
 
 ## Usage
 
-This scenario makes use of two APIs, [IProxyStateLookup](xref:Yarp.ReverseProxy.IProxyStateLookup) and [ReassignProxyRequest](xref:Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.ReassignProxyRequest).
+This scenario makes use of two APIs, [IProxyStateLookup](xref:Yarp.ReverseProxy.IProxyStateLookup) and [ReassignProxyRequest](xref:Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.ReassignProxyRequest), called from a custom proxy middleware as shown in the sample above.
 
 `IProxyStateLookup` is a service available in the Dependency Injection container that can be used to look up or enumerate the current routes and clusters. Note this data may change if the configuration changes. An A/B orchestration algorithm can examine the request, decide which cluster to send it to, and then retrieve that cluster from `IProxyStateLookup.TryGetCluster`.
 
