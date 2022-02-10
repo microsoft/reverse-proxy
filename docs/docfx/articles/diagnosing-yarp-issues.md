@@ -104,7 +104,7 @@ The [Metrics sample](https://github.com/microsoft/reverse-proxy/tree/main/sample
 * HttpClientTelemetryConsumer
 
 To use either of these you create a class implementing a [telemetry interface](https://microsoft.github.io/reverse-proxy/api/Yarp.Telemetry.Consumption.html#interfaces), such as [`IForwarderTelemetryConsumer`](https://github.com/microsoft/reverse-proxy/blob/release/latest/src/TelemetryConsumption/Forwarder/IForwarderTelemetryConsumer.cs):
-// what's the difference for the first and the last methods?
+
 ```C#
 public class ForwarderTelemetry : IForwarderTelemetryConsumer
 {
@@ -145,7 +145,7 @@ public class ForwarderTelemetry : IForwarderTelemetryConsumer
             Console.WriteLine($"Forwarder Telemetry [{timestamp:HH:mm:ss.fff}] => OnContentTransferred :: Is request: {isRequest}, Content length: {contentLength}, IOps: {iops}, Read time: {readTime:s\\.fff}, Write time: {writeTime:s\\.fff}");
       }
 
-      /// Called before forwarding a request.
+      /// Called before forwarding a request from `ForwarderMiddleware`, therefore is not called for direct forwarding scenarios.
       public void OnForwarderInvoke(DateTime timestamp, string clusterId, string routeId, string destinationId)
       {
             Console.WriteLine($"Forwarder Telemetry [{timestamp:HH:mm:ss.fff}] => OnForwarderInvoke:: Cluster id: {clusterId}, Route Id: { routeId}, Destination: {destinationId}");
