@@ -7,7 +7,7 @@ using Microsoft.Extensions.Primitives;
 namespace Yarp.ReverseProxy.Configuration;
 
 /// <summary>
-/// Represents a snapshot of proxy configuration data.
+/// Represents a snapshot of proxy configuration data. These properties may be accessed multiple times and should not be modified.
 /// </summary>
 public interface IProxyConfig
 {

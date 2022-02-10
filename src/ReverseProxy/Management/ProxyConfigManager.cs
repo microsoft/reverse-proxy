@@ -30,13 +30,14 @@ namespace Yarp.ReverseProxy.Management;
 /// in a thread-safe manner while avoiding locks on the hot path.
 /// </summary>
 // https://github.com/dotnet/aspnetcore/blob/cbe16474ce9db7ff588aed89596ff4df5c3f62e1/src/Mvc/Mvc.Core/src/Routing/ActionEndpointDataSourceBase.cs
-internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
+internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup, IDisposable
 {
     private static readonly IReadOnlyDictionary<string, ClusterConfig> _emptyClusterDictionary = new ReadOnlyDictionary<string, ClusterConfig>(new Dictionary<string, ClusterConfig>());
 
-    private readonly object _syncRoot = new object();
+    private readonly object _syncRoot = new();
     private readonly ILogger<ProxyConfigManager> _logger;
-    private readonly IProxyConfigProvider _provider;
+    private readonly IProxyConfigProvider[] _providers;
+    private readonly ConfigState[] _configs;
     private readonly IClusterChangeListener[] _clusterChangeListeners;
     private readonly ConcurrentDictionary<string, ClusterState> _clusters = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, RouteState> _routes = new(StringComparer.OrdinalIgnoreCase);
@@ -48,15 +49,16 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
     private readonly List<Action<EndpointBuilder>> _conventions;
     private readonly IActiveHealthCheckMonitor _activeHealthCheckMonitor;
     private readonly IClusterDestinationsUpdater _clusterDestinationsUpdater;
-    private IDisposable? _changeSubscription;
 
     private List<Endpoint>? _endpoints;
-    private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-    private IChangeToken _changeToken;
+    private CancellationTokenSource _endpointsChangeSource = new();
+    private IChangeToken _endpointsChangeToken;
+
+    private CancellationTokenSource _configChangeSource = new();
 
     public ProxyConfigManager(
         ILogger<ProxyConfigManager> logger,
-        IProxyConfigProvider provider,
+        IEnumerable<IProxyConfigProvider> providers,
         IEnumerable<IClusterChangeListener> clusterChangeListeners,
         IEnumerable<IProxyConfigFilter> filters,
         IConfigValidator configValidator,
@@ -67,7 +69,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         IClusterDestinationsUpdater clusterDestinationsUpdater)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+        _providers = providers?.ToArray() ?? throw new ArgumentNullException(nameof(providers));
         _clusterChangeListeners = (clusterChangeListeners as IClusterChangeListener[])
             ?? clusterChangeListeners?.ToArray() ?? throw new ArgumentNullException(nameof(clusterChangeListeners));
         _filters = (filters as IProxyConfigFilter[]) ?? filters?.ToArray() ?? throw new ArgumentNullException(nameof(filters));
@@ -78,10 +80,17 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         _activeHealthCheckMonitor = activeHealthCheckMonitor ?? throw new ArgumentNullException(nameof(activeHealthCheckMonitor));
         _clusterDestinationsUpdater = clusterDestinationsUpdater ?? throw new ArgumentNullException(nameof(clusterDestinationsUpdater));
 
+        if (_providers.Length == 0)
+        {
+            throw new ArgumentException($"At least one {nameof(IProxyConfigProvider)} is required.", nameof(providers));
+        }
+
+        _configs = new ConfigState[_providers.Length];
+
         _conventions = new List<Action<EndpointBuilder>>();
         DefaultBuilder = new ReverseProxyConventionBuilder(_conventions);
 
-        _changeToken = new CancellationChangeToken(_cancellationTokenSource.Token);
+        _endpointsChangeToken = new CancellationChangeToken(_endpointsChangeSource.Token);
     }
 
     public ReverseProxyConventionBuilder DefaultBuilder { get; }
@@ -130,24 +139,30 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
     }
 
     /// <inheritdoc/>
-    public override IChangeToken GetChangeToken() => Volatile.Read(ref _changeToken);
+    public override IChangeToken GetChangeToken() => Volatile.Read(ref _endpointsChangeToken);
 
-    // IProxyConfigManager
-
-    /// <inheritdoc/>
-    public async Task<EndpointDataSource> InitialLoadAsync()
+    internal async Task<EndpointDataSource> InitialLoadAsync()
     {
         // Trigger the first load immediately and throw if it fails.
         // We intend this to crash the app so we don't try listening for further changes.
         try
         {
-            var config = _provider.GetConfig();
-            await ApplyConfigAsync(config);
+            var routes = new List<RouteConfig>();
+            var clusters = new List<ClusterConfig>();
 
-            if (config.ChangeToken.ActiveChangeCallbacks)
+            for (var i = 0; i < _providers.Length; i++)
             {
-                _changeSubscription = config.ChangeToken.RegisterChangeCallback(ReloadConfig, this);
+                var provider = _providers[i];
+                var config = provider.GetConfig();
+                ValidateConfigProperties(config);
+                _configs[i] = new ConfigState(provider, config);
+                routes.AddRange(config.Routes ?? Array.Empty<RouteConfig>());
+                clusters.AddRange(config.Clusters ?? Array.Empty<ClusterConfig>());
             }
+
+            await ApplyConfigAsync(routes, clusters);
+
+            ListenForConfigChanges();
         }
         catch (Exception ex)
         {
@@ -160,57 +175,133 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         return this;
     }
 
-    private static void ReloadConfig(object state)
-    {
-        var manager = (ProxyConfigManager)state;
-        _ = manager.ReloadConfigAsync();
-    }
-
     private async Task ReloadConfigAsync()
     {
-        _changeSubscription?.Dispose();
+        _configChangeSource.Dispose();
 
-        IProxyConfig newConfig;
-        try
+        var sourcesChanged = false;
+        var routes = new List<RouteConfig>();
+        var clusters = new List<ClusterConfig>();
+        foreach (var instance in _configs)
         {
-            newConfig = _provider.GetConfig();
-        }
-        catch (Exception ex)
-        {
-            Log.ErrorReloadingConfig(_logger, ex);
-            // If we can't load the config then we can't listen for changes anymore.
-            return;
-        }
-
-        try
-        {
-            var hasChanged = await ApplyConfigAsync(newConfig);
-            lock (_syncRoot)
+            try
             {
-                // Skip if changes are signaled before the endpoints are initialized for the first time.
-                // The endpoint conventions might not be ready yet.
-                if (hasChanged && _endpoints != null)
+                if (instance.LatestConfig.ChangeToken.HasChanged)
                 {
-                    CreateEndpoints();
+                    var config = instance.Provider.GetConfig();
+                    ValidateConfigProperties(config);
+                    instance.LatestConfig = config;
+                    instance.LoadFailed = false;
+                    sourcesChanged = true;
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            Log.ErrorApplyingConfig(_logger, ex);
+            catch (Exception ex)
+            {
+                instance.LoadFailed = true;
+                Log.ErrorReloadingConfig(_logger, ex);
+            }
+
+            // If we didn't/couldn't get a new config then re-use the last one.
+            routes.AddRange(instance.LatestConfig.Routes ?? Array.Empty<RouteConfig>());
+            clusters.AddRange(instance.LatestConfig.Clusters ?? Array.Empty<ClusterConfig>());
         }
 
-        if (newConfig.ChangeToken.ActiveChangeCallbacks)
+        // Only reload if at least one provider changed.
+        if (sourcesChanged)
         {
-            _changeSubscription = newConfig.ChangeToken.RegisterChangeCallback(ReloadConfig, this);
+            try
+            {
+                var hasChanged = await ApplyConfigAsync(routes, clusters);
+                lock (_syncRoot)
+                {
+                    // Skip if changes are signaled before the endpoints are initialized for the first time.
+                    // The endpoint conventions might not be ready yet.
+                    if (hasChanged && _endpoints != null)
+                    {
+                        CreateEndpoints();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.ErrorApplyingConfig(_logger, ex);
+            }
+        }
+
+        ListenForConfigChanges();
+    }
+
+    private static void ValidateConfigProperties(IProxyConfig config)
+    {
+        if (config == null)
+        {
+            throw new InvalidOperationException($"{nameof(IProxyConfigProvider.GetConfig)} returned a null value.");
+        }
+        if (config.ChangeToken == null)
+        {
+            throw new InvalidOperationException($"{nameof(IProxyConfig.ChangeToken)} has a null value.");
+        }
+    }
+
+    private void ListenForConfigChanges()
+    {
+        // Use a central change token to avoid overlap between different sources.
+        var source = new CancellationTokenSource();
+        _configChangeSource = source;
+        var poll = false;
+
+        foreach (var configState in _configs)
+        {
+            if (configState.LoadFailed)
+            {
+                // We can't register for change notifications if the last load failed.
+                poll = true;
+                continue;
+            }
+
+            configState.CallbackCleanup?.Dispose();
+            var token = configState.LatestConfig.ChangeToken;
+            if (token.ActiveChangeCallbacks)
+            {
+                configState.CallbackCleanup = token.RegisterChangeCallback(SignalChange, source);
+            }
+            else
+            {
+                poll = true;
+            }
+        }
+
+        if (poll)
+        {
+            source.CancelAfter(TimeSpan.FromMinutes(5));
+        }
+
+        // Don't register until we're done hooking everything up to avoid cancellation races.
+        source.Token.Register(ReloadConfig, this);
+
+        static void SignalChange(object obj)
+        {
+            var token = (CancellationTokenSource)obj;
+            try
+            {
+                token.Cancel();
+            }
+            // Don't throw if the source was already disposed.
+            catch (ObjectDisposedException) { }
+        }
+
+        static void ReloadConfig(object? state)
+        {
+            var manager = (ProxyConfigManager)state!;
+            _ = manager.ReloadConfigAsync();
         }
     }
 
     // Throws for validation failures
-    private async Task<bool> ApplyConfigAsync(IProxyConfig config)
+    private async Task<bool> ApplyConfigAsync(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
     {
-        var (configuredClusters, clusterErrors) = await VerifyClustersAsync(config.Clusters, cancellation: default);
-        var (configuredRoutes, routeErrors) = await VerifyRoutesAsync(config.Routes, configuredClusters, cancellation: default);
+        var (configuredClusters, clusterErrors) = await VerifyClustersAsync(clusters, cancellation: default);
+        var (configuredRoutes, routeErrors) = await VerifyRoutesAsync(routes, configuredClusters, cancellation: default);
 
         if (routeErrors.Count > 0 || clusterErrors.Count > 0)
         {
@@ -539,7 +630,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
                 // NOTE 1: Remove is safe to do within the `foreach` loop on ConcurrentDictionary
                 //
                 // NOTE 2: Removing the route from _routes is safe and existing
-                // ASP .NET Core endpoints will continue to work with their existing behavior since
+                // ASP.NET Core endpoints will continue to work with their existing behavior since
                 // their copy of `RouteModel` is immutable and remains operational in whichever state is was in.
                 Log.RouteRemoved(_logger, routeId);
                 var removed = _routes.TryRemove(routeId, out var _);
@@ -568,14 +659,14 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
             // These steps are done in a specific order to ensure callers always see a consistent state.
 
             // Step 1 - capture old token
-            var oldCancellationTokenSource = _cancellationTokenSource;
+            var oldCancellationTokenSource = _endpointsChangeSource;
 
             // Step 2 - update endpoints
             Volatile.Write(ref _endpoints, endpoints);
 
             // Step 3 - create new change token
-            _cancellationTokenSource = new CancellationTokenSource();
-            Volatile.Write(ref _changeToken, new CancellationChangeToken(_cancellationTokenSource.Token));
+            _endpointsChangeSource = new CancellationTokenSource();
+            Volatile.Write(ref _endpointsChangeToken, new CancellationChangeToken(_endpointsChangeSource.Token));
 
             // Step 4 - trigger old token
             oldCancellationTokenSource?.Cancel();
@@ -589,9 +680,63 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         return new RouteModel(source, cluster, transforms);
     }
 
+    public bool TryGetRoute(string id, [NotNullWhen(true)] out RouteModel? route)
+    {
+        if (_routes.TryGetValue(id, out var routeState))
+        {
+            route = routeState.Model;
+            return true;
+        }
+
+        route = null;
+        return false;
+    }
+
+    public IEnumerable<RouteModel> GetRoutes()
+    {
+        foreach (var (_, route) in _routes)
+        {
+            yield return route.Model;
+        }
+    }
+
+    public bool TryGetCluster(string id, [NotNullWhen(true)] out ClusterState? cluster)
+    {
+        return _clusters.TryGetValue(id, out cluster!);
+    }
+
+    public IEnumerable<ClusterState> GetClusters()
+    {
+        foreach (var (_, cluster) in _clusters)
+        {
+            yield return cluster;
+        }
+    }
+
     public void Dispose()
     {
-        _changeSubscription?.Dispose();
+        _configChangeSource.Dispose();
+        foreach (var instance in _configs)
+        {
+            instance.CallbackCleanup?.Dispose();
+        }
+    }
+
+    private class ConfigState
+    {
+        public ConfigState(IProxyConfigProvider provider, IProxyConfig config)
+        {
+            Provider = provider;
+            LatestConfig = config;
+        }
+
+        public IProxyConfigProvider Provider { get; }
+
+        public IProxyConfig LatestConfig { get; set; }
+
+        public bool LoadFailed { get; set; }
+
+        public IDisposable? CallbackCleanup { get; set; }
     }
 
     private static class Log
@@ -644,7 +789,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
         private static readonly Action<ILogger, Exception> _errorReloadingConfig = LoggerMessage.Define(
             LogLevel.Error,
             EventIds.ErrorReloadingConfig,
-            "Failed to reload config. Unable to listen for future changes.");
+            "Failed to reload config. Unable to register for change notifications, polling for changes until successful.");
 
         private static readonly Action<ILogger, Exception> _errorApplyingConfig = LoggerMessage.Define(
             LogLevel.Error,

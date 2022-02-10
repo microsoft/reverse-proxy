@@ -40,3 +40,5 @@
   href: packages-refs.md
 - name: Diagnosing proxy issues
   href: diagnosing-yarp-issues.md
+- name: A/B Testing
+  href: ab-testing.md

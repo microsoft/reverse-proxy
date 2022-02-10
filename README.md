@@ -10,6 +10,8 @@ We expect YARP to ship as a library and project template that together provide a
 
 For regular updates, see our [releases page](https://github.com/microsoft/reverse-proxy/releases). Subscribe to release notifications on this repository to be notified of future updates (Watch -> Custom -> Releases).
 
+If you want to live on the bleeding edge, you can pickup the [daily builds](/docs/DailyBuilds.md).
+
 # Build
 
 To build the repo, you should only need to run `build.cmd` (on Windows) or `build.sh` (on Linux or macOS). The script will download the .NET SDK and build the solution.

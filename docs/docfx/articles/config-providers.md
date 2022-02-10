@@ -37,7 +37,7 @@ The proxy will validate the given configuration and if it's invalid, an exceptio
 The configuration objects and collections supplied to the proxy should be read-only and not modified once they have been handed to the proxy via `GetConfig()`. 
 
 ### Reload
-If the `IChangeToken` supports `ActiveChangeCallbacks`, once the proxy has processed the initial set of configuration it will register a callback with this token. Note the proxy does not support polling for changes.
+If the `IChangeToken` supports `ActiveChangeCallbacks`, once the proxy has processed the initial set of configuration it will register a callback with this token. If the provider does not support callbacks then `HasChanged` will be polled every 5 minutes.
 
 When the provider wants to provide new configuration to the proxy it should:
 - load that configuration in the background. 
@@ -51,6 +51,23 @@ There are important differences when reloading configuration vs the first config
 - If `GetConfig()` throws the proxy will be unable to listen for future changes because `IChangeToken`s are single-use.
 
 Once the new configuration has been validated and applied, the proxy will register a callback with the new `IChangeToken`. Note if there are multiple reloads signaled in close succession, the proxy may skip some and load the next available configuration as soon as it's ready. Each `IProxyConfig` contains the full configuration state so nothing will be lost.
+
+## Multiple Configuration Sources
+As of 1.1, YARP supports loading the proxy configuration from multiple sources. Multiple `IProxyConfigProvider`'s can be registered as singleton services and all will be resolved and combine. The sources may be the same or different types such as IConfiguration or InMemory. Routes can reference clusters from other sources. Note merging partial config from different sources for a given route or cluster is not supported.
+
+```
+    services.AddReverseProxy()
+        .LoadFromConfig(Configuration.GetSection("ReverseProxy1"))
+        .LoadFromConfig(Configuration.GetSection("ReverseProxy2"));
+```
+or
+```
+
+    services.AddReverseProxy()
+        .LoadFromMemory(routes, clusters)
+        .LoadFromConfig(Configuration.GetSection("ReverseProxy"));
+```
+
 
 ## Example
 The following is an example `IProxyConfigProvider` that has routes and clusters manually loaded into it.

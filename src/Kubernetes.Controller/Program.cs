@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Rest;
@@ -24,6 +25,10 @@ public static class Program
         ServiceClientTracing.IsEnabled = true;
 
         await Host.CreateDefaultBuilder(args)
+            .ConfigureAppConfiguration(config =>
+            {
+                config.AddJsonFile("/app/config/yarp.json", optional: true);
+            })
             .ConfigureLogging(logging =>
             {
                 logging.ClearProviders();

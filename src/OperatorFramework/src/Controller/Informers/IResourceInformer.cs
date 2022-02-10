@@ -44,6 +44,11 @@ public interface IResourceInformer<TResource> : IHostedService, IResourceInforme
 public interface IResourceInformer
 {
     /// <summary>
+    /// Instructs the resource informer to being watching resources. Allows the startup of informers to be synchronised.
+    /// </summary>
+    void StartWatching();
+
+    /// <summary>
     /// Returns a task that can be awaited to know when the initial listing of resources is complete.
     /// Once an await on this method it is safe to assume that all of the knowledge of this resource
     /// type has been made available, and everything going forward will be updatres.

@@ -11,7 +11,9 @@ metadata:
 data:
   yarp.json: |
     {
-
+      "Yarp": {
+        "ControllerClass": "microsoft.com/ingress-yarp"
+      }
     }
 ---
 apiVersion: v1
@@ -57,12 +59,13 @@ rules:
   - networking.internal.knative.dev
   resources:
   - ingresses
+  - ingressclasses
   verbs:
   - get
   - list
   - watch
 - apiGroups:
-  - ""
+  - networking.k8s.io
   resources:
   - events
   verbs:
@@ -89,6 +92,15 @@ subjects:
 - kind: ServiceAccount
   name: yarp-serviceaccount
   namespace: yarp
+---
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: yarp
+spec:
+  controller: microsoft.com/ingress-yarp
+annotations:
+  #ingressclass.kubernetes.io/is-default-class: true
 ---
 apiVersion: v1
 kind: Service
@@ -133,4 +145,12 @@ spec:
         env:
         - name: ASPNETCORE_URLS
           value: http://*:8000
+        volumeMounts:
+          - name: config
+            readOnly: true
+            mountPath: /app/config
+      volumes:
+        - name: config
+          configMap:
+            name: yarp-config
       serviceAccountName: yarp-serviceaccount

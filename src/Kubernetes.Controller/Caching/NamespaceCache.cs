@@ -201,6 +201,11 @@ public class NamespaceCache
         return _ingressData.Values;
     }
 
+    public bool IngressExists(V1Ingress ingress)
+    {
+        return _ingressData.ContainsKey(ingress.Name());
+    }
+
     public bool TryLookup(NamespacedName key, out ReconcileData data)
     {
         var endspointsList = new List<Endpoints>();

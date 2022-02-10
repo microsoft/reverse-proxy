@@ -43,6 +43,8 @@ public class ResourceInformerTests
 
         var informer = testHost.Services.GetRequiredService<IResourceInformer<V1Pod>>();
         var pods = new Dictionary<NamespacedName, V1Pod>();
+
+        informer.StartWatching();
         using var registration = informer.Register((eventType, pod) =>
         {
             pods[NamespacedName.From(pod)] = pod;
@@ -81,6 +83,8 @@ public class ResourceInformerTests
 
         var informer = testHost.Services.GetRequiredService<IResourceInformer<V1Deployment>>();
         var deployments = new Dictionary<NamespacedName, V1Deployment>();
+
+        informer.StartWatching();
         using var registration = informer.Register((eventType, deployment) =>
         {
             deployments[NamespacedName.From(deployment)] = deployment;

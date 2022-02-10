@@ -52,7 +52,7 @@ public class QueryTransformContext
         {
             if (_modifiedQueryParameters == null)
             {
-                _modifiedQueryParameters = new Dictionary<string, StringValues>(_request.Query);
+                _modifiedQueryParameters = new Dictionary<string, StringValues>(_request.Query, StringComparer.OrdinalIgnoreCase);
             }
 
             return _modifiedQueryParameters;
