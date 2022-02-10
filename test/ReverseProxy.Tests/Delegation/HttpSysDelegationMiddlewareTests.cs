@@ -154,7 +154,7 @@ public class HttpSysDelegationMiddlewareTests : TestAutoMockBase
         Assert.Equal(StatusCodes.Status503ServiceUnavailable, _context.Response.StatusCode);
         var errorFeature = _context.Features.Get<IForwarderErrorFeature>();
         Assert.NotNull(errorFeature);
-        Assert.Equal(ForwarderError.HttpSysDelegationRuleNotFound, errorFeature.Error);
+        Assert.Equal(ForwarderError.NoAvailableDestinations, errorFeature.Error);
         Assert.Null(errorFeature.Exception);
     }
 
@@ -173,7 +173,7 @@ public class HttpSysDelegationMiddlewareTests : TestAutoMockBase
         Assert.Equal(StatusCodes.Status503ServiceUnavailable, _context.Response.StatusCode);
         var errorFeature = _context.Features.Get<IForwarderErrorFeature>();
         Assert.NotNull(errorFeature);
-        Assert.Equal(ForwarderError.HttpSysDelegationFailed, errorFeature.Error);
+        Assert.Equal(ForwarderError.Request, errorFeature.Error);
         Assert.NotNull(errorFeature.Exception);
     }
 

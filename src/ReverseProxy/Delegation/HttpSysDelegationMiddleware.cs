@@ -72,7 +72,7 @@ internal sealed class HttpSysDelegationMiddleware
                 {
                     Log.DelegationRuleNotFound(_logger, cluster.Config.ClusterId, destination.DestinationId);
                     context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-                    context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.HttpSysDelegationRuleNotFound, ex: null));
+                    context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.NoAvailableDestinations, ex: null));
                     return Task.CompletedTask;
                 }
 
@@ -85,7 +85,7 @@ internal sealed class HttpSysDelegationMiddleware
                 {
                     Log.DelegationFailed(_logger, cluster.Config.ClusterId, destination.DestinationId, ex);
                     context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-                    context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.HttpSysDelegationFailed, ex));
+                    context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.Request, ex));
                 }
 
                 return Task.CompletedTask;
