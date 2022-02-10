@@ -4,6 +4,7 @@
 The reverse proxy can be used to authenticate and authorize requests before they are proxied to the destination servers. This can reduce load on the destination servers, add a layer of protection, and ensure consistent policies are implemented across your applications.
 
 ## Defaults
+
 No authentication or authorization is performed on requests unless enabled in the route or application configuration.
 
 ## Configuration

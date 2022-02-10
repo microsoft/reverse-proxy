@@ -3,8 +3,7 @@
 When using a reverse proxy, there is an additional hop from the client to the proxy, and then from the proxy to destination for things to go wrong. This topic should provide some hints and tips for how to debug and diagnose issues when they occur. It assumes that the proxy is already running, and so does not include problems at startup such as configuration errors.
 
 ## Logging
-
-The first step to being able to tell what is going on with YARP is to turn on [logging](Link to https://docs.microsoft.com/aspnet/core/fundamentals/logging/#configure-logging-1). This is a configuration flag so can be changed on the fly. YARP is implemented as a middleware component for ASP.NET Core, so you need to enable logging for both YARP and ASP.NET to get the complete picture of what is going on.
+The first step to being able to tell what is going on with YARP is to turn on [logging](https://docs.microsoft.com/aspnet/core/fundamentals/logging/#configure-logging). This is a configuration flag so can be changed on the fly. YARP is implemented as a middleware component for ASP.NET Core, so you need to enable logging for both YARP and ASP.NET to get the complete picture of what is going on.
 
 By default ASP.NET will log to the console, and the configuration file can be used to control the level of logging.
 
@@ -104,7 +103,7 @@ The [Metrics sample](https://github.com/microsoft/reverse-proxy/tree/main/sample
 * ForwarderTelemetryConsumer
 * HttpClientTelemetryConsumer
 
-To use either of these you create a class implementing an interface, such as IForwarderTelemetryConsumer:
+To use either of these you create a class implementing a [telemetry interface](https://microsoft.github.io/reverse-proxy/api/Yarp.Telemetry.Consumption.html#interfaces), such as [`IForwarderTelemetryConsumer`](https://github.com/microsoft/reverse-proxy/blob/release/latest/src/TelemetryConsumption/Forwarder/IForwarderTelemetryConsumer.cs):
 
 ```C#
 public class ForwarderTelemetry : IForwarderTelemetryConsumer
@@ -146,7 +145,7 @@ public class ForwarderTelemetry : IForwarderTelemetryConsumer
             Console.WriteLine($"Forwarder Telemetry [{timestamp:HH:mm:ss.fff}] => OnContentTransferred :: Is request: {isRequest}, Content length: {contentLength}, IOps: {iops}, Read time: {readTime:s\\.fff}, Write time: {writeTime:s\\.fff}");
       }
 
-      /// Called before forwarding a request.
+      /// Called before forwarding a request from `ForwarderMiddleware`, therefore is not called for direct forwarding scenarios.
       public void OnForwarderInvoke(DateTime timestamp, string clusterId, string routeId, string destinationId)
       {
             Console.WriteLine($"Forwarder Telemetry [{timestamp:HH:mm:ss.fff}] => OnForwarderInvoke:: Cluster id: {clusterId}, Route Id: { routeId}, Destination: {destinationId}");

@@ -152,7 +152,6 @@ The following is an example of `HttpClientConfig` using [code based](config-prov
 ```C#
 public void ConfigureServices(IServiceCollection services)
 {
-    services.AddControllers();
     var routes = new[]
     {
         new RouteConfig()
@@ -179,8 +178,7 @@ public void ConfigureServices(IServiceCollection services)
     };
 
     services.AddReverseProxy()
-        .LoadFromMemory(routes, clusters)
-        .AddProxyConfigFilter<CustomConfigFilter>();
+        .LoadFromMemory(routes, clusters);
 }
 ```
 
@@ -208,7 +206,8 @@ new SocketsHttpHandler
     UseProxy = false,
     AllowAutoRedirect = false,
     AutomaticDecompression = DecompressionMethods.None,
-    UseCookies = false
+    UseCookies = false,
+    ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
 };
 ```
 
@@ -228,7 +227,8 @@ public class CustomForwarderHttpClientFactory : IForwarderHttpClientFactory
             UseProxy = false,
             AllowAutoRedirect = false,
             AutomaticDecompression = DecompressionMethods.None,
-            UseCookies = false
+            UseCookies = false,
+            ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
         };
 
         return new HttpMessageInvoker(handler, disposeHandler: true);

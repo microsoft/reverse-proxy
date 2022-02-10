@@ -95,7 +95,7 @@ public sealed class LastLoadBalancingPolicy : ILoadBalancingPolicy
     }
 }
 
-// Register it in DI
+// Register it in DI in ConfigureServices method
 services.AddSingleton<ILoadBalancingPolicy, LastLoadBalancingPolicy>();
 
 // Set the LoadBalancingPolicy on the cluster
