@@ -73,7 +73,7 @@ The routes section is an unordered collection (this can be overridden by setting
 - RouteId - a unique name
 - ClusterId - refers to the name of an entry in the clusters section.
 - Match - contains either a Hosts array or a Path pattern string. Path is an ASP.NET Core route template that can be defined as [explained here](https://docs.microsoft.com/aspnet/core/fundamentals/routing#route-templates).
-For matching precedence see https://docs.microsoft.com/aspnet/core/fundamentals/routing#url-matching
+Route matching is based on the most specific routes having highest precedence as described [here]( https://docs.microsoft.com/aspnet/core/fundamentals/routing#url-matching). Explicit ordering can be achieved using the `order` field, with lower values taking higher priority.
 
 [Headers](header-routing.md), [Authorization](authn-authz.md), [CORS](cors.md), and other route based policies can be configured on each route entry. For additional fields see [RouteConfig](xref:Yarp.ReverseProxy.Configuration.RouteConfig).
 
