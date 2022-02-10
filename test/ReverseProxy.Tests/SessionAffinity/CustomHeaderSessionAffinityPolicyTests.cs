@@ -16,7 +16,7 @@ public class CustomHeaderSessionAffinityPolicyTests
     {
         Enabled = true,
         Policy = "Cookie",
-        FailurePolicy = "Return503",
+        FailurePolicy = "Return503Error",
         AffinityKeyName = AffinityHeaderName
     };
     private readonly IReadOnlyList<DestinationState> _destinations = new[] { new DestinationState("dest-A"), new DestinationState("dest-B"), new DestinationState("dest-C") };

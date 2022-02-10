@@ -181,7 +181,7 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
         "SessionAffinity": {
           "Enabled": true, // Defaults to 'false'
           "Policy": "Cookie", // Default, alternatively "CustomHeader"
-          "FailurePolicy": "Redistribute", // default, Alternatively "Return503"
+          "FailurePolicy": "Redistribute", // default, Alternatively "Return503Error"
           "Settings" : {
               "CustomHeaderName": "MySessionHeaderName" // Defaults to 'X-Yarp-Proxy-Affinity`
           }

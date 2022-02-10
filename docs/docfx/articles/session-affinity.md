@@ -25,7 +25,7 @@ Session affinity is configured per cluster according to the following configurat
             "SessionAffinity": {
                 "Enabled": "(true|false)", // defaults to 'false'
                 "Policy": "(Cookie|CustomHeader)", // defaults to 'Cookie'
-                "FailurePolicy": "(Redistribute|Return503)", // defaults to 'Redistribute'
+                "FailurePolicy": "(Redistribute|Return503Error)", // defaults to 'Redistribute'
                 "AffinityKeyName": "Key1",
                 "Cookie": {
                     "Domain": "localhost",
