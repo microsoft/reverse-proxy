@@ -61,7 +61,7 @@ public sealed class ClusterState
     internal AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
 
     /// <summary>
-    /// Tracks changes to the cluster configuration for use with rebuilding dependent endpoints.
+    /// Tracks changes to the cluster configuration for use with rebuilding dependent endpoints. Destination changes do not affect this property.
     /// </summary>
     internal int Revision { get; set; }
 }

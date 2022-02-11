@@ -458,13 +458,13 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IDisposable
                 {
                     currentCluster.Revision++;
                     Log.ClusterChanged(_logger, incomingCluster.ClusterId);
-
-                    // Config changed, so update runtime cluster
-                    currentCluster.Model = newClusterModel;
                 }
 
                 if (destinationsChanged || configChanged)
                 {
+                    // Config changed, so update runtime cluster
+                    currentCluster.Model = newClusterModel;
+
                     _clusterDestinationsUpdater.UpdateAllDestinations(currentCluster);
 
                     foreach (var listener in _clusterChangeListeners)
