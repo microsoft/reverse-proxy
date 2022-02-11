@@ -24,7 +24,7 @@ public class BaseSesstionAffinityPolicyTests
     {
         Enabled = true,
         Policy = "Stub",
-        FailurePolicy = "Return503",
+        FailurePolicy = "Return503Error",
         AffinityKeyName = "StubAffinityKey"
     };
 

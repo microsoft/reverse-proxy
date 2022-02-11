@@ -17,7 +17,7 @@ public class CookieSessionAffinityPolicyTests
     {
         Enabled = true,
         Policy = "Cookie",
-        FailurePolicy = "Return503",
+        FailurePolicy = "Return503Error",
         AffinityKeyName = "My.Affinity",
         Cookie = new SessionAffinityCookieConfig
         {
