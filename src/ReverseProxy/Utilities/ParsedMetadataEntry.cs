@@ -26,14 +26,14 @@ internal sealed class ParsedMetadataEntry<T>
     public T GetParsedOrDefault(T defaultValue)
     {
         var currentValue = _value;
-        if (_cluster.Model.Config.Metadata != null && _cluster.Model.Config.Metadata.TryGetValue(_metadataName, out var stringValue))
+        if (_cluster.Model.Config.Metadata is not null && _cluster.Model.Config.Metadata.TryGetValue(_metadataName, out var stringValue))
         {
-            if (currentValue == null || currentValue.Item1 != stringValue)
+            if (currentValue is null || currentValue.Item1 != stringValue)
             {
                 _value = Tuple.Create<string?, T>(stringValue, _parser(stringValue, out var parsedValue) ? parsedValue : defaultValue);
             }
         }
-        else if (currentValue == null || currentValue.Item1 != null)
+        else if (currentValue is null || currentValue.Item1 is not null)
         {
             _value = Tuple.Create<string?, T>(null, defaultValue);
         }

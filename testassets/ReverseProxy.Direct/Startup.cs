@@ -60,7 +60,7 @@ public class Startup
             {
                 await httpProxy.SendAsync(httpContext, "https://example.com", httpClient, requestConfig, transformer);
                 var errorFeature = httpContext.GetForwarderErrorFeature();
-                if (errorFeature != null)
+                if (errorFeature is not null)
                 {
                     var error = errorFeature.Error;
                     var exception = errorFeature.Exception;

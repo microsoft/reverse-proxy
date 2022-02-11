@@ -37,7 +37,7 @@ public class ResponseTrailerRemoveTransform : ResponseTrailersTransform
             throw new ArgumentNullException(nameof(context));
         }
 
-        Debug.Assert(context.ProxyResponse != null);
+        Debug.Assert(context.ProxyResponse is not null);
 
         if (Condition == ResponseCondition.Always
             || Success(context) == (Condition == ResponseCondition.Success))
@@ -45,7 +45,7 @@ public class ResponseTrailerRemoveTransform : ResponseTrailersTransform
             var responseTrailersFeature = context.HttpContext.Features.Get<IHttpResponseTrailersFeature>();
             var responseTrailers = responseTrailersFeature?.Trailers;
             // Support should have already been checked by the caller.
-            Debug.Assert(responseTrailers != null);
+            Debug.Assert(responseTrailers is not null);
             Debug.Assert(!responseTrailers.IsReadOnly);
 
             responseTrailers.Remove(HeaderName);

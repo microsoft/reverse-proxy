@@ -23,7 +23,7 @@ internal sealed class ClusterDestinationsUpdater : IClusterDestinationsUpdater
     public void UpdateAvailableDestinations(ClusterState cluster)
     {
         var allDestinations = cluster.DestinationsState?.AllDestinations;
-        if (allDestinations == null)
+        if (allDestinations is null)
         {
             throw new InvalidOperationException($"{nameof(UpdateAllDestinations)} must be called first.");
         }

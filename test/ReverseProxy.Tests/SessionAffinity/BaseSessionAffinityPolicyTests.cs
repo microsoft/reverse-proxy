@@ -54,14 +54,14 @@ public class BaseSesstionAffinityPolicyTests
         Assert.Equal(expectedStatus, affinityResult.Status);
         Assert.Same(expectedDestination, affinityResult.Destinations?.FirstOrDefault());
 
-        if (expectedLogLevel != null)
+        if (expectedLogLevel is not null)
         {
             logger.Verify(
                 l => l.Log(expectedLogLevel.Value, expectedEventId, It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()),
                 Times.Once);
         }
 
-        if (expectedDestination != null)
+        if (expectedDestination is not null)
         {
             Assert.Equal(1, affinityResult.Destinations.Count);
         }

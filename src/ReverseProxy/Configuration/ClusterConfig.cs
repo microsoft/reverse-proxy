@@ -56,7 +56,7 @@ public sealed record ClusterConfig
 
     public bool Equals(ClusterConfig? other)
     {
-        if (other == null)
+        if (other is null)
         {
             return false;
         }
@@ -67,7 +67,7 @@ public sealed record ClusterConfig
 
     internal bool EqualsExcludingDestinations(ClusterConfig other)
     {
-        if (other == null)
+        if (other is null)
         {
             return false;
         }

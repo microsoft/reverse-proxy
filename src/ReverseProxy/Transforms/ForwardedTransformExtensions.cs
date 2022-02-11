@@ -30,22 +30,22 @@ public static class ForwardedTransformExtensions
         {
             transform[ForwardedTransformFactory.XForwardedKey] = xDefault.ToString();
 
-            if (xFor != null)
+            if (xFor is not null)
             {
                 transform[ForwardedTransformFactory.ForKey] = xFor.Value.ToString();
             }
 
-            if (xPrefix != null)
+            if (xPrefix is not null)
             {
                 transform[ForwardedTransformFactory.PrefixKey] = xPrefix.Value.ToString();
             }
 
-            if (xHost != null)
+            if (xHost is not null)
             {
                 transform[ForwardedTransformFactory.HostKey] = xHost.Value.ToString();
             }
 
-            if (xProto != null)
+            if (xProto is not null)
             {
                 transform[ForwardedTransformFactory.ProtoKey] = xProto.Value.ToString();
             }

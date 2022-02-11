@@ -43,12 +43,12 @@ public abstract class ResponseTrailersTransform
             throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
         }
 
-        Debug.Assert(context.ProxyResponse != null);
+        Debug.Assert(context.ProxyResponse is not null);
 
         var responseTrailersFeature = context.HttpContext.Features.Get<IHttpResponseTrailersFeature>();
         var responseTrailers = responseTrailersFeature?.Trailers;
         // Support should have already been checked by the caller.
-        Debug.Assert(responseTrailers != null);
+        Debug.Assert(responseTrailers is not null);
         Debug.Assert(!responseTrailers.IsReadOnly);
 
         if (responseTrailers.TryGetValue(headerName, out var existingValues))
@@ -71,7 +71,7 @@ public abstract class ResponseTrailersTransform
         var responseTrailersFeature = context.HttpContext.Features.Get<IHttpResponseTrailersFeature>();
         var responseTrailers = responseTrailersFeature?.Trailers;
         // Support should have already been checked by the caller.
-        Debug.Assert(responseTrailers != null);
+        Debug.Assert(responseTrailers is not null);
         Debug.Assert(!responseTrailers.IsReadOnly);
 
         responseTrailers[headerName] = values;

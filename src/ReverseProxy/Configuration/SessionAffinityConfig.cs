@@ -45,7 +45,7 @@ public sealed record SessionAffinityConfig
 
     public bool Equals(SessionAffinityConfig? other)
     {
-        if (other == null)
+        if (other is null)
         {
             return false;
         }

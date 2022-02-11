@@ -28,7 +28,7 @@ internal sealed class AffinitizeTransform : ResponseTransform
         var options = proxyFeature.Cluster.Config.SessionAffinity;
         // The transform should only be added to routes that have affinity enabled.
         // However, the cluster can be re-assigned dynamically.
-        if (options == null || !options.Enabled.GetValueOrDefault())
+        if (options is null || !options.Enabled.GetValueOrDefault())
         {
             return default;
         }

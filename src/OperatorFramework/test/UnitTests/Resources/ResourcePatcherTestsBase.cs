@@ -40,7 +40,7 @@ public abstract partial class ResourcePatcherTestsBase
             LiveResource = testYaml.Live,
         };
 
-        if (testYaml.ResourceKind != null)
+        if (testYaml.ResourceKind is not null)
         {
             parameters.ResourceKind = await Manager.GetResourceKindAsync(
                 testYaml.ResourceKind.ApiVersion,
@@ -66,7 +66,7 @@ public abstract partial class ResourcePatcherTestsBase
             LiveResource = testYaml.Live,
         };
 
-        if (testYaml.ResourceKind != null)
+        if (testYaml.ResourceKind is not null)
         {
             parameters.ResourceKind = await Manager.GetResourceKindAsync(
                 testYaml.ResourceKind.ApiVersion,

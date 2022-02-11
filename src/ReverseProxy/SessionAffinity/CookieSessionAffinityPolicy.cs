@@ -48,7 +48,7 @@ internal sealed class CookieSessionAffinityPolicy : BaseSessionAffinityPolicy<st
             Domain = config.Cookie?.Domain,
             IsEssential = config.Cookie?.IsEssential ?? false,
             Secure = config.Cookie?.SecurePolicy == CookieSecurePolicy.Always || (config.Cookie?.SecurePolicy == CookieSecurePolicy.SameAsRequest && context.Request.IsHttps),
-            Expires = config.Cookie?.Expiration != null ? _clock.GetUtcNow().Add(config.Cookie.Expiration.Value) : default(DateTimeOffset?),
+            Expires = config.Cookie?.Expiration is not null ? _clock.GetUtcNow().Add(config.Cookie.Expiration.Value) : default(DateTimeOffset?),
         };
         context.Response.Cookies.Append(config.AffinityKeyName, Protect(unencryptedKey), affinityCookieOptions);
     }

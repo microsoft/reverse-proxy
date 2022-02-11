@@ -405,7 +405,7 @@ namespace Microsoft.Kubernetes.Controller.Informers
                 catch (Exception innerException)
 #pragma warning restore CA1031 // Do not catch general exception types
                 {
-                    if (innerExceptions == null)
+                    if (innerExceptions is null)
                     {
                         innerExceptions = new List<Exception>();
                     }
@@ -414,7 +414,7 @@ namespace Microsoft.Kubernetes.Controller.Informers
                 }
             }
 
-            if (innerExceptions != null)
+            if (innerExceptions is not null)
             {
                 throw new AggregateException("One or more exceptions thrown by ResourceInformerCallback.", innerExceptions);
             }

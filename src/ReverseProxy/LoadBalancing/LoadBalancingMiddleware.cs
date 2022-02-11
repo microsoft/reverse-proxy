@@ -53,7 +53,7 @@ internal sealed class LoadBalancingMiddleware
             destination = currentPolicy.PickDestination(context, proxyFeature.Route.Cluster!, destinations);
         }
 
-        if (destination == null)
+        if (destination is null)
         {
             // We intentionally do not short circuit here, we allow for later middleware to decide how to handle this case.
             Log.NoAvailableDestinations(_logger, proxyFeature.Cluster.Config.ClusterId);

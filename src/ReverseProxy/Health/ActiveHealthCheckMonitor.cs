@@ -71,7 +71,7 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
     public void OnClusterAdded(ClusterState cluster)
     {
         var config = cluster.Model.Config.HealthCheck?.Active;
-        if (config != null && config.Enabled.GetValueOrDefault())
+        if (config is not null && config.Enabled.GetValueOrDefault())
         {
             Scheduler.ScheduleEntity(cluster, config.Interval ?? _monitorOptions.DefaultInterval);
         }
@@ -80,7 +80,7 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
     public void OnClusterChanged(ClusterState cluster)
     {
         var config = cluster.Model.Config.HealthCheck?.Active;
-        if (config != null && config.Enabled.GetValueOrDefault())
+        if (config is not null && config.Enabled.GetValueOrDefault())
         {
             Scheduler.ChangePeriod(cluster, config.Interval ?? _monitorOptions.DefaultInterval);
         }
@@ -103,7 +103,7 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
     private async Task ProbeCluster(ClusterState cluster)
     {
         var config = cluster.Model.Config.HealthCheck?.Active;
-        if (config == null || !config.Enabled.GetValueOrDefault())
+        if (config is null || !config.Enabled.GetValueOrDefault())
         {
             return;
         }

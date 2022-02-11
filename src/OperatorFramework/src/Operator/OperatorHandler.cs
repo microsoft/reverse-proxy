@@ -220,7 +220,7 @@ public class OperatorHandler<TResource> : IOperatorHandler<TResource>
             };
         }
 
-        if (result.Error != null)
+        if (result.Error is not null)
         {
             // TODO: LOG Reconciler error
 

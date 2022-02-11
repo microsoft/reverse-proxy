@@ -48,7 +48,7 @@ public class RequestHeaderXForwardedForTransform : RequestTransform
         {
             case ForwardedTransformActions.Set:
                 RemoveHeader(context, HeaderName);
-                if (remoteIp != null)
+                if (remoteIp is not null)
                 {
                     AddHeader(context, HeaderName, remoteIp);
                 }
@@ -69,7 +69,7 @@ public class RequestHeaderXForwardedForTransform : RequestTransform
     private void Append(RequestTransformContext context, string? remoteIp)
     {
         var existingValues = TakeHeader(context, HeaderName);
-        if (remoteIp == null)
+        if (remoteIp is null)
         {
             if (!string.IsNullOrEmpty(existingValues))
             {

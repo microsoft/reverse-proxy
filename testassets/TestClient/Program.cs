@@ -24,7 +24,7 @@ internal class Program
             // Do nothing, we will show help right after.
         }
 
-        if (parsedArgs == null || parsedArgs.Help)
+        if (parsedArgs is null || parsedArgs.Help)
         {
             CommandLineArgs.ShowHelp();
             return 1;

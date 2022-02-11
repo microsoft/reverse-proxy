@@ -59,15 +59,15 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
 
     public async Task<HttpOperationResponse<KubernetesList<TResource>>> ListClusterAnyResourceKindWithHttpMessagesAsync<TResource>(string group, string version, string plural, string continueParameter = null, string fieldSelector = null, string labelSelector = null, int? limit = null, string resourceVersion = null, int? timeoutSeconds = null, bool? watch = null, string pretty = null, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default) where TResource : IKubernetesObject
     {
-        if (group == null)
+        if (group is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "group");
         }
-        if (version == null)
+        if (version is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "version");
         }
-        if (plural == null)
+        if (plural is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "plural");
         }
@@ -109,35 +109,35 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         _url = _url.Replace("{version}", System.Uri.EscapeDataString(version));
         _url = _url.Replace("{plural}", System.Uri.EscapeDataString(plural));
         List<string> _queryParameters = new List<string>();
-        if (continueParameter != null)
+        if (continueParameter is not null)
         {
             _queryParameters.Add(string.Format("continue={0}", System.Uri.EscapeDataString(continueParameter)));
         }
-        if (fieldSelector != null)
+        if (fieldSelector is not null)
         {
             _queryParameters.Add(string.Format("fieldSelector={0}", System.Uri.EscapeDataString(fieldSelector)));
         }
-        if (labelSelector != null)
+        if (labelSelector is not null)
         {
             _queryParameters.Add(string.Format("labelSelector={0}", System.Uri.EscapeDataString(labelSelector)));
         }
-        if (limit != null)
+        if (limit is not null)
         {
             _queryParameters.Add(string.Format("limit={0}", System.Uri.EscapeDataString(SafeJsonConvert.SerializeObject(limit, Client.SerializationSettings).Trim('"'))));
         }
-        if (resourceVersion != null)
+        if (resourceVersion is not null)
         {
             _queryParameters.Add(string.Format("resourceVersion={0}", System.Uri.EscapeDataString(resourceVersion)));
         }
-        if (timeoutSeconds != null)
+        if (timeoutSeconds is not null)
         {
             _queryParameters.Add(string.Format("timeoutSeconds={0}", System.Uri.EscapeDataString(SafeJsonConvert.SerializeObject(timeoutSeconds, Client.SerializationSettings).Trim('"'))));
         }
-        if (watch != null)
+        if (watch is not null)
         {
             _queryParameters.Add(string.Format("watch={0}", System.Uri.EscapeDataString(SafeJsonConvert.SerializeObject(watch, Client.SerializationSettings).Trim('"'))));
         }
-        if (pretty != null)
+        if (pretty is not null)
         {
             _queryParameters.Add(string.Format("pretty={0}", System.Uri.EscapeDataString(pretty)));
         }
@@ -153,7 +153,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         // Set Headers
 
 
-        if (customHeaders != null)
+        if (customHeaders is not null)
         {
             foreach (var _header in customHeaders)
             {
@@ -168,7 +168,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         // Serialize Request
         string _requestContent = null;
         // Set Credentials
-        if (Client.Credentials != null)
+        if (Client.Credentials is not null)
         {
             cancellationToken.ThrowIfCancellationRequested();
             await Client.Credentials.ProcessHttpRequestAsync(_httpRequest, cancellationToken).ConfigureAwait(false);
@@ -190,7 +190,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         if ((int)_statusCode != 200)
         {
             var ex = new HttpOperationException(string.Format("Operation returned an invalid status code '{0}'", _statusCode));
-            if (_httpResponse.Content != null)
+            if (_httpResponse.Content is not null)
             {
                 _responseContent = await _httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
             }
@@ -205,7 +205,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
                 ServiceClientTracing.Error(_invocationId, ex);
             }
             _httpRequest.Dispose();
-            if (_httpResponse != null)
+            if (_httpResponse is not null)
             {
                 _httpResponse.Dispose();
             }
@@ -226,7 +226,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
             catch (Newtonsoft.Json.JsonException ex)
             {
                 _httpRequest.Dispose();
-                if (_httpResponse != null)
+                if (_httpResponse is not null)
                 {
                     _httpResponse.Dispose();
                 }
@@ -243,23 +243,23 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
 
     public async Task<HttpOperationResponse<object>> CreateAnyResourceKindWithHttpMessagesAsync<TResource>(TResource body, string group, string version, string namespaceParameter, string plural, string dryRun = default(string), string fieldManager = default(string), string pretty = default(string), Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken)) where TResource : IKubernetesObject
     {
-        if (body == null)
+        if (body is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "body");
         }
-        if (group == null)
+        if (group is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "group");
         }
-        if (version == null)
+        if (version is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "version");
         }
-        if (namespaceParameter == null)
+        if (namespaceParameter is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "namespaceParameter");
         }
-        if (plural == null)
+        if (plural is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "plural");
         }
@@ -289,15 +289,15 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         _url = _url.Replace("{namespace}", System.Uri.EscapeDataString(namespaceParameter));
         _url = _url.Replace("{plural}", System.Uri.EscapeDataString(plural));
         List<string> _queryParameters = new List<string>();
-        if (dryRun != null)
+        if (dryRun is not null)
         {
             _queryParameters.Add(string.Format("dryRun={0}", System.Uri.EscapeDataString(dryRun)));
         }
-        if (fieldManager != null)
+        if (fieldManager is not null)
         {
             _queryParameters.Add(string.Format("fieldManager={0}", System.Uri.EscapeDataString(fieldManager)));
         }
-        if (pretty != null)
+        if (pretty is not null)
         {
             _queryParameters.Add(string.Format("pretty={0}", System.Uri.EscapeDataString(pretty)));
         }
@@ -313,7 +313,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         // Set Headers
 
 
-        if (customHeaders != null)
+        if (customHeaders is not null)
         {
             foreach (var _header in customHeaders)
             {
@@ -327,14 +327,14 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
 
         // Serialize Request
         string _requestContent = null;
-        if (body != null)
+        if (body is not null)
         {
             _requestContent = SafeJsonConvert.SerializeObject(body, Client.SerializationSettings);
             _httpRequest.Content = new StringContent(_requestContent, System.Text.Encoding.UTF8);
             _httpRequest.Content.Headers.ContentType = Client.GetHeader(body);
         }
         // Set Credentials
-        if (Client.Credentials != null)
+        if (Client.Credentials is not null)
         {
             cancellationToken.ThrowIfCancellationRequested();
             await Client.Credentials.ProcessHttpRequestAsync(_httpRequest, cancellationToken).ConfigureAwait(false);
@@ -356,7 +356,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         if ((int)_statusCode != 201)
         {
             var ex = new HttpOperationException(string.Format("Operation returned an invalid status code '{0}'", _statusCode));
-            if (_httpResponse.Content != null)
+            if (_httpResponse.Content is not null)
             {
                 _responseContent = await _httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
             }
@@ -371,7 +371,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
                 ServiceClientTracing.Error(_invocationId, ex);
             }
             _httpRequest.Dispose();
-            if (_httpResponse != null)
+            if (_httpResponse is not null)
             {
                 _httpResponse.Dispose();
             }
@@ -392,7 +392,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
             catch (JsonException ex)
             {
                 _httpRequest.Dispose();
-                if (_httpResponse != null)
+                if (_httpResponse is not null)
                 {
                     _httpResponse.Dispose();
                 }
@@ -409,27 +409,27 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
 
     public async Task<HttpOperationResponse<object>> PatchAnyResourceKindWithHttpMessagesAsync(V1Patch body, string group, string version, string namespaceParameter, string plural, string name, string dryRun = default(string), string fieldManager = default(string), bool? force = default(bool?), Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
     {
-        if (body == null)
+        if (body is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "body");
         }
-        if (group == null)
+        if (group is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "group");
         }
-        if (version == null)
+        if (version is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "version");
         }
-        if (namespaceParameter == null)
+        if (namespaceParameter is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "namespaceParameter");
         }
-        if (plural == null)
+        if (plural is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "plural");
         }
-        if (name == null)
+        if (name is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "name");
         }
@@ -461,15 +461,15 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         _url = _url.Replace("{plural}", System.Uri.EscapeDataString(plural));
         _url = _url.Replace("{name}", System.Uri.EscapeDataString(name));
         List<string> _queryParameters = new List<string>();
-        if (dryRun != null)
+        if (dryRun is not null)
         {
             _queryParameters.Add(string.Format("dryRun={0}", System.Uri.EscapeDataString(dryRun)));
         }
-        if (fieldManager != null)
+        if (fieldManager is not null)
         {
             _queryParameters.Add(string.Format("fieldManager={0}", System.Uri.EscapeDataString(fieldManager)));
         }
-        if (force != null)
+        if (force is not null)
         {
             _queryParameters.Add(string.Format("force={0}", System.Uri.EscapeDataString(SafeJsonConvert.SerializeObject(force, Client.SerializationSettings).Trim('"'))));
         }
@@ -485,7 +485,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         // Set Headers
 
 
-        if (customHeaders != null)
+        if (customHeaders is not null)
         {
             foreach (var _header in customHeaders)
             {
@@ -499,14 +499,14 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
 
         // Serialize Request
         string _requestContent = null;
-        if (body != null)
+        if (body is not null)
         {
             _requestContent = SafeJsonConvert.SerializeObject(body, Client.SerializationSettings);
             _httpRequest.Content = new StringContent(_requestContent, System.Text.Encoding.UTF8);
             _httpRequest.Content.Headers.ContentType = Client.GetHeader(body);
         }
         // Set Credentials
-        if (Client.Credentials != null)
+        if (Client.Credentials is not null)
         {
             cancellationToken.ThrowIfCancellationRequested();
             await Client.Credentials.ProcessHttpRequestAsync(_httpRequest, cancellationToken).ConfigureAwait(false);
@@ -528,7 +528,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         if ((int)_statusCode != 200)
         {
             var ex = new HttpOperationException(string.Format("Operation returned an invalid status code '{0}'", _statusCode));
-            if (_httpResponse.Content != null)
+            if (_httpResponse.Content is not null)
             {
                 _responseContent = await _httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
             }
@@ -543,7 +543,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
                 ServiceClientTracing.Error(_invocationId, ex);
             }
             _httpRequest.Dispose();
-            if (_httpResponse != null)
+            if (_httpResponse is not null)
             {
                 _httpResponse.Dispose();
             }
@@ -564,7 +564,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
             catch (JsonException ex)
             {
                 _httpRequest.Dispose();
-                if (_httpResponse != null)
+                if (_httpResponse is not null)
                 {
                     _httpResponse.Dispose();
                 }
@@ -581,23 +581,23 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
 
     public async Task<HttpOperationResponse<object>> DeleteAnyResourceKindWithHttpMessagesAsync(string group, string version, string namespaceParameter, string plural, string name, V1DeleteOptions body = default(V1DeleteOptions), int? gracePeriodSeconds = default(int?), bool? orphanDependents = default(bool?), string propagationPolicy = default(string), string dryRun = default(string), Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
     {
-        if (group == null)
+        if (group is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "group");
         }
-        if (version == null)
+        if (version is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "version");
         }
-        if (namespaceParameter == null)
+        if (namespaceParameter is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "namespaceParameter");
         }
-        if (plural == null)
+        if (plural is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "plural");
         }
-        if (name == null)
+        if (name is null)
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "name");
         }
@@ -630,19 +630,19 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         _url = _url.Replace("{plural}", System.Uri.EscapeDataString(plural));
         _url = _url.Replace("{name}", System.Uri.EscapeDataString(name));
         List<string> _queryParameters = new List<string>();
-        if (gracePeriodSeconds != null)
+        if (gracePeriodSeconds is not null)
         {
             _queryParameters.Add(string.Format("gracePeriodSeconds={0}", System.Uri.EscapeDataString(SafeJsonConvert.SerializeObject(gracePeriodSeconds, Client.SerializationSettings).Trim('"'))));
         }
-        if (orphanDependents != null)
+        if (orphanDependents is not null)
         {
             _queryParameters.Add(string.Format("orphanDependents={0}", System.Uri.EscapeDataString(SafeJsonConvert.SerializeObject(orphanDependents, Client.SerializationSettings).Trim('"'))));
         }
-        if (propagationPolicy != null)
+        if (propagationPolicy is not null)
         {
             _queryParameters.Add(string.Format("propagationPolicy={0}", System.Uri.EscapeDataString(propagationPolicy)));
         }
-        if (dryRun != null)
+        if (dryRun is not null)
         {
             _queryParameters.Add(string.Format("dryRun={0}", System.Uri.EscapeDataString(dryRun)));
         }
@@ -658,7 +658,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         // Set Headers
 
 
-        if (customHeaders != null)
+        if (customHeaders is not null)
         {
             foreach (var _header in customHeaders)
             {
@@ -672,14 +672,14 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
 
         // Serialize Request
         string _requestContent = null;
-        if (body != null)
+        if (body is not null)
         {
             _requestContent = SafeJsonConvert.SerializeObject(body, Client.SerializationSettings);
             _httpRequest.Content = new StringContent(_requestContent, System.Text.Encoding.UTF8);
             _httpRequest.Content.Headers.ContentType = Client.GetHeader(body);
         }
         // Set Credentials
-        if (Client.Credentials != null)
+        if (Client.Credentials is not null)
         {
             cancellationToken.ThrowIfCancellationRequested();
             await Client.Credentials.ProcessHttpRequestAsync(_httpRequest, cancellationToken).ConfigureAwait(false);
@@ -701,7 +701,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         if ((int)_statusCode != 200)
         {
             var ex = new HttpOperationException(string.Format("Operation returned an invalid status code '{0}'", _statusCode));
-            if (_httpResponse.Content != null)
+            if (_httpResponse.Content is not null)
             {
                 _responseContent = await _httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
             }
@@ -716,7 +716,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
                 ServiceClientTracing.Error(_invocationId, ex);
             }
             _httpRequest.Dispose();
-            if (_httpResponse != null)
+            if (_httpResponse is not null)
             {
                 _httpResponse.Dispose();
             }
@@ -737,7 +737,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
             catch (JsonException ex)
             {
                 _httpRequest.Dispose();
-                if (_httpResponse != null)
+                if (_httpResponse is not null)
                 {
                     _httpResponse.Dispose();
                 }

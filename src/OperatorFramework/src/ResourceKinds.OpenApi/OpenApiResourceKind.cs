@@ -106,14 +106,14 @@ public class OpenApiResourceKind : IResourceKind
     private static bool HasPatchStrategy(JsonSchema schema, string value)
     {
         return
-            schema.ExtensionData != null &&
+            schema.ExtensionData is not null &&
             schema.ExtensionData.TryGetValue("x-kubernetes-patch-strategy", out var patchStrategy) &&
             (patchStrategy as string ?? string.Empty).Split(',').Any(part => part == value);
     }
 
     private static bool HasPatchMergeKey(JsonSchema schema, out string mergeKey)
     {
-        if (schema.ExtensionData != null &&
+        if (schema.ExtensionData is not null &&
             schema.ExtensionData.TryGetValue("x-kubernetes-patch-merge-key", out var value) &&
             value is string stringValue)
         {

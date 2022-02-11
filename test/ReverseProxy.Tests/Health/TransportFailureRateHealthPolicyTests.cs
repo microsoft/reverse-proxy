@@ -247,7 +247,7 @@ public class TransportFailureRateHealthPolicyTests
 
     private ClusterState GetClusterInfo(string id, int destinationCount, double? failureRateLimit = null, TimeSpan? reactivationPeriod = null)
     {
-        var metadata = failureRateLimit != null
+        var metadata = failureRateLimit is not null
             ? new Dictionary<string, string> { { TransportFailureRateHealthPolicyOptions.FailureRateLimitMetadataName, failureRateLimit?.ToString(CultureInfo.InvariantCulture) } }
             : null;
         var clusterModel = new ClusterModel(

@@ -64,7 +64,7 @@ internal abstract class DelegatingStream : Stream
 
     protected DelegatingStream(Stream innerStream)
     {
-        Debug.Assert(innerStream != null);
+        Debug.Assert(innerStream is not null);
         _innerStream = innerStream;
     }
 

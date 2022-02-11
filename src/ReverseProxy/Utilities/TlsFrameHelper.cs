@@ -131,7 +131,7 @@ public static class TlsFrameHelper
         {
             get
             {
-                return _ciphers == null ? ReadOnlyMemory<TlsCipherSuite>.Empty : new ReadOnlyMemory<TlsCipherSuite>(_ciphers);
+                return _ciphers is null ? ReadOnlyMemory<TlsCipherSuite>.Empty : new ReadOnlyMemory<TlsCipherSuite>(_ciphers);
             }
         }
 

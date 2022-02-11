@@ -58,7 +58,7 @@ internal sealed class ConsecutiveFailuresHealthPolicy : IActiveHealthCheckPolicy
     private static DestinationHealth EvaluateHealthState(double threshold, HttpResponseMessage? response, AtomicCounter count)
     {
         DestinationHealth newHealth;
-        if (response != null && response.IsSuccessStatusCode)
+        if (response is not null && response.IsSuccessStatusCode)
         {
             // Success
             count.Reset();

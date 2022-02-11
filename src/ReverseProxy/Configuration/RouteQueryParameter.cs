@@ -39,7 +39,7 @@ public sealed record RouteQueryParameter
 
     public bool Equals(RouteQueryParameter? other)
     {
-        if (other == null)
+        if (other is null)
         {
             return false;
         }

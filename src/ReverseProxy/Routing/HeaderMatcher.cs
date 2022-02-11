@@ -22,7 +22,7 @@ internal sealed class HeaderMatcher
             throw new ArgumentException("A header name is required.", nameof(name));
         }
         if (mode != HeaderMatchMode.Exists
-            && (values == null || values.Count == 0))
+            && (values is null || values.Count == 0))
         {
             throw new ArgumentException("Header values must have at least one value.", nameof(values));
         }

@@ -52,7 +52,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
     public IProxyConfig GetConfig()
     {
         // First time load
-        if (_snapshot == null)
+        if (_snapshot is null)
         {
             _subscription = ChangeToken.OnChange(_configuration.GetReloadToken, UpdateSnapshot);
             UpdateSnapshot();
@@ -88,7 +88,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
                 Log.ConfigurationDataConversionFailed(_logger, ex);
 
                 // Re-throw on the first time load to prevent app from starting.
-                if (_snapshot == null)
+                if (_snapshot is null)
                 {
                     throw;
                 }
@@ -319,7 +319,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
         {
             foreach (var protocolConfig in sslProtocolsSection.GetChildren().Select(s => Enum.Parse<SslProtocols>(s.Value, ignoreCase: true)))
             {
-                sslProtocols = sslProtocols == null ? protocolConfig : sslProtocols | protocolConfig;
+                sslProtocols = sslProtocols is null ? protocolConfig : sslProtocols | protocolConfig;
             }
         }
 

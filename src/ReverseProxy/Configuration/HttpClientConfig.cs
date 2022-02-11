@@ -53,7 +53,7 @@ public sealed record HttpClientConfig
 
     public bool Equals(HttpClientConfig? other)
     {
-        if (other == null)
+        if (other is null)
         {
             return false;
         }

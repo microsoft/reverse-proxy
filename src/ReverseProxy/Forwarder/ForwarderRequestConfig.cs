@@ -47,7 +47,7 @@ public sealed record ForwarderRequestConfig
 
     public bool Equals(ForwarderRequestConfig? other)
     {
-        if (other == null)
+        if (other is null)
         {
             return false;
         }

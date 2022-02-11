@@ -64,7 +64,7 @@ public sealed record RouteConfig
 
     public bool Equals(RouteConfig? other)
     {
-        if (other == null)
+        if (other is null)
         {
             return false;
         }

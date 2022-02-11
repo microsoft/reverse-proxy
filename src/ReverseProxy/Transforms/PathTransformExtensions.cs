@@ -20,7 +20,7 @@ public static class PathTransformExtensions
     /// </summary>
     public static RouteConfig WithTransformPathSet(this RouteConfig route, PathString path)
     {
-        if (path.Value == null)
+        if (path.Value is null)
         {
             throw new ArgumentNullException(nameof(path));
         }
@@ -45,7 +45,7 @@ public static class PathTransformExtensions
     /// </summary>
     public static RouteConfig WithTransformPathPrefix(this RouteConfig route, PathString prefix)
     {
-        if (prefix.Value == null)
+        if (prefix.Value is null)
         {
             throw new ArgumentNullException(nameof(prefix));
         }
@@ -70,7 +70,7 @@ public static class PathTransformExtensions
     /// </summary>
     public static RouteConfig WithTransformPathRemovePrefix(this RouteConfig route, PathString prefix)
     {
-        if (prefix.Value == null)
+        if (prefix.Value is null)
         {
             throw new ArgumentNullException(nameof(prefix));
         }
@@ -95,7 +95,7 @@ public static class PathTransformExtensions
     /// </summary>
     public static RouteConfig WithTransformPathRouteValues(this RouteConfig route, PathString pattern)
     {
-        if (pattern.Value == null)
+        if (pattern.Value is null)
         {
             throw new ArgumentNullException(nameof(pattern));
         }
@@ -111,7 +111,7 @@ public static class PathTransformExtensions
     /// </summary>
     public static TransformBuilderContext AddPathRouteValues(this TransformBuilderContext context, PathString pattern)
     {
-        if (pattern.Value == null)
+        if (pattern.Value is null)
         {
             throw new ArgumentNullException(nameof(pattern));
         }

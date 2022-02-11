@@ -49,7 +49,7 @@ internal static class ProtocolHelper
 #if NET
         return HttpProtocol.GetHttpProtocol(version);
 #else
-        if (version == null)
+        if (version is null)
         {
             throw new ArgumentNullException(nameof(version));
         }
@@ -86,7 +86,7 @@ internal static class ProtocolHelper
     /// </summary>
     public static bool IsGrpcContentType(string? contentType)
     {
-        if (contentType == null)
+        if (contentType is null)
         {
             return false;
         }

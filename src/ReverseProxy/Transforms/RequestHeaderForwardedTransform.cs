@@ -148,7 +148,7 @@ public class RequestHeaderForwardedTransform : RequestTransform
         var addPort = port != 0 && (format == NodeFormat.IpAndPort || format == NodeFormat.UnknownAndPort || format == NodeFormat.RandomAndPort);
         var addRandomPort = (format == NodeFormat.IpAndRandomPort || format == NodeFormat.UnknownAndRandomPort || format == NodeFormat.RandomAndRandomPort);
         var ipv6 = (format == NodeFormat.Ip || format == NodeFormat.IpAndPort || format == NodeFormat.IpAndRandomPort)
-            && ipAddress != null && ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6;
+            && ipAddress is not null && ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6;
         var quote = addPort || addRandomPort || ipv6;
 
         if (quote)
@@ -161,7 +161,7 @@ public class RequestHeaderForwardedTransform : RequestTransform
             case NodeFormat.Ip:
             case NodeFormat.IpAndPort:
             case NodeFormat.IpAndRandomPort:
-                if (ipAddress != null)
+                if (ipAddress is not null)
                 {
                     if (ipv6)
                     {

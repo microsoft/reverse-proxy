@@ -28,7 +28,7 @@ public class PassiveHealthCheckMiddleware
         var options = proxyFeature.Cluster.Config.HealthCheck?.Passive;
 
         // Do nothing if no target destination has been chosen for the request.
-        if (options == null || !options.Enabled.GetValueOrDefault() || proxyFeature.ProxiedDestination == null)
+        if (options is null || !options.Enabled.GetValueOrDefault() || proxyFeature.ProxiedDestination is null)
         {
             return;
         }

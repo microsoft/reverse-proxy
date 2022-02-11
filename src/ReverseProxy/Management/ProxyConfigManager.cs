@@ -104,11 +104,11 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         {
             // The Endpoints needs to be lazy the first time to give a chance to ReverseProxyConventionBuilder to add its conventions.
             // Endpoints are accessed by routing on the first request.
-            if (_endpoints == null)
+            if (_endpoints is null)
             {
                 lock (_syncRoot)
                 {
-                    if (_endpoints == null)
+                    if (_endpoints is null)
                     {
                         CreateEndpoints();
                     }
@@ -127,7 +127,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         {
             // Only rebuild the endpoint for modified routes or clusters.
             var endpoint = existingRoute.Value.CachedEndpoint;
-            if (endpoint == null)
+            if (endpoint is null)
             {
                 endpoint = _proxyEndpointFactory.CreateEndpoint(existingRoute.Value.Model, _conventions);
                 existingRoute.Value.CachedEndpoint = endpoint;
@@ -216,7 +216,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
                 {
                     // Skip if changes are signaled before the endpoints are initialized for the first time.
                     // The endpoint conventions might not be ready yet.
-                    if (hasChanged && _endpoints != null)
+                    if (hasChanged && _endpoints is not null)
                     {
                         CreateEndpoints();
                     }
@@ -233,11 +233,11 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
 
     private static void ValidateConfigProperties(IProxyConfig config)
     {
-        if (config == null)
+        if (config is null)
         {
             throw new InvalidOperationException($"{nameof(IProxyConfigProvider.GetConfig)} returned a null value.");
         }
-        if (config.ChangeToken == null)
+        if (config.ChangeToken is null)
         {
             throw new InvalidOperationException($"{nameof(IProxyConfig.ChangeToken)} has a null value.");
         }
@@ -316,7 +316,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
 
     private async Task<(IList<RouteConfig>, IList<Exception>)> VerifyRoutesAsync(IReadOnlyList<RouteConfig> routes, IReadOnlyDictionary<string, ClusterConfig> clusters, CancellationToken cancellation)
     {
-        if (routes == null)
+        if (routes is null)
         {
             return (Array.Empty<RouteConfig>(), Array.Empty<Exception>());
         }
@@ -340,7 +340,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
                 if (_filters.Length != 0)
                 {
                     ClusterConfig? cluster = null;
-                    if (route.ClusterId != null)
+                    if (route.ClusterId is not null)
                     {
                         clusters.TryGetValue(route.ClusterId, out cluster);
                     }
@@ -377,7 +377,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
 
     private async Task<(IReadOnlyDictionary<string, ClusterConfig>, IList<Exception>)> VerifyClustersAsync(IReadOnlyList<ClusterConfig> clusters, CancellationToken cancellation)
     {
-        if (clusters == null)
+        if (clusters is null)
         {
             return (_emptyClusterDictionary, Array.Empty<Exception>());
         }
@@ -530,7 +530,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         var desiredDestinations = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var changed = false;
 
-        if (incomingDestinations != null)
+        if (incomingDestinations is not null)
         {
             foreach (var incomingDestination in incomingDestinations)
             {
@@ -649,7 +649,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
     [MemberNotNull(nameof(_endpoints))]
     private void UpdateEndpoints(List<Endpoint> endpoints)
     {
-        if (endpoints == null)
+        if (endpoints is null)
         {
             throw new ArgumentNullException(nameof(endpoints));
         }

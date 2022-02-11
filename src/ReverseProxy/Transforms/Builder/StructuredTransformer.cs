@@ -137,7 +137,7 @@ internal sealed class StructuredTransformer : HttpTransformer
         // Only run the transforms if trailers are actually supported by the client response.
         var responseTrailersFeature = httpContext.Features.Get<IHttpResponseTrailersFeature>();
         var outgoingTrailers = responseTrailersFeature?.Trailers;
-        if (outgoingTrailers != null && !outgoingTrailers.IsReadOnly)
+        if (outgoingTrailers is not null && !outgoingTrailers.IsReadOnly)
         {
             var transformContext = new ResponseTrailersTransformContext()
             {

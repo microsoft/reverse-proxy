@@ -40,7 +40,7 @@ public class SessionAffinityMiddlewareTests
         var cluster = GetCluster();
         var endpoint = GetEndpoint(cluster);
         DestinationState foundDestination = null;
-        if (foundDestinationId != null)
+        if (foundDestinationId is not null)
         {
             cluster.Destinations.TryGetValue(foundDestinationId, out foundDestination);
         }
@@ -72,7 +72,7 @@ public class SessionAffinityMiddlewareTests
         policies[0].VerifyNoOtherCalls();
         policies[1].VerifyAll();
 
-        if (foundDestinationId != null)
+        if (foundDestinationId is not null)
         {
             Assert.Equal(1, destinationFeature.AvailableDestinations.Count);
             Assert.Equal(foundDestinationId, destinationFeature.AvailableDestinations[0].DestinationId);

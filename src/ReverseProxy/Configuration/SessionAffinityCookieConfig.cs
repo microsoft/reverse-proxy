@@ -60,7 +60,7 @@ public sealed record SessionAffinityCookieConfig
 
     public bool Equals(SessionAffinityCookieConfig? other)
     {
-        if (other == null)
+        if (other is null)
         {
             return false;
         }

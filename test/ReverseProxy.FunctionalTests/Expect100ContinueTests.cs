@@ -307,7 +307,7 @@ public class Expect100ContinueTests
                 Assert.Equal(0, contentStream.Position);
             }
 
-            if (responseAction != null)
+            if (responseAction is not null)
             {
                 await responseAction(response);
             }

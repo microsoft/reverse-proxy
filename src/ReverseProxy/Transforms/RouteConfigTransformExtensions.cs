@@ -24,7 +24,7 @@ public static class RouteConfigTransformExtensions
         }
 
         List<IReadOnlyDictionary<string, string>> transforms;
-        if (route.Transforms == null)
+        if (route.Transforms is null)
         {
             transforms = new List<IReadOnlyDictionary<string, string>>();
         }

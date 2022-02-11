@@ -119,7 +119,7 @@ public class ConsecutiveFailuresHealthPolicyTests
 
     private ClusterState GetClusterInfo(string id, int destinationCount, int? failureThreshold = null)
     {
-        var metadata = failureThreshold != null
+        var metadata = failureThreshold is not null
             ? new Dictionary<string, string> { { ConsecutiveFailuresHealthPolicyOptions.ThresholdMetadataName, failureThreshold.ToString() } }
             : null;
         var clusterModel = new ClusterModel(

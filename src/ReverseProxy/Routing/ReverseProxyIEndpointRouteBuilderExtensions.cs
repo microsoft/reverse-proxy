@@ -61,7 +61,7 @@ public static class ReverseProxyIEndpointRouteBuilderExtensions
     private static ProxyConfigManager GetOrCreateDataSource(IEndpointRouteBuilder endpoints)
     {
         var dataSource = endpoints.DataSources.OfType<ProxyConfigManager>().FirstOrDefault();
-        if (dataSource == null)
+        if (dataSource is null)
         {
             dataSource = endpoints.ServiceProvider.GetRequiredService<ProxyConfigManager>();
             endpoints.DataSources.Add(dataSource);

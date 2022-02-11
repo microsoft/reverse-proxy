@@ -61,7 +61,7 @@ public class ResourcePatcher : IResourcePatcher
         {
             return ReplacePrimative(patch, context);
         }
-        else if (context.ApplyToken == null && context.LastAppliedToken != null)
+        else if (context.ApplyToken is null && context.LastAppliedToken is not null)
         {
             return patch.Remove(context.Path);
         }
@@ -105,7 +105,7 @@ public class ResourcePatcher : IResourcePatcher
         var lastApplied = context.LastAppliedToken as JObject;
         var live = context.LiveToken as JObject;
 
-        if (live == null)
+        if (live is null)
         {
             return patch.Replace(context.Path, apply);
         }
@@ -117,7 +117,7 @@ public class ResourcePatcher : IResourcePatcher
 
             var liveProperty = live.Property(name, StringComparison.Ordinal);
 
-            if (liveProperty == null)
+            if (liveProperty is null)
             {
                 patch = patch.Add(path, applyProperty.Value);
             }
@@ -141,10 +141,10 @@ public class ResourcePatcher : IResourcePatcher
             var name = liveProperty.Name;
             var applyProperty = apply.Property(name, StringComparison.Ordinal);
 
-            if (applyProperty == null)
+            if (applyProperty is null)
             {
                 var lastAppliedProperty = lastApplied?.Property(name, StringComparison.Ordinal);
-                if (lastAppliedProperty != null)
+                if (lastAppliedProperty is not null)
                 {
                     var path = $"{context.Path}/{EscapePath(name)}";
                     patch = patch.Remove(path);
@@ -161,7 +161,7 @@ public class ResourcePatcher : IResourcePatcher
         var lastApplied = context.LastAppliedToken as JObject;
         var live = context.LiveToken as JObject;
 
-        if (live == null)
+        if (live is null)
         {
             return patch.Replace(context.Path, apply);
         }
@@ -175,7 +175,7 @@ public class ResourcePatcher : IResourcePatcher
 
             var liveProperty = live.Property(key, StringComparison.Ordinal);
 
-            if (liveProperty == null)
+            if (liveProperty is null)
             {
                 patch = patch.Add(path, applyProperty.Value);
             }
@@ -199,10 +199,10 @@ public class ResourcePatcher : IResourcePatcher
             var name = liveProperty.Name;
             var applyProperty = apply.Property(name, StringComparison.Ordinal);
 
-            if (applyProperty == null)
+            if (applyProperty is null)
             {
                 var lastAppliedProperty = lastApplied?.Property(name, StringComparison.Ordinal);
-                if (lastAppliedProperty != null)
+                if (lastAppliedProperty is not null)
                 {
                     var path = $"{context.Path}/{EscapePath(name)}";
                     patch = patch.Remove(path);
@@ -321,7 +321,7 @@ public class ResourcePatcher : IResourcePatcher
             var (_, index, liveToken) = liveItems.SingleOrDefault(item => item.name == name);
             var (_, _, lastAppliedToken) = lastAppliedItems.SingleOrDefault(item => item.name == name);
 
-            if (liveToken != null)
+            if (liveToken is not null)
             {
                 var itemContext = context.Push(
                     path: $"{context.Path}/{index}",
@@ -343,7 +343,7 @@ public class ResourcePatcher : IResourcePatcher
             var (_, index, liveToken) = liveItems.SingleOrDefault(item => item.name == name);
             var (_, _, applyToken) = applyItems.SingleOrDefault(item => item.name == name);
 
-            if (applyToken == null && liveToken != null)
+            if (applyToken is null && liveToken is not null)
             {
                 patch = patch.Remove($"{context.Path}/{index}");
             }

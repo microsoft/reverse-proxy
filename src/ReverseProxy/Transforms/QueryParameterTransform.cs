@@ -27,13 +27,13 @@ public abstract class QueryParameterTransform : RequestTransform
     /// <inheritdoc/>
     public override ValueTask ApplyAsync(RequestTransformContext context)
     {
-        if (context == null)
+        if (context is null)
         {
             throw new ArgumentNullException(nameof(context));
         }
 
         var value = GetValue(context);
-        if (value != null)
+        if (value is not null)
         {
             switch (Mode)
             {

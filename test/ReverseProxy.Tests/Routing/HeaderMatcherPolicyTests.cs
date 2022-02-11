@@ -156,7 +156,7 @@ public class HeaderMatcherPolicyTests
     public async Task ApplyAsync_MatchingScenarios_AnyHeaderValue(string incomingHeaderValue, bool shouldMatch)
     {
         var context = new DefaultHttpContext();
-        if (incomingHeaderValue != null)
+        if (incomingHeaderValue is not null)
         {
             context.Request.Headers.Add("org-id", incomingHeaderValue);
         }
@@ -238,7 +238,7 @@ public class HeaderMatcherPolicyTests
         bool shouldMatch)
     {
         var context = new DefaultHttpContext();
-        if (incomingHeaderValue != null)
+        if (incomingHeaderValue is not null)
         {
             context.Request.Headers.Add("org-id", incomingHeaderValue);
         }
