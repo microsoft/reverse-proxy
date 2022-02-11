@@ -118,64 +118,67 @@ internal abstract class EventListenerService<TService, TTelemetryConsumer, TMetr
 
     private void OnNonUserEvent(EventWrittenEventArgs eventData)
     {
-        if (eventData.EventId == -1)
+        switch (eventData.EventId)
         {
-            // Throwing an exception here would crash the process
-            if (eventData.EventName != "EventCounters" ||
-                eventData.Payload?.Count != 1 ||
-                eventData.Payload[0] is not IDictionary<string, object> counters ||
-                !counters.TryGetValue("Name", out var nameObject) ||
-                nameObject is not string name ||
-                !(counters.TryGetValue("Mean", out var valueObj) || counters.TryGetValue("Increment", out valueObj)) ||
-                valueObj is not double value)
-            {
-                _logger.LogDebug("Failed to parse EventCounters event from {EventSourceName}", EventSourceName);
-                return;
-            }
-
-            var metrics = _currentMetrics ??= new();
-
-            if (!TrySaveMetric(metrics, name, value))
-            {
-                return;
-            }
-
-            if (++_metricsCount == NumberOfMetrics)
-            {
-                _metricsCount = 0;
-
-                var previous = _previousMetrics;
-                _previousMetrics = metrics;
-                _currentMetrics = null;
-
-                if (previous is null)
+            case -1:
                 {
-                    return;
-                }
-
-                if (_metricsConsumers is IMetricsConsumer<TMetrics>[] consumers)
-                {
-                    foreach (var consumer in consumers)
+                    // Throwing an exception here would crash the process
+                    if (eventData.EventName != "EventCounters" ||
+                        eventData.Payload?.Count != 1 ||
+                        eventData.Payload[0] is not IDictionary<string, object> counters ||
+                        !counters.TryGetValue("Name", out var nameObject) ||
+                        nameObject is not string name ||
+                        !(counters.TryGetValue("Mean", out var valueObj) || counters.TryGetValue("Increment", out valueObj)) ||
+                        valueObj is not double value)
                     {
-                        try
+                        _logger.LogDebug("Failed to parse EventCounters event from {EventSourceName}", EventSourceName);
+                        return;
+                    }
+
+                    var metrics = _currentMetrics ??= new();
+
+                    if (!TrySaveMetric(metrics, name, value))
+                    {
+                        return;
+                    }
+
+                    if (++_metricsCount == NumberOfMetrics)
+                    {
+                        _metricsCount = 0;
+
+                        var previous = _previousMetrics;
+                        _previousMetrics = metrics;
+                        _currentMetrics = null;
+
+                        if (previous is null)
                         {
-                            consumer.OnMetrics(previous, metrics);
+                            return;
                         }
-                        catch (Exception ex)
+
+                        if (_metricsConsumers is IMetricsConsumer<TMetrics>[] consumers)
                         {
-                            _logger.LogError(ex, "Uncaught exception occured while processing metrics for EventSource {EventSourceName}", EventSourceName);
+                            foreach (var consumer in consumers)
+                            {
+                                try
+                                {
+                                    consumer.OnMetrics(previous, metrics);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(ex, "Uncaught exception occured while processing metrics for EventSource {EventSourceName}", EventSourceName);
+                                }
+                            }
                         }
                     }
+
+                    break;
                 }
-            }
-        }
-        else if (eventData.EventId == 0)
-        {
-            _logger.LogError("Received an error message from EventSource {EventSourceName}: {Message}", EventSourceName, eventData.Message);
-        }
-        else
-        {
-            _logger.LogDebug("Received an unknown event from EventSource {EventSourceName}: {EventId}", EventSourceName, eventData.EventId);
+            case 0:
+                _logger.LogError("Received an error message from EventSource {EventSourceName}: {Message}", EventSourceName, eventData.Message);
+                break;
+            default:
+                _logger.LogDebug("Received an unknown event from EventSource {EventSourceName}: {EventId}", EventSourceName, eventData.EventId);
+                break;
         }
     }
 

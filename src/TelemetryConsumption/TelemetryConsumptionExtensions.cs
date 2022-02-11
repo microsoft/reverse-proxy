@@ -39,16 +39,16 @@ public static class TelemetryConsumptionExtensions
     {
         var implementsAny = false;
 
-        if (consumer is IWebSocketsTelemetryConsumer webSocketsTelemetryConsumer)
+        switch (consumer)
         {
-            services.TryAddEnumerable(ServiceDescriptor.Singleton(webSocketsTelemetryConsumer));
-            implementsAny = true;
-        }
-
-        if (consumer is IForwarderTelemetryConsumer forwarderTelemetryConsumer)
-        {
-            services.TryAddEnumerable(ServiceDescriptor.Singleton(forwarderTelemetryConsumer));
-            implementsAny = true;
+            case IWebSocketsTelemetryConsumer webSocketsTelemetryConsumer:
+                services.TryAddEnumerable(ServiceDescriptor.Singleton(webSocketsTelemetryConsumer));
+                implementsAny = true;
+                break;
+            case IForwarderTelemetryConsumer forwarderTelemetryConsumer:
+                services.TryAddEnumerable(ServiceDescriptor.Singleton(forwarderTelemetryConsumer));
+                implementsAny = true;
+                break;
         }
 
         if (consumer is IKestrelTelemetryConsumer kestrelTelemetryConsumer)
