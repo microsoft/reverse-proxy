@@ -562,6 +562,55 @@ public class ProxyConfigManagerTests
     }
 
     [Fact]
+    public async Task ChangeConfig_DestinationChange_IsReflectedOnRouteConfiguration()
+    {
+        var endpoints = new List<RouteConfig>() { new RouteConfig() { RouteId = "r1", ClusterId = "c1", Match = new RouteMatch { Path = "/" } } };
+        var clusters = new List<ClusterConfig>()
+        {
+            new ClusterConfig
+            {
+                ClusterId = "c1",
+                Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+                {
+                    { "d1", new DestinationConfig() { Address = "http://d1" } }
+                }
+            }
+        };
+        var services = CreateServices(endpoints, clusters);
+        var inMemoryConfig = (InMemoryConfigProvider)services.GetRequiredService<IProxyConfigProvider>();
+        var configManager = services.GetRequiredService<ProxyConfigManager>();
+        var dataSource = await configManager.InitialLoadAsync();
+
+        var endpoint = Assert.Single(dataSource.Endpoints);
+        var routeConfig = endpoint.Metadata.GetMetadata<RouteModel>();
+        Assert.Equal("http://d1", Assert.Single(routeConfig.Cluster.Destinations).Value.Model.Config.Address);
+        Assert.Equal(1, routeConfig.Cluster.Revision);
+
+        inMemoryConfig.Update(
+            endpoints,
+            new List<ClusterConfig>()
+            {
+                new ClusterConfig
+                {
+                    ClusterId = "c1",
+                    Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        { "d1", new DestinationConfig() { Address = "http://d1-v2" } }
+                    }
+                }
+            });
+
+        var destinationConfig = Assert.Single(routeConfig.Cluster.Destinations).Value.Model.Config;
+        Assert.Equal("http://d1-v2", destinationConfig.Address);
+
+        Assert.Same(destinationConfig, Assert.Single(routeConfig.Cluster.DestinationsState.AllDestinations).Model.Config);
+        Assert.Same(destinationConfig, Assert.Single(routeConfig.Cluster.Model.Config.Destinations).Value);
+
+        // Destination changes do not affect this property
+        Assert.Equal(1, routeConfig.Cluster.Revision);
+    }
+
+    [Fact]
     public async Task LoadAsync_RequestVersionValidationError_Throws()
     {
         const string TestAddress = "https://localhost:123/";

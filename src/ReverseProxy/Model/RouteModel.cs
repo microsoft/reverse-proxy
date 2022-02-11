@@ -33,7 +33,7 @@ public sealed class RouteModel
 
     // May not be populated if the cluster config is missing. https://github.com/microsoft/reverse-proxy/issues/797
     /// <summary>
-    /// The ClusterInfo instance associated with this route.
+    /// The <see cref="ClusterState"/> instance associated with this route.
     /// </summary>
     public ClusterState? Cluster { get; }
 
