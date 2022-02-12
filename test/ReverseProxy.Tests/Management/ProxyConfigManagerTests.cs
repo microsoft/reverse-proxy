@@ -9,20 +9,21 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
 using Xunit;
-using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Configuration.ConfigProvider;
-using Yarp.ReverseProxy.Health;
-using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Forwarder.Tests;
+using Yarp.ReverseProxy.Health;
+using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Routing;
+using Yarp.Tests.Common;
 
 namespace Yarp.ReverseProxy.Management.Tests;
 
@@ -34,6 +35,7 @@ public class ProxyConfigManagerTests
         serviceCollection.AddLogging();
         serviceCollection.AddRouting();
         var proxyBuilder = serviceCollection.AddReverseProxy().LoadFromMemory(routes, clusters);
+        serviceCollection.TryAddSingleton(new Mock<IServer>().Object);
         serviceCollection.TryAddSingleton(new Mock<IWebHostEnvironment>().Object);
         var activeHealthPolicy = new Mock<IActiveHealthCheckPolicy>();
         activeHealthPolicy.SetupGet(p => p.Name).Returns("activePolicyA");
@@ -55,6 +57,7 @@ public class ProxyConfigManagerTests
         {
             serviceCollection.AddSingleton(configProvider);
         }
+        serviceCollection.TryAddSingleton(new Mock<IServer>().Object);
         serviceCollection.TryAddSingleton(new Mock<IWebHostEnvironment>().Object);
         var activeHealthPolicy = new Mock<IActiveHealthCheckPolicy>();
         activeHealthPolicy.SetupGet(p => p.Name).Returns("activePolicyA");
