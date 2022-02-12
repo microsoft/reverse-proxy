@@ -1,10 +1,7 @@
 # Http.sys Delegation Sample
-This sample shows how to use YARP to delegate requests to other Http.sys request queues instead of or in addition to proxying requests. Using Http.sys delegation requires hosting YARP on [ASP.NET Core's Http.sys server](https://docs.microsoft.com/aspnet/core/fundamentals/servers/httpsys) and requests can only be delegated to other processes which use Http.sys for request processing (e.g. ASP.NET Core using Http.sys server or IIS). This feature requires ASP.NET Core 6+.
+This sample shows how to use YARP to delegate requests to other Http.sys request queues instead of or in addition to proxying requests. Using Http.sys delegation requires hosting YARP on [ASP.NET Core's Http.sys server](https://docs.microsoft.com/aspnet/core/fundamentals/servers/httpsys) and requests can only be delegated to other processes which use Http.sys for request processing (e.g. ASP.NET Core using Http.sys server or IIS).
 
 **Note: delegation only works for ASP.NET Core 6+ running on new versions of Windows**
-
-## Http.sys Delegation
-Http.sys delegation is a kernel level feature added into newer versions of Windows which allows a request to be transferred from the receiving process's queue to another process's queue with very little overhead or added latency. For this delegation to work, the receiving process is only allowed to read the request headers. If the body has started to be read or a response has started, trying to delegate the request will fail. Internally, YARP leverage's ASP.NET Core's [IHttpSysRequestDelegationFeature](https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.server.httpsys.ihttpsysrequestdelegationfeature) which requires Windows Server 2019, Windows 10, or newer. The response will not be visible to the proxy after delegation, which limits the functionality of the session affinity and passive health checks components, as well as some of the load balancing algorithms.
 
 ## Sample Projects
 There are two projects as part of this sample. A sample Http.sys server where traffic will be delegated to and a YARP example which both proxies and delegates request depending on the route. Both projects use the minimal API style but this isn't a requirement.
