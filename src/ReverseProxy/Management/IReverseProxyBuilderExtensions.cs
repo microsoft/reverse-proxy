@@ -127,13 +127,10 @@ internal static class IReverseProxyBuilderExtensions
             // IServerDelegationFeature isn't added to DI  https://github.com/dotnet/aspnetcore/issues/40043
             // IServerDelegationFeature may not be set if not http.sys server or the OS doesn't support delegation
             var delegationFeature = p.GetRequiredService<IServer>().Features?.Get<IServerDelegationFeature>();
-            return new HttpSysDelegationRuleManager(
-                delegationFeature,
-                p.GetRequiredService<ILogger<HttpSysDelegationRuleManager>>());
+            return new HttpSysDelegator(delegationFeature, p.GetRequiredService<ILogger<HttpSysDelegator>>());
         });
 
-        builder.Services.AddSingleton<IHttpSysDelegationRuleManager>(p => p.GetRequiredService<HttpSysDelegationRuleManager>());
-        builder.Services.AddSingleton<IClusterChangeListener>(p => p.GetRequiredService<HttpSysDelegationRuleManager>());
+        builder.Services.AddSingleton<IClusterChangeListener>(p => p.GetRequiredService<HttpSysDelegator>());
 #endif
 
         return builder;

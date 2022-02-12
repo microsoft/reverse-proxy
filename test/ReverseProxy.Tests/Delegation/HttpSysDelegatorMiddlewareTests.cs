@@ -11,16 +11,15 @@ using Microsoft.AspNetCore.Server.HttpSys;
 using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Configuration;
-using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Utilities;
 using Yarp.Tests.Common;
 
 namespace Yarp.ReverseProxy.Delegation;
 
-public class HttpSysDelegationMiddlewareTests : TestAutoMockBase
+public class HttpSysDelegatorMiddlewareTests : TestAutoMockBase
 {
-    private readonly HttpSysDelegationMiddleware _sut;
+    private readonly HttpSysDelegatorMiddleware _sut;
     private readonly RequestDelegate _next;
     private readonly DefaultHttpContext _context;
     private readonly ReverseProxyFeature _proxyFeature;
@@ -29,7 +28,7 @@ public class HttpSysDelegationMiddlewareTests : TestAutoMockBase
     private Action _nextCallback;
     private bool _nextCalled;
 
-    public HttpSysDelegationMiddlewareTests()
+    public HttpSysDelegatorMiddlewareTests()
     {
         _context = new DefaultHttpContext();
         _availableDestinations = new List<DestinationState>();
@@ -41,6 +40,10 @@ public class HttpSysDelegationMiddlewareTests : TestAutoMockBase
         _context.Features.Set<IReverseProxyFeature>(_proxyFeature);
         _context.Features.Set(Mock<IHttpSysRequestDelegationFeature>().Object);
 
+        Mock<IHttpSysRequestDelegationFeature>()
+            .SetupGet(p => p.CanDelegate)
+            .Returns(true);
+
         _next = context =>
         {
             _nextCalled = true;
@@ -49,20 +52,18 @@ public class HttpSysDelegationMiddlewareTests : TestAutoMockBase
         };
         Provide(_next);
 
-        _sut = Create<HttpSysDelegationMiddleware>();
+        _sut = Create<HttpSysDelegatorMiddleware>();
     }
 
     [Fact]
-    public async Task SingleDelegationDestination_VerifyRequestDelegatedAndNextNotCalled()
+    public async Task SingleDelegationDestination_VerifyProxiedDestinationSetAndNextNotCalled()
     {
         var destination = CreateDestination("dest1", "queue1");
         _availableDestinations.Add(destination);
-        SetupCanDelegate(true);
-        SetupTryGetDelegationRule(ruleExists: true);
 
         await _sut.Invoke(_context);
 
-        VerifyRequestDelegated(destination);
+        Assert.Same(destination, _proxyFeature.ProxiedDestination);
         Assert.False(_nextCalled);
     }
 
@@ -72,7 +73,6 @@ public class HttpSysDelegationMiddlewareTests : TestAutoMockBase
         await _sut.Invoke(_context);
 
         Assert.True(_nextCalled);
-        Mock<IHttpSysDelegationRuleManager>().VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -83,7 +83,6 @@ public class HttpSysDelegationMiddlewareTests : TestAutoMockBase
         await _sut.Invoke(_context);
 
         Assert.True(_nextCalled);
-        Mock<IHttpSysDelegationRuleManager>().VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -104,77 +103,21 @@ public class HttpSysDelegationMiddlewareTests : TestAutoMockBase
         await _sut.Invoke(_context);
 
         Assert.True(_nextCalled);
-        Mock<IHttpSysDelegationRuleManager>().VerifyNoOtherCalls();
     }
 
     [Fact]
-    public async Task MultipleDestinations_OneDelegationAndOneProxyDestination_DelegationChoosen_VerifyRequestDelegatedAndNextNotCalled()
+    public async Task MultipleDestinations_OneDelegationAndOneProxyDestination_DelegationChoosen_VerifyProxiedDestinationSetAndNextNotCalled()
     {
         var destination1 = CreateDestination("dest1", "queue1");
         var destination2 = CreateDestination("dest2", queueName: null);
         _availableDestinations.Add(destination1);
         _availableDestinations.Add(destination2);
         SetupRandomToReturn(0); // return "dest1"
-        SetupCanDelegate(true);
-        SetupTryGetDelegationRule(ruleExists: true);
 
         await _sut.Invoke(_context);
 
-        VerifyRequestDelegated(destination1);
+        Assert.Same(destination1, _proxyFeature.ProxiedDestination);
         Assert.False(_nextCalled);
-    }
-
-    [Fact]
-    public async Task DelegationDestination_NoDelegationFeature_VerifyThrows()
-    {
-        _availableDestinations.Add(CreateDestination("dest1", "queue1"));
-        _context.Features.Set<IHttpSysRequestDelegationFeature>(null);
-
-        await Assert.ThrowsAnyAsync<InvalidOperationException>(() => _sut.Invoke(_context));
-    }
-
-    [Fact]
-    public async Task DelegationDestination_CanNotDelegate_VerifyThrowsAndErrorFeatureSet()
-    {
-        _availableDestinations.Add(CreateDestination("dest1", "queue1"));
-        SetupCanDelegate(false);
-
-        await Assert.ThrowsAnyAsync<InvalidOperationException>(() => _sut.Invoke(_context));
-    }
-
-    [Fact]
-    public async Task DelegationDestination_DelegationRuleNotFound_Verify503SatusAndErrorFeatureSet()
-    {
-        _availableDestinations.Add(CreateDestination("dest1", "queue1"));
-        SetupCanDelegate(true);
-        SetupTryGetDelegationRule(ruleExists: false);
-
-        await _sut.Invoke(_context);
-
-        Assert.Equal(StatusCodes.Status503ServiceUnavailable, _context.Response.StatusCode);
-        var errorFeature = _context.Features.Get<IForwarderErrorFeature>();
-        Assert.NotNull(errorFeature);
-        Assert.Equal(ForwarderError.NoAvailableDestinations, errorFeature.Error);
-        Assert.Null(errorFeature.Exception);
-    }
-
-    [Fact]
-    public async Task DelegationDestination_DelegationFailed_Verify503SatusAndErrorFeatureSet()
-    {
-        _availableDestinations.Add(CreateDestination("dest1", "queue1"));
-        SetupCanDelegate(true);
-        SetupTryGetDelegationRule(ruleExists: true);
-        Mock<IHttpSysRequestDelegationFeature>()
-            .Setup(m => m.DelegateRequest(It.IsAny<DelegationRule>()))
-            .Throws<Exception>();
-
-        await _sut.Invoke(_context);
-
-        Assert.Equal(StatusCodes.Status503ServiceUnavailable, _context.Response.StatusCode);
-        var errorFeature = _context.Features.Get<IForwarderErrorFeature>();
-        Assert.NotNull(errorFeature);
-        Assert.Equal(ForwarderError.Request, errorFeature.Error);
-        Assert.NotNull(errorFeature.Exception);
     }
 
     private static DestinationState CreateDestination(string id, string queueName = null)
@@ -200,35 +143,6 @@ public class HttpSysDelegationMiddlewareTests : TestAutoMockBase
     private void SetupRandomToReturn(int value)
     {
         Mock<IRandomFactory>().Setup(m => m.CreateRandomInstance()).Returns(new TestRandom(value));
-    }
-
-    private void SetupCanDelegate(bool canDelegate)
-    {
-        Mock<IHttpSysRequestDelegationFeature>()
-            .SetupGet(p => p.CanDelegate)
-            .Returns(canDelegate);
-    }
-
-    private void SetupTryGetDelegationRule(bool ruleExists)
-    {
-        Mock<IHttpSysDelegationRuleManager>()
-            .Setup(m => m.TryGetDelegationRule(It.IsAny<DestinationState>(), out It.Ref<DelegationRule>.IsAny))
-            .Returns(ruleExists);
-    }
-
-    private void VerifyTryGetDelegationRuleCalled(DestinationState destination)
-    {
-        DelegationRule delegationRule;
-        Mock<IHttpSysDelegationRuleManager>()
-            .Verify(m => m.TryGetDelegationRule(destination, out delegationRule), Times.Once());
-    }
-
-    private void VerifyRequestDelegated(DestinationState destination)
-    {
-        Assert.Same(destination, _proxyFeature.ProxiedDestination);
-        VerifyTryGetDelegationRuleCalled(destination);
-        Mock<IHttpSysRequestDelegationFeature>()
-            .Verify(m => m.DelegateRequest(null), Times.Once());
     }
 
     private class TestRandom : Random

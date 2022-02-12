@@ -16,7 +16,8 @@ namespace Microsoft.AspNetCore.Builder;
 public static class AppBuilderDelegationExtensions
 {
     /// <summary>
-    /// Adds middleware to check if the selected destination should use Http.sys delegation. If so the request is delegated to the destination queue.
+    /// Adds middleware to check if the selected destination should use Http.sys delegation.
+    /// If so, the request is delegated to the destination queue instead of being proxied over HTTP.
     /// This should be placed after load balancing and passive health checks.
     /// </summary>
     /// <remarks>
@@ -28,7 +29,7 @@ public static class AppBuilderDelegationExtensions
         _ = builder.ApplicationServices.GetRequiredService<IServer>().Features?.Get<IServerDelegationFeature>()
             ?? throw new NotSupportedException($"{typeof(IHttpSysRequestDelegationFeature).FullName} is not available. Http.sys delegation is only supported when using the Http.sys server");
 
-        builder.UseMiddleware<HttpSysDelegationMiddleware>();
+        builder.UseMiddleware<HttpSysDelegatorMiddleware>();
         return builder;
     }
 }
