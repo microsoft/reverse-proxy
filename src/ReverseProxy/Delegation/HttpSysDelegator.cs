@@ -6,9 +6,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Runtime.ExceptionServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.Extensions.Logging;
@@ -22,6 +22,7 @@ internal sealed class HttpSysDelegator : IClusterChangeListener, IDisposable
     private readonly IServerDelegationFeature? _delegationFeature;
     private readonly ILogger<HttpSysDelegator> _logger;
     private readonly ConcurrentDictionary<QueueKey, DelegationQueue> _queues;
+    private readonly ConcurrentDictionary<QueueKey, object> _queueSyncRoots;
     private readonly ConcurrentDictionary<string, HashSet<QueueKey>> _queuesPerCluster;
 
     private bool _disposed;
@@ -34,6 +35,7 @@ internal sealed class HttpSysDelegator : IClusterChangeListener, IDisposable
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         _queues = new ConcurrentDictionary<QueueKey, DelegationQueue>();
+        _queueSyncRoots = new ConcurrentDictionary<QueueKey, object>();
         _queuesPerCluster = new ConcurrentDictionary<string, HashSet<QueueKey>>(StringComparer.OrdinalIgnoreCase);
     }
 
@@ -52,18 +54,24 @@ internal sealed class HttpSysDelegator : IClusterChangeListener, IDisposable
                 "Current request can't be delegated. Either the request body has started to be read or the response has started to be sent.");
         }
 
-        if (!_queues.TryGetValue(new QueueKey(queueName, urlPrefix), out var queue))
+        // There is a possible race condition here where a request is trying to
+        // delegate at the same the queue is being removed from routing config.
+        // So it's possible DelegationRule is null. It's also possible it is not null but it gets
+        // disposed before the request is delegated which will throw an ObjectDisposedException.
+        _queues.TryGetValue(new QueueKey(queueName, urlPrefix), out var queue);
+        var rule = queue?.DelegationRule;
+        if (rule == null)
         {
             Log.QueueNotFound(_logger, queueName, urlPrefix);
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-            context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.NoAvailableDestinations, ex: null));
+            context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.NoAvailableDestinations, queue?.InitializationException));
             return;
         }
 
         try
         {
             Log.DelegatingRequest(_logger, queueName);
-            queue.DelegateRequest(delegationFeature);
+            delegationFeature.DelegateRequest(rule);
         }
         catch (Exception ex)
         {
@@ -93,7 +101,7 @@ internal sealed class HttpSysDelegator : IClusterChangeListener, IDisposable
     {
         if (!_disposed)
         {
-            RemoveRules(cluster.ClusterId);
+            RemoveQueues(cluster.ClusterId);
         }
     }
 
@@ -105,7 +113,7 @@ internal sealed class HttpSysDelegator : IClusterChangeListener, IDisposable
 
             foreach (var entry in _queuesPerCluster)
             {
-                RemoveRules(entry.Key);
+                RemoveQueues(entry.Key);
             }
         }
     }
@@ -139,7 +147,7 @@ internal sealed class HttpSysDelegator : IClusterChangeListener, IDisposable
             {
                 if (!incomingQueues.Contains(queue))
                 {
-                    RemoveRule(queue);
+                    RemoveQueue(queue);
                     return true;
                 }
 
@@ -150,11 +158,11 @@ internal sealed class HttpSysDelegator : IClusterChangeListener, IDisposable
             {
                 if (!currentQueues.Contains(incomingQueue))
                 {
-                    var queue = _queues.GetOrAdd(incomingQueue, queue => new DelegationQueue(queue.QueueName, queue.UrlPrefix));
-                    lock (queue)
+                    var syncRoot = _queueSyncRoots.GetOrAdd(incomingQueue, key => new object());
+                    lock (syncRoot)
                     {
-                        // There is a small chance the queue was removed from the dictionary before we got the lock
-                        _queues.TryAdd(incomingQueue, queue);
+                        var queue = _queues.GetValueOrDefault(incomingQueue) ?? new DelegationQueue(incomingQueue.QueueName, incomingQueue.UrlPrefix);
+                        queue.RefCount++;
 
                         try
                         {
@@ -168,6 +176,9 @@ internal sealed class HttpSysDelegator : IClusterChangeListener, IDisposable
                                 incomingQueue.UrlPrefix,
                                 ex);
                         }
+
+                        var added = _queues.TryAdd(incomingQueue, queue);
+                        Debug.Assert(added);
                     }
 
                     currentQueues.Add(incomingQueue);
@@ -176,7 +187,7 @@ internal sealed class HttpSysDelegator : IClusterChangeListener, IDisposable
         }
     }
 
-    private void RemoveRules(string clusterId)
+    private void RemoveQueues(string clusterId)
     {
         if (_queuesPerCluster.TryRemove(clusterId, out var currentRules))
         {
@@ -184,23 +195,26 @@ internal sealed class HttpSysDelegator : IClusterChangeListener, IDisposable
             {
                 foreach (var ruleKey in currentRules)
                 {
-                    RemoveRule(ruleKey);
+                    RemoveQueue(ruleKey);
                 }
             }
         }
     }
 
-    private void RemoveRule(QueueKey queueKey)
+    private void RemoveQueue(QueueKey queueKey)
     {
-        var queue = _queues.GetValueOrDefault(queueKey);
-        if (queue != null)
+        if (_queueSyncRoots.TryGetValue(queueKey, out var syncRoot))
         {
-            lock (queue)
+            lock (syncRoot)
             {
-                queue.Release();
-                if (queue.RefCount == 0)
+                if (_queues.TryGetValue(queueKey, out var queue))
                 {
-                    _queues.TryRemove(queueKey, out _);
+                    queue.RefCount--;
+                    if (queue.RefCount == 0)
+                    {
+                        _queues.TryRemove(queueKey, out _);
+                        queue.Dispose();
+                    }
                 }
             }
         }
@@ -211,9 +225,6 @@ internal sealed class HttpSysDelegator : IClusterChangeListener, IDisposable
         private readonly string _queueName;
         private readonly string _urlPrefix;
 
-        private DelegationRule? _rule;
-        private Exception? _createRuleError;
-
         public DelegationQueue(string queueName, string urlPrefix)
         {
             _queueName = queueName;
@@ -221,56 +232,33 @@ internal sealed class HttpSysDelegator : IClusterChangeListener, IDisposable
             RefCount = 0;
         }
 
-        public int RefCount { get; private set; }
+        public int RefCount { get; set; }
 
-        public DelegationRule? DelegationRule { get; set; }
+        public DelegationRule? DelegationRule { get; private set; }
 
-        public void DelegateRequest(IHttpSysRequestDelegationFeature delegator)
-        {
-            if (_createRuleError != null)
-            {
-                ExceptionDispatchInfo.Capture(_createRuleError).Throw();
-            }
-
-            // There is a possible race condition here where a request is trying to
-            // delegate at the same the queue is being removed from routing config.
-            // So it's possible _rule is null. It's also possible it is not null but it gets
-            // disposed before the request is delegated which throws an ObjectDisposedException.
-            var rule = _rule;
-            if (rule == null)
-            {
-                throw new ObjectDisposedException($"{nameof(DelegationRule)} has been disposed");
-            }
-
-            delegator.DelegateRequest(rule);
-        }
+        public Exception? InitializationException { get; private set; }
 
         public void Initialize(IServerDelegationFeature delegationFeature)
         {
-            RefCount++;
-            if (RefCount == 1)
+            if (DelegationRule == null)
             {
                 try
                 {
-                    _createRuleError = null;
-                    _rule = delegationFeature.CreateDelegationRule(_queueName, _urlPrefix);
+                    InitializationException = null;
+                    DelegationRule = delegationFeature.CreateDelegationRule(_queueName, _urlPrefix);
                 }
                 catch (Exception ex)
                 {
-                    _createRuleError = ex;
+                    InitializationException = ex;
                     throw;
                 }
             }
         }
 
-        public void Release()
+        public void Dispose()
         {
-            RefCount--;
-            if (RefCount == 0)
-            {
-                _rule?.Dispose();
-                _rule = null;
-            }
+            DelegationRule?.Dispose();
+            DelegationRule = null;
         }
     }
 
