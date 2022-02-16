@@ -35,6 +35,33 @@ public class HttpSysDelegatorTests : TestAutoMockBase
     }
 
     [Fact]
+    public void DelegateRequest_Success()
+    {
+        var destination = CreateDestination("dest1", "queue1");
+        var cluster = CreateCluster("cluster1", destination);
+
+        _changeListener.OnClusterAdded(cluster);
+
+        DelegateRequest(destination);
+
+        VerifyRequestDelegated();
+    }
+
+    [Fact]
+    public void DelegateRequest_DestinationRemoved_Success()
+    {
+        var destination = CreateDestination("dest1", "queue1");
+        var cluster = CreateCluster("cluster1", destination);
+
+        _changeListener.OnClusterAdded(cluster);
+        _changeListener.OnClusterRemoved(cluster);
+
+        DelegateRequest(destination);
+
+        VerifyRequestDelegated();
+    }
+
+    [Fact]
     public void DelegateRequest_NoDelegationFeature_VerifyThrows()
     {
         var destination = CreateDestination("dest1", "queue1");
@@ -47,7 +74,7 @@ public class HttpSysDelegatorTests : TestAutoMockBase
     }
 
     [Fact]
-    public void DelegateRequest_CanNotDelegate_VerifyThrowsAndErrorFeatureSet()
+    public void DelegateRequest_CanNotDelegate_VerifyThrows()
     {
         var destination = CreateDestination("dest1", "queue1");
         var cluster = CreateCluster("cluster1", destination);
@@ -87,6 +114,23 @@ public class HttpSysDelegatorTests : TestAutoMockBase
     }
 
     [Fact]
+    public void DelegateRequest_DelegationFails_Verify503StatusAndErrorFeatureSet()
+    {
+        var destination = CreateDestination("dest1", "queue1");
+        var cluster = CreateCluster("cluster1", destination);
+        Mock<IHttpSysRequestDelegationFeature>()
+            .Setup(x => x.DelegateRequest(It.IsAny<DelegationRule>()))
+            .Throws<Exception>()
+            .Verifiable();
+
+        _changeListener.OnClusterAdded(cluster);
+
+        DelegateRequest(destination);
+
+        VerifyDelegationFailedError();
+    }
+
+    [Fact]
     public void OnClusterAdded_SingleDelegationDestination_RuleCreated()
     {
         var destination = CreateDestination("dest1", "queue1");
@@ -123,21 +167,6 @@ public class HttpSysDelegatorTests : TestAutoMockBase
     }
 
     [Fact]
-    public void OnClusterAdd_MultipleClustersEachWithSingleDelegationDestination_VerifyRulesCreated()
-    {
-        var destination1 = CreateDestination("dest1", "queue1");
-        var cluster1 = CreateCluster("cluster1", destination1);
-        var destination2 = CreateDestination("dest2", "queue2");
-        var cluster2 = CreateCluster("cluster2", destination2);
-
-        _changeListener.OnClusterAdded(cluster1);
-        _changeListener.OnClusterAdded(cluster2);
-
-        VerifyDelegationRuleCreated(destination1);
-        VerifyDelegationRuleCreated(destination2);
-    }
-
-    [Fact]
     public void OnClusterAdd_NoDelegationDestinations_VerifyRuleNotCreated()
     {
         var destination = CreateDestination("dest1", queueName: null);
@@ -162,8 +191,8 @@ public class HttpSysDelegatorTests : TestAutoMockBase
 
         _changeListener.OnClusterAdded(cluster);
 
-        VerifyDelegationRuleCreated(destination2);
         VerifyDelegationRuleNotCreated(destination1);
+        VerifyDelegationRuleCreated(destination2);
     }
 
     [Fact]
@@ -182,46 +211,6 @@ public class HttpSysDelegatorTests : TestAutoMockBase
 
         VerifyDelegationRuleNotCreated(destination1);
         VerifyDelegationRuleNotCreated(destination2);
-    }
-
-    [Fact]
-    public void OnClusterChanged_RuleExists_RuleRemoved_VerifyRuleRemoved()
-    {
-        var destination1 = CreateDestination("dest1", "queue1");
-        var cluster = CreateCluster("cluster1", destination1);
-
-        _changeListener.OnClusterAdded(cluster);
-        Mock<IServerDelegationFeature>().Reset();
-
-        var destination2 = CreateDestination("dest2", queueName: null);
-        cluster = CreateCluster(cluster.ClusterId, destination2);
-
-        _changeListener.OnClusterAdded(cluster);
-
-        DelegateRequest(destination1);
-
-        VerifyDelegationRuleNotCreated(destination2);
-        VerifyNoAvailableDestinationsError();
-    }
-
-    [Fact]
-    public void OnClusterChanged_RuleExists_RuleRemovedAndNewRuleAdded_VerifyRuleRemoved()
-    {
-        var destination1 = CreateDestination("dest1", "queue1");
-        var cluster = CreateCluster("cluster1", destination1);
-
-        _changeListener.OnClusterAdded(cluster);
-        Mock<IServerDelegationFeature>().Reset();
-
-        var destination2 = CreateDestination("dest2", "queue2");
-        cluster = CreateCluster(cluster.ClusterId, destination2);
-
-        _changeListener.OnClusterAdded(cluster);
-
-        DelegateRequest(destination1);
-
-        VerifyNoAvailableDestinationsError();
-        VerifyDelegationRuleCreated(destination2);
     }
 
     [Fact]
@@ -246,28 +235,6 @@ public class HttpSysDelegatorTests : TestAutoMockBase
         VerifyDelegationRuleNotCreated(destination);
     }
 
-    [Fact]
-    public void OnClusterRemoved_RuleExists_VerifyRuleRemoved()
-    {
-        var destination = CreateDestination("dest1", "queue1");
-        var cluster = CreateCluster("cluster1", destination);
-
-        _changeListener.OnClusterAdded(cluster);
-        _changeListener.OnClusterRemoved(cluster);
-
-        DelegateRequest(destination);
-
-        VerifyNoAvailableDestinationsError();
-    }
-
-    [Fact]
-    public void OnClusterRemoved_NoRuleExists()
-    {
-        var cluster = CreateCluster("cluster1");
-
-        _changeListener.OnClusterRemoved(cluster);
-    }
-
     private void SetupCanDelegate(bool canDelegate)
     {
         Mock<IHttpSysRequestDelegationFeature>()
@@ -277,7 +244,15 @@ public class HttpSysDelegatorTests : TestAutoMockBase
 
     private void DelegateRequest(DestinationState destination)
     {
-        _delegator.DelegateRequest(_context, destination.GetHttpSysDelegationQueue(), destination.Model.Config.Address);
+        _delegator.DelegateRequest(_context, destination);
+    }
+
+    private void VerifyRequestDelegated()
+    {
+        Mock<IHttpSysRequestDelegationFeature>()
+            .Verify(m => m.DelegateRequest(It.IsAny<DelegationRule>()), Times.Once());
+        var errorFeature = _context.Features.Get<IForwarderErrorFeature>();
+        Assert.Null(errorFeature);
     }
 
     private void VerifyNoAvailableDestinationsError()
@@ -288,7 +263,7 @@ public class HttpSysDelegatorTests : TestAutoMockBase
         Assert.Equal(ForwarderError.NoAvailableDestinations, errorFeature.Error);
     }
 
-    private void VerifyRequestError()
+    private void VerifyDelegationFailedError()
     {
         Assert.Equal(StatusCodes.Status503ServiceUnavailable, _context.Response.StatusCode);
         var errorFeature = _context.Features.Get<IForwarderErrorFeature>();

@@ -58,13 +58,7 @@ internal sealed class HttpSysDelegatorMiddleware
             {
                 reverseProxyFeature.ProxiedDestination = destination;
 
-                var destinationModel = destination.Model;
-                if (destinationModel == null)
-                {
-                    throw new InvalidOperationException($"Chosen destination has no model set: '{destination.DestinationId}'");
-                }
-
-                _delegator.DelegateRequest(context, queueName, destinationModel.Config.Address);
+                _delegator.DelegateRequest(context, destination);
 
                 return Task.CompletedTask;
             }
