@@ -5,7 +5,8 @@
         {
           "src": "../../src",
           "files": [
-            "**.csproj"
+            "ReverseProxy/Yarp.ReverseProxy.csproj",
+            "TelemetryConsumption/Yarp.Telemetry.Consumption.csproj"
           ]
         }
       ],
