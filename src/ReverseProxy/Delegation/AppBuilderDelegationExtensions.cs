@@ -25,7 +25,7 @@ public static class AppBuilderDelegationExtensions
     /// </remarks>
     public static IReverseProxyApplicationBuilder UseHttpSysDelegation(this IReverseProxyApplicationBuilder builder)
     {
-        // IServerDelegationFeature isn't added to DI  https://github.com/dotnet/aspnetcore/issues/40043
+        // IServerDelegationFeature isn't added to DI https://github.com/dotnet/aspnetcore/issues/40043
         _ = builder.ApplicationServices.GetRequiredService<IServer>().Features?.Get<IServerDelegationFeature>()
             ?? throw new NotSupportedException($"{typeof(IHttpSysRequestDelegationFeature).FullName} is not available. Http.sys delegation is only supported when using the Http.sys server");
 

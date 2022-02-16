@@ -124,7 +124,7 @@ internal static class IReverseProxyBuilderExtensions
 #if NET6_0_OR_GREATER
         builder.Services.AddSingleton(p =>
         {
-            // IServerDelegationFeature isn't added to DI  https://github.com/dotnet/aspnetcore/issues/40043
+            // IServerDelegationFeature isn't added to DI https://github.com/dotnet/aspnetcore/issues/40043
             // IServerDelegationFeature may not be set if not http.sys server or the OS doesn't support delegation
             var delegationFeature = p.GetRequiredService<IServer>().Features?.Get<IServerDelegationFeature>();
             return new HttpSysDelegator(delegationFeature, p.GetRequiredService<ILogger<HttpSysDelegator>>());

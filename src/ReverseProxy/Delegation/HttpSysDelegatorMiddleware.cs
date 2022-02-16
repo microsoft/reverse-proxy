@@ -53,8 +53,7 @@ internal sealed class HttpSysDelegatorMiddleware
                 reverseProxyFeature.AvailableDestinations = destination;
             }
 
-            var queueName = destination.GetHttpSysDelegationQueue();
-            if (queueName != null)
+            if (destination.ShouldUseHttpSysDelegation())
             {
                 reverseProxyFeature.ProxiedDestination = destination;
 

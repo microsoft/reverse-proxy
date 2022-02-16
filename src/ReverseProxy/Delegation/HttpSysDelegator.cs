@@ -61,7 +61,6 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
             queue.TryInitialize(_delegationFeature);
         }
 
-
         if (queue == null || !queue.IsInitialized)
         {
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
@@ -72,7 +71,7 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
         try
         {
             Log.DelegatingRequest(_logger, destination);
-            delegationFeature.DelegateRequest(queue.DelegationRule!);
+            delegationFeature.DelegateRequest(queue.DelegationRule);
         }
         catch (Exception ex)
         {
@@ -186,6 +185,7 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
             _syncRoot = new object();
         }
 
+        [MemberNotNullWhen(returnValue: true, nameof(DelegationRule))]
         public bool IsInitialized { get; private set; }
 
         public DelegationRule? DelegationRule { get; private set; }
@@ -276,18 +276,18 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
     {
         private static readonly Action<ILogger, string, string, string, Exception?> _queueInitFailed = LoggerMessage.Define<string, string, string>(
             LogLevel.Warning,
-            EventIds.MultipleDestinationsAvailable,
+            EventIds.DelegationQueueInitializationFailed,
             "Failed to initialize queue for destination '{destinationId}' with queue name '{queueName}' and url prefix '{urlPrefix}'.");
+
+        private static readonly Action<ILogger, string, string?, string?, Exception?> _queueNotFound = LoggerMessage.Define<string, string?, string?>(
+            LogLevel.Warning,
+            EventIds.DelegationQueueNotFound,
+            "Failed to get delegation queue for destination '{destinationId}' with queue name '{queueName}' and url prefix '{urlPrefix}'");
 
         private static readonly Action<ILogger, string, string?, string?, Exception?> _delegatingRequest = LoggerMessage.Define<string, string?, string?>(
             LogLevel.Information,
             EventIds.DelegatingRequest,
             "Delegating to destination '{destinationId}' with queue '{queueName}' and url prefix '{urlPrefix}'");
-
-        private static readonly Action<ILogger, string, string?, string?, Exception?> _queueNotFound = LoggerMessage.Define<string, string?, string?>(
-            LogLevel.Warning,
-            EventIds.DelegationRuleNotFound,
-            "Failed to get delegation queue for destination '{destinationId}' with queue name '{queueName}' and url prefix '{urlPrefix}'");
 
         private static readonly Action<ILogger, string, string?, string?, Exception?> _delegationFailed = LoggerMessage.Define<string, string?, string?>(
             LogLevel.Error,
@@ -299,14 +299,14 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
             _queueInitFailed(logger, destinationId, queueName, urlPrefix, ex);
         }
 
-        public static void DelegatingRequest(ILogger logger, DestinationState destination)
-        {
-            _delegatingRequest(logger, destination.DestinationId, destination.GetHttpSysDelegationQueue(), destination.Model?.Config?.Address, null);
-        }
-
         public static void QueueNotFound(ILogger logger, DestinationState destination)
         {
             _queueNotFound(logger, destination.DestinationId, destination.GetHttpSysDelegationQueue(), destination.Model?.Config?.Address, null);
+        }
+
+        public static void DelegatingRequest(ILogger logger, DestinationState destination)
+        {
+            _delegatingRequest(logger, destination.DestinationId, destination.GetHttpSysDelegationQueue(), destination.Model?.Config?.Address, null);
         }
 
         public static void DelegationFailed(ILogger logger, DestinationState destination, Exception ex)
