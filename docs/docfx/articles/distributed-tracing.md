@@ -14,6 +14,15 @@ When using a propagation mechanism that is not built into .NET (e.g. [B3 propaga
 
 YARP will remove any header in [`DistributedContextPropagator.Fields`] so that the propagator may re-add them to the request during the `Inject` call.
 
+## Pass-through proxy
+
+If you do not wish the proxy to actively participate in the trace, and wish to keep all the tracing headers as-is, you may do so by setting `SocketsHttpHandler.ActivityHeadersPropagator` to `null`.
+
+```c#
+services.AddReverseProxy()
+    .ConfigureHttpClient((context, handler) => handler.ActivityHeadersPropagator = null);
+```
+
 ## .NET 5.0 and older
 
 Before 6.0, `SocketsHttpHandler` could not be used with distributed tracing.
