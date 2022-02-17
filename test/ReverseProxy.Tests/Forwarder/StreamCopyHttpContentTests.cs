@@ -12,19 +12,20 @@ using Moq;
 using Xunit;
 using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Utilities;
+using Microsoft.AspNetCore.Http;
 
 namespace Yarp.ReverseProxy.Forwarder.Tests;
 
 public class StreamCopyHttpContentTests
 {
-    private static StreamCopyHttpContent CreateContent(Stream source = null, bool autoFlushHttpClientOutgoingStream = false, IClock clock = null, ActivityCancellationTokenSource contentCancellation = null)
+    private static StreamCopyHttpContent CreateContent(HttpRequest request = null, bool autoFlushHttpClientOutgoingStream = false, IClock clock = null, ActivityCancellationTokenSource contentCancellation = null)
     {
-        source ??= new MemoryStream();
+        request ??= new DefaultHttpContext().Request;
         clock ??= new Clock();
 
         contentCancellation ??= ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
 
-        return new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream, clock, contentCancellation);
+        return new StreamCopyHttpContent(request, autoFlushHttpClientOutgoingStream, clock, contentCancellation);
     }
 
     [Fact]
@@ -33,10 +34,11 @@ public class StreamCopyHttpContentTests
         const int SourceSize = (128 * 1024) - 3;
 
         var sourceBytes = Enumerable.Range(0, SourceSize).Select(i => (byte)(i % 256)).ToArray();
-        var source = new MemoryStream(sourceBytes);
+        var request = new DefaultHttpContext().Request;
+        request.Body = new MemoryStream(sourceBytes);
         var destination = new MemoryStream();
 
-        var sut = CreateContent(source);
+        var sut = CreateContent(request);
 
         Assert.False(sut.ConsumptionTask.IsCompleted);
         Assert.False(sut.Started);
@@ -66,11 +68,12 @@ public class StreamCopyHttpContentTests
         expectedFlushes++;
 
         var sourceBytes = Enumerable.Range(0, SourceSize).Select(i => (byte)(i % 256)).ToArray();
-        var source = new MemoryStream(sourceBytes);
+        var request = new DefaultHttpContext().Request;
+        request.Body = new MemoryStream(sourceBytes);
         var destination = new MemoryStream();
         var flushCountingDestination = new FlushCountingStream(destination);
 
-        var sut = CreateContent(source, autoFlushHttpClientOutgoingStream: autoFlush);
+        var sut = CreateContent(request, autoFlushHttpClientOutgoingStream: autoFlush);
 
         Assert.False(sut.ConsumptionTask.IsCompleted);
         Assert.False(sut.Started);
@@ -88,9 +91,11 @@ public class StreamCopyHttpContentTests
         var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
         var source = new Mock<Stream>();
         source.Setup(s => s.ReadAsync(It.IsAny<Memory<byte>>(), It.IsAny<CancellationToken>())).Returns(() => new ValueTask<int>(tcs.Task));
+        var request = new DefaultHttpContext().Request;
+        request.Body = source.Object;
         var destination = new MemoryStream();
 
-        var sut = CreateContent(source.Object);
+        var sut = CreateContent(request);
 
         Assert.False(sut.ConsumptionTask.IsCompleted);
         Assert.False(sut.Started);
@@ -146,9 +151,12 @@ public class StreamCopyHttpContentTests
             return 0;
         });
 
+        var request = new DefaultHttpContext().Request;
+        request.Body = source;
+
         using var contentCts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
 
-        var sut = CreateContent(source, contentCancellation: contentCts);
+        var sut = CreateContent(request, contentCancellation: contentCts);
 
         var copyToTask = sut.CopyToWithCancellationAsync(new MemoryStream());
         contentCts.Cancel();
@@ -176,7 +184,10 @@ public class StreamCopyHttpContentTests
             return 0;
         });
 
-        var sut = CreateContent(source);
+        var request = new DefaultHttpContext().Request;
+        request.Body = source;
+
+        var sut = CreateContent(request);
 
         using var cts = new CancellationTokenSource();
         var copyToTask = sut.CopyToAsync(new MemoryStream(), cts.Token);
