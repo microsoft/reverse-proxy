@@ -119,39 +119,54 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
             var urlPrefix = destination.Model?.Config?.Address;
             if (queueName != null && urlPrefix != null)
             {
-                if (!_queuesPerDestination.TryGetValue(destination, out var queue))
+                var queueKey = new QueueKey(queueName, urlPrefix);
+                if (!_queuesPerDestination.TryGetValue(destination, out var queue) || !queue.Equals(queueKey))
                 {
-                    var queueKey = new QueueKey(queueName, urlPrefix);
                     if (!_queues.TryGetValue(queueKey, out var queueWeakRef) || !queueWeakRef.TryGetTarget(out queue))
                     {
                         // Either the queue hasn't been created or it has been cleaned up.
                         // Create a new one, and try to add it if someone else didn't beat us to it.
                         queue = new DelegationQueue(queueName, urlPrefix);
                         queueWeakRef = new WeakReference<DelegationQueue>(queue);
-                        _queues.AddOrUpdate(
+                        queueWeakRef = _queues.AddOrUpdate(
                             queueKey,
                             (key, newValue) => newValue,
                             (key, value, newValue) => value.TryGetTarget(out _) ? value : newValue,
                             queueWeakRef);
+                        queueWeakRef.TryGetTarget(out queue);
                     }
 
-                    try
+                    if (queue != null)
                     {
-                        // We call this outside of the above if bock so that if previous
-                        // initialization failed, we will retry it for every new destination added.
-                        queue.Initialize(_delegationFeature);
+                        try
+                        {
+                            // We call this outside of the above if bock so that if previous
+                            // initialization failed, we will retry it for every new destination added.
+                            queue.Initialize(_delegationFeature);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.QueueInitFailed(
+                                    _logger,
+                                    destination.DestinationId,
+                                    queueName,
+                                    urlPrefix,
+                                    ex);
+                        }
+
+                        _queuesPerDestination.AddOrUpdate(destination, queue);
                     }
-                    catch (Exception ex)
+                    else
                     {
+                        // This should never happen because we always create a new one above
+                        _queuesPerDestination.Remove(destination);
                         Log.QueueInitFailed(
-                                _logger,
-                                destination.DestinationId,
-                                queueName,
-                                urlPrefix,
-                                ex);
+                            _logger,
+                            destination.DestinationId,
+                            queueName,
+                            urlPrefix,
+                            new Exception("Delegation queue is null after adding a new one. This shouldn't happen."));
                     }
-
-                    _queuesPerDestination.AddOrUpdate(destination, queue);
                 }
             }
         }
@@ -174,14 +189,12 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
     {
         private const int ERROR_FILE_NOT_FOUND = 2;
 
-        private readonly string _queueName;
-        private readonly string _urlPrefix;
+        private readonly QueueKey _queueKey;
         private readonly object _syncRoot;
 
         public DelegationQueue(string queueName, string urlPrefix)
         {
-            _queueName = queueName;
-            _urlPrefix = urlPrefix;
+            _queueKey = new QueueKey(queueName, urlPrefix);
             _syncRoot = new object();
         }
 
@@ -203,7 +216,7 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
                         try
                         {
                             InitializationException = null;
-                            DelegationRule = delegationFeature.CreateDelegationRule(_queueName, _urlPrefix);
+                            DelegationRule = delegationFeature.CreateDelegationRule(_queueKey.QueueName, _queueKey.UrlPrefix);
                             IsInitialized = true;
                         }
                         catch (Exception ex)
@@ -226,6 +239,11 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
             catch (Exception) { }
 
             return false;
+        }
+
+        public bool Equals(QueueKey queueKey)
+        {
+            return _queueKey.Equals(queueKey);
         }
 
         private bool ShouldRetryInitialization()

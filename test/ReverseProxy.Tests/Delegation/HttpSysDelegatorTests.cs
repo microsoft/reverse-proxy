@@ -35,7 +35,7 @@ public class HttpSysDelegatorTests : TestAutoMockBase
     }
 
     [Fact]
-    public void DelegateRequest_Success()
+    public void DelegateRequest_VerifyRequestDelegated()
     {
         var destination = CreateDestination("dest1", "queue1");
         var cluster = CreateCluster("cluster1", destination);
@@ -48,13 +48,28 @@ public class HttpSysDelegatorTests : TestAutoMockBase
     }
 
     [Fact]
-    public void DelegateRequest_DestinationRemoved_Success()
+    public void DelegateRequest_DestinationRemoved_VerifyRequestDelegated()
     {
         var destination = CreateDestination("dest1", "queue1");
         var cluster = CreateCluster("cluster1", destination);
 
         _changeListener.OnClusterAdded(cluster);
         _changeListener.OnClusterRemoved(cluster);
+
+        DelegateRequest(destination);
+
+        VerifyRequestDelegated();
+    }
+
+    [Fact]
+    public void DelegateRequest_DestinationChanged_VerifyRequestDelegated()
+    {
+        var destination = CreateDestination("dest1", "queue1");
+        var cluster = CreateCluster("cluster1", destination);
+
+        _changeListener.OnClusterAdded(cluster);
+        destination.Model = CreateDestinationModel("queue2");
+        _changeListener.OnClusterChanged(cluster);
 
         DelegateRequest(destination);
 
@@ -295,7 +310,7 @@ public class HttpSysDelegatorTests : TestAutoMockBase
         return cluster;
     }
 
-    private static DestinationState CreateDestination(string id, string queueName = null)
+    private static DestinationModel CreateDestinationModel(string queueName)
     {
         var metadata = new Dictionary<string, string>();
         if (queueName != null)
@@ -309,9 +324,14 @@ public class HttpSysDelegatorTests : TestAutoMockBase
             Metadata = metadata,
         };
 
+        return new DestinationModel(config);
+    }
+
+    private static DestinationState CreateDestination(string id, string queueName = null)
+    {
         return new DestinationState(id)
         {
-            Model = new DestinationModel(config),
+            Model = CreateDestinationModel(queueName),
         };
     }
 }
