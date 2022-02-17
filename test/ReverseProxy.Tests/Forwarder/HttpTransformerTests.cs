@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IO;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -184,5 +186,38 @@ public class HttpTransformerTests
     private class TestTrailersFeature : IHttpResponseTrailersFeature
     {
         public IHeaderDictionary Trailers { get; set; } = new HeaderDictionary();
+    }
+
+    [Fact]
+    public async Task TransformRequestAsync_ReplaceBody()
+    {
+        var replaced = "should be replaced";
+        var replacing = "request content";
+
+        var transformer = new CustomTransformer();
+        transformer.RequestBody = replacing;
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(replaced));
+        var proxyRequest = new HttpRequestMessage(HttpMethod.Get, "https://localhost");
+
+        await transformer.TransformRequestAsync(httpContext, proxyRequest, "prefix");
+
+        var resultStream = (MemoryStream)httpContext.Request.Body;
+        Assert.NotEqual(Encoding.UTF8.GetBytes(replaced), resultStream.ToArray());
+        Assert.Equal(Encoding.UTF8.GetBytes(replacing), resultStream.ToArray());
+    }
+
+    private class CustomTransformer : HttpTransformer
+    {
+        public string RequestBody { get; set; }
+
+        public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
+        {
+            httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(RequestBody));
+
+            await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+            proxyRequest.Headers.Host = null;
+        }
     }
 }
