@@ -8,8 +8,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Configuration.ConfigProvider;
-using Yarp.ReverseProxy.Management;
 using Yarp.ReverseProxy.Forwarder;
+using Yarp.ReverseProxy.Management;
 using Yarp.ReverseProxy.Routing;
 using Yarp.ReverseProxy.Transforms.Builder;
 using Yarp.ReverseProxy.Utilities;
@@ -47,6 +47,7 @@ public static class ReverseProxyServiceCollectionExtensions
             .AddActiveHealthChecks()
             .AddPassiveHealthCheck()
             .AddLoadBalancingPolicies()
+            .AddHttpSysDelegation()
             .AddProxy();
 
         services.TryAddSingleton<ProxyEndpointFactory>();
