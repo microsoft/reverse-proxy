@@ -65,6 +65,7 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
         // the target process hadn't yet started up.
         if (!queue.TryInitialize(_delegationFeature, out var rule, out var initializationException))
         {
+            Log.QueueNotInitialized(_logger, destination, initializationException);
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
             context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.NoAvailableDestinations, initializationException));
             return;
@@ -299,6 +300,11 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
             EventIds.DelegationQueueNotFound,
             "Failed to get delegation queue for destination '{destinationId}' with queue name '{queueName}' and url prefix '{urlPrefix}'");
 
+        private static readonly Action<ILogger, string, string?, string?, Exception?> _queueNotInitialized = LoggerMessage.Define<string, string?, string?>(
+            LogLevel.Information,
+            EventIds.DelegationQueueNotInitialized,
+            "Delegation queue not initialized for destination '{destinationId}' with queue '{queueName}' and url prefix '{urlPrefix}'.");
+
         private static readonly Action<ILogger, string, string?, string?, Exception?> _delegatingRequest = LoggerMessage.Define<string, string?, string?>(
             LogLevel.Information,
             EventIds.DelegatingRequest,
@@ -317,6 +323,11 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
         public static void QueueNotFound(ILogger logger, DestinationState destination)
         {
             _queueNotFound(logger, destination.DestinationId, destination.GetHttpSysDelegationQueue(), destination.Model?.Config?.Address, null);
+        }
+
+        public static void QueueNotInitialized(ILogger logger, DestinationState destination, Exception ex)
+        {
+            _queueNotInitialized(logger, destination.DestinationId, destination.GetHttpSysDelegationQueue(), destination.Model?.Config?.Address, ex);
         }
 
         public static void DelegatingRequest(ILogger logger, DestinationState destination)
