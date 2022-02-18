@@ -217,7 +217,6 @@ public class HttpTransformerTests
             httpContext.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(RequestBody));
 
             await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
-            proxyRequest.Headers.Host = null;
         }
     }
 }
