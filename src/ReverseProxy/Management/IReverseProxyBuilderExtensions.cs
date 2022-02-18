@@ -2,12 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Linq;
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Configuration;
 #if NET6_0_OR_GREATER
 using Yarp.ReverseProxy.Delegation;
