@@ -8,6 +8,7 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.Extensions.Logging;
@@ -24,11 +25,14 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
     private readonly ConditionalWeakTable<DestinationState, DelegationQueue> _queuesPerDestination;
 
     public HttpSysDelegator(
-            IServerDelegationFeature? delegationFeature,
+            IServer server,
             ILogger<HttpSysDelegator> logger)
     {
-        _delegationFeature = delegationFeature;
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+        // IServerDelegationFeature isn't added to DI https://github.com/dotnet/aspnetcore/issues/40043
+        // IServerDelegationFeature may not be set if not http.sys server or the OS doesn't support delegation
+        _delegationFeature = server.Features?.Get<IServerDelegationFeature>();
 
         _queues = new ConcurrentDictionary<QueueKey, WeakReference<DelegationQueue>>();
         _queuesPerDestination = new ConditionalWeakTable<DestinationState, DelegationQueue>();
@@ -48,30 +52,28 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
                 "Current request can't be delegated. Either the request body has started to be read or the response has started to be sent.");
         }
 
-        _queuesPerDestination.TryGetValue(destination, out var queue);
-        if (queue == null)
+        if (_delegationFeature == null || !_queuesPerDestination.TryGetValue(destination, out var queue))
         {
             Log.QueueNotFound(_logger, destination);
-        }
-        else if (!queue.IsInitialized && _delegationFeature != null)
-        {
-            // Opportunistically retry initialization if it failed previously.
-            // This helps when the target queue wasn't yet created because
-            // the target process hadn't yet started up.
-            queue.TryInitialize(_delegationFeature);
+            context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+            context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.NoAvailableDestinations, ex: null));
+            return;
         }
 
-        if (queue == null || !queue.IsInitialized)
+        // Opportunistically retry initialization if it failed previously.
+        // This helps when the target queue wasn't yet created because
+        // the target process hadn't yet started up.
+        if (!queue.TryInitialize(_delegationFeature, out var rule, out var initializationException))
         {
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-            context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.NoAvailableDestinations, queue?.InitializationException));
+            context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.NoAvailableDestinations, initializationException));
             return;
         }
 
         try
         {
             Log.DelegatingRequest(_logger, destination);
-            delegationFeature.DelegateRequest(queue.DelegationRule);
+            delegationFeature.DelegateRequest(rule);
         }
         catch (Exception ex)
         {
@@ -89,6 +91,7 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
     void IClusterChangeListener.OnClusterChanged(ClusterState cluster)
     {
         AddOrUpdateRules(cluster);
+        RemoveDeadQueueReferences();
     }
 
     void IClusterChangeListener.OnClusterRemoved(ClusterState cluster)
@@ -138,13 +141,9 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
 
                     if (queue != null)
                     {
-                        try
-                        {
-                            // We call this outside of the above if bock so that if previous
-                            // initialization failed, we will retry it for every new destination added.
-                            queue.Initialize(_delegationFeature);
-                        }
-                        catch (Exception ex)
+                        // We call this outside of the above if bock so that if previous
+                        // initialization failed, we will retry it for every new destination added.
+                        if (!queue.TryInitialize(_delegationFeature, out _, out var ex))
                         {
                             Log.QueueInitFailed(
                                     _logger,
@@ -169,9 +168,12 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
                     }
                 }
             }
+            else
+            {
+                // Handles the case a destination switches from delegation to proxy
+                _queuesPerDestination.Remove(destination);
+            }
         }
-
-        RemoveDeadQueueReferences();
     }
 
     private void RemoveDeadQueueReferences()
@@ -192,53 +194,48 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
         private readonly QueueKey _queueKey;
         private readonly object _syncRoot;
 
+        private bool _isInitialized;
+        private Exception? _initializationException;
+        private DelegationRule? _rule;
+
         public DelegationQueue(string queueName, string urlPrefix)
         {
             _queueKey = new QueueKey(queueName, urlPrefix);
             _syncRoot = new object();
         }
 
-        [MemberNotNullWhen(returnValue: true, nameof(DelegationRule))]
-        public bool IsInitialized { get; private set; }
-
-        public DelegationRule? DelegationRule { get; private set; }
-
-        public Exception? InitializationException { get; private set; }
-
-        public void Initialize(IServerDelegationFeature delegationFeature)
+        public bool TryInitialize(
+            IServerDelegationFeature delegationFeature,
+            [NotNullWhen(true)] out DelegationRule? rule,
+            [NotNullWhen(false)] out Exception? initializationException)
         {
-            if (!IsInitialized && ShouldRetryInitialization())
+            if (!_isInitialized && ShouldRetryInitialization())
             {
                 lock (_syncRoot)
                 {
-                    if (!IsInitialized && ShouldRetryInitialization())
+                    if (!_isInitialized && ShouldRetryInitialization())
                     {
                         try
                         {
-                            InitializationException = null;
-                            DelegationRule = delegationFeature.CreateDelegationRule(_queueKey.QueueName, _queueKey.UrlPrefix);
-                            IsInitialized = true;
+                            _initializationException = null;
+                            _rule = delegationFeature.CreateDelegationRule(_queueKey.QueueName, _queueKey.UrlPrefix);
+                            _isInitialized = true;
                         }
                         catch (Exception ex)
                         {
-                            InitializationException = ex;
-                            throw;
+                            _initializationException = ex;
                         }
+
+                        rule = _rule;
+                        initializationException = _initializationException;
+                        return _isInitialized;
                     }
                 }
             }
-        }
 
-        public bool TryInitialize(IServerDelegationFeature delegationFeature)
-        {
-            try
-            {
-                Initialize(delegationFeature);
-                return true;
-            }
-            catch (Exception) { }
-
-            return false;
+            rule = _rule;
+            initializationException = _initializationException;
+            return _isInitialized;
         }
 
         public bool Equals(QueueKey queueKey)
@@ -248,7 +245,7 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
 
         private bool ShouldRetryInitialization()
         {
-            return InitializationException switch
+            return _initializationException switch
             {
                 null => true,
                 HttpSysException httpSysEx when httpSysEx.ErrorCode == ERROR_FILE_NOT_FOUND => true,

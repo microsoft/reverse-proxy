@@ -9,6 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Configuration;
+#if NET6_0_OR_GREATER
+using Yarp.ReverseProxy.Delegation;
+#endif
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.LoadBalancing;
@@ -17,9 +20,6 @@ using Yarp.ReverseProxy.Routing;
 using Yarp.ReverseProxy.SessionAffinity;
 using Yarp.ReverseProxy.Transforms;
 using Yarp.ReverseProxy.Utilities;
-#if NET6_0_OR_GREATER
-using Yarp.ReverseProxy.Delegation;
-#endif
 
 namespace Yarp.ReverseProxy.Management;
 
@@ -122,14 +122,7 @@ internal static class IReverseProxyBuilderExtensions
     public static IReverseProxyBuilder AddHttpSysDelegation(this IReverseProxyBuilder builder)
     {
 #if NET6_0_OR_GREATER
-        builder.Services.AddSingleton(p =>
-        {
-            // IServerDelegationFeature isn't added to DI https://github.com/dotnet/aspnetcore/issues/40043
-            // IServerDelegationFeature may not be set if not http.sys server or the OS doesn't support delegation
-            var delegationFeature = p.GetRequiredService<IServer>().Features?.Get<IServerDelegationFeature>();
-            return new HttpSysDelegator(delegationFeature, p.GetRequiredService<ILogger<HttpSysDelegator>>());
-        });
-
+        builder.Services.AddSingleton<HttpSysDelegator>();
         builder.Services.AddSingleton<IClusterChangeListener>(p => p.GetRequiredService<HttpSysDelegator>());
 #endif
 
