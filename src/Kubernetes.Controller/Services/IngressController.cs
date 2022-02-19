@@ -138,16 +138,16 @@ public class IngressController : BackgroundHostedService
     /// Called by the informer with real-time resource updates.
     /// </summary>
     /// <param name="eventType">Indicates if the resource new, updated, or deleted.</param>
-    /// <param name="resource">The information as provided by the Kubernets API server.</param>
+    /// <param name="resource">The information as provided by the Kubernetes API server.</param>
     private void Notification(WatchEventType eventType, V1Ingress resource)
     {
         if (_cache.Update(eventType, resource))
         {
-            NoficationIngressChanged();
+            NotificationIngressChanged();
         }
     }
 
-    private void NoficationIngressChanged()
+    private void NotificationIngressChanged()
     {
         if (!_registrationsReady)
         {
@@ -161,13 +161,13 @@ public class IngressController : BackgroundHostedService
     /// Called by the informer with real-time resource updates.
     /// </summary>
     /// <param name="eventType">Indicates if the resource new, updated, or deleted.</param>
-    /// <param name="resource">The information as provided by the Kubernets API server.</param>
+    /// <param name="resource">The information as provided by the Kubernetes API server.</param>
     private void Notification(WatchEventType eventType, V1Service resource)
     {
         var ingressNames = _cache.Update(eventType, resource);
         if (ingressNames.Count > 0)
         {
-            NoficationIngressChanged();
+            NotificationIngressChanged();
         }
     }
 
@@ -175,13 +175,13 @@ public class IngressController : BackgroundHostedService
     /// Called by the informer with real-time resource updates.
     /// </summary>
     /// <param name="eventType">Indicates if the resource new, updated, or deleted.</param>
-    /// <param name="resource">The information as provided by the Kubernets API server.</param>
+    /// <param name="resource">The information as provided by the Kubernetes API server.</param>
     private void Notification(WatchEventType eventType, V1Endpoints resource)
     {
         var ingressNames = _cache.Update(eventType, resource);
         if (ingressNames.Count > 0)
         {
-            NoficationIngressChanged();
+            NotificationIngressChanged();
         }
     }
 
@@ -212,9 +212,9 @@ public class IngressController : BackgroundHostedService
         // At this point we know that all of the Ingress and Endpoint caches are at least in sync
         // with cluster's state as of the start of this controller.
         _registrationsReady = true;
-        NoficationIngressChanged();
+        NotificationIngressChanged();
 
-        // Now begin one loop to process work until an application shudown is requested.
+        // Now begin one loop to process work until an application shutdown is requested.
         while (!cancellationToken.IsCancellationRequested)
         {
             // Dequeue the next item to process
