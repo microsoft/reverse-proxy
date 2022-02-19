@@ -35,6 +35,16 @@ public class Startup
         // Add components implemented by this application
         services.AddHostedService<IngressController>();
         services.AddSingleton<ICache, IngressCache>();
+
+#if NET5_0_OR_GREATER
+        services.AddSingleton<ServerCertificateCache>();
+        services.AddSingleton<IServerCertificateResolver>(sp => sp.GetRequiredService<ServerCertificateCache>());
+        services.AddSingleton<IServerCertificateCache>(sp => sp.GetRequiredService<ServerCertificateCache>());
+#elif NETCOREAPP3_1
+        services.AddSingleton<IServerCertificateCache, DummyServerCertificateCache>();
+#else
+#error Platform Not Supported
+#endif
         services.Configure<YarpOptions>(_configuration.GetSection("Yarp"));
 
         // Register the necessary Kubernetes resource informers
@@ -42,6 +52,7 @@ public class Startup
         services.RegisterResourceInformer<V1Service>();
         services.RegisterResourceInformer<V1Endpoints>();
         services.RegisterResourceInformer<V1IngressClass>();
+        services.RegisterResourceInformer<V1Secret>("type=kubernetes.io/tls");
 
         // Add the reverse proxy functionality
         services.AddReverseProxy();

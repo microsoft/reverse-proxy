@@ -3,6 +3,8 @@
 
 using k8s.Models;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Yarp.Kubernetes.Controller.Caching;
 
@@ -22,8 +24,10 @@ public struct IngressData
 
         Spec = ingress.Spec;
         Metadata = ingress.Metadata;
+        TlsData = ingress.Spec.Tls.Where(s => !string.IsNullOrWhiteSpace(s.SecretName)).Select(s => new IngressTlsData(ingress.Namespace(), s.SecretName, s.Hosts)).ToArray();
     }
 
     public V1IngressSpec Spec { get; set; }
     public V1ObjectMeta Metadata { get; set; }
+    public IReadOnlyCollection<IngressTlsData> TlsData { get; }
 }

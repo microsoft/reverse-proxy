@@ -9,6 +9,8 @@ using Microsoft.Rest;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Yarp.Kubernetes.Controller.Caching;
 
 namespace Yarp.Kubernetes.Controller;
 
@@ -37,6 +39,16 @@ public static class Program
             .ConfigureWebHostDefaults(webBuilder =>
             {
                 webBuilder.UseStartup<Startup>();
+#if NET5_0_OR_GREATER
+                webBuilder.ConfigureKestrel(options =>
+                {
+                    var serverCertificateResolver = options.ApplicationServices.GetRequiredService<IServerCertificateResolver>();
+                    options.ConfigureHttpsDefaults(o =>
+                    {
+                        o.ServerCertificateSelector = (connectionContext, name) => serverCertificateResolver.GetCertificate(connectionContext, name);
+                    });
+                });
+#endif
             })
             .Build()
             .RunAsync().ConfigureAwait(false);

@@ -36,6 +36,7 @@ namespace Microsoft.Kubernetes.Controller.Informers
         private readonly GroupApiVersionKind _names;
         private readonly SemaphoreSlim _ready = new SemaphoreSlim(0);
         private readonly SemaphoreSlim _start = new SemaphoreSlim(0);
+        private readonly ResourceSelector<TResource> _selector;
         private ImmutableList<Registration> _registrations = ImmutableList<Registration>.Empty;
         private IDictionary<NamespacedName, IList<V1OwnerReference>> _cache = new Dictionary<NamespacedName, IList<V1OwnerReference>>();
         private string _lastResourceVersion;
@@ -45,13 +46,16 @@ namespace Microsoft.Kubernetes.Controller.Informers
         /// </summary>
         /// <param name="client">The client.</param>
         /// <param name="hostApplicationLifetime">The host application lifetime.</param>
+        /// <param name="selector">Selectors for the resource.</param>
         /// <param name="logger">The logger.</param>
         public ResourceInformer(
             IKubernetes client,
             IHostApplicationLifetime hostApplicationLifetime,
+            ResourceSelector<TResource> selector,
             ILogger<ResourceInformer<TResource>> logger)
             : base(hostApplicationLifetime, logger)
         {
+            _selector = selector ?? throw new ArgumentNullException(nameof(selector));
             _client = client.AnyResourceKind();
             _names = GroupApiVersionKind.From<TResource>();
         }
@@ -195,10 +199,21 @@ namespace Microsoft.Kubernetes.Controller.Informers
             var previousCache = _cache;
             _cache = new Dictionary<NamespacedName, IList<V1OwnerReference>>();
 
-            Logger.LogInformation(
-                EventId(EventType.SynchronizeStarted),
-                "Started synchronizing {ResourceType} resources from API server.",
-                typeof(TResource).Name);
+            if (_selector.FieldSelector != null)
+            {
+                Logger.LogInformation(
+                    EventId(EventType.SynchronizeStarted),
+                    "Started synchronizing {ResourceType} resources from API server with field selector '{FieldSelector}'.",
+                    typeof(TResource).Name,
+                    _selector.FieldSelector ?? string.Empty);
+            }
+            else
+            {
+                Logger.LogInformation(
+                    EventId(EventType.SynchronizeStarted),
+                    "Started synchronizing {ResourceType} resources from API server.",
+                    typeof(TResource).Name);
+            }
 
             string continueParameter = null;
             do
@@ -210,6 +225,7 @@ namespace Microsoft.Kubernetes.Controller.Informers
                     _names.Group,
                     _names.ApiVersion,
                     _names.PluralName,
+                    fieldSelector: _selector.FieldSelector,
                     continueParameter: continueParameter,
                     cancellationToken: cancellationToken);
 
@@ -279,6 +295,7 @@ namespace Microsoft.Kubernetes.Controller.Informers
                 _names.Group,
                 _names.ApiVersion,
                 _names.PluralName,
+                fieldSelector: _selector.FieldSelector,
                 watch: true,
                 resourceVersion: _lastResourceVersion,
                 cancellationToken: cancellationToken);

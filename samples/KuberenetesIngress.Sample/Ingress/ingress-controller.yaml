@@ -12,7 +12,8 @@ data:
   yarp.json: |
     {
       "Yarp": {
-        "ControllerClass": "microsoft.com/ingress-yarp"
+        "ControllerClass": "microsoft.com/ingress-yarp",
+        "DefaultSslCertificate": "yarp/yarp-ingress-tls"
       }
     }
 ---
@@ -97,10 +98,10 @@ apiVersion: networking.k8s.io/v1
 kind: IngressClass
 metadata:
   name: yarp
+  annotations:
+    #ingressclass.kubernetes.io/is-default-class: "true"
 spec:
   controller: microsoft.com/ingress-yarp
-annotations:
-  #ingressclass.kubernetes.io/is-default-class: true
 ---
 apiVersion: v1
 kind: Service
@@ -151,7 +152,7 @@ spec:
           protocol: TCP
         env:
         - name: ASPNETCORE_URLS
-          value: http://*:8000
+          value: http://*:8000;https://*:8443
         volumeMounts:
           - name: config
             readOnly: true

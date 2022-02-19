@@ -18,12 +18,18 @@ namespace Yarp.Kubernetes.Controller.Caching;
 /// </summary>
 public class NamespaceCache
 {
+    private readonly IServerCertificateCache _certificateCache;
     private readonly object _sync = new object();
     private readonly Dictionary<string, ImmutableList<string>> _ingressToServiceNames = new Dictionary<string, ImmutableList<string>>();
     private readonly Dictionary<string, ImmutableList<string>> _serviceToIngressNames = new Dictionary<string, ImmutableList<string>>();
     private readonly Dictionary<string, IngressData> _ingressData = new Dictionary<string, IngressData>();
     private readonly Dictionary<string, ServiceData> _serviceData = new Dictionary<string, ServiceData>();
     private readonly Dictionary<string, Endpoints> _endpointsData = new Dictionary<string, Endpoints>();
+
+    public NamespaceCache(IServerCertificateCache certificateCache)
+    {
+        _certificateCache = certificateCache ?? throw new ArgumentNullException(nameof(certificateCache));
+    }
 
     public void Update(WatchEventType eventType, V1Ingress ingress)
     {
@@ -64,6 +70,10 @@ public class NamespaceCache
         var ingressName = ingress.Name();
         lock (_sync)
         {
+#if NET5_0_OR_GREATER
+            var originalHosts = GetIngressTls().SelectMany(t => t.Hosts).Select(h => (hostName: h, delete: true)).ToArray();
+#endif
+
             var serviceNamesPrevious = ImmutableList<string>.Empty;
             if (eventType == WatchEventType.Added || eventType == WatchEventType.Modified)
             {
@@ -117,6 +127,32 @@ public class NamespaceCache
                     _serviceToIngressNames[serviceName] = _serviceToIngressNames[serviceName].Remove(ingressName);
                 }
             }
+
+#if NET5_0_OR_GREATER
+            // Figure out which hosts have been added or removed
+            var hostsToAdd = new List<(string hostName, string secretKey)>();
+
+            foreach (var tlsData in GetIngressTls())
+            {
+                foreach (var host in tlsData.Hosts)
+                {
+                    var oldHost = originalHosts.FirstOrDefault(h => h.hostName == host);
+                    if (string.IsNullOrWhiteSpace(oldHost.hostName))
+                    {
+                        // Host didn't exist
+                        hostsToAdd.Add((host, tlsData.SecretKey));
+                    }
+                    else
+                    {
+                        // Host still exists
+                        oldHost.delete = false;
+                    }
+                }
+            }
+
+            var hostsToRemove = originalHosts.Where(h => h.delete).Select(h => h.hostName);
+            _certificateCache.UpdateHostMap(hostsToAdd, hostsToRemove);
+#endif
         }
     }
 
@@ -201,6 +237,11 @@ public class NamespaceCache
         return _ingressData.Values;
     }
 
+    public IEnumerable<IngressData> GetIngressesReferencingSecret(string secretKey)
+    {
+        return _ingressData.Values.Where(i => i.TlsData.Any(a => a.SecretKey == secretKey)); ////.SelectMany(i => i.TlsData);
+    }
+
     public bool IngressExists(V1Ingress ingress)
     {
         return _ingressData.ContainsKey(ingress.Name());
@@ -244,5 +285,23 @@ public class NamespaceCache
             data = new ReconcileData(ingress, servicesList, endspointsList);
             return true;
         }
+    }
+
+    private IEnumerable<IngressTlsData> GetIngressTls()
+    {
+        return _ingressData.Values.SelectMany(i => i.TlsData);
+    }
+
+    private class DeletionCheck<T>
+    {
+        public DeletionCheck(T item)
+        {
+            Item = item;
+            Delete = true;
+        }
+
+        public T Item { get; }
+
+        public bool Delete { get; set; }
     }
 }

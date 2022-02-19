@@ -118,11 +118,12 @@ public class IngressControllerTests
     private async Task<ICache> GetKubernetesInfo(string name, V1IngressClass ingressClass)
     {
         var mockLogger = new Mock<ILogger<IngressCache>>();
+        var mockCertificateCache = new Mock<IServerCertificateCache>();
         var mockOptions = new Mock<IOptions<YarpOptions>>();
 
         mockOptions.SetupGet(o => o.Value).Returns(new YarpOptions { ControllerClass = "microsoft.com/ingress-yarp" });
 
-        var cache = new IngressCache(mockOptions.Object, mockLogger.Object);
+        var cache = new IngressCache(mockOptions.Object, mockCertificateCache.Object, mockLogger.Object);
 
         var typeMap = new Dictionary<string, Type>();
         typeMap.Add("networking.k8s.io/v1/Ingress", typeof(V1Ingress));

@@ -31,7 +31,14 @@ public static class KubernetesControllerExtensions
     public static IServiceCollection RegisterResourceInformer<TResource>(this IServiceCollection services)
         where TResource : class, IKubernetesObject<V1ObjectMeta>, new()
     {
-        return services
-            .RegisterHostedService<IResourceInformer<TResource>>();
+        return services.RegisterResourceInformer<TResource>(null);
+    }
+
+    public static IServiceCollection RegisterResourceInformer<TResource>(this IServiceCollection services, string fieldSelector)
+        where TResource : class, IKubernetesObject<V1ObjectMeta>, new()
+    {
+        services.AddSingleton<ResourceSelector<TResource>>(new ResourceSelector<TResource>(fieldSelector));
+
+        return services.RegisterHostedService<IResourceInformer<TResource>>();
     }
 }

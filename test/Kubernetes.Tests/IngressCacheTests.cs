@@ -15,16 +15,18 @@ namespace IngressController.Tests;
 public class IngressCacheTests
 {
     private readonly Mock<ILogger<IngressCache>> _mockLogger;
+    private readonly Mock<IServerCertificateCache> _mockCertificateCache;
     private readonly Mock<IOptions<YarpOptions>> _mockOptions;
     private readonly IngressCache _cacheUnderTest;
 
     public IngressCacheTests()
     {
         _mockLogger = new Mock<ILogger<IngressCache>>();
+        _mockCertificateCache = new Mock<IServerCertificateCache>();
         _mockOptions = new Mock<IOptions<YarpOptions>>();
         _mockOptions.SetupGet(o => o.Value).Returns(new YarpOptions { ControllerClass = "microsoft.com/ingress-yarp" });
 
-        _cacheUnderTest = new IngressCache(_mockOptions.Object, _mockLogger.Object);
+        _cacheUnderTest = new IngressCache(_mockOptions.Object, _mockCertificateCache.Object, _mockLogger.Object);
     }
 
     [Theory]

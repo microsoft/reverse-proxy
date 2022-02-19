@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using k8s;
@@ -42,6 +43,7 @@ public class IngressController : BackgroundHostedService
         IResourceInformer<V1Service> serviceInformer,
         IResourceInformer<V1Endpoints> endpointsInformer,
         IResourceInformer<V1IngressClass> ingressClassInformer,
+        IResourceInformer<V1Secret> secretsInformer,
         IHostApplicationLifetime hostApplicationLifetime,
         ILogger<IngressController> logger)
         : base(hostApplicationLifetime, logger)
@@ -68,6 +70,11 @@ public class IngressController : BackgroundHostedService
             throw new ArgumentNullException(nameof(ingressClassInformer));
         }
 
+        if (secretsInformer is null)
+        {
+            throw new ArgumentNullException(nameof(secretsInformer));
+        }
+
         if (hostApplicationLifetime is null)
         {
             throw new ArgumentNullException(nameof(hostApplicationLifetime));
@@ -83,13 +90,15 @@ public class IngressController : BackgroundHostedService
             serviceInformer.Register(Notification),
             endpointsInformer.Register(Notification),
             ingressClassInformer.Register(Notification),
-            ingressInformer.Register(Notification)
+            ingressInformer.Register(Notification),
+            secretsInformer.Register(Notification),
         };
 
         _registrationsReady = false;
         serviceInformer.StartWatching();
         endpointsInformer.StartWatching();
         ingressClassInformer.StartWatching();
+        secretsInformer.StartWatching();
         ingressInformer.StartWatching();
 
         _queue = new ProcessingRateLimitedQueue<QueueItem>(perSecond: 0.5, burst: 1);
@@ -179,6 +188,16 @@ public class IngressController : BackgroundHostedService
     }
 
     /// <summary>
+    /// Called by the informer with real-time resource updates.
+    /// </summary>
+    /// <param name="eventType">Indicates if the resource new, updated, or deleted.</param>
+    /// <param name="resource">The information as provided by the Kubernetes API server.</param>
+    private void Notification(WatchEventType eventType, V1Secret resource)
+    {
+        _cache.Update(eventType, resource);
+    }
+
+    /// <summary>
     /// Called once at startup by the hosting infrastructure. This function must remain running
     /// for the entire lifetime of an application.
     /// </summary>
@@ -246,6 +265,9 @@ public class IngressController : BackgroundHostedService
 
         var clusters= configContext.BuildClusterConfig();
         var routes = configContext.Routes;
+
+        Logger.LogInformation(JsonSerializer.Serialize(clusters));
+        Logger.LogInformation(JsonSerializer.Serialize(routes));
 
         _proxyConfigProvider.Update(routes, clusters);
     }
