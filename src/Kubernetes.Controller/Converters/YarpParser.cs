@@ -5,14 +5,14 @@ using k8s.Models;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.Kubernetes.Controller.Caching;
 using Yarp.Kubernetes.Controller.Services;
-using Yarp.ReverseProxy.LoadBalancing;
 using YamlDotNet.Serialization;
 
 namespace Yarp.Kubernetes.Controller.Converters;
 
 internal static class YarpParser
 {
-    private static Deserializer YamlDeserializer = new();
+    private static readonly Deserializer YamlDeserializer = new();
+
     internal static void ConvertFromKubernetesIngress(YarpIngressContext ingressContext, YarpConfigContext configContext)
     {
         var spec = ingressContext.Ingress.Spec;
@@ -28,7 +28,7 @@ internal static class YarpParser
         // cluster can contain multiple replicas for each destination, need to know the lookup base don endpoints
         var options = HandleAnnotations(ingressContext, ingressContext.Ingress.Metadata);
 
-        foreach (var rule in spec.Rules ?? Enumerable.Empty<V1IngressRule>())
+        foreach (var rule in spec?.Rules ?? Enumerable.Empty<V1IngressRule>())
         {
             HandleIngressRule(ingressContext, ingressContext.Endpoints, defaultSubsets, rule, configContext);
         }
@@ -76,7 +76,7 @@ internal static class YarpParser
         // make sure cluster is present
         foreach (var subset in subsets ?? Enumerable.Empty<V1EndpointSubset>())
         {
-            foreach (var port in subset.Ports ?? Enumerable.Empty<V1EndpointPort>())
+            foreach (var port in subset.Ports ?? Enumerable.Empty<Corev1EndpointPort>())
             {
                 if (!MatchesPort(port, servicePort.TargetPort))
                 {
@@ -214,7 +214,7 @@ internal static class YarpParser
         return options;
     }
 
-    private static bool MatchesPort(V1EndpointPort port1, IntstrIntOrString port2)
+    private static bool MatchesPort(Corev1EndpointPort port1, IntstrIntOrString port2)
     {
         if (port1 == null || port2 == null)
         {
