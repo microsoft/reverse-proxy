@@ -405,7 +405,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             // Future: It may be wise to set this to true for *all* http2 incoming requests,
             // but for now, out of an abundance of caution, we only do it for requests that look like gRPC.
             return new StreamCopyHttpContent(
-                source: request.Body,
+                request: request,
                 autoFlushHttpClientOutgoingStream: isStreamingRequest,
                 clock: _clock,
                 activityToken);

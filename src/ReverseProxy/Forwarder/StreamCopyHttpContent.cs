@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Forwarder;
@@ -38,16 +39,16 @@ namespace Yarp.ReverseProxy.Forwarder;
 /// </remarks>
 internal sealed class StreamCopyHttpContent : HttpContent
 {
-    private readonly Stream _source;
+    private readonly HttpRequest _request;
     private readonly bool _autoFlushHttpClientOutgoingStream;
     private readonly IClock _clock;
     private readonly ActivityCancellationTokenSource _activityToken;
     private readonly TaskCompletionSource<(StreamCopyResult, Exception?)> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private int _started;
 
-    public StreamCopyHttpContent(Stream source, bool autoFlushHttpClientOutgoingStream, IClock clock, ActivityCancellationTokenSource activityToken)
+    public StreamCopyHttpContent(HttpRequest request, bool autoFlushHttpClientOutgoingStream, IClock clock, ActivityCancellationTokenSource activityToken)
     {
-        _source = source ?? throw new ArgumentNullException(nameof(source));
+        _request = request ?? throw new ArgumentNullException(nameof(request));
         _autoFlushHttpClientOutgoingStream = autoFlushHttpClientOutgoingStream;
         _clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
@@ -182,7 +183,7 @@ internal sealed class StreamCopyHttpContent : HttpContent
             }
 
             // Check that the content-length matches the request body size. This can be removed in .NET 7 now that SocketsHttpHandler enforces this: https://github.com/dotnet/runtime/issues/62258.
-            var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _source, stream, Headers.ContentLength ?? StreamCopier.UnknownLength, _clock, _activityToken, cancellationToken);
+            var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _request.Body, stream, Headers.ContentLength ?? StreamCopier.UnknownLength, _clock, _activityToken, cancellationToken);
             _tcs.TrySetResult((result, error));
 
             // Check for errors that weren't the result of the destination failing.

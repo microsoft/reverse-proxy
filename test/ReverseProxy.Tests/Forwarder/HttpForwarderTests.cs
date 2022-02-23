@@ -301,6 +301,63 @@ public class HttpForwarderTests
         events.AssertContainProxyStages();
     }
 
+    [Fact]
+    public async Task TransformRequestAsync_ReplaceBody()
+    {
+        var events = TestEventListener.Collect();
+
+        var replaced = "should be replaced";
+        var replacing = "request content";
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Protocol = "HTTP/2";
+        httpContext.Request.Body = StringToStream(replaced);
+
+        var destinationPrefix = "https://localhost/";
+
+        var transforms = new DelegateHttpTransforms()
+        {
+            CopyRequestHeaders = true,
+            OnRequest = (context, request, destination) =>
+            {
+                context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(replacing));
+                return Task.CompletedTask;
+            }
+        };
+
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                await Task.Yield();
+
+                Assert.Equal(new Version(2, 0), request.Version);
+                Assert.Equal(HttpMethod.Post, request.Method);
+
+                Assert.NotNull(request.Content);
+
+                var capturedRequestContent = new MemoryStream();
+                // Use CopyToAsync as this is what HttpClient and friends use internally
+                await request.Content.CopyToWithCancellationAsync(capturedRequestContent);
+                capturedRequestContent.Position = 0;
+                var capturedContentText = StreamToString(capturedRequestContent);
+                Assert.Equal(replacing, capturedContentText);
+
+                return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+            });
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, ForwarderRequestConfig.Empty, transforms);
+
+        Assert.Equal(ForwarderError.None, proxyError);
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        var resultStream = (MemoryStream)httpContext.Request.Body;
+        Assert.Equal(Encoding.UTF8.GetBytes(replacing), resultStream.ToArray());
+
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages();
+    }
+
     // Tests proxying an upgradeable request.
     [Theory]
     [InlineData("WebSocket")]
