@@ -9,6 +9,7 @@ namespace Yarp.ReverseProxy.Delegation;
 internal static class DelegationExtensions
 {
     public const string HttpSysDelegationQueueMetadataKey = "HttpSysDelegationQueue";
+    public const string ResetDelegationQueueOnErrorNotFoundMetadataKey = "ResetDelegationQueueOnErrorNotFound";
 
     public static string? GetHttpSysDelegationQueue(this DestinationState? destination)
     {
@@ -20,6 +21,12 @@ internal static class DelegationExtensions
     public static bool ShouldUseHttpSysDelegation(this DestinationState destination)
     {
         return destination.GetHttpSysDelegationQueue() is not null;
+    }
+
+    public static bool ShouldResetDelegationQueueOnErrorNotFound(this DestinationState destination)
+    {
+        return (destination?.Model?.Config?.Metadata?.TryGetValue(ResetDelegationQueueOnErrorNotFoundMetadataKey, out var value) ?? false)
+            && string.Equals(value, "true", System.StringComparison.OrdinalIgnoreCase);
     }
 }
 #endif
