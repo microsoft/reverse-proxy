@@ -2,19 +2,12 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
+    <NoWarn>$(NoWarn);CS8002</NoWarn>
   </PropertyGroup>
-
-  <!-- <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\Users\Administrator\projects\github.com\microsoft\OperatorFramework\examples\UsingCustomResources\UsingCustomResources.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\Users\Administrator\projects\github.com\microsoft\OperatorFramework\examples\UsingCustomResources\UsingCustomResources.xml</DocumentationFile>
-  </PropertyGroup> -->
 
   <ItemGroup>
-    <PackageReference Include="Polly" Version="7.2.1" />
+    <PackageReference Include="Polly" Version="7.2.3" />
   </ItemGroup>
 
   <ItemGroup>

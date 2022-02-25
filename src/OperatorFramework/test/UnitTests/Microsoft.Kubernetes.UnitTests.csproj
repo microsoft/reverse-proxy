@@ -5,7 +5,7 @@
         <IsPackable>false</IsPackable>
         <RootNamespace>Microsoft.Kubernetes</RootNamespace>
         <DocumentationFile>Microsoft.Kubernetes.UnitTests.xml</DocumentationFile>
-        <NoWarn>$(NoWarn);CS1591;CS8002</NoWarn>
+        <NoWarn>$(NoWarn);CS8002</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
