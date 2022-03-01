@@ -110,17 +110,17 @@ internal sealed class DestinationHealthUpdater : IDestinationHealthUpdater, IDis
         private static readonly Action<ILogger, string, TimeSpan, Exception?> _unhealthyDestinationIsScheduledForReactivation = LoggerMessage.Define<string, TimeSpan>(
             LogLevel.Information,
             EventIds.UnhealthyDestinationIsScheduledForReactivation,
-            "Destination `{destinationId}` marked as 'unhealthy` by the passive health check is scheduled for a reactivation in `{reactivationPeriod}`.");
+            "Destination `{destinationId}` marked as 'Unhealthy` by the passive health check is scheduled for a reactivation in `{reactivationPeriod}`.");
 
         private static readonly Action<ILogger, string, Exception?> _passiveDestinationHealthResetToUnkownState = LoggerMessage.Define<string>(
             LogLevel.Information,
             EventIds.PassiveDestinationHealthResetToUnkownState,
-            "Passive health state of the destination `{destinationId}` is reset to 'unknown`.");
+            "Passive health state of the destination `{destinationId}` is reset to 'Unknown`.");
 
         private static readonly Action<ILogger, string, string, Exception?> _activeDestinationHealthStateIsSetToUnhealthy = LoggerMessage.Define<string, string>(
             LogLevel.Warning,
             EventIds.ActiveDestinationHealthStateIsSetToUnhealthy,
-            "Active health state of destination `{destinationId}` on cluster `{clusterId}` is set to 'unhealthy'.");
+            "Active health state of destination `{destinationId}` on cluster `{clusterId}` is set to 'Unhealthy'.");
 
         private static readonly Action<ILogger, string, string, DestinationHealth, Exception?> _activeDestinationHealthStateIsSet = LoggerMessage.Define<string, string, DestinationHealth>(
             LogLevel.Information,
