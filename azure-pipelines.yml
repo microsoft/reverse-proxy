@@ -48,10 +48,10 @@ stages:
       - job: Windows
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
-            name: NetCore1ESPool-Public
+            name: NetCore1ESPool-Svc-Public
             demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019.Pre.Open
           ${{ if ne(variables['System.TeamProject'], 'public') }}:
-            name: NetCore1ESPool-Internal
+            name: NetCore1ESPool-Svc-Internal
             demands: ImageOverride -equals Build.Windows.10.Amd64.VS2019.Pre
         variables:
 
