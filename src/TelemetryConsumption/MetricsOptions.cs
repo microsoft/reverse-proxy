@@ -3,11 +3,10 @@
 
 using System;
 
-namespace Yarp.Telemetry.Consumption
+namespace Yarp.Telemetry.Consumption;
+
+internal static class MetricsOptions
 {
-    internal static class MetricsOptions
-    {
-        // TODO: Should this be publicly configurable? It's currently only visible to tests to reduce execution time
-        public static TimeSpan Interval { get; set; } = TimeSpan.FromSeconds(1);
-    }
+    // TODO: Should this be publicly configurable? It's currently only visible to tests to reduce execution time
+    public static TimeSpan Interval { get; set; } = TimeSpan.FromSeconds(1);
 }

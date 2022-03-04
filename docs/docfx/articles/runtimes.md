@@ -54,3 +54,4 @@ These are related improvements in .NET 5.0 or ASP.NET Core 5.0 that YARP is able
   - [Allocation savings via stream pooling](https://github.com/dotnet/aspnetcore/pull/18601).
   - [Allocation savings via pipe pooling](https://github.com/dotnet/aspnetcore/pull/19356).
 - HttpClient HTTP/2 [performance improvements](https://github.com/dotnet/runtime/issues/35184).
+

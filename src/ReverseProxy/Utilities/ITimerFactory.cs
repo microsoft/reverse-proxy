@@ -3,10 +3,9 @@
 
 using System.Threading;
 
-namespace Yarp.ReverseProxy.Utilities
+namespace Yarp.ReverseProxy.Utilities;
+
+internal interface ITimerFactory
 {
-    internal interface ITimerFactory
-    {
-        ITimer CreateTimer(TimerCallback callback, object state, long dueTime, long period);
-    }
+    ITimer CreateTimer(TimerCallback callback, object state, long dueTime, long period);
 }

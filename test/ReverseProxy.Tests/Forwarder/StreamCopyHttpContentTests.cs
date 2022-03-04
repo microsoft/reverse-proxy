@@ -12,200 +12,220 @@ using Moq;
 using Xunit;
 using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Utilities;
+using Microsoft.AspNetCore.Http;
 
-namespace Yarp.ReverseProxy.Forwarder.Tests
+namespace Yarp.ReverseProxy.Forwarder.Tests;
+
+public class StreamCopyHttpContentTests
 {
-    public class StreamCopyHttpContentTests
+    private static StreamCopyHttpContent CreateContent(HttpRequest request = null, bool autoFlushHttpClientOutgoingStream = false, IClock clock = null, ActivityCancellationTokenSource contentCancellation = null)
     {
-        private static StreamCopyHttpContent CreateContent(Stream source = null, bool autoFlushHttpClientOutgoingStream = false, IClock clock = null, ActivityCancellationTokenSource contentCancellation = null)
+        request ??= new DefaultHttpContext().Request;
+        clock ??= new Clock();
+
+        contentCancellation ??= ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
+
+        return new StreamCopyHttpContent(request, autoFlushHttpClientOutgoingStream, clock, contentCancellation);
+    }
+
+    [Fact]
+    public async Task CopyToAsync_InvokesStreamCopier()
+    {
+        const int SourceSize = (128 * 1024) - 3;
+
+        var sourceBytes = Enumerable.Range(0, SourceSize).Select(i => (byte)(i % 256)).ToArray();
+        var request = new DefaultHttpContext().Request;
+        request.Body = new MemoryStream(sourceBytes);
+        var destination = new MemoryStream();
+
+        var sut = CreateContent(request);
+
+        Assert.False(sut.ConsumptionTask.IsCompleted);
+        Assert.False(sut.Started);
+        await sut.CopyToWithCancellationAsync(destination);
+
+        Assert.True(sut.Started);
+        Assert.True(sut.ConsumptionTask.IsCompleted);
+        Assert.Equal(sourceBytes, destination.ToArray());
+    }
+
+    [Theory]
+    [InlineData(false)] // we expect to always flush at least once to trigger sending request headers
+    [InlineData(true)]
+    public async Task CopyToAsync_AutoFlushing(bool autoFlush)
+    {
+        // Must be same as StreamCopier constant.
+        const int DefaultBufferSize = 65536;
+        const int SourceSize = (128 * 1024) - 3;
+
+        var expectedFlushes = 0;
+        if (autoFlush)
         {
-            source ??= new MemoryStream();
-            clock ??= new Clock();
-
-            contentCancellation ??= ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
-
-            return new StreamCopyHttpContent(source, autoFlushHttpClientOutgoingStream, clock, contentCancellation);
+            // How many buffers is needed to send the source rounded up.
+            expectedFlushes = (SourceSize - 1) / DefaultBufferSize + 1;
         }
+        // Explicit flush after headers are sent.
+        expectedFlushes++;
 
-        [Fact]
-        public async Task CopyToAsync_InvokesStreamCopier()
+        var sourceBytes = Enumerable.Range(0, SourceSize).Select(i => (byte)(i % 256)).ToArray();
+        var request = new DefaultHttpContext().Request;
+        request.Body = new MemoryStream(sourceBytes);
+        var destination = new MemoryStream();
+        var flushCountingDestination = new FlushCountingStream(destination);
+
+        var sut = CreateContent(request, autoFlushHttpClientOutgoingStream: autoFlush);
+
+        Assert.False(sut.ConsumptionTask.IsCompleted);
+        Assert.False(sut.Started);
+        await sut.CopyToWithCancellationAsync(flushCountingDestination);
+
+        Assert.True(sut.Started);
+        Assert.True(sut.ConsumptionTask.IsCompleted);
+        Assert.Equal(sourceBytes, destination.ToArray());
+        Assert.Equal(expectedFlushes, flushCountingDestination.NumFlushes);
+    }
+
+    [Fact]
+    public async Task CopyToAsync_AsyncSequencing()
+    {
+        var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var source = new Mock<Stream>();
+        source.Setup(s => s.ReadAsync(It.IsAny<Memory<byte>>(), It.IsAny<CancellationToken>())).Returns(() => new ValueTask<int>(tcs.Task));
+        var request = new DefaultHttpContext().Request;
+        request.Body = source.Object;
+        var destination = new MemoryStream();
+
+        var sut = CreateContent(request);
+
+        Assert.False(sut.ConsumptionTask.IsCompleted);
+        Assert.False(sut.Started);
+        var task = sut.CopyToWithCancellationAsync(destination);
+
+        Assert.True(sut.Started); // This should happen synchronously
+        Assert.False(sut.ConsumptionTask.IsCompleted); // This cannot happen until the tcs releases it
+
+        tcs.TrySetResult(0);
+        await task;
+        Assert.True(sut.ConsumptionTask.IsCompleted);
+    }
+
+    [Fact]
+    public Task ReadAsStreamAsync_Throws()
+    {
+        var sut = CreateContent();
+
+        Func<Task> func = () => sut.ReadAsStreamAsync();
+
+        return Assert.ThrowsAsync<NotImplementedException>(func);
+    }
+
+    [Fact]
+    public void AllowDuplex_ReturnsTrue()
+    {
+        var sut = CreateContent();
+
+        // This is an internal property that HttpClient and friends use internally and which must be true
+        // to support duplex channels.This test helps detect regressions or changes in undocumented behavior
+        // in .NET Core, and it passes as of .NET Core 3.1.
+        var allowDuplexProperty = typeof(HttpContent).GetProperty("AllowDuplex", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        Assert.NotNull(allowDuplexProperty);
+        var allowDuplex = (bool)allowDuplexProperty.GetValue(sut);
+        Assert.True(allowDuplex);
+    }
+
+    [Fact]
+    public async Task SerializeToStreamAsync_RespectsContentCancellation()
+    {
+        var tcs = new TaskCompletionSource<byte>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var source = new ReadDelegatingStream(new MemoryStream(), async (buffer, cancellation) =>
         {
-            const int SourceSize = (128 * 1024) - 3;
-
-            var sourceBytes = Enumerable.Range(0, SourceSize).Select(i => (byte)(i % 256)).ToArray();
-            var source = new MemoryStream(sourceBytes);
-            var destination = new MemoryStream();
-
-            var sut = CreateContent(source);
-
-            Assert.False(sut.ConsumptionTask.IsCompleted);
-            Assert.False(sut.Started);
-            await sut.CopyToWithCancellationAsync(destination);
-
-            Assert.True(sut.Started);
-            Assert.True(sut.ConsumptionTask.IsCompleted);
-            Assert.Equal(sourceBytes, destination.ToArray());
-        }
-
-        [Theory]
-        [InlineData(false)] // we expect to always flush at least once to trigger sending request headers
-        [InlineData(true)]
-        public async Task CopyToAsync_AutoFlushing(bool autoFlush)
-        {
-            // Must be same as StreamCopier constant.
-            const int DefaultBufferSize = 65536;
-            const int SourceSize = (128 * 1024) - 3;
-
-            var expectedFlushes = 0;
-            if (autoFlush)
+            if (buffer.Length == 0)
             {
-                // How many buffers is needed to send the source rounded up.
-                expectedFlushes = (SourceSize - 1) / DefaultBufferSize + 1;
-            }
-            // Explicit flush after headers are sent.
-            expectedFlushes++;
-
-            var sourceBytes = Enumerable.Range(0, SourceSize).Select(i => (byte)(i % 256)).ToArray();
-            var source = new MemoryStream(sourceBytes);
-            var destination = new MemoryStream();
-            var flushCountingDestination = new FlushCountingStream(destination);
-
-            var sut = CreateContent(source, autoFlushHttpClientOutgoingStream: autoFlush);
-
-            Assert.False(sut.ConsumptionTask.IsCompleted);
-            Assert.False(sut.Started);
-            await sut.CopyToWithCancellationAsync(flushCountingDestination);
-
-            Assert.True(sut.Started);
-            Assert.True(sut.ConsumptionTask.IsCompleted);
-            Assert.Equal(sourceBytes, destination.ToArray());
-            Assert.Equal(expectedFlushes, flushCountingDestination.NumFlushes);
-        }
-
-        [Fact]
-        public async Task CopyToAsync_AsyncSequencing()
-        {
-            var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
-            var source = new Mock<Stream>();
-            source.Setup(s => s.ReadAsync(It.IsAny<Memory<byte>>(), It.IsAny<CancellationToken>())).Returns(() => new ValueTask<int>(tcs.Task));
-            var destination = new MemoryStream();
-
-            var sut = CreateContent(source.Object);
-
-            Assert.False(sut.ConsumptionTask.IsCompleted);
-            Assert.False(sut.Started);
-            var task = sut.CopyToWithCancellationAsync(destination);
-
-            Assert.True(sut.Started); // This should happen synchronously
-            Assert.False(sut.ConsumptionTask.IsCompleted); // This cannot happen until the tcs releases it
-
-            tcs.TrySetResult(0);
-            await task;
-            Assert.True(sut.ConsumptionTask.IsCompleted);
-        }
-
-        [Fact]
-        public Task ReadAsStreamAsync_Throws()
-        {
-            var sut = CreateContent();
-
-            Func<Task> func = () => sut.ReadAsStreamAsync();
-
-            return Assert.ThrowsAsync<NotImplementedException>(func);
-        }
-
-        [Fact]
-        public void AllowDuplex_ReturnsTrue()
-        {
-            var sut = CreateContent();
-
-            // This is an internal property that HttpClient and friends use internally and which must be true
-            // to support duplex channels.This test helps detect regressions or changes in undocumented behavior
-            // in .NET Core, and it passes as of .NET Core 3.1.
-            var allowDuplexProperty = typeof(HttpContent).GetProperty("AllowDuplex", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            Assert.NotNull(allowDuplexProperty);
-            var allowDuplex = (bool)allowDuplexProperty.GetValue(sut);
-            Assert.True(allowDuplex);
-        }
-
-        [Fact]
-        public async Task SerializeToStreamAsync_RespectsContentCancellation()
-        {
-            var tcs = new TaskCompletionSource<byte>(TaskCreationOptions.RunContinuationsAsynchronously);
-
-            var source = new ReadDelegatingStream(new MemoryStream(), async (buffer, cancellation) =>
-            {
-                Assert.False(cancellation.IsCancellationRequested);
-                await tcs.Task;
-                Assert.True(cancellation.IsCancellationRequested);
                 return 0;
-            });
+            }
 
-            using var contentCts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
+            Assert.False(cancellation.IsCancellationRequested);
+            await tcs.Task;
+            Assert.True(cancellation.IsCancellationRequested);
+            return 0;
+        });
 
-            var sut = CreateContent(source, contentCancellation: contentCts);
+        var request = new DefaultHttpContext().Request;
+        request.Body = source;
 
-            var copyToTask = sut.CopyToWithCancellationAsync(new MemoryStream());
-            contentCts.Cancel();
-            tcs.SetResult(0);
+        using var contentCts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
 
-            await copyToTask;
-        }
+        var sut = CreateContent(request, contentCancellation: contentCts);
+
+        var copyToTask = sut.CopyToWithCancellationAsync(new MemoryStream());
+        contentCts.Cancel();
+        tcs.SetResult(0);
+
+        await copyToTask;
+    }
 
 #if NET
-        [Fact]
-        public async Task SerializeToStreamAsync_CanBeCanceledExternally()
+    [Fact]
+    public async Task SerializeToStreamAsync_CanBeCanceledExternally()
+    {
+        var tcs = new TaskCompletionSource<byte>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var source = new ReadDelegatingStream(new MemoryStream(), async (buffer, cancellation) =>
         {
-            var tcs = new TaskCompletionSource<byte>(TaskCreationOptions.RunContinuationsAsynchronously);
-
-            var source = new ReadDelegatingStream(new MemoryStream(), async (buffer, cancellation) =>
+            if (buffer.Length == 0)
             {
-                Assert.False(cancellation.IsCancellationRequested);
-                await tcs.Task;
-                Assert.True(cancellation.IsCancellationRequested);
                 return 0;
-            });
+            }
 
-            var sut = CreateContent(source);
+            Assert.False(cancellation.IsCancellationRequested);
+            await tcs.Task;
+            Assert.True(cancellation.IsCancellationRequested);
+            return 0;
+        });
 
-            using var cts = new CancellationTokenSource();
-            var copyToTask = sut.CopyToAsync(new MemoryStream(), cts.Token);
-            cts.Cancel();
-            tcs.SetResult(0);
+        var request = new DefaultHttpContext().Request;
+        request.Body = source;
 
-            await copyToTask;
-        }
+        var sut = CreateContent(request);
+
+        using var cts = new CancellationTokenSource();
+        var copyToTask = sut.CopyToAsync(new MemoryStream(), cts.Token);
+        cts.Cancel();
+        tcs.SetResult(0);
+
+        await copyToTask;
+    }
 #endif
 
-        private class FlushCountingStream : DelegatingStream
+    private class FlushCountingStream : DelegatingStream
+    {
+        public FlushCountingStream(Stream stream)
+            : base(stream)
+        { }
+
+        public int NumFlushes { get; private set; }
+
+        public override async Task FlushAsync(CancellationToken cancellationToken)
         {
-            public FlushCountingStream(Stream stream)
-                : base(stream)
-            { }
+            await base.FlushAsync(cancellationToken);
+            NumFlushes++;
+        }
+    }
 
-            public int NumFlushes { get; private set; }
+    private sealed class ReadDelegatingStream : DelegatingStream
+    {
+        private readonly Func<Memory<byte>, CancellationToken, ValueTask<int>> _readAsync;
 
-            public override async Task FlushAsync(CancellationToken cancellationToken)
-            {
-                await base.FlushAsync(cancellationToken);
-                NumFlushes++;
-            }
+        public ReadDelegatingStream(Stream stream, Func<Memory<byte>, CancellationToken, ValueTask<int>> readAsync)
+            : base(stream)
+        {
+            _readAsync = readAsync;
         }
 
-        private sealed class ReadDelegatingStream : DelegatingStream
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            private readonly Func<Memory<byte>, CancellationToken, ValueTask<int>> _readAsync;
-
-            public ReadDelegatingStream(Stream stream, Func<Memory<byte>, CancellationToken, ValueTask<int>> readAsync)
-                : base(stream)
-            {
-                _readAsync = readAsync;
-            }
-
-            public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
-            {
-                return _readAsync(buffer, cancellationToken);
-            }
+            return _readAsync(buffer, cancellationToken);
         }
     }
 }

@@ -6,34 +6,33 @@ using System.Linq;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
 
-namespace Yarp.ReverseProxy.Health
+namespace Yarp.ReverseProxy.Health;
+
+// Policy marking destinations as available only if their active and passive health states
+/// are either 'Healthy' or 'Unknown'/>.
+internal class HealthyAndUnknownDestinationsPolicy : IAvailableDestinationsPolicy
 {
-    // Policy marking destinations as available only if their active and passive health states
-    /// are either 'Healthy' or 'Unknown'/>.
-    internal class HealthyAndUnknownDestinationsPolicy : IAvailableDestinationsPolicy
+    public virtual string Name => HealthCheckConstants.AvailableDestinations.HealthyAndUnknown;
+
+    public virtual IReadOnlyList<DestinationState> GetAvailalableDestinations(ClusterConfig config, IReadOnlyList<DestinationState> allDestinations)
     {
-        public virtual string Name => HealthCheckConstants.AvailableDestinations.HealthyAndUnknown;
+        var availableDestinations = allDestinations;
+        var activeEnabled = (config.HealthCheck?.Active?.Enabled).GetValueOrDefault();
+        var passiveEnabled = (config.HealthCheck?.Passive?.Enabled).GetValueOrDefault();
 
-        public virtual IReadOnlyList<DestinationState> GetAvailalableDestinations(ClusterConfig config, IReadOnlyList<DestinationState> allDestinations)
+        if (activeEnabled || passiveEnabled)
         {
-            var availableDestinations = allDestinations;
-            var activeEnabled = (config.HealthCheck?.Active?.Enabled).GetValueOrDefault();
-            var passiveEnabled = (config.HealthCheck?.Passive?.Enabled).GetValueOrDefault();
-
-            if (activeEnabled || passiveEnabled)
+            availableDestinations = allDestinations.Where(destination =>
             {
-                availableDestinations = allDestinations.Where(destination =>
-                {
-                    // Only consider the current state if those checks are enabled.
-                    var healthState = destination.Health;
-                    var active = activeEnabled ? healthState.Active : DestinationHealth.Unknown;
-                    var passive = passiveEnabled ? healthState.Passive : DestinationHealth.Unknown;
+                // Only consider the current state if those checks are enabled.
+                var healthState = destination.Health;
+                var active = activeEnabled ? healthState.Active : DestinationHealth.Unknown;
+                var passive = passiveEnabled ? healthState.Passive : DestinationHealth.Unknown;
 
-                    return active != DestinationHealth.Unhealthy && passive != DestinationHealth.Unhealthy;
-                }).ToList();
-            }
-
-            return availableDestinations;
+                return active != DestinationHealth.Unhealthy && passive != DestinationHealth.Unhealthy;
+            }).ToList();
         }
+
+        return availableDestinations;
     }
 }

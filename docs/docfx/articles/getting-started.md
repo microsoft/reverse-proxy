@@ -46,7 +46,7 @@ And then add:
  
  ```XML
 <ItemGroup> 
-  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0" />
+  <PackageReference Include="Yarp.ReverseProxy" Version="1.1.0-rc.2.22152.2" />
 </ItemGroup> 
 ```
 
@@ -54,7 +54,7 @@ And then add:
 
 YARP is implemented as a ASP.NET Core component, and so the majority of the sample code is in Startup.cs. 
 
-YARP can use configuration files or a custom provider to define the routes and endpoints for the proxy. This sample uses config files and is initialized in the `ConfigureServices` method. 
+YARP can use [configuration files or a custom provider](#Configuration) to define the routes and endpoints for the proxy. This sample uses config files and is initialized in the `ConfigureServices` method. 
 
 The `Configure` method defines the ASP.NET pipeline for processing requests. The reverse proxy is plugged into ASP.NET endpoint routing, and then has its own sub-pipeline for the proxy. Here proxy pipeline modules, such as load balancing, can be added to customize the handling of the request. 
 
@@ -111,7 +111,7 @@ Or create a new ASP.NET Core web application in Visual Studio 2022, and choose "
 
  ```XML
 <ItemGroup> 
-  <PackageReference Include="Yarp.ReverseProxy" Version="1.0.0" />
+  <PackageReference Include="Yarp.ReverseProxy" Version="1.1.0-rc.2.22152.2" />
 </ItemGroup> 
 ```
 

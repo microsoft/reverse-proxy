@@ -5,72 +5,71 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace Yarp.ReverseProxy.Utilities
+namespace Yarp.ReverseProxy.Utilities;
+
+internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
 {
-    internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
+#if NET6_0_OR_GREATER
+    private const int MaxQueueSize = 1024;
+    private static readonly ConcurrentQueue<ActivityCancellationTokenSource> _sharedSources = new();
+    private static int _count;
+#endif
+
+    private static readonly Action<object?> _linkedTokenCancelDelegate = static s =>
+    {
+        ((ActivityCancellationTokenSource)s!).Cancel(throwOnFirstException: false);
+    };
+
+    private int _activityTimeoutMs;
+    private CancellationTokenRegistration _linkedRegistration;
+
+    private ActivityCancellationTokenSource() { }
+
+    public void ResetTimeout()
+    {
+        CancelAfter(_activityTimeoutMs);
+    }
+
+    public static ActivityCancellationTokenSource Rent(TimeSpan activityTimeout, CancellationToken linkedToken)
     {
 #if NET6_0_OR_GREATER
-        private const int MaxQueueSize = 1024;
-        private static readonly ConcurrentQueue<ActivityCancellationTokenSource> _sharedSources = new();
-        private static int _count;
-#endif
-
-        private static readonly Action<object?> _linkedTokenCancelDelegate = static s =>
+        if (_sharedSources.TryDequeue(out var cts))
         {
-            ((ActivityCancellationTokenSource)s!).Cancel(throwOnFirstException: false);
-        };
-
-        private int _activityTimeoutMs;
-        private CancellationTokenRegistration _linkedRegistration;
-
-        private ActivityCancellationTokenSource() { }
-
-        public void ResetTimeout()
-        {
-            CancelAfter(_activityTimeoutMs);
+            Interlocked.Decrement(ref _count);
         }
-
-        public static ActivityCancellationTokenSource Rent(TimeSpan activityTimeout, CancellationToken linkedToken)
+        else
         {
-#if NET6_0_OR_GREATER
-            if (_sharedSources.TryDequeue(out var cts))
-            {
-                Interlocked.Decrement(ref _count);
-            }
-            else
-            {
-                cts = new ActivityCancellationTokenSource();
-            }
+            cts = new ActivityCancellationTokenSource();
+        }
 #else
-            var cts = new ActivityCancellationTokenSource();
+        var cts = new ActivityCancellationTokenSource();
 #endif
 
-            cts._activityTimeoutMs = (int)activityTimeout.TotalMilliseconds;
-            cts._linkedRegistration = linkedToken.UnsafeRegister(_linkedTokenCancelDelegate, cts);
-            cts.ResetTimeout();
+        cts._activityTimeoutMs = (int)activityTimeout.TotalMilliseconds;
+        cts._linkedRegistration = linkedToken.UnsafeRegister(_linkedTokenCancelDelegate, cts);
+        cts.ResetTimeout();
 
-            return cts;
-        }
+        return cts;
+    }
 
-        public void Return()
-        {
-            _linkedRegistration.Dispose();
-            _linkedRegistration = default;
+    public void Return()
+    {
+        _linkedRegistration.Dispose();
+        _linkedRegistration = default;
 
 #if NET6_0_OR_GREATER
-            if (TryReset())
+        if (TryReset())
+        {
+            if (Interlocked.Increment(ref _count) <= MaxQueueSize)
             {
-                if (Interlocked.Increment(ref _count) <= MaxQueueSize)
-                {
-                    _sharedSources.Enqueue(this);
-                    return;
-                }
-
-                Interlocked.Decrement(ref _count);
+                _sharedSources.Enqueue(this);
+                return;
             }
+
+            Interlocked.Decrement(ref _count);
+        }
 #endif
 
-            Dispose();
-        }
+        Dispose();
     }
 }

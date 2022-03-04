@@ -3,35 +3,34 @@
 
 using System;
 
-namespace Yarp.Telemetry.Consumption
+namespace Yarp.Telemetry.Consumption;
+
+/// <summary>
+/// Represents metrics reported by the System.Net.NameResolution event counters.
+/// </summary>
+public sealed class NameResolutionMetrics
 {
+    public NameResolutionMetrics() => Timestamp = DateTime.UtcNow;
+
     /// <summary>
-    /// Represents metrics reported by the System.Net.NameResolution event counters.
+    /// Timestamp of when this <see cref="NameResolutionMetrics"/> instance was created.
     /// </summary>
-    public sealed class NameResolutionMetrics
-    {
-        public NameResolutionMetrics() => Timestamp = DateTime.UtcNow;
+    public DateTime Timestamp { get; internal set; }
 
-        /// <summary>
-        /// Timestamp of when this <see cref="NameResolutionMetrics"/> instance was created.
-        /// </summary>
-        public DateTime Timestamp { get; internal set; }
+    /// <summary>
+    /// Number of DNS lookups requested since telemetry was enabled.
+    /// </summary>
+    public long DnsLookupsRequested { get; internal set; }
 
-        /// <summary>
-        /// Number of DNS lookups requested since telemetry was enabled.
-        /// </summary>
-        public long DnsLookupsRequested { get; internal set; }
-
-        /// <summary>
-        /// Average DNS lookup duration in the last metrics interval.
-        /// </summary>
-        public TimeSpan AverageLookupDuration { get; internal set; }
+    /// <summary>
+    /// Average DNS lookup duration in the last metrics interval.
+    /// </summary>
+    public TimeSpan AverageLookupDuration { get; internal set; }
 
 #if NET6_0_OR_GREATER
-        /// <summary>
-        /// Number of DNS lookups that have started but not yet completed or failed.
-        /// </summary>
-        public long CurrentDnsLookups { get; internal set; }
+    /// <summary>
+    /// Number of DNS lookups that have started but not yet completed or failed.
+    /// </summary>
+    public long CurrentDnsLookups { get; internal set; }
 #endif
-    }
 }

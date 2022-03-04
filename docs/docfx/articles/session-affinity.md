@@ -1,8 +1,5 @@
 # Session Affinity
 
-Introduced: preview2
-Updated: preview12
-
 ## Concept
 Session affinity is a mechanism to bind (affinitize) a causally related request sequence to the destination that handled the first request when the load is balanced among several destinations. It is useful in scenarios where the most requests in a sequence work with the same data and the cost of data access differs for different nodes (destinations) handling requests. The most common example is a transient caching (e.g. in-memory) where the first request fetches data from a slower persistent storage into a fast local cache and the others work only with the cached data thus increasing throughput.
 
@@ -28,7 +25,7 @@ Session affinity is configured per cluster according to the following configurat
             "SessionAffinity": {
                 "Enabled": "(true|false)", // defaults to 'false'
                 "Policy": "(Cookie|CustomHeader)", // defaults to 'Cookie'
-                "FailurePolicy": "(Redistribute|Return503)", // defaults to 'Redistribute'
+                "FailurePolicy": "(Redistribute|Return503Error)", // defaults to 'Redistribute'
                 "AffinityKeyName": "Key1",
                 "Cookie": {
                     "Domain": "localhost",

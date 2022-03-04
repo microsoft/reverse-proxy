@@ -29,7 +29,7 @@ The subsystems are:
 - **ReverseProxy.Metrics.Prometheus.Sample**
   - AppSettings.json - provides the configuration of routes, clusters and destinations. In this case it has 5 routes that map to a series of clusters which share 10 destinations between them.
   - Startup.cs - follows the same pattern as other samples but also calls
-    - services.AddAllPromethiusMetrics() - to register handlers for all the metric collection
+    - services.AddAllPrometheusMetrics() - to register handlers for all the metric collection
     - proxyPipeline.UsePerRequestMetricCollection() - to add a middleware step to the proxy pipeline that can monitor the requests and has access to contextual data such as the route, cluster and destination so it can create metrics that add those as dimensions.
     - endpoints.MapMetrics() - this adds the /metrics endpoint for prometheus-net that is polled by Prometheus.
   - Metrics consumer classes - these all follow the same pattern - they implement the respective metrics consumption interface, handle the event with metrics and then write those using Counters, Gauges & Histograms from prometheus-net. This includes:
@@ -49,10 +49,10 @@ The subsystems are:
 
 ## Running the sample
 
-### ReverseProxy.Metrics.Promethius.Sample
+### ReverseProxy.Metrics.Prometheus.Sample
 The sample can be started with dotnet run:
 ```shell
-dotnet run --project ReverseProxy.Metrics.Promethius.Sample --framework net5.0
+dotnet run --project ReverseProxy.Metrics.Prometheus.Sample --framework net5.0
 ```
 
 ### Destinations

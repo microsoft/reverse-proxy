@@ -5,13 +5,12 @@ using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace Yarp.ReverseProxy.Sample
+namespace Yarp.ReverseProxy.Sample;
+
+internal class TokenService
 {
-    internal class TokenService
+    internal Task<string> GetAuthTokenAsync(ClaimsPrincipal user)
     {
-        internal Task<string> GetAuthTokenAsync(ClaimsPrincipal user)
-        {
-            return Task.FromResult(user.Identity.Name);
-        }
+        return Task.FromResult(user.Identity.Name);
     }
 }

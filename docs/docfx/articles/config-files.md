@@ -1,8 +1,5 @@
 # Configuration Files
 
-Introduced: preview1
-Updated: preview5
-
 ## Introduction
 The reverse proxy can load configuration for routes and clusters from files using the IConfiguration abstraction from Microsoft.Extensions. The examples given here use JSON, but any IConfiguration source should work. The configuration will also be updated without restarting the proxy if the source file changes.
 
@@ -36,6 +33,23 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     }); 
 } 
 ```
+**Note**: For details about middleware ordering see [here](https://docs.microsoft.com/aspnet/core/fundamentals/middleware/#middleware-order).
+
+## Multiple Configuration Sources
+As of 1.1, YARP supports loading the proxy configuration from multiple sources. LoadFromConfig may be called multiple times referencing different IConfiguration sections or may be combine with a different config source like InMemory. Routes can reference clusters from other sources. Note merging partial config from different sources for a given route or cluster is not supported.
+
+```c#
+services.AddReverseProxy()
+    .LoadFromConfig(Configuration.GetSection("ReverseProxy1"))
+    .LoadFromConfig(Configuration.GetSection("ReverseProxy2"));
+```
+or
+```c#
+
+services.AddReverseProxy()
+    .LoadFromMemory(routes, clusters)
+    .LoadFromConfig(Configuration.GetSection("ReverseProxy"));
+```
 
 ## Configuration contract
 File-based configuration is dynamically mapped to the types in [Yarp.ReverseProxy.Configuration](xref:Yarp.ReverseProxy.Configuration) namespace by an [IProxyConfigProvider](xref:Yarp.ReverseProxy.Configuration.IProxyConfigProvider) implementation converts at application start and each time the configuration changes.
@@ -51,7 +65,8 @@ Example:
       "route1" : {
         "ClusterId": "cluster1",
         "Match": {
-          "Path": "{**catch-all}"
+          "Path": "{**catch-all}",
+          "Hosts" : [ "www.aaaaa.com", "www.bbbbb.com"],
         },
       }
     },
@@ -69,10 +84,12 @@ Example:
 ```
 
 ### Routes
-The routes section is an ordered list of route matches and their associated configuration. A route requires at least the following fields:
+
+The routes section is an unordered collection of route matches and their associated configuration. A route requires at least the following fields:
 - RouteId - a unique name
 - ClusterId - refers to the name of an entry in the clusters section.
-- Match - contains either a Hosts array or a Path pattern string. Path is an ASP.NET Core route template that can be defined as [explained here](https://docs.microsoft.com/aspnet/core/fundamentals/routing#route-template-reference).
+- Match - contains either a Hosts array or a Path pattern string. Path is an ASP.NET Core route template that can be defined as [explained here](https://docs.microsoft.com/aspnet/core/fundamentals/routing#route-templates).
+Route matching is based on the most specific routes having highest precedence as described [here]( https://docs.microsoft.com/aspnet/core/fundamentals/routing#url-matching). Explicit ordering can be achieved using the `order` field, with lower values taking higher priority.
 
 [Headers](header-routing.md), [Authorization](authn-authz.md), [CORS](cors.md), and other route based policies can be configured on each route entry. For additional fields see [RouteConfig](xref:Yarp.ReverseProxy.Configuration.RouteConfig).
 
@@ -137,7 +154,7 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
         "MetaData" : { // List of key value pairs that can be used by custom extensions
           "MyName" : "MyValue"
         },
-        "Transforms" : [ // List of transforms. See ./Transforms.html for more details
+        "Transforms" : [ // List of transforms. See the Transforms article for more details
           {
             "RequestHeader": "MyHeader",
             "Set": "MyValue",
@@ -168,7 +185,7 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
         "SessionAffinity": {
           "Enabled": true, // Defaults to 'false'
           "Policy": "Cookie", // Default, alternatively "CustomHeader"
-          "FailurePolicy": "Redistribute", // default, Alternatively "Return503"
+          "FailurePolicy": "Redistribute", // default, Alternatively "Return503Error"
           "Settings" : {
               "CustomHeaderName": "MySessionHeaderName" // Defaults to 'X-Yarp-Proxy-Affinity`
           }
@@ -209,3 +226,5 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
   }
 }
 ```
+
+For more information see [logging configuration](diagnosing-yarp-issues.md#logging) and [HTTP client configuration](http-client-config.md).

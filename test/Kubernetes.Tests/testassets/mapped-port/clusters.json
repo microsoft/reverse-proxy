@@ -1,6 +1,6 @@
 [
   {
-    "ClusterId": "backend:5011",
+    "ClusterId": "backend.default:5011",
     "LoadBalancingPolicy": null,
     "SessionAffinity": null,
     "HealthCheck": null,

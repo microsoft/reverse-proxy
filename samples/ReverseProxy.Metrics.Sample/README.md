@@ -1,4 +1,4 @@
-#ReverseProxy.Metrics.Sample
+# ReverseProxy.Metrics.Sample
 
 This sample demonstrates how to use the ReverseProxy.Telemetry.Consumption library to listen to telemetry data from YARP.
 In this case it uses the events to create a per-request data structure with detailed timings for each operation that takes place as part of the proxy operation.

@@ -7,11 +7,10 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.Kubernetes.Operator
+namespace Microsoft.Kubernetes.Operator;
+
+public interface IOperatorHandler<TResource> : IDisposable
+    where TResource : class, IKubernetesObject<V1ObjectMeta>
 {
-    public interface IOperatorHandler<TResource> : IDisposable
-        where TResource : class, IKubernetesObject<V1ObjectMeta>
-    {
-        Task RunAsync(CancellationToken cancellationToken);
-    }
+    Task RunAsync(CancellationToken cancellationToken);
 }

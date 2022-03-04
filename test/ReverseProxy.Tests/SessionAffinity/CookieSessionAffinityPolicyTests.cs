@@ -9,122 +9,121 @@ using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
 
-namespace Yarp.ReverseProxy.SessionAffinity.Tests
+namespace Yarp.ReverseProxy.SessionAffinity.Tests;
+
+public class CookieSessionAffinityPolicyTests
 {
-    public class CookieSessionAffinityPolicyTests
+    private readonly SessionAffinityConfig _config = new SessionAffinityConfig
     {
-        private readonly SessionAffinityConfig _config = new SessionAffinityConfig
+        Enabled = true,
+        Policy = "Cookie",
+        FailurePolicy = "Return503Error",
+        AffinityKeyName = "My.Affinity",
+        Cookie = new SessionAffinityCookieConfig
         {
-            Enabled = true,
-            Policy = "Cookie",
-            FailurePolicy = "Return503",
-            AffinityKeyName = "My.Affinity",
-            Cookie = new SessionAffinityCookieConfig
-            {
-                Domain = "mydomain.my",
-                HttpOnly = false,
-                IsEssential = true,
-                MaxAge = TimeSpan.FromHours(1),
-                Path = "/some",
-                SameSite = SameSiteMode.Lax,
-                SecurePolicy = CookieSecurePolicy.Always,
-            }
-        };
-        private readonly IReadOnlyList<DestinationState> _destinations = new[] { new DestinationState("dest-A"), new DestinationState("dest-B"), new DestinationState("dest-C") };
-
-        [Fact]
-        public void FindAffinitizedDestination_AffinityKeyIsNotSetOnRequest_ReturnKeyNotSet()
-        {
-            var policy = new CookieSessionAffinityPolicy(
-                AffinityTestHelper.GetDataProtector().Object,
-                new ManualClock(),
-                AffinityTestHelper.GetLogger<CookieSessionAffinityPolicy>().Object);
-
-            Assert.Equal(SessionAffinityConstants.Policies.Cookie, policy.Name);
-
-            var context = new DefaultHttpContext();
-            context.Request.Headers["Cookie"] = new[] { $"Some-Cookie=ZZZ" };
-            var cluster = new ClusterState("cluster");
-
-            var affinityResult = policy.FindAffinitizedDestinations(context, cluster, _config, _destinations);
-
-            Assert.Equal(AffinityStatus.AffinityKeyNotSet, affinityResult.Status);
-            Assert.Null(affinityResult.Destinations);
+            Domain = "mydomain.my",
+            HttpOnly = false,
+            IsEssential = true,
+            MaxAge = TimeSpan.FromHours(1),
+            Path = "/some",
+            SameSite = SameSiteMode.Lax,
+            SecurePolicy = CookieSecurePolicy.Always,
         }
+    };
+    private readonly IReadOnlyList<DestinationState> _destinations = new[] { new DestinationState("dest-A"), new DestinationState("dest-B"), new DestinationState("dest-C") };
 
-        [Fact]
-        public void FindAffinitizedDestination_AffinityKeyIsSetOnRequest_Success()
-        {
-            var policy = new CookieSessionAffinityPolicy(
-                AffinityTestHelper.GetDataProtector().Object,
-                new ManualClock(),
-                AffinityTestHelper.GetLogger<CookieSessionAffinityPolicy>().Object);
-            var context = new DefaultHttpContext();
-            var affinitizedDestination = _destinations[1];
-            context.Request.Headers["Cookie"] = GetCookieWithAffinity(affinitizedDestination);
-            var cluster = new ClusterState("cluster");
+    [Fact]
+    public void FindAffinitizedDestination_AffinityKeyIsNotSetOnRequest_ReturnKeyNotSet()
+    {
+        var policy = new CookieSessionAffinityPolicy(
+            AffinityTestHelper.GetDataProtector().Object,
+            new ManualClock(),
+            AffinityTestHelper.GetLogger<CookieSessionAffinityPolicy>().Object);
 
-            var affinityResult = policy.FindAffinitizedDestinations(context, cluster, _config, _destinations);
+        Assert.Equal(SessionAffinityConstants.Policies.Cookie, policy.Name);
 
-            Assert.Equal(AffinityStatus.OK, affinityResult.Status);
-            Assert.Equal(1, affinityResult.Destinations.Count);
-            Assert.Same(affinitizedDestination, affinityResult.Destinations[0]);
-        }
+        var context = new DefaultHttpContext();
+        context.Request.Headers["Cookie"] = new[] { $"Some-Cookie=ZZZ" };
+        var cluster = new ClusterState("cluster");
 
-        [Fact]
-        public void AffinitizedRequest_CustomConfigAffinityKeyIsNotExtracted_SetKeyOnResponse()
-        {
-            var policy = new CookieSessionAffinityPolicy(
-                AffinityTestHelper.GetDataProtector().Object,
-                new ManualClock(),
-                AffinityTestHelper.GetLogger<CookieSessionAffinityPolicy>().Object);
-            var context = new DefaultHttpContext();
+        var affinityResult = policy.FindAffinitizedDestinations(context, cluster, _config, _destinations);
 
-            policy.AffinitizeResponse(context, new ClusterState("cluster"), _config, _destinations[1]);
+        Assert.Equal(AffinityStatus.AffinityKeyNotSet, affinityResult.Status);
+        Assert.Null(affinityResult.Destinations);
+    }
 
-            var affinityCookieHeader = context.Response.Headers["Set-Cookie"];
-            Assert.Equal("My.Affinity=ZGVzdC1C; max-age=3600; domain=mydomain.my; path=/some; secure; samesite=lax", affinityCookieHeader);
-        }
+    [Fact]
+    public void FindAffinitizedDestination_AffinityKeyIsSetOnRequest_Success()
+    {
+        var policy = new CookieSessionAffinityPolicy(
+            AffinityTestHelper.GetDataProtector().Object,
+            new ManualClock(),
+            AffinityTestHelper.GetLogger<CookieSessionAffinityPolicy>().Object);
+        var context = new DefaultHttpContext();
+        var affinitizedDestination = _destinations[1];
+        context.Request.Headers["Cookie"] = GetCookieWithAffinity(affinitizedDestination);
+        var cluster = new ClusterState("cluster");
 
-        [Fact]
-        public void AffinitizeRequest_CookieConfigSpecified_UseIt()
-        {
-            var policy = new CookieSessionAffinityPolicy(
-                AffinityTestHelper.GetDataProtector().Object,
-                new ManualClock(),
-                AffinityTestHelper.GetLogger<CookieSessionAffinityPolicy>().Object);
-            var context = new DefaultHttpContext();
+        var affinityResult = policy.FindAffinitizedDestinations(context, cluster, _config, _destinations);
 
-            policy.AffinitizeResponse(context, new ClusterState("cluster"), _config, _destinations[1]);
+        Assert.Equal(AffinityStatus.OK, affinityResult.Status);
+        Assert.Equal(1, affinityResult.Destinations.Count);
+        Assert.Same(affinitizedDestination, affinityResult.Destinations[0]);
+    }
 
-            var affinityCookieHeader = context.Response.Headers["Set-Cookie"];
-            Assert.Equal("My.Affinity=ZGVzdC1C; max-age=3600; domain=mydomain.my; path=/some; secure; samesite=lax", affinityCookieHeader);
-        }
+    [Fact]
+    public void AffinitizedRequest_CustomConfigAffinityKeyIsNotExtracted_SetKeyOnResponse()
+    {
+        var policy = new CookieSessionAffinityPolicy(
+            AffinityTestHelper.GetDataProtector().Object,
+            new ManualClock(),
+            AffinityTestHelper.GetLogger<CookieSessionAffinityPolicy>().Object);
+        var context = new DefaultHttpContext();
 
-        [Fact]
-        public void AffinitizedRequest_AffinityKeyIsExtracted_DoNothing()
-        {
-            var policy = new CookieSessionAffinityPolicy(
-                AffinityTestHelper.GetDataProtector().Object,
-                new ManualClock(),
-                AffinityTestHelper.GetLogger<CookieSessionAffinityPolicy>().Object);
-            var context = new DefaultHttpContext();
-            var affinitizedDestination = _destinations[0];
-            context.Request.Headers["Cookie"] = GetCookieWithAffinity(affinitizedDestination);
-            var cluster = new ClusterState("cluster");
+        policy.AffinitizeResponse(context, new ClusterState("cluster"), _config, _destinations[1]);
 
-            var affinityResult = policy.FindAffinitizedDestinations(context, cluster, _config, _destinations);
+        var affinityCookieHeader = context.Response.Headers["Set-Cookie"];
+        Assert.Equal("My.Affinity=ZGVzdC1C; max-age=3600; domain=mydomain.my; path=/some; secure; samesite=lax", affinityCookieHeader);
+    }
 
-            Assert.Equal(AffinityStatus.OK, affinityResult.Status);
+    [Fact]
+    public void AffinitizeRequest_CookieConfigSpecified_UseIt()
+    {
+        var policy = new CookieSessionAffinityPolicy(
+            AffinityTestHelper.GetDataProtector().Object,
+            new ManualClock(),
+            AffinityTestHelper.GetLogger<CookieSessionAffinityPolicy>().Object);
+        var context = new DefaultHttpContext();
 
-            policy.AffinitizeResponse(context, cluster, _config, affinitizedDestination);
+        policy.AffinitizeResponse(context, new ClusterState("cluster"), _config, _destinations[1]);
 
-            Assert.False(context.Response.Headers.ContainsKey("Cookie"));
-        }
+        var affinityCookieHeader = context.Response.Headers["Set-Cookie"];
+        Assert.Equal("My.Affinity=ZGVzdC1C; max-age=3600; domain=mydomain.my; path=/some; secure; samesite=lax", affinityCookieHeader);
+    }
 
-        private string[] GetCookieWithAffinity(DestinationState affinitizedDestination)
-        {
-            return new[] { $"Some-Cookie=ZZZ", $"{_config.AffinityKeyName}={affinitizedDestination.DestinationId.ToUTF8BytesInBase64()}" };
-        }
+    [Fact]
+    public void AffinitizedRequest_AffinityKeyIsExtracted_DoNothing()
+    {
+        var policy = new CookieSessionAffinityPolicy(
+            AffinityTestHelper.GetDataProtector().Object,
+            new ManualClock(),
+            AffinityTestHelper.GetLogger<CookieSessionAffinityPolicy>().Object);
+        var context = new DefaultHttpContext();
+        var affinitizedDestination = _destinations[0];
+        context.Request.Headers["Cookie"] = GetCookieWithAffinity(affinitizedDestination);
+        var cluster = new ClusterState("cluster");
+
+        var affinityResult = policy.FindAffinitizedDestinations(context, cluster, _config, _destinations);
+
+        Assert.Equal(AffinityStatus.OK, affinityResult.Status);
+
+        policy.AffinitizeResponse(context, cluster, _config, affinitizedDestination);
+
+        Assert.False(context.Response.Headers.ContainsKey("Cookie"));
+    }
+
+    private string[] GetCookieWithAffinity(DestinationState affinitizedDestination)
+    {
+        return new[] { $"Some-Cookie=ZZZ", $"{_config.AffinityKeyName}={affinitizedDestination.DestinationId.ToUTF8BytesInBase64()}" };
     }
 }

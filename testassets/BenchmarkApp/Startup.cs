@@ -8,57 +8,56 @@ using Microsoft.Crank.EventSources;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace BenchmarkApp
+namespace BenchmarkApp;
+
+public class Startup
 {
-    public class Startup
+    private readonly IConfiguration _configuration;
+
+    public Startup(IConfiguration configuration)
     {
-        private readonly IConfiguration _configuration;
+        _configuration = configuration;
+    }
 
-        public Startup(IConfiguration configuration)
+    public void ConfigureServices(IServiceCollection services)
+    {
+        var clusterUrls = _configuration["clusterUrls"];
+
+        if (string.IsNullOrWhiteSpace(clusterUrls))
         {
-            _configuration = configuration;
+            throw new ArgumentException("--clusterUrls is required");
         }
 
-        public void ConfigureServices(IServiceCollection services)
+        var configDictionary = new Dictionary<string, string>
         {
-            var clusterUrls = _configuration["clusterUrls"];
+            { "Routes:route:ClusterId", "cluster" },
+            { "Routes:route:Match:Path", "/{**catchall}" },
+            { "Clusters:cluster:HttpClient:DangerousAcceptAnyServerCertificate", "true" },
+        };
 
-            if (string.IsNullOrWhiteSpace(clusterUrls))
-            {
-                throw new ArgumentException("--clusterUrls is required");
-            }
-
-            var configDictionary = new Dictionary<string, string>
-            {
-                { "Routes:route:ClusterId", "cluster" },
-                { "Routes:route:Match:Path", "/{**catchall}" },
-                { "Clusters:cluster:HttpClient:DangerousAcceptAnyServerCertificate", "true" },
-            };
-
-            var clusterCount = 0;
-            foreach (var clusterUrl in clusterUrls.Split(';'))
-            {
-                configDictionary.Add($"Clusters:cluster:Destinations:destination{clusterCount++}:Address", clusterUrl);
-            }
-
-            var proxyConfig = new ConfigurationBuilder().AddInMemoryCollection(configDictionary).Build();
-
-            services.AddReverseProxy().LoadFromConfig(proxyConfig);
+        var clusterCount = 0;
+        foreach (var clusterUrl in clusterUrls.Split(';'))
+        {
+            configDictionary.Add($"Clusters:cluster:Destinations:destination{clusterCount++}:Address", clusterUrl);
         }
 
-        public void Configure(IApplicationBuilder app)
-        {
-            BenchmarksEventSource.MeasureAspNetVersion();
-            BenchmarksEventSource.MeasureNetCoreAppVersion();
+        var proxyConfig = new ConfigurationBuilder().AddInMemoryCollection(configDictionary).Build();
 
-            app.UseRouting();
-            app.UseEndpoints(endpoints =>
+        services.AddReverseProxy().LoadFromConfig(proxyConfig);
+    }
+
+    public void Configure(IApplicationBuilder app)
+    {
+        BenchmarksEventSource.MeasureAspNetVersion();
+        BenchmarksEventSource.MeasureNetCoreAppVersion();
+
+        app.UseRouting();
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapReverseProxy(builder =>
             {
-                endpoints.MapReverseProxy(builder =>
-                {
-                    // Skip SessionAffinity, LoadBalancing and PassiveHealthChecks
-                });
+                // Skip SessionAffinity, LoadBalancing and PassiveHealthChecks
             });
-        }
+        });
     }
 }

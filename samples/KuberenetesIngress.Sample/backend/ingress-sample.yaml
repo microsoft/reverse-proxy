@@ -3,6 +3,7 @@ kind: Ingress
 metadata:
   name: minimal-ingress
 spec:
+  ingressClassName: yarp
   rules:
   - http:
       paths:

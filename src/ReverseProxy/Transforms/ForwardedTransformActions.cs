@@ -1,13 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Yarp.ReverseProxy.Transforms
+namespace Yarp.ReverseProxy.Transforms;
+
+public enum ForwardedTransformActions
 {
-    public enum ForwardedTransformActions
-    {
-        Off = 0,
-        Set,
-        Append,
-        Remove
-    }
+    Off = 0,
+    Set,
+    Append,
+    Remove
 }

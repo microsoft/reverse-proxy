@@ -1,7 +1,5 @@
 # Load Balancing
 
-Introduced: preview8
-
 ## Introduction
 
 Whenever there are multiple healthy destinations available, YARP has to decide which one to use for a given request.
@@ -97,7 +95,7 @@ public sealed class LastLoadBalancingPolicy : ILoadBalancingPolicy
     }
 }
 
-// Register it in DI
+// Register it in DI in ConfigureServices method
 services.AddSingleton<ILoadBalancingPolicy, LastLoadBalancingPolicy>();
 
 // Set the LoadBalancingPolicy on the cluster
