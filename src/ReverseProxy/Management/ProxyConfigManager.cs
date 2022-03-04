@@ -718,7 +718,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         _configChangeSource.Dispose();
         foreach (var instance in _configs)
         {
-            instance.CallbackCleanup?.Dispose();
+            instance?.CallbackCleanup?.Dispose();
         }
     }
 
