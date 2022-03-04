@@ -85,7 +85,11 @@
 <h3 id="alt-svc">Alt-Svc</h3>
 <p>This response header is used with HTTP/3 upgrades and only applies to the immediate connection.</p>
 <h3 id="traceparent-request-id-tracestate-baggage-correlation-context">TraceParent, Request-Id, TraceState, Baggage, Correlation-Context</h3>
-<p>These headers relate to distributed tracing. They are automatically removed on .NET 6 or later so that the forwarding HttpClient can replace them with updated values.</p>
+<p>These headers relate to distributed tracing. They are automatically removed on .NET 6 or later so that the forwarding HttpClient can replace them with updated values.
+You can opt out of modifying these headers by setting <code>SocketsHttpHandler.ActivityHeadersPropagator </code> to <code>null</code>:</p>
+<pre><code class="lang-C#">services.AddReverseProxy()
+    .ConfigureHttpClient((_, handler) =&gt; handler.ActivityHeadersPropagator = null);
+</code></pre>
 <h2 id="other-header-guidelines">Other Header Guidelines</h2>
 <h3 id="host">Host</h3>
 <p>The Host header indicates which site on the server the request is intended for. This header is removed by default since the host name used publicly by the proxy is likely to differ from the one used by the service behind the proxy. This is configurable using the <a href="transforms.html#requestheaderoriginalhost">RequestHeaderOriginalHost</a> transform.</p>

@@ -69,7 +69,6 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="http-client-configuration">HTTP Client Configuration</h1>
 
-<p>Introduced: preview5</p>
 <h2 id="introduction">Introduction</h2>
 <p>Each <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.ClusterConfig.html">Cluster</a> has a dedicated <a href="https://docs.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker">HttpMessageInvoker</a> instance used to forward requests to its <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.DestinationConfig.html">Destination</a>s. The configuration is defined per cluster. On YARP startup, all clusters get new <code>HttpMessageInvoker</code> instances, however if later the cluster configuration gets changed the <a class="xref" href="../api/Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory.html">IForwarderHttpClientFactory</a> will re-run and decide if it should create a new <code>HttpMessageInvoker</code> or keep using the existing one. The default <code>IForwarderHttpClientFactory</code> implementation creates a new <code>HttpMessageInvoker</code> when there are changes to the <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.HttpClientConfig.html">HttpClientConfig</a>.</p>
 <p>Properties of outgoing requests for a given cluster can be configured as well. They are defined in <a class="xref" href="../api/Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.html">ForwarderRequestConfig</a>.</p>
@@ -205,7 +204,6 @@
 <p>The following is an example of <code>HttpClientConfig</code> using <a href="config-providers.html">code based</a> configuration. An instance of <code>HttpClientConfig</code> is assigned to the <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.ClusterConfig.html">ClusterConfig.HttpClient</a> property before passing the cluster array to <code>LoadFromMemory</code> method.</p>
 <pre><code class="lang-C#">public void ConfigureServices(IServiceCollection services)
 {
-    services.AddControllers();
     var routes = new[]
     {
         new RouteConfig()
@@ -232,8 +230,7 @@
     };
 
     services.AddReverseProxy()
-        .LoadFromMemory(routes, clusters)
-        .AddProxyConfigFilter&lt;CustomConfigFilter&gt;();
+        .LoadFromMemory(routes, clusters);
 }
 </code></pre>
 <h2 id="configuring-the-http-client">Configuring the http client</h2>
@@ -253,7 +250,8 @@
     UseProxy = false,
     AllowAutoRedirect = false,
     AutomaticDecompression = DecompressionMethods.None,
-    UseCookies = false
+    UseCookies = false,
+    ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
 };
 </code></pre>
 <p>Always return an HttpMessageInvoker instance rather than an HttpClient instance which derives from HttpMessageInvoker. HttpClient buffers responses by default which breaks streaming scenarios and increases memory usage and latency.</p>
@@ -268,7 +266,8 @@
             UseProxy = false,
             AllowAutoRedirect = false,
             AutomaticDecompression = DecompressionMethods.None,
-            UseCookies = false
+            UseCookies = false,
+            ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
         };
 
         return new HttpMessageInvoker(handler, disposeHandler: true);

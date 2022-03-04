@@ -69,8 +69,6 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="session-affinity">Session Affinity</h1>
 
-<p>Introduced: preview2
-Updated: preview12</p>
 <h2 id="concept">Concept</h2>
 <p>Session affinity is a mechanism to bind (affinitize) a causally related request sequence to the destination that handled the first request when the load is balanced among several destinations. It is useful in scenarios where the most requests in a sequence work with the same data and the cost of data access differs for different nodes (destinations) handling requests. The most common example is a transient caching (e.g. in-memory) where the first request fetches data from a slower persistent storage into a fast local cache and the others work only with the cached data thus increasing throughput.</p>
 <h2 id="configuration">Configuration</h2>
@@ -91,7 +89,7 @@ Updated: preview12</p>
             &quot;SessionAffinity&quot;: {
                 &quot;Enabled&quot;: &quot;(true|false)&quot;, // defaults to 'false'
                 &quot;Policy&quot;: &quot;(Cookie|CustomHeader)&quot;, // defaults to 'Cookie'
-                &quot;FailurePolicy&quot;: &quot;(Redistribute|Return503)&quot;, // defaults to 'Redistribute'
+                &quot;FailurePolicy&quot;: &quot;(Redistribute|Return503Error)&quot;, // defaults to 'Redistribute'
                 &quot;AffinityKeyName&quot;: &quot;Key1&quot;,
                 &quot;Cookie&quot;: {
                     &quot;Domain&quot;: &quot;localhost&quot;,

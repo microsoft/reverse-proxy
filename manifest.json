@@ -17,71 +17,11 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/BasicOperator.Generators.HelloWorldGenerator.yml",
+      "source_relative_path": "api/Microsoft.AspNetCore.Builder.AppBuilderDelegationExtensions.yml",
       "output": {
         ".html": {
-          "relative_path": "api/BasicOperator.Generators.HelloWorldGenerator.html",
-          "hash": "fnjgrDe6XdAijkWOYufdZama4wM1kYwRCoevh9zR8Xo="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/BasicOperator.Generators.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/BasicOperator.Generators.html",
-          "hash": "IllGp4bHj17xU5f6zq6lf71Gl8At/dQ5BqC5DttxprA="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/BasicOperator.Models.V1alpha1HelloWorld.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/BasicOperator.Models.V1alpha1HelloWorld.html",
-          "hash": "gOM2Cc/LSGchAeFHA5GoE6F4BqM/dBjsrgnAGiL233c="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/BasicOperator.Models.V1alpha1HelloWorldSpec.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/BasicOperator.Models.V1alpha1HelloWorldSpec.html",
-          "hash": "ncm4Pzyoo54fZpVN+UOLjOiUoOmF05EoeoVU72Po58A="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/BasicOperator.Models.V1alpha1HelloWorldStatus.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/BasicOperator.Models.V1alpha1HelloWorldStatus.html",
-          "hash": "rDNvX/cIJ8CdfV3jiD3YEdqKLcRhkA5Cire+D6D1nQw="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/BasicOperator.Models.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/BasicOperator.Models.html",
-          "hash": "/DsYxX7MclixJSaGq6o4qdQojrDjeyU/mNuBwfwlc3c="
+          "relative_path": "api/Microsoft.AspNetCore.Builder.AppBuilderDelegationExtensions.html",
+          "hash": "0Fs2ndjYPu/FBQY1eyFQ06Q7kje7sf6qQQUaooMghiE="
         }
       },
       "is_incremental": false,
@@ -93,7 +33,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.AspNetCore.Builder.AppBuilderHealthExtensions.html",
-          "hash": "bwq6bIAIFo8UaoOvTtu/d/WNWnItrvsJdLOKHlg+lK8="
+          "hash": "5nscWIey8WvREx0C27VZiYqDYLMTN3RBSrLcn02Tw88="
         }
       },
       "is_incremental": false,
@@ -105,7 +45,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.AspNetCore.Builder.AppBuilderLoadBalancingExtensions.html",
-          "hash": "jgjplPmBlTdAzW7uqw97/fb+AbiSn2WFb4cLVZ/pJVw="
+          "hash": "iy1uJGxi61jCM4TP+B5/o2DVA8S6tGBELzx4G3yt144="
         }
       },
       "is_incremental": false,
@@ -117,7 +57,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.AspNetCore.Builder.AppBuilderSessionAffinityExtensions.html",
-          "hash": "VwTn0hgKh8goSvSMG9u2i7iJteUcA4fYcSCwx3grN78="
+          "hash": "d5odHKJztKJWYD7ILDQTWCA7MslJQUwtYZSnY37LbnU="
         }
       },
       "is_incremental": false,
@@ -129,7 +69,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.AspNetCore.Builder.IReverseProxyApplicationBuilder.html",
-          "hash": "aUSrKDF82lSM12eszBJ3Hlog9yC8ewnG1k9cRccjzro="
+          "hash": "JCnt4/RGnJOD9zeETjtgYOsX/cv8VifI5zBH2KdACBY="
         }
       },
       "is_incremental": false,
@@ -141,7 +81,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.AspNetCore.Builder.ReverseProxyConventionBuilder.html",
-          "hash": "/4VFnDoQbiDsBVkAgOIGrCnOePmrb4LTH6BE6jxZocw="
+          "hash": "ZvPH7C7gq1sY0Z0xsaTCKp6TC7WSGps1XZ0IghHUpVo="
         }
       },
       "is_incremental": false,
@@ -153,7 +93,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions.html",
-          "hash": "UgwnRveNxvwOYffQnRr0q0Q+6pkpQd3P1YmBnhMLlVI="
+          "hash": "CihEMpgZUhYLfF8OHSBqnG6VmSWKjjDd5mf73zMaClc="
         }
       },
       "is_incremental": false,
@@ -165,7 +105,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.AspNetCore.Builder.WebSocketsTelemetryExtensions.html",
-          "hash": "1jDaLwNsfJkdIDYttnrwrxqDlsBAV8MxeiGzzXVU5l4="
+          "hash": "GPIkuHJvrbaew8nS7MkAWi3AenzWgRaxEXGW0Pd3obM="
         }
       },
       "is_incremental": false,
@@ -177,7 +117,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.AspNetCore.Builder.html",
-          "hash": "l1CF2FWa4yXO5u0UvvUwAOuW8dYoAe9COuHptv2taC0="
+          "hash": "Rbsf2ww5AYWY4vdXNnTYlBB6QBwW8F8cRuGSrxxTTxY="
         }
       },
       "is_incremental": false,
@@ -189,7 +129,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.html",
-          "hash": "dB44TIC7HBhRRLfpWIzfPyIXyFGjzL6G0wtarizMncc="
+          "hash": "JQ/0+DjL1szTc+8UKbDT/ARURAowKPasvDp8BC1uwa0="
         }
       },
       "is_incremental": false,
@@ -213,67 +153,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder.html",
-          "hash": "tabOWn9gNtZGaDFi0DO/IiX8I5z6ycPuFRmnbewy1fc="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Extensions.DependencyInjection.KubernetesControllerExtensions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Extensions.DependencyInjection.KubernetesControllerExtensions.html",
-          "hash": "Dgi8AIdEHDtB8Z2MoMVDuSl/ANcK8tqqohQzwBYkI/A="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Extensions.DependencyInjection.KubernetesCoreExtensions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Extensions.DependencyInjection.KubernetesCoreExtensions.html",
-          "hash": "6BjCKg2GZa1Te9CxmxOKAh6B0a5KuZkwW5UgEtbuASE="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Extensions.DependencyInjection.KubernetesCustomResourceExtensions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Extensions.DependencyInjection.KubernetesCustomResourceExtensions.html",
-          "hash": "A8hRshfDmjkpOikkXRAq8CH6/te5HFwNsNn4+F6+nB8="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Extensions.DependencyInjection.KubernetesOperatorExtensions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Extensions.DependencyInjection.KubernetesOperatorExtensions.html",
-          "hash": "RdmoplEUK5B/+O1BlG+ypH1wY/PpigmgjjC0gxbhB3c="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Extensions.DependencyInjection.OperatorServiceCollectionBuilder-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Extensions.DependencyInjection.OperatorServiceCollectionBuilder-1.html",
-          "hash": "5+/MesZo217As2GgAFidBu9pAXbiICYD6lKyL6NoYJg="
+          "hash": "Xsz6k0hVCHGEpe0uOd7E+ezAbImfevyG5G0Q+4zGIaw="
         }
       },
       "is_incremental": false,
@@ -285,19 +165,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html",
-          "hash": "OHvT9828kN1MbjmOEukMJUUwq+cKDWPd5XCspfNmKvo="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Extensions.DependencyInjection.ServiceCollectionHostedServiceAdapterExtensions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Extensions.DependencyInjection.ServiceCollectionHostedServiceAdapterExtensions.html",
-          "hash": "rAyz1XkxhizVHdUEwqO5/0fAN7owgC9SQdd2jlL/Vlc="
+          "hash": "onziHPqpN2ddYUKJleKIvJK+Jw14cSKCVUKkql8fHAs="
         }
       },
       "is_incremental": false,
@@ -309,7 +177,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.html",
-          "hash": "T9F8NmCn3IpohQkFQSu+kdPBhr6B40AES4DDky4IWEY="
+          "hash": "2ooBbkASOQ928osAPmFAJolCtCzjAu0V3S26PRZUpDw="
         }
       },
       "is_incremental": false,
@@ -321,2263 +189,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Microsoft.Extensions.DependencyInjection.html",
-          "hash": "zRSM1h20vGNauG4D1PQ9v9qOxEEckqmDGPv0g47TNaI="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Client.AnyResourceKind.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Client.AnyResourceKind.html",
-          "hash": "To0ouvUAjnwvQ05+W4tiRVFpV3GLHfPpqICkfQbyh/k="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Client.IAnyResourceKind.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Client.IAnyResourceKind.html",
-          "hash": "3XyqHj+RlivIApgWTno7bpZGgQ5UensQ8Wfn/NRBkxA="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Client.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Client.html",
-          "hash": "Q9w1JfysMAOm/NTvn03S3QpgFVtVZDwkXXinI3hCW44="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.BackgroundHostedService.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.BackgroundHostedService.html",
-          "hash": "Gm+ZGUo9FO52TT2fjsEPYQExCLNnl6peIkl4xqAqkSM="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.BackgroundHostedServiceTests.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.BackgroundHostedServiceTests.html",
-          "hash": "kGvNeUl3ggx8TbvSOnP0URqGuM+zEXq+wWBzdKVQvzA="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.Fakes.FakeBackgroundHostedService.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.Fakes.FakeBackgroundHostedService.html",
-          "hash": "looPstOBHJo+iBDjvpbK7wP8wIiPm9qhpgeBK3pKY/o="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.Fakes.FakeServer.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.Fakes.FakeServer.html",
-          "hash": "RFf9aIVY7VA8+XW8tWRIbaEUmGukdWU4s0aGRawgFZ0="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.Fakes.TestLatch.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.Fakes.TestLatch.html",
-          "hash": "V16tmiJdWPsQv7DJPl7+yroy2M0awZv7NLdrQtB2t/c="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.Fakes.TestLatches.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.Fakes.TestLatches.html",
-          "hash": "95QuOupUhhgXYQy2WnifjP9RUcCD9NJwTK83g79N1hw="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.Fakes.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.Fakes.html",
-          "hash": "Sg+Mo4Cbe0tehJE2SaMHBGnki2MvBd62EA4eDeGmiqw="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.HostedServiceAdapter-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.HostedServiceAdapter-1.html",
-          "hash": "+7XfRVTBoI5z9BKO2nYyoAwc8FHeiEgvnmcajl1P8G4="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Hosting.html",
-          "hash": "f33qa7YOHA2YLv5Az33yYA8c47/EhTQMs3d0Fe2TncA="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Informers.IResourceInformer-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Informers.IResourceInformer-1.html",
-          "hash": "WyMNgdrCH4wT/Tm1hRT+xOk4ko2XueQ4+mDQDHid5H4="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Informers.IResourceInformer.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Informers.IResourceInformer.html",
-          "hash": "UMYGYM/S00sdSHayQx1a0MELYuXt3Rlgobj33mh/+xE="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Informers.IResourceInformerRegistration.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Informers.IResourceInformerRegistration.html",
-          "hash": "S1Iv6NY9Kce6jIZWz5QkNsx//0uTgiF/Mxx7LB9ulDI="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Informers.ResourceInformer-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Informers.ResourceInformer-1.html",
-          "hash": "ZCFQxc/7h3EhkFboTh2Ivy4h+NcRdU18rz2pi5HhQx4="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Informers.ResourceInformerCallback-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Informers.ResourceInformerCallback-1.html",
-          "hash": "ccuWEq/6kJVcVathULK5jIuKPhUxRVPWcGWa1/5eDBw="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Informers.ResourceInformerTests.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Informers.ResourceInformerTests.html",
-          "hash": "8dkMFFHBsP9QAwrlUPcGUSxSCi3i+JTpvjXoy64zHA8="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Informers.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Informers.html",
-          "hash": "0dSvkIlULFL9TCk/S4aDoC2b5+LEodjMCN3CSh/zejE="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Queues.Composition.DelayingQueueBase-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.Composition.DelayingQueueBase-1.html",
-          "hash": "A1v5Qp76J6REwNoVC5v6IBndIPs2cgNYGtDuiw/P2Ms="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Queues.Composition.RateLimitingQueueBase-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.Composition.RateLimitingQueueBase-1.html",
-          "hash": "nt9bNBrXIbb9JO94tDXI7crkfiMthOARY8IYTpXX1XU="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Queues.Composition.WorkQueueBase-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.Composition.WorkQueueBase-1.html",
-          "hash": "NBMQerOHKhXXB7KeYlIiDAagJi0iOha0hLvabtH00cc="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Queues.Composition.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.Composition.html",
-          "hash": "/oKyGn76JAfhwBiJsIPahMFuq5BLyQvaJwL8P6849v0="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Queues.DelayingQueue-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.DelayingQueue-1.html",
-          "hash": "9FdnC+3AdOJy7eoGUmWpKy3EpSvxJ6kFK6gg6drHfoM="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Queues.DelayingQueueTests.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.DelayingQueueTests.html",
-          "hash": "VN42nAqOrRfJPzQcRJQRvSiuSYIM3mkB0uBFygf9EUI="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Queues.Heap-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.Heap-1.html",
-          "hash": "8J1b3CCnNrgojufk2vOMgS8T3NaChDL3YWhzLy7IIhA="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Queues.IDelayingQueue-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.IDelayingQueue-1.html",
-          "hash": "cilMZ8+EMIjGLkP45aCETy/jNoQXzg9d0GMRwoxLRpw="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Queues.IRateLimitingQueue-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.IRateLimitingQueue-1.html",
-          "hash": "xPgyNz8pdxTwJQv9gBvVkS5lEITkCWISZuFjGI2Sci0="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Queues.IWorkQueue-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.IWorkQueue-1.html",
-          "hash": "ixBuOF9Uz6wL8c6CecHoq2bCWRSDnDMSF+6EmaQqx3Q="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Queues.RateLimitingQueue-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.RateLimitingQueue-1.html",
-          "hash": "qGNVQLSDl0QcNXBCgLXQ84VHIlMjp57Svvr2bqyH9x8="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Queues.RateLimitingQueueTests.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.RateLimitingQueueTests.html",
-          "hash": "BluIkwEfHi4R0g14uk4p6xqJpCIjn96lAElvlQQPG9o="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Queues.Utils.Channel-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.Utils.Channel-1.html",
-          "hash": "2I7G82sC+wydlFiEqwGjZ/6r4Cu3+GabcP/BMVs1Ibc="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Queues.Utils.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.Utils.html",
-          "hash": "h+JeUFk1u97SBB4IikjQcvSKzCJIlyE8EpV9Ke/fnc4="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Queues.WorkQueue-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.WorkQueue-1.html",
-          "hash": "aequ/ry/+o/JTryxe983+zavqwury+fltBAP8oHsbwI="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.WorkQueueTests.html",
-          "hash": "RDQk2L/0jfosLzxn7NMMrXyC+pZjPOwi+zktXFjxYL8="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Queues.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Queues.html",
-          "hash": "55yp1fgjVLsSPl68Kbu6nXxTVgaNRXQMn3zmTbZGErw="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Rate.Limit.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Rate.Limit.html",
-          "hash": "LfkabGnaq7K/19QfEQkAwbrLSYAP5sKjfzbK2S/Lb+0="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Rate.LimitTests.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Rate.LimitTests.html",
-          "hash": "JzEZWSr5ONexJIDDRTIcUkZZ7yOHBcdC4cFjlPP/gYw="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Rate.Limiter.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Rate.Limiter.html",
-          "hash": "QOxne7CTH7Vk26a9eE/id7Bcms7FC5STlSRhhFlxgYI="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Rate.LimiterTests.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Rate.LimiterTests.html",
-          "hash": "aC2ikAHDgQxzl+pulQi3EunzbEabFIV6yEGa2BM4vGw="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Rate.Reservation.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Rate.Reservation.html",
-          "hash": "5gV5NGDbStePyToGNRE69g8nBXXU18AQxjtBuZEqpQg="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.Rate.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.Rate.html",
-          "hash": "fnicoSKNg1a7EfJi9yp8AY1NeasK4uCLTSNr3kgInbs="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.RateLimiters.BucketRateLimiter-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.RateLimiters.BucketRateLimiter-1.html",
-          "hash": "bf5fRrxaK0dfvP06HU7ftVB05r0KXA2q7J4auErLsww="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.RateLimiters.IRateLimiter-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.RateLimiters.IRateLimiter-1.html",
-          "hash": "kEBcx+espy569oRRS2gwghppvLWtdh3KGLxRgclWjGE="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.RateLimiters.ItemExponentialFailureRateLimiter-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.RateLimiters.ItemExponentialFailureRateLimiter-1.html",
-          "hash": "P3aJej5hKrxZFP8zjCpajJuP6UMa3JVLcncLSmri/aE="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.RateLimiters.MaxOfRateLimiter-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.RateLimiters.MaxOfRateLimiter-1.html",
-          "hash": "XxcUoiiSnnZ7nVXGoaXurfxZdoIYUWphSALh8XXA78o="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controller.RateLimiters.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controller.RateLimiters.html",
-          "hash": "nkVXAP1A2DSa/6kLDB+iEtnuUwfuVLre9CuEFgKmTcs="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controllers.Rate.ReservationTests.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controllers.Rate.ReservationTests.html",
-          "hash": "n+mRlKaQHpp82SPlEC4mJIpAGBpgH8Qp9nvtHqdf6NI="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Controllers.Rate.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Controllers.Rate.html",
-          "hash": "DJfgJJZQhgPkHOW3riXQeGZmQA4IulDmXVhiEW3Ued8="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.CustomResources.AnotherResource.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.CustomResources.AnotherResource.html",
-          "hash": "0yBdeywNUrWr8cf1sGmeD1o9gmfkrzXGvhsb0QRedxQ="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.CustomResources.CustomResourceDefinitionGenerator.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.CustomResources.CustomResourceDefinitionGenerator.html",
-          "hash": "12b6N01VwR1UyTmIpFRpd8b12DkkmP93XQr1wxZIJIY="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.CustomResources.CustomResourceDefinitionGeneratorTests.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.CustomResources.CustomResourceDefinitionGeneratorTests.html",
-          "hash": "RED6ZyS7pj5BCxdLU0Xech9hBtnFfwdiTAJWd6tbnSY="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.CustomResources.CustomResourceDefinitionUpdater-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.CustomResources.CustomResourceDefinitionUpdater-1.html",
-          "hash": "H6vupFwbYSRh3z3/idi13/aDOkemRlFVnZqC+x4SDVg="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.CustomResources.CustomResourceDefinitionUpdaterOptions-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.CustomResources.CustomResourceDefinitionUpdaterOptions-1.html",
-          "hash": "WNdkHTTMZo0j4ZPrTNnxDvYdEGr4Zy/zBVIvX8fEZMQ="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.CustomResources.CustomResourceDefinitionUpdaterOptions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.CustomResources.CustomResourceDefinitionUpdaterOptions.html",
-          "hash": "MHOV84c3MsKYN99FndPiLSIWnSbz2kss4WQc1tXhmpc="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.CustomResources.ICustomResourceDefinitionGenerator.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.CustomResources.ICustomResourceDefinitionGenerator.html",
-          "hash": "WfZZxf86mGPIJL/kgf7ejfcKqkshG88vXlBoqd+sVIs="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.CustomResources.SimpleResource.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.CustomResources.SimpleResource.html",
-          "hash": "7YTwyHhynwF2PTaWCPG/JAPrRl7Kkvz1U9dgeQhvx68="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.CustomResources.TypicalResource.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.CustomResources.TypicalResource.html",
-          "hash": "sN1k8n+dez8TZ75OUS8ng1+VumHA67glhFa7aZqjWf0="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.CustomResources.TypicalResourceSpec.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.CustomResources.TypicalResourceSpec.html",
-          "hash": "5Clq3tbvQO80sJtowQm8j/N2oUI62CQpPhM9lZxfXS4="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.CustomResources.TypicalResourceStatus.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.CustomResources.TypicalResourceStatus.html",
-          "hash": "jQS8OS8BwQ6W7pIzN+xa2r8INkhB85dqzCLdnauF5e8="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.CustomResources.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.CustomResources.html",
-          "hash": "3GGI0oy5vuZdMsGo26h0vieLFDOIhk8vKYOtmK8T2A8="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Fakes.FakeQueue-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Fakes.FakeQueue-1.html",
-          "hash": "8lwxbTUh4uyncsvNdVGD7v3+vsRs3IUQqPnA905l/W8="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Fakes.FakeRateLimiter-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Fakes.FakeRateLimiter-1.html",
-          "hash": "qH3cifk3pH2gv3pDHpjjNY4E2ZbdeYMgnlTuc5NJbJ0="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Fakes.FakeSystemClock.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Fakes.FakeSystemClock.html",
-          "hash": "qbBzEtxGfnjDQjmy6x1uY7PNwvZ+quB2DK0//KUkHTU="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Fakes.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Fakes.html",
-          "hash": "taG77ahVFFMnnET3pWxLDViHnDkCqcIr58SFAHnphCA="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.GroupApiVersionKind.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.GroupApiVersionKind.html",
-          "hash": "lhktqGD4OSdx5fLv2z8h1ufUQjrOBey/1uv1iVr3Kac="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.GroupKindNamespacedName.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.GroupKindNamespacedName.html",
-          "hash": "OF3TXqU7ofl+CRuEv43MCgykNTr2y7up3ritSGeFQ80="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.GroupKindNamespacedNameTests.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.GroupKindNamespacedNameTests.html",
-          "hash": "2SUa5ApyMtbuAfMeg0g6qhOLLi599E9dqrrfsEIYo5c="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.KubernetesClientOptions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.KubernetesClientOptions.html",
-          "hash": "3ftGzWZWz2N+1YAS+FRL/TKMvWGX3yFocTYQ67+PmRE="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.KubernetesCoreExtensionsTests.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.KubernetesCoreExtensionsTests.html",
-          "hash": "iEgrxlI6hmA/YUXpJJllfCrDcu3rbOGYCC7sXq+MPNs="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.NamespacedName.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.NamespacedName.html",
-          "hash": "bq3WTJa7dZt5dwjASYONlRhMLZg6dTxT/1fL6b+ujZE="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.NamespacedNameTests.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.NamespacedNameTests.html",
-          "hash": "P4yUkAn/JSitqWmaV8IXE3sO5aUIkyIoqUD+5IsSOm0="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.Caches.IOperatorCache-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.Caches.IOperatorCache-1.html",
-          "hash": "13rvdYpwhPSfb3Go4q5lvmMWV62yQTjRTEiM9RDgtTw="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.Caches.OperatorCache-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.Caches.OperatorCache-1.html",
-          "hash": "NVcDjGE0Jizw6UYbFmxa1y6U0Yp7Tjf1pkTgy40toEQ="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.Caches.OperatorCacheWorkItem-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.Caches.OperatorCacheWorkItem-1.html",
-          "hash": "PtQrBLkNyxwLvoeUk5kZtLrHDYY+PfiCMTNo0ET/SWI="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.Caches.UpdateWorkItem-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.Caches.UpdateWorkItem-1.html",
-          "hash": "yHm7e4zacjE21YGU8Bt+yUe5p6P2eO3AwNICDj9/Krc="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.Caches.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.Caches.html",
-          "hash": "Ft9DdxfJE6WNEf2tzhPX9ZMdkOXqmEsKcy4aqnls6Fs="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.ConfigureOperatorOptions-2.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.ConfigureOperatorOptions-2.html",
-          "hash": "JDMG+OEcw3L2aAAEJkVpJRcPiO8NWW9cCvHjXG/uRfQ="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.FakeResourceInformer-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.FakeResourceInformer-1.html",
-          "hash": "cPfSgdLK2JlNOAwj4K9bp0pWlvF2bVdUA16ZTc56nMc="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.Generators.GenerateResult.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.Generators.GenerateResult.html",
-          "hash": "3xA9QNgUI7RP3vFbcYXt6cBeCysvl0eod6tqMsyglSg="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.Generators.IOperatorGenerator-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.Generators.IOperatorGenerator-1.html",
-          "hash": "l3AQ4KxAQq2GlcQiRFwv+qrnVF8XxULXFhGHd2YxKhw="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.Generators.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.Generators.html",
-          "hash": "AvEkxF49aYpsnIw6j8vQaLddqguYVF9X969/aLI+GtA="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.IOperatorHandler-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.IOperatorHandler-1.html",
-          "hash": "7qlfowtHCsr8qXJNIEU4UYZUtUobVMTVzLxXV2q4+L0="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.OperatorHandler-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.OperatorHandler-1.html",
-          "hash": "J5sygpktgWQYRqmQmmK1ec8MF4jtuaECCiSWaGUmb3w="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.OperatorHandlerTests.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.OperatorHandlerTests.html",
-          "hash": "WRT+SeC+2sizVx3wePQF/zZYHY2H4nTkp56Vjvs+KxQ="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.OperatorHostedService-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.OperatorHostedService-1.html",
-          "hash": "aWteezw/SEGh3lrfVuILTGrXSUmxtAT9Q/QOmvFSz08="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.OperatorOptions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.OperatorOptions.html",
-          "hash": "MoxAbuOu1FLgDvNNJUrVKKt1r+kUPhEh1eye4MFEjjk="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.ReconcileParameters-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.ReconcileParameters-1.html",
-          "hash": "ozIeL+qT6kvuBY4vfxqWWm5yXg60a4Mf7RWFV07A6T8="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.ReconcileResult.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.ReconcileResult.html",
-          "hash": "tTJyocrZ8gUFN2KXBoSbqpCYaFC3C8Xv4mc5ctu0SBw="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.Reconcilers.IOperatorReconciler-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.Reconcilers.IOperatorReconciler-1.html",
-          "hash": "P8MoAil+hyjlGzqU0mh56gY3naBRLw40/RoIcTb0apk="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.Reconcilers.OperatorReconciler-1.UpdateType.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.Reconcilers.OperatorReconciler-1.UpdateType.html",
-          "hash": "eYM86TlFXthsTqPPMDE6O0QNSfkZ+AGS1Cvl5DTX3vo="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.Reconcilers.OperatorReconciler-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.Reconcilers.OperatorReconciler-1.html",
-          "hash": "9usrTpB11HbgCBLdLs0KKRzSILa+bWEbeNKukWQUzww="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.Reconcilers.ReconcilerException.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.Reconcilers.ReconcilerException.html",
-          "hash": "LVTNAYWB3A1nSSgAy0aOimY4z6M85p7Y+DTBMQcrCGA="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.Reconcilers.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.Reconcilers.html",
-          "hash": "wu8tYKWrqw0bR8g5eWckC/45CPtP90vMfgyschYi9rs="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Operator.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Operator.html",
-          "hash": "Cs20G3r7eEmgtqOVGGVgW2EiYTDKU/VXYlgmBiUjOeE="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.ResourceKindProvider.OpenApi.OpenApiResourceKind.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.ResourceKindProvider.OpenApi.OpenApiResourceKind.html",
-          "hash": "2KE0Zo8s5jLz4/igETSDf+OLJGfw72bPdutkGQN9Nec="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.ResourceKindProvider.OpenApi.OpenApiResourceKindElement.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.ResourceKindProvider.OpenApi.OpenApiResourceKindElement.html",
-          "hash": "22XwQIOt6aLZMGSv51VQIONx2d+p3OHb3QO9vsGjt8k="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.ResourceKindProvider.OpenApi.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.ResourceKindProvider.OpenApi.html",
-          "hash": "NMXLBdol1KLhXI7wdlLT5avSsvaiI4nygIUHUwf/Bj0="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.ResourceKinds.DefaultResourceKind.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.ResourceKinds.DefaultResourceKind.html",
-          "hash": "C7noFV8uZxgqcpGv+wDdtzm2zpXzudTAK+nesBHTqfA="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.ResourceKinds.DefaultResourceKindElement.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.ResourceKinds.DefaultResourceKindElement.html",
-          "hash": "m7h43lIKUPGMc8ZqJIFDO80w0L/IZqM22WdOSMf9b/c="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.ResourceKinds.ElementMergeStrategy.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.ResourceKinds.ElementMergeStrategy.html",
-          "hash": "5ViuZDCb9q1IZDfRJdJPe9WJ/436N5Gw5n9PTCOO3tY="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.ResourceKinds.IResourceKind.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.ResourceKinds.IResourceKind.html",
-          "hash": "W7v4tksZTNHxYMYm2MhAWZPW+YBeh5wVwqIfylLdr9E="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.ResourceKinds.IResourceKindElement.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.ResourceKinds.IResourceKindElement.html",
-          "hash": "3x18o++uWX5onlWt8RkrJbPazw8Un1yMmy68o7NoZS0="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.ResourceKinds.IResourceKindManager.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.ResourceKinds.IResourceKindManager.html",
-          "hash": "KRsXvZS1OZ7q+OR2J1lIbD07luVdWW7Qs0vhDMjQfaM="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.ResourceKinds.IResourceKindProvider.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.ResourceKinds.IResourceKindProvider.html",
-          "hash": "EY6PgAkNW/5Pa9qYlNw/Ug8L50ClZixnWLWmEtErPd8="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.ResourceKinds.OpenApi.FakeLogger-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.ResourceKinds.OpenApi.FakeLogger-1.html",
-          "hash": "zzVJlnsZLsTlI+uTiBlnzeLCn8YR315MTA1C6/IpGzo="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.ResourceKinds.OpenApi.OpenApiResourceKindProvider.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.ResourceKinds.OpenApi.OpenApiResourceKindProvider.html",
-          "hash": "zVQHK3K6WJ0AeJpGtOzsMOYVpR6KehqHW/vbEMDsdyU="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.ResourceKinds.OpenApi.OpenApiResourceKindProviderTests.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.ResourceKinds.OpenApi.OpenApiResourceKindProviderTests.html",
-          "hash": "xNYDLA2nEOTBSRc8FRFxJX43nZ7LHAjQ/nD6bT2ypTM="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.ResourceKinds.OpenApi.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.ResourceKinds.OpenApi.html",
-          "hash": "XMQEQHbbkl753YOfjH1QD+RQ1db0eEM/hDNA5L3c9Do="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.ResourceKinds.ResourceKindManager.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.ResourceKinds.ResourceKindManager.html",
-          "hash": "NHMx5ZeY6hZ88zgVBjF/TyxPlPNPrziqvJOwo5V+03M="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.ResourceKinds.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.ResourceKinds.html",
-          "hash": "b+UGU50J4J6tdj4JIqYRd29N99hvpZS/GJmTxqghfeg="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Resources.CreatePatchParameters.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Resources.CreatePatchParameters.html",
-          "hash": "G9gAwdYGyTQ6m3fjEi5/pvvjpJs3MoAqeYeehNa2Kbc="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Resources.IResourcePatcher.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Resources.IResourcePatcher.html",
-          "hash": "Sj6YQa+w7zJhvzVGt7hzTKggRzoQ91mPSI44P21mg/U="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Resources.IResourceSerializers.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Resources.IResourceSerializers.html",
-          "hash": "s+AMHHPdPDMxJ9y5meAcfzZ+4DsoNFc3nVpFZoEHk5w="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Resources.Models.PatchOperation.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Resources.Models.PatchOperation.html",
-          "hash": "29mUSbeIK9/zQlMp43jwN1OuC4OK77FXHMbv/Pir5hQ="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Resources.Models.ResourceKind.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Resources.Models.ResourceKind.html",
-          "hash": "QB0hxUp1iPAfDZ1d9aYzKC8KeIvhVW69NukoW0dLSAM="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Resources.Models.StandardTestYaml.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Resources.Models.StandardTestYaml.html",
-          "hash": "1+4dHvGeYDQqz3l+8DJ8Oo14BnSsc3hxPBGUUBgdrps="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Resources.Models.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Resources.Models.html",
-          "hash": "QJncd1ZcrLFfGMoIlxk4rT8ox7WWdov7acLq/w7mIfE="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Resources.ResourcePatcher.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Resources.ResourcePatcher.html",
-          "hash": "7Jncwgmd0hK9ikymdnWvz3S3iPZaBOoAF91Llww+YKc="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Resources.ResourcePatcherOpenApiSchemaTests.html",
-          "hash": "DQeuxmrtUjyWMRB0Hcqm6brTD6e/Pj71WEwtKoHna3s="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Resources.ResourcePatcherTestsBase.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Resources.ResourcePatcherTestsBase.html",
-          "hash": "SXoUZI1p1k3wBdjJdBUkdk/VSpHXV/FExvsB+/n19gI="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Resources.ResourcePatcherUnknownSchemaTests.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Resources.ResourcePatcherUnknownSchemaTests.html",
-          "hash": "omyXwNdn88zl4oGzI7naNul2evRZvbB1yRZD/Jnrljc="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Resources.ResourceSerializers.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Resources.ResourceSerializers.html",
-          "hash": "mMpy+WqH0FnLFIerPYR1ATb9dsh4mpwDfEArTE4KB+I="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Resources.ResourceSerializersTests.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Resources.ResourceSerializersTests.html",
-          "hash": "cGlidobGgH+BidApd1ppM0am6b53leyu1dTUDacCaq4="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Resources.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Resources.html",
-          "hash": "tyVUA5IDeVeX5J1BK7d1F47yaVnK1yxlHNlNExC4xmk="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Testing.ITestCluster.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Testing.ITestCluster.html",
-          "hash": "d+tovu+bhHKVzEDQbMuFFilPlWlGSvpv9fFSTyTpb1A="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Testing.ITestClusterHost.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Testing.ITestClusterHost.html",
-          "hash": "QdSApY0XlzeEEbXlamqdJr5eql4AY4h4Y/onmDtS+og="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Testing.Models.ListParameters.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Testing.Models.ListParameters.html",
-          "hash": "WmJWoF0OyMI/7lWTWyKmbiK0pPbCX/ZJN6TKu0a1BJE="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Testing.Models.ListResult.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Testing.Models.ListResult.html",
-          "hash": "KL4cax6twRbPfRvkD8cIAw/nsq37n+3UjWodVK2YnnI="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Testing.Models.ResourceObject.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Testing.Models.ResourceObject.html",
-          "hash": "ZT3xwCtIPWhtb6Wz7u0U651I7Rs8vseTpwYNPkG/jgo="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Testing.Models.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Testing.Models.html",
-          "hash": "B+LIhnatDKEuVXWYkldX1txQIHOKxxYqD9lVHqhQLNU="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Testing.ResourceApiController.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Testing.ResourceApiController.html",
-          "hash": "qBplM4kJekBw0n3dPXYYCaC7g2NeMBmc1cFwztY+bws="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Testing.ResourceApiGroupController.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Testing.ResourceApiGroupController.html",
-          "hash": "/yZHCcTIBvHifnscWqV5xGX1x0yyboFKgpdTsyJjjv8="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Testing.TestCluster.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Testing.TestCluster.html",
-          "hash": "G2CueraVLTmj6TDokcejqEXZzPexSV9CrkkG1QHpvBU="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Testing.TestClusterHost.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Testing.TestClusterHost.html",
-          "hash": "f7X8GTS2SJTLCx+1zNHr5DAVFEPNMCV9bCWWvlq6rDE="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Testing.TestClusterHostBuilder.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Testing.TestClusterHostBuilder.html",
-          "hash": "ckMpJz2t9a+Eqc9cAUs1GSpuGiva70U+uoGzrToxYvA="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Testing.TestClusterOptions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Testing.TestClusterOptions.html",
-          "hash": "8pNhyju3Je/Z9R/+eDS6AT4XeiSRgr0Exo0vmMBnoPM="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Testing.TestClusterStartup.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Testing.TestClusterStartup.html",
-          "hash": "0kSe7T9pdx0MovXwg+U23CP0Z6DKBrWY+22f/HjGNDc="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Testing.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Testing.html",
-          "hash": "3yorGMaYCzdABw7JcIqtHpf/8pwCRF7BuxaKrThlt4A="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Utils.TestYaml.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Utils.TestYaml.html",
-          "hash": "c2AQXzZ/EEyg2ms+JadDKg3bCfsMkXSkPeBK5/B760k="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.Utils.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.Utils.html",
-          "hash": "uSz5QdDyzua3aP0RkF7Hu3j8USj5/N9vxXaRixKAdIA="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Microsoft.Kubernetes.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Microsoft.Kubernetes.html",
-          "hash": "loTXzZchlSwtj9SF3ImD2kZgBwZuSOo62ExOHuk5gto="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/PodStatusConditions.Program.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/PodStatusConditions.Program.html",
-          "hash": "Dv8A6cdefR+lAOrPWiftvuOw54RqDFKuxtHf+l5iDD4="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/PodStatusConditions.StatusController.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/PodStatusConditions.StatusController.html",
-          "hash": "AaYdFGgj0olMDmJECUFBIr4vHtlO1A1X5O7NJ7h6vME="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/PodStatusConditions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/PodStatusConditions.html",
-          "hash": "d6EfkK4kcSpXZvSMFoP9zL85LCQft+Gh6kof0fCx33I="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/UsingCustomResources.CreateOrReplaceExtensions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/UsingCustomResources.CreateOrReplaceExtensions.html",
-          "hash": "MeQYUfkJXolvkBFA4y7SrTHS9F8MZPbNytsXnwQP3No="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/UsingCustomResources.Models.V1alpha1Ticket.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/UsingCustomResources.Models.V1alpha1Ticket.html",
-          "hash": "jLNURU3V5VpBlSQL3zRVpeutmC4xz+31+wgS+r4Ubf0="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/UsingCustomResources.Models.V1alpha1TicketProvider.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/UsingCustomResources.Models.V1alpha1TicketProvider.html",
-          "hash": "Mh3oLxvajfk8vhBqsLxQOnqjY9TXhic8wPGFd/RRV20="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/UsingCustomResources.Models.V1alpha1TicketProviderSpec.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/UsingCustomResources.Models.V1alpha1TicketProviderSpec.html",
-          "hash": "GjuxfcvRAMm7E7RSJLKNcmdW6qZzKcVedhlzitCoA5g="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/UsingCustomResources.Models.V1alpha1TicketProviderSpecAzure.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/UsingCustomResources.Models.V1alpha1TicketProviderSpecAzure.html",
-          "hash": "Rz90u4WaOnG137LBnLl3LKRtIi0wWZP0X7bqavy0QiM="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/UsingCustomResources.Models.V1alpha1TicketProviderSpecGitHub.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/UsingCustomResources.Models.V1alpha1TicketProviderSpecGitHub.html",
-          "hash": "sIKpL+GOi9qQZ2drlCdscD54ZzJGHUqgs81VjSwkEVw="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/UsingCustomResources.Models.V1alpha1TicketProviderStatus.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/UsingCustomResources.Models.V1alpha1TicketProviderStatus.html",
-          "hash": "qPHaBGR0yLSKAjFyohmoF156VHzMYwV2K3qIUNMsCAg="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/UsingCustomResources.Models.V1alpha1TicketSpec.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/UsingCustomResources.Models.V1alpha1TicketSpec.html",
-          "hash": "SimRoJRR3yaaQrrVIgDybbRRKWmMSz3h9nXp2p1nP/Q="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/UsingCustomResources.Models.V1alpha1TicketStatus.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/UsingCustomResources.Models.V1alpha1TicketStatus.html",
-          "hash": "A2uMFwaAFHdoIMh7AJ1WXnxa3JnmG31Bfwcz3IyvTvQ="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/UsingCustomResources.Models.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/UsingCustomResources.Models.html",
-          "hash": "fi92pp8yEKMEh32BWd4Db2hJG5RDisZRXLlHfQ/ceI0="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/UsingCustomResources.Program.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/UsingCustomResources.Program.html",
-          "hash": "3o4NRvQSScTJA2g/UfmYWmxzgBwRSHqo8EZZSIryyLg="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/UsingCustomResources.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/UsingCustomResources.html",
-          "hash": "vnNJw1ZiH5w0C/vmR4FyVqMBDtnClARU0yvZERbrXtA="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Caching.Endpoints.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Caching.Endpoints.html",
-          "hash": "fd3ED7m+AkgFTrjpuvE6ZgccNZJG3+NLh6E8cyVpoK8="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Caching.ICache.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Caching.ICache.html",
-          "hash": "0yYoRu4TLDHwyBCZ1L6deDKZHfG//FGYJa/+3pytpEw="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Caching.IngressCache.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Caching.IngressCache.html",
-          "hash": "WmyQ8bRzof2ZMfz78zXu7R/o4dPm9PsNAtz0PNKVc6k="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Caching.IngressData.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Caching.IngressData.html",
-          "hash": "2HjFaN6uAS45rRIYqby8sdBXd+acNkc9blYZJqHxO44="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Caching.NamespaceCache.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Caching.NamespaceCache.html",
-          "hash": "FbXQJ6s0dJ/VRG1GwisBXB8yET4qaIMjEYoIOZnejkw="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Caching.ServiceData.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Caching.ServiceData.html",
-          "hash": "tvt4MK2q7pS6LdXR02z5qLHvUV3r2s3//9+p+3LQvEU="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Caching.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Caching.html",
-          "hash": "D6n8S43B6KWUflLHxM4UAUE+hw9Q79+xg1Kax3epIVc="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Controllers.DispatchController.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Controllers.DispatchController.html",
-          "hash": "3qylnrumg1UR4hrsx8+o2MTLE0P/fjbmpy8gtu9Xgro="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Controllers.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Controllers.html",
-          "hash": "EDbO8nG1XLYMzXf+VgtXQLNPHNaZKDwuzO/nGothB20="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Dispatching.DispatchActionResult.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Dispatching.DispatchActionResult.html",
-          "hash": "pY1U6/mgtuKVR47557mdhdA3lhjVc2XDZ+zxOFG8BiU="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Dispatching.Dispatcher.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Dispatching.Dispatcher.html",
-          "hash": "J9ijqUa+eQkAaj5ZiIUSooNrooZh6OVzzRKR1QSz71U="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Dispatching.IDispatchTarget.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Dispatching.IDispatchTarget.html",
-          "hash": "Dmtp4tdyFvKGVuAT0RogEzWw69FCh+ppTFRORzqQFdY="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Dispatching.IDispatcher.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Dispatching.IDispatcher.html",
-          "hash": "/ihRLcMX2ViCwd7mwrYEqkotou8SvnuHS9oU0TUd3CU="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Dispatching.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Dispatching.html",
-          "hash": "qngtzyFK0m4E+S5dQy0LPyRTfNqvJWyFqOAXebHwAwI="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Program.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Program.html",
-          "hash": "0oTeE+pnQBnpUp1Sh2wOHSoAxzMT631NirgxbpgY2xs="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Services.IReconciler.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Services.IReconciler.html",
-          "hash": "9mxmnLWzvgEubuF6qibIRynal5oiDXygZ8MAjcOV68s="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Services.IngressController.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Services.IngressController.html",
-          "hash": "WNob8kRn7sljLmcr4sh+epels6SgKhSbTPqc+RiweaA="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Services.QueueItem.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Services.QueueItem.html",
-          "hash": "tloGDepESy9BMcMOIcfi2+obrZBR5SjhuCvCwKzHbkM="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Services.ReconcileData.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Services.ReconcileData.html",
-          "hash": "9F3VKxHBoMJOPfnkyStAGWYJ68MsFAszo+PdXu95xEU="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Services.Reconciler.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Services.Reconciler.html",
-          "hash": "K1gRU06BUtmSN+2SSi+4V7nJo3lFPaCZOZF6nBcytBo="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Services.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Services.html",
-          "hash": "u2iARklthFvAFeZpKi/rkmAdgtfLbezhT1KtGar/vtM="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.Startup.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.Startup.html",
-          "hash": "W6O2BSJ23DSOTdcpqG6DR+i3tXGJvNT8DcustbiFOfc="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Controller.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Controller.html",
-          "hash": "IWxVsnA4bzXd+xbkZm/ucxMAH2qtf8zaZtdtLlm+XSg="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Protocol.IUpdateConfig.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Protocol.IUpdateConfig.html",
-          "hash": "sszFtDwPNxTEcp7PtdJN1PpNHj8fRvFceTkbWyxnYBA="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Protocol.Message.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Protocol.Message.html",
-          "hash": "CfYQNJOM+qBJZ/rELyFDgRW9zemHv7vYNbBYrcbIcBk="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Protocol.MessageConfigProvider.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Protocol.MessageConfigProvider.html",
-          "hash": "eDrZc2WD9KIRobIkMrwtf5KmgmFiLZy4xfKLLab53fc="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Protocol.MessageConfigProviderExtensions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Protocol.MessageConfigProviderExtensions.html",
-          "hash": "Vj6kNxqA1oGC7cgkrWtdD9EkoFbyk0jOZf38XGf9S2w="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Protocol.MessageType.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Protocol.MessageType.html",
-          "hash": "Sm15taeObkmmP04/+AZrvhk9N8Y2Ybj6vsYcsg9/Pjw="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Protocol.Receiver.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Protocol.Receiver.html",
-          "hash": "rM5tahm2V1CmvuPhiSfS62yyuCvgdsIUWoGfsiR32NM="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Protocol.ReceiverOptions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Protocol.ReceiverOptions.html",
-          "hash": "hYsiHmbMrhfVi+5sDJPZ9VUEAjuHMoGNheRB5miai48="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.Kubernetes.Protocol.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.Kubernetes.Protocol.html",
-          "hash": "tNf5+/J7aidIgN5tEgOMHy7gQShSDsaGZlYEqg6y2UU="
+          "hash": "MyvC89SBNejrftFxCrX+7iTEs+R1dle23fB/vfuOKbo="
         }
       },
       "is_incremental": false,
@@ -2589,7 +201,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Configuration.ActiveHealthCheckConfig.html",
-          "hash": "P6rvCBBH/Lll0so+b36Cus35UfGPzLl+BvwSCTaELeo="
+          "hash": "6Y6ChaDKVjvd3EVUmRKeEN3acLq9Cxv1tlqEvGQELMU="
         }
       },
       "is_incremental": false,
@@ -2601,7 +213,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Configuration.ClusterConfig.html",
-          "hash": "nFdp9ra1dTC43pTZoDsStk7ETrrIQ13zhj23pVltsa8="
+          "hash": "3BGKjRURMMN0dpyrMg3mpxmpl5b2hqaCLXdxnc5ttKc="
         }
       },
       "is_incremental": false,
@@ -2613,7 +225,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Configuration.DestinationConfig.html",
-          "hash": "3DxrUVuX9m+cLKb4HD/8WNl85bBexY4on98Fxm2E8Ao="
+          "hash": "6hweDL9Hqn7L0SlmMqqx70m8k6i3aaQqpMwm3rleCjI="
         }
       },
       "is_incremental": false,
@@ -2637,7 +249,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Configuration.HealthCheckConfig.html",
-          "hash": "vnTmbrTQGwHxGy0V9rl3nJ96sZ3T/xS3I3WQUUG5i00="
+          "hash": "juwhn653mI7NLQdXo3q7sU+oCBKXcmCTQ+rj4hRv2Sg="
         }
       },
       "is_incremental": false,
@@ -2649,7 +261,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Configuration.HttpClientConfig.html",
-          "hash": "oZoNzHo5O+nlNNEDoiGTHdXYOhvb+otnJ6GkiKgIlV0="
+          "hash": "Hyjh3iwvr5vWcIp6LkRZKZMa4uuoGGmu/7bfvw0030g="
         }
       },
       "is_incremental": false,
@@ -2673,7 +285,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Configuration.IProxyConfig.html",
-          "hash": "ATf0RoUkU5RJ/6Ls4zigOXgmlPTe4t4Vs7j43+425t4="
+          "hash": "ngxqF/qbixmfqQaDbfmkyVV45E2AtdVWLXMh9BLyjU8="
         }
       },
       "is_incremental": false,
@@ -2709,7 +321,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Configuration.PassiveHealthCheckConfig.html",
-          "hash": "kHboXRqJIQCNujFMsRX9A9NRGSaFcSw0L5fo6b/GGXE="
+          "hash": "sd2UMbLsij5VDfkUvfQ1FuyTPDhTYQyV/xjYx3yCv4U="
         }
       },
       "is_incremental": false,
@@ -2733,7 +345,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Configuration.RouteConfig.html",
-          "hash": "t/ShUKYlzrd0sdYXPeElpZspshQ6zyPjBcMYEIVTUcY="
+          "hash": "qoH8qF0IfLeLFJq/AaPqegJlybFhuiWwzodFm4z5A8M="
         }
       },
       "is_incremental": false,
@@ -2745,7 +357,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Configuration.RouteHeader.html",
-          "hash": "SBx8yvgoKqubFDzPT5M4vKMG6mIq2TzyQrJaB99CLTQ="
+          "hash": "9vWyGWsaHnbbodte0mp7NwRlMz2gix1HOIUX3MSnMEI="
         }
       },
       "is_incremental": false,
@@ -2757,7 +369,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Configuration.RouteMatch.html",
-          "hash": "QFrSY7JhEDQS35yO0/T8hF4CXucAIFQsEPyUnjFugys="
+          "hash": "e0jymmBt3zUJsovR8j8mTgMK27rnuR+KcU+Ap9UWbDs="
         }
       },
       "is_incremental": false,
@@ -2769,7 +381,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Configuration.RouteQueryParameter.html",
-          "hash": "FbxhAFfUw4tkTITdDz4ByZPh9QM3MwqAYgeiElHxQxg="
+          "hash": "czbBRULX/nS0xH8qV4VVwbpopqhGgSFHjyjabLoUN9k="
         }
       },
       "is_incremental": false,
@@ -2781,7 +393,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Configuration.SessionAffinityConfig.html",
-          "hash": "3sT6k/pcQyk/M/pIBmh7XjbQHkURSnV4mjz72olxXAw="
+          "hash": "9qOZvd2U4N8wiBvzLwTBBdfIXHGECAHoa9QZ3Km5VHo="
         }
       },
       "is_incremental": false,
@@ -2793,7 +405,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Configuration.SessionAffinityCookieConfig.html",
-          "hash": "86tGB/rCiW1/gSChQdcKhuCRrXGIX1bBH5Sp6ddky38="
+          "hash": "eOwrH52EQpQ0/9LXqBawFL+P7bNfoh63m9b5sACfSp0="
         }
       },
       "is_incremental": false,
@@ -2805,7 +417,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Configuration.WebProxyConfig.html",
-          "hash": "1liPXq8XAcZtNhlHjKSq6jBL+k8W0NuLR+uUOcx9wqg="
+          "hash": "vx9izP4X/JfMbJ565PSMQ7STLYWd2N7hhOHiC4aD6DI="
         }
       },
       "is_incremental": false,
@@ -2817,7 +429,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Configuration.html",
-          "hash": "0HKvzcACPw6BwHReL5OkxGARj1a0uHOErJmAXdnVFhU="
+          "hash": "Uuqhv/J/TUJJRpgomLSbY8VZQz8b0AF4VfQM8k2DydI="
         }
       },
       "is_incremental": false,
@@ -2841,7 +453,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Forwarder.ForwarderHttpClientContext.html",
-          "hash": "j8SzGyLHC31/Qtdm6oVJ+bFXDWbQ1Dqv5k3aq4lCaDg="
+          "hash": "SVHOYwJC0JXoONRbZ17lOPEybmeVd56fhpwAHG4dv94="
         }
       },
       "is_incremental": false,
@@ -2853,7 +465,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Forwarder.ForwarderHttpClientFactory.html",
-          "hash": "YL58xzYVWbWb5jJV7spnu8sO5FW36rP8RYvzA9hKu6U="
+          "hash": "Tt+fYuQuwU7zZpaNHDxTJafaP2t3H93mUaQWXraQReM="
         }
       },
       "is_incremental": false,
@@ -2865,7 +477,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.html",
-          "hash": "4g+/be3Zvcqjf2NwEy22CqWR86weMBMp+boi5nFQ+bg="
+          "hash": "qPLimtXsvUW7RT6Sg8PHsysPXoUPPitxmL0piQsHAwE="
         }
       },
       "is_incremental": false,
@@ -2877,7 +489,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Forwarder.HttpTransformer.html",
-          "hash": "IkXKRQf4+KR5WxuWLSHYvyZC/LawbgnFqtbN67oeoek="
+          "hash": "Vr+h8dNQyVS7dIyCkrxj2XTH6eUCMK95bbkOmaF4Fuc="
         }
       },
       "is_incremental": false,
@@ -2925,7 +537,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Forwarder.IHttpForwarderExtensions.html",
-          "hash": "0/BUiRxBsONMAGJa03hUkOa2eF3OQnfxaOjXEWt9Qb4="
+          "hash": "w1wBpJ//SXf4sq4FVVEqTGpRZD5WQD5QLfiIV15LAfc="
         }
       },
       "is_incremental": false,
@@ -2937,7 +549,19 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Forwarder.RequestUtilities.html",
-          "hash": "wKMcXIiUYQ1e4MINLbse2QNzHVd2yYCqfp/dF8q7rCI="
+          "hash": "PtW/s39dQGcgLvTE/tkpdZVBndSh4cR9h3XtNaUz8JU="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Forwarder.ReverseProxyPropagator.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Forwarder.ReverseProxyPropagator.html",
+          "hash": "MMbCxTpy6hi2AJbnjKGTh5AtDtUgEBhv2ywp4MPgBpU="
         }
       },
       "is_incremental": false,
@@ -2949,7 +573,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Forwarder.html",
-          "hash": "4J25Zi6w7/OSFuMyD73UebJq6DD++XGv2848LgL6d9Q="
+          "hash": "8Zv9By/74yqE1K0yEOSLPG1SVht4siitvKKg5v3+BGo="
         }
       },
       "is_incremental": false,
@@ -2961,7 +585,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Health.ActiveHealthCheckMonitorOptions.html",
-          "hash": "sRPyQghcadMsNskpuTYZ82XgvvujrAElO4VCQ5nCReQ="
+          "hash": "UN8g0dazBKQxgu26cNVpMxAgNZhxCdfKk8qcOtkL3v8="
         }
       },
       "is_incremental": false,
@@ -2973,7 +597,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Health.ConsecutiveFailuresHealthPolicyOptions.html",
-          "hash": "kjOpMCPgPAjycGvxXCPusOryWqQMfvOyoSnytH+keKU="
+          "hash": "R+0fscQLn8BrVbSJ2GebcvB4dEICkMRBVo/TLwNuo08="
         }
       },
       "is_incremental": false,
@@ -2985,7 +609,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Health.DestinationProbingResult.html",
-          "hash": "HjkvFK42EgW4Ueew6SGX5uJuWShebWnNLpQ80REKBe0="
+          "hash": "+UwWCmlXMyqGITp4ZGOat1jmzHW0E7ABNufJGjNmJhA="
         }
       },
       "is_incremental": false,
@@ -2997,7 +621,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Health.HealthCheckConstants.ActivePolicy.html",
-          "hash": "eYQMCbiFHtjWGaMA5LBSpaAPhMekx50Zu7pA/vjdk2Y="
+          "hash": "0ZbNRsAUNy00W+NyBmhY/ewN70CvkILxDiF0Utypu3o="
         }
       },
       "is_incremental": false,
@@ -3009,7 +633,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Health.HealthCheckConstants.AvailableDestinations.html",
-          "hash": "j6jf3G00p3M/6JEOnhUHhNGcD7QblGBkaKBiXe8xeQI="
+          "hash": "Hb37YA2yDhYi8+soH7VJjgUdRAC6v/i7WmNySac+XgU="
         }
       },
       "is_incremental": false,
@@ -3021,7 +645,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Health.HealthCheckConstants.PassivePolicy.html",
-          "hash": "0Kiqh3FIGnTuTXfrRQJDQXLfYxu8yF4ZJOa/WFOH/wY="
+          "hash": "BM6FcQ4mjT2AgjOrtLw6kJCvsPz7bd/twgvgVn3hSoI="
         }
       },
       "is_incremental": false,
@@ -3033,7 +657,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Health.HealthCheckConstants.html",
-          "hash": "oEkXBODC7Glm15jDHTSAFuvVcNzBC3jAGBI+INqXyos="
+          "hash": "Xm2Hz7LLax+XOLydEosmJN3ruzby6vhr1P+bCM3PmOk="
         }
       },
       "is_incremental": false,
@@ -3057,7 +681,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Health.IActiveHealthCheckPolicy.html",
-          "hash": "RE9Dyj2Q1T27od8W0ACoh9TyOCYGBR2gHdrOmhvLpKU="
+          "hash": "YV+G4UrGta47hyu6rvQOL4A4BnYOAtgRynoZuZoqmQE="
         }
       },
       "is_incremental": false,
@@ -3129,7 +753,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Health.NewActiveDestinationHealth.html",
-          "hash": "x4dtFqNLWyu/pD95VEqMGH0upxm3t6iOmu7jvQKdeaw="
+          "hash": "B9HwIIeLzxJNGxh4iLYQ+sFrr0+iWMJaedZKuz97V+o="
         }
       },
       "is_incremental": false,
@@ -3141,7 +765,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Health.PassiveHealthCheckMiddleware.html",
-          "hash": "KEupGMl5ZvUJqBZ/dQ4bpAP9iGqSB+QMqtBGTh/MDO4="
+          "hash": "4oeQRvL89bDGNMFUHHCjd2Da3IxTHkqY/TlOgjP1Ml4="
         }
       },
       "is_incremental": false,
@@ -3153,7 +777,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Health.TransportFailureRateHealthPolicyOptions.html",
-          "hash": "tdJuu+zVeEk+N67RSc62Z4sWsRshnvwx5OZu3y6sK/I="
+          "hash": "70DqzN+AXT67U5h0MSD+gIRKaLGkteb8ikXjdK5ld+w="
         }
       },
       "is_incremental": false,
@@ -3166,6 +790,18 @@
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Health.html",
           "hash": "3uMXI20CXYilXWP4lCMOgTqRDENO1p1qhz2WGF8eX2A="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.IProxyStateLookup.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.IProxyStateLookup.html",
+          "hash": "8vyPeFAcuyGrnWiYiOPy+pevrawHL5CI/db9yyXsy9U="
         }
       },
       "is_incremental": false,
@@ -3189,7 +825,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.LoadBalancing.LoadBalancingPolicies.html",
-          "hash": "RsatcbQH4sbP1AatRxlqItnrJ6o7u7WpFeot/xKDWuc="
+          "hash": "IcJCaXs9hFnRrfgFaW8vmCRgFHOXRl/e+wv6A9N+VzY="
         }
       },
       "is_incremental": false,
@@ -3213,7 +849,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Model.ClusterDestinationsState.html",
-          "hash": "bx9LFKWCCDI/Tu3L6qg1/3cZHypEf8dH6BJQ6AMI+II="
+          "hash": "UgqFncHfJcqQkjtL5oLTn95r/9SbC7Gk535U+J+sDWs="
         }
       },
       "is_incremental": false,
@@ -3225,7 +861,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Model.ClusterModel.html",
-          "hash": "NMqZVdHfrMS5KB0ZulIX/2MrR50ElQJoSPfeZyaJAZI="
+          "hash": "zGbGQi5Vy5jAyHCILW8w9HvjDt9L6kF27ObMxaBzyco="
         }
       },
       "is_incremental": false,
@@ -3237,7 +873,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Model.ClusterState.html",
-          "hash": "SDg5c5kmO8rs3KCchiUAvf/S9A3TG9/3t3zZWq6IdLA="
+          "hash": "wKKd/alUvlYGGaFyZ1yRDF/8gDm6Ocn6Eut8E0HfStY="
         }
       },
       "is_incremental": false,
@@ -3261,7 +897,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Model.DestinationHealthState.html",
-          "hash": "jnu5pKaCyWB4igpOlrkNzfQHV6e+Yy40HzOYNxeSafQ="
+          "hash": "JrlN5+KgA29E+YUc7NKg334gN6bqekq8rxcVR7Oig94="
         }
       },
       "is_incremental": false,
@@ -3273,7 +909,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Model.DestinationModel.html",
-          "hash": "sdkCJ57b8jNDIR1nERH9hEazZ/E+hzblh/RLu6I/qBI="
+          "hash": "tN3I1Cyhi3fGMCC8lND3uK0NrkpAFQd/yiFCcG5/uLY="
         }
       },
       "is_incremental": false,
@@ -3285,7 +921,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Model.DestinationState.html",
-          "hash": "axQSHikdaPJX5n/niELHcZn6U7nAmdwuABXfJ7Bc9Gw="
+          "hash": "irdYWHbc3kw3ufvJIrWQ15HXe4icSVaUp4xmUPkvIAE="
         }
       },
       "is_incremental": false,
@@ -3321,7 +957,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Model.ReverseProxyApplicationBuilder.html",
-          "hash": "1K9UsnZjCeASbp5F3ff//Hclpbfbi5zZWq6FWWXiRKo="
+          "hash": "D10FboTxWgpfi9IVH/oHGwJCUNFANbVoYKSgNZb84PA="
         }
       },
       "is_incremental": false,
@@ -3333,7 +969,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Model.ReverseProxyFeature.html",
-          "hash": "SSAQ2Zu0fTHP0Uufx8H0pv/e8R2r4mXH9OAmCkLO4Dg="
+          "hash": "QOMHQjv4iXt2uOC67hO3O1W+kt8l5827mQXRkOXe0To="
         }
       },
       "is_incremental": false,
@@ -3345,7 +981,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Model.RouteModel.html",
-          "hash": "8HfvllxsJ0P/Z4TwTcBbkY35Sf5sfllew6daQTVYK8E="
+          "hash": "B5A2SKZvQL9IZwrIr/7735vfz04nAkOIxJCkGSuJgys="
         }
       },
       "is_incremental": false,
@@ -3365,95 +1001,11 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.ReverseProxy.ServiceFabric.ConfigException.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.ReverseProxy.ServiceFabric.ConfigException.html",
-          "hash": "bIb0MT8Su9+aDrGTRWlz4ppIZlMFxMhGZ4jLr6YQaqk="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.ReverseProxy.ServiceFabric.ServiceFabricDiscoveryOptions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.ReverseProxy.ServiceFabric.ServiceFabricDiscoveryOptions.html",
-          "hash": "o8rvJdr7WQJ42UROqIf4UMdoK19+svDXZsk/0bS2LuE="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.ReverseProxy.ServiceFabric.ServiceFabricIntegrationException.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.ReverseProxy.ServiceFabric.ServiceFabricIntegrationException.html",
-          "hash": "8BAApKXlAa4Kp/5MSbU48fzVcHSGYYbkag/AEYIxcm4="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.ReverseProxy.ServiceFabric.ServiceFabricServiceCollectionExtensions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.ReverseProxy.ServiceFabric.ServiceFabricServiceCollectionExtensions.html",
-          "hash": "sFBWKPVWVimLojir11/+53DYdrVNL7LVq+aBpF2Eoyk="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.ReverseProxy.ServiceFabric.Utilities.Cache-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.ReverseProxy.ServiceFabric.Utilities.Cache-1.html",
-          "hash": "O/x4k4XtUu9KoF9VtxpUiGXtvrlGKxudHtoX/4iuqnY="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.ReverseProxy.ServiceFabric.Utilities.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.ReverseProxy.ServiceFabric.Utilities.html",
-          "hash": "jz5c3ya8PoidiTUwG2c89WS1ELod+yGqAA8wZIdqHBI="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/Yarp.ReverseProxy.ServiceFabric.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/Yarp.ReverseProxy.ServiceFabric.html",
-          "hash": "7panA6b5CqBErujDufDpoCXpEwuyqgcHRgAC+WWgMhI="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "api/Yarp.ReverseProxy.SessionAffinity.AffinityResult.yml",
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.SessionAffinity.AffinityResult.html",
-          "hash": "TQAzkYD32KtdmKFEhxVdahfKhMQkkktxp9yLaeje1OU="
+          "hash": "eGEEd2ucrCHGjfVPurIb7KU1zQmi7+wFS1B/T1v1IRg="
         }
       },
       "is_incremental": false,
@@ -3501,7 +1053,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.FailurePolicies.html",
-          "hash": "7eIiIFe5U3Xii5kcA25Ij08FTBUdY0dmLxEG7+bTd4I="
+          "hash": "6FUZQhSHWq7ufJ0BZwlpbDJREiJXemmU7z6UuwBwqL0="
         }
       },
       "is_incremental": false,
@@ -3513,7 +1065,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.html",
-          "hash": "1GTrTHpOe6bLWw0HiNUugFaaB9N5hW3+0Sb+gLjva6I="
+          "hash": "m787GMoM4wT3jxBgMF0GKxqM5jbTM8f6U/xS6w+i7q0="
         }
       },
       "is_incremental": false,
@@ -3525,7 +1077,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.html",
-          "hash": "AU+Jk6g53CNL7N+D5W9AAHsyA+UP7N16aid/WihN37E="
+          "hash": "CMbAqbNSG2M/wxERpgnokC1tfqIXfeTlQj8SR9tVELo="
         }
       },
       "is_incremental": false,
@@ -3585,7 +1137,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.TransformBuilderContext.html",
-          "hash": "vRy0LzKUYhKXzuUMU9GkU3BdZQuIarA5YydEhgtk9j8="
+          "hash": "+KnBIGSNEY6tLclxSdNf+oZ5oL2hCBr4tMg6qZuNE9c="
         }
       },
       "is_incremental": false,
@@ -3597,7 +1149,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.TransformClusterValidationContext.html",
-          "hash": "fwQz8MydYwrMHxh6gQkdH6QfQPUNGxXGRwZOFfZaRyw="
+          "hash": "8Uz9xR5VjarlvR6WpnhEXdV9JNs5fYP8gDX1VXcq/Tc="
         }
       },
       "is_incremental": false,
@@ -3609,7 +1161,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.TransformHelpers.html",
-          "hash": "ogm2zVnslIXvJMIB4EuMrit67ioEyVO6XIghWmOnw0E="
+          "hash": "hnAvM1K9RJWWcqQydkCd3p2hucYVgmSOrxktVGMgxi4="
         }
       },
       "is_incremental": false,
@@ -3621,7 +1173,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.TransformRouteValidationContext.html",
-          "hash": "oERHba9hYmLWvVw3GZ3VnOGOAvUoHxOfQdZXBnqXMhM="
+          "hash": "jzJErDzWAU7NsekFMKSOUmLFPYPMdeUI16wxQ53LQ9Y="
         }
       },
       "is_incremental": false,
@@ -3657,7 +1209,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.ForwardedTransformExtensions.html",
-          "hash": "tC2uR//VLNwCFmsffc8kGGeFiBGETgy/98QFCsPbUvQ="
+          "hash": "xaQ3jCHkHkte1To1ri4qsI4paCyqjVU7eHrmhB7NU10="
         }
       },
       "is_incremental": false,
@@ -3669,7 +1221,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.HttpMethodChangeTransform.html",
-          "hash": "td4lqqfuFYUxkWbbkTlOUkRuDo4rQLFQkflrZJAmJ5Q="
+          "hash": "JHbQxEgdkEF8jIvKrfUF3HsM//rWJYlC4liIZJq5SfE="
         }
       },
       "is_incremental": false,
@@ -3681,7 +1233,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.HttpMethodTransformExtensions.html",
-          "hash": "IpLiuWkkaRXVUEuRqUtP1VQcfwBTUnRPTWPFPrb6AJg="
+          "hash": "iqs9692Exysr4BUUA1oIoIMYe7lVx++sGCzNpd21nZM="
         }
       },
       "is_incremental": false,
@@ -3705,7 +1257,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.PathRouteValuesTransform.html",
-          "hash": "YAKg+5JVULcEAt8hPLcxQdkW2Ux3ZDJbA/uwSdZjdBw="
+          "hash": "jANzF8HWqaBA0QIJHX7MAnfNUgttXVHgrLTShgZ7OgI="
         }
       },
       "is_incremental": false,
@@ -3729,7 +1281,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.PathStringTransform.html",
-          "hash": "8ixir7bDYCSBXR29u2SZblirZgQi3+Efcx3ePLnfxKI="
+          "hash": "IwGd50lQj2psebf/G++8emHhIAblz8hy5YhQG7sd4Uw="
         }
       },
       "is_incremental": false,
@@ -3741,7 +1293,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.PathTransformExtensions.html",
-          "hash": "1WbVV+kmsYh2c5X2qSSjQ6GLCJMhEDFaSNr74esVyJg="
+          "hash": "BuatDI0/qKkWfimrZ+jIarCrB5PyzDaYgMn/R0vUy7k="
         }
       },
       "is_incremental": false,
@@ -3753,7 +1305,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.QueryParameterFromStaticTransform.html",
-          "hash": "qgeCAcPM+QPOHu2psKFGrp3PBdzx3JS1GokGI60cBJ8="
+          "hash": "xgAWPC1gZZq0MlK9lTN0YCAmXaZXIF4I8NZl6Bq3byg="
         }
       },
       "is_incremental": false,
@@ -3765,7 +1317,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.QueryParameterRemoveTransform.html",
-          "hash": "H027OLB/jLlaFok7i2VFF6zimnBQ4eZ9sZ0MY4kKQTk="
+          "hash": "DxM20VsLcpsG+bpCl45VGPYkMYtEmYIuVN+qNdEul9w="
         }
       },
       "is_incremental": false,
@@ -3777,7 +1329,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.QueryParameterRouteTransform.html",
-          "hash": "4u1Q/VQb6v25v3JnajFfEaOExIcygStDi/ZyHjK0Gh0="
+          "hash": "8PaDYNoEZhdu9IdCNErgT6wqyIXtlFbtPwcNhohOd4o="
         }
       },
       "is_incremental": false,
@@ -3789,7 +1341,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.QueryParameterTransform.html",
-          "hash": "+ca3P6MErLauRloHG5OqlSFedzRRZp89C+hd8+ePXHs="
+          "hash": "zfTa2Rpw0ScepPB4i1AsEOS5aYc5eUFxmY2xBCPGtvY="
         }
       },
       "is_incremental": false,
@@ -3813,7 +1365,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.QueryTransformContext.html",
-          "hash": "kB7wzySKIgwMSJz74v9lu7rH5Km6xTq5Z+yuVBCJRCw="
+          "hash": "pnoXQ90o+xMKGrXY47SjKnNoRoqKtN3fHXvRgH/Zec8="
         }
       },
       "is_incremental": false,
@@ -3825,7 +1377,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.QueryTransformExtensions.html",
-          "hash": "yizUuu0P0GJWiITDVcsBlgLPQ3Cva1q+5zNd54BcBbc="
+          "hash": "sfsaTacljHTHJt8T6EcPgb63A+5zLvUOOOX1F9xPJxA="
         }
       },
       "is_incremental": false,
@@ -3837,7 +1389,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestFuncTransform.html",
-          "hash": "bd0tv1S2LSP/Z6uO8BOWmg+kxlztZDagx7IezpSCBYY="
+          "hash": "5Aslf/B0ApZOTwfL/PDVp1p3c09JvZRo7VFMPkD74wQ="
         }
       },
       "is_incremental": false,
@@ -3849,7 +1401,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderClientCertTransform.html",
-          "hash": "eYyrtF5WejHx5WogS9u02r0T4lPnlXznaa0grGPhhII="
+          "hash": "DWzz6jyKG3x36KMdwRclOrTKFCltMcgafC7P2dheqfs="
         }
       },
       "is_incremental": false,
@@ -3861,7 +1413,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderForwardedTransform.html",
-          "hash": "xKN8pKv5RryO8YLjunv6z5Ulv3S65+m9b2n6adHNRxI="
+          "hash": "BAqJit69Fs64MsuptW7CZAh6Xknr1NQu5Qn9cjFk0jo="
         }
       },
       "is_incremental": false,
@@ -3873,7 +1425,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderOriginalHostTransform.html",
-          "hash": "DbhdGs6MLPmR4CXy6pRMPOdWk5dqfM5PEPXQD6sNfzU="
+          "hash": "7qVGfiZJvA8Ybw0DKB5MXO6Z73LJhVn+lw4k2NwsrYU="
         }
       },
       "is_incremental": false,
@@ -3885,7 +1437,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderRemoveTransform.html",
-          "hash": "d5T+2/M5g9Pys727IkCP619k1LlEFlLtkFRb84y2M9g="
+          "hash": "Pm7S5+TixR1ScI12vg6Mo42XYFaGZsleO46imPABnQc="
         }
       },
       "is_incremental": false,
@@ -3897,7 +1449,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderValueTransform.html",
-          "hash": "QHGLL+pAApD+gUc9sp7QxyNDa9T3NiTQY9G1nJrLNVE="
+          "hash": "azKduNCb6HDqCff9JsEhQI63hNy8JLLaxiyEtPndlFw="
         }
       },
       "is_incremental": false,
@@ -3909,7 +1461,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderXForwardedForTransform.html",
-          "hash": "tbq+yOFbq27WDtONrT9/iKFHiFdFUDBZhUMk2zh4mHg="
+          "hash": "SBctsyr0bmKq0YDTCi3GBeb+vhOqZdk15iqqVZWAC1U="
         }
       },
       "is_incremental": false,
@@ -3921,7 +1473,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderXForwardedHostTransform.html",
-          "hash": "NQTXVdlFZSksniuSX4uSNKcgFqNrRveYBdAUdZzzxB4="
+          "hash": "9KL35dBVYhLnGT+WYmxWdRgb6nAlDPLyPJl/1ZRd+BM="
         }
       },
       "is_incremental": false,
@@ -3933,7 +1485,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderXForwardedPrefixTransform.html",
-          "hash": "C+w3UcYFdx3HZthl/XeL6EPLB4eue0UVV9PaqmKJk5o="
+          "hash": "laSL4CIGGcE7zzIZQ52/gt8xj/EBgzACOJjhVHxIfdc="
         }
       },
       "is_incremental": false,
@@ -3945,7 +1497,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderXForwardedProtoTransform.html",
-          "hash": "fe7lvq3gmdWF6KQZvjWjm4vqJ0TnVtj9D/EzuYt8iDU="
+          "hash": "aohRTRAoDqexxnwQhZPGSZQriG0pAPFR75pGLDhh3Ds="
         }
       },
       "is_incremental": false,
@@ -3957,7 +1509,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeadersAllowedTransform.html",
-          "hash": "OlROUT3Kvglk8bxsdQmdGPCsP3BQmaAjR9iBrgNB2yI="
+          "hash": "c8/XE5t/diX2ANM0mXxT+UR71t8lbiDeGwgk4CqFiXU="
         }
       },
       "is_incremental": false,
@@ -3969,7 +1521,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeadersTransformExtensions.html",
-          "hash": "N4z6dplv+IV8XlEYulZ7/Ygfr/+/geWhBt+oQdGpuvA="
+          "hash": "/1mgEyZC1NEZP1gK/TsAP+21RSqUI/rMd6QPmNxiioY="
         }
       },
       "is_incremental": false,
@@ -3981,7 +1533,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestTransform.html",
-          "hash": "D1OLLBVZPFtYkI7BYJR0s3inAlwEFPEVTOWraxt0J9w="
+          "hash": "z3NKSKKWOoveCWpSyDwvkYngEWWRxQWDo8SyVVdNBt0="
         }
       },
       "is_incremental": false,
@@ -3993,7 +1545,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestTransformContext.html",
-          "hash": "r8dwqH2Ia9HWn6rcpCLnTM3kkLydgQu0Fo8xycP/+No="
+          "hash": "Aa6XEUsCKdTNhIyqwT7Y/RslaLVSigGtN2CiPS4ydK4="
         }
       },
       "is_incremental": false,
@@ -4017,7 +1569,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseFuncTransform.html",
-          "hash": "vWWaA7OjvK1RucEYlRj3s+Gnp5a5yyl1L4xynJoCBv4="
+          "hash": "FGuQbgSKHxgJkPJ+xItu49nZMWKr4gwmvbXx6xAmi8U="
         }
       },
       "is_incremental": false,
@@ -4029,7 +1581,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseHeaderRemoveTransform.html",
-          "hash": "xzGFFdNikihKGnbkwpTc0USwHE3MpLzaIN6lnuHPFp8="
+          "hash": "i7fqkRNaRUaXpD5H56dxjUqI/1hVyeAnPYM5yQniXSU="
         }
       },
       "is_incremental": false,
@@ -4041,7 +1593,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseHeaderValueTransform.html",
-          "hash": "njJbTl5SIawhkQzMyx1HuXp/u+ya3FtDP5Uo0VqwuZw="
+          "hash": "XPgBO8O/uYF19lbfyfrHC/EXKD/EspbPQlMStvHsrcM="
         }
       },
       "is_incremental": false,
@@ -4053,7 +1605,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseHeadersAllowedTransform.html",
-          "hash": "tm4Y0mMbZb/pNZg+XWY9dOkYKYxHWYXV/JBNTT3YpQk="
+          "hash": "DG/fzDpALYwPxK0Gh4TrVJsYdcmgHYuwJDkq8m9VRGY="
         }
       },
       "is_incremental": false,
@@ -4065,7 +1617,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailerRemoveTransform.html",
-          "hash": "dwvhMPTtP1VaNvgeGq3jlmx7pUMgq6cMFWlxvfmi7co="
+          "hash": "IUpX6RPgrCOCso2i3a3wLa4V+2O02Jbd1eJ9l/EoWnw="
         }
       },
       "is_incremental": false,
@@ -4077,7 +1629,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailerValueTransform.html",
-          "hash": "z0ch1HvxfyRdZRB6cmKpFpAChSJ3Drp3Q3OwuPni7NQ="
+          "hash": "oEOuyd0OXHm5Y1huLjjX6VJz3aJWOmB4GdIxX3P/ngY="
         }
       },
       "is_incremental": false,
@@ -4089,7 +1641,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailersAllowedTransform.html",
-          "hash": "abc/7NkPGvbkKUiV7YR2hTWWglp5SRSsacOZpLOLD7c="
+          "hash": "G30n4IwBg4WLwTFQ63zVESUID4yoNNUSkea790yAwvA="
         }
       },
       "is_incremental": false,
@@ -4101,7 +1653,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailersFuncTransform.html",
-          "hash": "dITUqrJPEeCC+6inheoPxGurJHobvAFsoOUD1NMDwjY="
+          "hash": "AEC1rYWk+hcQpMb5lZ5hAx6gyR+MCdZH7xIj+XPxhlo="
         }
       },
       "is_incremental": false,
@@ -4113,7 +1665,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailersTransform.html",
-          "hash": "2dduHSROcK0VpNBG1xZOuOwrOaJoQ1rDxbFf2oEnAAs="
+          "hash": "fAeO1VbVnL5HjmZy6ZRy3vTBuUFqbYPWvVNLysvVcO4="
         }
       },
       "is_incremental": false,
@@ -4125,7 +1677,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailersTransformContext.html",
-          "hash": "VM4APFEWLUtFv2mcJ+sjyLkDJfIbQZEtUIGebdbZyv4="
+          "hash": "qmEsHkhEBcb8v6hWaNgWk94TNEezX/S7ZzPClSVBf+Q="
         }
       },
       "is_incremental": false,
@@ -4137,7 +1689,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTransform.html",
-          "hash": "LeWwD5okDIIVayF4DGT1i3fDaW7KVsthVsNfSGFdzkI="
+          "hash": "W/fCWp/lu4o4+Gl0taoU8ZzgdreOZR/O1vQ+rmIrBuU="
         }
       },
       "is_incremental": false,
@@ -4149,7 +1701,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTransformContext.html",
-          "hash": "wPA4bxtfTvn+e185u9Hv/i3SXEGcBnKAsZliYk4k/WM="
+          "hash": "gk/KLPFmj8Au9KbhNSSudleb/72eRCDN3NhoY0LqRlQ="
         }
       },
       "is_incremental": false,
@@ -4161,7 +1713,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTransformExtensions.html",
-          "hash": "lOeIabpwy+E4WRodYgp9EfUIkotgtB0R1YLwGWYwoRU="
+          "hash": "Jm4vCABFHS47n02N470ucMVRuh8YDB0h4wzl6knLR3A="
         }
       },
       "is_incremental": false,
@@ -4173,7 +1725,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RouteConfigTransformExtensions.html",
-          "hash": "Ah9/qphwxFCJHSX24uZb8ojjvlOguy/CSOepIosLjRY="
+          "hash": "a8gkd8riQRx4M/o+UhtJb5hXxJxg3cuyNJSOS4rcG1Q="
         }
       },
       "is_incremental": false,
@@ -4185,7 +1737,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.TransformBuilderContextFuncExtensions.html",
-          "hash": "CbpIGfk6FkQmw7vUnrdUA+T9AxpYBs0ed8QskOuA92E="
+          "hash": "I9rmHIKmipiO6DZW5COJUWngaZCNb9oMwQQiQMWSUKo="
         }
       },
       "is_incremental": false,
@@ -4209,7 +1761,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Utilities.IClock.html",
-          "hash": "FLgCFgP8tR3Zbyt4EC6vzOyWHJLvsSaqeAud5eqYaPw="
+          "hash": "6Kz5x7gYXZOkalx08MBJ8wZQc51enJjd8FskBnpq/ME="
         }
       },
       "is_incremental": false,
@@ -4281,7 +1833,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHeader.html",
-          "hash": "B0QsvRlptJJcw9GPPFdIz28qeZa91sqH69lztK4LWAI="
+          "hash": "ujCqzk+SsO7Mv707DKq4eMK2sVL+MzhLEfK2sEOUc8w="
         }
       },
       "is_incremental": false,
@@ -4305,7 +1857,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.HelloExtensionCallback.html",
-          "hash": "ji89vptf2Rm8rwJAEmdbylBST3zmYlvEnLvrVbo2s0U="
+          "hash": "yVjuH1SbWXRrebGGecI9UQX82H6RdZvnygCY0pRsfUw="
         }
       },
       "is_incremental": false,
@@ -4329,7 +1881,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.TlsFrameInfo.html",
-          "hash": "M5DiCEbCcbHgwRimSfhHvcOZjSXl7AEe26yOQGTXAQI="
+          "hash": "MYrlpfSUS4m4PwzHJU4fxgALhU5SSmegE0jE7udLX8s="
         }
       },
       "is_incremental": false,
@@ -4341,7 +1893,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.html",
-          "hash": "tpOoGmJn2LfAcBrLFtHMgFjeGF8YxhdH7yW6nWB8MU4="
+          "hash": "etmJkqj95AtHae8BlZx9lUmEGt6bmILBLL+8c8jurh8="
         }
       },
       "is_incremental": false,
@@ -4385,11 +1937,23 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.html",
+          "hash": "86gYJctme+kTclVupQuQjupyp9zJpAoToXV7fe5UBrY="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "api/Yarp.Telemetry.Consumption.ForwarderMetrics.yml",
       "output": {
         ".html": {
           "relative_path": "api/Yarp.Telemetry.Consumption.ForwarderMetrics.html",
-          "hash": "436gbdIlUGTtDNMbaBKVvFyGIYZyUMq5W8mmjvoRU40="
+          "hash": "PXk1TwRcWUB5sgcVyQXOCrNS1p45chlTWMiz0NssaKg="
         }
       },
       "is_incremental": false,
@@ -4413,7 +1977,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.Telemetry.Consumption.HttpMetrics.html",
-          "hash": "EpqgjI/lQch4vVP6W4XwNWzlXQw1p7VfQihRvSH3x/s="
+          "hash": "xd+RvO3H8UQPP3t6RHEVDWgaDpwAfKAk+K9yI6rC+NA="
         }
       },
       "is_incremental": false,
@@ -4521,7 +2085,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.Telemetry.Consumption.KestrelMetrics.html",
-          "hash": "KKnFw9yEYs/yp1iX8/TfSRdITUAuuIxpuhKHTIidcd8="
+          "hash": "dzktRpipq7b7AAkhE2PLzR63L4ggLrZapbfH+74zfmQ="
         }
       },
       "is_incremental": false,
@@ -4533,7 +2097,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.Telemetry.Consumption.NameResolutionMetrics.html",
-          "hash": "Rh9ulDJOPEMtcX50j/JqXfMbxwnPYs4ML6ySSGBuyKM="
+          "hash": "PqMQPnYSgp7zlicD8MQb0ziTW1nvCj14dPKKbJHgeLI="
         }
       },
       "is_incremental": false,
@@ -4545,7 +2109,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.Telemetry.Consumption.NetSecurityMetrics.html",
-          "hash": "LjVOJL+eCkJlGhA36MFroehHb2qZ8eLQD2lkjn7klsE="
+          "hash": "UBNFLt79ptcDaAjARuEzDoLjPsa3DACmOJPRTrvem1A="
         }
       },
       "is_incremental": false,
@@ -4557,7 +2121,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.Telemetry.Consumption.SocketsMetrics.html",
-          "hash": "ZTMus1vubdQCOlKxo+ZISOsBrbifjVsGGgEoZ+ugjM8="
+          "hash": "bpX8pgBtjYn/0Dfq42uOBPHKZqKm66JGcEI3MLw4X44="
         }
       },
       "is_incremental": false,
@@ -4600,36 +2164,27 @@
       "version": ""
     },
     {
-      "type": "ManagedReference",
-      "source_relative_path": "api/k8s.KubernetesHelpersExtensions.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/k8s.KubernetesHelpersExtensions.html",
-          "hash": "WVl1EfG0b9HdldAokNNmbhVS14zOhduiWBmMoO4/LY0="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/k8s.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/k8s.html",
-          "hash": "ifs12+ALsGWM346dcapoqK329EJ6MISGcTNG17Q32f8="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
       "type": "Toc",
       "source_relative_path": "api/toc.yml",
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "ZwrnH9Nimd48KmzkyinLngCKKsZhBG5WjJRYmbOITT8="
+          "hash": "pGZj+5dTN2s4kh3sUkQDP7cCZ4kcqQMp5Ejnf28y8vM="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "log_codes": [
+        "UidNotFound"
+      ],
+      "type": "Conceptual",
+      "source_relative_path": "articles/ab-testing.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/ab-testing.html",
+          "hash": "Qtg7GpuqNQhg7dpoLWJkGGP3OIikMtpLuK0jnlI7WJc="
         }
       },
       "is_incremental": false,
@@ -4641,7 +2196,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/authn-authz.html",
-          "hash": "xC7amd7sNQRrRaK6v938nUesvaJt9V5iWd0hDX2ugF8="
+          "hash": "m/ETgz1yGoguDPh576u2trpXl9diPvIWKxhMxuKQtHc="
         }
       },
       "is_incremental": false,
@@ -4653,7 +2208,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/config-files.html",
-          "hash": "JgpbV3C7kWiKvrBAO8xyaX2XdV9PQl7CwqEtZbSmsp0="
+          "hash": "Sj4v2oAzbWzTSs1HeoO0BWMsqLXXH0vjXqhWUJoZ+U8="
         }
       },
       "is_incremental": false,
@@ -4665,7 +2220,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/config-providers.html",
-          "hash": "1Vz2o+qZ8HzXzLEXoB3auO6qhIwU9axQz1v3h85PBIs="
+          "hash": "oDE8ddPTtDjOVOJoxjmn0mnfrnwV4FMJOa5h52c0y+4="
         }
       },
       "is_incremental": false,
@@ -4677,7 +2232,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/cors.html",
-          "hash": "4o7vSd48dmt4KvqLQD8iBhHuF4gqqlDTCftxIYVb2Ek="
+          "hash": "YUMCIR141r4ynSu5wIEckUC5tcSzOTSugJFdIPL+25g="
         }
       },
       "is_incremental": false,
@@ -4689,7 +2244,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/dests-health-checks.html",
-          "hash": "8CvQO+8mox+pvnVJuSvgJdlnix9Y4LN4UfjivTYW2Oo="
+          "hash": "xa+9R7Zmkp2EiAGkeop1VsA2rGNItQZSAA+A2Vb8cio="
         }
       },
       "is_incremental": false,
@@ -4701,7 +2256,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/diagnosing-yarp-issues.html",
-          "hash": "489halhUkr/gzWbQW3hDXfY25R9jwaPit0IsJhzSHR0="
+          "hash": "Ld0d0krqqNS2Yq7ubKEg+vfMm7z5+a7KQ0ZFmV2XK78="
         }
       },
       "is_incremental": false,
@@ -4713,7 +2268,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/direct-forwarding.html",
-          "hash": "08Di5yWwrMcvIdIvVCGaBYeZJjai2yBaTXZcUt/Pbuk="
+          "hash": "zhA3MpJWdzwgHqu2Zp6uiMrRggOSRknfF5j6lSI7N8o="
         }
       },
       "is_incremental": false,
@@ -4725,7 +2280,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/distributed-tracing.html",
-          "hash": "kp717olwSYaYDpPiElXsEQRyldK0j3Xf7//GBEg/c8M="
+          "hash": "vf56AsqmGlkANidVzUbs7J2zYOoTVJLxC4/tXkmDghM="
         }
       },
       "is_incremental": false,
@@ -4737,7 +2292,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/getting-started.html",
-          "hash": "vm+KM6PbrMzKEoRjjfUonIX1LdlFq73SnjDjeASoUsg="
+          "hash": "8/ebZuTNhHERklz/Fug90Dq029yhPF3nhB2hyAd4u10="
         }
       },
       "is_incremental": false,
@@ -4761,7 +2316,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/header-guidelines.html",
-          "hash": "nCoQqIcoUBUNv9IPQHEFIFbqIUvZBkCfUn8PIEo5Nlc="
+          "hash": "9MBWdIhhIGNFpIoYNDIdiXSxfDgNZPSxmVK/jyqQ4g4="
         }
       },
       "is_incremental": false,
@@ -4773,7 +2328,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/header-routing.html",
-          "hash": "n98Koef+2bDcja906OuoV3cESekPGsVdin8FxshIziQ="
+          "hash": "zZ5lmCGEp/qqg56XFuAzUZ/NsEGgDV3SA1sdWvcZZ5A="
         }
       },
       "is_incremental": false,
@@ -4785,7 +2340,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/http-client-config.html",
-          "hash": "zYvjO8fLgelaQ7iLnLYDOWksNq06v47tMwbKqvRIqnU="
+          "hash": "wZXkh4hbu4q0C94xE8IuvXHuc7TLnQVafG0mDZbXH7M="
         }
       },
       "is_incremental": false,
@@ -4801,6 +2356,18 @@
         ".html": {
           "relative_path": "articles/https-tls.html",
           "hash": "MtL2SGhUG0s3dXvLrdBaeGKC7Pu7lPb8RAO7XUSBrFI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/httpsys-delegation.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/httpsys-delegation.html",
+          "hash": "40qZLL9wa2eJAQgXANtYjA5EXSqGpvAfIQPNTtOauw4="
         }
       },
       "is_incremental": false,
@@ -4824,7 +2391,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/kubernetes-ingress.html",
-          "hash": "kqUkqEnyo+/Utyvch4bHYLEHNbQtEog77R+fUdEFxus="
+          "hash": "Obh8IQdjlH8N0NlIBl8Xkp5Fn7aGHZAUrlakYjTx51c="
         }
       },
       "is_incremental": false,
@@ -4836,7 +2403,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/load-balancing.html",
-          "hash": "eOdSgKCH7iHHEalLwC1Vzdx9JGgSvis46CmP0IFJoT4="
+          "hash": "rpKKTZyI70XmNDxQES5JzB6ollXWXMenxxboSP10H0k="
         }
       },
       "is_incremental": false,
@@ -4848,7 +2415,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/middleware.html",
-          "hash": "OyG05EaNGqXut0YA5JpOO2r/SUeg1y2aThXKbvVBejI="
+          "hash": "Cr6bbjFu57RsTOV4d/iFDcKByYrvpl+fbpXnw6jmT30="
         }
       },
       "is_incremental": false,
@@ -4860,7 +2427,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/packages-refs.html",
-          "hash": "7yTjCPezTY1z1Mq7lwfVS5U3TZHlTIBK0NBjU0bUh4A="
+          "hash": "6koEPZP6wlL9W5vM/10RYHvfB5ViTVz5cilZNVt90js="
         }
       },
       "is_incremental": false,
@@ -4896,7 +2463,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/service-fabric-int.html",
-          "hash": "llb2INT0Kkg5h/kC0rcnNYIzrbpHLeQyBKNnZEYxKe4="
+          "hash": "gclLnfYBkfu8MvqUmulmaOb/OEEo4iORr/gHYY2a3b0="
         }
       },
       "is_incremental": false,
@@ -4908,7 +2475,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/session-affinity.html",
-          "hash": "HoJplYAuiBcJ/JfiTVMlCjZX/iKF1LMIVPzFBvcKT40="
+          "hash": "Gj/ckUYsBfVtHgPqIU3sheN10P0k+N1+jQFw5OqbGao="
         }
       },
       "is_incremental": false,
@@ -4920,7 +2487,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/toc.html",
-          "hash": "JewnyOOoE2Ta1+rqIXu3SC3Enxz23gDhy5F/F83Wedc="
+          "hash": "NRg7GsKioCnXhNShebJwIeMDlBhleiT33JkuUYvVd/w="
         }
       },
       "is_incremental": false,
@@ -4932,7 +2499,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/transforms.html",
-          "hash": "b31PZBt8JRS+b9lQZxubOJI63eODMy/No68uyZZyYxs="
+          "hash": "Ryu0hCw8c8HFuWzvNARydJWko96Zcw/tPxpkg0Pof9A="
         }
       },
       "is_incremental": false,
@@ -4977,13 +2544,13 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 27,
+          "total_file_count": 29,
           "skipped_file_count": 0
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 383,
+          "total_file_count": 178,
           "skipped_file_count": 0
         },
         "TocDocumentProcessor": {

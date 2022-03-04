@@ -76,6 +76,14 @@ See detailed guides for setting up your application with:</p>
 <li><a href="https://docs.microsoft.com/azure/azure-monitor/app/asp-net-core">Application Insights</a></li>
 </ul>
 <p>.NET 6.0 has built-in configurable support for distributed tracing that YARP takes advantage of to enable such scenarios out-of-the-box.</p>
+<h2 id="using-custom-tracing-headers">Using custom tracing headers</h2>
+<p>When using a propagation mechanism that is not built into .NET (e.g. <a href="https://github.com/openzipkin/b3-propagation">B3 propagation</a>), you should implement a custom <a href="https://docs.microsoft.com/dotnet/api/system.diagnostics.distributedcontextpropagator"><code>DistributedContextPropagator</code></a> for that scheme.</p>
+<p>YARP will remove any header in <a href="https://docs.microsoft.com/dotnet/api/system.diagnostics.distributedcontextpropagator.fields"><code>DistributedContextPropagator.Fields</code></a> so that the propagator may re-add them to the request during the <code>Inject</code> call.</p>
+<h2 id="pass-through-proxy">Pass-through proxy</h2>
+<p>If you do not wish the proxy to actively participate in the trace, and wish to keep all the tracing headers as-is, you may do so by setting <code>SocketsHttpHandler.ActivityHeadersPropagator</code> to <code>null</code>.</p>
+<pre><code class="lang-c#">services.AddReverseProxy()
+    .ConfigureHttpClient((context, handler) =&gt; handler.ActivityHeadersPropagator = null);
+</code></pre>
 <h2 id="net-50-and-older">.NET 5.0 and older</h2>
 <p>Before 6.0, <code>SocketsHttpHandler</code> could not be used with distributed tracing.
 When running on .NET 3.1 or 5.0, YARP will copy tracing headers as-is, not accounting for any changes that may have occurred to the trace within the application.</p>

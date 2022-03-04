@@ -90,12 +90,12 @@
 </code></pre>
 <p>And then add:</p>
 <pre><code class="lang-XML">&lt;ItemGroup&gt; 
- &lt;PackageReference Include=&quot;Yarp.ReverseProxy&quot; Version=&quot;1.0.0&quot; /&gt;
+ &lt;PackageReference Include=&quot;Yarp.ReverseProxy&quot; Version=&quot;1.1.0-rc.2.22152.2&quot; /&gt;
 &lt;/ItemGroup&gt; 
 </code></pre>
 <h3 id="update-startup">Update Startup</h3>
 <p>YARP is implemented as a ASP.NET Core component, and so the majority of the sample code is in Startup.cs.</p>
-<p>YARP can use configuration files or a custom provider to define the routes and endpoints for the proxy. This sample uses config files and is initialized in the <code>ConfigureServices</code> method.</p>
+<p>YARP can use <a href="#Configuration">configuration files or a custom provider</a> to define the routes and endpoints for the proxy. This sample uses config files and is initialized in the <code>ConfigureServices</code> method.</p>
 <p>The <code>Configure</code> method defines the ASP.NET pipeline for processing requests. The reverse proxy is plugged into ASP.NET endpoint routing, and then has its own sub-pipeline for the proxy. Here proxy pipeline modules, such as load balancing, can be added to customize the handling of the request.</p>
 <pre><code class="lang-C#">public IConfiguration Configuration { get; }
 
@@ -138,7 +138,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 <p>Or create a new ASP.NET Core web application in Visual Studio 2022, and choose &quot;Empty&quot; for the project template.</p>
 <h3 id="add-the-project-reference">Add the project reference</h3>
 <pre><code class="lang-XML">&lt;ItemGroup&gt; 
- &lt;PackageReference Include=&quot;Yarp.ReverseProxy&quot; Version=&quot;1.0.0&quot; /&gt;
+ &lt;PackageReference Include=&quot;Yarp.ReverseProxy&quot; Version=&quot;1.1.0-rc.2.22152.2&quot; /&gt;
 &lt;/ItemGroup&gt; 
 </code></pre>
 <h3 id="add-the-yarp-middleware">Add the YARP Middleware</h3>

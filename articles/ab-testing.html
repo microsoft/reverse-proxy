@@ -5,9 +5,9 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Cross-Origin Requests (CORS) </title>
+    <title>A/B Testing and Rolling Upgrades </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Cross-Origin Requests (CORS) ">
+    <meta name="title" content="A/B Testing and Rolling Upgrades ">
     <meta name="generator" content="docfx 2.58.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
@@ -67,68 +67,46 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="cross-origin-requests-cors">Cross-Origin Requests (CORS)</h1>
+<h1 id="ab-testing-and-rolling-upgrades">A/B Testing and Rolling Upgrades</h1>
 
 <h2 id="introduction">Introduction</h2>
-<p>The reverse proxy can handle cross-origin requests before they are proxied to the destination servers. This can reduce load on the destination servers and ensure consistent policies are implemented across your applications.</p>
-<h2 id="defaults">Defaults</h2>
-<p>The requests won't be automatically matched for cors preflight requests unless enabled in the route or application configuration.</p>
-<h2 id="configuration">Configuration</h2>
-<p>CORS policies can be specified per route via <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.RouteConfig.html">RouteConfig.CorsPolicy</a> and can be bound from the <code>Routes</code> sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.</p>
-<p>Example:</p>
-<pre><code class="lang-JSON">{
-  &quot;ReverseProxy&quot;: {
-    &quot;Routes&quot;: {
-      &quot;route1&quot; : {
-        &quot;ClusterId&quot;: &quot;cluster1&quot;,
-        &quot;CorsPolicy&quot;: &quot;customPolicy&quot;,
-        &quot;Match&quot;: {
-          &quot;Hosts&quot;: [ &quot;localhost&quot; ]
-        },
-      }
-    },
-    &quot;Clusters&quot;: {
-      &quot;cluster1&quot;: {
-        &quot;Destinations&quot;: {
-          &quot;cluster1/destination1&quot;: {
-            &quot;Address&quot;: &quot;https://localhost:10001/&quot;
-          }
-        }
-      }
-    }
-  }
-}
-</code></pre>
-<p><a href="https://docs.microsoft.com/aspnet/core/security/cors#cors-with-named-policy-and-middleware">CORS policies</a> are an ASP.NET Core concept that the proxy utilizes. The proxy provides the above configuration to specify a policy per route and the rest is handled by existing ASP.NET Core CORS Middleware.</p>
-<p>CORS policies can be configured in Startup.ConfigureServices as follows:</p>
-<pre><code>public void ConfigureServices(IServiceCollection services)
-{
-    services.AddCors(options =&gt;
+<p>A/B testing and rolling upgrades require procedures for dynamically assigning incoming traffic to evaluate changes in the destination application. YARP does not have a built-in model for this, but it does expose some infrastructure useful for building such a system. See <a href="https://github.com/microsoft/reverse-proxy/issues/126">issue #126</a> for additional details about this scenario.</p>
+<h2 id="example">Example</h2>
+<pre><code>    public void Configure(IApplicationBuilder app, IProxyStateLookup lookup)
     {
-        options.AddPolicy(&quot;customPolicy&quot;, builder =&gt;
+        app.UseRouting();
+        app.UseEndpoints(endpoints =&gt;
         {
-            builder.AllowAnyOrigin();
+            endpoints.MapReverseProxy(proxyPipeline =&gt;
+            {
+                // Custom cluster selection
+                proxyPipeline.Use((context, next) =&gt;
+                {
+                    if (lookup.TryGetCluster(ChooseCluster(context), out var cluster))
+                    {
+                        context.ReassignProxyRequest(cluster);
+                    }
+
+                    return next();
+                });
+                proxyPipeline.UseSessionAffinity();
+                proxyPipeline.UseLoadBalancing();
+            });
         });
-    });
-}
-</code></pre>
-<p>In Startup.Configure add the CORS middleware between Routing and Endpoints.</p>
-<pre><code>public void Configure(IApplicationBuilder app)
-{
-    app.UseRouting();
+    }
 
-    app.UseCors();
-
-    app.UseEndpoints(endpoints =&gt;
+    private string ChooseCluster(HttpContext context)
     {
-        endpoints.MapReverseProxy();
-    });
-}
+        // Decide which cluster to use. This could be random, weighted, based on headers, etc.
+        return Random.Shared.Next(2) == 1 ? &quot;cluster1&quot; : &quot;cluster2&quot;;
+    }
 </code></pre>
-<h3 id="defaultpolicy">DefaultPolicy</h3>
-<p>Specifying the value <code>default</code> in a route's <code>CorsPolicy</code> parameter means that route will use the policy defined in <a href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.cors.infrastructure.corsoptions.defaultpolicyname">CorsOptions.DefaultPolicy</a>.</p>
-<h3 id="disable-cors">Disable CORS</h3>
-<p>Specifying the value <code>disable</code> in a route's <code>CorsPolicy</code> parameter means the CORS middleware will refuse the CORS requests.</p>
+<h2 id="usage">Usage</h2>
+<p>This scenario makes use of two APIs, <a class="xref" href="../api/Yarp.ReverseProxy.IProxyStateLookup.html">IProxyStateLookup</a> and <a href="xref:Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.ReassignProxyRequest">ReassignProxyRequest</a>, called from a custom proxy middleware as shown in the sample above.</p>
+<p><code>IProxyStateLookup</code> is a service available in the Dependency Injection container that can be used to look up or enumerate the current routes and clusters. Note this data may change if the configuration changes. An A/B orchestration algorithm can examine the request, decide which cluster to send it to, and then retrieve that cluster from <code>IProxyStateLookup.TryGetCluster</code>.</p>
+<p>Once the cluster is selected, <code>ReassignProxyRequest</code> can be called to assign the request to that cluster. This updates the <a class="xref" href="../api/Yarp.ReverseProxy.Model.IReverseProxyFeature.html">IReverseProxyFeature</a> with the new cluster and destination information needed for the rest of the proxy middleware pipeline to handle the request.</p>
+<h2 id="session-affinity">Session affinity</h2>
+<p>Note that session affinity functionality is split between middleware, which reads it settings from the current cluster, and transforms, which are part of the original route. Clusters used for A/B testing should use the same session affinity configuration to avoid conflicts.</p>
 </article>
           </div>
           
@@ -137,7 +115,7 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/docs/docfx/articles/cors.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/docs/docfx/articles/ab-testing.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

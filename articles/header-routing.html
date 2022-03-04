@@ -71,7 +71,15 @@
 
 <p>Proxy routes specified in <a href="config-files.html">config</a> or via <a href="config-providers.html">code</a> must include at least a path or host to match against. In addition to these, a route can also specify one or more headers that must be present on the request.</p>
 <h3 id="precedence">Precedence</h3>
-<p>The default route match precedence order is 1) path, 2) method, 3) host, 4) headers 5) query parameters. That means a route which specifies methods and no headers will match before a route which specifies headers and no methods. This can be overridden by setting the <code>Order</code> property on a route.</p>
+<p>The default route match precedence order is</p>
+<ol>
+<li>path</li>
+<li>method</li>
+<li>host</li>
+<li>headers</li>
+<li>query parameters</li>
+</ol>
+<p>That means a route which specifies methods and no headers will match before a route which specifies headers and no methods. This can be overridden by setting the <code>Order</code> property on a route (see example in <a href="config-files.html#all-config-properties">config properties</a>).</p>
 <h2 id="configuration">Configuration</h2>
 <p>Headers are specified in the <code>Match</code> section of a proxy route.</p>
 <p>If multiple headers rules are specified on a route then all must match for a route to be taken. OR logic must be implemented either within a header rule or as separate routes.</p>

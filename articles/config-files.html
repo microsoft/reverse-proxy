@@ -69,8 +69,6 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="configuration-files">Configuration Files</h1>
 
-<p>Introduced: preview1
-Updated: preview5</p>
 <h2 id="introduction">Introduction</h2>
 <p>The reverse proxy can load configuration for routes and clusters from files using the IConfiguration abstraction from Microsoft.Extensions. The examples given here use JSON, but any IConfiguration source should work. The configuration will also be updated without restarting the proxy if the source file changes.</p>
 <h2 id="loading-configuration">Loading Configuration</h2>
@@ -102,6 +100,19 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     }); 
 } 
 </code></pre>
+<p><strong>Note</strong>: For details about middleware ordering see <a href="https://docs.microsoft.com/aspnet/core/fundamentals/middleware/#middleware-order">here</a>.</p>
+<h2 id="multiple-configuration-sources">Multiple Configuration Sources</h2>
+<p>As of 1.1, YARP supports loading the proxy configuration from multiple sources. LoadFromConfig may be called multiple times referencing different IConfiguration sections or may be combine with a different config source like InMemory. Routes can reference clusters from other sources. Note merging partial config from different sources for a given route or cluster is not supported.</p>
+<pre><code class="lang-c#">services.AddReverseProxy()
+    .LoadFromConfig(Configuration.GetSection(&quot;ReverseProxy1&quot;))
+    .LoadFromConfig(Configuration.GetSection(&quot;ReverseProxy2&quot;));
+</code></pre>
+<p>or</p>
+<pre><code class="lang-c#">
+services.AddReverseProxy()
+    .LoadFromMemory(routes, clusters)
+    .LoadFromConfig(Configuration.GetSection(&quot;ReverseProxy&quot;));
+</code></pre>
 <h2 id="configuration-contract">Configuration contract</h2>
 <p>File-based configuration is dynamically mapped to the types in <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.html">Yarp.ReverseProxy.Configuration</a> namespace by an <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.IProxyConfigProvider.html">IProxyConfigProvider</a> implementation converts at application start and each time the configuration changes.</p>
 <h2 id="configuration-structure">Configuration Structure</h2>
@@ -113,7 +124,8 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
       &quot;route1&quot; : {
         &quot;ClusterId&quot;: &quot;cluster1&quot;,
         &quot;Match&quot;: {
-          &quot;Path&quot;: &quot;{**catch-all}&quot;
+          &quot;Path&quot;: &quot;{**catch-all}&quot;,
+          &quot;Hosts&quot; : [ &quot;www.aaaaa.com&quot;, &quot;www.bbbbb.com&quot;],
         },
       }
     },
@@ -130,11 +142,12 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 }
 </code></pre>
 <h3 id="routes">Routes</h3>
-<p>The routes section is an ordered list of route matches and their associated configuration. A route requires at least the following fields:</p>
+<p>The routes section is an unordered collection of route matches and their associated configuration. A route requires at least the following fields:</p>
 <ul>
 <li>RouteId - a unique name</li>
 <li>ClusterId - refers to the name of an entry in the clusters section.</li>
-<li>Match - contains either a Hosts array or a Path pattern string. Path is an ASP.NET Core route template that can be defined as <a href="https://docs.microsoft.com/aspnet/core/fundamentals/routing#route-template-reference">explained here</a>.</li>
+<li>Match - contains either a Hosts array or a Path pattern string. Path is an ASP.NET Core route template that can be defined as <a href="https://docs.microsoft.com/aspnet/core/fundamentals/routing#route-templates">explained here</a>.
+Route matching is based on the most specific routes having highest precedence as described <a href="https://docs.microsoft.com/aspnet/core/fundamentals/routing#url-matching">here</a>. Explicit ordering can be achieved using the <code>order</code> field, with lower values taking higher priority.</li>
 </ul>
 <p><a href="header-routing.html">Headers</a>, <a href="authn-authz.html">Authorization</a>, <a href="cors.html">CORS</a>, and other route based policies can be configured on each route entry. For additional fields see <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.RouteConfig.html">RouteConfig</a>.</p>
 <p>The proxy will apply the given matching criteria and policies, and then pass off the request to the specified cluster.</p>
@@ -194,7 +207,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         &quot;MetaData&quot; : { // List of key value pairs that can be used by custom extensions
           &quot;MyName&quot; : &quot;MyValue&quot;
         },
-        &quot;Transforms&quot; : [ // List of transforms. See ./Transforms.html for more details
+        &quot;Transforms&quot; : [ // List of transforms. See the Transforms article for more details
           {
             &quot;RequestHeader&quot;: &quot;MyHeader&quot;,
             &quot;Set&quot;: &quot;MyValue&quot;,
@@ -225,7 +238,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         &quot;SessionAffinity&quot;: {
           &quot;Enabled&quot;: true, // Defaults to 'false'
           &quot;Policy&quot;: &quot;Cookie&quot;, // Default, alternatively &quot;CustomHeader&quot;
-          &quot;FailurePolicy&quot;: &quot;Redistribute&quot;, // default, Alternatively &quot;Return503&quot;
+          &quot;FailurePolicy&quot;: &quot;Redistribute&quot;, // default, Alternatively &quot;Return503Error&quot;
           &quot;Settings&quot; : {
               &quot;CustomHeaderName&quot;: &quot;MySessionHeaderName&quot; // Defaults to 'X-Yarp-Proxy-Affinity`
           }
@@ -266,6 +279,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
   }
 }
 </code></pre>
+<p>For more information see <a href="diagnosing-yarp-issues.html#logging">logging configuration</a> and <a href="http-client-config.html">HTTP client configuration</a>.</p>
 </article>
           </div>
           

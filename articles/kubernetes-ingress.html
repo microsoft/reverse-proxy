@@ -69,7 +69,7 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="kubernetes-ingress-controller">Kubernetes Ingress Controller</h1>
 
-<p>Introduced: 1.0.0</p>
+<p>Introduced: Future Preview</p>
 <p>YARP can be integrated with Kubernetes as a reverse proxy managing HTTP/HTTPS traffic ingress to a Kubernetes cluster. Currently, the module is shipped as a separate package and is in preview.</p>
 <h2 id="prerequisites">Prerequisites</h2>
 <p>Before we continue with this tutorial, make sure you have the following ready...</p>
@@ -96,7 +96,7 @@
 <p>⚠️ For now there is no official docker image for the YARP ingress controller.</p>
 </blockquote>
 <p>So, in the meantime we need to build the YARP ingress controller locally and deploy it. In the root of the repository, run:</p>
-<pre><code>docker build . -t &lt;REGISTRY_NAME&gt;/yarp-controller:&lt;TAG&gt; -f .\src\ReverseProxy.Kubernetes.Controller\Dockerfile
+<pre><code>docker build . -t &lt;REGISTRY_NAME&gt;/yarp-controller:&lt;TAG&gt; -f .\src\Kubernetes.Controller\Dockerfile
 docker push &lt;REGISTRY_NAME&gt;/yarp-controller:&lt;TAG&gt;
 </code></pre>
 <p>where <code>REGISTRY_NAME</code> is the name of your docker registry and <code>TAG</code> is a tag for the image (for example 1.0.0).</p>

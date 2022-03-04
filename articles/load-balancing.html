@@ -69,7 +69,6 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="load-balancing">Load Balancing</h1>
 
-<p>Introduced: preview8</p>
 <h2 id="introduction">Introduction</h2>
 <p>Whenever there are multiple healthy destinations available, YARP has to decide which one to use for a given request.
 YARP ships with built-in load-balancing algorithms, but also offers extensibility for any custom load balancing approach.</p>
@@ -146,7 +145,7 @@ public sealed class LastLoadBalancingPolicy : ILoadBalancingPolicy
     }
 }
 
-// Register it in DI
+// Register it in DI in ConfigureServices method
 services.AddSingleton&lt;ILoadBalancingPolicy, LastLoadBalancingPolicy&gt;();
 
 // Set the LoadBalancingPolicy on the cluster

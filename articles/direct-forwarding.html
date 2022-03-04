@@ -69,7 +69,6 @@
             <article class="content wrap" id="_content" data-uid="direct-forwarding">
 <h1 id="direct-forwarding">Direct Forwarding</h1>
 
-<p>Introduced: preview6</p>
 <p>Some applications only need the ability to take a specific request and forward it to a specific destination. These applications do not need, or have addressed in other ways, the other features of the proxy like configuration discovery, routing, load balancing, etc..</p>
 <h2 id="ihttpforwarder">IHttpForwarder</h2>
 <p><a class="xref" href="../api/Yarp.ReverseProxy.Forwarder.IHttpForwarder.html">IHttpForwarder</a> serves as the core proxy adapter between incoming AspNetCore and outgoing System.Net.Http requests. It handles the mechanics of creating a HttpRequestMessage from a HttpContext, sending it, and relaying the response.</p>
@@ -107,13 +106,13 @@ public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
         UseProxy = false,
         AllowAutoRedirect = false,
         AutomaticDecompression = DecompressionMethods.None,
-        UseCookies = false
+        UseCookies = false,
+        ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
     });
     var transformer = new CustomTransformer(); // or HttpTransformer.Default;
     var requestConfig = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
 
     app.UseRouting();
-    app.UseAuthorization();
     app.UseEndpoints(endpoints =&gt;
     {
         endpoints.Map(&quot;/{**catch-all}&quot;, async httpContext =&gt;
@@ -132,12 +131,21 @@ public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
 </code></pre>
 <pre><code class="lang-C#">private class CustomTransformer : HttpTransformer
 {
-    public override async Task TransformRequestAsync(HttpContext httpContext,
+    public override async ValueTask TransformRequestAsync(HttpContext httpContext,
         HttpRequestMessage proxyRequest, string destinationPrefix)
     {
-        // Copy headers normally and then remove the original host.
-        // Use the destination host from proxyRequest.RequestUri instead.
+        // Copy all request headers
         await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+
+        // Customize the query string:
+        var queryContext = new QueryTransformContext(httpContext.Request);
+        queryContext.Collection.Remove(&quot;param1&quot;);
+        queryContext.Collection[&quot;area&quot;] = &quot;xx2&quot;;
+
+        // Assign the custom uri. Be careful about extra slashes when concatenating here. RequestUtilities.MakeDestinationAddress is a safe default.
+        proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(&quot;https://example.com&quot;, httpContext.Request.Path, queryContext.QueryString);
+
+        // Suppress the original request header, use the one from the destination Uri.
         proxyRequest.Headers.Host = null;
     }
 }

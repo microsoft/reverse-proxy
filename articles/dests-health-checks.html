@@ -284,7 +284,7 @@ IActiveHealthCheckPolicy --(New active health states)--&gt; IDestinationHealthUp
 <li><code>ReactivationPeriod</code> - period after which an unhealthy destination's passive health state is reset to <code>Unknown</code> and it starts receiving traffic again. Default value is <code>null</code> which means the period will be set by a <code>IPassiveHealthCheckPolicy</code></li>
 </ul>
 <h3 id="built-in-policies-1">Built-in policies</h3>
-<p>There is currently one built-in passive health check policy - <code>TransportFailureRateHealthPolicy</code>. It calculates the proxied requests failure rate for each destination and marks it as unhealthy if the specified limit is exceeded. Rate is calculated as a percentage of failured requests to the total number of request proxied to a destination in the given period of time. Failed and total counters are tracked in a sliding time window which means that only the recent readings fitting in the window are taken into account.
+<p>There is currently one built-in passive health check policy - <a class="xref" href="../api/Yarp.ReverseProxy.Health.TransportFailureRateHealthPolicyOptions.html"><code>TransportFailureRateHealthPolicy</code></a>. It calculates the proxied requests failure rate for each destination and marks it as unhealthy if the specified limit is exceeded. Rate is calculated as a percentage of failured requests to the total number of request proxied to a destination in the given period of time. Failed and total counters are tracked in a sliding time window which means that only the recent readings fitting in the window are taken into account.
 There are two sets of policy parameters defined globally and on per cluster level.</p>
 <p>Global parameters are set via the options mechanism using <code>TransportFailureRateHealthPolicyOptions</code> type with the following properties:</p>
 <ul>
@@ -300,11 +300,11 @@ There are two sets of policy parameters defined globally and on per cluster leve
     o.DefaultFailureRateLimit = 0.5;
 });
 </code></pre>
-<p>Cluster-specific parameters are set in the cluster's metadata as follows:</p>
-<p><code>TransportFailureRateHealthPolicy.RateLimit</code> - failure rate limit for a destination to be marked as unhealhty. The value is in range <code>(0,1)</code>. Default value is provided by the global <code>DefaultFailureRateLimit</code> parameter.</p>
+<p>Cluster-specific parameters are set in the cluster's metadata as follows:
+<code>TransportFailureRateHealthPolicy.RateLimit</code> - failure rate limit for a destination to be marked as unhealhty. The value is in range <code>(0,1)</code>. Default value is provided by the global <code>DefaultFailureRateLimit</code> parameter.</p>
 <h3 id="design-1">Design</h3>
 <p>The main component is <a class="xref" href="../api/Yarp.ReverseProxy.Health.PassiveHealthCheckMiddleware.html">PassiveHealthCheckMiddleware</a> sitting in the request pipeline and analyzing responses returned by destinations. For each response from a destination belonging to a cluster with enabled passive health checks, <code>PassiveHealthCheckMiddleware</code> invokes an <a class="xref" href="../api/Yarp.ReverseProxy.Health.IPassiveHealthCheckPolicy.html">IPassiveHealthCheckPolicy</a> specified for the cluster. The policy analyzes the given response, evaluates a new destination's passive health state and calls <a class="xref" href="../api/Yarp.ReverseProxy.Health.IDestinationHealthUpdater.html">IDestinationHealthUpdater</a> to actually update <a class="xref" href="../api/Yarp.ReverseProxy.Model.DestinationHealthState.html#Yarp_ReverseProxy_Model_DestinationHealthState_Passive">DestinationHealthState.Passive</a> value. The update happens asynchronously in the background and doesn't block the request pipeline. When a destination gets marked as unhealthy, it stops receiving new requests until it gets reactivated after a configured period. Reactivation means the destination's <code>DestinationHealthState.Passive</code> state is reset from <code>Unhealthy</code> to <code>Unknown</code> and the cluster's list of healthy destinations is rebuilt to include it. A reactivation is scheduled by <code>IDestinationHealthUpdater</code> right after setting the destination's <code>DestinationHealthState.Passive</code> to <code>Unhealthy</code>.</p>
-<pre><code>      (Respose to a proxied request)
+<pre><code>      (Response to a proxied request)
                   |
       PassiveHealthCheckMiddleware
                   |

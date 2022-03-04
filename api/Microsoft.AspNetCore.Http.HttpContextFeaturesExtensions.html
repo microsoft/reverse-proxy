@@ -84,25 +84,25 @@
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
     <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_">Object.Equals(Object)</a>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">Object.Equals(Object)</a>
     </div>
     <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#System_Object_Equals_System_Object_System_Object_">Object.Equals(Object, Object)</a>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">Object.Equals(Object, Object)</a>
     </div>
     <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gethashcode#System_Object_GetHashCode">Object.GetHashCode()</a>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gethashcode#system-object-gethashcode">Object.GetHashCode()</a>
     </div>
     <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gettype#System_Object_GetType">Object.GetType()</a>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.gettype#system-object-gettype">Object.GetType()</a>
     </div>
     <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.memberwiseclone#System_Object_MemberwiseClone">Object.MemberwiseClone()</a>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.memberwiseclone#system-object-memberwiseclone">Object.MemberwiseClone()</a>
     </div>
     <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.referenceequals#System_Object_ReferenceEquals_System_Object_System_Object_">Object.ReferenceEquals(Object, Object)</a>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.referenceequals#system-object-referenceequals(system-object-system-object)">Object.ReferenceEquals(Object, Object)</a>
     </div>
     <div>
-      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.tostring#System_Object_ToString">Object.ToString()</a>
+      <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.object.tostring#system-object-tostring">Object.ToString()</a>
     </div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Microsoft.AspNetCore.Http.html">Microsoft.AspNetCore.Http</a></h6>
@@ -253,6 +253,45 @@
     <tbody>
       <tr>
         <td><a class="xref" href="Yarp.ReverseProxy.Model.RouteModel.html">RouteModel</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_ReassignProxyRequest_Microsoft_AspNetCore_Http_HttpContext_Yarp_ReverseProxy_Model_ClusterState_.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.ReassignProxyRequest(Microsoft.AspNetCore.Http.HttpContext%2CYarp.ReverseProxy.Model.ClusterState)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/HttpContextFeaturesExtensions.cs/#L49">View Source</a>
+  </span>
+  <a id="Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_ReassignProxyRequest_" data-uid="Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.ReassignProxyRequest*"></a>
+  <h4 id="Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_ReassignProxyRequest_Microsoft_AspNetCore_Http_HttpContext_Yarp_ReverseProxy_Model_ClusterState_" data-uid="Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.ReassignProxyRequest(Microsoft.AspNetCore.Http.HttpContext,Yarp.ReverseProxy.Model.ClusterState)">ReassignProxyRequest(HttpContext, ClusterState)</h4>
+  <div class="markdown level1 summary"><p>Replaces the assigned cluster and destinations in <a class="xref" href="Yarp.ReverseProxy.Model.IReverseProxyFeature.html">IReverseProxyFeature</a> with the new <a class="xref" href="Yarp.ReverseProxy.Model.ClusterState.html">ClusterState</a>,
+causing the request to be sent to the new cluster instead.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void ReassignProxyRequest(this HttpContext context, ClusterState cluster)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.http.httpcontext">HttpContext</a></td>
+        <td><span class="parametername">context</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Yarp.ReverseProxy.Model.ClusterState.html">ClusterState</a></td>
+        <td><span class="parametername">cluster</span></td>
         <td></td>
       </tr>
     </tbody>
