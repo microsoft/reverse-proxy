@@ -252,7 +252,7 @@ endpoints.MapReverseProxy(proxyPipeline =>
 - `ReactivationPeriod` - period after which an unhealthy destination's passive health state is reset to `Unknown` and it starts receiving traffic again. Default value is `null` which means the period will be set by a `IPassiveHealthCheckPolicy`
 
 ### Built-in policies
-There is currently one built-in passive health check policy - `TransportFailureRateHealthPolicy`. It calculates the proxied requests failure rate for each destination and marks it as unhealthy if the specified limit is exceeded. Rate is calculated as a percentage of failured requests to the total number of request proxied to a destination in the given period of time. Failed and total counters are tracked in a sliding time window which means that only the recent readings fitting in the window are taken into account.
+There is currently one built-in passive health check policy - [`TransportFailureRateHealthPolicy`](xref:Yarp.ReverseProxy.Health.TransportFailureRateHealthPolicyOptions). It calculates the proxied requests failure rate for each destination and marks it as unhealthy if the specified limit is exceeded. Rate is calculated as a percentage of failured requests to the total number of request proxied to a destination in the given period of time. Failed and total counters are tracked in a sliding time window which means that only the recent readings fitting in the window are taken into account.
 There are two sets of policy parameters defined globally and on per cluster level.
 
 Global parameters are set via the options mechanism using `TransportFailureRateHealthPolicyOptions` type with the following properties:
@@ -272,14 +272,13 @@ services.Configure<TransportFailureRateHealthPolicyOptions>(o =>
 ```
 
 Cluster-specific parameters are set in the cluster's metadata as follows:
-
 `TransportFailureRateHealthPolicy.RateLimit` - failure rate limit for a destination to be marked as unhealhty. The value is in range `(0,1)`. Default value is provided by the global `DefaultFailureRateLimit` parameter.
 
 ### Design
 The main component is [PassiveHealthCheckMiddleware](xref:Yarp.ReverseProxy.Health.PassiveHealthCheckMiddleware) sitting in the request pipeline and analyzing responses returned by destinations. For each response from a destination belonging to a cluster with enabled passive health checks, `PassiveHealthCheckMiddleware` invokes an [IPassiveHealthCheckPolicy](xref:Yarp.ReverseProxy.Health.IPassiveHealthCheckPolicy) specified for the cluster. The policy analyzes the given response, evaluates a new destination's passive health state and calls [IDestinationHealthUpdater](xref:Yarp.ReverseProxy.Health.IDestinationHealthUpdater) to actually update [DestinationHealthState.Passive](xref:Yarp.ReverseProxy.Model.DestinationHealthState.Passive) value. The update happens asynchronously in the background and doesn't block the request pipeline. When a destination gets marked as unhealthy, it stops receiving new requests until it gets reactivated after a configured period. Reactivation means the destination's `DestinationHealthState.Passive` state is reset from `Unhealthy` to `Unknown` and the cluster's list of healthy destinations is rebuilt to include it. A reactivation is scheduled by `IDestinationHealthUpdater` right after setting the destination's `DestinationHealthState.Passive` to `Unhealthy`.
 
 ```
-      (Respose to a proxied request)
+      (Response to a proxied request)
                   |
       PassiveHealthCheckMiddleware
                   |

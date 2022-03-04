@@ -1,0 +1,44 @@
+[
+  {
+    "ClusterId": "the-service.ns-one:http",
+    "LoadBalancingPolicy": null,
+    "SessionAffinity": null,
+    "HealthCheck": null,
+    "HttpClient": null,
+    "HttpRequest": null,
+    "Destinations": {
+      "http://10.244.1.11:80": {
+        "Address": "http://10.244.1.11:80",
+        "Health": null,
+        "Metadata": null
+      },
+      "http://10.244.1.12:80": {
+        "Address": "http://10.244.1.12:80",
+        "Health": null,
+        "Metadata": null
+      }
+    },
+    "Metadata": null
+  },
+  {
+    "ClusterId": "the-service.ns-two:http",
+    "LoadBalancingPolicy": null,
+    "SessionAffinity": null,
+    "HealthCheck": null,
+    "HttpClient": null,
+    "HttpRequest": null,
+    "Destinations": {
+      "http://10.244.2.22:80": {
+        "Address": "http://10.244.2.22:80",
+        "Health": null,
+        "Metadata": null
+      },
+      "http://10.244.2.23:80": {
+        "Address": "http://10.244.2.23:80",
+        "Health": null,
+        "Metadata": null
+      }
+    },
+    "Metadata": null
+  }
+]

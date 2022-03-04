@@ -1,14 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Yarp.ReverseProxy.Model
+namespace Yarp.ReverseProxy.Model;
+
+public enum DestinationHealth
 {
-    public enum DestinationHealth
-    {
-        Unknown,
+    Unknown,
 
-        Healthy,
+    Healthy,
 
-        Unhealthy,
-    }
+    Unhealthy,
 }

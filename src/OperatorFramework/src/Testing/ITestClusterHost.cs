@@ -5,14 +5,13 @@ using k8s;
 using k8s.KubeConfigModels;
 using Microsoft.Extensions.Hosting;
 
-namespace Microsoft.Kubernetes.Testing
+namespace Microsoft.Kubernetes.Testing;
+
+public interface ITestClusterHost : IHost
 {
-    public interface ITestClusterHost : IHost
-    {
-        K8SConfiguration KubeConfig { get; }
+    K8SConfiguration KubeConfig { get; }
 
-        IKubernetes Client { get; }
+    IKubernetes Client { get; }
 
-        ITestCluster Cluster { get; }
-    }
+    ITestCluster Cluster { get; }
 }

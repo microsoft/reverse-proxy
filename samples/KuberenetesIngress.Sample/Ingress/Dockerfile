@@ -5,7 +5,7 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS publish
+FROM mcr.microsoft.com/dotnet/sdk:6.0.100 AS publish
 WORKDIR /src
 
 # Copy csproj files and other files needed for restoring (to build a nuget cache layer to speed up rebuilds)
@@ -15,7 +15,7 @@ COPY ["src/OperatorFramework/src/Core/Microsoft.Kubernetes.Core.csproj", "src/Op
 COPY ["src/ReverseProxy/Yarp.ReverseProxy.csproj", "src/ReverseProxy/"]
 COPY ["src/Kubernetes.Protocol/Yarp.Kubernetes.Protocol.csproj", "src/Kubernetes.Protocol/"]
 COPY ["src/Directory.Build.props", "src/"]
-COPY ["Directory.Build.*", ""]
+COPY ["Directory.Build.*", "./"]
 COPY ["global.json", ""]
 COPY ["NuGet.config", ""]
 

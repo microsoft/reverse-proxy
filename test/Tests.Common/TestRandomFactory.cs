@@ -4,15 +4,14 @@
 using System;
 using Yarp.ReverseProxy.Utilities;
 
-namespace Yarp.Tests.Common
-{
-    public class TestRandomFactory : IRandomFactory
-    {
-        public TestRandom Instance { get; set; }
+namespace Yarp.Tests.Common;
 
-        public Random CreateRandomInstance()
-        {
-            return Instance;
-        }
+public class TestRandomFactory : IRandomFactory
+{
+    public TestRandom Instance { get; set; }
+
+    public Random CreateRandomInstance()
+    {
+        return Instance;
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -38,7 +39,10 @@ namespace Yarp.Sample
                 UseProxy = false,
                 AllowAutoRedirect = false,
                 AutomaticDecompression = DecompressionMethods.None,
-                UseCookies = false
+                UseCookies = false,
+#if NET6_0_OR_GREATER
+                ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
+#endif
             });
 
             // Setup our own request transform class

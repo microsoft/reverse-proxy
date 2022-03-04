@@ -4,79 +4,78 @@
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Transforms.Builder;
 
-namespace Yarp.ReverseProxy.Transforms
+namespace Yarp.ReverseProxy.Transforms;
+
+/// <summary>
+/// Extensions for adding query transforms.
+/// </summary>
+public static class QueryTransformExtensions
 {
     /// <summary>
-    /// Extensions for adding query transforms.
+    /// Clones the route and adds the transform that will append or set the query parameter from the given value.
     /// </summary>
-    public static class QueryTransformExtensions
+    public static RouteConfig WithTransformQueryValue(this RouteConfig route, string queryKey, string value, bool append = true)
     {
-        /// <summary>
-        /// Clones the route and adds the transform that will append or set the query parameter from the given value.
-        /// </summary>
-        public static RouteConfig WithTransformQueryValue(this RouteConfig route, string queryKey, string value, bool append = true)
+        var type = append ? QueryTransformFactory.AppendKey : QueryTransformFactory.SetKey;
+        return route.WithTransform(transform =>
         {
-            var type = append ? QueryTransformFactory.AppendKey : QueryTransformFactory.SetKey;
-            return route.WithTransform(transform =>
-            {
-                transform[QueryTransformFactory.QueryValueParameterKey] = queryKey;
-                transform[type] = value;
-            });
-        }
+            transform[QueryTransformFactory.QueryValueParameterKey] = queryKey;
+            transform[type] = value;
+        });
+    }
 
-        /// <summary>
-        /// Adds the transform that will append or set the query parameter from the given value.
-        /// </summary>
-        public static TransformBuilderContext AddQueryValue(this TransformBuilderContext context, string queryKey, string value, bool append = true)
-        {
-            context.RequestTransforms.Add(new QueryParameterFromStaticTransform(
-                append ? QueryStringTransformMode.Append : QueryStringTransformMode.Set,
-                queryKey, value));
-            return context;
-        }
+    /// <summary>
+    /// Adds the transform that will append or set the query parameter from the given value.
+    /// </summary>
+    public static TransformBuilderContext AddQueryValue(this TransformBuilderContext context, string queryKey, string value, bool append = true)
+    {
+        context.RequestTransforms.Add(new QueryParameterFromStaticTransform(
+            append ? QueryStringTransformMode.Append : QueryStringTransformMode.Set,
+            queryKey, value));
+        return context;
+    }
 
-        /// <summary>
-        /// Clones the route and adds the transform that will append or set the query parameter from a route value.
-        /// </summary>
-        public static RouteConfig WithTransformQueryRouteValue(this RouteConfig route, string queryKey, string routeValueKey, bool append = true)
+    /// <summary>
+    /// Clones the route and adds the transform that will append or set the query parameter from a route value.
+    /// </summary>
+    public static RouteConfig WithTransformQueryRouteValue(this RouteConfig route, string queryKey, string routeValueKey, bool append = true)
+    {
+        var type = append ? QueryTransformFactory.AppendKey : QueryTransformFactory.SetKey;
+        return route.WithTransform(transform =>
         {
-            var type = append ? QueryTransformFactory.AppendKey : QueryTransformFactory.SetKey;
-            return route.WithTransform(transform =>
-            {
-                transform[QueryTransformFactory.QueryRouteParameterKey] = queryKey;
-                transform[type] = routeValueKey;
-            });
-        }
+            transform[QueryTransformFactory.QueryRouteParameterKey] = queryKey;
+            transform[type] = routeValueKey;
+        });
+    }
 
-        /// <summary>
-        /// Adds the transform that will append or set the query parameter from a route value.
-        /// </summary>
-        public static TransformBuilderContext AddQueryRouteValue(this TransformBuilderContext context, string queryKey, string routeValueKey, bool append = true)
-        {
-            context.RequestTransforms.Add(new QueryParameterRouteTransform(
-                append ? QueryStringTransformMode.Append : QueryStringTransformMode.Set,
-                queryKey, routeValueKey));
-            return context;
-        }
+    /// <summary>
+    /// Adds the transform that will append or set the query parameter from a route value.
+    /// </summary>
+    public static TransformBuilderContext AddQueryRouteValue(this TransformBuilderContext context, string queryKey, string routeValueKey, bool append = true)
+    {
+        context.RequestTransforms.Add(new QueryParameterRouteTransform(
+            append ? QueryStringTransformMode.Append : QueryStringTransformMode.Set,
+            queryKey, routeValueKey));
+        return context;
+    }
 
-        /// <summary>
-        /// Clones the route and adds the transform that will remove the given query key.
-        /// </summary>
-        public static RouteConfig WithTransformQueryRemoveKey(this RouteConfig route, string queryKey)
+    /// <summary>
+    /// Clones the route and adds the transform that will remove the given query key.
+    /// </summary>
+    public static RouteConfig WithTransformQueryRemoveKey(this RouteConfig route, string queryKey)
+    {
+        return route.WithTransform(transform =>
         {
-            return route.WithTransform(transform =>
-            {
-                transform[QueryTransformFactory.QueryRemoveParameterKey] = queryKey;
-            });
-        }
+            transform[QueryTransformFactory.QueryRemoveParameterKey] = queryKey;
+        });
+    }
 
-        /// <summary>
-        /// Adds the transform that will remove the given query key.
-        /// </summary>
-        public static TransformBuilderContext AddQueryRemoveKey(this TransformBuilderContext context, string queryKey)
-        {
-            context.RequestTransforms.Add(new QueryParameterRemoveTransform(queryKey));
-            return context;
-        }
+    /// <summary>
+    /// Adds the transform that will remove the given query key.
+    /// </summary>
+    public static TransformBuilderContext AddQueryRemoveKey(this TransformBuilderContext context, string queryKey)
+    {
+        context.RequestTransforms.Add(new QueryParameterRemoveTransform(queryKey));
+        return context;
     }
 }

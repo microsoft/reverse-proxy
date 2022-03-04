@@ -3,47 +3,46 @@
 
 using Xunit;
 
-namespace Yarp.ReverseProxy.Transforms.Tests
+namespace Yarp.ReverseProxy.Transforms.Tests;
+
+public class TransformBuilderContextFuncExtensionsTests : TransformExtentionsTestsBase
 {
-    public class TransformBuilderContextFuncExtensionsTests : TransformExtentionsTestsBase
+    [Fact]
+    public void AddRequestTransform()
     {
-        [Fact]
-        public void AddRequestTransform()
+        var builderContext = CreateBuilderContext();
+        builderContext.AddRequestTransform(context =>
         {
-            var builderContext = CreateBuilderContext();
-            builderContext.AddRequestTransform(context =>
-            {
-                return default;
-            });
+            return default;
+        });
 
-            var requestTransform = Assert.Single(builderContext.RequestTransforms);
-            Assert.IsType<RequestFuncTransform>(requestTransform);
-        }
+        var requestTransform = Assert.Single(builderContext.RequestTransforms);
+        Assert.IsType<RequestFuncTransform>(requestTransform);
+    }
 
-        [Fact]
-        public void AddResponseTransform()
+    [Fact]
+    public void AddResponseTransform()
+    {
+        var builderContext = CreateBuilderContext();
+        builderContext.AddResponseTransform(context =>
         {
-            var builderContext = CreateBuilderContext();
-            builderContext.AddResponseTransform(context =>
-            {
-                return default;
-            });
+            return default;
+        });
 
-            var responseTransform = Assert.Single(builderContext.ResponseTransforms);
-            Assert.IsType<ResponseFuncTransform>(responseTransform);
-        }
+        var responseTransform = Assert.Single(builderContext.ResponseTransforms);
+        Assert.IsType<ResponseFuncTransform>(responseTransform);
+    }
 
-        [Fact]
-        public void AddResponseTrailersTransform()
+    [Fact]
+    public void AddResponseTrailersTransform()
+    {
+        var builderContext = CreateBuilderContext();
+        builderContext.AddResponseTrailersTransform(context =>
         {
-            var builderContext = CreateBuilderContext();
-            builderContext.AddResponseTrailersTransform(context =>
-            {
-                return default;
-            });
+            return default;
+        });
 
-            var responseTrailersTransform = Assert.Single(builderContext.ResponseTrailersTransforms);
-            Assert.IsType<ResponseTrailersFuncTransform>(responseTrailersTransform);
-        }
+        var responseTrailersTransform = Assert.Single(builderContext.ResponseTrailersTransforms);
+        Assert.IsType<ResponseTrailersFuncTransform>(responseTrailersTransform);
     }
 }

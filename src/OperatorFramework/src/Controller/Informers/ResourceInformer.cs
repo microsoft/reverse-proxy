@@ -35,6 +35,7 @@ namespace Microsoft.Kubernetes.Controller.Informers
         private readonly IAnyResourceKind _client;
         private readonly GroupApiVersionKind _names;
         private readonly SemaphoreSlim _ready = new SemaphoreSlim(0);
+        private readonly SemaphoreSlim _start = new SemaphoreSlim(0);
         private ImmutableList<Registration> _registrations = ImmutableList<Registration>.Empty;
         private IDictionary<NamespacedName, IList<V1OwnerReference>> _cache = new Dictionary<NamespacedName, IList<V1OwnerReference>>();
         private string _lastResourceVersion;
@@ -74,6 +75,7 @@ namespace Microsoft.Kubernetes.Controller.Informers
             {
                 try
                 {
+                    _start.Dispose();
                     _ready.Dispose();
                 }
                 catch (ObjectDisposedException)
@@ -82,6 +84,11 @@ namespace Microsoft.Kubernetes.Controller.Informers
                 }
             }
             base.Dispose(disposing);
+        }
+
+        public void StartWatching()
+        {
+            _start.Release();
         }
 
         public virtual IResourceInformerRegistration Register(ResourceInformerCallback<TResource> callback)
@@ -114,6 +121,8 @@ namespace Microsoft.Kubernetes.Controller.Informers
         {
             try
             {
+                await _start.WaitAsync(cancellationToken).ConfigureAwait(false);
+
                 var limiter = new Limiter(new Limit(0.2), 3);
                 var shouldSync = true;
                 var firstSync = true;

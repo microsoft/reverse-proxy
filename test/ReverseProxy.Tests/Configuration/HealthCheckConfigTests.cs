@@ -4,107 +4,106 @@
 using System;
 using Xunit;
 
-namespace Yarp.ReverseProxy.Configuration.Tests
+namespace Yarp.ReverseProxy.Configuration.Tests;
+
+public class HealthCheckConfigTests
 {
-    public class HealthCheckConfigTests
+    [Fact]
+    public void Equals_Same_Value_Returns_True()
     {
-        [Fact]
-        public void Equals_Same_Value_Returns_True()
+        var options1 = new HealthCheckConfig
         {
-            var options1 = new HealthCheckConfig
+            Active = new ActiveHealthCheckConfig
             {
-                Active = new ActiveHealthCheckConfig
-                {
-                    Enabled = true,
-                    Interval = TimeSpan.FromSeconds(2),
-                    Timeout = TimeSpan.FromSeconds(1),
-                    Policy = "Any5xxResponse",
-                    Path = "/a",
-                },
-                Passive = new PassiveHealthCheckConfig
-                {
-                    Enabled = true,
-                    Policy = "Passive",
-                    ReactivationPeriod = TimeSpan.FromSeconds(5),
-                }
-            };
-
-            var options2 = new HealthCheckConfig
+                Enabled = true,
+                Interval = TimeSpan.FromSeconds(2),
+                Timeout = TimeSpan.FromSeconds(1),
+                Policy = "Any5xxResponse",
+                Path = "/a",
+            },
+            Passive = new PassiveHealthCheckConfig
             {
-                Active = new ActiveHealthCheckConfig
-                {
-                    Enabled = true,
-                    Interval = TimeSpan.FromSeconds(2),
-                    Timeout = TimeSpan.FromSeconds(1),
-                    Policy = "any5xxResponse",
-                    Path = "/a",
-                },
-                Passive = new PassiveHealthCheckConfig
-                {
-                    Enabled = true,
-                    Policy = "passive",
-                    ReactivationPeriod = TimeSpan.FromSeconds(5),
-                }
-            };
+                Enabled = true,
+                Policy = "Passive",
+                ReactivationPeriod = TimeSpan.FromSeconds(5),
+            }
+        };
 
-            var equals = options1.Equals(options2);
-
-            Assert.True(equals);
-            Assert.Equal(options1.GetHashCode(), options2.GetHashCode());
-        }
-
-        [Fact]
-        public void Equals_Different_Value_Returns_False()
+        var options2 = new HealthCheckConfig
         {
-            var options1 = new HealthCheckConfig
+            Active = new ActiveHealthCheckConfig
             {
-                Active = new ActiveHealthCheckConfig
-                {
-                    Enabled = true,
-                    Interval = TimeSpan.FromSeconds(2),
-                    Timeout = TimeSpan.FromSeconds(1),
-                    Policy = "Any5xxResponse",
-                    Path = "/a",
-                },
-                Passive = new PassiveHealthCheckConfig
-                {
-                    Enabled = true,
-                    Policy = "Passive",
-                    ReactivationPeriod = TimeSpan.FromSeconds(5),
-                }
-            };
-
-            var options2 = new HealthCheckConfig
+                Enabled = true,
+                Interval = TimeSpan.FromSeconds(2),
+                Timeout = TimeSpan.FromSeconds(1),
+                Policy = "any5xxResponse",
+                Path = "/a",
+            },
+            Passive = new PassiveHealthCheckConfig
             {
-                Active = new ActiveHealthCheckConfig
-                {
-                    Enabled = true,
-                    Interval = TimeSpan.FromSeconds(2),
-                    Timeout = TimeSpan.FromSeconds(1),
-                    Policy = "Different",
-                    Path = "/a",
-                },
-                Passive = new PassiveHealthCheckConfig
-                {
-                    Enabled = true,
-                    Policy = "Passive",
-                    ReactivationPeriod = TimeSpan.FromSeconds(5),
-                }
-            };
+                Enabled = true,
+                Policy = "passive",
+                ReactivationPeriod = TimeSpan.FromSeconds(5),
+            }
+        };
 
-            var equals = options1.Equals(options2);
+        var equals = options1.Equals(options2);
 
-            Assert.False(equals);
-        }
+        Assert.True(equals);
+        Assert.Equal(options1.GetHashCode(), options2.GetHashCode());
+    }
 
-        [Fact]
-        public void Equals_Second_Null_Returns_False()
+    [Fact]
+    public void Equals_Different_Value_Returns_False()
+    {
+        var options1 = new HealthCheckConfig
         {
-            var options1 = new HealthCheckConfig();
+            Active = new ActiveHealthCheckConfig
+            {
+                Enabled = true,
+                Interval = TimeSpan.FromSeconds(2),
+                Timeout = TimeSpan.FromSeconds(1),
+                Policy = "Any5xxResponse",
+                Path = "/a",
+            },
+            Passive = new PassiveHealthCheckConfig
+            {
+                Enabled = true,
+                Policy = "Passive",
+                ReactivationPeriod = TimeSpan.FromSeconds(5),
+            }
+        };
 
-            var equals = options1.Equals(null);
+        var options2 = new HealthCheckConfig
+        {
+            Active = new ActiveHealthCheckConfig
+            {
+                Enabled = true,
+                Interval = TimeSpan.FromSeconds(2),
+                Timeout = TimeSpan.FromSeconds(1),
+                Policy = "Different",
+                Path = "/a",
+            },
+            Passive = new PassiveHealthCheckConfig
+            {
+                Enabled = true,
+                Policy = "Passive",
+                ReactivationPeriod = TimeSpan.FromSeconds(5),
+            }
+        };
 
-            Assert.False(equals);
-        }
+        var equals = options1.Equals(options2);
+
+        Assert.False(equals);
+    }
+
+    [Fact]
+    public void Equals_Second_Null_Returns_False()
+    {
+        var options1 = new HealthCheckConfig();
+
+        var equals = options1.Equals(null);
+
+        Assert.False(equals);
     }
 }

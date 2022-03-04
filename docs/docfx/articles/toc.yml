@@ -36,7 +36,11 @@
   href: grpc.md
 - name: Service Fabric Integration
   href: service-fabric-int.md
+- name: Http.sys Delegation
+  href: httpsys-delegation.md
 - name: Packages references
   href: packages-refs.md
 - name: Diagnosing proxy issues
   href: diagnosing-yarp-issues.md
+- name: A/B Testing
+  href: ab-testing.md

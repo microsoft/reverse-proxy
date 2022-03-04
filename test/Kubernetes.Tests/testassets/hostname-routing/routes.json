@@ -1,0 +1,18 @@
+[
+  {
+    "RouteId": "hostname-routing.foo:/",
+    "Match": {
+      "Methods": null,
+      "Hosts": [ "foo.bar.com" ],
+      "Path": "/{**catch-all}",
+      "Headers": null,
+      "QueryParameters": null
+    },
+    "Order": null,
+    "ClusterId": "frontend.foo:80",
+    "AuthorizationPolicy": null,
+    "CorsPolicy": null,
+    "Metadata": null,
+    "Transforms": null
+  }
+]

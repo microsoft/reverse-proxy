@@ -5,7 +5,6 @@
     <TargetFrameworks>net6.0;net5.0;netcoreapp3.1</TargetFrameworks>
     <OutputType>Library</OutputType>
     <RootNamespace>Yarp.Telemetry.Consumption</RootNamespace>
-    <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 

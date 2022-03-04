@@ -13,214 +13,235 @@ using Microsoft.Kubernetes;
 using Microsoft.Kubernetes.Controller.Hosting;
 using Microsoft.Kubernetes.Controller.Informers;
 using Microsoft.Kubernetes.Controller.Queues;
-using Microsoft.Kubernetes.Controller.Rate;
-using Microsoft.Kubernetes.Controller.RateLimiters;
 using Yarp.Kubernetes.Controller.Caching;
 using Yarp.Kubernetes.Controller.Dispatching;
 
-namespace Yarp.Kubernetes.Controller.Services
+namespace Yarp.Kubernetes.Controller.Services;
+
+/// <summary>
+/// Controller receives notifications from informers. The data which is needed for processing is
+/// saved in a <see cref="ICache"/> instance and resources which need to be reconciled are
+/// added to an <see cref="IRateLimitingQueue{QueueItem}"/>. The background task dequeues
+/// items and passes them to an <see cref="IReconciler"/> service for processing.
+/// </summary>
+public class IngressController : BackgroundHostedService
 {
-    /// <summary>
-    /// Controller receives notifications from informers. The data which is needed for processing is
-    /// saved in a <see cref="ICache"/> instance and resources which need to be reconciled are
-    /// added to an <see cref="IRateLimitingQueue{QueueItem}"/>. The background task dequeues
-    /// items and passes them to an <see cref="IReconciler"/> service for processing.
-    /// </summary>
-    public class IngressController : BackgroundHostedService
+    private readonly IResourceInformerRegistration[] _registrations;
+    private readonly ICache _cache;
+    private readonly IReconciler _reconciler;
+
+    private bool _registrationsReady;
+    private readonly IWorkQueue<QueueItem> _queue;
+    private readonly QueueItem _ingressChangeQueueItem;
+
+    public IngressController(
+        ICache cache,
+        IReconciler reconciler,
+        IResourceInformer<V1Ingress> ingressInformer,
+        IResourceInformer<V1Service> serviceInformer,
+        IResourceInformer<V1Endpoints> endpointsInformer,
+        IResourceInformer<V1IngressClass> ingressClassInformer,
+        IHostApplicationLifetime hostApplicationLifetime,
+        ILogger<IngressController> logger)
+        : base(hostApplicationLifetime, logger)
     {
-        private readonly IResourceInformerRegistration[] _registrations;
-        private readonly IRateLimitingQueue<QueueItem> _queue;
-        private readonly ICache _cache;
-        private readonly IReconciler _reconciler;
-
-        public IngressController(
-            ICache cache,
-            IReconciler reconciler,
-            IResourceInformer<V1Ingress> ingressInformer,
-            IResourceInformer<V1Service> serviceInformer,
-            IResourceInformer<V1Endpoints> endpointsInformer,
-            IHostApplicationLifetime hostApplicationLifetime,
-            ILogger<IngressController> logger)
-            : base(hostApplicationLifetime, logger)
+        if (ingressInformer is null)
         {
-            if (ingressInformer is null)
-            {
-                throw new ArgumentNullException(nameof(ingressInformer));
-            }
-
-            if (serviceInformer is null)
-            {
-                throw new ArgumentNullException(nameof(serviceInformer));
-            }
-
-            if (endpointsInformer is null)
-            {
-                throw new ArgumentNullException(nameof(endpointsInformer));
-            }
-
-            if (hostApplicationLifetime is null)
-            {
-                throw new ArgumentNullException(nameof(hostApplicationLifetime));
-            }
-
-            if (logger is null)
-            {
-                throw new ArgumentNullException(nameof(logger));
-            }
-
-            _registrations = new[]
-            {
-                ingressInformer.Register(Notification),
-                serviceInformer.Register(Notification),
-                endpointsInformer.Register(Notification),
-            };
-
-            _queue = new RateLimitingQueue<QueueItem>(new MaxOfRateLimiter<QueueItem>(
-                new BucketRateLimiter<QueueItem>(
-                    limiter: new Limiter(
-                        limit: new Limit(perSecond: 10),
-                        burst: 100)),
-                new ItemExponentialFailureRateLimiter<QueueItem>(
-                    baseDelay: TimeSpan.FromMilliseconds(5),
-                    maxDelay: TimeSpan.FromSeconds(10))));
-
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-            _reconciler = reconciler ?? throw new ArgumentNullException(nameof(reconciler));
-            _reconciler.OnAttach(TargetAttached);
+            throw new ArgumentNullException(nameof(ingressInformer));
         }
 
-        /// <summary>
-        /// Disconnects from resource informers, and cause queue to become shut down.
-        /// </summary>
-        /// <param name="disposing"></param>
-        protected override void Dispose(bool disposing)
+        if (serviceInformer is null)
         {
-            if (disposing)
-            {
-                foreach (var registration in _registrations)
-                {
-                    registration.Dispose();
-                }
-
-                _queue.Dispose();
-            }
-
-            base.Dispose(disposing);
+            throw new ArgumentNullException(nameof(serviceInformer));
         }
 
-        /// <summary>
-        /// Called each time a new connection arrives on the /api/dispatch endpoint.
-        /// All of the currently-known Ingress names are queued up to be sent
-        /// to the new target.
-        /// </summary>
-        /// <param name="target">The interface to target a connected client.</param>
-        private void TargetAttached(IDispatchTarget target)
+        if (endpointsInformer is null)
         {
-            var keys = new List<NamespacedName>();
-            _cache.GetKeys(keys);
-            foreach (var key in keys)
-            {
-                _queue.Add(new QueueItem(key, target));
-            }
+            throw new ArgumentNullException(nameof(endpointsInformer));
         }
 
-        /// <summary>
-        /// Called by the informer with real-time resource updates.
-        /// </summary>
-        /// <param name="eventType">Indicates if the resource new, updated, or deleted.</param>
-        /// <param name="resource">The information as provided by the Kubernets API server.</param>
-        private void Notification(WatchEventType eventType, V1Ingress resource)
+        if (ingressClassInformer is null)
         {
-            _cache.Update(eventType, resource);
-            _queue.Add(new QueueItem(NamespacedName.From(resource), null));
+            throw new ArgumentNullException(nameof(ingressClassInformer));
         }
 
-        /// <summary>
-        /// Called by the informer with real-time resource updates.
-        /// </summary>
-        /// <param name="eventType">Indicates if the resource new, updated, or deleted.</param>
-        /// <param name="resource">The information as provided by the Kubernets API server.</param>
-        private void Notification(WatchEventType eventType, V1Service resource)
+        if (hostApplicationLifetime is null)
         {
-            _cache.Update(eventType, resource);
-            _queue.Add(new QueueItem(NamespacedName.From(resource), null));
+            throw new ArgumentNullException(nameof(hostApplicationLifetime));
         }
 
-        /// <summary>
-        /// Called by the informer with real-time resource updates.
-        /// </summary>
-        /// <param name="eventType">Indicates if the resource new, updated, or deleted.</param>
-        /// <param name="resource">The information as provided by the Kubernets API server.</param>
-        private void Notification(WatchEventType eventType, V1Endpoints resource)
+        if (logger is null)
         {
-            var ingressNames = _cache.Update(eventType, resource);
-            foreach (var ingressName in ingressNames)
-            {
-                _queue.Add(new QueueItem(new NamespacedName(resource.Namespace(), ingressName), null));
-            }
+            throw new ArgumentNullException(nameof(logger));
         }
 
-        /// <summary>
-        /// Called once at startup by the hosting infrastructure. This function must remain running
-        /// for the entire lifetime of an application.
-        /// </summary>
-        /// <param name="cancellationToken">Indicates when the web application is shutting down.</param>
-        /// <returns>The Task representing the async function results.</returns>
-        public override async Task RunAsync(CancellationToken cancellationToken)
+        _registrations = new[]
         {
-            // First wait for all informers to fully List resources before processing begins.
+            serviceInformer.Register(Notification),
+            endpointsInformer.Register(Notification),
+            ingressClassInformer.Register(Notification),
+            ingressInformer.Register(Notification)
+        };
+
+        _registrationsReady = false;
+        serviceInformer.StartWatching();
+        endpointsInformer.StartWatching();
+        ingressClassInformer.StartWatching();
+        ingressInformer.StartWatching();
+
+        _queue = new ProcessingRateLimitedQueue<QueueItem>(perSecond: 0.5, burst: 1);
+
+        _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+        _reconciler = reconciler ?? throw new ArgumentNullException(nameof(reconciler));
+        _reconciler.OnAttach(TargetAttached);
+
+        _ingressChangeQueueItem = new QueueItem("Ingress Change", null);
+
+    }
+
+    /// <summary>
+    /// Disconnects from resource informers, and cause queue to become shut down.
+    /// </summary>
+    /// <param name="disposing"></param>
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
             foreach (var registration in _registrations)
             {
-                await registration.ReadyAsync(cancellationToken).ConfigureAwait(false);
+                registration.Dispose();
             }
 
-            // At this point we know that all of the Ingress and Endpoint caches are at least in sync
-            // with cluster's state as of the start of this controller.
+            _queue.Dispose();
+        }
 
-            // Now begin one loop to process work until an application shudown is requested.
-            while (!cancellationToken.IsCancellationRequested)
+        base.Dispose(disposing);
+    }
+
+    /// <summary>
+    /// Called each time a new connection arrives on the /api/dispatch endpoint.
+    /// All of the currently-known Ingress names are queued up to be sent
+    /// to the new target.
+    /// </summary>
+    /// <param name="target">The interface to target a connected client.</param>
+    private void TargetAttached(IDispatchTarget target)
+    {
+        var keys = new List<NamespacedName>();
+        _cache.GetKeys(keys);
+        if (keys.Count > 0)
+        {
+            _queue.Add(new QueueItem("Target Attached", target));
+        }
+    }
+
+    /// <summary>
+    /// Called by the informer with real-time resource updates.
+    /// </summary>
+    /// <param name="eventType">Indicates if the resource new, updated, or deleted.</param>
+    /// <param name="resource">The information as provided by the Kubernetes API server.</param>
+    private void Notification(WatchEventType eventType, V1Ingress resource)
+    {
+        if (_cache.Update(eventType, resource))
+        {
+            NotificationIngressChanged();
+        }
+    }
+
+    private void NotificationIngressChanged()
+    {
+        if (!_registrationsReady)
+        {
+            return;
+        }
+
+        _queue.Add(_ingressChangeQueueItem);
+    }
+
+    /// <summary>
+    /// Called by the informer with real-time resource updates.
+    /// </summary>
+    /// <param name="eventType">Indicates if the resource new, updated, or deleted.</param>
+    /// <param name="resource">The information as provided by the Kubernetes API server.</param>
+    private void Notification(WatchEventType eventType, V1Service resource)
+    {
+        var ingressNames = _cache.Update(eventType, resource);
+        if (ingressNames.Count > 0)
+        {
+            NotificationIngressChanged();
+        }
+    }
+
+    /// <summary>
+    /// Called by the informer with real-time resource updates.
+    /// </summary>
+    /// <param name="eventType">Indicates if the resource new, updated, or deleted.</param>
+    /// <param name="resource">The information as provided by the Kubernetes API server.</param>
+    private void Notification(WatchEventType eventType, V1Endpoints resource)
+    {
+        var ingressNames = _cache.Update(eventType, resource);
+        if (ingressNames.Count > 0)
+        {
+            NotificationIngressChanged();
+        }
+    }
+
+    /// <summary>
+    /// Called by the informer with real-time resource updates.
+    /// </summary>
+    /// <param name="eventType">Indicates if the resource new, updated, or deleted.</param>
+    /// <param name="resource">The information as provided by the Kubernetes API server.</param>
+    private void Notification(WatchEventType eventType, V1IngressClass resource)
+    {
+        _cache.Update(eventType, resource);
+    }
+
+    /// <summary>
+    /// Called once at startup by the hosting infrastructure. This function must remain running
+    /// for the entire lifetime of an application.
+    /// </summary>
+    /// <param name="cancellationToken">Indicates when the web application is shutting down.</param>
+    /// <returns>The Task representing the async function results.</returns>
+    public override async Task RunAsync(CancellationToken cancellationToken)
+    {
+        // First wait for all informers to fully List resources before processing begins.
+        foreach (var registration in _registrations)
+        {
+            await registration.ReadyAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        // At this point we know that all of the Ingress and Endpoint caches are at least in sync
+        // with cluster's state as of the start of this controller.
+        _registrationsReady = true;
+        NotificationIngressChanged();
+
+        // Now begin one loop to process work until an application shutdown is requested.
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            // Dequeue the next item to process
+            var (item, shutdown) = await _queue.GetAsync(cancellationToken).ConfigureAwait(false);
+            if (shutdown)
             {
-                // Dequeue the next item to process
-                var (item, shutdown) = await _queue.GetAsync(cancellationToken).ConfigureAwait(false);
-                if (shutdown)
-                {
-                    return;
-                }
+                return;
+            }
 
-                try
-                {
-                    // Fetch the currently known information about this Ingress
-                    if (_cache.TryGetReconcileData(item.NamespacedName, out var data))
-                    {
-#pragma warning disable CA1303 // Do not pass literals as localized parameters
-                        Logger.LogInformation("Processing {IngressNamespace} {IngressName}", item.NamespacedName.Namespace, item.NamespacedName.Name);
-#pragma warning restore CA1303 // Do not pass literals as localized parameters
+            try
+            {
+                await _reconciler.ProcessAsync(cancellationToken).ConfigureAwait(false);
 
-                        await _reconciler.ProcessAsync(item.DispatchTarget, item.NamespacedName, data, cancellationToken).ConfigureAwait(false);
-                    }
-
-                    // Tell the queue to forget any exponential backoff details like attempt count
-                    _queue.Forget(item);
-                }
+                // calling Done after GetAsync informs the queue
+                // that the item is no longer being actively processed
+                _queue.Done(item);
+            }
 #pragma warning disable CA1031 // Do not catch general exception types
-                catch
+            catch
 #pragma warning restore CA1031 // Do not catch general exception types
-                {
+            {
 #pragma warning disable CA1303 // Do not pass literals as localized parameters
-                    Logger.LogInformation("Rescheduling {IngressNamespace} {IngressName}", item.NamespacedName.Namespace, item.NamespacedName.Name);
+                Logger.LogInformation("Rescheduling {Change}", item.Change);
 #pragma warning restore CA1303 // Do not pass literals as localized parameters
 
-                    // Any failure to process this item results in being re-queued after
-                    // a per-item exponential backoff delay combined with
-                    // and an overall retry rate of 10 per second
-                    _queue.AddRateLimited(item);
-                }
-                finally
-                {
-                    // calling Done after GetAsync informs the queue
-                    // that the item is no longer being actively processed
-                    _queue.Done(item);
-                }
+                // Any failure to process this item results in being re-queued
+                _queue.Add(item);
             }
         }
     }

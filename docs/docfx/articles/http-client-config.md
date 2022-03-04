@@ -1,7 +1,5 @@
 # HTTP Client Configuration
 
-Introduced: preview5
-
 ## Introduction
 
 Each [Cluster](xref:Yarp.ReverseProxy.Configuration.ClusterConfig) has a dedicated [HttpMessageInvoker](https://docs.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker) instance used to forward requests to its [Destination](xref:Yarp.ReverseProxy.Configuration.DestinationConfig)s. The configuration is defined per cluster. On YARP startup, all clusters get new `HttpMessageInvoker` instances, however if later the cluster configuration gets changed the [IForwarderHttpClientFactory](xref:Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory) will re-run and decide if it should create a new `HttpMessageInvoker` or keep using the existing one. The default `IForwarderHttpClientFactory` implementation creates a new `HttpMessageInvoker` when there are changes to the [HttpClientConfig](xref:Yarp.ReverseProxy.Configuration.HttpClientConfig).
@@ -154,7 +152,6 @@ The following is an example of `HttpClientConfig` using [code based](config-prov
 ```C#
 public void ConfigureServices(IServiceCollection services)
 {
-    services.AddControllers();
     var routes = new[]
     {
         new RouteConfig()
@@ -181,8 +178,7 @@ public void ConfigureServices(IServiceCollection services)
     };
 
     services.AddReverseProxy()
-        .LoadFromMemory(routes, clusters)
-        .AddProxyConfigFilter<CustomConfigFilter>();
+        .LoadFromMemory(routes, clusters);
 }
 ```
 
@@ -210,7 +206,8 @@ new SocketsHttpHandler
     UseProxy = false,
     AllowAutoRedirect = false,
     AutomaticDecompression = DecompressionMethods.None,
-    UseCookies = false
+    UseCookies = false,
+    ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
 };
 ```
 
@@ -230,7 +227,8 @@ public class CustomForwarderHttpClientFactory : IForwarderHttpClientFactory
             UseProxy = false,
             AllowAutoRedirect = false,
             AutomaticDecompression = DecompressionMethods.None,
-            UseCookies = false
+            UseCookies = false,
+            ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
         };
 
         return new HttpMessageInvoker(handler, disposeHandler: true);

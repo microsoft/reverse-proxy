@@ -5,31 +5,30 @@ using Microsoft.Extensions.Hosting;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.Kubernetes.Controller.Hosting.Fakes
+namespace Microsoft.Kubernetes.Controller.Hosting.Fakes;
+
+public class FakeBackgroundHostedService : BackgroundHostedService
 {
-    public class FakeBackgroundHostedService : BackgroundHostedService
+    private readonly TestLatches _context;
+
+    public FakeBackgroundHostedService(
+        TestLatches context,
+        IHostApplicationLifetime hostApplicationLifetime)
+        : base(hostApplicationLifetime, null)
     {
-        private readonly TestLatches _context;
+        _context = context;
+    }
 
-        public FakeBackgroundHostedService(
-            TestLatches context,
-            IHostApplicationLifetime hostApplicationLifetime)
-            : base(hostApplicationLifetime, null)
+    public override async Task RunAsync(CancellationToken cancellationToken)
+    {
+        try
         {
-            _context = context;
+            _context.RunEnter.Signal();
+            await _context.RunResult.WhenSignalAsync(cancellationToken).ConfigureAwait(false);
         }
-
-        public override async Task RunAsync(CancellationToken cancellationToken)
+        finally
         {
-            try
-            {
-                _context.RunEnter.Signal();
-                await _context.RunResult.WhenSignalAsync(cancellationToken).ConfigureAwait(false);
-            }
-            finally
-            {
-                _context.RunExit.Signal();
-            }
+            _context.RunExit.Signal();
         }
     }
 }

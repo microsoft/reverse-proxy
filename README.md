@@ -10,6 +10,8 @@ We expect YARP to ship as a library and project template that together provide a
 
 For regular updates, see our [releases page](https://github.com/microsoft/reverse-proxy/releases). Subscribe to release notifications on this repository to be notified of future updates (Watch -> Custom -> Releases).
 
+If you want to live on the bleeding edge, you can pickup the [daily builds](/docs/DailyBuilds.md).
+
 # Build
 
 To build the repo, you should only need to run `build.cmd` (on Windows) or `build.sh` (on Linux or macOS). The script will download the .NET SDK and build the solution.
@@ -30,6 +32,12 @@ We provide some scripts to set all this up for you. Just follow these steps:
 When you're done, you can run the `deactivate` function to undo the changes to your `PATH`.
 
 If you're having trouble building the project, or developing in Visual Studio, please file an issue to let us know and we'll help out (and fix our scripts/tools as needed)!
+
+# Testing
+
+The command to build and run all tests: `build.cmd/sh -test`.
+To run specific test you may use XunitMethodName property: `dotnet build /t:Test /p:XunitMethodName={FullyQualifiedNamespace}.{ClassName}.{MethodName}`.
+The tests can also be run from Visual Studio if launched using `startvs.cmd`.
 
 # Getting started
 

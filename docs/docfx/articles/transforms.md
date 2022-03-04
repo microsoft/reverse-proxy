@@ -1,7 +1,5 @@
 # Request and Response Transforms
 
-Introduced: preview2
-
 ## Introduction
 When proxying a request it's common to modify parts of the request or response to adapt to the destination server's requirements or to flow additional data such as the client's original IP address. This process is implemented via Transforms. Types of transforms are defined globally for the application and then individual routes supply the parameters to enable and configure those transforms. The original request objects are not modified by these transforms, only the proxy requests.
 
@@ -111,7 +109,7 @@ Developers that want to integrate their custom transforms with the `Transforms` 
 
 ### From Code
 
-Transforms can be added to routes programmatically by calling the [AddTransforms](xref:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions) method.
+Transforms can be added to routes programmatically by calling the [AddTransforms](xref:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddTransforms*) method.
 
 `AddTransforms` can be called from `Startup.ConfigureServices` to provide a callback for configuring transforms. This callback is invoked each time a route is built or rebuilt and allows the developer to inspect the [RouteConfig](xref:Yarp.ReverseProxy.Configuration.RouteConfig) information and conditionally add transforms for it.
 
@@ -947,15 +945,15 @@ Only header1 and header2 are copied from the proxy response.
 
 ### AddRequestTransform
 
-[AddRequestTransform](xref:Yarp.ReverseProxy.Transforms.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a request transform as a `Func<RequestTransformContext, ValueTask>`. This allows creating a custom request transform without implementing a `RequestTransform` derived class.
+[AddRequestTransform](xref:Yarp.ReverseProxy.Transforms.TransformBuilderContextFuncExtensions.AddRequestTransform*) is a `TransformBuilderContext` extension method that defines a request transform as a `Func<RequestTransformContext, ValueTask>`. This allows creating a custom request transform without implementing a `RequestTransform` derived class.
 
 ### AddResponseTransform
 
-[AddResponseTransform](xref:Yarp.ReverseProxy.Transforms.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a response transform as a `Func<ResponseTransformContext, ValueTask>`. This allows creating a custom response transform without implementing a `ResponseTransform` derived class.
+[AddResponseTransform](xref:Yarp.ReverseProxy.Transforms.TransformBuilderContextFuncExtensions.AddResponseTransform*) is a `TransformBuilderContext` extension method that defines a response transform as a `Func<ResponseTransformContext, ValueTask>`. This allows creating a custom response transform without implementing a `ResponseTransform` derived class.
 
 ### AddResponseTrailersTransform
 
-[AddResponseTrailersTransform](xref:Yarp.ReverseProxy.Transforms.TransformBuilderContextFuncExtensions) is a `TransformBuilderContext` extension method that defines a response trailers transform as a `Func<ResponseTrailersTransformContext, ValueTask>`. This allows creating a custom response trailers transform without implementing a `ResponseTrailersTransform` derived class.
+[AddResponseTrailersTransform](xref:Yarp.ReverseProxy.Transforms.TransformBuilderContextFuncExtensions.AddResponseTrailersTransform*) is a `TransformBuilderContext` extension method that defines a response trailers transform as a `Func<ResponseTrailersTransformContext, ValueTask>`. This allows creating a custom response trailers transform without implementing a `ResponseTrailersTransform` derived class.
 
 ### RequestTransform
 

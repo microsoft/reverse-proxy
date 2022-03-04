@@ -3,7 +3,7 @@
   <Import Project="$(MSBuildThisFileDirectory)..\..\Directory.Build.props" Condition="Exists('$(MSBuildThisFileDirectory)..\..\Directory.Build.props')" />
 
   <PropertyGroup>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <NoWarn>$(NoWarn);CA1716</NoWarn>
   </PropertyGroup>
 

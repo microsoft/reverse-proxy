@@ -3,22 +3,21 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace Yarp.ReverseProxy.Sample.Controllers
+namespace Yarp.ReverseProxy.Sample.Controllers;
+
+/// <summary>
+/// Controller for health check api.
+/// </summary>
+[ApiController]
+public class HealthController : ControllerBase
 {
     /// <summary>
-    /// Controller for health check api.
+    /// Returns 200 if Proxy is healthy.
     /// </summary>
-    [ApiController]
-    public class HealthController : ControllerBase
+    [HttpGet]
+    [Route("/api/health")]
+    public IActionResult CheckHealth()
     {
-        /// <summary>
-        /// Returns 200 if Proxy is healthy.
-        /// </summary>
-        [HttpGet]
-        [Route("/api/health")]
-        public IActionResult CheckHealth()
-        {
-            return Ok();
-        }
+        return Ok();
     }
 }

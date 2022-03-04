@@ -9,50 +9,49 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.Kubernetes.Testing
+namespace Microsoft.Kubernetes.Testing;
+
+public class TestClusterHost : ITestClusterHost
 {
-    public class TestClusterHost : ITestClusterHost
+    private readonly IHost _host;
+    private bool _disposedValue;
+
+    public TestClusterHost(IHost host, K8SConfiguration kubeConfig, IKubernetes client)
     {
-        private readonly IHost _host;
-        private bool _disposedValue;
+        _host = host;
+        KubeConfig = kubeConfig;
+        Client = client;
+    }
 
-        public TestClusterHost(IHost host, K8SConfiguration kubeConfig, IKubernetes client)
+    public IServiceProvider Services => _host.Services;
+
+    public ITestCluster Cluster => _host.Services.GetRequiredService<ITestCluster>();
+
+    public K8SConfiguration KubeConfig { get; }
+
+    public IKubernetes Client { get; }
+
+    public Task StartAsync(CancellationToken cancellationToken = default) => _host.StartAsync(cancellationToken);
+
+    public Task StopAsync(CancellationToken cancellationToken = default) => _host.StartAsync(cancellationToken);
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
         {
-            _host = host;
-            KubeConfig = kubeConfig;
-            Client = client;
-        }
-
-        public IServiceProvider Services => _host.Services;
-
-        public ITestCluster Cluster => _host.Services.GetRequiredService<ITestCluster>();
-
-        public K8SConfiguration KubeConfig { get; }
-
-        public IKubernetes Client { get; }
-
-        public Task StartAsync(CancellationToken cancellationToken = default) => _host.StartAsync(cancellationToken);
-
-        public Task StopAsync(CancellationToken cancellationToken = default) => _host.StartAsync(cancellationToken);
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposedValue)
+            if (disposing)
             {
-                if (disposing)
-                {
-                    _host.Dispose();
-                }
-
-                _disposedValue = true;
+                _host.Dispose();
             }
-        }
 
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            _disposedValue = true;
         }
+    }
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }

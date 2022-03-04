@@ -1,16 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Microsoft.Extensions.DependencyInjection;
+
+/// <summary>
+/// Reverse Proxy builder interface.
+/// </summary>
+public interface IReverseProxyBuilder
 {
     /// <summary>
-    /// Reverse Proxy builder interface.
+    /// Gets the services.
     /// </summary>
-    public interface IReverseProxyBuilder
-    {
-        /// <summary>
-        /// Gets the services.
-        /// </summary>
-        IServiceCollection Services { get; }
-    }
+    IServiceCollection Services { get; }
 }
