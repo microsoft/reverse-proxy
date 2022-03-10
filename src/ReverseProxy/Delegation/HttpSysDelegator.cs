@@ -235,7 +235,7 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
             if (state.IsInitialized)
             {
                 delegated = TryDelegateInternal(requestDelegationFeature, state.Rule, _ruleResetEvent, _delegatingCount, out delegationException);
-                if (!delegated && ShouldTryToReset(delegationException, destination))
+                if (!delegated && ShouldTryToReset(delegationException))
                 {
                     state = Reset(serverDelegationFeature, state);
 
@@ -386,15 +386,12 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
             };
         }
 
-        private static bool ShouldTryToReset(Exception? delegateException, DestinationState destination)
+        private static bool ShouldTryToReset(Exception? delegateException)
         {
             return delegateException switch
             {
                 // Work around for https://github.com/dotnet/aspnetcore/issues/40358
                 HttpSysException ex when ex.ErrorCode == ERROR_INVALID_PARAMETER => true,
-
-                // Receiver has shut down or detached from the queue
-                HttpSysException ex when ex.ErrorCode == ERROR_FILE_NOT_FOUND && destination.ShouldResetDelegationQueueOnErrorNotFound() => true,
 
                 _ => false,
             };
