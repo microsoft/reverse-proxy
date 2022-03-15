@@ -10,6 +10,7 @@ using Xunit;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.LoadBalancing;
 using Yarp.ReverseProxy.Forwarder;
+using System.Collections.Generic;
 
 namespace Yarp.ReverseProxy.Configuration.Tests;
 
@@ -298,6 +299,35 @@ public class ConfigValidatorTests
     }
 
     [Fact]
+    public async Task Accepts_RoutePathParameter()
+    {
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            Match = new RouteMatch
+            {
+                Path = "/people/{people_id}",
+                PathParameters = new[]
+                {
+                    new RoutePathParameter()
+                    {
+                        Name = "people_id",
+                        Values = new[] { "42" },
+                    }
+                },
+            },
+            ClusterId = "cluster1",
+        };
+
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var result = await validator.ValidateRouteAsync(route);
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
     public async Task Accepts_RouteHeader_ExistsWithNoValue()
     {
         var route = new RouteConfig
@@ -401,6 +431,29 @@ public class ConfigValidatorTests
         Assert.Contains("A null route query parameter has been set for route", ex.Message);
     }
 
+    [Fact]
+    public async Task Rejects_NullRoutePathParameter()
+    {
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            Match = new RouteMatch
+            {
+                Path = "/",
+                PathParameters = new RoutePathParameter[] { null },
+            },
+            ClusterId = "cluster1",
+        };
+
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var result = await validator.ValidateRouteAsync(route);
+
+        var ex = Assert.Single(result);
+        Assert.Contains("A null route path parameter has been set for route", ex.Message);
+    }
+
     [Theory]
     [InlineData("", "v1", HeaderMatchMode.ExactHeader, "A null or empty route header name has been set for route")]
     [InlineData("h1", null, HeaderMatchMode.ExactHeader, "No header values were set on route header")]
@@ -465,6 +518,107 @@ public class ConfigValidatorTests
 
         var ex = Assert.Single(result);
         Assert.Contains(error, ex.Message);
+    }
+
+    [Theory]
+    [InlineData("", new[] { "v1" }, "A null or empty route path parameter name has been set for route '")]
+    [InlineData(null, new[] { "v1" }, "A null or empty route path parameter name has been set for route '")]
+    [InlineData("p1", null, "No path parameter values was set on route path parameter '")]
+    [InlineData("p1", new string[] { }, "No path parameter values was set on route path parameter '")]
+    [InlineData("p1", new[] { "v1", null }, "At least one null or empty path parameter value was set on route path parameter '")]
+    [InlineData("p1", new[] { "", "v2" }, "At least one null or empty path parameter value was set on route path parameter '")]
+    public async Task Rejects_InvalidRoutePathParameter(string name, IReadOnlyList<string> values, string error)
+    {
+        var routePathParameter = new RoutePathParameter()
+        {
+            Name = name,
+            Mode = PathParameterMatchMode.Exact,
+            Values = values,
+        };
+
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            Match = new RouteMatch
+            {
+                Path = "/{p1}",
+                PathParameters = new[] { routePathParameter },
+            },
+            ClusterId = "cluster1",
+        };
+
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var result = await validator.ValidateRouteAsync(route);
+
+        var ex = Assert.Single(result);
+        Assert.Contains(error, ex.Message);
+    }
+
+    [Theory]
+    [InlineData("/{something")]
+    [InlineData("/{something}}")]
+    public async Task Rejects_RoutePathParameter_InvalidPath(string path)
+    {
+        var routePathParameter = new RoutePathParameter()
+        {
+            Name = "something",
+            Mode = PathParameterMatchMode.Exact,
+            Values = new[] { "z" },
+        };
+
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            Match = new RouteMatch
+            {
+                Path = path,
+                PathParameters = new[] { routePathParameter },
+            },
+            ClusterId = "cluster1",
+        };
+
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var result = await validator.ValidateRouteAsync(route);
+
+        var ex = Assert.Single(result);
+        Assert.Contains("Invalid path '", ex.Message);
+    }
+
+    [Theory]
+    [InlineData("/")]
+    [InlineData("/static/{id}")]
+    [InlineData("/static/{id}/{more}")]
+    public async Task Rejects_NonMatchingRoutePathParameter(string path)
+    {
+        var routePathParameter = new RoutePathParameter()
+        {
+            Name = "something",
+            Mode = PathParameterMatchMode.Exact,
+            Values = new[] { "irrelevant" },
+        };
+
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            Match = new RouteMatch
+            {
+                Path = path,
+                PathParameters = new[] { routePathParameter },
+            },
+            ClusterId = "cluster1",
+        };
+
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var result = await validator.ValidateRouteAsync(route);
+
+        var ex = Assert.Single(result);
+        Assert.Contains("something", ex.Message);
     }
 
     [Theory]

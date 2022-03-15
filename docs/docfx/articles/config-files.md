@@ -124,6 +124,36 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
           "Path": "{**catch-all}"
         }
       },
+      "first-partitioned-route" : {
+        // Matches requests targeting tenants "one", "two" and "three" and route them to www.somewhere.com
+        "ClusterId": "first-partitioned-cluster",
+        "Match": {
+          "Path": "/tenant/{tenant_id}/{**remainder}",
+          "PathParameters": [ // The path parameters to match, unspecified if any
+            {
+              "Name": "tenant_id", // Name of the path parameter
+              "Values": [ "one", "two", "three" ], // Matches are against any of these values
+              "Mode": "Exact", // or "Prefix", "Contains", "NotContains"
+              "IsCaseSensitive": true
+            }
+          ]
+        },
+      },
+      "second-partitioned-route" : {
+        // Matches requests targeting tenants "four" and "five" (in a case insentive way) and route them to www.elsewhere.com
+        "ClusterId": "second-partitioned-cluster",
+        "Match": {
+          "Path": "/tenant/{tenant_id}/{**remainder}",
+          "PathParameters": [ // The path parameters to match, unspecified if any
+            {
+              "Name": "tenant_id", // Name of the path parameter
+              "Values": [ "fOUr", "FiVE" ], // Matches are against any of these values
+              "Mode": "Exact", // or "Prefix", "Contains", "NotContains"
+              "IsCaseSensitive": false
+            }
+          ]
+        }
+      },
       "allrouteprops" : {
         // matches /something/* and routes to "allclusterprops"
         "ClusterId": "allclusterprops", // Name of one of the clusters
@@ -168,6 +198,20 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
         "Destinations": {
           "example.com": {
             "Address": "http://www.example.com/"
+          }
+        }
+      },
+      "first-partitioned-cluster": {
+        "Destinations": {
+          "example.com": {
+            "Address": "http://www.somewhere.com/"
+          }
+        }
+      },
+      "second-partitioned-cluster": {
+        "Destinations": {
+          "example.com": {
+            "Address": "http://www.elsewhere.com/"
           }
         }
       },

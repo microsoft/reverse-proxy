@@ -71,6 +71,17 @@ internal sealed class ProxyEndpointFactory
             endpointBuilder.Metadata.Add(new QueryParameterMetadata(matchers));
         }
 
+        if (match.PathParameters != null && match.PathParameters.Count > 0)
+        {
+            var matchers = new List<PathParameterMatcher>(match.PathParameters.Count);
+            foreach (var pathParam in match.PathParameters)
+            {
+                matchers.Add(new PathParameterMatcher(pathParam.Name, pathParam.Values, pathParam.Mode, pathParam.IsCaseSensitive));
+            }
+
+            endpointBuilder.Metadata.Add(new PathParameterMetadata(matchers));
+        }
+
         bool acceptCorsPreflight;
         if (string.Equals(CorsConstants.Default, config.CorsPolicy, StringComparison.OrdinalIgnoreCase))
         {

@@ -82,10 +82,11 @@ internal sealed class ConfigValidator : IConfigValidator
         }
 
         ValidateHost(errors, route.Match.Hosts, route.RouteId);
-        ValidatePath(errors, route.Match.Path, route.RouteId);
+        var routePattern = ValidatePath(errors, route.Match.Path, route.RouteId);
         ValidateMethods(errors, route.Match.Methods, route.RouteId);
         ValidateHeaders(errors, route.Match.Headers, route.RouteId);
         ValidateQueryParameters(errors, route.Match.QueryParameters, route.RouteId);
+        ValidatePathParameters(errors, routePattern, route.Match.PathParameters, route.RouteId);
 
         return errors;
     }
@@ -132,22 +133,26 @@ internal sealed class ConfigValidator : IConfigValidator
         }
     }
 
-    private static void ValidatePath(IList<Exception> errors, string? path, string routeId)
+    private static RoutePattern? ValidatePath(IList<Exception> errors, string? path, string routeId)
     {
+        RoutePattern? routePattern = null;
+
         // Path is optional when Host is specified
         if (string.IsNullOrEmpty(path))
         {
-            return;
+            return routePattern;
         }
 
         try
         {
-            RoutePatternFactory.Parse(path);
+            routePattern = RoutePatternFactory.Parse(path);
         }
         catch (RoutePatternException ex)
         {
             errors.Add(new ArgumentException($"Invalid path '{path}' for route '{routeId}'.", ex));
         }
+
+        return routePattern;
     }
 
     private static void ValidateMethods(IList<Exception> errors, IReadOnlyList<string>? methods, string routeId)
@@ -238,6 +243,51 @@ internal sealed class ConfigValidator : IConfigValidator
             if (queryparam.Mode == QueryParameterMatchMode.Exists && queryparam.Values?.Count > 0)
             {
                 errors.Add(new ArgumentException($"Query parameter values where set when using mode '{nameof(QueryParameterMatchMode.Exists)}' on route query parameter '{queryparam.Name}' for route '{routeId}'."));
+            }
+        }
+    }
+
+    private static void ValidatePathParameters(List<Exception> errors, RoutePattern? routePattern, IReadOnlyList<RoutePathParameter>? pathParams, string routeId)
+    {
+        // Path is optional when Host is specified
+        if (routePattern is null)
+        {
+            return;
+        }
+
+        // Path Parameters are optional
+        if (pathParams == null)
+        {
+            return;
+        }
+
+        foreach (var pathParam in pathParams)
+        {
+            if (pathParam == null)
+            {
+                errors.Add(new ArgumentException($"A null route path parameter has been set for route '{routeId}'."));
+                continue;
+            }
+
+            if (string.IsNullOrEmpty(pathParam.Name))
+            {
+                errors.Add(new ArgumentException($"A null or empty route path parameter name has been set for route '{routeId}'."));
+                continue;
+            }
+
+            if (routePattern.GetParameter(pathParam.Name) is null)
+            {
+                errors.Add(new ArgumentException($"A path parameter named '{pathParam.Name}' has been set for route '{routeId}', but the specified path '{routePattern.RawText}' does not include it."));
+            }
+
+            if (pathParam.Values == null || pathParam.Values.Count == 0)
+            {
+                errors.Add(new ArgumentException($"No path parameter values was set on route path parameter '{pathParam.Name}' for route '{routeId}'."));
+            }
+
+            if (pathParam.Values is not null && pathParam.Values.Any(v => { return string.IsNullOrEmpty(v); }))
+            {
+                errors.Add(new ArgumentException($"At least one null or empty path parameter value was set on route path parameter '{pathParam.Name}' for route '{routeId}'."));
             }
         }
     }

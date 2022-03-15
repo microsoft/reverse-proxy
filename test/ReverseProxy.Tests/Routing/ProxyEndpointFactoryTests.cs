@@ -515,4 +515,107 @@ public class ProxyEndpointFactoryTests
 
         Assert.False(routeConfig.HasConfigChanged(route, cluster, routeState.ClusterRevision));
     }
+
+    [Fact]
+    public void BuildEndpoints_PathParameter_Works()
+    {
+        var services = CreateServices();
+        var factory = services.GetRequiredService<ProxyEndpointFactory>();
+        factory.SetProxyPipeline(context => Task.CompletedTask);
+
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            Match = new RouteMatch
+            {
+                Path = "/",
+                PathParameters = new[]
+                {
+                    new RoutePathParameter()
+                    {
+                        Name = "name1",
+                        Values = new[] { "value1" },
+                        Mode = PathParameterMatchMode.Prefix,
+                        IsCaseSensitive = true,
+                    }
+                }
+            },
+        };
+        var cluster = new ClusterState("cluster1");
+        var routeState = new RouteState("route1");
+
+        var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeState, route, cluster);
+
+        Assert.Same(cluster, routeConfig.Cluster);
+        Assert.Equal("route1", routeEndpoint.DisplayName);
+        var pathParameterMetadata = routeEndpoint.Metadata.GetMetadata<IPathParameterMetadata>();
+        Assert.NotNull(pathParameterMetadata);
+        var matchers = pathParameterMetadata.Matchers;
+        Assert.Single(matchers);
+        var matcher = matchers.Single();
+        Assert.Equal("name1", matcher.Name);
+        Assert.Equal(new[] { "value1" }, matcher.Values);
+        Assert.Equal(PathParameterMatchMode.Prefix, matcher.Mode);
+        Assert.True(matcher.IsCaseSensitive);
+
+        Assert.False(routeConfig.HasConfigChanged(route, cluster, routeState.ClusterRevision));
+    }
+
+    [Fact]
+    public void BuildEndpoints_PathParameters_Works()
+    {
+        var services = CreateServices();
+        var factory = services.GetRequiredService<ProxyEndpointFactory>();
+        factory.SetProxyPipeline(context => Task.CompletedTask);
+
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            Match = new RouteMatch
+            {
+                Path = "/",
+                PathParameters = new[]
+                {
+                    new RoutePathParameter()
+                    {
+                        Name = "name1",
+                        Values = new[] { "value1" },
+                        Mode = PathParameterMatchMode.Prefix,
+                        IsCaseSensitive = true,
+                    },
+                    new RoutePathParameter()
+                    {
+                        Name = "name2",
+                        Values = new[] { "val", "lue2" },
+                        Mode = PathParameterMatchMode.NotContains,
+                    }
+                }
+            },
+        };
+        var cluster = new ClusterState("cluster1");
+        var routeState = new RouteState("route1");
+
+        var (routeEndpoint, routeConfig) = CreateEndpoint(factory, routeState, route, cluster);
+
+        Assert.Same(cluster, routeConfig.Cluster);
+        Assert.Equal("route1", routeEndpoint.DisplayName);
+        var metadata = routeEndpoint.Metadata.GetMetadata<IPathParameterMetadata>();
+        Assert.Equal(2, metadata.Matchers.Count);
+
+        var firstMetadata = metadata.Matchers.First();
+        Assert.NotNull(firstMetadata);
+        Assert.Equal("name1", firstMetadata.Name);
+        Assert.Equal(new[] { "value1" }, firstMetadata.Values);
+        Assert.Equal(PathParameterMatchMode.Prefix, firstMetadata.Mode);
+        Assert.True(firstMetadata.IsCaseSensitive);
+
+        var secondMetadata = metadata.Matchers.Skip(1).Single();
+        Assert.NotNull(secondMetadata);
+        Assert.Equal("name2", secondMetadata.Name);
+        Assert.Equal(new[] { "val", "lue2" }, secondMetadata.Values);
+        Assert.Equal(PathParameterMatchMode.NotContains, secondMetadata.Mode);
+        Assert.False(secondMetadata.IsCaseSensitive);
+
+        Assert.False(routeConfig.HasConfigChanged(route, cluster, routeState.ClusterRevision));
+    }
 }

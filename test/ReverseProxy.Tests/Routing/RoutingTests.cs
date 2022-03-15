@@ -127,6 +127,52 @@ public class RoutingTests
     }
 
     [Fact]
+    public async Task PathParameterRouting_OneParameter_Works()
+    {
+        var routes = new[]
+        {
+            new RouteConfig()
+            {
+                RouteId = "route1",
+                ClusterId = "cluster1",
+                Match = new RouteMatch
+                {
+                    Path = "/people/{people_id}",
+                    PathParameters = new[]
+                    {
+                        new RoutePathParameter()
+                        {
+                            Name = "people_id",
+                            Values = new[] { "42" },
+                        }
+                    }
+                }
+            }
+        };
+
+        using var host = await CreateHostAsync(routes);
+        var client = host.GetTestClient();
+
+        // Positive
+        var response = await client.GetAsync("/people/42");
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("route1", response.Headers.GetValues("route").SingleOrDefault());
+
+        // Negative
+        response = await client.GetAsync("/");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+        response = await client.GetAsync("/people");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+        response = await client.GetAsync("/people/");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+        response = await client.GetAsync("/people/17");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
     public async Task HeaderRouting_MultipleHeaders_Works()
     {
         var routes = new[]
@@ -234,6 +280,115 @@ public class RoutingTests
         request.Headers.Add("header1", "value2");
         request.Headers.Add("header2", "value1");
         response = await client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task PathParameterRouting_MultipleParameters_Works()
+    {
+        var routes = new[]
+        {
+            new RouteConfig()
+            {
+                RouteId = "route1",
+                ClusterId = "cluster1",
+                Match = new RouteMatch
+                {
+                    Path = "/people/{people_id}",
+                    PathParameters = new[]
+                    {
+                        new RoutePathParameter()
+                        {
+                            Name = "people_id",
+                            Values = new[] { "42" },
+                        }
+                    }
+                }
+            },
+            new RouteConfig()
+            {
+                RouteId = "route2",
+                ClusterId = "cluster1",
+                Match = new RouteMatch
+                {
+                    Path = "/people/{people_id}/{action}",
+                    PathParameters = new[]
+                    {
+                        new RoutePathParameter()
+                        {
+                            Name = "people_id",
+                            Mode = PathParameterMatchMode.Prefix,
+                            Values = new[] { "4" },
+                        },
+                        new RoutePathParameter()
+                        {
+                            Name = "action",
+                            Mode = PathParameterMatchMode.Exact,
+                            Values = new[] { "praise" },
+                        },
+                    }
+                }
+            },
+            new RouteConfig()
+            {
+                RouteId = "route3",
+                ClusterId = "cluster1",
+                Match = new RouteMatch
+                {
+                    Path = "/people/17/{action}",
+                    PathParameters = new[]
+                    {
+                        new RoutePathParameter()
+                        {
+                            Name = "action",
+                            Mode = PathParameterMatchMode.Exact,
+                            Values = new[] { "praise" },
+                        },
+                    }
+                }
+            },
+        };
+
+        using var host = await CreateHostAsync(routes);
+        var client = host.GetTestClient();
+
+        // Positive
+        var response = await client.GetAsync("/people/42");
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("route1", response.Headers.GetValues("route").SingleOrDefault());
+
+        response = await client.GetAsync("/people/42/praise");
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("route2", response.Headers.GetValues("route").SingleOrDefault());
+
+        response = await client.GetAsync("/people/43/praise");
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("route2", response.Headers.GetValues("route").SingleOrDefault());
+
+        response = await client.GetAsync("/people/17/praise");
+        response.EnsureSuccessStatusCode();
+        Assert.Equal("route3", response.Headers.GetValues("route").SingleOrDefault());
+
+        // Negative
+        response = await client.GetAsync("/");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+        response = await client.GetAsync("/people");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+        response = await client.GetAsync("/people/");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+        response = await client.GetAsync("/people/17");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+        response = await client.GetAsync("/people/19");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+        response = await client.GetAsync("/people/19/ban");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+        response = await client.GetAsync("/people/42/ban");
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 

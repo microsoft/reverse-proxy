@@ -38,6 +38,11 @@ public sealed record RouteMatch
     /// </summary>
     public IReadOnlyList<RouteHeader>? Headers { get; init; }
 
+    /// <summary>
+    /// Only match requests that contain all of these path parameters.
+    /// </summary>
+    public IReadOnlyList<RoutePathParameter>? PathParameters { get; init; }
+
     public bool Equals(RouteMatch? other)
     {
         if (other == null)
@@ -49,7 +54,8 @@ public sealed record RouteMatch
             && CaseInsensitiveEqualHelper.Equals(Hosts, other.Hosts)
             && CaseInsensitiveEqualHelper.Equals(Methods, other.Methods)
             && CollectionEqualityHelper.Equals(Headers, other.Headers)
-            && CollectionEqualityHelper.Equals(QueryParameters, other.QueryParameters);
+            && CollectionEqualityHelper.Equals(QueryParameters, other.QueryParameters)
+            && CollectionEqualityHelper.Equals(PathParameters, other.PathParameters);
     }
 
     public override int GetHashCode()
@@ -59,6 +65,7 @@ public sealed record RouteMatch
             CaseInsensitiveEqualHelper.GetHashCode(Hosts),
             CaseInsensitiveEqualHelper.GetHashCode(Methods),
             CollectionEqualityHelper.GetHashCode(Headers),
-            CollectionEqualityHelper.GetHashCode(QueryParameters));
+            CollectionEqualityHelper.GetHashCode(QueryParameters),
+            CollectionEqualityHelper.GetHashCode(PathParameters));
     }
 }
