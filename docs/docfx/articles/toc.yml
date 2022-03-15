@@ -16,6 +16,8 @@
   href: header-guidelines.md
 - name: Header Routing
   href: header-routing.md
+- name: Query Parameter Routing
+  href: queryparameter-routing.md
 - name: Authentication and Authorization
   href: authn-authz.md
 - name: Cross-Origin Requests (CORS)
