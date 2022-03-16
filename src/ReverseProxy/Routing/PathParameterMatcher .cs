@@ -45,7 +45,7 @@ internal sealed class PathParameterMatcher
 
     /// <summary>
     /// Specifies how path parameter values should be compared (e.g. exact matches Vs. contains).
-    /// Defaults to <see cref="PathParameterMatchMode.Exact"/>.
+    /// Defaults to <see cref="PathParameterMatchMode.Prefix"/>.
     /// </summary>
     public PathParameterMatchMode Mode { get; }
 

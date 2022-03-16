@@ -84,26 +84,10 @@ internal sealed class PathParameterMatcherPolicy : MatcherPolicy, IEndpointCompa
                         {
                             if (MatchPathParameter(matcher.Mode, requestPathParameterValue, expectedPathParameterValues[j], matcher.IsCaseSensitive))
                             {
-                                if (matcher.Mode == PathParameterMatchMode.NotContains)
-                                {
-                                    if (j + 1 == expectedPathParameterValues.Count)
-                                    {
-                                        // None of the NotContains values were found
-                                        matched = true;
-                                    }
-                                }
-                                else
-                                {
-                                    matched = true;
-                                    break;
-                                }
-                            }
-                            else if (matcher.Mode == PathParameterMatchMode.NotContains)
-                            {
+                                matched = true;
                                 break;
                             }
                         }
-
                     }
                 }
 
@@ -124,13 +108,10 @@ internal sealed class PathParameterMatcherPolicy : MatcherPolicy, IEndpointCompa
         var comparison = isCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
         return matchMode switch
         {
-            PathParameterMatchMode.Exact => MemoryExtensions.Equals(requestPathParameterValue, metadataPathParameterValue, comparison),
             PathParameterMatchMode.Prefix => requestPathParameterValue != null && metadataPathParameterValue != null
                 && MemoryExtensions.StartsWith(requestPathParameterValue, metadataPathParameterValue, comparison),
-            PathParameterMatchMode.Contains => requestPathParameterValue != null && metadataPathParameterValue != null
-                && MemoryExtensions.Contains(requestPathParameterValue, metadataPathParameterValue, comparison),
-            PathParameterMatchMode.NotContains => requestPathParameterValue != null && metadataPathParameterValue != null
-                && !MemoryExtensions.Contains(requestPathParameterValue, metadataPathParameterValue, comparison),
+            PathParameterMatchMode.NotPrefix => requestPathParameterValue != null && metadataPathParameterValue != null
+                && !MemoryExtensions.StartsWith(requestPathParameterValue, metadataPathParameterValue, comparison),
             _ => throw new NotImplementedException(matchMode.ToString()),
         };
     }

@@ -586,8 +586,8 @@ public class ProxyEndpointFactoryTests
                     new RoutePathParameter()
                     {
                         Name = "name2",
-                        Values = new[] { "val", "lue2" },
-                        Mode = PathParameterMatchMode.NotContains,
+                        Values = new[] { "value2", "value3" },
+                        Mode = PathParameterMatchMode.NotPrefix,
                     }
                 }
             },
@@ -612,8 +612,8 @@ public class ProxyEndpointFactoryTests
         var secondMetadata = metadata.Matchers.Skip(1).Single();
         Assert.NotNull(secondMetadata);
         Assert.Equal("name2", secondMetadata.Name);
-        Assert.Equal(new[] { "val", "lue2" }, secondMetadata.Values);
-        Assert.Equal(PathParameterMatchMode.NotContains, secondMetadata.Mode);
+        Assert.Equal(new[] { "value2", "value3" }, secondMetadata.Values);
+        Assert.Equal(PathParameterMatchMode.NotPrefix, secondMetadata.Mode);
         Assert.False(secondMetadata.IsCaseSensitive);
 
         Assert.False(routeConfig.HasConfigChanged(route, cluster, routeState.ClusterRevision));

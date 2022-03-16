@@ -157,6 +157,16 @@ public class ConfigurationConfigProviderTests
                             IsCaseSensitive = true,
                             Mode = QueryParameterMatchMode.Contains
                         }
+                    },
+                    PathParameters = new[]
+                    {
+                        new RoutePathParameter
+                        {
+                            Name = "pathparam1",
+                            Values = new[] { "v1-" },
+                            IsCaseSensitive = true,
+                            Mode = PathParameterMatchMode.Prefix
+                        }
                     }
                 },
                 Transforms = new[]
@@ -193,6 +203,16 @@ public class ConfigurationConfigProviderTests
                             Values = new[] { "value2" },
                             IsCaseSensitive = true,
                             Mode = QueryParameterMatchMode.Contains
+                        }
+                    },
+                    PathParameters = new[]
+                    {
+                        new RoutePathParameter
+                        {
+                            Name = "pathparam2",
+                            Values = new[] { "v2-" },
+                            IsCaseSensitive = false,
+                            Mode = PathParameterMatchMode.Prefix
                         }
                     }
                 }
@@ -328,6 +348,14 @@ public class ConfigurationConfigProviderTests
                     ""IsCaseSensitive"": true,
                     ""Mode"": ""Contains""
                   }
+                ],
+                ""PathParameters"": [
+                  {
+                    ""Name"": ""pathparam1"",
+                    ""Values"": [ ""v1-"" ],
+                    ""IsCaseSensitive"": true,
+                    ""Mode"": ""NotPrefix""
+                  }
                 ]
             },
             ""Order"": -1,
@@ -369,6 +397,12 @@ public class ConfigurationConfigProviderTests
                     ""Values"": [ ""value2"" ],
                     ""IsCaseSensitive"": true,
                     ""Mode"": ""Contains""
+                  }
+                ],
+                ""PathParameters"": [
+                  {
+                    ""Name"": ""pathparam2"",
+                    ""Values"": [ ""v2-"" ],
                   }
                 ]
             },

@@ -300,8 +300,9 @@ public class RoutingTests
                         new RoutePathParameter()
                         {
                             Name = "people_id",
-                            Values = new[] { "42" },
-                        }
+                            Mode = PathParameterMatchMode.Prefix,
+                            Values = new[] { "4" },
+                        },
                     }
                 }
             },
@@ -323,8 +324,8 @@ public class RoutingTests
                         new RoutePathParameter()
                         {
                             Name = "action",
-                            Mode = PathParameterMatchMode.Exact,
-                            Values = new[] { "praise" },
+                            Mode = PathParameterMatchMode.NotPrefix,
+                            Values = new[] { "ban" },
                         },
                     }
                 }
@@ -341,8 +342,8 @@ public class RoutingTests
                         new RoutePathParameter()
                         {
                             Name = "action",
-                            Mode = PathParameterMatchMode.Exact,
-                            Values = new[] { "praise" },
+                            Mode = PathParameterMatchMode.Prefix,
+                            Values = new[] { "pr" },
                         },
                     }
                 }
@@ -361,7 +362,7 @@ public class RoutingTests
         response.EnsureSuccessStatusCode();
         Assert.Equal("route2", response.Headers.GetValues("route").SingleOrDefault());
 
-        response = await client.GetAsync("/people/43/praise");
+        response = await client.GetAsync("/people/43/profit");
         response.EnsureSuccessStatusCode();
         Assert.Equal("route2", response.Headers.GetValues("route").SingleOrDefault());
 
@@ -383,6 +384,9 @@ public class RoutingTests
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
         response = await client.GetAsync("/people/19");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+        response = await client.GetAsync("/people/53/praise");
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 
         response = await client.GetAsync("/people/19/ban");

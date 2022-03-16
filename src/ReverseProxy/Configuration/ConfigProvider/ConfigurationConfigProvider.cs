@@ -177,7 +177,8 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             Hosts = section.GetSection(nameof(RouteMatch.Hosts)).ReadStringArray(),
             Path = section[nameof(RouteMatch.Path)],
             Headers = CreateRouteHeaders(section.GetSection(nameof(RouteMatch.Headers))),
-            QueryParameters = CreateRouteQueryParameters(section.GetSection(nameof(RouteMatch.QueryParameters)))
+            QueryParameters = CreateRouteQueryParameters(section.GetSection(nameof(RouteMatch.QueryParameters))),
+            PathParameters = CreateRoutePathParameters(section.GetSection(nameof(RouteMatch.PathParameters)))
         };
     }
 
@@ -220,6 +221,27 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             Values = section.GetSection(nameof(RouteQueryParameter.Values)).ReadStringArray(),
             Mode = section.ReadEnum<QueryParameterMatchMode>(nameof(RouteQueryParameter.Mode)) ?? QueryParameterMatchMode.Exact,
             IsCaseSensitive = section.ReadBool(nameof(RouteQueryParameter.IsCaseSensitive)) ?? false,
+        };
+    }
+
+    private static IReadOnlyList<RoutePathParameter>? CreateRoutePathParameters(IConfigurationSection section)
+    {
+        if (!section.Exists())
+        {
+            return null;
+        }
+
+        return section.GetChildren().Select(data => CreateRoutePathParameter(data)).ToArray();
+    }
+
+    private static RoutePathParameter CreateRoutePathParameter(IConfigurationSection section)
+    {
+        return new RoutePathParameter()
+        {
+            Name = section[nameof(RoutePathParameter.Name)],
+            Values = section.GetSection(nameof(RoutePathParameter.Values)).ReadStringArray(),
+            Mode = section.ReadEnum<PathParameterMatchMode>(nameof(RoutePathParameter.Mode)) ?? PathParameterMatchMode.Prefix,
+            IsCaseSensitive = section.ReadBool(nameof(RoutePathParameter.IsCaseSensitive)) ?? false,
         };
     }
 

@@ -532,7 +532,7 @@ public class ConfigValidatorTests
         var routePathParameter = new RoutePathParameter()
         {
             Name = name,
-            Mode = PathParameterMatchMode.Exact,
+            Mode = PathParameterMatchMode.Prefix,
             Values = values,
         };
 
@@ -559,12 +559,13 @@ public class ConfigValidatorTests
     [Theory]
     [InlineData("/{something")]
     [InlineData("/{something}}")]
+    [InlineData("/{something}/segment/{something}")]
     public async Task Rejects_RoutePathParameter_InvalidPath(string path)
     {
         var routePathParameter = new RoutePathParameter()
         {
             Name = "something",
-            Mode = PathParameterMatchMode.Exact,
+            Mode = PathParameterMatchMode.Prefix,
             Values = new[] { "z" },
         };
 
@@ -597,7 +598,7 @@ public class ConfigValidatorTests
         var routePathParameter = new RoutePathParameter()
         {
             Name = "something",
-            Mode = PathParameterMatchMode.Exact,
+            Mode = PathParameterMatchMode.Prefix,
             Values = new[] { "irrelevant" },
         };
 

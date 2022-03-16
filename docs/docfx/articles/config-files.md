@@ -124,36 +124,6 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
           "Path": "{**catch-all}"
         }
       },
-      "first-partitioned-route" : {
-        // Matches requests targeting tenants "one", "two" and "three" and route them to www.somewhere.com
-        "ClusterId": "first-partitioned-cluster",
-        "Match": {
-          "Path": "/tenant/{tenant_id}/{**remainder}",
-          "PathParameters": [ // The path parameters to match, unspecified if any
-            {
-              "Name": "tenant_id", // Name of the path parameter
-              "Values": [ "one", "two", "three" ], // Matches are against any of these values
-              "Mode": "Exact", // or "Prefix", "Contains", "NotContains"
-              "IsCaseSensitive": true
-            }
-          ]
-        },
-      },
-      "second-partitioned-route" : {
-        // Matches requests targeting tenants "four" and "five" (in a case insentive way) and route them to www.elsewhere.com
-        "ClusterId": "second-partitioned-cluster",
-        "Match": {
-          "Path": "/tenant/{tenant_id}/{**remainder}",
-          "PathParameters": [ // The path parameters to match, unspecified if any
-            {
-              "Name": "tenant_id", // Name of the path parameter
-              "Values": [ "fOUr", "FiVE" ], // Matches are against any of these values
-              "Mode": "Exact", // or "Prefix", "Contains", "NotContains"
-              "IsCaseSensitive": false
-            }
-          ]
-        }
-      },
       "allrouteprops" : {
         // matches /something/* and routes to "allclusterprops"
         "ClusterId": "allclusterprops", // Name of one of the clusters
@@ -190,6 +160,51 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
             "Set": "MyValue",
           } 
         ]
+      },
+      "allrouteprops-overriden" : {
+        // matches /something/specific/{id} where id starts with "ATH-" and routes to "anotherCluster"
+        "ClusterId": "anotherCluster", // Name of one of the clusters
+        "Order" : 100, // Lower numbers have higher precedence
+        "Authorization Policy" : "Anonymous", // Name of the policy or "Default", "Anonymous"
+        "CorsPolicy" : "Default", // Name of the CorsPolicy to apply to this route or "Default", "Disable"
+        "Match": {
+          "Path": "/something/specific/{id}", // The path to match using ASP.NET syntax. 
+          "Hosts" : [ "www.aaaaa.com", "www.bbbbb.com"], // The host names to match, unspecified is any
+          "Methods" : [ "GET", "PUT" ], // The HTTP methods that match, uspecified is all
+          "Headers": [ // The headers to match, unspecified is any
+            {
+              "Name": "MyCustomHeader", // Name of the header
+              "Values": [ "value1", "value2", "another value" ], // Matches are against any of these values
+              "Mode": "ExactHeader", // or "HeaderPrefix", "Exists" , "Contains", "NotContains"
+              "IsCaseSensitive": true
+            }
+          ],
+          "QueryParameters": [ // The query parameters to match, unspecified is any
+            {
+              "Name": "MyQueryParameter", // Name of the query parameter
+              "Values": [ "value1", "value2", "another value" ], // Matches are against any of these values
+              "Mode": "Exact", // or "Prefix", "Exists" , "Contains", "NotContains"
+              "IsCaseSensitive": true
+            }
+          ],
+          "PathParameters": [ // The path parameters to match, unspecified is any
+            {
+              "Name": "id", // Name of the query parameter
+              "Values": [ "ATH-" ], // Matches are against any of these values
+              "Mode": "Prefix",
+              "IsCaseSensitive": true
+            }
+          ]
+        },
+        "MetaData" : { // List of key value pairs that can be used by custom extensions
+          "MyName" : "MyValue"
+        },
+        "Transforms" : [ // List of transforms. See the Transforms article for more details
+          {
+            "RequestHeader": "MyHeader",
+            "Set": "MyValue",
+          } 
+        ]
       }
     },
     // Clusters tell the proxy where and how to forward requests
@@ -201,17 +216,10 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
           }
         }
       },
-      "first-partitioned-cluster": {
+      "anotherCluster": {
         "Destinations": {
           "example.com": {
             "Address": "http://www.somewhere.com/"
-          }
-        }
-      },
-      "second-partitioned-cluster": {
-        "Destinations": {
-          "example.com": {
-            "Address": "http://www.elsewhere.com/"
           }
         }
       },

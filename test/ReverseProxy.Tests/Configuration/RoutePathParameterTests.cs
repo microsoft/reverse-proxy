@@ -15,15 +15,15 @@ public class RoutePathParameterTests
         var a = new RoutePathParameter()
         {
             Name = "foo",
-            Mode = PathParameterMatchMode.Exact,
-            Values = new[] { "v1", "v2" },
+            Mode = PathParameterMatchMode.Prefix,
+            Values = new[] { "v1-", "v2-" },
             IsCaseSensitive = isCaseSensitive,
         };
         var b = new RoutePathParameter()
         {
             Name = "Foo",
-            Mode = PathParameterMatchMode.Exact,
-            Values = new[] { "v1", "v2" },
+            Mode = PathParameterMatchMode.Prefix,
+            Values = new[] { "v1-", "v2-" },
             IsCaseSensitive = isCaseSensitive,
         };
         var c = a with { }; // Clone
@@ -39,13 +39,13 @@ public class RoutePathParameterTests
         var a = new RoutePathParameter()
         {
             Name = "foo",
-            Mode = PathParameterMatchMode.Contains,
-            Values = new[] { "v1", "v2" },
+            Mode = PathParameterMatchMode.Prefix,
+            Values = new[] { "v1-", "v2-" },
             IsCaseSensitive = true,
         };
         var b = a with { Name = "bar" };
-        var c = a with { Mode = PathParameterMatchMode.Exact };
-        var d = a with { Values = new[] { "v1", "v3" } };
+        var c = a with { Mode = PathParameterMatchMode.NotPrefix };
+        var d = a with { Values = new[] { "v1-", "v3-" } };
         var e = a with { IsCaseSensitive = false };
         Assert.False(a.Equals(b));
         Assert.False(a.Equals(c));
