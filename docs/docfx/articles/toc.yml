@@ -34,6 +34,8 @@
   href: distributed-tracing.md
 - name: gRPC
   href: grpc.md
+- name: WebSockets and SPDY
+  href: websockets.md
 - name: Service Fabric Integration
   href: service-fabric-int.md
 - name: Http.sys Delegation
