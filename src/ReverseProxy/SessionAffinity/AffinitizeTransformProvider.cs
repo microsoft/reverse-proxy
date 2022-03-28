@@ -47,7 +47,7 @@ internal sealed class AffinitizeTransformProvider : ITransformProvider
     {
         var options = context.Cluster?.SessionAffinity;
 
-        if (options != null && options.Enabled.GetValueOrDefault())
+        if (options is not null && options.Enabled.GetValueOrDefault())
         {
             var policy = _sessionAffinityPolicies.GetRequiredServiceById(options.Policy, SessionAffinityConstants.Policies.Cookie);
             context.ResponseTransforms.Add(new AffinitizeTransform(policy));

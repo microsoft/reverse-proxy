@@ -42,7 +42,7 @@ public class DefaultProbingRequestFactoryTests
     [InlineData(null)]
     public void CreateRequest_RequestVersionProperties(string versionString)
     {
-        var version = versionString != null ? Version.Parse(versionString) : null;
+        var version = versionString is not null ? Version.Parse(versionString) : null;
         var clusterModel = GetClusterConfig("cluster0",
             new ActiveHealthCheckConfig()
             {

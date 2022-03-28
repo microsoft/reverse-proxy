@@ -56,7 +56,7 @@ internal sealed class PathTransformFactory : ITransformFactory
 
     private void CheckPathNotNull(TransformRouteValidationContext context, string fieldName, string? path)
     {
-        if (path == null)
+        if (path is null)
         {
             context.Errors.Add(new ArgumentNullException(fieldName));
         }
@@ -99,7 +99,7 @@ internal sealed class PathTransformFactory : ITransformFactory
 
     private static PathString MakePathString(string path)
     {
-        if (path == null)
+        if (path is null)
         {
             throw new ArgumentNullException(nameof(path));
         }

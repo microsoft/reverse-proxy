@@ -96,7 +96,7 @@ public class HttpController : ControllerBase
     public async Task Stress([FromQuery] int delay, [FromQuery] int responseSize)
     {
         var bodyReader = Request.BodyReader;
-        if (bodyReader != null)
+        if (bodyReader is not null)
         {
             while (true)
             {
@@ -114,7 +114,7 @@ public class HttpController : ControllerBase
         }
 
         var bodyWriter = Response.BodyWriter;
-        if (bodyWriter != null && responseSize > 0)
+        if (bodyWriter is not null && responseSize > 0)
         {
             const int WriteBufferSize = 4096;
 

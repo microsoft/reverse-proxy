@@ -22,7 +22,7 @@ internal sealed class QueryParameterMatcher
             throw new ArgumentException("A query parameter name is required.", nameof(name));
         }
         if (mode != QueryParameterMatchMode.Exists
-            && (values == null || values.Count == 0))
+            && (values is null || values.Count == 0))
         {
             throw new ArgumentException("Query parameter values must have at least one value.", nameof(values));
         }

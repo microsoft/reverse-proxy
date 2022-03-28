@@ -30,7 +30,7 @@ public sealed record DestinationConfig
 
     public bool Equals(DestinationConfig? other)
     {
-        if (other == null)
+        if (other is null)
         {
             return false;
         }

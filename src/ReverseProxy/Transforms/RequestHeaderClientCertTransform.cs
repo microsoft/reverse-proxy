@@ -34,7 +34,7 @@ public class RequestHeaderClientCertTransform : RequestTransform
         RemoveHeader(context, HeaderName);
 
         var clientCert = context.HttpContext.Connection.ClientCertificate;
-        if (clientCert != null)
+        if (clientCert is not null)
         {
             var encoded = Convert.ToBase64String(clientCert.RawData);
             AddHeader(context, HeaderName, encoded);

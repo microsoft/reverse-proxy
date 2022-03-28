@@ -90,7 +90,7 @@ internal static class YarpParser
                 {
                     Match = new RouteMatch()
                     {
-                        Hosts = host != null ? new[] { host } : Array.Empty<string>(),
+                        Hosts = host is not null ? new[] { host } : Array.Empty<string>(),
                         Path = pathMatch
                     },
                     ClusterId = cluster.ClusterId,
@@ -117,7 +117,7 @@ internal static class YarpParser
 
     private static string UpstreamName(string namespaceName, V1IngressServiceBackend ingressServiceBackend)
     {
-        if (ingressServiceBackend != null)
+        if (ingressServiceBackend is not null)
         {
             if (ingressServiceBackend.Port.Number.HasValue && ingressServiceBackend.Port.Number.Value > 0)
             {
@@ -156,7 +156,7 @@ internal static class YarpParser
     {
         var options = context.Options;
         var annotations = metadata.Annotations;
-        if (annotations == null)
+        if (annotations is null)
         {
             return options;
         }
@@ -216,7 +216,7 @@ internal static class YarpParser
 
     private static bool MatchesPort(Corev1EndpointPort port1, IntstrIntOrString port2)
     {
-        if (port1 == null || port2 == null)
+        if (port1 is null || port2 is null)
         {
             return false;
         }
@@ -233,15 +233,15 @@ internal static class YarpParser
 
     private static bool MatchesPort(V1ServicePort port1, V1ServiceBackendPort port2)
     {
-        if (port1 == null || port2 == null)
+        if (port1 is null || port2 is null)
         {
             return false;
         }
-        if (port2.Number != null && port2.Number == port1.Port)
+        if (port2.Number is not null && port2.Number == port1.Port)
         {
             return true;
         }
-        if (port2.Name != null && string.Equals(port2.Name, port1.Name, StringComparison.Ordinal))
+        if (port2.Name is not null && string.Equals(port2.Name, port1.Name, StringComparison.Ordinal))
         {
             return true;
         }

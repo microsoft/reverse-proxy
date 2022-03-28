@@ -59,7 +59,7 @@ internal sealed class ForwarderMiddleware
         reverseProxyFeature.ProxiedDestination = destination;
 
         var destinationModel = destination.Model;
-        if (destinationModel == null)
+        if (destinationModel is null)
         {
             throw new InvalidOperationException($"Chosen destination has no model set: '{destination.DestinationId}'");
         }

@@ -50,7 +50,7 @@ internal abstract class BaseSessionAffinityPolicy<T> : ISessionAffinityPolicy
 
         var requestAffinityKey = GetRequestAffinityKey(context, cluster, config);
 
-        if (requestAffinityKey.Key == null)
+        if (requestAffinityKey.Key is null)
         {
             return new AffinityResult(null, requestAffinityKey.ExtractedSuccessfully ? AffinityStatus.AffinityKeyNotSet : AffinityStatus.AffinityKeyExtractionFailed);
         }
@@ -70,7 +70,7 @@ internal abstract class BaseSessionAffinityPolicy<T> : ISessionAffinityPolicy
                 }
             }
 
-            if (matchingDestinations == null)
+            if (matchingDestinations is null)
             {
                 Log.DestinationMatchingToAffinityKeyNotFound(Logger, cluster.ClusterId);
             }
@@ -81,7 +81,7 @@ internal abstract class BaseSessionAffinityPolicy<T> : ISessionAffinityPolicy
         }
 
         // Empty destination list passed to this method is handled the same way as if no matching destinations are found.
-        if (matchingDestinations == null)
+        if (matchingDestinations is null)
         {
             return new AffinityResult(null, AffinityStatus.DestinationNotFound);
         }
@@ -121,7 +121,7 @@ internal abstract class BaseSessionAffinityPolicy<T> : ISessionAffinityPolicy
             var keyBytes = Convert.FromBase64String(Pad(encryptedRequestKey));
 
             var decryptedKeyBytes = _dataProtector.Unprotect(keyBytes);
-            if (decryptedKeyBytes == null)
+            if (decryptedKeyBytes is null)
             {
                 Log.RequestAffinityKeyDecryptionFailed(Logger, null);
                 return (Key: null, ExtractedSuccessfully: false);

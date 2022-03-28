@@ -145,7 +145,7 @@ public class IngressCache : ICache
 
     private bool IsYarpIngress(V1IngressSpec spec)
     {
-        if (spec.IngressClassName != null)
+        if (spec.IngressClassName is not null)
         {
             lock (_sync)
             {

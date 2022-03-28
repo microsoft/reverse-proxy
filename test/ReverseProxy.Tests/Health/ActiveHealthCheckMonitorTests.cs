@@ -672,7 +672,7 @@ public class ActiveHealthCheckMonitorTests
         httpClient.Setup(c => c.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
             .Returns((HttpRequestMessage m, CancellationToken c) =>
             {
-                if (cancellation != null)
+                if (cancellation is not null)
                 {
                     c.Register(_ => cancellation(), null);
                 }

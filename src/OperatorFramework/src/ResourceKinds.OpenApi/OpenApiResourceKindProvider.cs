@@ -60,7 +60,7 @@ public class OpenApiResourceKindProvider : IResourceKindProvider
     public async Task<IDictionary<string, JsonSchema>> LoadDefinitions()
     {
         using var stream = typeof(OpenApiResourceKindProvider).Assembly.GetManifestResourceStream(typeof(OpenApiResourceKindProvider), "swagger.json");
-        if (stream == null)
+        if (stream is null)
         {
             _logger.LogError(
                 new EventId(1, "MissingEmbeddedStream"),

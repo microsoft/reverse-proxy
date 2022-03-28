@@ -30,7 +30,7 @@ public class QueryTransformContext
     {
         get
         {
-            if (_modifiedQueryParameters == null)
+            if (_modifiedQueryParameters is null)
             {
                 return _originalQueryString;
             }
@@ -50,7 +50,7 @@ public class QueryTransformContext
     {
         get
         {
-            if (_modifiedQueryParameters == null)
+            if (_modifiedQueryParameters is null)
             {
                 _modifiedQueryParameters = new Dictionary<string, StringValues>(_request.Query, StringComparer.OrdinalIgnoreCase);
             }

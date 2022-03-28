@@ -411,7 +411,7 @@ public class ConfigValidatorTests
         {
             Name = name,
             Mode = mode,
-            Values = value == null ? null : new[] { value },
+            Values = value is null ? null : new[] { value },
         };
 
         var route = new RouteConfig
@@ -444,7 +444,7 @@ public class ConfigValidatorTests
         {
             Name = name,
             Mode = mode,
-            Values = value == null ? null : new[] { value },
+            Values = value is null ? null : new[] { value },
         };
 
         var route = new RouteConfig
@@ -888,10 +888,10 @@ public class ConfigValidatorTests
                 Active = new ActiveHealthCheckConfig
                 {
                     Enabled = true,
-                    Interval = interval != null ? TimeSpan.FromSeconds(interval.Value) : (TimeSpan?)null,
+                    Interval = interval is not null ? TimeSpan.FromSeconds(interval.Value) : (TimeSpan?)null,
                     Path = path,
                     Policy = policy,
-                    Timeout = timeout != null ? TimeSpan.FromSeconds(timeout.Value) : (TimeSpan?)null
+                    Timeout = timeout is not null ? TimeSpan.FromSeconds(timeout.Value) : (TimeSpan?)null
                 }
             }
         };
@@ -918,9 +918,9 @@ public class ConfigValidatorTests
                 Active = new ActiveHealthCheckConfig
                 {
                     Enabled = true,
-                    Interval = interval != null ? TimeSpan.FromSeconds(interval.Value) : (TimeSpan?)null,
+                    Interval = interval is not null ? TimeSpan.FromSeconds(interval.Value) : (TimeSpan?)null,
                     Policy = policy,
-                    Timeout = timeout != null ? TimeSpan.FromSeconds(timeout.Value) : (TimeSpan?)null
+                    Timeout = timeout is not null ? TimeSpan.FromSeconds(timeout.Value) : (TimeSpan?)null
                 }
             }
         };
@@ -951,7 +951,7 @@ public class ConfigValidatorTests
                 {
                     Enabled = true,
                     Policy = policy,
-                    ReactivationPeriod = reactivationPeriod != null ? TimeSpan.FromSeconds(reactivationPeriod.Value) : (TimeSpan?)null
+                    ReactivationPeriod = reactivationPeriod is not null ? TimeSpan.FromSeconds(reactivationPeriod.Value) : (TimeSpan?)null
                 }
             }
         };
@@ -978,7 +978,7 @@ public class ConfigValidatorTests
                 {
                     Enabled = true,
                     Policy = policy,
-                    ReactivationPeriod = reactivationPeriod != null ? TimeSpan.FromSeconds(reactivationPeriod.Value) : (TimeSpan?)null
+                    ReactivationPeriod = reactivationPeriod is not null ? TimeSpan.FromSeconds(reactivationPeriod.Value) : (TimeSpan?)null
                 }
             }
         };

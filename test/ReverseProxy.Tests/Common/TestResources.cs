@@ -23,7 +23,7 @@ public static class TestResources
     {
         // On Windows, applications should not import PFX files in parallel to avoid a known system-level
         // race condition bug in native code which can cause crashes/corruption of the certificate state.
-        if (importPfxMutex != null)
+        if (importPfxMutex is not null)
         {
             Assert.True(importPfxMutex.WaitOne(MutexTimeout), "Cannot acquire the global certificate mutex.");
         }
@@ -42,12 +42,12 @@ public static class TestResources
     {
         var webProxy = new WebProxy(new System.Uri(address));
 
-        if (bypassOnLocal != null)
+        if (bypassOnLocal is not null)
         {
             webProxy.BypassProxyOnLocal = bypassOnLocal.Value;
         }
 
-        if (useDefaultCredentials != null)
+        if (useDefaultCredentials is not null)
         {
             webProxy.UseDefaultCredentials = useDefaultCredentials.Value;
         }
@@ -57,7 +57,7 @@ public static class TestResources
 
     public static string GetCertPath(string fileName)
     {
-        if (fileName == null)
+        if (fileName is null)
         {
             return null;
         }

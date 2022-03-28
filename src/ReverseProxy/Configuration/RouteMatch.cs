@@ -40,7 +40,7 @@ public sealed record RouteMatch
 
     public bool Equals(RouteMatch? other)
     {
-        if (other == null)
+        if (other is null)
         {
             return false;
         }

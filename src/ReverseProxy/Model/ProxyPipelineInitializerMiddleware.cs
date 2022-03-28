@@ -33,7 +33,7 @@ internal sealed class ProxyPipelineInitializerMiddleware
 
         var cluster = route.Cluster;
         // TODO: Validate on load https://github.com/microsoft/reverse-proxy/issues/797
-        if (cluster == null)
+        if (cluster is null)
         {
             Log.NoClusterFound(_logger, route.Config.RouteId);
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;

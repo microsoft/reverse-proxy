@@ -64,7 +64,7 @@ public class CustomResourceDefinitionUpdater<TResource> : IHostedService
 
         var existingCustomResourceDefinition = existingList?.Items?.SingleOrDefault();
 
-        if (existingCustomResourceDefinition != null)
+        if (existingCustomResourceDefinition is not null)
         {
             customResourceDefinition.Metadata.ResourceVersion = existingCustomResourceDefinition.ResourceVersion();
 

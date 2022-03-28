@@ -60,7 +60,7 @@ internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPoli
 
             var matchers = candidates[i].Endpoint.Metadata.GetMetadata<IHeaderMetadata>()?.Matchers;
 
-            if (matchers == null)
+            if (matchers is null)
             {
                 continue;
             }
@@ -132,11 +132,11 @@ internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPoli
         return matchMode switch
         {
             HeaderMatchMode.ExactHeader => MemoryExtensions.Equals(requestHeaderValue, metadataHeaderValue, comparison),
-            HeaderMatchMode.HeaderPrefix => requestHeaderValue != null && metadataHeaderValue != null
+            HeaderMatchMode.HeaderPrefix => requestHeaderValue is not null && metadataHeaderValue is not null
                 && MemoryExtensions.StartsWith(requestHeaderValue, metadataHeaderValue, comparison),
-            HeaderMatchMode.Contains => requestHeaderValue != null && metadataHeaderValue != null
+            HeaderMatchMode.Contains => requestHeaderValue is not null && metadataHeaderValue is not null
                 && MemoryExtensions.Contains(requestHeaderValue, metadataHeaderValue, comparison),
-            HeaderMatchMode.NotContains => requestHeaderValue != null && metadataHeaderValue != null
+            HeaderMatchMode.NotContains => requestHeaderValue is not null && metadataHeaderValue is not null
                 && !MemoryExtensions.Contains(requestHeaderValue, metadataHeaderValue, comparison),
             _ => throw new NotImplementedException(matchMode.ToString()),
         };

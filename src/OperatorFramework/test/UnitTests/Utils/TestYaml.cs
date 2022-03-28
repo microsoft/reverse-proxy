@@ -42,7 +42,7 @@ public static class TestYaml
         }
 
         var manifestStream = reflectedType.Assembly.GetManifestResourceStream(reflectedType, $"{reflectedType.Name}.{methodName}.yaml");
-        if (manifestStream == null)
+        if (manifestStream is null)
         {
             throw new FileNotFoundException($"Could not find embedded stream {reflectedType.FullName}.{methodName}.yaml");
         }

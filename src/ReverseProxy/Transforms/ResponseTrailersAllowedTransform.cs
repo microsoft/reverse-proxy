@@ -42,7 +42,7 @@ public class ResponseTrailersAllowedTransform : ResponseTrailersTransform
             throw new ArgumentNullException(nameof(context));
         }
 
-        Debug.Assert(context.ProxyResponse != null);
+        Debug.Assert(context.ProxyResponse is not null);
         Debug.Assert(!context.HeadersCopied);
 
         // See https://github.com/microsoft/reverse-proxy/blob/51d797986b1fea03500a1ad173d13a1176fb5552/src/ReverseProxy/Forwarder/HttpTransformer.cs#L85-L99
@@ -50,7 +50,7 @@ public class ResponseTrailersAllowedTransform : ResponseTrailersTransform
         // because they lookup `IHttpResponseTrailersFeature` for every call. Here we do it just once instead.
         var responseTrailersFeature = context.HttpContext.Features.Get<IHttpResponseTrailersFeature>();
         var outgoingTrailers = responseTrailersFeature?.Trailers;
-        if (outgoingTrailers != null && !outgoingTrailers.IsReadOnly)
+        if (outgoingTrailers is not null && !outgoingTrailers.IsReadOnly)
         {
             // Note that trailers, if any, should already have been declared in Proxy's response
             CopyResponseHeaders(context.ProxyResponse.TrailingHeaders, outgoingTrailers);

@@ -35,7 +35,7 @@ public class UpgradeController : ControllerBase
     public async Task RawUpgrade()
     {
         var upgradeFeature = HttpContext.Features.Get<IHttpUpgradeFeature>();
-        if (upgradeFeature == null || !upgradeFeature.IsUpgradableRequest)
+        if (upgradeFeature is null || !upgradeFeature.IsUpgradableRequest)
         {
             HttpContext.Response.StatusCode = StatusCodes.Status426UpgradeRequired;
             return;

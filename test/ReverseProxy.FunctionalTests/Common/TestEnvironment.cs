@@ -163,7 +163,7 @@ public class TestEnvironment
                     .UseKestrel(kestrel =>
                     {
 #if NET
-                        if (requestHeaderEncoding != null)
+                        if (requestHeaderEncoding is not null)
                         {
                             kestrel.RequestHeaderEncodingSelector = _ => requestHeaderEncoding;
                         }

@@ -209,7 +209,7 @@ public class WebSocketTests
         static async Task RawUpgrade(HttpContext httpContext)
         {
             var upgradeFeature = httpContext.Features.Get<IHttpUpgradeFeature>();
-            if (upgradeFeature == null || !upgradeFeature.IsUpgradableRequest)
+            if (upgradeFeature is null || !upgradeFeature.IsUpgradableRequest)
             {
                 httpContext.Response.StatusCode = StatusCodes.Status426UpgradeRequired;
                 return;

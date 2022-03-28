@@ -10,7 +10,7 @@ internal static class ServiceLookupHelper
 {
     public static IDictionary<string, T> ToDictionaryByUniqueId<T>(this IEnumerable<T> services, Func<T, string> idSelector)
     {
-        if (services == null)
+        if (services is null)
         {
             throw new ArgumentNullException(nameof(services));
         }

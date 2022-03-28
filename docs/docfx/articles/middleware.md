@@ -137,7 +137,7 @@ proxyPipeline.Use(async (context, next) =>
     await next();
 
     var errorFeature = context.GetForwarderErrorFeature();
-    if (errorFeature != null)
+    if (errorFeature is not null)
     {
         Report(errorFeature.Error, errorFeature.Exception);
     }

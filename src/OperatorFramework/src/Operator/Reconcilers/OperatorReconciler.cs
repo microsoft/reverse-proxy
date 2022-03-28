@@ -91,7 +91,7 @@ public class OperatorReconciler<TResource> : IOperatorReconciler<TResource>
             throw new ArgumentNullException(nameof(parameters));
         }
 
-        if (parameters.Resource == null)
+        if (parameters.Resource is null)
         {
             // Custom resource has been deleted - k8s garbage collection will do the rest of the work
             return default;

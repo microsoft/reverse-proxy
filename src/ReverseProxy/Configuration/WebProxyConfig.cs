@@ -29,7 +29,7 @@ public sealed record WebProxyConfig : IEquatable<WebProxyConfig>
 
     public bool Equals(WebProxyConfig? other)
     {
-        if (other == null)
+        if (other is null)
         {
             return false;
         }

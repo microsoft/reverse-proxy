@@ -129,7 +129,7 @@ public class IngressControllerTests
         typeMap.Add("v1/Service", typeof(V1Service));
         typeMap.Add("v1/Endpoints", typeof(V1Endpoints));
 
-        if (ingressClass != null)
+        if (ingressClass is not null)
         {
             cache.Update(WatchEventType.Added, ingressClass);
         }

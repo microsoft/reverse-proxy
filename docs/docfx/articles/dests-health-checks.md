@@ -139,7 +139,7 @@ public class FirstUnsuccessfulResponseHealthPolicy : IActiveHealthCheckPolicy
         for (var i = 0; i < probingResults.Count; i++)
         {
             var response = probingResults[i].Response;
-            var newHealth = response != null && response.IsSuccessStatusCode ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
+            var newHealth = response is not null && response.IsSuccessStatusCode ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
             newHealthStates[i] = new NewActiveDestinationHealth(probingResults[i].Destination, newHealth);
         }
 
@@ -317,7 +317,7 @@ public class FirstUnsuccessfulResponseHealthPolicy : IPassiveHealthCheckPolicy
     public void RequestProxied(ClusterState cluster, DestinationState destination, HttpContext context)
     {
         var error = context.Features.Get<IProxyErrorFeature>();
-        if (error != null)
+        if (error is not null)
         {
             var reactivationPeriod = cluster.Model.Config.HealthCheck.Passive.ReactivationPeriod ?? _defaultReactivationPeriod;
             _ = _healthUpdater.SetPassiveAsync(cluster, destination, DestinationHealth.Unhealthy, reactivationPeriod);

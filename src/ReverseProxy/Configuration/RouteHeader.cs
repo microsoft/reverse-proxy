@@ -40,7 +40,7 @@ public sealed record RouteHeader
 
     public bool Equals(RouteHeader? other)
     {
-        if (other == null)
+        if (other is null)
         {
             return false;
         }

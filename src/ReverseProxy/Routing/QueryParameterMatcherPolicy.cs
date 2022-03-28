@@ -60,7 +60,7 @@ internal sealed class QueryParameterMatcherPolicy : MatcherPolicy, IEndpointComp
 
             var matchers = candidates[i].Endpoint.Metadata.GetMetadata<IQueryParameterMetadata>()?.Matchers;
 
-            if (matchers == null)
+            if (matchers is null)
             {
                 continue;
             }
@@ -132,11 +132,11 @@ internal sealed class QueryParameterMatcherPolicy : MatcherPolicy, IEndpointComp
         return matchMode switch
         {
             QueryParameterMatchMode.Exact => MemoryExtensions.Equals(requestQueryParameterValue, metadataQueryParameterValue, comparison),
-            QueryParameterMatchMode.Prefix => requestQueryParameterValue != null && metadataQueryParameterValue != null
+            QueryParameterMatchMode.Prefix => requestQueryParameterValue is not null && metadataQueryParameterValue is not null
                 && MemoryExtensions.StartsWith(requestQueryParameterValue, metadataQueryParameterValue, comparison),
-            QueryParameterMatchMode.Contains => requestQueryParameterValue != null && metadataQueryParameterValue != null
+            QueryParameterMatchMode.Contains => requestQueryParameterValue is not null && metadataQueryParameterValue is not null
                 && MemoryExtensions.Contains(requestQueryParameterValue, metadataQueryParameterValue, comparison),
-            QueryParameterMatchMode.NotContains => requestQueryParameterValue != null && metadataQueryParameterValue != null
+            QueryParameterMatchMode.NotContains => requestQueryParameterValue is not null && metadataQueryParameterValue is not null
                 && !MemoryExtensions.Contains(requestQueryParameterValue, metadataQueryParameterValue, comparison),
             _ => throw new NotImplementedException(matchMode.ToString()),
         };

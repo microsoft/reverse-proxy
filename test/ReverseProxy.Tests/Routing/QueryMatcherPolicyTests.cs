@@ -161,7 +161,7 @@ public class QueryParameterMatcherPolicyTests
     public async Task ApplyAsync_MatchingScenarios_AnyQueryParamValue(string incomingQueryParamValue, bool shouldMatch)
     {
         var context = new DefaultHttpContext();
-        if (incomingQueryParamValue != null)
+        if (incomingQueryParamValue is not null)
         {
             var queryStr = "?org-id=" + incomingQueryParamValue;
             context.Request.QueryString = new QueryString(queryStr);
@@ -246,7 +246,7 @@ public class QueryParameterMatcherPolicyTests
         bool shouldMatch)
     {
         var context = new DefaultHttpContext();
-        if (incomingQueryParamValue != null)
+        if (incomingQueryParamValue is not null)
         {
             var queryStr = "?org-id=" + incomingQueryParamValue;
             context.Request.QueryString = new QueryString(queryStr);

@@ -40,7 +40,7 @@ internal sealed class SessionAffinityMiddleware
 
         var config = proxyFeature.Cluster.Config.SessionAffinity;
 
-        if (config == null || !config.Enabled.GetValueOrDefault())
+        if (config is null || !config.Enabled.GetValueOrDefault())
         {
             return _next(context);
         }

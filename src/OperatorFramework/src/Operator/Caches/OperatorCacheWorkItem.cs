@@ -40,7 +40,7 @@ public struct OperatorCacheWorkItem<TResource> : IEquatable<OperatorCacheWorkIte
     /// <value>The related resources.</value>
     public ImmutableDictionary<GroupKindNamespacedName, IKubernetesObject<V1ObjectMeta>> Related { get; }
 
-    public bool IsEmpty => Resource == null && Related.IsEmpty;
+    public bool IsEmpty => Resource is null && Related.IsEmpty;
 
     /// <summary>
     /// Returns a WorkItem with Resource assigned to new value.

@@ -732,7 +732,7 @@ public class ProxyConfigManagerTests
         public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, ClusterConfig cluster, CancellationToken cancel)
         {
             string order;
-            if (cluster != null)
+            if (cluster is not null)
             {
                 order = cluster.Metadata["Order"];
             }

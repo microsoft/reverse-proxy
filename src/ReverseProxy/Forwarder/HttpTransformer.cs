@@ -79,7 +79,7 @@ public class HttpTransformer
         if (ProtocolHelper.IsHttp2OrGreater(httpContext.Request.Protocol))
         {
             var te = httpContext.Request.Headers.GetCommaSeparatedValues(HeaderNames.TE);
-            if (te != null)
+            if (te is not null)
             {
                 for (var i = 0; i < te.Length; i++)
                 {
@@ -109,14 +109,14 @@ public class HttpTransformer
     /// etc.</returns>
     public virtual ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage? proxyResponse)
     {
-        if (proxyResponse == null)
+        if (proxyResponse is null)
         {
             return new ValueTask<bool>(false);
         }
 
         var responseHeaders = httpContext.Response.Headers;
         CopyResponseHeaders(proxyResponse.Headers, responseHeaders);
-        if (proxyResponse.Content != null)
+        if (proxyResponse.Content is not null)
         {
             CopyResponseHeaders(proxyResponse.Content.Headers, responseHeaders);
         }
@@ -129,7 +129,7 @@ public class HttpTransformer
         // (Section 9.4) and ought to be handled as an error.  A sender MUST
         // remove the received Content-Length field prior to forwarding such
         // a message downstream.
-        if (proxyResponse.Content != null
+        if (proxyResponse.Content is not null
             && RequestUtilities.ContainsHeader(proxyResponse.Headers, HeaderNames.TransferEncoding)
             && RequestUtilities.ContainsHeader(proxyResponse.Content.Headers, HeaderNames.ContentLength))
         {
@@ -151,7 +151,7 @@ public class HttpTransformer
         // because they lookup `IHttpResponseTrailersFeature` for every call. Here we do it just once instead.
         var responseTrailersFeature = httpContext.Features.Get<IHttpResponseTrailersFeature>();
         var outgoingTrailers = responseTrailersFeature?.Trailers;
-        if (outgoingTrailers != null && !outgoingTrailers.IsReadOnly)
+        if (outgoingTrailers is not null && !outgoingTrailers.IsReadOnly)
         {
             // Note that trailers, if any, should already have been declared in Proxy's response
             // by virtue of us having proxied all response headers in step 6.

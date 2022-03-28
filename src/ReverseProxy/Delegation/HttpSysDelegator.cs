@@ -52,7 +52,7 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
                 "Current request can't be delegated. Either the request body has started to be read or the response has started to be sent.");
         }
 
-        if (_delegationFeature == null || !_queuesPerDestination.TryGetValue(destination, out var queue))
+        if (_delegationFeature is null || !_queuesPerDestination.TryGetValue(destination, out var queue))
         {
             Log.QueueNotFound(_logger, destination);
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
@@ -102,7 +102,7 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
 
     private void AddOrUpdateRules(ClusterState cluster)
     {
-        if (_delegationFeature == null)
+        if (_delegationFeature is null)
         {
             return;
         }
@@ -121,7 +121,7 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
         {
             var queueName = destination.GetHttpSysDelegationQueue();
             var urlPrefix = destination.Model?.Config?.Address;
-            if (queueName != null && urlPrefix != null)
+            if (queueName is not null && urlPrefix is not null)
             {
                 var queueKey = new QueueKey(queueName, urlPrefix);
                 if (!_queuesPerDestination.TryGetValue(destination, out var queue) || !queue.Equals(queueKey))
@@ -140,7 +140,7 @@ internal sealed class HttpSysDelegator : IClusterChangeListener
                         queueWeakRef.TryGetTarget(out queue);
                     }
 
-                    if (queue != null)
+                    if (queue is not null)
                     {
                         // We call this outside of the above if bock so that if previous
                         // initialization failed, we will retry it for every new destination added.

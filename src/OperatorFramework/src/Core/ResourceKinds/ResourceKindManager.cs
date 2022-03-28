@@ -21,7 +21,7 @@ public class ResourceKindManager : IResourceKindManager
         foreach (var provider in _providers)
         {
             var resourceKind = await provider.GetResourceKindAsync(apiVersion, kind);
-            if (resourceKind != null)
+            if (resourceKind is not null)
             {
                 return resourceKind;
             }

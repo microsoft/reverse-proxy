@@ -37,7 +37,7 @@ public sealed record ActiveHealthCheckConfig
 
     public bool Equals(ActiveHealthCheckConfig? other)
     {
-        if (other == null)
+        if (other is null)
         {
             return false;
         }

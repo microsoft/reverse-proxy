@@ -44,12 +44,12 @@ internal sealed class ProxyEndpointFactory
 
         endpointBuilder.Metadata.Add(route);
 
-        if (match.Hosts != null && match.Hosts.Count != 0)
+        if (match.Hosts is not null && match.Hosts.Count != 0)
         {
             endpointBuilder.Metadata.Add(new HostAttribute(match.Hosts.ToArray()));
         }
 
-        if (match.Headers != null && match.Headers.Count > 0)
+        if (match.Headers is not null && match.Headers.Count > 0)
         {
             var matchers = new List<HeaderMatcher>(match.Headers.Count);
             foreach (var header in match.Headers)
@@ -60,7 +60,7 @@ internal sealed class ProxyEndpointFactory
             endpointBuilder.Metadata.Add(new HeaderMetadata(matchers));
         }
 
-        if (match.QueryParameters != null && match.QueryParameters.Count > 0)
+        if (match.QueryParameters is not null && match.QueryParameters.Count > 0)
         {
             var matchers = new List<QueryParameterMatcher>(match.QueryParameters.Count);
             foreach (var queryparam in match.QueryParameters)
@@ -92,7 +92,7 @@ internal sealed class ProxyEndpointFactory
             acceptCorsPreflight = false;
         }
 
-        if (match.Methods != null && match.Methods.Count > 0)
+        if (match.Methods is not null && match.Methods.Count > 0)
         {
             endpointBuilder.Metadata.Add(new HttpMethodMetadata(match.Methods, acceptCorsPreflight));
         }

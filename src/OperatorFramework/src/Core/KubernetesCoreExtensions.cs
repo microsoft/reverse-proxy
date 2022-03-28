@@ -27,7 +27,7 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 services = services.Configure<KubernetesClientOptions>(options =>
                 {
-                    if (options.Configuration == null)
+                    if (options.Configuration is null)
                     {
                         options.Configuration = KubernetesClientConfiguration.BuildDefaultConfig();
                     }
