@@ -19,7 +19,7 @@ internal static class DelegationExtensions
 
     public static bool ShouldUseHttpSysDelegation(this DestinationState destination)
     {
-        return destination.GetHttpSysDelegationQueue() != null;
+        return destination.GetHttpSysDelegationQueue() is not null;
     }
 }
 #endif
