@@ -54,7 +54,7 @@ The Host header indicates which site on the server the request is intended for. 
 
 Because a separate connection is used to communicate with the destination, these request headers can be used to forward information about the original connection like the IP, scheme, port, client certificate, etc.. X-Forwarded-For, X-Forwarded-Proto, X-Forwarded-Host, and X-Forwarded-Prefix are enabled by default. This information is subject to spoofing attacks so any existing headers on the request are removed and replaced by default. The destination app should be careful about how much trust it places in these values. See [transforms](transforms.md#defaults) for configuring these in the proxy. See the [ASP.NET docs](https://docs.microsoft.com/aspnet/core/host-and-deploy/proxy-load-balancer) for configuring the destination app to read these headers.
 
-### X-http-mehtod-override, x-http-method, x-method-override
+### X-http-method-override, x-http-method, x-method-override
 
 Some clients and servers limit which HTTP methods they allow (GET, POST, etc.). These request headers are sometimes used to work around those restrictions. These headers are proxied by default. If in the proxy you want to prevent these bypasses then use the [RequestHeaderRemove](transforms.md#requestheaderremove) transform.
 
