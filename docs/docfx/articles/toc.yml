@@ -6,6 +6,8 @@
   href: config-files.md
 - name: Configuration Providers
   href: config-providers.md
+- name: Configuration Filters
+  href: config-filters.md
 - name: Direct Forwarding
   href: direct-forwarding.md
 - name: HTTP client configuration
