@@ -109,11 +109,11 @@ internal sealed class HttpForwarder : IHttpForwarder
         var activityCancellationSource = ActivityCancellationTokenSource.Rent(requestConfig?.ActivityTimeout ?? DefaultTimeout, context.RequestAborted);
         try
         {
-            var isClientHttp2 = ProtocolHelper.IsHttp2(context.Request.Protocol);
+            var isClientHttp2OrGreater = ProtocolHelper.IsHttp2OrGreater(context.Request.Protocol);
 
             // NOTE: We heuristically assume gRPC-looking requests may require streaming semantics.
             // See https://github.com/microsoft/reverse-proxy/issues/118 for design discussion.
-            var isStreamingRequest = isClientHttp2 && ProtocolHelper.IsGrpcContentType(context.Request.ContentType);
+            var isStreamingRequest = isClientHttp2OrGreater && ProtocolHelper.IsGrpcContentType(context.Request.ContentType);
 
             // :: Step 1-3: Create outgoing HttpRequestMessage
             var (destinationRequest, requestContent) = await CreateRequestMessageAsync(
@@ -135,12 +135,8 @@ internal sealed class HttpForwarder : IHttpForwarder
                 return await HandleRequestFailureAsync(context, requestContent, requestException, transformer, activityCancellationSource);
             }
 
-            // Detect connection downgrade, which may be problematic for e.g. gRPC.
-            if (isClientHttp2 && destinationResponse.Version.Major != 2)
-            {
-                // TODO: Do something on connection downgrade...
-                Log.HttpDowngradeDetected(_logger);
-            }
+            // TODO: Do something on connection downgrade...
+            Log.ResponseDetected(_logger, destinationResponse);
 
             try
             {
@@ -756,10 +752,10 @@ internal sealed class HttpForwarder : IHttpForwarder
 
     private static class Log
     {
-        private static readonly Action<ILogger, Exception?> _httpDowngradeDetected = LoggerMessage.Define(
+        private static readonly Action<ILogger, string, int, Exception?> _responseDetected = LoggerMessage.Define<string, int>(
             LogLevel.Debug,
-            EventIds.HttpDowngradeDetected,
-            "The request was downgraded from HTTP/2.");
+            EventIds.ResponseDetected,
+            "Received HTTP/{version} response {statusCode}.");
 
         private static readonly Action<ILogger, string, string, string, string, Exception?> _proxying = LoggerMessage.Define<string, string, string, string>(
             LogLevel.Information,
@@ -771,9 +767,13 @@ internal sealed class HttpForwarder : IHttpForwarder
             EventIds.ForwardingError,
             "{error}: {message}");
 
-        public static void HttpDowngradeDetected(ILogger logger)
+        public static void ResponseDetected(ILogger logger, HttpResponseMessage msg)
         {
-            _httpDowngradeDetected(logger, null);
+            if (logger.IsEnabled(LogLevel.Debug))
+            {
+                var version = ProtocolHelper.GetHttpProtocol(msg.Version);
+                _responseDetected(logger, version, (int)msg.StatusCode, null);
+            }
         }
 
         public static void Proxying(ILogger logger, HttpRequestMessage msg, bool isStreamingRequest)

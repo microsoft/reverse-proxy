@@ -35,11 +35,13 @@ To use HTTP/3 with .NET 6, preview features need to be enabled via a setting in 
 
 ## HttpClient
 
-There is the switch which enables HTTP/3 either programmatically or in project features:
+There is the switch which enables HTTP/3 either programmatically:
 ```C#
-// Set this switch programmatically or in csproj:
-// <RuntimeHostConfigurationOption Include="System.Net.SocketsHttpHandler.Http3Support" Value="true" />
 AppContext.SetSwitch("System.Net.SocketsHttpHandler.Http3Support", true);
+```
+or in project feature:
+```csproj
+<RuntimeHostConfigurationOption Include="System.Net.SocketsHttpHandler.Http3Support" Value="true" />
 ```
 
 In addition to this default version of HttpRequest should be replaced by "3", find more details about [HttpRequest configuration](http-client-config.md#httprequest).
