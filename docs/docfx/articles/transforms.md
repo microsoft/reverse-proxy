@@ -971,7 +971,7 @@ All response trailers transforms must derive from the abstract base class [Respo
 
 YARP does not provide any built in transforms for modifying the request body. However, the body can be modified in custom transforms.
 
-Be careful about which kids of request are modified, how much data gets buffer, enforcing timeouts, parsing untrusted input, and updating the body related headers like `Content-Length`.
+Be careful about which kinds of requests are modified, how much data gets buffered, enforcing timeouts, parsing untrusted input, and updating the body-related headers like `Content-Length`.
 
 The below example uses simple, inefficient buffering to transform requests. A more efficient implementation would wrap and replace `HttpContext.Request.Body` with a stream that performed the needed modifications as data was proxied from client to server. That would also require removing the Content-Length header since the final length would not be known in advance.
 
@@ -1002,7 +1002,7 @@ This sample requires YARP 1.1, see https://github.com/microsoft/reverse-proxy/pu
 
 YARP does not provide any built in transforms for modifying the response body. However, the body can be modified in custom transforms.
 
-Be careful about which kids of responses are modified, how much data gets buffer, enforcing timeouts, parsing untrusted input, and updating the body related headers like `Content-Length`. You may need to decompress content before modifying it, as indicated by the Content-Encoding header, and afterwards re-compress it or remove the header.
+Be careful about which kinds of responses are modified, how much data gets buffered, enforcing timeouts, parsing untrusted input, and updating the body-related headers like `Content-Length`. You may need to decompress content before modifying it, as indicated by the Content-Encoding header, and afterwards re-compress it or remove the header.
 
 The below example uses simple, inefficient buffering to transform responses. A more efficient implementation would wrap the stream returned by `ReadAsStreamAsync()` with a stream that performed the needed modifications as data was proxied from client to server. That would also require removing the Content-Length header since the final length would not be known in advance.
 
