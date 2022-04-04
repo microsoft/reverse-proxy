@@ -1,7 +1,10 @@
 # HTTP/3
 
 ## Introduction
-To enable HTTP/3 protocol on YARP you should set up HttpClient and Kestrel.
+YARP supports HTTP/3 for inbound and outbound connections using the HTTP/3 preview support in .NET 6. To enable the HTTP/3 protocol in YARP you need to:
+- Configure inbound connections in Kestrel
+- Configure outbound connections in HttpClient 
+- Enable preview features
 
 ## Set up HTTP/3 on Kestrel
 
@@ -23,7 +26,7 @@ myHostBuilder.ConfigureWebHostDefaults(webHostBuilder =>
     webHostBuilder.UseStartup<Startup>();
 });
 ```
-For correct project build with `HttpProtocols.Http1AndHttp2AndHttp3` preview features need to be enabled:
+To use HTTP/3 with .NET 6, preview features need to be enabled via a setting in the project file:
 ```proj
 <PropertyGroup>
   <EnablePreviewFeatures>True</EnablePreviewFeatures>
