@@ -6,7 +6,7 @@ YARP configuration for routes, clusters, and destinations can be loaded from [co
 Filters can be used for a variety of purposes such as:
 - Supplementing config fields with data from other sources like the deployment environment
 - Applying system defaults
-- Applying global shared/global settings and enforce policies
+- Applying common settings and enforce policies
 - Substituting placeholder values
 - Normalization and error correction
 
@@ -23,7 +23,7 @@ services.AddReverseProxy()
 ## IProxyConfigFilter
 Configuration filters are written using the [IProxyConfigFilter](xref:Yarp.ReverseProxy.Configuration.IProxyConfigFilter) interface. Because filters are registered in DI they may define a constructor to inject any dependencies.
 
-Filters are called for each route and cluster each time configuration is loaded or re-loaded. They can choose to return the original input unmodified or a modified copy. The C# 9 [records syntax](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/record#nondestructive-mutation) is convenient for making modified copies.
+Filters are called for each route and cluster each time configuration is loaded or re-loaded. They can choose to return the original input unmodified or a modified copy. The C# 9 [records syntax](https://docs.microsoft.com/dotnet/csharp/language-reference/builtin-types/record#nondestructive-mutation) is convenient for making modified copies.
 
 This example fills in destination addresses from environment variables and sets the route's Order field to 1.
 
