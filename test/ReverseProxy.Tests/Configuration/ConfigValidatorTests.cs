@@ -845,7 +845,7 @@ public class ConfigValidatorTests
     [Theory]
     [InlineData(1, 9)]
     [InlineData(2, 5)]
-    [InlineData(3, 0)]
+    [InlineData(3, 1)]
     public async Task Rejects_RequestVersion(int major, int minor)
     {
         var version = new Version(major, minor);
@@ -864,7 +864,7 @@ public class ConfigValidatorTests
         var errors = await validator.ValidateClusterAsync(cluster);
 
         Assert.Equal(1, errors.Count);
-        Assert.Equal($"Outgoing request version '{cluster.HttpRequest.Version}' is not any of supported HTTP versions (1.0, 1.1 and 2).", errors[0].Message);
+        Assert.Equal($"Outgoing request version '{cluster.HttpRequest.Version}' is not any of supported HTTP versions (1.0, 1.1, 2 and 3).", errors[0].Message);
         Assert.IsType<ArgumentException>(errors[0]);
     }
 

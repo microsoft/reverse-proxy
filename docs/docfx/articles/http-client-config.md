@@ -91,7 +91,7 @@ HTTP request configuration is based on [ForwarderRequestConfig](xref:Yarp.Revers
 
 Configuration settings:
 - ActivityTimeout - how long a request is allowed to remain idle between any operation completing, after which it will be canceled. The default is 100 seconds. The timeout will reset when response headers are received or after successfully reading or writing any request, response, or streaming data like gRPC or WebSockets. TCP keep-alives and HTTP/2 protocol pings will not reset the timeout, but WebSocket pings will.
-- Version - outgoing request [version](https://docs.microsoft.com/dotnet/api/system.net.http.httprequestmessage.version). The supported values at the moment are `1.0`, `1.1` and `2`. Default value is 2.
+- Version - outgoing request [version](https://docs.microsoft.com/dotnet/api/system.net.http.httprequestmessage.version). The supported values at the moment are `1.0`, `1.1`, `2` and `3`. Default value is 2.
 - VersionPolicy - defines how the final version is selected for the outgoing requests. **This feature is available from .NET 5.0**, see [HttpRequestMessage.VersionPolicy](https://docs.microsoft.com/dotnet/api/system.net.http.httprequestmessage.versionpolicy). The default value is `RequestVersionOrLower`.
 - AllowResponseBuffering - allows to use write buffering when sending a response back to the client, if the server hosting YARP (e.g. IIS) supports it. **NOTE**: enabling it can break SSE (server side event) scenarios.
 

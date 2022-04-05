@@ -46,3 +46,5 @@
   href: diagnosing-yarp-issues.md
 - name: A/B Testing
   href: ab-testing.md
+- name: HTTP/3
+  href: http3.md

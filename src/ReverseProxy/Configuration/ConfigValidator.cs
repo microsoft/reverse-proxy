@@ -426,9 +426,13 @@ internal sealed class ConfigValidator : IConfigValidator
         if (cluster.HttpRequest.Version is not null &&
             cluster.HttpRequest.Version != HttpVersion.Version10 &&
             cluster.HttpRequest.Version != HttpVersion.Version11 &&
-            cluster.HttpRequest.Version != HttpVersion.Version20)
+            cluster.HttpRequest.Version != HttpVersion.Version20
+#if NET6_0_OR_GREATER
+            && cluster.HttpRequest.Version != HttpVersion.Version30
+#endif
+            )
         {
-            errors.Add(new ArgumentException($"Outgoing request version '{cluster.HttpRequest.Version}' is not any of supported HTTP versions (1.0, 1.1 and 2)."));
+            errors.Add(new ArgumentException($"Outgoing request version '{cluster.HttpRequest.Version}' is not any of supported HTTP versions (1.0, 1.1, 2 and 3)."));
         }
     }
 
