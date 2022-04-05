@@ -135,8 +135,7 @@ internal sealed class HttpForwarder : IHttpForwarder
                 return await HandleRequestFailureAsync(context, requestContent, requestException, transformer, activityCancellationSource);
             }
 
-            // TODO: Do something on connection downgrade...
-            Log.ResponseDetected(_logger, destinationResponse);
+            Log.ResponseReceived(_logger, destinationResponse);
 
             try
             {
@@ -753,7 +752,7 @@ internal sealed class HttpForwarder : IHttpForwarder
     private static class Log
     {
         private static readonly Action<ILogger, string, int, Exception?> _responseDetected = LoggerMessage.Define<string, int>(
-            LogLevel.Debug,
+            LogLevel.Information,
             EventIds.ResponseDetected,
             "Received HTTP/{version} response {statusCode}.");
 

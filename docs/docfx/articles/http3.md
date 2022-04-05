@@ -1,7 +1,7 @@
 # HTTP/3
 
 ## Introduction
-YARP supports HTTP/3 for inbound and outbound connections using the HTTP/3 preview support in .NET 6. To enable the HTTP/3 protocol in YARP you need to:
+YARP 1.1 supports HTTP/3 for inbound and outbound connections using the HTTP/3 preview support in .NET 6. To enable the HTTP/3 protocol in YARP you need to:
 - Configure inbound connections in Kestrel
 - Configure outbound connections in HttpClient 
 - Enable preview features
