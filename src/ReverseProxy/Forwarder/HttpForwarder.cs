@@ -751,9 +751,9 @@ internal sealed class HttpForwarder : IHttpForwarder
 
     private static class Log
     {
-        private static readonly Action<ILogger, string, int, Exception?> _responseDetected = LoggerMessage.Define<string, int>(
+        private static readonly Action<ILogger, string, int, Exception?> _responseReceived = LoggerMessage.Define<string, int>(
             LogLevel.Information,
-            EventIds.ResponseDetected,
+            EventIds.ResponseReceived,
             "Received HTTP/{version} response {statusCode}.");
 
         private static readonly Action<ILogger, string, string, string, string, Exception?> _proxying = LoggerMessage.Define<string, string, string, string>(
@@ -766,12 +766,12 @@ internal sealed class HttpForwarder : IHttpForwarder
             EventIds.ForwardingError,
             "{error}: {message}");
 
-        public static void ResponseDetected(ILogger logger, HttpResponseMessage msg)
+        public static void ResponseReceived(ILogger logger, HttpResponseMessage msg)
         {
             if (logger.IsEnabled(LogLevel.Debug))
             {
                 var version = ProtocolHelper.GetHttpProtocol(msg.Version);
-                _responseDetected(logger, version, (int)msg.StatusCode, null);
+                _responseReceived(logger, version, (int)msg.StatusCode, null);
             }
         }
 

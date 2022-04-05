@@ -33,7 +33,7 @@ internal static class EventIds
     public static readonly EventId RouteAdded = new EventId(27, "RouteAdded");
     public static readonly EventId RouteChanged = new EventId(28, "RouteChanged");
     public static readonly EventId RouteRemoved = new EventId(29, "RouteRemoved");
-    public static readonly EventId ResponseDetected = new EventId(30, "ResponseDetected");
+    public static readonly EventId HttpDowngradeDetected = new EventId(30, "HttpDowngradeDetected");
     public static readonly EventId OperationStarted = new EventId(31, "OperationStarted");
     public static readonly EventId OperationEnded = new EventId(32, "OperationEnded");
     public static readonly EventId OperationFailed = new EventId(33, "OperationFailed");
@@ -59,4 +59,5 @@ internal static class EventIds
     public static readonly EventId DelegationQueueNotInitialized  = new EventId(53, "DelegationQueueNotInitialized");
     public static readonly EventId DelegatingRequest = new EventId(54, "DelegatingRequest");
     public static readonly EventId DelegationFailed = new EventId(55, "DelegationFailed");
+    public static readonly EventId ResponseReceived = new EventId(56, "ResponseReceived");
 }

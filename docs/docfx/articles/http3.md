@@ -17,14 +17,12 @@ myHostBuilder.ConfigureWebHostDefaults(webHostBuilder =>
         {
             kestrel.ListenAnyIP(443, portOptions =>
             {
-#if NET6_0_OR_GREATER
                 portOptions.Protocols = HttpProtocols.Http1AndHttp2AndHttp3;
-#endif
-            portOptions.UseHttps();
+                portOptions.UseHttps();
+            });
         });
-    });
     webHostBuilder.UseStartup<Startup>();
-});
+    });
 ```
 To use HTTP/3 with .NET 6, preview features need to be enabled via a setting in the project file:
 ```proj
