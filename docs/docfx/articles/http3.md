@@ -25,7 +25,7 @@ myHostBuilder.ConfigureWebHostDefaults(webHostBuilder =>
     });
 ```
 To use HTTP/3 with .NET 6, preview features need to be enabled via a setting in the project file:
-```proj
+```csproj
 <PropertyGroup>
   <EnablePreviewFeatures>True</EnablePreviewFeatures>
 </PropertyGroup>
@@ -37,11 +37,11 @@ There is the switch which enables HTTP/3 either programmatically:
 ```C#
 AppContext.SetSwitch("System.Net.SocketsHttpHandler.Http3Support", true);
 ```
-or in project feature:
+or in project file:
 ```csproj
 <RuntimeHostConfigurationOption Include="System.Net.SocketsHttpHandler.Http3Support" Value="true" />
 ```
 
-In addition to this default version of HttpRequest should be replaced by "3", find more details about [HttpRequest configuration](http-client-config.md#httprequest).
+In addition to this, the default version of HttpRequest should be replaced by "3", find more details about [HttpRequest configuration](http-client-config.md#httprequest).
 
 
