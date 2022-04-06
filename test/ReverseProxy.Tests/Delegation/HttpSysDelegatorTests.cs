@@ -155,17 +155,14 @@ public class HttpSysDelegatorTests : TestAutoMockBase
     }
 
     [Fact]
-    public void ResetQueue_VerifyRuleCreated()
+    public void ResetQueue()
     {
         var destination = CreateDestination("dest1", "queue1");
         var cluster = CreateCluster("cluster1", destination);
 
         _changeListener.OnClusterAdded(cluster);
-        Mock<IServerDelegationFeature>().Reset();
 
-        ResetQueue(destination);
-
-        VerifyDelegationRuleCreated(destination);
+        ResetDelegatorQueue(destination);
     }
 
     [Fact]
@@ -285,7 +282,7 @@ public class HttpSysDelegatorTests : TestAutoMockBase
         _delegator.DelegateRequest(_context, destination);
     }
 
-    private void ResetQueue(DestinationState destination)
+    private void ResetDelegatorQueue(DestinationState destination)
     {
         _delegator.ResetQueue(destination.GetHttpSysDelegationQueue(), destination.Model.Config.Address);
     }
