@@ -62,7 +62,7 @@ app.MapReverseProxy(proxyPipeline =>
 ## Delegation Queue Lifetime
 When YARP is configured to use delegation for a destination, a handle is created to the specified http.sys queue. This handle is kept alive as long as the destinations referencing it exist. Clean up of these handles is done during GC, so it's possible cleanup of the handle is delayed if it ends up in Gen2. This may cause issues for some receivers during process restart because if they try to create the queue during startup it will fail (because it still exists since YARP has a handle to it). The receivers need to be smart enough to attach instead and propertly re-setup the queue. ASP.NET Core's http.sys server [has this issue](https://github.com/dotnet/aspnetcore/issues/40359).
 
-YARP exposes a way to reset its handle to the queue. This allows consumers to write custom logic to determin if/when the handle to the queue should be reset.
+YARP exposes a way to reset its handle to the queue. This allows consumers to write custom logic to determin if/when the handle to the queue should be cleaned up.
 
 Example:
 

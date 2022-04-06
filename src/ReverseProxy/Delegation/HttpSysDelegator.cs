@@ -8,14 +8,12 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Delegation;
 
@@ -47,8 +45,8 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
             var key = new QueueKey(queueName, urlPrefix);
             if (_queues.TryGetValue(key, out var queueWeakRef) && queueWeakRef.TryGetTarget(out var queue))
             {
-                var queueState = queue.Reset(_serverDelegationFeature);
-                Log.QueueReset(_logger, queueName, urlPrefix, queueState.InitializationException);
+                queue.Detatch();
+                Log.QueueReset(_logger, queueName, urlPrefix);
             }
         }
     }
@@ -78,20 +76,25 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
         // Opportunistically retry initialization if it failed previously.
         // This helps when the target queue wasn't yet created because
         // the target process hadn't yet started up.
-        if (!queue.TryInitialize(_serverDelegationFeature, out var initializationException))
+        var queueState = queue.Initialize(_serverDelegationFeature);
+        if (!queueState.IsInitialized)
         {
-            Log.QueueNotInitialized(_logger, destination, initializationException);
+            Log.QueueNotInitialized(_logger, destination, queueState.InitializationException);
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-            context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.NoAvailableDestinations, initializationException));
+            context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.NoAvailableDestinations, queueState.InitializationException));
             return;
         }
 
-        Log.DelegatingRequest(_logger, destination);
-        if (!queue.TryDelegate(_logger, _serverDelegationFeature, requestDelegationFeature, destination, out var delegationException))
+        try
         {
-            Log.DelegationFailed(_logger, destination, delegationException);
+            Log.DelegatingRequest(_logger, destination);
+            requestDelegationFeature.DelegateRequest(queueState.Rule);
+        }
+        catch (Exception ex)
+        {
+            Log.DelegationFailed(_logger, destination, ex);
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-            context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.Request, delegationException));
+            context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.Request, ex));
         }
     }
 
@@ -156,14 +159,15 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
                     {
                         // We call this outside of the above if bock so that if previous
                         // initialization failed, we will retry it for every new destination added.
-                        if (!queue.TryInitialize(_serverDelegationFeature, out var initializationException))
+                        var queueState = queue.Initialize(_serverDelegationFeature);
+                        if (!queueState.IsInitialized)
                         {
                             Log.QueueInitFailed(
                                     _logger,
                                     destination.DestinationId,
                                     queueName,
                                     urlPrefix,
-                                    initializationException);
+                                    queueState.InitializationException);
                         }
 
                         _queuesPerDestination.AddOrUpdate(destination, queue);
@@ -207,92 +211,16 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
 
         private readonly QueueKey _queueKey;
         private readonly object _syncRoot;
-        private readonly ManualResetEventSlim _ruleResetEvent;
-        private readonly AtomicCounter _delegatingCount;
-
         private DelegationQueueState _currentState;
 
         public DelegationQueue(string queueName, string urlPrefix)
         {
             _queueKey = new QueueKey(queueName, urlPrefix);
             _syncRoot = new object();
-            _ruleResetEvent = new ManualResetEventSlim(initialState: true);
             _currentState = new DelegationQueueState();
-            _delegatingCount = new AtomicCounter();
         }
 
-        public bool TryDelegate(
-            ILogger logger,
-            IServerDelegationFeature serverDelegationFeature,
-            IHttpSysRequestDelegationFeature requestDelegationFeature,
-            DestinationState destination,
-            [NotNullWhen(false)] out Exception? delegationException)
-        {
-            var state = _currentState;
-            var delegated = false;
-            delegationException = state.InitializationException;
-
-            if (state.IsInitialized)
-            {
-                delegated = TryDelegateInternal(requestDelegationFeature, state.Rule, _ruleResetEvent, _delegatingCount, out delegationException);
-                if (!delegated && ShouldTryToReset(delegationException))
-                {
-                    state = Reset(serverDelegationFeature, state);
-
-                    Log.QueueReset(logger, destination, state.InitializationException);
-
-                    if (state.IsInitialized)
-                    {
-                        delegated = TryDelegateInternal(requestDelegationFeature, state.Rule, _ruleResetEvent, _delegatingCount, out delegationException);
-                    }
-                }
-            }
-
-            return delegated;
-
-            static bool TryDelegateInternal(
-                IHttpSysRequestDelegationFeature requestDelegationFeature,
-                DelegationRule rule,
-                ManualResetEventSlim resetEvent,
-                AtomicCounter delegatingCount,
-                [NotNullWhen(false)] out Exception? delegateException)
-            {
-                try
-                {
-                    // This ensures we don't dispose/reset the while a request is trying to delegate
-                    var ready = false;
-                    do
-                    {
-                        resetEvent.Wait();
-                        delegatingCount.Increment();
-
-                        ready = resetEvent.IsSet;
-                        if (!ready)
-                        {
-                            // The event was reset before we could increment the counter, start over
-                            delegatingCount.Decrement();
-                        }
-
-                    } while (!ready);
-
-                    requestDelegationFeature.DelegateRequest(rule);
-
-                    delegateException = null;
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    delegateException = ex;
-                    return false;
-                }
-                finally
-                {
-                    delegatingCount.Decrement();
-                }
-            }
-        }
-
-        public bool TryInitialize(IServerDelegationFeature delegationFeature, [NotNullWhen(false)] out Exception? initializationException)
+        public DelegationQueueState Initialize(IServerDelegationFeature delegationFeature)
         {
             var state = _currentState;
             if (!state.IsInitialized && ShouldRetryInitialization(state.InitializationException))
@@ -316,64 +244,21 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
                 }
             }
 
-            initializationException = state.InitializationException;
-            return state.IsInitialized;
+            return state;
         }
 
-        public DelegationQueueState Reset(IServerDelegationFeature delegationFeature)
+        public void Detatch()
         {
-            return Reset(delegationFeature, _currentState);
+            lock (_syncRoot)
+            {
+                _currentState.Rule?.Dispose();
+                _currentState = new DelegationQueueState();
+            }
         }
 
         public bool Equals(QueueKey queueKey)
         {
             return _queueKey.Equals(queueKey);
-        }
-
-        private DelegationQueueState Reset(IServerDelegationFeature delegationFeature, DelegationQueueState state)
-        {
-            // To prevent multiple request from resetting the state multiple times,
-            // we check to make sure the state hasn't changed since they got it.
-            // This ensures we only reset once due to failing requests.
-            if (_currentState.IsInitialized && _currentState == state)
-            {
-                lock (_syncRoot)
-                {
-                    if (_currentState == state)
-                    {
-                        try
-                        {
-                            _ruleResetEvent.Reset();
-                            if (_delegatingCount.Value > 0)
-                            {
-                                // Requests are in the process of delegating, wait until they are done.
-                                // Since delegation is quick, just spin instead of sleep.
-                                var spin = new SpinWait();
-                                do
-                                {
-                                    spin.SpinOnce();
-                                } while (_delegatingCount.Value > 0);
-                            }
-
-                            state.Rule?.Dispose();
-                            state = new DelegationQueueState(delegationFeature.CreateDelegationRule(_queueKey.QueueName, _queueKey.UrlPrefix));
-                        }
-                        catch (Exception ex)
-                        {
-                            state = new DelegationQueueState(ex);
-                        }
-                        finally
-                        {
-                            _currentState = state;
-                            _ruleResetEvent.Set();
-                        }
-
-                        return state;
-                    }
-                }
-            }
-
-            return _currentState;
         }
 
         private static bool ShouldRetryInitialization(Exception? exception)
@@ -382,17 +267,6 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
             {
                 null => true,
                 HttpSysException httpSysEx when httpSysEx.ErrorCode == ERROR_FILE_NOT_FOUND => true,
-                _ => false,
-            };
-        }
-
-        private static bool ShouldTryToReset(Exception? delegateException)
-        {
-            return delegateException switch
-            {
-                // Work around for https://github.com/dotnet/aspnetcore/issues/40358
-                HttpSysException ex when ex.ErrorCode == ERROR_INVALID_PARAMETER => true,
-
                 _ => false,
             };
         }
@@ -490,7 +364,7 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
             EventIds.DelegationFailed,
             "Failed to delegate request for destination '{destinationId}' with queue name '{queueName}' and url prefix '{urlPrefix}'");
 
-        public static void QueueInitFailed(ILogger logger, string destinationId, string queueName, string urlPrefix, Exception? ex)
+        public static void QueueInitFailed(ILogger logger, string destinationId, string queueName, string urlPrefix, Exception ex)
         {
             _queueInitFailed(logger, destinationId, queueName, urlPrefix, ex);
         }
@@ -500,19 +374,14 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
             _queueNotFound(logger, destination.DestinationId, destination.GetHttpSysDelegationQueue(), destination.Model?.Config?.Address, null);
         }
 
-        public static void QueueNotInitialized(ILogger logger, DestinationState destination, Exception? ex)
+        public static void QueueNotInitialized(ILogger logger, DestinationState destination, Exception ex)
         {
             _queueNotInitialized(logger, destination.DestinationId, destination.GetHttpSysDelegationQueue(), destination.Model?.Config?.Address, ex);
         }
 
-        public static void QueueReset(ILogger logger, string queueName, string urlPrefix, Exception? ex)
+        public static void QueueReset(ILogger logger, string queueName, string urlPrefix)
         {
-            _queueReset(logger, queueName, urlPrefix, ex);
-        }
-
-        public static void QueueReset(ILogger logger, DestinationState destination, Exception? ex)
-        {
-            _queueReset(logger, destination.GetHttpSysDelegationQueue(), destination.Model?.Config?.Address, ex);
+            _queueReset(logger, queueName, urlPrefix, null);
         }
 
         public static void DelegatingRequest(ILogger logger, DestinationState destination)
