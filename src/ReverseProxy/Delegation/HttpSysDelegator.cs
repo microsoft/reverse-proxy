@@ -207,7 +207,6 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
     private class DelegationQueue
     {
         public const uint ERROR_FILE_NOT_FOUND = 2;
-        public const uint ERROR_INVALID_PARAMETER = 87;
 
         private readonly QueueKey _queueKey;
         private readonly object _syncRoot;
@@ -352,7 +351,7 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
         private static readonly Action<ILogger, string?, string?, Exception?> _queueReset = LoggerMessage.Define<string?, string?>(
             LogLevel.Information,
             EventIds.DelegationQueueReset,
-            "Reset queue with name '{queueName}' and url prefix '{urlPrefix}'");
+            "Detached from queue with name '{queueName}' and url prefix '{urlPrefix}'");
 
         private static readonly Action<ILogger, string, string?, string?, Exception?> _delegatingRequest = LoggerMessage.Define<string, string?, string?>(
             LogLevel.Information,
@@ -364,7 +363,7 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
             EventIds.DelegationFailed,
             "Failed to delegate request for destination '{destinationId}' with queue name '{queueName}' and url prefix '{urlPrefix}'");
 
-        public static void QueueInitFailed(ILogger logger, string destinationId, string queueName, string urlPrefix, Exception ex)
+        public static void QueueInitFailed(ILogger logger, string destinationId, string queueName, string urlPrefix, Exception? ex)
         {
             _queueInitFailed(logger, destinationId, queueName, urlPrefix, ex);
         }
@@ -374,7 +373,7 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
             _queueNotFound(logger, destination.DestinationId, destination.GetHttpSysDelegationQueue(), destination.Model?.Config?.Address, null);
         }
 
-        public static void QueueNotInitialized(ILogger logger, DestinationState destination, Exception ex)
+        public static void QueueNotInitialized(ILogger logger, DestinationState destination, Exception? ex)
         {
             _queueNotInitialized(logger, destination.DestinationId, destination.GetHttpSysDelegationQueue(), destination.Model?.Config?.Address, ex);
         }
