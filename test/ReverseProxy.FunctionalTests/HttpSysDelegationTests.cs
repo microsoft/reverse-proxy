@@ -23,7 +23,7 @@ public partial class HttpSysDelegationTests
     [HttpSysDelegationFact]
     public async Task RequestDelegated()
     {
-        HttpSysDelegator delegator = null;
+        IHttpSysDelegator delegator = null;
         IForwarderErrorFeature proxyError = null;
         Exception unhandledError = null;
         var expectedRepsone = "Hello World!";
