@@ -40,7 +40,7 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
 
     public void ResetQueue(string queueName, string urlPrefix)
     {
-        if (_serverDelegationFeature != null)
+        if (_serverDelegationFeature is not null)
         {
             var key = new QueueKey(queueName, urlPrefix);
             if (_queues.TryGetValue(key, out var queueWeakRef) && queueWeakRef.TryGetTarget(out var queue))
