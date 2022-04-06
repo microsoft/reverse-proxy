@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Patterns;
+using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.LoadBalancing;
 using Yarp.ReverseProxy.SessionAffinity;
@@ -34,6 +35,7 @@ internal sealed class ConfigValidator : IConfigValidator
     private readonly IDictionary<string, IAvailableDestinationsPolicy> _availableDestinationsPolicies;
     private readonly IDictionary<string, IActiveHealthCheckPolicy> _activeHealthCheckPolicies;
     private readonly IDictionary<string, IPassiveHealthCheckPolicy> _passiveHealthCheckPolicies;
+    private readonly ILogger _logger;
 
 
     public ConfigValidator(ITransformBuilder transformBuilder,
@@ -43,7 +45,8 @@ internal sealed class ConfigValidator : IConfigValidator
         IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
         IEnumerable<IAvailableDestinationsPolicy> availableDestinationsPolicies,
         IEnumerable<IActiveHealthCheckPolicy> activeHealthCheckPolicies,
-        IEnumerable<IPassiveHealthCheckPolicy> passiveHealthCheckPolicies)
+        IEnumerable<IPassiveHealthCheckPolicy> passiveHealthCheckPolicies,
+        ILogger<ConfigValidator> logger)
     {
         _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
         _authorizationPolicyProvider = authorizationPolicyProvider ?? throw new ArgumentNullException(nameof(authorizationPolicyProvider));
@@ -53,6 +56,7 @@ internal sealed class ConfigValidator : IConfigValidator
         _availableDestinationsPolicies = availableDestinationsPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(availableDestinationsPolicies));
         _activeHealthCheckPolicies = activeHealthCheckPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(activeHealthCheckPolicies));
         _passiveHealthCheckPolicies = passiveHealthCheckPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(passiveHealthCheckPolicies));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     // Note this performs all validation steps without short circuiting in order to report all possible errors.
@@ -415,7 +419,7 @@ internal sealed class ConfigValidator : IConfigValidator
 #endif
     }
 
-    private static void ValidateProxyHttpRequest(IList<Exception> errors, ClusterConfig cluster)
+    private void ValidateProxyHttpRequest(IList<Exception> errors, ClusterConfig cluster)
     {
         if (cluster.HttpRequest is null)
         {
@@ -433,6 +437,12 @@ internal sealed class ConfigValidator : IConfigValidator
             )
         {
             errors.Add(new ArgumentException($"Outgoing request version '{cluster.HttpRequest.Version}' is not any of supported HTTP versions (1.0, 1.1, 2 and 3)."));
+        }
+
+        if (cluster.HttpRequest.Version is not null &&
+            cluster.HttpRequest.Version == HttpVersion.Version10)
+        {
+            Log.ResponseReceived(_logger);
         }
     }
 
@@ -508,6 +518,19 @@ internal sealed class ConfigValidator : IConfigValidator
         if (passiveOptions.ReactivationPeriod is not null && passiveOptions.ReactivationPeriod <= TimeSpan.Zero)
         {
             errors.Add(new ArgumentException($"Unhealthy destination reactivation period set on the cluster '{cluster.ClusterId}' must be positive."));
+        }
+    }
+
+    private static class Log
+    {
+        private static readonly Action<ILogger, Exception?> _requestVersionDetected = LoggerMessage.Define(
+            LogLevel.Warning,
+            EventIds.LoadData,
+            "HttpRequest version is set to 1.0, for better performance please set up the higher version.");
+
+        public static void ResponseReceived(ILogger logger)
+        {
+            _requestVersionDetected(logger, null);
         }
     }
 }
