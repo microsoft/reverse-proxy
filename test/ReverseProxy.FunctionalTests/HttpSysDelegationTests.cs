@@ -38,7 +38,7 @@ public partial class HttpSysDelegationTests
             proxyBuilder => { },
             proxyApp =>
             {
-                delegator = proxyApp.ApplicationServices.GetRequiredService<HttpSysDelegator>();
+                delegator = proxyApp.ApplicationServices.GetRequiredService<IHttpSysDelegator>();
                 proxyApp.Use(async (context, next) =>
                 {
                     try
