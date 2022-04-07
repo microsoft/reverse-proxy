@@ -439,8 +439,7 @@ internal sealed class ConfigValidator : IConfigValidator
             errors.Add(new ArgumentException($"Outgoing request version '{cluster.HttpRequest.Version}' is not any of supported HTTP versions (1.0, 1.1, 2 and 3)."));
         }
 
-        if (cluster.HttpRequest.Version is not null &&
-            cluster.HttpRequest.Version == HttpVersion.Version10)
+        if (cluster.HttpRequest.Version == HttpVersion.Version10)
         {
             Log.ResponseReceived(_logger);
         }
@@ -526,9 +525,9 @@ internal sealed class ConfigValidator : IConfigValidator
         private static readonly Action<ILogger, Exception?> _requestVersionDetected = LoggerMessage.Define(
             LogLevel.Warning,
             EventIds.LoadData,
-            "HttpRequest version is set to 1.0, for better performance please set up the higher version.");
+            "The HttpRequest version is set to 1.0 which can result in poor performance and port exhaustion. Use 1.1, 2, or 3 instead.");
 
-        public static void ResponseReceived(ILogger logger)
+        public static void Http10Version(ILogger logger)
         {
             _requestVersionDetected(logger, null);
         }
