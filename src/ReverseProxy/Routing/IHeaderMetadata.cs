@@ -13,5 +13,5 @@ internal interface IHeaderMetadata
     /// <summary>
     /// One or more matchers to apply to the request headers.
     /// </summary>
-    IReadOnlyList<HeaderMatcher> Matchers { get; }
+    HeaderMatcher[] Matchers { get; }
 }

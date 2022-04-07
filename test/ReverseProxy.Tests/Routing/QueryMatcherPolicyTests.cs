@@ -176,21 +176,6 @@ public class QueryParameterMatcherPolicyTests
         Assert.Equal(shouldMatch, candidates.IsValidCandidate(0));
     }
 
-    [Fact]
-    public async Task ApplyAsync_MultipleQueryParamValues_NotSupported()
-    {
-        var context = new DefaultHttpContext();
-        context.Request.QueryString = new QueryString(@"?org-id=a,b");
-
-        var endpoint = CreateEndpoint("org-id", new[] { "a" });
-        var candidates = new CandidateSet(new[] { endpoint }, new RouteValueDictionary[1], new int[1]);
-        var sut = new QueryParameterMatcherPolicy();
-
-        await sut.ApplyAsync(context, candidates);
-
-        Assert.False(candidates.IsValidCandidate(0));
-    }
-
     [Theory]
     [InlineData("abc", QueryParameterMatchMode.Exact, false, null, false)]
     [InlineData("abc", QueryParameterMatchMode.Exact, false, "", false)]
@@ -203,6 +188,8 @@ public class QueryParameterMatcherPolicyTests
     [InlineData("abc", QueryParameterMatchMode.Exact, true, "aBC", false)]
     [InlineData("abc", QueryParameterMatchMode.Exact, true, "abcd", false)]
     [InlineData("abc", QueryParameterMatchMode.Exact, true, "ab", false)]
+    [InlineData("abc", QueryParameterMatchMode.Exact, true, "ab;cd", false)]
+    [InlineData("abc", QueryParameterMatchMode.Exact, true, "a;abc", true)]
     [InlineData("val ue", QueryParameterMatchMode.Contains, false, "val%20ue", true)]
     [InlineData("value", QueryParameterMatchMode.Contains, false, "val%20ue", false)]
     [InlineData("abc", QueryParameterMatchMode.Contains, false, "", false)]
@@ -248,7 +235,7 @@ public class QueryParameterMatcherPolicyTests
         var context = new DefaultHttpContext();
         if (incomingQueryParamValue is not null)
         {
-            var queryStr = "?org-id=" + incomingQueryParamValue;
+            var queryStr = "?org-id=" + string.Join("&org-id=", incomingQueryParamValue?.Split(';') ?? new[] { "" });
             context.Request.QueryString = new QueryString(queryStr);
         }
 
@@ -278,6 +265,12 @@ public class QueryParameterMatcherPolicyTests
     [InlineData("abc", "def", QueryParameterMatchMode.Exact, true, "def", true)]
     [InlineData("abc", "def", QueryParameterMatchMode.Exact, true, "DEFg", false)]
     [InlineData("abc", "def", QueryParameterMatchMode.Exact, true, "dEf", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Exact, true, ";", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Exact, true, "abc;a", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Exact, true, "a;abc", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Exact, true, "abc;def", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Exact, true, "ab;def", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Exact, true, "ab;cdef", false)]
     [InlineData("abc", "def", QueryParameterMatchMode.Prefix, false, null, false)]
     [InlineData("abc", "def", QueryParameterMatchMode.Prefix, false, "", false)]
     [InlineData("abc", "def", QueryParameterMatchMode.Prefix, false, "abc", true)]
@@ -289,6 +282,7 @@ public class QueryParameterMatcherPolicyTests
     [InlineData("abc", "def", QueryParameterMatchMode.Prefix, false, "defg", true)]
     [InlineData("abc", "def", QueryParameterMatchMode.Prefix, false, "defG", true)]
     [InlineData("abc", "def", QueryParameterMatchMode.Prefix, false, "abcA", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Prefix, false, "aabc", false)]
     [InlineData("abc", "def", QueryParameterMatchMode.Prefix, true, null, false)]
     [InlineData("abc", "def", QueryParameterMatchMode.Prefix, true, "", false)]
     [InlineData("abc", "def", QueryParameterMatchMode.Prefix, true, "abc", true)]
@@ -299,6 +293,16 @@ public class QueryParameterMatcherPolicyTests
     [InlineData("abc", "def", QueryParameterMatchMode.Prefix, true, "abcc", true)]
     [InlineData("val ue", "def", QueryParameterMatchMode.Contains, false, "val%20ue&aabb", true)]
     [InlineData("value", "def", QueryParameterMatchMode.Contains, false, "val%20ue&aabb", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Prefix, true, "aabc", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Prefix, true, ";", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Prefix, true, "ab;cde;fgh", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Prefix, true, "abcd;e", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Prefix, true, "abcd;defg", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Prefix, true, "Abcd;defg", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Prefix, true, "Abcd;Defg", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Prefix, true, "a;defg", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Prefix, true, "abcd;", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Prefix, true, ";def", true)]
     [InlineData("abc", "def", QueryParameterMatchMode.Contains, false, null, false)]
     [InlineData("abc", "def", QueryParameterMatchMode.Contains, false, "", false)]
     [InlineData("abc", "def", QueryParameterMatchMode.Contains, false, "aaaabc", true)]
@@ -322,12 +326,49 @@ public class QueryParameterMatcherPolicyTests
     [InlineData("abc", "def", QueryParameterMatchMode.NotContains, false, "Abc", false)]
     [InlineData("abc", "def", QueryParameterMatchMode.NotContains, false, "def", false)]
     [InlineData("abc", "def", QueryParameterMatchMode.NotContains, false, "", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Contains, true, "cabca", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Contains, true, "aBCa", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Contains, true, "CaBCdd", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Contains, true, "DEFdef", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Contains, true, "defDEFg", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Contains, true, "bbaabc", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Contains, true, ";", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Contains, true, "cabca;", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Contains, true, ";cabca", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Contains, true, "ab;cd;ef", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Contains, true, "aBCa;deFg", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Contains, true, "aBCa;defg", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.Contains, true, "abcd;d", true)]
+    [InlineData("abc", "ABC", QueryParameterMatchMode.Contains, true, "abc;d", true)]
+    [InlineData("abc", "ABC", QueryParameterMatchMode.Contains, true, "ABC;d", true)]
+    [InlineData("abc", "ABC", QueryParameterMatchMode.Contains, true, "abC;d", false)]
+    [InlineData("abc", "ABC", QueryParameterMatchMode.Contains, true, "abcABC;d", true)]
     [InlineData("abc", "def", QueryParameterMatchMode.NotContains, false, null, false)]
     [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, "aaa", true)]
     [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, "Abc", true)]
     [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, "def", false)]
     [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, "", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, false, "aabc", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, false, "baBc", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, false, "ababcd", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, false, "dcabcD", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, false, "ghi", true)]
     [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, null, false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, "cabca", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, "aBCa", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, "CaBCdd", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, "DEFdef", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, "DEFg", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, "bbaabc", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, "defG", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, "bbaabc;", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, ";bbaabc", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, "ab;cd;ef", true)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, "a;defg", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, "ab;cdef", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, "abc;def", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, "Abc;cdef", false)]
+    [InlineData("abc", "def", QueryParameterMatchMode.NotContains, true, "Abc;cdEf", true)]
     public async Task ApplyAsync_MatchingScenarios_TwoQueryParamValues(
         string queryParam1Value,
         string queryParam2Value,
@@ -337,8 +378,12 @@ public class QueryParameterMatcherPolicyTests
         bool shouldMatch)
     {
         var context = new DefaultHttpContext();
-        var queryStr = "?org-id=" + incomingQueryParamValue;
-        context.Request.QueryString = new QueryString(queryStr);
+        if (incomingQueryParamValue is not null)
+        {
+            var queryStr = "?org-id=" + string.Join("&org-id=", incomingQueryParamValue?.Split(';') ?? new[] { "" });
+            context.Request.QueryString = new QueryString(queryStr);
+        }
+
         var endpoint = CreateEndpoint("org-id", new[] { queryParam1Value, queryParam2Value }, queryParamValueMatchMode, isCaseSensitive);
 
         var candidates = new CandidateSet(new[] { endpoint }, new RouteValueDictionary[1], new int[1]);

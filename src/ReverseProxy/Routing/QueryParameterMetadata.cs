@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Yarp.ReverseProxy.Routing;
 
@@ -13,9 +14,9 @@ internal sealed class QueryParameterMetadata : IQueryParameterMetadata
 {
     public QueryParameterMetadata(IReadOnlyList<QueryParameterMatcher> matchers)
     {
-        Matchers = matchers ?? throw new ArgumentNullException(nameof(matchers));
+        Matchers = matchers?.ToArray() ?? throw new ArgumentNullException(nameof(matchers));
     }
 
     /// <inheritdoc/>
-    public IReadOnlyList<QueryParameterMatcher> Matchers { get; }
+    public QueryParameterMatcher[] Matchers { get; }
 }

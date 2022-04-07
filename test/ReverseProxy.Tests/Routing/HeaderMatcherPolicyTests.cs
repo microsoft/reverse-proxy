@@ -170,21 +170,6 @@ public class HeaderMatcherPolicyTests
         Assert.Equal(shouldMatch, candidates.IsValidCandidate(0));
     }
 
-    [Fact]
-    public async Task ApplyAsync_MultipleHeaderValues_NotSupported()
-    {
-        var context = new DefaultHttpContext();
-        context.Request.Headers.Add("org-id", new[] { "a", "b" });
-
-        var endpoint = CreateEndpoint("org-id", new[] { "a" });
-        var candidates = new CandidateSet(new[] { endpoint }, new RouteValueDictionary[1], new int[1]);
-        var sut = new HeaderMatcherPolicy();
-
-        await sut.ApplyAsync(context, candidates);
-
-        Assert.False(candidates.IsValidCandidate(0));
-    }
-
     [Theory]
     [InlineData("abc", HeaderMatchMode.ExactHeader, false, null, false)]
     [InlineData("abc", HeaderMatchMode.ExactHeader, false, "", false)]
@@ -197,6 +182,42 @@ public class HeaderMatcherPolicyTests
     [InlineData("abc", HeaderMatchMode.ExactHeader, true, "aBC", false)]
     [InlineData("abc", HeaderMatchMode.ExactHeader, true, "abcd", false)]
     [InlineData("abc", HeaderMatchMode.ExactHeader, true, "ab", false)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, ";", false)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "ab;c", false)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, ";abc", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, ";abC", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "abc;", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "Abc;", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "abc;def", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "ABC;DEF", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "def;abc", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "abc;aBc", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "def;ab c", false)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "bcd;efg", false)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "\"abc", false)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "abc\"", false)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "\"abc\"", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, " \"abc\"", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "\"abc\" ", false)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "\"abc\", ", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "\"ab\", \"abc", false)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "\"ab\", \"abc\"", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "ab\", \"abc", false)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "ab\"\",\"abc", false)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "ab\"\",\"abc\"", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "\"\"ab\"\"c", false)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "\"\"ab\"\"c,\"abc,\"", false)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, false, "\"\"ab\"\"c,\"abc,\",abc", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, true, ";", false)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, true, "ab;c", false)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, true, ";abc", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, true, "abc;", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, true, "abc;def", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, true, "abc;abc", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, true, "def;abc", true)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, true, "def;abC", false)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, true, "def;ab c", false)]
+    [InlineData("abc", HeaderMatchMode.ExactHeader, true, "bcd;efg", false)]
     [InlineData("abc", HeaderMatchMode.HeaderPrefix, false, "", false)]
     [InlineData("abc", HeaderMatchMode.HeaderPrefix, false, "abc", true)]
     [InlineData("abc", HeaderMatchMode.HeaderPrefix, false, "aBC", true)]
@@ -208,6 +229,29 @@ public class HeaderMatcherPolicyTests
     [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "abcd", true)]
     [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "aBCd", false)]
     [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "ab", false)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, false, ";", false)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, false, "abc;", true)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, false, ";aBc", true)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, false, "abd;abC", true)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, false, "abd;abe", false)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "abc;", true)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, ";abc", true)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "abd;abc", true)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "abd;abe", false)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "ab\"c", false)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "ab\"c\"", false)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "\"abc", false)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "\"abc\"", true)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, " \"abc\"", true)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, " \"abc", false)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "\"abc\" ", false)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "ab,abc", true)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "ab, abc", true)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "\"ab, abc\"", false)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "\"ab\", abc", true)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "\"ab\", abc\"", true)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "\"ab\"\"\"\", abc\"", false)]
+    [InlineData("abc", HeaderMatchMode.HeaderPrefix, true, "\"ab\"\"\"\"\", abc\"", true)]
     [InlineData("abc", HeaderMatchMode.Contains, false, "", false)]
     [InlineData("abc", HeaderMatchMode.Contains, false, "ababc", true)]
     [InlineData("abc", HeaderMatchMode.Contains, false, "zaBCz", true)]
@@ -219,6 +263,16 @@ public class HeaderMatcherPolicyTests
     [InlineData("abc", HeaderMatchMode.Contains, true, "bbabcdb", true)]
     [InlineData("abc", HeaderMatchMode.Contains, true, "aBCcba", false)]
     [InlineData("abc", HeaderMatchMode.Contains, true, "baab", false)]
+    [InlineData("abc", HeaderMatchMode.Contains, false, ";", false)]
+    [InlineData("abc", HeaderMatchMode.Contains, false, "ababc;", true)]
+    [InlineData("abc", HeaderMatchMode.Contains, false, ";ababc", true)]
+    [InlineData("abc", HeaderMatchMode.Contains, false, "ab;cd", false)]
+    [InlineData("abc", HeaderMatchMode.Contains, false, "ab;cd;abcd", true)]
+    [InlineData("abc", HeaderMatchMode.Contains, false, "abc;abc;def", true)]
+    [InlineData("abc", HeaderMatchMode.Contains, false, "\"abc", true)]
+    [InlineData("abc", HeaderMatchMode.Contains, false, "abc\"", true)]
+    [InlineData("abc", HeaderMatchMode.Contains, false, "\"abc\"", true)]
+    [InlineData("abc", HeaderMatchMode.Contains, false, "ab\"c", false)]
     [InlineData("abc", HeaderMatchMode.NotContains, false, "", false)]
     [InlineData("abc", HeaderMatchMode.NotContains, false, "ababc", false)]
     [InlineData("abc", HeaderMatchMode.NotContains, false, "zaBCz", false)]
@@ -230,17 +284,24 @@ public class HeaderMatcherPolicyTests
     [InlineData("abc", HeaderMatchMode.NotContains, true, "bbabcdb", false)]
     [InlineData("abc", HeaderMatchMode.NotContains, true, "aBCcba", true)]
     [InlineData("abc", HeaderMatchMode.NotContains, true, "baab", true)]
+    [InlineData("abc", HeaderMatchMode.NotContains, false, ";abc", false)]
+    [InlineData("abc", HeaderMatchMode.NotContains, false, "abc;", false)]
+    [InlineData("abc", HeaderMatchMode.NotContains, false, "ab;cd", true)]
+    [InlineData("abc", HeaderMatchMode.NotContains, false, "ababc;abc", false)]
+    [InlineData("abc", HeaderMatchMode.NotContains, false, "abc;def", false)]
+    [InlineData("abc", HeaderMatchMode.NotContains, false, "ab\"c", true)]
+    [InlineData("abc", HeaderMatchMode.NotContains, false, "\"abc\"", false)]
     public async Task ApplyAsync_MatchingScenarios_OneHeaderValue(
         string headerValue,
         HeaderMatchMode headerValueMatchMode,
         bool isCaseSensitive,
-        string incomingHeaderValue,
+        string incomingHeaderValues,
         bool shouldMatch)
     {
         var context = new DefaultHttpContext();
-        if (incomingHeaderValue is not null)
+        if (incomingHeaderValues is not null)
         {
-            context.Request.Headers.Add("org-id", incomingHeaderValue);
+            context.Request.Headers.Add("org-id", incomingHeaderValues.Split(';'));
         }
 
         var endpoint = CreateEndpoint("org-id", new[] { headerValue }, headerValueMatchMode, isCaseSensitive);
@@ -269,6 +330,16 @@ public class HeaderMatcherPolicyTests
     [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, "def", true)]
     [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, "DEFg", false)]
     [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, "dEf", false)]
+    [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, ";", false)]
+    [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, "abc;a", true)]
+    [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, "a;abc", true)]
+    [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, "abc;def", true)]
+    [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, "ab;def", true)]
+    [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, "ab;cdef", false)]
+    [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, "ab;\"def\"", true)]
+    [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, "\"abc,def\"", false)]
+    [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, "\"abc\",def", true)]
+    [InlineData("abc", "def", HeaderMatchMode.ExactHeader, true, " \"abc\",def", true)]
     [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, false, null, false)]
     [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, false, "", false)]
     [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, false, "abc", true)]
@@ -288,6 +359,22 @@ public class HeaderMatcherPolicyTests
     [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "def", true)]
     [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "DEFg", false)]
     [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "aabc", false)]
+    [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, ";", false)]
+    [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "ab;cde;fgh", false)]
+    [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "abcd;e", true)]
+    [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "abcd;defg", true)]
+    [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "Abcd;defg", true)]
+    [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "Abcd;Defg", false)]
+    [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "a;defg", true)]
+    [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "abcd;", true)]
+    [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, ";def", true)]
+    [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, " \"abc\",def", true)]
+    [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "ab, \"def\"", true)]
+    [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "ab, def\"", true)]
+    [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "ab, \"def", false)]
+    [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "\"\"ab\",def", false)]
+    [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "\"\"ab\",def\"", false)]
+    [InlineData("abc", "def", HeaderMatchMode.HeaderPrefix, true, "\"\"ab\"\",def\"", true)]
     [InlineData("abc", "def", HeaderMatchMode.Contains, false, null, false)]
     [InlineData("abc", "def", HeaderMatchMode.Contains, false, "", false)]
     [InlineData("abc", "def", HeaderMatchMode.Contains, false, "aabc", true)]
@@ -299,6 +386,7 @@ public class HeaderMatcherPolicyTests
     [InlineData("abc", "def", HeaderMatchMode.Contains, false, "adefg", true)]
     [InlineData("abc", "def", HeaderMatchMode.Contains, false, "abdefG", true)]
     [InlineData("abc", "def", HeaderMatchMode.Contains, false, "ddaabc", true)]
+    [InlineData("abc", "def", HeaderMatchMode.Contains, false, "abcdef", true)]
     [InlineData("abc", "def", HeaderMatchMode.Contains, true, null, false)]
     [InlineData("abc", "def", HeaderMatchMode.Contains, true, "", false)]
     [InlineData("abc", "def", HeaderMatchMode.Contains, true, "cabca", true)]
@@ -307,12 +395,27 @@ public class HeaderMatcherPolicyTests
     [InlineData("abc", "def", HeaderMatchMode.Contains, true, "DEFdef", true)]
     [InlineData("abc", "def", HeaderMatchMode.Contains, true, "defDEFg", true)]
     [InlineData("abc", "def", HeaderMatchMode.Contains, true, "bbaabc", true)]
+    [InlineData("abc", "def", HeaderMatchMode.Contains, true, ";", false)]
+    [InlineData("abc", "def", HeaderMatchMode.Contains, true, "cabca;", true)]
+    [InlineData("abc", "def", HeaderMatchMode.Contains, true, ";cabca", true)]
+    [InlineData("abc", "def", HeaderMatchMode.Contains, true, "ab;cd;ef", false)]
+    [InlineData("abc", "def", HeaderMatchMode.Contains, true, "aBCa;deFg", false)]
+    [InlineData("abc", "def", HeaderMatchMode.Contains, true, "aBCa;defg", true)]
+    [InlineData("abc", "def", HeaderMatchMode.Contains, true, "abcd;d", true)]
+    [InlineData("abc", "ABC", HeaderMatchMode.Contains, true, "abc;d", true)]
+    [InlineData("abc", "ABC", HeaderMatchMode.Contains, true, "ABC;d", true)]
+    [InlineData("abc", "ABC", HeaderMatchMode.Contains, true, "abC;d", false)]
+    [InlineData("abc", "ABC", HeaderMatchMode.Contains, true, "abcABC;d", true)]
+    [InlineData("abc", "def", HeaderMatchMode.Contains, true, "\"abc, def\"", true)]
+    [InlineData("abc", "def", HeaderMatchMode.Contains, true, "\"abc\", def\"", true)]
+    [InlineData("abc", "def", HeaderMatchMode.Contains, true, "ab\"cde\"f", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, null, false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "aabc", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "baBc", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "ababcd", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "dcabcD", false)]
+    [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "def", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "ghi", true)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, true, null, false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "", false)]
@@ -322,18 +425,65 @@ public class HeaderMatcherPolicyTests
     [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "DEFdef", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "DEFg", true)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "bbaabc", false)]
+    [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "defG", false)]
+    [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "bbaabc;", false)]
+    [InlineData("abc", "def", HeaderMatchMode.NotContains, true, ";bbaabc", false)]
+    [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "ab;cd;ef", true)]
+    [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "a;defg", false)]
+    [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "ab;cdef", false)]
+    [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "abc;def", false)]
+    [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "Abc;cdef", false)]
+    [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "Abc;cdEf", true)]
     public async Task ApplyAsync_MatchingScenarios_TwoHeaderValues(
         string header1Value,
         string header2Value,
         HeaderMatchMode headerValueMatchMode,
         bool isCaseSensitive,
+        string incomingHeaderValues,
+        bool shouldMatch)
+    {
+        var context = new DefaultHttpContext();
+        if (incomingHeaderValues is not null)
+        {
+            context.Request.Headers.Add("org-id", incomingHeaderValues.Split(';'));
+        }
+
+        var endpoint = CreateEndpoint("org-id", new[] { header1Value, header2Value }, headerValueMatchMode, isCaseSensitive);
+
+        var candidates = new CandidateSet(new[] { endpoint }, new RouteValueDictionary[1], new int[1]);
+        var sut = new HeaderMatcherPolicy();
+
+        await sut.ApplyAsync(context, candidates);
+
+        Assert.Equal(shouldMatch, candidates.IsValidCandidate(0));
+    }
+
+    [Theory]
+    [InlineData("Foo", "abc", HeaderMatchMode.ExactHeader, "ab, abc", true)]
+    [InlineData("Foo", "abc", HeaderMatchMode.ExactHeader, "ab; abc", false)]
+    [InlineData("Cookie", "abc", HeaderMatchMode.ExactHeader, "ab, abc", false)]
+    [InlineData("Cookie", "abc", HeaderMatchMode.ExactHeader, "ab; abc", true)]
+    [InlineData("Set-Cookie", "abc", HeaderMatchMode.ExactHeader, "ab, abc", true)]
+    [InlineData("Set-Cookie", "abc", HeaderMatchMode.ExactHeader, "ab; abc", false)]
+    [InlineData("Cookie", "abc", HeaderMatchMode.ExactHeader, "\"ab\"; abc", true)]
+    [InlineData("Cookie", "abc", HeaderMatchMode.ExactHeader, "ab; \"abc\"", true)]
+    [InlineData("Cookie", "abc", HeaderMatchMode.ExactHeader, "\"ab\"; \"abc\"", true)]
+    [InlineData("Cookie", "abc", HeaderMatchMode.ExactHeader, "abc;", true)]
+    [InlineData("Cookie", "abc", HeaderMatchMode.ExactHeader, " abc;", true)]
+    [InlineData("Cookie", "abc", HeaderMatchMode.ExactHeader, " \"abc\";", true)]
+    [InlineData("Cookie", "abc", HeaderMatchMode.ExactHeader, "\"abc;\"", false)]
+    [InlineData("Cookie", "abc", HeaderMatchMode.ExactHeader, "\"abc;\" \"abc\"", false)]
+    public async Task ApplyAsync_Cookie_UsesDifferentSeparator(
+        string headerName,
+        string headerValue,
+        HeaderMatchMode headerValueMatchMode,
         string incomingHeaderValue,
         bool shouldMatch)
     {
         var context = new DefaultHttpContext();
-        context.Request.Headers.Add("org-id", incomingHeaderValue);
-        var endpoint = CreateEndpoint("org-id", new[] { header1Value, header2Value }, headerValueMatchMode, isCaseSensitive);
+        context.Request.Headers.Add(headerName, incomingHeaderValue);
 
+        var endpoint = CreateEndpoint(headerName, new[] { headerValue }, headerValueMatchMode, true);
         var candidates = new CandidateSet(new[] { endpoint }, new RouteValueDictionary[1], new int[1]);
         var sut = new HeaderMatcherPolicy();
 

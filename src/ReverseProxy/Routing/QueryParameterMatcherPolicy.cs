@@ -41,7 +41,7 @@ internal sealed class QueryParameterMatcherPolicy : MatcherPolicy, IEndpointComp
         return endpoints.Any(e =>
         {
             var metadata = e.Metadata.GetMetadata<IQueryParameterMetadata>();
-            return metadata?.Matchers?.Count > 0;
+            return metadata?.Matchers?.Length > 0;
         });
     }
 
@@ -51,6 +51,13 @@ internal sealed class QueryParameterMatcherPolicy : MatcherPolicy, IEndpointComp
         _ = httpContext ?? throw new ArgumentNullException(nameof(httpContext));
         _ = candidates ?? throw new ArgumentNullException(nameof(candidates));
 
+        ApplyCore(candidates, httpContext.Request.Query);
+
+        return Task.CompletedTask;
+    }
+
+    private static void ApplyCore(CandidateSet candidates, IQueryCollection query)
+    {
         for (var i = 0; i < candidates.Count; i++)
         {
             if (!candidates.IsValidCandidate(i))
@@ -65,102 +72,67 @@ internal sealed class QueryParameterMatcherPolicy : MatcherPolicy, IEndpointComp
                 continue;
             }
 
-            for (var m = 0; m < matchers.Count; m++)
+            foreach (var matcher in matchers)
             {
-                var matcher = matchers[m];
-                var expectedQueryParameterName = matcher.Name;
-                var expectedQueryParameterValues = matcher.Values;
-
-                var matched = false;
-                if (httpContext.Request.Query.TryGetValue(expectedQueryParameterName, out var requestQueryParameterValues))
+                if (query.TryGetValue(matcher.Name, out var requestQueryParameterValues) &&
+                    !StringValues.IsNullOrEmpty(requestQueryParameterValues))
                 {
-                    if (StringValues.IsNullOrEmpty(requestQueryParameterValues))
+                    if (matcher.Mode is QueryParameterMatchMode.Exists)
                     {
-                        // A non-empty value is required for a match.
+                        continue;
                     }
-                    else if (matcher.Mode == QueryParameterMatchMode.Exists)
-                    {
-                        // We were asked to match as long as the query parameter exists, and it *does* exist
-                        matched = true;
-                    }
-                    // Multi-value query parameters are not supported.
-                    else if (requestQueryParameterValues.Count == 1)
-                    {
-                        var requestQueryParameterValue = requestQueryParameterValues.ToString();
-                        for (var j = 0; j < expectedQueryParameterValues.Count; j++)
-                        {
-                            if (MatchQueryParameter(matcher.Mode, requestQueryParameterValue, expectedQueryParameterValues[j], matcher.IsCaseSensitive))
-                            {
-                                if (matcher.Mode == QueryParameterMatchMode.NotContains)
-                                {
-                                    if (j + 1 == expectedQueryParameterValues.Count)
-                                    {
-                                        // None of the NotContains values were found
-                                        matched = true;
-                                    }
-                                }
-                                else
-                                {
-                                    matched = true;
-                                    break;
-                                }
-                            }
-                            else if (matcher.Mode == QueryParameterMatchMode.NotContains)
-                            {
-                                break;
-                            }
-                        }
 
+                    if (TryMatch(matcher, requestQueryParameterValues))
+                    {
+                        continue;
                     }
                 }
 
-                // All rules must match
-                if (!matched)
+                candidates.SetValidity(i, false);
+                break;
+            }
+        }
+    }
+
+    private static bool TryMatch(QueryParameterMatcher matcher, StringValues requestHeaderValues)
+    {
+        var requestHeaderCount = requestHeaderValues.Count;
+
+        for (var i = 0; i < requestHeaderCount; i++)
+        {
+            var requestValue = requestHeaderValues[i];
+            if (requestValue is null)
+            {
+                continue;
+            }
+
+            foreach (var expectedValue in matcher.Values)
+            {
+                if (TryMatch(matcher, requestValue, expectedValue))
                 {
-                    candidates.SetValidity(i, false);
-                    break;
+                    return matcher.Mode != QueryParameterMatchMode.NotContains;
                 }
             }
         }
 
-        return Task.CompletedTask;
-    }
+        return matcher.Mode == QueryParameterMatchMode.NotContains;
 
-    private static bool MatchQueryParameter(QueryParameterMatchMode matchMode, string requestQueryParameterValue, string metadataQueryParameterValue, bool isCaseSensitive)
-    {
-        var comparison = isCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
-        return matchMode switch
+        static bool TryMatch(QueryParameterMatcher matcher, string queryValue, string expectedValue)
         {
-            QueryParameterMatchMode.Exact => MemoryExtensions.Equals(requestQueryParameterValue, metadataQueryParameterValue, comparison),
-            QueryParameterMatchMode.Prefix => requestQueryParameterValue is not null && metadataQueryParameterValue is not null
-                && MemoryExtensions.StartsWith(requestQueryParameterValue, metadataQueryParameterValue, comparison),
-            QueryParameterMatchMode.Contains => requestQueryParameterValue is not null && metadataQueryParameterValue is not null
-                && MemoryExtensions.Contains(requestQueryParameterValue, metadataQueryParameterValue, comparison),
-            QueryParameterMatchMode.NotContains => requestQueryParameterValue is not null && metadataQueryParameterValue is not null
-                && !MemoryExtensions.Contains(requestQueryParameterValue, metadataQueryParameterValue, comparison),
-            _ => throw new NotImplementedException(matchMode.ToString()),
-        };
+            return matcher.Mode switch
+            {
+                QueryParameterMatchMode.Exact => queryValue.Equals(expectedValue, matcher.Comparison),
+                QueryParameterMatchMode.Prefix => queryValue.StartsWith(expectedValue, matcher.Comparison),
+                _ => queryValue.Contains(expectedValue, matcher.Comparison)
+            };
+        }
     }
 
     private class QueryParameterMetadataEndpointComparer : EndpointMetadataComparer<IQueryParameterMetadata>
     {
         protected override int CompareMetadata(IQueryParameterMetadata? x, IQueryParameterMetadata? y)
         {
-            var xCount = x?.Matchers?.Count ?? 0;
-            var yCount = y?.Matchers?.Count ?? 0;
-
-            if (xCount > yCount)
-            {
-                // x is more specific
-                return -1;
-            }
-            if (yCount > xCount)
-            {
-                // y is more specific
-                return 1;
-            }
-
-            return 0;
+            return (y?.Matchers?.Length ?? 0).CompareTo(x?.Matchers?.Length ?? 0);
         }
     }
 }
