@@ -441,7 +441,7 @@ internal sealed class ConfigValidator : IConfigValidator
 
         if (cluster.HttpRequest.Version == HttpVersion.Version10)
         {
-            Log.ResponseReceived(_logger);
+            Log.Http10Version(_logger);
         }
     }
 
