@@ -121,6 +121,7 @@ internal static class IReverseProxyBuilderExtensions
     {
 #if NET6_0_OR_GREATER
         builder.Services.AddSingleton<HttpSysDelegator>();
+        builder.Services.TryAddSingleton<IHttpSysDelegator>(p => p.GetRequiredService<HttpSysDelegator>());
         builder.Services.AddSingleton<IClusterChangeListener>(p => p.GetRequiredService<HttpSysDelegator>());
 #endif
 

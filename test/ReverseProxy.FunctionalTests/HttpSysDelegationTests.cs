@@ -23,10 +23,12 @@ public partial class HttpSysDelegationTests
     [HttpSysDelegationFact]
     public async Task RequestDelegated()
     {
+        IHttpSysDelegator delegator = null;
         IForwarderErrorFeature proxyError = null;
         Exception unhandledError = null;
         var expectedRepsone = "Hello World!";
         var queueName = nameof(HttpSysDelegationTests) + Random.Shared.Next().ToString("x8");
+        string urlPrefix = null;
 
         var test = new HttpSysTestEnvironment(
             destinationServices => { },
@@ -36,6 +38,7 @@ public partial class HttpSysDelegationTests
             proxyBuilder => { },
             proxyApp =>
             {
+                delegator = proxyApp.ApplicationServices.GetRequiredService<IHttpSysDelegator>();
                 proxyApp.Use(async (context, next) =>
                 {
                     try
@@ -56,9 +59,10 @@ public partial class HttpSysDelegationTests
             },
             (cluster, route) =>
             {
+                urlPrefix = cluster.Destinations.First().Value.Address;
                 var destination = new DestinationConfig()
                 {
-                    Address = cluster.Destinations.First().Value.Address,
+                    Address = urlPrefix,
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
                         { DelegationExtensions.HttpSysDelegationQueueMetadataKey, queueName },
@@ -81,6 +85,15 @@ public partial class HttpSysDelegationTests
         {
             using var httpClient = new HttpClient();
             var response = await httpClient.GetStringAsync(proxyUri);
+
+            Assert.Null(proxyError);
+            Assert.Null(unhandledError);
+            Assert.Equal(expectedRepsone, response);
+
+            Assert.NotNull(delegator);
+            delegator.ResetQueue(queueName, urlPrefix);
+
+            response = await httpClient.GetStringAsync(proxyUri);
 
             Assert.Null(proxyError);
             Assert.Null(unhandledError);

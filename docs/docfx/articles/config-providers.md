@@ -5,6 +5,8 @@ The [Basic Yarp Sample](https://github.com/microsoft/reverse-proxy/tree/main/sam
 
 See [ReverseProxy.Code.Sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/ReverseProxy.Code.Sample) for an example of a custom configuration provider.
 
+Configuration can be modified during the load sequence using [Configuration Filters](config-filters.md).
+
 ## Structure
 [IProxyConfigProvider](xref:Yarp.ReverseProxy.Configuration.IProxyConfigProvider) has a single method `GetConfig()` that should return an [IProxyConfig](xref:Yarp.ReverseProxy.Configuration.IProxyConfig) instance. The IProxyConfig has lists of the current routes and clusters, as well as an `IChangeToken` to notify the proxy when this information is out of date and should be reloaded, which will cause `GetConfig()` to be called again.
 

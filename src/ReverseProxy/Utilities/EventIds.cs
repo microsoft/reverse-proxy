@@ -60,5 +60,6 @@ internal static class EventIds
     public static readonly EventId DelegatingRequest = new EventId(54, "DelegatingRequest");
     public static readonly EventId DelegationFailed = new EventId(55, "DelegationFailed");
     public static readonly EventId ResponseReceived = new EventId(56, "ResponseReceived");
-    public static readonly EventId Http10RequestVersionDetected = new EventId(57, "Http10RequestVersionDetected");
+    public static readonly EventId DelegationQueueReset = new EventId(57, "DelegationQueueReset");
+    public static readonly EventId Http10RequestVersionDetected = new EventId(58, "Http10RequestVersionDetected");
 }
