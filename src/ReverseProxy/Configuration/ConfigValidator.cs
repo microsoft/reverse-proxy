@@ -522,14 +522,14 @@ internal sealed class ConfigValidator : IConfigValidator
 
     private static class Log
     {
-        private static readonly Action<ILogger, Exception?> _requestVersionDetected = LoggerMessage.Define(
+        private static readonly Action<ILogger, Exception?> _http10RequestVersionDetected = LoggerMessage.Define(
             LogLevel.Warning,
-            EventIds.LoadData,
+            EventIds.Http10RequestVersionDetected,
             "The HttpRequest version is set to 1.0 which can result in poor performance and port exhaustion. Use 1.1, 2, or 3 instead.");
 
         public static void Http10Version(ILogger logger)
         {
-            _requestVersionDetected(logger, null);
+            _http10RequestVersionDetected(logger, null);
         }
     }
 }
