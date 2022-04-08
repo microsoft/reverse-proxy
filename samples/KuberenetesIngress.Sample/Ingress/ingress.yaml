@@ -37,7 +37,7 @@ spec:
       containers:
       - name: yarp-proxy
         imagePullPolicy: IfNotPresent
-        image: <REGISTRY_NAME>/yarp:<TAG>
+        image: <REGISTRY_NAME>/yarp-ingress:<TAG>
         ports:
         - containerPort: 8000
           name: proxy
@@ -45,14 +45,7 @@ spec:
         - containerPort: 8443
           name: proxy-ssl
           protocol: TCP
-        volumeMounts:
-        - mountPath: /config
-          name: yarp-config
         env:
         - name: ASPNETCORE_URLS
           value: http://*:8000
-      volumes:
-      - configMap:
-          name: yarp-config
-        name: yarp-config
 ---

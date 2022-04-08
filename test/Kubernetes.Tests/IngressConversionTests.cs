@@ -26,7 +26,7 @@ using Yarp.Kubernetes.Controller.Converters;
 using Yarp.Kubernetes.Controller.Services;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace IngressController.Tests;
+namespace Yarp.Kubernetes.Tests;
 
 public class IngressControllerTests
 {
