@@ -46,8 +46,7 @@ internal sealed class TransportFailureRateHealthPolicy : IPassiveHealthCheckPoli
 
     public void RequestProxied(HttpContext context, ClusterState cluster, DestinationState destination)
     {
-        var error = context.Features.Get<IForwarderErrorFeature>();
-        var newHealth = EvaluateProxiedRequest(cluster, destination, error != null);
+        var newHealth = EvaluateProxiedRequest(cluster, destination, DetermineIfDestinationFailed(context));
         var clusterReactivationPeriod = cluster.Model.Config.HealthCheck?.Passive?.ReactivationPeriod ?? _defaultReactivationPeriod;
         // Avoid reactivating until the history has expired so that it does not affect future health assessments.
         var reactivationPeriod = clusterReactivationPeriod >= _policyOptions.DetectionWindowSize ? clusterReactivationPeriod : _policyOptions.DetectionWindowSize;
@@ -73,6 +72,30 @@ internal sealed class TransportFailureRateHealthPolicy : IPassiveHealthCheckPoli
     private static bool TryParse(string stringValue, out double parsedValue)
     {
         return double.TryParse(stringValue, NumberStyles.Float, CultureInfo.InvariantCulture, out parsedValue);
+    }
+
+    private static bool DetermineIfDestinationFailed(HttpContext context)
+    {
+        var errorFeature = context.Features.Get<IForwarderErrorFeature>();
+        if (errorFeature is null)
+        {
+            return false;
+        }
+
+        if (context.RequestAborted.IsCancellationRequested)
+        {
+            // The client disconnected/canceled the request - the failure may not be the destination's fault
+            return false;
+        }
+
+        var error = errorFeature.Error;
+
+        return error == ForwarderError.Request
+            || error == ForwarderError.RequestTimedOut
+            || error == ForwarderError.RequestBodyDestination
+            || error == ForwarderError.ResponseBodyDestination
+            || error == ForwarderError.UpgradeRequestDestination
+            || error == ForwarderError.UpgradeResponseDestination;
     }
 
     private class ProxiedRequestHistory
