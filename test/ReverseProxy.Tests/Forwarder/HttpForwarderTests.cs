@@ -1361,6 +1361,40 @@ public class HttpForwarderTests
     }
 
     [Fact]
+    public async Task RequestConnectTimedOut_Returns504()
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Host = new HostString("example.com:3456");
+
+        var proxyResponseStream = new MemoryStream();
+        httpContext.Response.Body = proxyResponseStream;
+
+        var destinationPrefix = "https://microsoft.com:123/"; // Port that doesn't accept connections
+        var sut = CreateProxy();
+
+        using var client = new HttpMessageInvoker(new SocketsHttpHandler
+        {
+            // Time out immediately
+            ConnectTimeout = TimeSpan.FromTicks(1)
+        });
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+
+        Assert.Equal(ForwarderError.RequestTimedOut, proxyError);
+        Assert.Equal(StatusCodes.Status504GatewayTimeout, httpContext.Response.StatusCode);
+        Assert.Equal(0, proxyResponseStream.Length);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.RequestTimedOut, errorFeature.Error);
+        Assert.IsAssignableFrom<OperationCanceledException>(errorFeature.Exception);
+
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart });
+    }
+
+    [Fact]
     public async Task RequestCanceled_Returns502()
     {
         var events = TestEventListener.Collect();

@@ -456,13 +456,18 @@ internal sealed class HttpForwarder : IHttpForwarder
     {
         if (requestException is OperationCanceledException)
         {
-            if (!context.RequestAborted.IsCancellationRequested && requestCancellationSource.IsCancellationRequested)
+            if (context.RequestAborted.IsCancellationRequested)
             {
-                return await ReportErrorAsync(ForwarderError.RequestTimedOut, StatusCodes.Status504GatewayTimeout);
+                return await ReportErrorAsync(ForwarderError.RequestCanceled, StatusCodes.Status502BadGateway);
             }
             else
             {
-                return await ReportErrorAsync(ForwarderError.RequestCanceled, StatusCodes.Status502BadGateway);
+#if NET6_0_OR_GREATER
+                Debug.Assert(requestCancellationSource.IsCancellationRequested || requestException.ToString().Contains("ConnectTimeout"), requestException.ToString());
+#else
+                Debug.Assert(requestCancellationSource.IsCancellationRequested || requestException.ToString().Contains("ConnectHelper"), requestException.ToString());
+#endif
+                return await ReportErrorAsync(ForwarderError.RequestTimedOut, StatusCodes.Status504GatewayTimeout);
             }
         }
 
