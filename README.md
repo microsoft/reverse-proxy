@@ -51,8 +51,6 @@ see [docs/roadmap.md](/docs/roadmap.md)
 
 # Reporting security issues and bugs
 
-YARP is a preview project, and as such we expect all users to take responsibility for evaluating the security of their own applications.
-
 Security issues and bugs should be reported privately, via email, to the Microsoft Security Response Center (MSRC) at `secure@microsoft.com`. You should receive a response within 24 hours. If for some reason you do not, please follow up via email to ensure we received your original message. Further information, including [the MSRC PGP key](https://www.microsoft.com/msrc/pgp-key-msrc), can be found at the [Microsoft Security Response Center](https://www.microsoft.com/msrc).
 
 # Contributing
