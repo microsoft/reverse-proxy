@@ -85,7 +85,7 @@ public class HttpForwarderCancellationTests
             var responseString = await response.Content.ReadAsStringAsync();
             Assert.Equal("Hello", responseString);
 
-            await Assert.ThrowsAsync<OperationCanceledException>(() => content.Completion.Task);
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => content.Completion.Task);
         });
     }
 
