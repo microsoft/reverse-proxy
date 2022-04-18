@@ -223,6 +223,7 @@ public static class TlsFrameHelper
                         header.Version = SslProtocols.Ssl2;
 #pragma warning restore CS0618
                         header.Length = length;
+                        header.Type = TlsContentType.Handshake;
                         return true;
                     }
                 }
