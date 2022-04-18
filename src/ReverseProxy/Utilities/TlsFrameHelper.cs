@@ -270,6 +270,9 @@ public static class TlsFrameHelper
         {
             // This is safe. We would not get here if the length is too small.
             info.SupportedVersions |= TlsMinorVersionToProtocol(frame[4]);
+            // We only recognize Unified ClientHello at the moment.
+            // This is needed to trigger certificate selection callback in SslStream.
+            info.HandshakeType = TlsHandshakeType.ClientHello;
             // There is no more parsing for old protocols.
             return true;
         }

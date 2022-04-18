@@ -121,6 +121,7 @@ public class TlsFrameHelperTests
         Assert.Equal(SslProtocols.Ssl2 | SslProtocols.Tls, info.SupportedVersions);
 #pragma warning restore CS0618
         Assert.Equal(TlsFrameHelper.ApplicationProtocolInfo.None, info.ApplicationProtocols);
+        Assert.Equal.(TlsHandshakeType.ClientHello, info.HandshakeType);
     }
 
     [Fact]
