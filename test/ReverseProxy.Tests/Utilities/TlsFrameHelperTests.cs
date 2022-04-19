@@ -122,8 +122,20 @@ public class TlsFrameHelperTests
 #pragma warning restore CS0618
         Assert.Equal(TlsContentType.Handshake, info.Header.Type);
         Assert.Equal(TlsFrameHelper.ApplicationProtocolInfo.None, info.ApplicationProtocols);
-        Assert.Equal.(TlsHandshakeType.ClientHello, info.HandshakeType);
+        Assert.Equal(TlsHandshakeType.ClientHello, info.HandshakeType);
     }
+
+     [Fact]
+     public void TlsFrameHelper_TlsClientHelloNoExtensions_Ok()
+     {
+        TlsFrameHelper.TlsFrameInfo info = default;
+        Assert.True(TlsFrameHelper.TryGetFrameInfo(s_TlsClientHelloNoExtensions, ref info));
+        Assert.Equal(SslProtocols.Tls12, info.Header.Version);
+        Assert.Equal(SslProtocols.Tls12, info.SupportedVersions);
+        Assert.Equal(TlsContentType.Handshake, info.Header.Type);
+        Assert.Equal(TlsFrameHelper.ApplicationProtocolInfo.None, info.ApplicationProtocols);
+        Assert.Equal(TlsHandshakeType.ClientHello, info.HandshakeType);
+     }
 
     [Fact]
     public void TlsFrameHelper_Tls12ServerHello_Ok()
@@ -446,6 +458,17 @@ public class TlsFrameHelperTests
         0x02, 0x00, 0x80, 0x04, 0x00, 0x80, 0x5B, 0x0B,
         0xA1, 0xEB, 0xBF, 0x2D, 0x57, 0xF5, 0xD1, 0x0F,
         0x52, 0x3B, 0x12, 0x9C, 0xF8, 0xD4,
+    };
+
+    private static byte[] s_TlsClientHelloNoExtensions = new byte[] {
+        0x16, 0x03, 0x03, 0x00, 0x39, 0x01, 0x00, 0x00,
+        0x35, 0x03, 0x03, 0x62, 0x5d, 0x50, 0x2a, 0x41,
+        0x2f, 0xd8, 0xc3, 0x65, 0x35, 0xea, 0x01, 0x70,
+        0x03, 0x7e, 0x7e, 0x2d, 0xd4, 0xfe, 0x93, 0x39,
+        0xa4, 0x04, 0x66, 0xbb, 0x46, 0x91, 0x41, 0xc3,
+        0x48, 0x87, 0x3d, 0x00, 0x00, 0x0e, 0x00, 0x3d,
+        0x00, 0x3c, 0x00, 0x0a, 0x00, 0x35, 0x00, 0x2f,
+        0x00, 0x05, 0x00, 0x04, 0x01, 0x00
     };
 
     private static IEnumerable<byte[]> InvalidClientHello()

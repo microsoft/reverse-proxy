@@ -454,10 +454,10 @@ public static class TlsFrameHelper
         // Skip compression methods (max size 2^8-1 => size fits in 1 byte)
         p = SkipOpaqueType1(p);
 
-        // is invalid structure or no extensions?
+        // no extension
         if (p.IsEmpty)
         {
-            return false;
+            return true;
         }
 
         // client_hello_extension_list (max size 2^16-1 => size fits in 2 bytes)
