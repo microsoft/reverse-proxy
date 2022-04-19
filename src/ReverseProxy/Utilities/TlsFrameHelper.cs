@@ -188,25 +188,50 @@ public static class TlsFrameHelper
         {
             header.Type = (TlsContentType)frame[0];
 
-            if (frame.Length >= 3)
+            if (frame.Length > 4)
             {
                 // SSLv3, TLS or later
                 if (frame[1] == 3)
                 {
-                    if (frame.Length > 4)
+                    header.Length = ((frame[3] << 8) | frame[4]);
+                    header.Version = TlsMinorVersionToProtocol(frame[2]);
+                    return true;
+                }
+                // May be SSL3/TLS frame wrapped in unified header.
+                else if (frame[2] == (byte)TlsHandshakeType.ClientHello &&
+                        frame[3] == 3) // SSL3 or above
+                {
+                    int length;
+                    if ((frame[0] & 0x80) != 0)
                     {
-                        header.Length = ((frame[3] << 8) | frame[4]);
+                        // Two bytes
+                        length = (((frame[0] & 0x7f) << 8) | frame[1]) + 2;
+                    }
+                    else
+                    {
+                        // Three bytes
+                        length = (((frame[0] & 0x3f) << 8) | frame[1]) + 3;
                     }
 
-                    header.Version = TlsMinorVersionToProtocol(frame[2]);
-                }
-                else
-                {
-                    header.Length = -1;
-                    header.Version = SslProtocols.None;
+                    // max frame for SSLv2 is 32767.
+                    // However, we expect something reasonable for initial HELLO
+                    // We don't have enough logic to verify full validity,
+                    // the limits bellow are queses.
+                    if (length > 20 && length < 1000)
+                    {
+#pragma warning disable CS0618 // Ssl2 and Ssl3 are obsolete
+                        header.Version = SslProtocols.Ssl2;
+#pragma warning restore CS0618
+                        header.Length = length;
+                        header.Type = TlsContentType.Handshake;
+                        return true;
+                    }
                 }
             }
         }
+
+        header.Length = -1;
+        header.Version = SslProtocols.None;
 
         return result;
     }
@@ -241,6 +266,18 @@ public static class TlsFrameHelper
         Debug.Assert(gotHeader);
 
         info.SupportedVersions = info.Header.Version;
+#pragma warning disable CS0618 // Ssl2 and Ssl3 are obsolete
+        if (info.Header.Version == SslProtocols.Ssl2)
+        {
+            // This is safe. We would not get here if the length is too small.
+            info.SupportedVersions |= TlsMinorVersionToProtocol(frame[4]);
+            // We only recognize Unified ClientHello at the moment.
+            // This is needed to trigger certificate selection callback in SslStream.
+            info.HandshakeType = TlsHandshakeType.ClientHello;
+            // There is no more parsing for old protocols.
+            return true;
+        }
+#pragma warning restore CS0618
 
         if (info.Header.Type == TlsContentType.Alert)
         {
@@ -417,10 +454,10 @@ public static class TlsFrameHelper
         // Skip compression methods (max size 2^8-1 => size fits in 1 byte)
         p = SkipOpaqueType1(p);
 
-        // is invalid structure or no extensions?
+        // no extension
         if (p.IsEmpty)
         {
-            return false;
+            return true;
         }
 
         // client_hello_extension_list (max size 2^16-1 => size fits in 2 bytes)
