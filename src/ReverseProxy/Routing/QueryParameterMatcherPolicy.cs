@@ -51,13 +51,8 @@ internal sealed class QueryParameterMatcherPolicy : MatcherPolicy, IEndpointComp
         _ = httpContext ?? throw new ArgumentNullException(nameof(httpContext));
         _ = candidates ?? throw new ArgumentNullException(nameof(candidates));
 
-        ApplyCore(candidates, httpContext.Request.Query);
+        var query = httpContext.Request.Query;
 
-        return Task.CompletedTask;
-    }
-
-    private static void ApplyCore(CandidateSet candidates, IQueryCollection query)
-    {
         for (var i = 0; i < candidates.Count; i++)
         {
             if (!candidates.IsValidCandidate(i))
@@ -92,6 +87,8 @@ internal sealed class QueryParameterMatcherPolicy : MatcherPolicy, IEndpointComp
                 break;
             }
         }
+
+        return Task.CompletedTask;
     }
 
     private static bool TryMatch(QueryParameterMatcher matcher, StringValues requestHeaderValues)

@@ -41,8 +41,6 @@ internal sealed class HeaderMatcher
         Values = values?.ToArray() ?? Array.Empty<string>();
         Mode = mode;
         Comparison = isCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
-
-        // Should this extend to Set-Cookie?
         Separator = name.Equals(HeaderNames.Cookie, StringComparison.OrdinalIgnoreCase) ? ';' : ',';
     }
 

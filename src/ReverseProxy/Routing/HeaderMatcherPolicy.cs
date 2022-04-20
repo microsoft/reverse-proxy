@@ -52,13 +52,8 @@ internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPoli
         _ = httpContext ?? throw new ArgumentNullException(nameof(httpContext));
         _ = candidates ?? throw new ArgumentNullException(nameof(candidates));
 
-        ApplyCore(candidates, httpContext.Request.Headers);
+        var headers = httpContext.Request.Headers;
 
-        return Task.CompletedTask;
-    }
-
-    private static void ApplyCore(CandidateSet candidates, IHeaderDictionary headers)
-    {
         for (var i = 0; i < candidates.Count; i++)
         {
             if (!candidates.IsValidCandidate(i))
@@ -95,6 +90,8 @@ internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPoli
                 break;
             }
         }
+
+        return Task.CompletedTask;
     }
 
     private static bool TryMatchExactOrPrefix(HeaderMatcher matcher, StringValues requestHeaderValues)
