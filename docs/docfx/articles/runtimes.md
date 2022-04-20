@@ -5,9 +5,9 @@ title: Supported Runtimes
 
 # YARP Supported Runtimes
 
-YARP 1.0 previews support ASP.NET Core 3.1 and 5.0. You can download the .NET 5 SDK from https://dotnet.microsoft.com/download/dotnet/5.0. See [Releases](https://github.com/microsoft/reverse-proxy/releases) for specific version support.
+YARP 1.1 support ASP.NET Core 3.1, 5.0 and 6.0. You can download the .NET 6 SDK from https://dotnet.microsoft.com/download/dotnet/. See [Releases](https://github.com/microsoft/reverse-proxy/releases) for specific version support.
 
-YARP is taking advantage of ASP.NET Core 5.0 features and optimizations. This does mean that some features may not be available if you're running on ASP.NET Core 3.1.
+YARP is taking advantage of ASP.NET Core 6.0 features and optimizations. This does mean that some features may not be available if you're running on the previous versions of ASP.NET.
 
 ## Difference in features supported on .NET Core 3.1 vs .NET 5.0 and higher
 
@@ -54,4 +54,13 @@ These are related improvements in .NET 5.0 or ASP.NET Core 5.0 that YARP is able
   - [Allocation savings via stream pooling](https://github.com/dotnet/aspnetcore/pull/18601).
   - [Allocation savings via pipe pooling](https://github.com/dotnet/aspnetcore/pull/19356).
 - HttpClient HTTP/2 [performance improvements](https://github.com/dotnet/runtime/issues/35184).
+
+## Related 6.0 Runtime Improvements
+
+- [HTTP/3](http3.md) - supports for inbound and outbound connections.
+- [Distributed Tracing](distributed-tracing.md) - .NET 6.0 has built-in configurable support that YARP takes advantage of to enable such scenarios out-of-the-box.
+- [Http.sys Delegation](httpsys-delegation.md) - a kernel level ASP.NET Core 6 feature which allows a request to be transferred.
+- [UseHttpLogging](diagnosing-yarp-issues.md#using-aspnet-6-request-logging) - includes an additional middleware component that can be used to provide more details about the request and response.
+- [Dynamic HTTP/2 window scaling](https://github.com/dotnet/runtime/pull/54755) - improves HTTP/2 download speed on high-latency connections.
+- [NonValidated headers](https://github.com/microsoft/reverse-proxy/pull/1507) - improves perfomance by using non-validated HttpClient headers.
 
