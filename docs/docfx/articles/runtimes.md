@@ -70,5 +70,5 @@ These are related improvements in .NET 5.0 or ASP.NET Core 5.0 that YARP is able
 - [HTTP/3](http3.md) - support for inbound and outbound connections (stable).
 - [Zero-byte reads on HttpClient's response streams](https://github.com/dotnet/runtime/pull/61913) - reduces memory usage.
 - [Header allocation reductions](https://github.com/dotnet/runtime/pull/62981) - reduces memory usage.
-
+- [Kestrel Http/2 perf improvements](https://github.com/dotnet/aspnetcore/pull/40925) - Improve contention and throughput for multiple requests on one connection.
 
