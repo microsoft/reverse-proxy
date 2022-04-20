@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="KubernetesClient" Version="5.0.20" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.8" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.2" />
   </ItemGroup>
     
