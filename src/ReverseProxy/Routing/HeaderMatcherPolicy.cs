@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -41,7 +42,7 @@ internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPoli
         return endpoints.Any(e =>
         {
             var metadata = e.Metadata.GetMetadata<IHeaderMetadata>();
-            return metadata?.Matchers?.Count > 0;
+            return metadata?.Matchers?.Length > 0;
         });
     }
 
@@ -50,6 +51,8 @@ internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPoli
     {
         _ = httpContext ?? throw new ArgumentNullException(nameof(httpContext));
         _ = candidates ?? throw new ArgumentNullException(nameof(candidates));
+
+        var headers = httpContext.Request.Headers;
 
         for (var i = 0; i < candidates.Count; i++)
         {
@@ -65,102 +68,128 @@ internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPoli
                 continue;
             }
 
-            for (var m = 0; m < matchers.Count; m++)
+            foreach (var matcher in matchers)
             {
-                var matcher = matchers[m];
-                var expectedHeaderName = matcher.Name;
-                var expectedHeaderValues = matcher.Values;
-
-                var matched = false;
-                if (httpContext.Request.Headers.TryGetValue(expectedHeaderName, out var requestHeaderValues))
+                if (headers.TryGetValue(matcher.Name, out var requestHeaderValues) &&
+                    !StringValues.IsNullOrEmpty(requestHeaderValues))
                 {
-                    if (StringValues.IsNullOrEmpty(requestHeaderValues))
+                    if (matcher.Mode is HeaderMatchMode.Exists)
                     {
-                        // A non-empty value is required for a match.
+                        continue;
                     }
-                    else if (matcher.Mode == HeaderMatchMode.Exists)
+
+                    if (matcher.Mode is HeaderMatchMode.ExactHeader or HeaderMatchMode.HeaderPrefix
+                        ? TryMatchExactOrPrefix(matcher, requestHeaderValues)
+                        : TryMatchContainsOrNotContains(matcher, requestHeaderValues))
                     {
-                        // We were asked to match as long as the header exists, and it *does* exist
-                        matched = true;
-                    }
-                    // Multi-value headers are not supported.
-                    // Note a single entry may also contain multiple values, we don't distinguish, we only match on the whole header.
-                    else if (requestHeaderValues.Count == 1)
-                    {
-                        var requestHeaderValue = requestHeaderValues.ToString();
-                        for (var j = 0; j < expectedHeaderValues.Count; j++)
-                        {
-                            if (MatchHeader(matcher.Mode, requestHeaderValue, expectedHeaderValues[j], matcher.IsCaseSensitive))
-                            {
-                                if (matcher.Mode == HeaderMatchMode.NotContains)
-                                {
-                                    if (j + 1 == expectedHeaderValues.Count)
-                                    {
-                                        // None of the NotContains values were found
-                                        matched = true;
-                                    }
-                                }
-                                else
-                                {
-                                    matched = true;
-                                    break;
-                                }
-                            }
-                            else if (matcher.Mode == HeaderMatchMode.NotContains)
-                            {
-                                break;
-                            }
-                        }
+                        continue;
                     }
                 }
 
-                // All rules must match
-                if (!matched)
-                {
-                    candidates.SetValidity(i, false);
-                    break;
-                }
+                candidates.SetValidity(i, false);
+                break;
             }
         }
 
         return Task.CompletedTask;
     }
 
-    private static bool MatchHeader(HeaderMatchMode matchMode, string requestHeaderValue, string metadataHeaderValue, bool isCaseSensitive)
+    private static bool TryMatchExactOrPrefix(HeaderMatcher matcher, StringValues requestHeaderValues)
     {
-        var comparison = isCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
-        return matchMode switch
+        var requestHeaderCount = requestHeaderValues.Count;
+
+        for (var i = 0; i < requestHeaderCount; i++)
         {
-            HeaderMatchMode.ExactHeader => MemoryExtensions.Equals(requestHeaderValue, metadataHeaderValue, comparison),
-            HeaderMatchMode.HeaderPrefix => requestHeaderValue is not null && metadataHeaderValue is not null
-                && MemoryExtensions.StartsWith(requestHeaderValue, metadataHeaderValue, comparison),
-            HeaderMatchMode.Contains => requestHeaderValue is not null && metadataHeaderValue is not null
-                && MemoryExtensions.Contains(requestHeaderValue, metadataHeaderValue, comparison),
-            HeaderMatchMode.NotContains => requestHeaderValue is not null && metadataHeaderValue is not null
-                && !MemoryExtensions.Contains(requestHeaderValue, metadataHeaderValue, comparison),
-            _ => throw new NotImplementedException(matchMode.ToString()),
-        };
+            var requestValue = requestHeaderValues[i].AsSpan();
+
+            while (!requestValue.IsEmpty)
+            {
+                requestValue = requestValue.TrimStart(' ');
+
+                // Find the end of the next value.
+                // Separators inside a quote pair must be ignored as they are a part of the value.
+                var separatorOrQuoteIndex = requestValue.IndexOfAny('"', matcher.Separator);
+                while (separatorOrQuoteIndex != -1 && requestValue[separatorOrQuoteIndex] == '"')
+                {
+                    var closingQuoteIndex = requestValue.Slice(separatorOrQuoteIndex + 1).IndexOf('"');
+                    if (closingQuoteIndex == -1)
+                    {
+                        separatorOrQuoteIndex = -1;
+                    }
+                    else
+                    {
+                        var offset = separatorOrQuoteIndex + closingQuoteIndex + 2;
+                        separatorOrQuoteIndex = requestValue.Slice(offset).IndexOfAny('"', matcher.Separator);
+                        if (separatorOrQuoteIndex != -1)
+                        {
+                            separatorOrQuoteIndex += offset;
+                        }
+                    }
+                }
+
+                ReadOnlySpan<char> value;
+                if (separatorOrQuoteIndex == -1)
+                {
+                    value = requestValue;
+                    requestValue = default;
+                }
+                else
+                {
+                    value = requestValue.Slice(0, separatorOrQuoteIndex);
+                    requestValue = requestValue.Slice(separatorOrQuoteIndex + 1);
+                }
+
+                if (value.Length > 1 && value[0] == '"' && value[^1] == '"')
+                {
+                    value = value.Slice(1, value.Length - 2);
+                }
+
+                foreach (var expectedValue in matcher.Values)
+                {
+                    if (matcher.Mode == HeaderMatchMode.ExactHeader
+                        ? value.Equals(expectedValue, matcher.Comparison)
+                        : value.StartsWith(expectedValue, matcher.Comparison))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static bool TryMatchContainsOrNotContains(HeaderMatcher matcher, StringValues requestHeaderValues)
+    {
+        Debug.Assert(matcher.Mode is HeaderMatchMode.Contains or HeaderMatchMode.NotContains, $"{matcher.Mode}");
+
+        var requestHeaderCount = requestHeaderValues.Count;
+
+        for (var i = 0; i < requestHeaderCount; i++)
+        {
+            var requestValue = requestHeaderValues[i];
+            if (requestValue is null)
+            {
+                continue;
+            }
+
+            foreach (var expectedValue in matcher.Values)
+            {
+                if (requestValue.Contains(expectedValue, matcher.Comparison))
+                {
+                    return matcher.Mode != HeaderMatchMode.NotContains;
+                }
+            }
+        }
+
+        return matcher.Mode == HeaderMatchMode.NotContains;
     }
 
     private class HeaderMetadataEndpointComparer : EndpointMetadataComparer<IHeaderMetadata>
     {
         protected override int CompareMetadata(IHeaderMetadata? x, IHeaderMetadata? y)
         {
-            var xCount = x?.Matchers?.Count ?? 0;
-            var yCount = y?.Matchers?.Count ?? 0;
-
-            if (xCount > yCount)
-            {
-                // x is more specific
-                return -1;
-            }
-            if (yCount > xCount)
-            {
-                // y is more specific
-                return 1;
-            }
-
-            return 0;
+            return (y?.Matchers?.Length ?? 0).CompareTo(x?.Matchers?.Length ?? 0);
         }
     }
 }

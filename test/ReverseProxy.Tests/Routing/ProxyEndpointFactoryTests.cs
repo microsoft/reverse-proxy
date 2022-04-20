@@ -454,7 +454,7 @@ public class ProxyEndpointFactoryTests
         Assert.Equal("header1", matcher.Name);
         Assert.Equal(new[] { "value1" }, matcher.Values);
         Assert.Equal(HeaderMatchMode.HeaderPrefix, matcher.Mode);
-        Assert.True(matcher.IsCaseSensitive);
+        Assert.Equal(StringComparison.Ordinal, matcher.Comparison);
 
         Assert.False(routeConfig.HasConfigChanged(route, cluster, routeState.ClusterRevision));
     }
@@ -497,21 +497,21 @@ public class ProxyEndpointFactoryTests
         Assert.Same(cluster, routeConfig.Cluster);
         Assert.Equal("route1", routeEndpoint.DisplayName);
         var metadata = routeEndpoint.Metadata.GetMetadata<IHeaderMetadata>();
-        Assert.Equal(2, metadata.Matchers.Count);
+        Assert.Equal(2, metadata.Matchers.Length);
 
         var firstMetadata = metadata.Matchers.First();
         Assert.NotNull(firstMetadata);
         Assert.Equal("header1", firstMetadata.Name);
         Assert.Equal(new[] { "value1" }, firstMetadata.Values);
         Assert.Equal(HeaderMatchMode.HeaderPrefix, firstMetadata.Mode);
-        Assert.True(firstMetadata.IsCaseSensitive);
+        Assert.Equal(StringComparison.Ordinal, firstMetadata.Comparison);
 
         var secondMetadata = metadata.Matchers.Skip(1).Single();
         Assert.NotNull(secondMetadata);
         Assert.Equal("header2", secondMetadata.Name);
         Assert.Same(Array.Empty<string>(), secondMetadata.Values);
         Assert.Equal(HeaderMatchMode.Exists, secondMetadata.Mode);
-        Assert.False(secondMetadata.IsCaseSensitive);
+        Assert.Equal(StringComparison.OrdinalIgnoreCase, secondMetadata.Comparison);
 
         Assert.False(routeConfig.HasConfigChanged(route, cluster, routeState.ClusterRevision));
     }
