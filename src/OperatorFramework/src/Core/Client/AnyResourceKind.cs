@@ -13,6 +13,7 @@ using Microsoft.Rest.Serialization;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -57,7 +58,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         }
     }
 
-    public async Task<HttpOperationResponse<KubernetesList<TResource>>> ListClusterAnyResourceKindWithHttpMessagesAsync<TResource>(string group, string version, string plural, string continueParameter = null, string fieldSelector = null, string labelSelector = null, int? limit = null, string resourceVersion = null, int? timeoutSeconds = null, bool? watch = null, string pretty = null, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default) where TResource : IKubernetesObject
+    public async Task<HttpOperationResponse<KubernetesList<TResource>>> ListClusterAnyResourceKindWithHttpMessagesAsync<TResource>(string group, string version, string plural, string continueParameter = null, string fieldSelector = null, string labelSelector = null, int? limit = null, string resourceVersion = null, int? timeoutSeconds = null, bool? watch = null, bool? pretty = null, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default) where TResource : IKubernetesObject
     {
         if (group is null)
         {
@@ -71,6 +72,14 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         {
             throw new ValidationException(ValidationRules.CannotBeNull, "plural");
         }
+
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        cts.CancelAfter(Client.HttpClientTimeout);
+        if (watch == true)
+        {
+            cts.CancelAfter(Timeout.InfiniteTimeSpan);
+        }
+        cancellationToken = cts.Token;
 
         var namespaces = Client.ListNamespace();
 
@@ -98,6 +107,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         // Construct URL
         var _baseUrl = Client.BaseUri.AbsoluteUri;
         var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "apis/{group}/{version}/{plural}").ToString();
+        _url = _url.Replace("/apis//", "/api/");
         if (string.IsNullOrEmpty(group))
         {
             _url = _url.Replace("apis/{group}", "api");
@@ -139,7 +149,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         }
         if (pretty is not null)
         {
-            _queryParameters.Add(string.Format("pretty={0}", System.Uri.EscapeDataString(pretty)));
+            _queryParameters.Add(string.Format("pretty={0}", pretty.Value == true ? "true" : "false"));
         }
         if (_queryParameters.Count > 0)
         {
@@ -148,8 +158,9 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         // Create HTTP transport objects
         var _httpRequest = new HttpRequestMessage();
         HttpResponseMessage _httpResponse = null;
-        _httpRequest.Method = new HttpMethod("GET");
+        _httpRequest.Method = HttpMethod.Get;
         _httpRequest.RequestUri = new System.Uri(_url);
+        _httpRequest.Version = HttpVersion.Version20;
         // Set Headers
 
 
@@ -157,10 +168,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         {
             foreach (var _header in customHeaders)
             {
-                if (_httpRequest.Headers.Contains(_header.Key))
-                {
-                    _httpRequest.Headers.Remove(_header.Key);
-                }
+                _httpRequest.Headers.Remove(_header.Key);
                 _httpRequest.Headers.TryAddWithoutValidation(_header.Key, _header.Value);
             }
         }
@@ -179,7 +187,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
             ServiceClientTracing.SendRequest(_invocationId, _httpRequest);
         }
         cancellationToken.ThrowIfCancellationRequested();
-        _httpResponse = await Client.HttpClient.SendAsync(_httpRequest, cancellationToken).ConfigureAwait(false);
+        _httpResponse = await Client.HttpClient.SendAsync(_httpRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
         if (_shouldTrace)
         {
             ServiceClientTracing.ReceiveResponse(_invocationId, _httpResponse);
@@ -187,7 +195,7 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         HttpStatusCode _statusCode = _httpResponse.StatusCode;
         cancellationToken.ThrowIfCancellationRequested();
         string _responseContent = null;
-        if ((int)_statusCode != 200)
+        if ((int)_statusCode != 200 && (int)_statusCode != 201 && (int)_statusCode != 202)
         {
             var ex = new HttpOperationException(string.Format("Operation returned an invalid status code '{0}'", _statusCode));
             if (_httpResponse.Content is not null)
@@ -212,27 +220,11 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
             throw ex;
         }
         // Create Result
-        var _result = new HttpOperationResponse<KubernetesList<TResource>>();
-        _result.Request = _httpRequest;
-        _result.Response = _httpResponse;
-        // Deserialize Response
-        if ((int)_statusCode == 200)
-        {
-            _responseContent = await _httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
-            try
-            {
-                _result.Body = SafeJsonConvert.DeserializeObject<KubernetesList<TResource>>(_responseContent, Client.DeserializationSettings);
-            }
-            catch (Newtonsoft.Json.JsonException ex)
-            {
-                _httpRequest.Dispose();
-                if (_httpResponse is not null)
-                {
-                    _httpResponse.Dispose();
-                }
-                throw new SerializationException("Unable to deserialize the response.", _responseContent, ex);
-            }
-        }
+        var _result = await CreateResultAsync<KubernetesList<TResource>> (
+            _httpRequest,
+            _httpResponse,
+            watch,
+            cancellationToken).ConfigureAwait(false);
         if (_shouldTrace)
         {
             ServiceClientTracing.Exit(_invocationId, _result);
@@ -751,4 +743,36 @@ public class AnyResourceKind : IServiceOperations<k8s.Kubernetes>, IAnyResourceK
         return _result;
     }
 
+    private async Task<HttpOperationResponse<T>> CreateResultAsync<T>(HttpRequestMessage httpRequest, HttpResponseMessage httpResponse, bool? watch, CancellationToken cancellationToken)
+    {
+        var result = new HttpOperationResponse<T>() { Request = httpRequest, Response = httpResponse };
+
+        if (watch == true)
+        {
+            httpResponse.Content = new LineSeparatedHttpContent(httpResponse.Content, cancellationToken);
+        }
+
+        try
+        {
+            JsonSerializer jsonSerializer = JsonSerializer.Create(Client.DeserializationSettings);
+            jsonSerializer.CheckAdditionalContent = true;
+#if NET5_0_OR_GREATER
+            using (Stream stream = await httpResponse.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
+#else
+                using (Stream stream = await httpResponse.Content.ReadAsStreamAsync().ConfigureAwait(false))
+#endif
+            using (JsonTextReader reader = new JsonTextReader(new StreamReader(stream)))
+            {
+                result.Body = (T)jsonSerializer.Deserialize(reader, typeof(T));
+            }
+        }
+        catch (JsonException ex)
+        {
+            httpRequest.Dispose();
+            httpResponse.Dispose();
+            throw new SerializationException("Unable to deserialize the response.", ex);
+        }
+
+        return result;
+    }
 }

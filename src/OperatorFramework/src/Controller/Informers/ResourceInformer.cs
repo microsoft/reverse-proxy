@@ -284,7 +284,7 @@ namespace Microsoft.Kubernetes.Controller.Informers
                 cancellationToken: cancellationToken);
 
             DateTime lastEventUtc = DateTime.UtcNow;
-            using var watcher = watchWithHttpMessage.Watch<TResource, KubernetesList<TResource>>(
+            using var watcher = watchWithHttpMessage.CustomWatch<TResource, KubernetesList<TResource>>(
                 (watchEventType, item) =>
                 {
                     if (!watcherCompletionSource.Task.IsCompleted)
