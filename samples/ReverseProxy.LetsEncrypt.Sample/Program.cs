@@ -15,16 +15,6 @@ namespace Yarp.Sample
             var myHostBuilder = Host.CreateDefaultBuilder(args);
             myHostBuilder.ConfigureWebHostDefaults(webHostBuilder =>
             {
-                webHostBuilder.ConfigureKestrel(kestrel =>
-                {
-                    kestrel.ListenAnyIP(443, portOptions =>
-                    {;
-                        portOptions.UseHttps(h =>
-                        {
-                            h.UseLettuceEncrypt(kestrel.ApplicationServices);
-                        });
-                    });
-                });
                 webHostBuilder.UseStartup<Startup>();
             });
             var myHost = myHostBuilder.Build();
