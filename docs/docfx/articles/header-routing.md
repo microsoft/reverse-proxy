@@ -186,7 +186,7 @@ var routes = new[]
             Path = "{**catch-all}",
             Headers = new[]
             {
-            new RouteHeader()
+                new RouteHeader()
                 {
                     Name = "Header4",
                     Values = new[] { "value1", "value2" },
@@ -254,11 +254,11 @@ A list of possible values to search for. The header must match at least one of t
 ### Mode
 
 [HeaderMatchMode](xref:Yarp.ReverseProxy.Configuration.HeaderMatchMode) specifies how to match the value(s) against the request header. The default is `ExactHeader`.
-- ExactHeader - The header must match in its entirety, subject to the value of `IsCaseSensitive`. Only single headers are supported. If there are multiple headers with the same name then the match fails.
-- HeaderPrefix - The header must match by prefix, subject to the value of `IsCaseSensitive`. Only single headers are supported. If there are multiple headers with the same name then the match fails.
-- Exists - The header must exist and contain any non-empty value.
-- Contains - The header must contain the value for a match, subject to the value of `IsCaseSensitive`. Only single headers are supported. If there are multiple headers with the same name then the match fails.
-- NotContains - The header must not contain any of the match values, subject to the value of `IsCaseSensitive`. Only single headers are supported. If there are multiple headers with the same name then the match fails.
+- ExactHeader - Any of the headers with the given name must match in its entirety, subject to the value of `IsCaseSensitive`. If a header contains multiple values (separated by `,` or `;`), they are split before matching. A single pair of quotes will also be stripped from the value before matching.
+- HeaderPrefix - Any of the headers with the given name must match by prefix, subject to the value of `IsCaseSensitive`. If a header contains multiple values (separated by `,` or `;`), they are split before matching. A single pair of quotes will also be stripped from the value before matching.
+- Exists - The header must exist and contain any non-empty value. If there are multiple headers with the same name, the rule will also match.
+- Contains - Any of the headers with the given name must contain any of the match values, subject to the value of `IsCaseSensitive`.
+- NotContains - None of the headers with the given name may contain any of the match values, subject to the value of `IsCaseSensitive`.
 
 ### IsCaseSensitive
 
@@ -274,15 +274,22 @@ A request with the following header will match against route1.
 ```
 Header1: Value1
 ```
-A header with multiple values is not currently supported and will _not_ match.
+If a header contains multiple values, each one will be matched separately. The following request will match.
 ```
 Header1: Value1, Value2
 ```
-
-Multiple headers with the same name are not currently supported and will _not_ match.
+The same holds if multiple values are split across multiple headers with the same name.
 ```
 Header1: Value1
 Header1: Value2
+```
+A single pair of enclosing quotes may be stripped from the value before matching. The following request will match.
+```
+Header1: "Value1"
+```
+Multiple pairs of quotes will _not_ match.
+```
+Header1: ""Value1""
 ```
 
 ### Scenario 2 - Multiple Values
@@ -302,16 +309,22 @@ Header2: 1prefix-extra
 ```
 Header2: 2prefix-extra
 ```
-
-A header with multiple values is not currently supported and will _not_ match.
+If a header contains multiple values, each one will be matched separately. The following request will match.
 ```
-Header2: 1prefix, 2prefix
+Header2: foo, 1prefix, 2prefix
 ```
-
-Multiple headers with the same name are not currently supported and will _not_ match.
+The same holds if multiple values are split across multiple headers with the same name.
 ```
 Header2: 1prefix
 Header2: 2prefix
+```
+A single pair of enclosing quotes may be stripped from the value before matching. The following request will match.
+```
+Header2: "2prefix"
+```
+Multiple pairs of quotes will _not_ match.
+```
+Header2: ""2prefix""
 ```
 
 ### Scenario 3 - Exists
@@ -335,6 +348,10 @@ Header3: value1, value2
 ```
 Header3: value1
 Header3: value2
+```
+```
+Header3:
+Header3:
 ```
 
 ### Scenario 4 - Multiple Headers
