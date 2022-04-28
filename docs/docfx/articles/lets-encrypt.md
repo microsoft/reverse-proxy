@@ -1,11 +1,11 @@
 # Lets Encrypt
 
 ## Introduction
-YARP can support a certificate authority [Lets Encrypt](https://letsencrypt.org/) by using the API of another ASP.NET Core project [LettuceEncrypt](https://github.com/natemcmaster/LettuceEncrypt). It allows to set up TLS between the client and YARP and then use HTTP communication to the backend.
+YARP can support the certificate authority [Lets Encrypt](https://letsencrypt.org/) by using the API of another ASP.NET Core project [LettuceEncrypt](https://github.com/natemcmaster/LettuceEncrypt). It allows you to set up a TLS between the client and YARP and then use HTTP communication to the backend.
 
 ## Requirements
 
-LettuceEncrypt package should be added into project:
+Add the LettuceEncrypt package dependency:
 ```csproj
 <PackageReference Include="LettuceEncrypt" Version="1.1.2" />
 ```
@@ -17,7 +17,7 @@ There are required options for LettuceEncrypt that should be set, see the exampl
 {
   // Base URLs the server listens on, must be configured independently of the routes below.
   // Can also be configured via Kestrel/Endpoints, see https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/endpoints
-  "Urls": "http://localhost:80;https://localhost:443",
+  "Urls": "http://*:80;https://*:443",
 
   //Sets the Logging level for ASP.NET
   "Logging": {
@@ -69,7 +69,7 @@ For more options (i.e. saving certificates) see examples in [LettuceEncrypt doc]
 
 ## Middleware
 
-If your project is explicitly using kestrel options to configure IP addresses, ports, or HTTPS settings, you will also need to call `UseLettuceEncrypt`. This is required to make Lettuce Encrypt work.
+If your project is explicitly using kestrel options to configure IP addresses, ports, or HTTPS settings, you will also need to call `UseLettuceEncrypt`.
 
 Example:
 
