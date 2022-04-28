@@ -1,7 +1,7 @@
 # Lets Encrypt
 
 ## Introduction
-YARP can support the certificate authority [Lets Encrypt](https://letsencrypt.org/) by using the API of another ASP.NET Core project [LettuceEncrypt](https://github.com/natemcmaster/LettuceEncrypt). It allows you to set up a TLS between the client and YARP and then use HTTP communication to the backend.
+YARP can support the certificate authority [Lets Encrypt](https://letsencrypt.org/) by using the API of another ASP.NET Core project [LettuceEncrypt](https://github.com/natemcmaster/LettuceEncrypt). It allows you to set up TLS between the client and YARP with minimal configuration.
 
 ## Requirements
 
@@ -15,34 +15,21 @@ There are required options for LettuceEncrypt that should be set, see the exampl
 
 ```JSON
 {
-  // Base URLs the server listens on, must be configured independently of the routes below.
-  // Can also be configured via Kestrel/Endpoints, see https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/endpoints
   "Urls": "http://*:80;https://*:443",
 
-  //Sets the Logging level for ASP.NET
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      // Uncomment to hide diagnostic messages from runtime and proxy
-      // "Microsoft": "Warning",
-      // "Yarp" : "Warning",
-      "Microsoft.Hosting.Lifetime": "Information"
-    }
-  },
+  "Logging": { ... },
 
   "ReverseProxy": {
-    // Routes tell the proxy which requests to forward
-    "Routes": { ...  },
-    // Clusters tell the proxy where and how to forward requests
-    "Clusters": { ...  }
+    "Routes": { ... },
+    "Clusters": { ... }
   },
-  
+
   "LettuceEncrypt": {
     // Set this to automatically accept the terms of service of your certificate authority.
     // If you don't set this in config, you will need to press "y" whenever the application starts
     "AcceptTermsOfService": true,
 
-    // You must at least one domain name
+    // You must specify at least one domain name
     "DomainNames": [ "example.com" ],
 
     // You must specify an email address to register with the certificate authority
