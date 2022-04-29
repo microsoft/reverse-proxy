@@ -24,5 +24,6 @@ The following samples are provided:
 | [Configuration Filter](ReverseProxy.ConfigFilter.Sample) | Shows how to use extensibility to modify configuration as its loaded from the configuration file. This sample implements an indirection to enable config values to be pulled from environment variables which can be useful in a cloud environment.  |
 | [Metrics](ReverseProxy.Metrics.Sample) | Shows how to consume YARP telemetry. This sample collects detailed timings for the sub-operations involved in the proxy process. |
 | [Using IHttpProxy Directly](ReverseProxy.Direct.Sample) | Shows how to use IHttpProxy, which performs the proxy operation, directly without using YARP's configuration, pipeline etc. |
+| [Lets Encrypt](ReverseProxy.LetsEncrypt.Sample) | Shows how to use a certificate authority such as Lets Encrypt to set up TLS termination in YARP. |
 | [Kubernetes Ingress](KubernetesIngress)  | Shows how to use YARP as a Kubernetes ingress controller  |
 | [Prometheus](Prometheus) | Shows how to consume the YARP telemetry library and export metrics to external telemetry such as Prometheus |
