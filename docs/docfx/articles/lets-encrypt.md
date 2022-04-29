@@ -54,7 +54,7 @@ public class Startup
 
 For more options (i.e. saving certificates) see examples in [LettuceEncrypt doc](ttps://github.com/natemcmaster/LettuceEncrypt).
 
-## Middleware
+## Kestrel Endpoints
 
 If your project is explicitly using kestrel options to configure IP addresses, ports, or HTTPS settings, you will also need to call `UseLettuceEncrypt`.
 
