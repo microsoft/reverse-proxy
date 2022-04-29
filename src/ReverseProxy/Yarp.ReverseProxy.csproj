@@ -7,12 +7,17 @@
     <RootNamespace>Yarp.ReverseProxy</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Nullable>enable</Nullable>
+    <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" Key="$(MoqPublicKey)" />
     <InternalsVisibleTo Include="Yarp.ReverseProxy.Tests" />
     <InternalsVisibleTo Include="Yarp.ReverseProxy.FunctionalTests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="ReadMe.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
   <ItemGroup>
