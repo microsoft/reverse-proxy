@@ -20,6 +20,11 @@ HTTP client configuration is based on [HttpClientConfig](xref:Yarp.ReverseProxy.
     "DangerousAcceptAnyServerCertificate": "<bool>",
     "RequestHeaderEncoding": "<encoding-name>",
     "EnableMultipleHttp2Connections": "<bool>"
+    "WebProxy": {
+        "Address": "<url>",
+        "BypassOnLocal": "<bool>",
+        "UseDefaultCredentials": "<bool>"
+    }
 }
 ```
 
@@ -60,6 +65,18 @@ private static IHostBuilder CreateHostBuilder(string[] args) =>
 ```JSON
 "EnableMultipleHttp2Connections": false
 ```
+- WebProxy - Enables sending requests through an outbound HTTP proxy to reach the destinations. See [`SocketsHttpHandler.Proxy`](https://docs.microsoft.com/dotnet/api/system.net.http.socketshttphandler.proxy) for details.
+  - Address - The url address of the outbound proxy.
+  - BypassOnLocal - A bool indicating if requests to local addresses should bypass the outbound proxy.
+  - UseDefaultCredentials - A bool indicating if the current application credentials should be use to authenticate to the outbound proxy. ASP.NET Core does not impersonate authenticated users for outbound requests.
+```JSON
+"WebProxy": {
+    "Address": "http://myproxy:8080",
+    "BypassOnLocal": "true",
+    "UseDefaultCredentials": "false"
+}
+```
+
 
 For .NET Core 3.1, Latin1 ("iso-8859-1") is the only non-ASCII header encoding that can be accepted and only via `appsettings.json`:
 ```JSON
