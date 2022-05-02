@@ -1300,6 +1300,57 @@ AnotherHeader: AnotherValue
 <p>All response transforms must derive from the abstract base class <a class="xref" href="../api/Yarp.ReverseProxy.Transforms.ResponseTransform.html">ResponseTransform</a>. These can freely modify the client <code>HttpResponse</code>. Avoid reading or modifying the response body as this may disrupt the proxying flow. Consider also adding a parametrized extension method on <code>TransformBuilderContext</code> for discoverability and easy of use.</p>
 <h3 id="responsetrailerstransform">ResponseTrailersTransform</h3>
 <p>All response trailers transforms must derive from the abstract base class <a class="xref" href="../api/Yarp.ReverseProxy.Transforms.ResponseTrailersTransform.html">ResponseTrailersTransform</a>. These can freely modify the client HttpResponse trailers. These run after the response body and should not attempt to modify the response headers or body. Consider also adding a parametrized extension method on <code>TransformBuilderContext</code> for discoverability and easy of use.</p>
+<h3 id="request-body-transforms">Request body transforms</h3>
+<p>YARP does not provide any built in transforms for modifying the request body. However, the body can be modified in custom transforms.</p>
+<p>Be careful about which kinds of requests are modified, how much data gets buffered, enforcing timeouts, parsing untrusted input, and updating the body-related headers like <code>Content-Length</code>.</p>
+<p>The below example uses simple, inefficient buffering to transform requests. A more efficient implementation would wrap and replace <code>HttpContext.Request.Body</code> with a stream that performed the needed modifications as data was proxied from client to server. That would also require removing the Content-Length header since the final length would not be known in advance.</p>
+<p>This sample requires YARP 1.1, see <a href="https://github.com/microsoft/reverse-proxy/pull/1569">https://github.com/microsoft/reverse-proxy/pull/1569</a>.</p>
+<pre><code class="lang-C#">.AddTransforms(context =&gt;
+{
+    context.AddRequestTransform(async requestContext =&gt;
+    {
+        using var reader = new StreamReader(requestContext.HttpContext.Request.Body);
+        // TODO: size limits, timeouts
+        var body = await reader.ReadToEndAsync();
+        if (!string.IsNullOrEmpty(body))
+        {
+            body = body.Replace(&quot;Alpha&quot;, &quot;Charlie&quot;);
+            var bytes = Encoding.UTF8.GetBytes(body);
+            // Change Content-Length to match the modified body, or remove it.
+            requestContext.HttpContext.Request.Body = new MemoryStream(bytes);
+            // Request headers are copied before transforms are invoked, update any needed headers on the ProxyRequest
+            requestContext.ProxyRequest.Content.Headers.ContentLength = bytes.Length;
+        }
+    });
+});
+</code></pre>
+<h3 id="response-body-transforms">Response body transforms</h3>
+<p>YARP does not provide any built in transforms for modifying the response body. However, the body can be modified in custom transforms.</p>
+<p>Be careful about which kinds of responses are modified, how much data gets buffered, enforcing timeouts, parsing untrusted input, and updating the body-related headers like <code>Content-Length</code>. You may need to decompress content before modifying it, as indicated by the Content-Encoding header, and afterwards re-compress it or remove the header.</p>
+<p>The below example uses simple, inefficient buffering to transform responses. A more efficient implementation would wrap the stream returned by <code>ReadAsStreamAsync()</code> with a stream that performed the needed modifications as data was proxied from client to server. That would also require removing the Content-Length header since the final length would not be known in advance.</p>
+<pre><code class="lang-C#">.AddTransforms(context =&gt;
+{
+    context.AddResponseTransform(async responseContext =&gt;
+    {
+        var stream = await responseContext.ProxyResponse.Content.ReadAsStreamAsync();
+        using var reader = new StreamReader(stream);
+        // TODO: size limits, timeouts
+        var body = await reader.ReadToEndAsync();
+
+        if (!string.IsNullOrEmpty(body))
+        {
+            responseContext.SuppressResponseBody = true;
+
+            body = body.Replace(&quot;Bravo&quot;, &quot;Charlie&quot;);
+            var bytes = Encoding.UTF8.GetBytes(body);
+            // Change Content-Length to match the modified body, or remove it.
+            responseContext.HttpContext.Response.ContentLength = bytes.Length;
+            // Response headers are copied before transforms are invoked, update any needed headers on the HttpContext.Response.
+            await responseContext.HttpContext.Response.Body.WriteAsync(bytes);
+        }
+    });
+});
+</code></pre>
 <h3 id="itransformprovider">ITransformProvider</h3>
 <p><a class="xref" href="../api/Yarp.ReverseProxy.Transforms.Builder.ITransformProvider.html">ITransformProvider</a> provides the functionality of <code>AddTransforms</code> described above as well as DI integration and validation support.</p>
 <p><code>ITransformProvider</code>'s can be registered in DI by calling <a class="xref" href="../api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html">AddTransforms&lt;T&gt;()</a>. Multiple <code>ITransformProvider</code> implementations can be registered and all will be run.</p>

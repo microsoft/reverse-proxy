@@ -191,7 +191,7 @@ IActiveHealthCheckPolicy --(New active health states)--&gt; IDestinationHealthUp
         for (var i = 0; i &lt; probingResults.Count; i++)
         {
             var response = probingResults[i].Response;
-            var newHealth = response != null &amp;&amp; response.IsSuccessStatusCode ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
+            var newHealth = response is not null &amp;&amp; response.IsSuccessStatusCode ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
             newHealthStates[i] = new NewActiveDestinationHealth(probingResults[i].Destination, newHealth);
         }
 
@@ -338,7 +338,7 @@ There are two sets of policy parameters defined globally and on per cluster leve
     public void RequestProxied(ClusterState cluster, DestinationState destination, HttpContext context)
     {
         var error = context.Features.Get&lt;IProxyErrorFeature&gt;();
-        if (error != null)
+        if (error is not null)
         {
             var reactivationPeriod = cluster.Model.Config.HealthCheck.Passive.ReactivationPeriod ?? _defaultReactivationPeriod;
             _ = _healthUpdater.SetPassiveAsync(cluster, destination, DestinationHealth.Unhealthy, reactivationPeriod);

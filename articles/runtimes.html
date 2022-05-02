@@ -69,8 +69,8 @@
             <article class="content wrap" id="_content" data-uid="runtimes">
 <h1 id="yarp-supported-runtimes">YARP Supported Runtimes</h1>
 
-<p>YARP 1.0 previews support ASP.NET Core 3.1 and 5.0. You can download the .NET 5 SDK from <a href="https://dotnet.microsoft.com/download/dotnet/5.0">https://dotnet.microsoft.com/download/dotnet/5.0</a>. See <a href="https://github.com/microsoft/reverse-proxy/releases">Releases</a> for specific version support.</p>
-<p>YARP is taking advantage of ASP.NET Core 5.0 features and optimizations. This does mean that some features may not be available if you're running on ASP.NET Core 3.1.</p>
+<p>YARP 1.1 supports ASP.NET Core 3.1, 5.0 and 6.0. You can download the .NET SDK from <a href="https://dotnet.microsoft.com/download/dotnet/">https://dotnet.microsoft.com/download/dotnet/</a>. See <a href="https://github.com/microsoft/reverse-proxy/releases">Releases</a> for specific version support.</p>
+<p>YARP is taking advantage of ASP.NET Core 6.0 features and optimizations. This does mean that some features may not be available if you're running on the previous versions of ASP.NET.</p>
 <h2 id="difference-in-features-supported-on-net-core-31-vs-net-50-and-higher">Difference in features supported on .NET Core 3.1 vs .NET 5.0 and higher</h2>
 <h3 id="yarpreverseproxy-package">Yarp.ReverseProxy package</h3>
 <p>The following features are supported on NET 5.0 and higher:</p>
@@ -121,6 +121,22 @@
 </ul>
 </li>
 <li>HttpClient HTTP/2 <a href="https://github.com/dotnet/runtime/issues/35184">performance improvements</a>.</li>
+</ul>
+<h2 id="related-60-runtime-improvements">Related 6.0 Runtime Improvements</h2>
+<ul>
+<li><a href="http3.html">HTTP/3</a> - support for inbound and outbound connections (preview).</li>
+<li><a href="distributed-tracing.html">Distributed Tracing</a> - .NET 6.0 has built-in configurable support that YARP takes advantage of to enable more scenarios out-of-the-box.</li>
+<li><a href="httpsys-delegation.html">Http.sys Delegation</a> - a kernel-level ASP.NET Core 6 feature that allows a request to be transferred to a different process.</li>
+<li><a href="diagnosing-yarp-issues.html#using-aspnet-6-request-logging">UseHttpLogging</a> - includes an additional middleware component that can be used to provide more details about the request and response.</li>
+<li><a href="https://github.com/dotnet/runtime/pull/54755">Dynamic HTTP/2 window scaling</a> - improves HTTP/2 download speed on high-latency connections.</li>
+<li><a href="https://github.com/microsoft/reverse-proxy/pull/1507">NonValidated headers</a> - improves perfomance by using non-validated HttpClient headers.</li>
+</ul>
+<h2 id="related-70-runtime-improvements">Related 7.0 Runtime Improvements</h2>
+<ul>
+<li><a href="http3.html">HTTP/3</a> - support for inbound and outbound connections (stable).</li>
+<li><a href="https://github.com/dotnet/runtime/pull/61913">Zero-byte reads on HttpClient's response streams</a> - reduces memory usage.</li>
+<li><a href="https://github.com/dotnet/runtime/pull/62981">Header allocation reductions</a> - reduces memory usage.</li>
+<li><a href="https://github.com/dotnet/aspnetcore/pull/40925">Kestrel Http/2 perf improvements</a> - Improve contention and throughput for multiple requests on one connection.</li>
 </ul>
 </article>
           </div>

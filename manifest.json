@@ -437,6 +437,30 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Delegation.IHttpSysDelegator.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Delegation.IHttpSysDelegator.html",
+          "hash": "2PsAZSqsrFAmkSEbLvtReKCPE5Cct+UysB30Mh7ATRw="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Delegation.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Delegation.html",
+          "hash": "nzz99V3PH06oamG7H1S4/lkFUb9xK4W8ChzJjNMNgEs="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "api/Yarp.ReverseProxy.Forwarder.ForwarderError.yml",
       "output": {
         ".html": {
@@ -1893,7 +1917,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.html",
-          "hash": "etmJkqj95AtHae8BlZx9lUmEGt6bmILBLL+8c8jurh8="
+          "hash": "sh7lnPSye5z8kRvzoY7Im/M++g6+ehCYlUpDsLRJFR8="
         }
       },
       "is_incremental": false,
@@ -2169,7 +2193,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "pGZj+5dTN2s4kh3sUkQDP7cCZ4kcqQMp5Ejnf28y8vM="
+          "hash": "EH4fmkWcjqSyjPSFQFSqFqRX23kSbE3iW3b7bjwKNxU="
         }
       },
       "is_incremental": false,
@@ -2208,7 +2232,19 @@
       "output": {
         ".html": {
           "relative_path": "articles/config-files.html",
-          "hash": "Sj4v2oAzbWzTSs1HeoO0BWMsqLXXH0vjXqhWUJoZ+U8="
+          "hash": "EH6LrjxF/fJ89HA74cwez/Nsv/Fej4FnoVsjl5Pvr7g="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/config-filters.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/config-filters.html",
+          "hash": "dhDNgPSshe7mFwmmq/vur+b25uTh1rBzqYaeTVEMA0E="
         }
       },
       "is_incremental": false,
@@ -2220,7 +2256,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/config-providers.html",
-          "hash": "a+VW1q8L1FIJhJnjWq3vhH1da86xmOtAbM3Jcs7qp80="
+          "hash": "mC+qoFEN7wyp98Eiuh7q216AZXwrkEOsdo09dWzKXQ8="
         }
       },
       "is_incremental": false,
@@ -2244,7 +2280,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/dests-health-checks.html",
-          "hash": "xa+9R7Zmkp2EiAGkeop1VsA2rGNItQZSAA+A2Vb8cio="
+          "hash": "xTlw6kNYgLfj4GT6jgpZg1QT3gGQi+maEICyDH5IgdE="
         }
       },
       "is_incremental": false,
@@ -2292,7 +2328,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/getting-started.html",
-          "hash": "8/ebZuTNhHERklz/Fug90Dq029yhPF3nhB2hyAd4u10="
+          "hash": "zjJ+auNsT2nYUf3qoobLfnAdgTWtrzWSzmohlKtcgXs="
         }
       },
       "is_incremental": false,
@@ -2316,7 +2352,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/header-guidelines.html",
-          "hash": "9MBWdIhhIGNFpIoYNDIdiXSxfDgNZPSxmVK/jyqQ4g4="
+          "hash": "I0R4oUo0/GYPX1dXTd7rDZbA25Wwa6LeNmF4U/0MAOU="
         }
       },
       "is_incremental": false,
@@ -2328,7 +2364,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/header-routing.html",
-          "hash": "zZ5lmCGEp/qqg56XFuAzUZ/NsEGgDV3SA1sdWvcZZ5A="
+          "hash": "6fQNGapw5OgLLCT3QLUPn4AbL0dFbeWITEqSkLzz+I0="
         }
       },
       "is_incremental": false,
@@ -2340,7 +2376,19 @@
       "output": {
         ".html": {
           "relative_path": "articles/http-client-config.html",
-          "hash": "wZXkh4hbu4q0C94xE8IuvXHuc7TLnQVafG0mDZbXH7M="
+          "hash": "Ero5NDqXjTW47OL5Iz1+nDkpiWRW5VEVI3axSuzWWnU="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/http3.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/http3.html",
+          "hash": "qta5E7tjGlsH0iOSgQHu2M7xIlKTCShGE54D8PHze+Y="
         }
       },
       "is_incremental": false,
@@ -2367,7 +2415,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/httpsys-delegation.html",
-          "hash": "40qZLL9wa2eJAQgXANtYjA5EXSqGpvAfIQPNTtOauw4="
+          "hash": "H8cg+CUL0BwI1bRya7vS2rahhoO1eA4uKXWGnl+xKCw="
         }
       },
       "is_incremental": false,
@@ -2399,6 +2447,18 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "articles/lets-encrypt.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/lets-encrypt.html",
+          "hash": "3R/af43O/iWp9hxJJ9278rRQTsva4kVQaD8S3jZ4Q5w="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "articles/load-balancing.md",
       "output": {
         ".html": {
@@ -2415,7 +2475,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/middleware.html",
-          "hash": "Cr6bbjFu57RsTOV4d/iFDcKByYrvpl+fbpXnw6jmT30="
+          "hash": "3wX4ixyoassYQNAKt7VDWkB+9vLIiPJQuKBiK2CRQUc="
         }
       },
       "is_incremental": false,
@@ -2451,7 +2511,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/runtimes.html",
-          "hash": "6qW1HOwCwaADU+1QpWNUmzsckuCwxjTu+6omUmqZfYc="
+          "hash": "CFrMzcozeKL49DznKNzke+OYUOyUlaVuINgeHGi1s60="
         }
       },
       "is_incremental": false,
@@ -2487,7 +2547,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/toc.html",
-          "hash": "NRg7GsKioCnXhNShebJwIeMDlBhleiT33JkuUYvVd/w="
+          "hash": "YQOKuSAF5Brf1yEh/XVbeXSaP0gH4AFdGt2JG8PvJZI="
         }
       },
       "is_incremental": false,
@@ -2499,7 +2559,19 @@
       "output": {
         ".html": {
           "relative_path": "articles/transforms.html",
-          "hash": "Ryu0hCw8c8HFuWzvNARydJWko96Zcw/tPxpkg0Pof9A="
+          "hash": "dMAHMlttsEZ1nQCgbN31DcWqvTq67ZHH7ztbiAMtLgY="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/websockets.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/websockets.html",
+          "hash": "n79fND2wCZIa+nW9dUWCd+Z1xQ3Jnjy74YWVAjbrAQ0="
         }
       },
       "is_incremental": false,
@@ -2544,13 +2616,13 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 29,
+          "total_file_count": 33,
           "skipped_file_count": 0
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build",
-          "total_file_count": 178,
+          "total_file_count": 180,
           "skipped_file_count": 0
         },
         "TocDocumentProcessor": {

@@ -101,6 +101,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 } 
 </code></pre>
 <p><strong>Note</strong>: For details about middleware ordering see <a href="https://docs.microsoft.com/aspnet/core/fundamentals/middleware/#middleware-order">here</a>.</p>
+<p>Configuration can be modified during the load sequence using <a href="config-filters.html">Configuration Filters</a>.</p>
 <h2 id="multiple-configuration-sources">Multiple Configuration Sources</h2>
 <p>As of 1.1, YARP supports loading the proxy configuration from multiple sources. LoadFromConfig may be called multiple times referencing different IConfiguration sections or may be combine with a different config source like InMemory. Routes can reference clusters from other sources. Note merging partial config from different sources for a given route or cluster is not supported.</p>
 <pre><code class="lang-c#">services.AddReverseProxy()

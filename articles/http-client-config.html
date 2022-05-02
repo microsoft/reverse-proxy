@@ -83,6 +83,11 @@
     &quot;DangerousAcceptAnyServerCertificate&quot;: &quot;&lt;bool&gt;&quot;,
     &quot;RequestHeaderEncoding&quot;: &quot;&lt;encoding-name&gt;&quot;,
     &quot;EnableMultipleHttp2Connections&quot;: &quot;&lt;bool&gt;&quot;
+    &quot;WebProxy&quot;: {
+        &quot;Address&quot;: &quot;&lt;url&gt;&quot;,
+        &quot;BypassOnLocal&quot;: &quot;&lt;bool&gt;&quot;,
+        &quot;UseDefaultCredentials&quot;: &quot;&lt;bool&gt;&quot;
+    }
 }
 </code></pre>
 <p>Configuration settings:</p>
@@ -126,6 +131,21 @@
 </ul>
 <pre><code class="lang-JSON">&quot;EnableMultipleHttp2Connections&quot;: false
 </code></pre>
+<ul>
+<li>WebProxy - Enables sending requests through an outbound HTTP proxy to reach the destinations. See <a href="https://docs.microsoft.com/dotnet/api/system.net.http.socketshttphandler.proxy"><code>SocketsHttpHandler.Proxy</code></a> for details.
+<ul>
+<li>Address - The url address of the outbound proxy.</li>
+<li>BypassOnLocal - A bool indicating if requests to local addresses should bypass the outbound proxy.</li>
+<li>UseDefaultCredentials - A bool indicating if the current application credentials should be use to authenticate to the outbound proxy. ASP.NET Core does not impersonate authenticated users for outbound requests.</li>
+</ul>
+</li>
+</ul>
+<pre><code class="lang-JSON">&quot;WebProxy&quot;: {
+    &quot;Address&quot;: &quot;http://myproxy:8080&quot;,
+    &quot;BypassOnLocal&quot;: &quot;true&quot;,
+    &quot;UseDefaultCredentials&quot;: &quot;false&quot;
+}
+</code></pre>
 <p>For .NET Core 3.1, Latin1 (&quot;iso-8859-1&quot;) is the only non-ASCII header encoding that can be accepted and only via <code>appsettings.json</code>:</p>
 <pre><code class="lang-JSON">{
     &quot;Kestrel&quot;:
@@ -150,7 +170,7 @@
 <p>Configuration settings:</p>
 <ul>
 <li>ActivityTimeout - how long a request is allowed to remain idle between any operation completing, after which it will be canceled. The default is 100 seconds. The timeout will reset when response headers are received or after successfully reading or writing any request, response, or streaming data like gRPC or WebSockets. TCP keep-alives and HTTP/2 protocol pings will not reset the timeout, but WebSocket pings will.</li>
-<li>Version - outgoing request <a href="https://docs.microsoft.com/dotnet/api/system.net.http.httprequestmessage.version">version</a>. The supported values at the moment are <code>1.0</code>, <code>1.1</code> and <code>2</code>. Default value is 2.</li>
+<li>Version - outgoing request <a href="https://docs.microsoft.com/dotnet/api/system.net.http.httprequestmessage.version">version</a>. The supported values at the moment are <code>1.0</code>, <code>1.1</code>, <code>2</code> and <code>3</code>. Default value is 2.</li>
 <li>VersionPolicy - defines how the final version is selected for the outgoing requests. <strong>This feature is available from .NET 5.0</strong>, see <a href="https://docs.microsoft.com/dotnet/api/system.net.http.httprequestmessage.versionpolicy">HttpRequestMessage.VersionPolicy</a>. The default value is <code>RequestVersionOrLower</code>.</li>
 <li>AllowResponseBuffering - allows to use write buffering when sending a response back to the client, if the server hosting YARP (e.g. IIS) supports it. <strong>NOTE</strong>: enabling it can break SSE (server side event) scenarios.</li>
 </ul>

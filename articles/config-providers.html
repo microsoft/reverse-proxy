@@ -72,6 +72,7 @@
 <h2 id="introduction">Introduction</h2>
 <p>The <a href="https://github.com/microsoft/reverse-proxy/tree/main/samples/BasicYarpSample">Basic Yarp Sample</a> show proxy configuration being loaded from appsettings.json. Instead proxy configuration can be loaded programmatically from the source of your choosing. You do this by providing a couple of classes implementing <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.IProxyConfigProvider.html">IProxyConfigProvider</a> and <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.IProxyConfig.html">IProxyConfig</a>.</p>
 <p>See <a href="https://github.com/microsoft/reverse-proxy/tree/main/samples/ReverseProxy.Code.Sample">ReverseProxy.Code.Sample</a> for an example of a custom configuration provider.</p>
+<p>Configuration can be modified during the load sequence using <a href="config-filters.html">Configuration Filters</a>.</p>
 <h2 id="structure">Structure</h2>
 <p><a class="xref" href="../api/Yarp.ReverseProxy.Configuration.IProxyConfigProvider.html">IProxyConfigProvider</a> has a single method <code>GetConfig()</code> that should return an <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.IProxyConfig.html">IProxyConfig</a> instance. The IProxyConfig has lists of the current routes and clusters, as well as an <code>IChangeToken</code> to notify the proxy when this information is out of date and should be reloaded, which will cause <code>GetConfig()</code> to be called again.</p>
 <h3 id="routes">Routes</h3>

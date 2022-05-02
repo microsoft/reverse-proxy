@@ -1943,6 +1943,31 @@ references:
   isSpec: "True"
   fullName: Yarp.ReverseProxy.Configuration.WebProxyConfig.UseDefaultCredentials
   nameWithType: WebProxyConfig.UseDefaultCredentials
+- uid: Yarp.ReverseProxy.Delegation
+  name: Yarp.ReverseProxy.Delegation
+  href: api/Yarp.ReverseProxy.Delegation.html
+  commentId: N:Yarp.ReverseProxy.Delegation
+  fullName: Yarp.ReverseProxy.Delegation
+  nameWithType: Yarp.ReverseProxy.Delegation
+- uid: Yarp.ReverseProxy.Delegation.IHttpSysDelegator
+  name: IHttpSysDelegator
+  href: api/Yarp.ReverseProxy.Delegation.IHttpSysDelegator.html
+  commentId: T:Yarp.ReverseProxy.Delegation.IHttpSysDelegator
+  fullName: Yarp.ReverseProxy.Delegation.IHttpSysDelegator
+  nameWithType: IHttpSysDelegator
+- uid: Yarp.ReverseProxy.Delegation.IHttpSysDelegator.ResetQueue(System.String,System.String)
+  name: ResetQueue(String, String)
+  href: api/Yarp.ReverseProxy.Delegation.IHttpSysDelegator.html#Yarp_ReverseProxy_Delegation_IHttpSysDelegator_ResetQueue_System_String_System_String_
+  commentId: M:Yarp.ReverseProxy.Delegation.IHttpSysDelegator.ResetQueue(System.String,System.String)
+  fullName: Yarp.ReverseProxy.Delegation.IHttpSysDelegator.ResetQueue(System.String, System.String)
+  nameWithType: IHttpSysDelegator.ResetQueue(String, String)
+- uid: Yarp.ReverseProxy.Delegation.IHttpSysDelegator.ResetQueue*
+  name: ResetQueue
+  href: api/Yarp.ReverseProxy.Delegation.IHttpSysDelegator.html#Yarp_ReverseProxy_Delegation_IHttpSysDelegator_ResetQueue_
+  commentId: Overload:Yarp.ReverseProxy.Delegation.IHttpSysDelegator.ResetQueue
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.Delegation.IHttpSysDelegator.ResetQueue
+  nameWithType: IHttpSysDelegator.ResetQueue
 - uid: Yarp.ReverseProxy.Forwarder
   name: Yarp.ReverseProxy.Forwarder
   href: api/Yarp.ReverseProxy.Forwarder.html
