@@ -152,7 +152,7 @@ You can find out more about the available configuration options by looking at [R
         "ClusterId": "cluster1",
         "Match": {
           "Path": "{**catch-all}"
-        },
+        }
       }
     },
     "Clusters": {
