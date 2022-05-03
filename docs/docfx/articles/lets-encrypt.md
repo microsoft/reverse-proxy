@@ -52,7 +52,7 @@ public class Startup
 }
 ```
 
-For more options (i.e. saving certificates) see examples in [LettuceEncrypt doc](ttps://github.com/natemcmaster/LettuceEncrypt).
+For more options (i.e. saving certificates) see examples in [LettuceEncrypt doc](https://github.com/natemcmaster/LettuceEncrypt).
 
 ## Kestrel Endpoints
 
