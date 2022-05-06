@@ -53,7 +53,7 @@ public partial class Reconciler : IReconciler
             _logger.LogInformation(JsonSerializer.Serialize(configContext.Routes));
             _logger.LogInformation(JsonSerializer.Serialize(clusters));
 
-            await _updateConfig.Update(configContext.Routes, clusters, cancellationToken).ConfigureAwait(false);
+            await _updateConfig.UpdateAsync(configContext.Routes, clusters, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

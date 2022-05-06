@@ -12,7 +12,7 @@ namespace Yarp.Kubernetes.Controller.Dispatching;
 /// </summary>
 public interface IDispatcher
 {
-    Task Attach(IDispatchTarget target, CancellationToken cancellationToken);
+    Task AttachAsync(IDispatchTarget target, CancellationToken cancellationToken);
     void Detach(IDispatchTarget target);
     Task SendAsync(byte[] utf8Bytes, CancellationToken cancellationToken);
 }

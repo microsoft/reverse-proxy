@@ -10,5 +10,5 @@ namespace Yarp.Kubernetes.Controller.Configuration;
 
 public interface IUpdateConfig
 {
-    Task Update(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters, CancellationToken cancellationToken);
+    Task UpdateAsync(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters, CancellationToken cancellationToken);
 }

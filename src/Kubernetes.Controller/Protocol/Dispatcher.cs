@@ -24,7 +24,7 @@ public class Dispatcher : IDispatcher
         _logger = logger;
     }
 
-    public async Task Attach(IDispatchTarget target, CancellationToken cancellationToken)
+    public async Task AttachAsync(IDispatchTarget target, CancellationToken cancellationToken)
     {
 #pragma warning disable CA1303 // Do not pass literals as localized parameters
         _logger.LogDebug("Attaching {DispatchTarget}", target?.ToString());

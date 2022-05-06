@@ -20,7 +20,7 @@ internal class KubernetesConfigProvider : IProxyConfigProvider, IUpdateConfig
 
     public IProxyConfig GetConfig() => _config;
 
-    public Task Update(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters, CancellationToken cancellationToken)
+    public Task UpdateAsync(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters, CancellationToken cancellationToken)
     {
         var oldConfig = _config;
         _config = new MessageConfig(routes, clusters);

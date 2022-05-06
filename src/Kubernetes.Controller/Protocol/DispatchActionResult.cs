@@ -50,7 +50,7 @@ public class DispatchActionResult : IActionResult, IDispatchTarget
         _httpContext.Response.Headers["Connection"] = "close";
         await _httpContext.Response.Body.FlushAsync(cancellationToken).ConfigureAwait(false);
 
-        await _dispatcher.Attach(this, cancellationToken).ConfigureAwait(false);
+        await _dispatcher.AttachAsync(this, cancellationToken).ConfigureAwait(false);
 
         try
         {

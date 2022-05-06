@@ -76,7 +76,7 @@ public class Receiver : BackgroundHostedService
 
                     if (message.MessageType == MessageType.Update)
                     {
-                        await _proxyConfigProvider.Update(message.Routes, message.Cluster, cancellation.Token).ConfigureAwait(false);
+                        await _proxyConfigProvider.UpdateAsync(message.Routes, message.Cluster, cancellation.Token).ConfigureAwait(false);
                     }
                 }
             }

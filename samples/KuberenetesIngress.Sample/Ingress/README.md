@@ -4,7 +4,7 @@ This directory contains a sample ingress as well as the definition for the Kuber
 
 This sample requires two applications to be deployed:
 * An Ingress (this application)
-* A Kubernetes Ingress Monitor ()
+* A Kubernetes Ingress Monitor (a process listening for changes in k8s and dispatching the Yarp configuration to ingress instances)
 
 NOTE: Yarp Kubernetes can also be configured as a combined (single) deployable. See the combined [README.md](../Combined/README.md) for more information.
 
