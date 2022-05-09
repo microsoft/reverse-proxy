@@ -10,7 +10,7 @@ using Xunit;
 using Yarp.Kubernetes.Controller;
 using Yarp.Kubernetes.Controller.Caching;
 
-namespace IngressController.Tests;
+namespace Yarp.Kubernetes.Tests;
 
 public class IngressCacheTests
 {

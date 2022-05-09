@@ -4,15 +4,23 @@
     <TargetFrameworks>net6.0</TargetFrameworks>
     <OutputType>Library</OutputType>
     <NoWarn>$(NoWarn);CS8002</NoWarn>
+    <RootNamespace>Yarp.Kubernetes</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Kubernetes.Controller\Yarp.Kubernetes.Controller.csproj" />
-    <ProjectReference Include="..\..\src\OperatorFramework\src\Controller\Microsoft.Kubernetes.Controller.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Moq" Version="4.13.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="OperatorFramework\Informers\*.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="OperatorFramework\Informers\*.yaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,7 +30,9 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="FluentAssertions.Json" Version="5.5.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.2" />
     <PackageReference Condition=" '$(TargetFramework)' != 'net6.0' " Include="System.Text.Json" Version="6.0.0-*" />
+    <PackageReference Include="Polly" Version="7.2.1" />
   </ItemGroup>
 
 

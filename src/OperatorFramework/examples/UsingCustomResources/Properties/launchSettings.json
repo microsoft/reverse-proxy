@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "UsingCustomResources": {
-      "commandName": "Project",
-      "commandLineArgs": "--output-crds ../../../crds.yaml"
-    }
-  }
-}

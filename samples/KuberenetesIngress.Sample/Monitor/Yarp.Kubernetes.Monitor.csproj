@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net6.0</TargetFrameworks>
-    <UserSecretsId>b2dc6cd7-acbb-4d65-ad19-74771ff3c80f</UserSecretsId>
+    <UserSecretsId>42f98116-26c4-4115-b6af-c5dec1f88c84</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <IsPackable>$('System.TeamProject') != 'internal'</IsPackable>
   </PropertyGroup>

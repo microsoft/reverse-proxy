@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using k8s.Models;
 
-namespace IngressController.Tests;
+namespace Yarp.Kubernetes.Tests;
 
 internal static class KubeResourceGenerator
 {
