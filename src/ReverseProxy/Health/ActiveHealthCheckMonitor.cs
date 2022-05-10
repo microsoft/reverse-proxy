@@ -176,6 +176,12 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
 
             return new DestinationProbingResult(destination, response, null);
         }
+        catch (HttpRequestException httpEx) when (httpEx.Message.StartsWith("No connection could be made because the target machine actively refused it."))
+        {
+            Log.DestinationProbingFailed(_logger, destination.DestinationId, cluster.ClusterId, httpEx);
+
+            return new DestinationProbingResult(destination, new HttpResponseMessage(System.Net.HttpStatusCode.NotFound), null);
+        }
         catch (Exception ex)
         {
             Log.DestinationProbingFailed(_logger, destination.DestinationId, cluster.ClusterId, ex);
