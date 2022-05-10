@@ -35,7 +35,7 @@ public class ResourceInformerTests
             .ConfigureServices(services =>
             {
                 services.AddKubernetesControllerRuntime();
-                services.RegisterResourceInformer<V1Pod>();
+                services.RegisterResourceInformer<V1Pod, V1PodResourceInformer>();
                 services.Configure<KubernetesClientOptions>(options =>
                 {
                     options.Configuration = KubernetesClientConfiguration.BuildConfigFromConfigObject(clusterHost.KubeConfig);
@@ -75,7 +75,7 @@ public class ResourceInformerTests
             .ConfigureServices(services =>
             {
                 services.AddKubernetesControllerRuntime();
-                services.RegisterResourceInformer<V1Deployment>();
+                services.RegisterResourceInformer<V1Deployment, V1DeploymentResourceInformer>();
                 services.Configure<KubernetesClientOptions>(options =>
                 {
                     options.Configuration = KubernetesClientConfiguration.BuildConfigFromConfigObject(clusterHost.KubeConfig);

@@ -4,6 +4,7 @@
 using System;
 using k8s.Models;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Kubernetes.Controller.Informers;
 using Yarp.Kubernetes.Controller;
 using Yarp.Kubernetes.Controller.Caching;
 using Yarp.Kubernetes.Controller.Configuration;
@@ -48,10 +49,10 @@ public static class KubernetesReverseProxyServiceCollectionExtensions
         services.AddSingleton<IUpdateConfig>(provider);
 
         // Register the necessary Kubernetes resource informers
-        services.RegisterResourceInformer<V1Ingress>();
-        services.RegisterResourceInformer<V1Service>();
-        services.RegisterResourceInformer<V1Endpoints>();
-        services.RegisterResourceInformer<V1IngressClass>();
+        services.RegisterResourceInformer<V1Ingress, V1IngressResourceInformer>();
+        services.RegisterResourceInformer<V1Service, V1ServiceResourceInformer>();
+        services.RegisterResourceInformer<V1Endpoints, V1EndpointsResourceInformer>();
+        services.RegisterResourceInformer<V1IngressClass, V1IngressClassResourceInformer>();
 
         return services.AddReverseProxy();
     }
@@ -82,10 +83,10 @@ public static class KubernetesReverseProxyServiceCollectionExtensions
         services.AddSingleton<IUpdateConfig, DispatchConfigProvider>();
 
         // Register the necessary Kubernetes resource informers
-        services.RegisterResourceInformer<V1Ingress>();
-        services.RegisterResourceInformer<V1Service>();
-        services.RegisterResourceInformer<V1Endpoints>();
-        services.RegisterResourceInformer<V1IngressClass>();
+        services.RegisterResourceInformer<V1Ingress, V1IngressResourceInformer>();
+        services.RegisterResourceInformer<V1Service, V1ServiceResourceInformer>();
+        services.RegisterResourceInformer<V1Endpoints, V1EndpointsResourceInformer>();
+        services.RegisterResourceInformer<V1IngressClass, V1IngressClassResourceInformer>();
 
         return services;
     }

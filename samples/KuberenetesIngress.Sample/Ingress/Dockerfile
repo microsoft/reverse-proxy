@@ -5,7 +5,7 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0.100 AS publish
+FROM mcr.microsoft.com/dotnet/sdk:7.0.100-preview.3 AS publish
 WORKDIR /src
 
 # Copy csproj files and other files needed for restoring (to build a nuget cache layer to speed up rebuilds)

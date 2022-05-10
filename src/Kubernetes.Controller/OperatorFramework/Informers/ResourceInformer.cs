@@ -5,7 +5,6 @@ using k8s;
 using k8s.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Kubernetes.Client;
 using Microsoft.Kubernetes.Controller.Hosting;
 using Microsoft.Kubernetes.Controller.Rate;
 using System;
@@ -26,13 +25,14 @@ namespace Microsoft.Kubernetes.Controller.Informers
     /// Implements the <see cref="IDisposable" />.
     /// </summary>
     /// <typeparam name="TResource">The type of the t resource.</typeparam>
+    /// <typeparam name="TListResource">The type of the t resource used in lists.</typeparam>
     /// <seealso cref="IResourceInformer{TResource}" />
     /// <seealso cref="IDisposable" />
-    public class ResourceInformer<TResource> : BackgroundHostedService, IResourceInformer<TResource>
+    public abstract class ResourceInformer<TResource, TListResource> : BackgroundHostedService, IResourceInformer<TResource>
         where TResource : class, IKubernetesObject<V1ObjectMeta>, new()
+        where TListResource : class, IKubernetesObject<V1ListMeta>, IItems<TResource>, new()
     {
         private readonly object _sync = new object();
-        private readonly IAnyResourceKind _client;
         private readonly GroupApiVersionKind _names;
         private readonly SemaphoreSlim _ready = new SemaphoreSlim(0);
         private readonly SemaphoreSlim _start = new SemaphoreSlim(0);
@@ -41,7 +41,7 @@ namespace Microsoft.Kubernetes.Controller.Informers
         private string _lastResourceVersion;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ResourceInformer{TResource}" /> class.
+        /// Initializes a new instance of the <see cref="ResourceInformer{TResource, TListResource}" /> class.
         /// </summary>
         /// <param name="client">The client.</param>
         /// <param name="hostApplicationLifetime">The host application lifetime.</param>
@@ -49,10 +49,10 @@ namespace Microsoft.Kubernetes.Controller.Informers
         public ResourceInformer(
             IKubernetes client,
             IHostApplicationLifetime hostApplicationLifetime,
-            ILogger<ResourceInformer<TResource>> logger)
+            ILogger logger)
             : base(hostApplicationLifetime, logger)
         {
-            _client = client.AnyResourceKind();
+            Client = client;
             _names = GroupApiVersionKind.From<TResource>();
         }
 
@@ -67,6 +67,8 @@ namespace Microsoft.Kubernetes.Controller.Informers
             DisposingToReconnect = 107,
             IgnoringError = 108,
         }
+
+        protected IKubernetes Client { get; init; }
 
         /// <inheritdoc/>
         protected override void Dispose(bool disposing)
@@ -188,6 +190,8 @@ namespace Microsoft.Kubernetes.Controller.Informers
             }
         }
 
+        protected abstract Task<Rest.HttpOperationResponse<TListResource>> RetrieveResourceListAsync(bool? watch = null, string resourceVersion = null, CancellationToken cancellationToken = default);
+
         private static EventId EventId(EventType eventType) => new EventId((int)eventType, eventType.ToString());
 
         private async Task ListAsync(CancellationToken cancellationToken)
@@ -206,12 +210,7 @@ namespace Microsoft.Kubernetes.Controller.Informers
                 cancellationToken.ThrowIfCancellationRequested();
 
                 // request next page of items
-                using var listWithHttpMessage = await _client.ListClusterAnyResourceKindWithHttpMessagesAsync<TResource>(
-                    _names.Group,
-                    _names.ApiVersion,
-                    _names.PluralName,
-                    continueParameter: continueParameter,
-                    cancellationToken: cancellationToken);
+                using var listWithHttpMessage = await RetrieveResourceListAsync(resourceVersion: _lastResourceVersion, cancellationToken: cancellationToken);
 
                 var list = listWithHttpMessage.Body;
                 foreach (var item in list.Items)
@@ -275,16 +274,10 @@ namespace Microsoft.Kubernetes.Controller.Informers
             var watcherCompletionSource = new TaskCompletionSource<int>();
 
             // begin watching where list left off
-            var watchWithHttpMessage = _client.ListClusterAnyResourceKindWithHttpMessagesAsync<TResource>(
-                _names.Group,
-                _names.ApiVersion,
-                _names.PluralName,
-                watch: true,
-                resourceVersion: _lastResourceVersion,
-                cancellationToken: cancellationToken);
+            var watchWithHttpMessage = RetrieveResourceListAsync(watch: true, resourceVersion: _lastResourceVersion, cancellationToken: cancellationToken);
 
             var lastEventUtc = DateTime.UtcNow;
-            using var watcher = watchWithHttpMessage.Watch<TResource, KubernetesList<TResource>>(
+            using var watcher = watchWithHttpMessage.Watch<TResource, TListResource>(
                 (watchEventType, item) =>
                 {
                     if (!watcherCompletionSource.Task.IsCompleted)
@@ -424,7 +417,7 @@ namespace Microsoft.Kubernetes.Controller.Informers
         {
             private bool _disposedValue;
 
-            public Registration(ResourceInformer<TResource> resourceInformer, ResourceInformerCallback<TResource> callback)
+            public Registration(ResourceInformer<TResource, TListResource> resourceInformer, ResourceInformerCallback<TResource> callback)
             {
                 ResourceInformer = resourceInformer;
                 Callback = callback;
@@ -440,7 +433,7 @@ namespace Microsoft.Kubernetes.Controller.Informers
                 Dispose(disposing: false);
             }
 
-            public ResourceInformer<TResource> ResourceInformer { get; }
+            public ResourceInformer<TResource, TListResource> ResourceInformer { get; }
             public ResourceInformerCallback<TResource> Callback { get; }
 
             public Task ReadyAsync(CancellationToken cancellationToken) => ResourceInformer.ReadyAsync(cancellationToken);
