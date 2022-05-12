@@ -4,8 +4,6 @@
 using k8s;
 using Microsoft.Extensions.Options;
 using Microsoft.Kubernetes;
-using Microsoft.Kubernetes.Client;
-using Microsoft.Kubernetes.ResourceKinds;
 using System.Linq;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -40,23 +38,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 });
             }
 
-            if (!services.Any(serviceDescriptor => serviceDescriptor.ServiceType == typeof(IResourceKindManager)))
-            {
-                services = services.AddSingleton<IResourceKindManager, ResourceKindManager>();
-            }
-
             return services;
-        }
-    }
-}
-
-namespace k8s
-{
-    public static class KubernetesHelpersExtensions
-    {
-        public static IAnyResourceKind AnyResourceKind(this IKubernetes client)
-        {
-            return new AnyResourceKind(client);
         }
     }
 }

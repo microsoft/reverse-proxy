@@ -97,10 +97,10 @@ apiVersion: networking.k8s.io/v1
 kind: IngressClass
 metadata:
   name: yarp
+  annotations:
+    #ingressclass.kubernetes.io/is-default-class: true
 spec:
   controller: microsoft.com/ingress-yarp
-annotations:
-  #ingressclass.kubernetes.io/is-default-class: true
 ---
 apiVersion: v1
 kind: Service
