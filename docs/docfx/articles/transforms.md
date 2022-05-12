@@ -82,7 +82,7 @@ Here is an example of common transforms:
         "Transforms": [
           { "PathPattern": "/foo/{plugin}/bar/{**remainder}" },
           {
-            "QueryStringParameter": "q",
+            "QueryValueParameter": "q",
             "Append": "plugin"
           }
         ]
