@@ -7,7 +7,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Kubernetes;
 using Yarp.Kubernetes.Controller.Caching;
 using Yarp.Kubernetes.Controller.Configuration;
 using Yarp.Kubernetes.Controller.Converters;

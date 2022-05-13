@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using k8s;
@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-namespace Microsoft.Kubernetes.Testing.Models;
+namespace Yarp.Kubernetes.Tests.TestCluster.Models;
 
 public class ResourceObject : IKubernetesObject<V1ObjectMeta>
 {

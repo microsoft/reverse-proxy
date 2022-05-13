@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using k8s.Models;
+using YamlDotNet.Serialization;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.Kubernetes.Controller.Caching;
-using Yarp.Kubernetes.Controller.Services;
-using YamlDotNet.Serialization;
 
 namespace Yarp.Kubernetes.Controller.Converters;
 

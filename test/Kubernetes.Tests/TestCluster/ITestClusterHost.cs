@@ -1,11 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using k8s;
 using k8s.KubeConfigModels;
 using Microsoft.Extensions.Hosting;
 
-namespace Microsoft.Kubernetes.Testing;
+namespace Yarp.Kubernetes.Tests.TestCluster;
 
 public interface ITestClusterHost : IHost
 {

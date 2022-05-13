@@ -8,10 +8,10 @@ using k8s;
 using k8s.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Kubernetes.Controller.Hosting;
-using Microsoft.Kubernetes.Controller.Informers;
-using Microsoft.Kubernetes.Controller.Queues;
 using Yarp.Kubernetes.Controller.Caching;
+using Yarp.Kubernetes.Controller.Client;
+using Yarp.Kubernetes.Controller.Hosting;
+using Yarp.Kubernetes.Controller.Queues;
 
 namespace Yarp.Kubernetes.Controller.Services;
 
