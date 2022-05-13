@@ -1,0 +1,44 @@
+name: Dockerfiles Build
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      # Check out the branch
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      # Setup up builder
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      # Run a build for the Dockerfiles but don't publish
+      - name: Build Combined
+        id: docker_combined
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: ./samples/KuberenetesIngress.Sample/Combined/Dockerfile
+          push: false
+          tags: microsoft/yarp-combined:latest
+      - name: Build Ingress
+        id: docker_ingress
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: ./samples/KuberenetesIngress.Sample/Ingress/Dockerfile
+          push: false
+          tags: microsoft/yarp-ingress:latest
+      - name: Build Monitor
+        id: docker_monitor
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: ./samples/KuberenetesIngress.Sample/Monitor/Dockerfile
+          push: false
+          tags: microsoft/yarp-monitor:latest
