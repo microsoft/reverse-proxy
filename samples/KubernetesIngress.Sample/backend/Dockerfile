@@ -7,9 +7,9 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0.100 AS publish
 WORKDIR /samples
-COPY ["samples/KuberenetesIngress.Sample/backend", "KuberenetesIngress.Sample/backend"]
+COPY ["samples/KubernetesIngress.Sample/backend", "KubernetesIngress.Sample/backend"]
 
-WORKDIR KuberenetesIngress.Sample/backend
+WORKDIR KubernetesIngress.Sample/backend
 RUN dotnet publish -c Release -o /app/publish -f net6.0
 
 FROM base AS final

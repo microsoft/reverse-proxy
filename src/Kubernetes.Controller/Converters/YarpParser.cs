@@ -167,7 +167,6 @@ internal static class YarpParser
         }
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/transforms", out var transforms))
         {
-
             options.Transforms = YamlDeserializer.Deserialize<List<Dictionary<string,string>>>(transforms);
         }
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/authorization-policy", out var authorizationPolicy))

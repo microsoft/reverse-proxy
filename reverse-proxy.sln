@@ -69,14 +69,17 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Metrics.Prometheus.Sample", "samples\Prometheus\ReverseProxy.Metrics-Prometheus.Sample\ReverseProxy.Metrics.Prometheus.Sample.csproj", "{31D7E62F-532B-4FAF-87A9-C1BB63AF222A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "KubernetesIngress.Sample", "KubernetesIngress.Sample", "{0B4635FC-8B63-4408-8077-F1CFDA5AB6D7}"
+	ProjectSection(SolutionItems) = preProject
+		samples\KubernetesIngress.Sample\README.md = samples\KubernetesIngress.Sample\README.md
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{32B6B967-6EAF-42A1-9FD6-A59F752FF76B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ingress", "Ingress", "{04E87669-7E7B-4217-83A4-EF80B534D14B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.Kubernetes.Ingress", "samples\KuberenetesIngress.Sample\Ingress\Yarp.Kubernetes.Ingress.csproj", "{84B920E2-A501-457D-8F1A-9CC7AF8B5F2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.Kubernetes.Ingress", "samples\KubernetesIngress.Sample\Ingress\Yarp.Kubernetes.Ingress.csproj", "{84B920E2-A501-457D-8F1A-9CC7AF8B5F2D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "backend", "samples\KuberenetesIngress.Sample\backend\backend.csproj", "{EB5663B9-31BA-4930-A302-4B87B8DEB74A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "backend", "samples\KubernetesIngress.Sample\backend\backend.csproj", "{EB5663B9-31BA-4930-A302-4B87B8DEB74A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.Minimal.Sample", "samples\ReverseProxy.Minimal.Sample\ReverseProxy.Minimal.Sample.csproj", "{AA34BE13-7193-4036-A886-A7EE6CD36940}"
 EndProject
@@ -88,9 +91,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.HttpSysDelegat
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Combined", "Combined", "{A33589AF-B49F-47B1-8D37-C3332985B04C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.Kubernetes.Monitor", "samples\KuberenetesIngress.Sample\Monitor\Yarp.Kubernetes.Monitor.csproj", "{FBA4F71A-2561-4AE1-9D6C-47769E6E161F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.Kubernetes.Monitor", "samples\KubernetesIngress.Sample\Monitor\Yarp.Kubernetes.Monitor.csproj", "{FBA4F71A-2561-4AE1-9D6C-47769E6E161F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.Kubernetes.IngressController", "samples\KuberenetesIngress.Sample\Combined\Yarp.Kubernetes.IngressController.csproj", "{99E0E09D-A6C7-4ECA-B7CE-2B7F26AE4C6B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarp.Kubernetes.IngressController", "samples\KubernetesIngress.Sample\Combined\Yarp.Kubernetes.IngressController.csproj", "{99E0E09D-A6C7-4ECA-B7CE-2B7F26AE4C6B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReverseProxy.LetsEncrypt.Sample", "samples\ReverseProxy.LetsEncrypt.Sample\ReverseProxy.LetsEncrypt.Sample.csproj", "{AC0EF892-7D32-4EAF-BE99-3696181E889F}"
 EndProject
@@ -334,14 +337,6 @@ Global
 		{7AA90031-4644-4F38-9790-60E7A7609F58}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7AA90031-4644-4F38-9790-60E7A7609F58}.Release|x64.ActiveCfg = Release|Any CPU
 		{7AA90031-4644-4F38-9790-60E7A7609F58}.Release|x64.Build.0 = Release|Any CPU
-		{AC0EF892-7D32-4EAF-BE99-3696181E889F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AC0EF892-7D32-4EAF-BE99-3696181E889F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AC0EF892-7D32-4EAF-BE99-3696181E889F}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{AC0EF892-7D32-4EAF-BE99-3696181E889F}.Debug|x64.Build.0 = Debug|Any CPU
-		{AC0EF892-7D32-4EAF-BE99-3696181E889F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AC0EF892-7D32-4EAF-BE99-3696181E889F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AC0EF892-7D32-4EAF-BE99-3696181E889F}.Release|x64.ActiveCfg = Release|Any CPU
-		{AC0EF892-7D32-4EAF-BE99-3696181E889F}.Release|x64.Build.0 = Release|Any CPU
 		{FBA4F71A-2561-4AE1-9D6C-47769E6E161F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FBA4F71A-2561-4AE1-9D6C-47769E6E161F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBA4F71A-2561-4AE1-9D6C-47769E6E161F}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -358,6 +353,14 @@ Global
 		{99E0E09D-A6C7-4ECA-B7CE-2B7F26AE4C6B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{99E0E09D-A6C7-4ECA-B7CE-2B7F26AE4C6B}.Release|x64.ActiveCfg = Release|Any CPU
 		{99E0E09D-A6C7-4ECA-B7CE-2B7F26AE4C6B}.Release|x64.Build.0 = Release|Any CPU
+		{AC0EF892-7D32-4EAF-BE99-3696181E889F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC0EF892-7D32-4EAF-BE99-3696181E889F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC0EF892-7D32-4EAF-BE99-3696181E889F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AC0EF892-7D32-4EAF-BE99-3696181E889F}.Debug|x64.Build.0 = Debug|Any CPU
+		{AC0EF892-7D32-4EAF-BE99-3696181E889F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC0EF892-7D32-4EAF-BE99-3696181E889F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC0EF892-7D32-4EAF-BE99-3696181E889F}.Release|x64.ActiveCfg = Release|Any CPU
+		{AC0EF892-7D32-4EAF-BE99-3696181E889F}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -396,10 +399,10 @@ Global
 		{34CB3C61-2F42-49FB-ACDC-2B0EC9EE8746} = {149C61A2-D9F8-49B9-9F9B-3C953FEF53AA}
 		{4A298B67-E7B5-4010-A6F2-5CFBB82BFBB1} = {34CB3C61-2F42-49FB-ACDC-2B0EC9EE8746}
 		{7AA90031-4644-4F38-9790-60E7A7609F58} = {34CB3C61-2F42-49FB-ACDC-2B0EC9EE8746}
-		{AC0EF892-7D32-4EAF-BE99-3696181E889F} = {149C61A2-D9F8-49B9-9F9B-3C953FEF53AA}
 		{A33589AF-B49F-47B1-8D37-C3332985B04C} = {0B4635FC-8B63-4408-8077-F1CFDA5AB6D7}
 		{FBA4F71A-2561-4AE1-9D6C-47769E6E161F} = {04E87669-7E7B-4217-83A4-EF80B534D14B}
 		{99E0E09D-A6C7-4ECA-B7CE-2B7F26AE4C6B} = {A33589AF-B49F-47B1-8D37-C3332985B04C}
+		{AC0EF892-7D32-4EAF-BE99-3696181E889F} = {149C61A2-D9F8-49B9-9F9B-3C953FEF53AA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {31F6924A-E427-4830-96E9-B47CEB7BFE78}

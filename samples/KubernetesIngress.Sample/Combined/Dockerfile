@@ -9,7 +9,7 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0.100-preview.3 AS publish
 WORKDIR /src
 
 # Copy csproj files and other files needed for restoring (to build a nuget cache layer to speed up rebuilds)
-COPY ["samples/KuberenetesIngress.Sample/Combined/Yarp.Kubernetes.IngressController.csproj", "samples/KuberenetesIngress.Sample/Combined/"]
+COPY ["samples/KubernetesIngress.Sample/Combined/Yarp.Kubernetes.IngressController.csproj", "samples/KubernetesIngress.Sample/Combined/"]
 COPY ["src/ReverseProxy/Yarp.ReverseProxy.csproj", "src/ReverseProxy/"]
 COPY ["src/Kubernetes.Controller/Yarp.Kubernetes.Controller.csproj", "src/Kubernetes.Controller/"]
 COPY ["src/Directory.Build.props", "src/"]
@@ -18,13 +18,13 @@ COPY ["global.json", ""]
 COPY ["NuGet.config", ""]
 
 # Build a cache layer with all of the nuget packages
-RUN dotnet restore samples/KuberenetesIngress.Sample/Combined/Yarp.Kubernetes.IngressController.csproj
+RUN dotnet restore samples/KubernetesIngress.Sample/Combined/Yarp.Kubernetes.IngressController.csproj
 
 # Copy the remaining source files
 WORKDIR /src
 COPY . .
 
-WORKDIR /src/samples/KuberenetesIngress.Sample/Combined/
+WORKDIR /src/samples/KubernetesIngress.Sample/Combined/
 RUN dotnet publish -c Release --no-restore -o /app/publish -f net6.0
 
 FROM base AS final
