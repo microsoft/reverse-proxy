@@ -22,8 +22,8 @@ internal class KubernetesConfigProvider : IProxyConfigProvider, IUpdateConfig
 
     public Task UpdateAsync(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters, CancellationToken cancellationToken)
     {
-        var oldConfig = _config;
-        _config = new MessageConfig(routes, clusters);
+        var newConfig = new MessageConfig(routes, clusters);
+        var oldConfig = Interlocked.Exchange(ref _config, newConfig);
         oldConfig.SignalChange();
 
         return Task.CompletedTask;
