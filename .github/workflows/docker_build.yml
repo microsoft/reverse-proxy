@@ -23,7 +23,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./
-          file: ./samples/KuberenetesIngress.Sample/Combined/Dockerfile
+          file: ./samples/KubernetesIngress.Sample/Combined/Dockerfile
           push: false
           tags: microsoft/yarp-combined:latest
       - name: Build Ingress
@@ -31,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./
-          file: ./samples/KuberenetesIngress.Sample/Ingress/Dockerfile
+          file: ./samples/KubernetesIngress.Sample/Ingress/Dockerfile
           push: false
           tags: microsoft/yarp-ingress:latest
       - name: Build Monitor
@@ -39,6 +39,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./
-          file: ./samples/KuberenetesIngress.Sample/Monitor/Dockerfile
+          file: ./samples/KubernetesIngress.Sample/Monitor/Dockerfile
           push: false
           tags: microsoft/yarp-monitor:latest
