@@ -33,8 +33,8 @@ namespace Yarp.ReverseProxy.Configuration
 
         public void Update(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
         {
-            var oldConfig = _config;
-            _config = new InMemoryConfig(routes, clusters);
+            var newConfig = new InMemoryConfig(routes, clusters);
+            var oldConfig = Interlocked.Exchange(ref _config, newConfig);
             oldConfig.SignalChange();
         }
 
