@@ -53,11 +53,7 @@ public class Receiver : BackgroundHostedService
 
             try
             {
-#if NET
                 using var stream = await client.GetStreamAsync(_options.ControllerUrl, cancellationToken).ConfigureAwait(false);
-#else
-                using var stream = await client.GetStreamAsync(_options.ControllerUrl).ConfigureAwait(false);
-#endif
                 using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
                 using var cancellation = cancellationToken.Register(stream.Close);
                 while (true)

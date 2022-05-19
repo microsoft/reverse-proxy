@@ -165,7 +165,6 @@ public class StreamCopyHttpContentTests
         await copyToTask;
     }
 
-#if NET
     [Fact]
     public async Task SerializeToStreamAsync_CanBeCanceledExternally()
     {
@@ -196,7 +195,6 @@ public class StreamCopyHttpContentTests
 
         await copyToTask;
     }
-#endif
 
     private class FlushCountingStream : DelegatingStream
     {

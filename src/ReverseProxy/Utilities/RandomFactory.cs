@@ -11,6 +11,6 @@ internal sealed class RandomFactory : IRandomFactory
     /// <inheritdoc/>
     public Random CreateRandomInstance()
     {
-        return ThreadStaticRandom.Instance;
+        return Random.Shared;
     }
 }

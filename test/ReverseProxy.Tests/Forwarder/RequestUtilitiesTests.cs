@@ -154,7 +154,6 @@ public class RequestUtilitiesTests
         }
     }
 
-#if NET6_0_OR_GREATER
     [Theory]
     [InlineData(null, "a", "a")]
     [InlineData("a", "", "a;")]
@@ -185,7 +184,6 @@ public class RequestUtilitiesTests
         actualValues = RequestUtilities.Concat(stringValues?.Split(';'), headerStringValues);
         Assert.Equal(expectedOutput.Split(';'), actualValues);
     }
-#endif
 
     [Theory]
     [InlineData("a")]
@@ -213,23 +211,5 @@ public class RequestUtilitiesTests
 
         Assert.True(RequestUtilities.TryGetValues(request.Headers, "bar", out actualValues));
         Assert.Equal(headerValues, actualValues);
-    }
-
-    [Theory]
-    [InlineData("a", "a", true)]
-    [InlineData("b", "a", false)]
-    [InlineData("a;b", "a", true)]
-    [InlineData("a;b", "b", true)]
-    [InlineData("a;b", "c", false)]
-    [InlineData("", "a", false)]
-    public void ContainsHeader(string headers, string headerName, bool expectedContains)
-    {
-        var request = new HttpRequestMessage();
-        foreach (var name in headers.Split(';', StringSplitOptions.RemoveEmptyEntries))
-        {
-            request.Headers.TryAddWithoutValidation(name, "foo");
-        }
-
-        Assert.Equal(expectedContains, RequestUtilities.ContainsHeader(request.Headers, headerName));
     }
 }

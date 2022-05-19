@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Yarp.ReverseProxy.Utilities;
 
@@ -27,9 +26,7 @@ internal sealed class HttpForwarder : IHttpForwarder
 {
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
     private static readonly Version DefaultVersion = HttpVersion.Version20;
-#if NET
     private static readonly HttpVersionPolicy DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
-#endif
     private readonly ILogger _logger;
     private readonly IClock _clock;
 
@@ -275,9 +272,7 @@ internal sealed class HttpForwarder : IHttpForwarder
         // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
         // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
         destinationRequest.Version = isUpgradeRequest ? ProtocolHelper.Http11Version : (requestConfig?.Version ?? DefaultVersion);
-#if NET
         destinationRequest.VersionPolicy = isUpgradeRequest ? HttpVersionPolicy.RequestVersionOrLower : (requestConfig?.VersionPolicy ?? DefaultVersionPolicy);
-#endif
 
         // :: Step 2: Setup copy of request body (background) Client --► Proxy --► Destination
         // Note that we must do this before step (3) because step (3) may also add headers to the HttpContent that we set up here.
@@ -337,15 +332,12 @@ internal sealed class HttpForwarder : IHttpForwarder
         var contentLength = request.Headers.ContentLength;
         var method = request.Method;
 
-#if NET
         var canHaveBodyFeature = request.HttpContext.Features.Get<IHttpRequestBodyDetectionFeature>();
         if (canHaveBodyFeature is not null)
         {
             // 5.0 servers provide a definitive answer for us.
             hasBody = canHaveBodyFeature.CanHaveBody;
         }
-        else
-#endif
         // https://tools.ietf.org/html/rfc7230#section-3.3.3
         // All HTTP/1.1 requests should have Transfer-Encoding or Content-Length.
         // Http.Sys/IIS will even add a Transfer-Encoding header to HTTP/2 requests with bodies for back-compat.
@@ -353,7 +345,7 @@ internal sealed class HttpForwarder : IHttpForwarder
         // https://tools.ietf.org/html/rfc1945#section-7.2.2
         //
         // Transfer-Encoding overrides Content-Length per spec
-        if (request.Headers.TryGetValue(HeaderNames.TransferEncoding, out var transferEncoding)
+        else if (request.Headers.TryGetValue(HeaderNames.TransferEncoding, out var transferEncoding)
             && transferEncoding.Count == 1
             && string.Equals("chunked", transferEncoding.ToString(), StringComparison.OrdinalIgnoreCase))
         {
@@ -462,11 +454,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             }
             else
             {
-#if NET6_0_OR_GREATER
                 Debug.Assert(requestCancellationSource.IsCancellationRequested || requestException.ToString().Contains("ConnectTimeout"), requestException.ToString());
-#else
-                Debug.Assert(requestCancellationSource.IsCancellationRequested || requestException.ToString().Contains("ConnectHelper"), requestException.ToString());
-#endif
                 return await ReportErrorAsync(ForwarderError.RequestTimedOut, StatusCodes.Status504GatewayTimeout);
             }
         }
@@ -782,12 +770,8 @@ internal sealed class HttpForwarder : IHttpForwarder
             if (logger.IsEnabled(LogLevel.Information))
             {
                 var streaming = isStreamingRequest ? "streaming" : "no-streaming";
-                var version = ProtocolHelper.GetHttpProtocol(msg.Version);
-#if NET
+                var version = HttpProtocol.GetHttpProtocol(msg.Version);
                 var versionPolicy = ProtocolHelper.GetVersionPolicy(msg.VersionPolicy);
-#else
-                var versionPolicy = "RequestVersionOrLower";
-#endif
                 _proxying(logger, msg.RequestUri!.AbsoluteUri, version, versionPolicy, streaming, null);
             }
         }

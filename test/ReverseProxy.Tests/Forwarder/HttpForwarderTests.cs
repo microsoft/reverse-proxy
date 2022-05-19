@@ -829,7 +829,6 @@ public class HttpForwarderTests
         events.AssertContainProxyStages();
     }
 
-#if NET
     [Fact]
     public async Task BodyDetectionFeatureSaysNo_NoHttpContent()
     {
@@ -896,7 +895,6 @@ public class HttpForwarderTests
     {
         public bool CanHaveBody { get; set; }
     }
-#endif
 
     [Theory]
     // This is an invalid format per spec but may happen due to https://github.com/dotnet/aspnetcore/issues/26461
@@ -987,7 +985,6 @@ public class HttpForwarderTests
         events.AssertContainProxyStages(hasRequestContent: false);
     }
 
-#if NET6_0_OR_GREATER
     [Theory]
     [MemberData(nameof(RequestEmptyMultiHeadersData))]
     public async Task RequestWithEmptyMultiHeaders(string version, string headerName, string[] headers)
@@ -1028,7 +1025,6 @@ public class HttpForwarderTests
         AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
         events.AssertContainProxyStages(hasRequestContent: false);
     }
-#endif
 
     internal static void AreEqualIgnoringEmptyStrings(IEnumerable<string> left, IEnumerable<string> right)
     => Assert.Equal(left.Where(s => !string.IsNullOrEmpty(s)), right.Where(s => !string.IsNullOrEmpty(s)));
@@ -1148,9 +1144,7 @@ public class HttpForwarderTests
 
         // Use any non-default value
         var version = new Version(5, 5);
-#if NET
         var versionPolicy = HttpVersionPolicy.RequestVersionExact;
-#endif
 
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Method = "GET";
@@ -1161,9 +1155,7 @@ public class HttpForwarderTests
             (HttpRequestMessage request, CancellationToken cancellationToken) =>
             {
                 Assert.Equal(version, request.Version);
-#if NET
                 Assert.Equal(versionPolicy, request.VersionPolicy);
-#endif
                 Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
                 Assert.Null(request.Content);
 
@@ -1174,9 +1166,7 @@ public class HttpForwarderTests
         var options = new ForwarderRequestConfig
         {
             Version = version,
-#if NET
             VersionPolicy = versionPolicy,
-#endif
         };
 
         var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, options);
@@ -1197,10 +1187,8 @@ public class HttpForwarderTests
         // Use any non-default value
         var version = new Version(5, 5);
         var transformedVersion = new Version(6, 6);
-#if NET
         var versionPolicy = HttpVersionPolicy.RequestVersionExact;
         var transformedVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
-#endif
 
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Method = "GET";
@@ -1211,9 +1199,7 @@ public class HttpForwarderTests
             (HttpRequestMessage request, CancellationToken cancellationToken) =>
             {
                 Assert.Equal(transformedVersion, request.Version);
-#if NET
                 Assert.Equal(transformedVersionPolicy, request.VersionPolicy);
-#endif
                 Assert.Equal("GET", request.Method.Method, StringComparer.OrdinalIgnoreCase);
                 Assert.Null(request.Content);
 
@@ -1228,10 +1214,8 @@ public class HttpForwarderTests
             {
                 Assert.Equal(version, request.Version);
                 request.Version = transformedVersion;
-#if NET
                 Assert.Equal(versionPolicy, request.VersionPolicy);
                 request.VersionPolicy = transformedVersionPolicy;
-#endif
                 return Task.CompletedTask;
             }
         };
@@ -1239,9 +1223,7 @@ public class HttpForwarderTests
         var requestOptions = new ForwarderRequestConfig
         {
             Version = version,
-#if NET
             VersionPolicy = versionPolicy,
-#endif
         };
 
         var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, requestOptions, transforms);
@@ -2429,7 +2411,6 @@ public class HttpForwarderTests
         Assert.Equal((int)HttpStatusCode.OK, httpContext.Response.StatusCode);
     }
 
-#if NET6_0_OR_GREATER
     [Theory]
     [MemberData(nameof(ResponseMultiHeadersData))]
     public async Task ResponseWithMultiHeaders(string version, string headerName, string[] headers)
@@ -2460,7 +2441,6 @@ public class HttpForwarderTests
         Assert.True(httpContext.Response.Headers.TryGetValue(headerName, out var sentHeaders));
         Assert.True(sentHeaders.Equals(headers));
     }
-#endif
 
     [Theory]
     [MemberData(nameof(GetProhibitedHeaders))]

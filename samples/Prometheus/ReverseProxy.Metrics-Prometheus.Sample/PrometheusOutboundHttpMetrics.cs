@@ -2,7 +2,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if NET
 using System;
 using Yarp.Telemetry.Consumption;
 using Prometheus;
@@ -69,4 +68,3 @@ namespace Yarp.Sample
         }
     }
 }
-#endif

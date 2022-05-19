@@ -95,11 +95,7 @@ internal sealed class RequestHeadersTransformFactory : ITransformFactory
         else if (transformValues.TryGetValue(RequestHeadersAllowedKey, out var allowedHeaders))
         {
             TransformHelpers.CheckTooManyParameters(transformValues, expected: 1);
-            var headersList = allowedHeaders.Split(';', options: StringSplitOptions.RemoveEmptyEntries
-#if NET
-                | StringSplitOptions.TrimEntries
-#endif
-                );
+            var headersList = allowedHeaders.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             context.AddRequestHeadersAllowed(headersList);
         }
         else

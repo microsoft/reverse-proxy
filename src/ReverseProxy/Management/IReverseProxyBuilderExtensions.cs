@@ -6,9 +6,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Yarp.ReverseProxy.Configuration;
-#if NET6_0_OR_GREATER
 using Yarp.ReverseProxy.Delegation;
-#endif
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.LoadBalancing;
@@ -119,11 +117,9 @@ internal static class IReverseProxyBuilderExtensions
 
     public static IReverseProxyBuilder AddHttpSysDelegation(this IReverseProxyBuilder builder)
     {
-#if NET6_0_OR_GREATER
         builder.Services.AddSingleton<HttpSysDelegator>();
         builder.Services.TryAddSingleton<IHttpSysDelegator>(p => p.GetRequiredService<HttpSysDelegator>());
         builder.Services.AddSingleton<IClusterChangeListener>(p => p.GetRequiredService<HttpSysDelegator>());
-#endif
 
         return builder;
     }

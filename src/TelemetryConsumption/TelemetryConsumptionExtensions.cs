@@ -9,26 +9,18 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class TelemetryConsumptionExtensions
 {
-#if NET
     /// <summary>
     /// Registers all telemetry listeners (Forwarder, Kestrel, Http, NameResolution, NetSecurity, Sockets and WebSockets).
     /// </summary>
-#else
-    /// <summary>
-    /// Registers all telemetry listeners (Forwarder, Kestrel and WebSockets).
-    /// </summary>
-#endif
     public static IServiceCollection AddTelemetryListeners(this IServiceCollection services)
     {
         services.AddHostedService<WebSocketsEventListenerService>();
         services.AddHostedService<ForwarderEventListenerService>();
         services.AddHostedService<KestrelEventListenerService>();
-#if NET
         services.AddHostedService<HttpEventListenerService>();
         services.AddHostedService<NameResolutionEventListenerService>();
         services.AddHostedService<NetSecurityEventListenerService>();
         services.AddHostedService<SocketsEventListenerService>();
-#endif
         return services;
     }
 
@@ -57,7 +49,6 @@ public static class TelemetryConsumptionExtensions
             implementsAny = true;
         }
 
-#if NET
         if (consumer is IHttpTelemetryConsumer httpTelemetryConsumer)
         {
             services.TryAddEnumerable(ServiceDescriptor.Singleton(httpTelemetryConsumer));
@@ -81,7 +72,6 @@ public static class TelemetryConsumptionExtensions
             services.TryAddEnumerable(ServiceDescriptor.Singleton(socketsTelemetryConsumer));
             implementsAny = true;
         }
-#endif
 
         if (!implementsAny)
         {
@@ -119,7 +109,6 @@ public static class TelemetryConsumptionExtensions
             implementsAny = true;
         }
 
-#if NET
         if (typeof(IHttpTelemetryConsumer).IsAssignableFrom(typeof(TConsumer)))
         {
             services.AddSingleton(services => (IHttpTelemetryConsumer)services.GetRequiredService<TConsumer>());
@@ -143,7 +132,6 @@ public static class TelemetryConsumptionExtensions
             services.AddSingleton(services => (ISocketsTelemetryConsumer)services.GetRequiredService<TConsumer>());
             implementsAny = true;
         }
-#endif
 
         if (!implementsAny)
         {

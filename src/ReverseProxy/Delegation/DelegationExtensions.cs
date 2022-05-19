@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if NET6_0_OR_GREATER
 using Yarp.ReverseProxy.Model;
 
 namespace Yarp.ReverseProxy.Delegation;
@@ -22,4 +21,3 @@ internal static class DelegationExtensions
         return destination.GetHttpSysDelegationQueue() is not null;
     }
 }
-#endif

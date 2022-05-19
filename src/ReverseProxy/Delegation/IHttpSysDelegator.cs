@@ -1,4 +1,3 @@
-#if NET6_0_OR_GREATER
 namespace Yarp.ReverseProxy.Delegation;
 
 public interface IHttpSysDelegator
@@ -14,4 +13,3 @@ public interface IHttpSysDelegator
     /// <param name="urlPrefix">The url prefix of the queue to reset.</param>
     void ResetQueue(string queueName, string urlPrefix);
 }
-#endif

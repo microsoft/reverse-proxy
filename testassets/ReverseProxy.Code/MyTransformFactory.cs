@@ -36,11 +36,7 @@ internal class MyTransformFactory : ITransformFactory
 
             context.AddRequestTransform(transformContext =>
             {
-#if NET
                 transformContext.ProxyRequest.Options.Set(new HttpRequestOptionsKey<string>("CustomTransform"), value);
-#else
-                transformContext.ProxyRequest.Properties["CustomTransform"] = value;
-#endif
                 return default;
             });
 

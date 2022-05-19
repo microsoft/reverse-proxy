@@ -10,7 +10,6 @@ namespace Yarp.ReverseProxy.Utilities.Tests;
 
 public class ActivityCancellationTokenSourceTests
 {
-#if NET6_0_OR_GREATER // CancellationTokenSource.TryReset() is only available in 6.0+
     [Fact]
     public void ActivityCancellationTokenSource_PoolsSources()
     {
@@ -33,7 +32,6 @@ public class ActivityCancellationTokenSourceTests
 
         Assert.True(false, "CancellationTokenSources were not pooled");
     }
-#endif
 
     [Fact]
     public void ActivityCancellationTokenSource_DoesNotPoolsCanceledSources()

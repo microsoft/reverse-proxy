@@ -19,9 +19,7 @@ public class HttpClientConfigTests
             DangerousAcceptAnyServerCertificate = false,
             MaxConnectionsPerServer = 20,
             WebProxy = new WebProxyConfig() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true },
-#if NET
-            RequestHeaderEncoding = Encoding.UTF8.WebName
-#endif
+            RequestHeaderEncoding = Encoding.UTF8.WebName,
         };
 
         var options2 = new HttpClientConfig
@@ -30,9 +28,7 @@ public class HttpClientConfigTests
             DangerousAcceptAnyServerCertificate = false,
             MaxConnectionsPerServer = 20,
             WebProxy = new WebProxyConfig() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true },
-#if NET
-            RequestHeaderEncoding = Encoding.UTF8.WebName
-#endif
+            RequestHeaderEncoding = Encoding.UTF8.WebName,
         };
 
         var equals = options1.Equals(options2);
@@ -51,9 +47,7 @@ public class HttpClientConfigTests
             SslProtocols = SslProtocols.Tls11,
             DangerousAcceptAnyServerCertificate = false,
             MaxConnectionsPerServer = 20,
-#if NET
-            RequestHeaderEncoding = Encoding.UTF8.WebName
-#endif
+            RequestHeaderEncoding = Encoding.UTF8.WebName,
         };
 
         var options2 = new HttpClientConfig
@@ -61,9 +55,7 @@ public class HttpClientConfigTests
             SslProtocols = SslProtocols.Tls12,
             DangerousAcceptAnyServerCertificate = true,
             MaxConnectionsPerServer = 20,
-#if NET
-            RequestHeaderEncoding = Encoding.Latin1.WebName
-#endif
+            RequestHeaderEncoding = Encoding.Latin1.WebName,
         };
 
         var equals = options1.Equals(options2);

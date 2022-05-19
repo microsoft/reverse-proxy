@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Yarp.ReverseProxy.Configuration;
-using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Model;
 
 namespace Yarp.Sample
@@ -27,11 +26,6 @@ namespace Yarp.Sample
         /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
-#if !NET6_0_OR_GREATER
-            // Workaround the lack of distributed tracing support in SocketsHttpHandler before .NET 6.0
-            services.AddSingleton<IForwarderHttpClientFactory, DiagnosticsHandlerFactory>();
-#endif
-
             // Specify a custom proxy config provider, in this case defined in InMemoryConfigProvider.cs
             // Programatically creating route and cluster configs. This allows loading the data from an arbitrary source.
             services.AddReverseProxy()

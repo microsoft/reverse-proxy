@@ -383,9 +383,7 @@ public class ProxyConfigManagerTests
             {
                 SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                 MaxConnectionsPerServer = 10,
-#if NET
-                RequestHeaderEncoding = Encoding.UTF8.WebName
-#endif
+                RequestHeaderEncoding = Encoding.UTF8.WebName,
             },
             HealthCheck = new HealthCheckConfig
             {
@@ -413,16 +411,12 @@ public class ProxyConfigManagerTests
         Assert.NotNull(clusterModel.HttpClient);
         Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, clusterModel.Config.HttpClient.SslProtocols);
         Assert.Equal(10, clusterModel.Config.HttpClient.MaxConnectionsPerServer);
-#if NET
         Assert.Equal(Encoding.UTF8.WebName, clusterModel.Config.HttpClient.RequestHeaderEncoding);
-#endif
 
         var handler = ForwarderHttpClientFactoryTests.GetHandler(clusterModel.HttpClient);
         Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, handler.SslOptions.EnabledSslProtocols);
         Assert.Equal(10, handler.MaxConnectionsPerServer);
-#if NET
         Assert.Equal(Encoding.UTF8, handler.RequestHeaderEncodingSelector(default, default));
-#endif
         var activeMonitor = (ActiveHealthCheckMonitor)services.GetRequiredService<IActiveHealthCheckMonitor>();
         Assert.True(activeMonitor.Scheduler.IsScheduled(clusterState));
     }

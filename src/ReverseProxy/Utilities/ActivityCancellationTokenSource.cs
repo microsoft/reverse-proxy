@@ -9,11 +9,9 @@ namespace Yarp.ReverseProxy.Utilities;
 
 internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
 {
-#if NET6_0_OR_GREATER
     private const int MaxQueueSize = 1024;
     private static readonly ConcurrentQueue<ActivityCancellationTokenSource> _sharedSources = new();
     private static int _count;
-#endif
 
     private static readonly Action<object?> _linkedTokenCancelDelegate = static s =>
     {
@@ -32,7 +30,6 @@ internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
 
     public static ActivityCancellationTokenSource Rent(TimeSpan activityTimeout, CancellationToken linkedToken)
     {
-#if NET6_0_OR_GREATER
         if (_sharedSources.TryDequeue(out var cts))
         {
             Interlocked.Decrement(ref _count);
@@ -41,9 +38,6 @@ internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
         {
             cts = new ActivityCancellationTokenSource();
         }
-#else
-        var cts = new ActivityCancellationTokenSource();
-#endif
 
         cts._activityTimeoutMs = (int)activityTimeout.TotalMilliseconds;
         cts._linkedRegistration = linkedToken.UnsafeRegister(_linkedTokenCancelDelegate, cts);
@@ -57,7 +51,6 @@ internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
         _linkedRegistration.Dispose();
         _linkedRegistration = default;
 
-#if NET6_0_OR_GREATER
         if (TryReset())
         {
             if (Interlocked.Increment(ref _count) <= MaxQueueSize)
@@ -68,7 +61,6 @@ internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
 
             Interlocked.Decrement(ref _count);
         }
-#endif
 
         Dispose();
     }

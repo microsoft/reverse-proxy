@@ -40,9 +40,7 @@ namespace Yarp.Sample
                 AllowAutoRedirect = false,
                 AutomaticDecompression = DecompressionMethods.None,
                 UseCookies = false,
-#if NET6_0_OR_GREATER
-                ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
-#endif
+                ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
             });
 
             // Setup our own request transform class

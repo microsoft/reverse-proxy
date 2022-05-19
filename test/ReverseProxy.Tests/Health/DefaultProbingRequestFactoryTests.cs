@@ -48,28 +48,17 @@ public class DefaultProbingRequestFactoryTests
             {
                 Enabled = true,
                 Policy = "policy",
-            },
-            version
-#if NET
-            , HttpVersionPolicy.RequestVersionExact
-#endif
-            );
+            }, version, HttpVersionPolicy.RequestVersionExact);
         var destinationModel = new DestinationModel(new DestinationConfig { Address = "https://localhost:10000/" });
         var factory = new DefaultProbingRequestFactory();
 
         var request = factory.CreateRequest(clusterModel, destinationModel);
 
         Assert.Equal(version ?? HttpVersion.Version20, request.Version);
-#if NET
         Assert.Equal(HttpVersionPolicy.RequestVersionExact, request.VersionPolicy);
-#endif
     }
 
-    private ClusterModel GetClusterConfig(string id, ActiveHealthCheckConfig healthCheckOptions, Version version
-#if NET
-        , HttpVersionPolicy versionPolicy = HttpVersionPolicy.RequestVersionExact
-#endif
-        )
+    private ClusterModel GetClusterConfig(string id, ActiveHealthCheckConfig healthCheckOptions, Version version, HttpVersionPolicy versionPolicy = HttpVersionPolicy.RequestVersionExact)
     {
         return new ClusterModel(
             new ClusterConfig
@@ -83,9 +72,7 @@ public class DefaultProbingRequestFactoryTests
                 {
                     ActivityTimeout = TimeSpan.FromSeconds(60),
                     Version = version,
-#if NET
                     VersionPolicy = versionPolicy,
-#endif
                 }
             },
             new HttpMessageInvoker(new HttpClientHandler()));

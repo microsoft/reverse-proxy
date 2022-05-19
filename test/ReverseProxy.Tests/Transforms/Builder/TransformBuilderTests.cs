@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Yarp.ReverseProxy.Configuration;
-using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Transforms.Builder.Tests;
 

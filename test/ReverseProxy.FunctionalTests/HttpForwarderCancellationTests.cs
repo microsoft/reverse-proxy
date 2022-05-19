@@ -17,7 +17,6 @@ namespace Yarp.ReverseProxy;
 
 public class HttpForwarderCancellationTests
 {
-#if NET
     [Fact]
     public async Task ServerSendsHttp2Reset_ReadToClientIsCanceled()
     {
@@ -123,7 +122,6 @@ public class HttpForwarderCancellationTests
             return false;
         }
     }
-#endif
 
     private sealed class ReadDelegatingStream : DelegatingStream
     {

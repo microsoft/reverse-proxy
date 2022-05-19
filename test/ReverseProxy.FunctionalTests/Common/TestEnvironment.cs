@@ -120,9 +120,7 @@ public class TestEnvironment
                     HttpClient = new HttpClientConfig
                     {
                         DangerousAcceptAnyServerCertificate = useHttpsOnDestination,
-#if NET
                         RequestHeaderEncoding = requestHeaderEncoding?.WebName,
-#endif
                     }
                 };
                 (cluster, route) = configTransformer(cluster, route);
@@ -162,12 +160,10 @@ public class TestEnvironment
                     .ConfigureServices(configureServices)
                     .UseKestrel(kestrel =>
                     {
-#if NET
                         if (requestHeaderEncoding is not null)
                         {
                             kestrel.RequestHeaderEncodingSelector = _ => requestHeaderEncoding;
                         }
-#endif
                         kestrel.Listen(IPAddress.Loopback, 0, listenOptions =>
                         {
                             listenOptions.Protocols = protocols;

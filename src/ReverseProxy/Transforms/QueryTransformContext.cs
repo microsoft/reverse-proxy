@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Primitives;
@@ -35,14 +34,7 @@ public class QueryTransformContext
                 return _originalQueryString;
             }
 
-#if NET
-            var queryBuilder = new QueryBuilder(_modifiedQueryParameters);
-#elif NETCOREAPP3_1
-            var queryBuilder = new QueryBuilder(_modifiedQueryParameters.SelectMany(kvp => kvp.Value, (kvp, v) => KeyValuePair.Create(kvp.Key, v)));
-#else
-#error A target framework was added to the project and needs to be added to this condition.
-#endif
-            return queryBuilder.ToQueryString();
+            return new QueryBuilder(_modifiedQueryParameters).ToQueryString();
         }
     }
 

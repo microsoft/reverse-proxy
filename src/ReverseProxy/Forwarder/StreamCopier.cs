@@ -47,7 +47,6 @@ internal static class StreamCopier
             {
                 read = 0;
 
-#if NET6_0_OR_GREATER
                 // Issue a zero-byte read to the input stream to defer buffer allocation until data is available.
                 // Note that if the underlying stream does not supporting blocking on zero byte reads, then this will
                 // complete immediately and won't save any memory, but will still function correctly.
@@ -68,7 +67,6 @@ internal static class StreamCopier
 
                     buffer = ArrayPool<byte>.Shared.Rent(DefaultBufferSize);
                 }
-#endif
 
                 read = await input.ReadAsync(buffer.AsMemory(), cancellation);
                 contentLength += read;
