@@ -31,7 +31,6 @@
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="FluentAssertions.Json" Version="5.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.2" />
-    <PackageReference Condition=" '$(TargetFramework)' != 'net6.0' " Include="System.Text.Json" Version="6.0.0-*" />
     <PackageReference Include="Polly" Version="7.2.1" />
   </ItemGroup>
 

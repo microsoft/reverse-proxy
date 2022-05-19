@@ -14,8 +14,7 @@ namespace Yarp.ReverseProxy;
 
 public class DistributedTracingTests
 {
-    // These constants depend on the default behavior of DiagnosticsHandler in 5.0
-    // and the DistributedContextPropagator used in 6.0
+    // These constants depend on the default behavior of DistributedContextPropagator
     private const string Baggage = "Correlation-Context";
     private const string TraceParent = "traceparent";
     private const string TraceState = "tracestate";

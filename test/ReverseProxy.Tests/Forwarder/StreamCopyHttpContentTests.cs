@@ -125,7 +125,7 @@ public class StreamCopyHttpContentTests
         var sut = CreateContent();
 
         // This is an internal property that HttpClient and friends use internally and which must be true
-        // to support duplex channels.This test helps detect regressions or changes in undocumented behavior
+        // to support duplex channels. This test helps detect regressions or changes in undocumented behavior
         // in .NET Core, and it passes as of .NET Core 3.1.
         var allowDuplexProperty = typeof(HttpContent).GetProperty("AllowDuplex", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         Assert.NotNull(allowDuplexProperty);

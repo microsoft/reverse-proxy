@@ -268,7 +268,7 @@ internal sealed class HttpForwarder : IHttpForwarder
 
         // Default to HTTP/1.1 for proxying upgradeable requests. This is already the default as of .NET Core 3.1
         // Otherwise request what's set in proxyOptions (e.g. default HTTP/2) and let HttpClient negotiate the protocol
-        // based on VersionPolicy (for .NET 5 and higher). For example, downgrading to HTTP/1.1 if it cannot establish HTTP/2 with the target.
+        // based on VersionPolicy. For example, downgrading to HTTP/1.1 if it cannot establish HTTP/2 with the target.
         // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
         // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
         destinationRequest.Version = isUpgradeRequest ? ProtocolHelper.Http11Version : (requestConfig?.Version ?? DefaultVersion);
