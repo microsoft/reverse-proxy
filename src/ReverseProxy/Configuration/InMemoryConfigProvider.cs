@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Extensions.Primitives;
@@ -19,8 +20,15 @@ public sealed class InMemoryConfigProvider : IProxyConfigProvider
     /// Creates a new instance.
     /// </summary>
     public InMemoryConfigProvider(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
+        : this(routes, clusters, Guid.NewGuid().ToString())
+    { }
+
+    /// <summary>
+    /// Creates a new instance, specifying a revision id of the configuration.
+    /// </summary>
+    public InMemoryConfigProvider(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters, string revisionId)
     {
-        _config = new InMemoryConfig(routes, clusters);
+        _config = new InMemoryConfig(routes, clusters, revisionId);
     }
 
     /// <summary>
@@ -35,6 +43,20 @@ public sealed class InMemoryConfigProvider : IProxyConfigProvider
     public void Update(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
     {
         var newConfig = new InMemoryConfig(routes, clusters);
+        UpdateInternal(newConfig);
+    }
+
+    /// <summary>
+    /// Swaps the config state with a new snapshot of the configuration, then signals that the old one is outdated.
+    /// </summary>
+    public void Update(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters, string revisionId)
+    {
+        var newConfig = new InMemoryConfig(routes, clusters, revisionId);
+        UpdateInternal(newConfig);
+    }
+
+    private void UpdateInternal(InMemoryConfig newConfig)
+    {
         var oldConfig = Interlocked.Exchange(ref _config, newConfig);
         oldConfig.SignalChange();
     }
@@ -48,11 +70,19 @@ public sealed class InMemoryConfigProvider : IProxyConfigProvider
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
         public InMemoryConfig(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
+            : this(routes, clusters, Guid.NewGuid().ToString())
+        { }
+
+        public InMemoryConfig(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters, string revisionId)
         {
+            RevisionId = revisionId ?? throw new ArgumentNullException(nameof(revisionId));
             Routes = routes;
             Clusters = clusters;
             ChangeToken = new CancellationChangeToken(_cts.Token);
         }
+
+        /// <inheritdoc/>
+        public string RevisionId { get; }
 
         /// <summary>
         /// A snapshot of the list of routes for the proxy
