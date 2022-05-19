@@ -47,9 +47,9 @@ The logging output is directly tied to the way that ASP.NET Core processes reque
 
 The above gives general information about the request and how it was processed.
 
-### Using ASP.NET 6 Request Logging
+### Using ASP.NET Request Logging
 
-If running on .NET 6, then ASP.NET includes an additional middleware component that can be used to provide more details about the request and response. The `UseHttpLogging` component can be added to the request pipeline. It will add additional entries to the log detailing the incoming and outgoing request headers.
+ASP.NET includes a middleware component that can be used to provide more details about the request and response. The `UseHttpLogging` component can be added to the request pipeline. It will add additional entries to the log detailing the incoming and outgoing request headers.
 
 ``` C#
 // This method gets called by the runtime. Use this method to configure the HTTP request 

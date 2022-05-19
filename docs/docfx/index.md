@@ -15,7 +15,7 @@ Many of the existing proxies were built to support HTTP/1.1, but with workloads 
 
 ## Using YARP
 
-YARP is built on .NET using the infrastructure from ASP.NET and .NET (.NET Core 3.1, .NET 5, and .NET 6). The key differentiator for YARP is that it's been designed to be easily customized and tweaked via .NET code to match the specific needs of each deployment scenario. 
+YARP is built on .NET using the infrastructure from ASP.NET and .NET (.NET 6 and newer). The key differentiator for YARP is that it's been designed to be easily customized and tweaked via .NET code to match the specific needs of each deployment scenario.
 
 Eventually we expect YARP to ship as a library, project template, and a single-file exe, to provide a variety of choices for building a robust, performant proxy server. Its pipeline and modules are designed so that you can then customize the functionality for your needs. For example, while YARP supports configuration files, we expect that many users will want to manage the configuration programmatically based on their own configuration management system. YARP provides a configuration API to enable that customization in-proc. 
 
