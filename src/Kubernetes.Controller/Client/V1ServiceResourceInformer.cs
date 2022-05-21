@@ -15,14 +15,15 @@ internal class V1ServiceResourceInformer : ResourceInformer<V1Service, V1Service
 {
     public V1ServiceResourceInformer(
         IKubernetes client,
+        ResourceSelector<V1Service> selector,
         IHostApplicationLifetime hostApplicationLifetime,
         ILogger<V1ServiceResourceInformer> logger)
-        : base(client, hostApplicationLifetime, logger)
+        : base(client, selector, hostApplicationLifetime, logger)
     {
     }
 
-    protected override Task<HttpOperationResponse<V1ServiceList>> RetrieveResourceListAsync(bool? watch = null, string resourceVersion = null, CancellationToken cancellationToken = default)
+    protected override Task<HttpOperationResponse<V1ServiceList>> RetrieveResourceListAsync(bool? watch = null, string resourceVersion = null, ResourceSelector<V1Service> resourceSelector = null, CancellationToken cancellationToken = default)
     {
-        return Client.ListServiceForAllNamespacesWithHttpMessagesAsync(watch: watch, resourceVersion: resourceVersion, cancellationToken: cancellationToken); 
+        return Client.ListServiceForAllNamespacesWithHttpMessagesAsync(watch: watch, resourceVersion: resourceVersion, fieldSelector: resourceSelector?.FieldSelector, cancellationToken: cancellationToken); 
     }
 }

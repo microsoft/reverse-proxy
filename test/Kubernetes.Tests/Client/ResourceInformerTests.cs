@@ -30,9 +30,9 @@ public class ResourceInformerTests
             .Build();
 
         using var testHost = new HostBuilder()
-            .ConfigureServices(services =>
+            .ConfigureServices((context, services) =>
             {
-                services.AddKubernetesControllerRuntime();
+                services.AddKubernetesReverseProxy(context.Configuration);
                 services.RegisterResourceInformer<V1Pod, V1PodResourceInformer>();
                 services.Configure<KubernetesClientOptions>(options =>
                 {
@@ -70,9 +70,9 @@ public class ResourceInformerTests
             .Build();
 
         using var testHost = new HostBuilder()
-            .ConfigureServices(services =>
+            .ConfigureServices((context, services) =>
             {
-                services.AddKubernetesControllerRuntime();
+                services.AddKubernetesReverseProxy(context.Configuration);
                 services.RegisterResourceInformer<V1Deployment, V1DeploymentResourceInformer>();
                 services.Configure<KubernetesClientOptions>(options =>
                 {

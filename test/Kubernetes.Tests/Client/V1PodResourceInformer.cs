@@ -15,14 +15,15 @@ internal class V1PodResourceInformer : ResourceInformer<V1Pod, V1PodList>
 {
     public V1PodResourceInformer(
         IKubernetes client,
+        ResourceSelector<V1Pod> selector,
         IHostApplicationLifetime hostApplicationLifetime,
         ILogger<V1PodResourceInformer> logger)
-        : base(client, hostApplicationLifetime, logger)
+        : base(client, selector, hostApplicationLifetime, logger)
     {
     }
 
-    protected override Task<HttpOperationResponse<V1PodList>> RetrieveResourceListAsync(bool? watch = null, string resourceVersion = null, CancellationToken cancellationToken = default)
+    protected override Task<HttpOperationResponse<V1PodList>> RetrieveResourceListAsync(bool? watch = null, string resourceVersion = null, ResourceSelector<V1Pod> resourceSelector = null, CancellationToken cancellationToken = default)
     {
-        return Client.ListPodForAllNamespacesWithHttpMessagesAsync(watch: watch, resourceVersion: resourceVersion, cancellationToken: cancellationToken);
+        return Client.ListPodForAllNamespacesWithHttpMessagesAsync(watch: watch, resourceVersion: resourceVersion, fieldSelector: resourceSelector?.FieldSelector, cancellationToken: cancellationToken);
     }
 }

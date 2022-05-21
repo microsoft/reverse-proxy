@@ -125,6 +125,6 @@ public struct NamespacedName : IEquatable<NamespacedName>
     /// <returns>A <see cref="string" /> that represents this instance.</returns>
     public override string ToString()
     {
-        return $"{Name}.{Namespace}";
+        return $"{Namespace}/{Name}";
     }
 }

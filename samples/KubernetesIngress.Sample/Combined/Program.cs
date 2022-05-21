@@ -24,6 +24,10 @@ namespace Yarp.Kubernetes.Ingress
             ServiceClientTracing.IsEnabled = true;
 
             Host.CreateDefaultBuilder(args)
+                .ConfigureWebHost(webBuilder =>
+                {
+                    webBuilder.UseKubernetesReverseProxyCertificateSelector();
+                })
                 .ConfigureAppConfiguration(config =>
                 {
                     config.AddJsonFile("/app/config/yarp.json", optional: true);

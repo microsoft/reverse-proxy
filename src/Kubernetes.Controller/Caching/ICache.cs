@@ -19,6 +19,7 @@ public interface ICache
     bool Update(WatchEventType eventType, V1Ingress ingress);
     ImmutableList<string> Update(WatchEventType eventType, V1Service service);
     ImmutableList<string> Update(WatchEventType eventType, V1Endpoints endpoints);
+    void Update(WatchEventType eventType, V1Secret secret);
     bool TryGetReconcileData(NamespacedName key, out ReconcileData data);
     void GetKeys(List<NamespacedName> keys);
     IEnumerable<IngressData> GetIngresses();

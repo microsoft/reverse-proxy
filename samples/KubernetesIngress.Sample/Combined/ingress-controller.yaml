@@ -12,7 +12,9 @@ data:
   yarp.json: |
     {
       "Yarp": {
-        "ControllerClass": "microsoft.com/ingress-yarp"
+        "ControllerClass": "microsoft.com/ingress-yarp",
+        "ServerCertificates": false,
+        "DefaultSslCertificate": "yarp/yarp-ingress-tls"
       }
     }
 ---
@@ -151,7 +153,7 @@ spec:
           protocol: TCP
         env:
         - name: ASPNETCORE_URLS
-          value: http://*:8000
+          value: http://*:8000;https://*:8443
         volumeMounts:
           - name: config
             readOnly: true

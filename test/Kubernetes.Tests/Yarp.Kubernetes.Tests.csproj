@@ -17,10 +17,18 @@
 
   <ItemGroup>
     <None Remove="Client\*.yaml" />
+    <None Remove="Certificates\cert.der" />
+    <None Remove="Certificates\cert.pem" />
+    <None Remove="Certificates\key.der" />
+    <None Remove="Certificates\key.pem" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Client\*.yaml" />
+    <EmbeddedResource Include="Certificates\cert.der" />
+    <EmbeddedResource Include="Certificates\cert.pem" />
+    <EmbeddedResource Include="Certificates\key.der" />
+    <EmbeddedResource Include="Certificates\key.pem" />
   </ItemGroup>
 
   <ItemGroup>
