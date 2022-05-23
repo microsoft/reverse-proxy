@@ -49,7 +49,7 @@ internal static class TaskExtensions
         {
             return await task;
         }
-#if NET6_0_OR_GREATER
+
         try
         {
             return await task.WaitAsync(timeout);
@@ -58,18 +58,6 @@ internal static class TaskExtensions
         {
             throw new TimeoutException(CreateMessage(timeout, filePath, lineNumber));
         }
-#else
-        var cts = new CancellationTokenSource();
-        if (task == await Task.WhenAny(task, Task.Delay(timeout, cts.Token)))
-        {
-            cts.Cancel();
-            return await task;
-        }
-        else
-        {
-            throw new TimeoutException(CreateMessage(timeout, filePath, lineNumber));
-        }
-#endif
     }
 
     private static async Task TimeoutAfter(this Task task, TimeSpan timeout,

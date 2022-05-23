@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if NET6_0_OR_GREATER
 using System;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Server.HttpSys;
@@ -33,4 +32,3 @@ public static class AppBuilderDelegationExtensions
         return builder;
     }
 }
-#endif

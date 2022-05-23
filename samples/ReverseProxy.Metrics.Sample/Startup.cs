@@ -42,7 +42,6 @@ namespace Yarp.Sample
             services.AddTelemetryConsumer<ForwarderTelemetryConsumer>();
 
             // Registration of a consumer to events for HttpClient telemetry
-            // Note: this depends on changes implemented in .NET 5
             services.AddTelemetryConsumer<HttpClientTelemetryConsumer>();
 
             services.AddTelemetryConsumer<WebSocketsTelemetryConsumer>();

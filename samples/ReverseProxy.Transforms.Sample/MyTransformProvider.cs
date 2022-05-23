@@ -13,8 +13,7 @@ namespace Yarp.Sample
         public void ValidateRoute(TransformRouteValidationContext context)
         {
             // Check all routes for a custom property and validate the associated transform data.
-            string value = null;
-            if (context.Route.Metadata?.TryGetValue("CustomMetadata", out value) ?? false)
+            if (context.Route.Metadata?.TryGetValue("CustomMetadata", out var value) ?? false)
             {
                 if (string.IsNullOrEmpty(value))
                 {
@@ -39,8 +38,7 @@ namespace Yarp.Sample
         public void Apply(TransformBuilderContext transformBuildContext)
         {
             // Check all routes for a custom property and add the associated transform.
-            string value = null;
-            if ((transformBuildContext.Route.Metadata?.TryGetValue("CustomMetadata", out value) ?? false)
+            if ((transformBuildContext.Route.Metadata?.TryGetValue("CustomMetadata", out var value) ?? false)
                 || (transformBuildContext.Cluster?.Metadata?.TryGetValue("CustomMetadata", out value) ?? false))
             {
                 if (string.IsNullOrEmpty(value))
@@ -50,11 +48,7 @@ namespace Yarp.Sample
 
                 transformBuildContext.AddRequestTransform(transformContext =>
                 {
-#if NET
                     transformContext.ProxyRequest.Options.Set(new HttpRequestOptionsKey<string>("CustomMetadata"), value);
-#else
-                    transformContext.ProxyRequest.Properties["CustomMetadata"] = value;
-#endif
                     return default;
                 });
             }

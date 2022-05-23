@@ -56,7 +56,7 @@ internal sealed class StreamCopyHttpContent : HttpContent
     }
 
     /// <summary>
-    /// Gets a <see cref="System.Threading.Tasks.Task"/> that completes in successful or failed state
+    /// Gets a <see cref="Task"/> that completes in successful or failed state
     /// mimicking the result of SerializeToStreamAsync.
     /// </summary>
     public Task<(StreamCopyResult, Exception?)> ConsumptionTask => _tcs.Task;
@@ -122,12 +122,7 @@ internal sealed class StreamCopyHttpContent : HttpContent
         return SerializeToStreamAsync(stream, context, CancellationToken.None);
     }
 
-#if NET
-    protected override
-#else
-    private
-#endif
-        async Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
+    protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
     {
         if (Interlocked.Exchange(ref _started, 1) == 1)
         {
@@ -140,18 +135,12 @@ internal sealed class StreamCopyHttpContent : HttpContent
         // _cancellation will be the same as cancellationToken for HTTP/1.1, so we can avoid the overhead of linking them
         CancellationTokenSource? linkedCts = null;
 
-#if NET
         if (_activityToken.Token != cancellationToken)
         {
             Debug.Assert(cancellationToken.CanBeCanceled);
             linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_activityToken.Token, cancellationToken);
             cancellationToken = linkedCts.Token;
         }
-#else
-        // On .NET Core 3.1, cancellationToken will always be CancellationToken.None
-        Debug.Assert(!cancellationToken.CanBeCanceled);
-        cancellationToken = _activityToken.Token;
-#endif
 
         try
         {

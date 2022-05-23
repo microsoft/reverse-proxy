@@ -13,12 +13,4 @@ internal static class ConcurrentDictionaryExtensions
     {
         return ((ICollection<KeyValuePair<TKey, TValue>>)dictionary).Contains(item);
     }
-
-#if !NET
-    public static bool TryRemove<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> dictionary, KeyValuePair<TKey, TValue> item)
-        where TKey : notnull
-    {
-        return ((ICollection<KeyValuePair<TKey, TValue>>)dictionary).Remove(item);
-    }
-#endif
 }

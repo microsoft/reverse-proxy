@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
@@ -126,7 +125,6 @@ public class HeaderTests
         });
     }
 
-#if NET6_0_OR_GREATER
     [Fact]
     public async Task ProxyAsync_EmptyResponseHeader_Proxied()
     {
@@ -208,9 +206,7 @@ public class HeaderTests
             Assert.Equal("", lines[7]);
         });
     }
-#endif
 
-#if NET
     [Theory]
     [InlineData("http://www.ěščřžýáíé.com", "utf-8")]
     [InlineData("http://www.çáéôîèñøæ.com", "iso-8859-1")]
@@ -392,7 +388,6 @@ public class HeaderTests
             tcpListener.Stop();
         }
     }
-#endif
 
     [Fact]
     public async Task ContentLengthAndTransferEncoding_ContentLengthRemoved()

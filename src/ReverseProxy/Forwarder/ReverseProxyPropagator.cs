@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-#if NET6_0_OR_GREATER
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -50,4 +49,3 @@ public sealed class ReverseProxyPropagator : DistributedContextPropagator
 
     public override IReadOnlyCollection<string> Fields => _innerPropagator.Fields;
 }
-#endif

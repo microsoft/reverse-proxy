@@ -26,7 +26,6 @@ internal sealed class KestrelEventListenerService : EventListenerService<Kestrel
         ReadOnlyCollection<object> payload = eventData.Payload!;
 #pragma warning restore IDE0007 // Use implicit type
 
-#if NET
         switch (eventData.EventId)
         {
             case 3:
@@ -59,34 +58,6 @@ internal sealed class KestrelEventListenerService : EventListenerService<Kestrel
                 }
                 break;
         }
-#else
-        switch (eventData.EventId)
-        {
-            case 3:
-                Debug.Assert(eventData.EventName == "RequestStart" && payload.Count == 2);
-                {
-                    var connectionId = (string)payload[0];
-                    var requestId = (string)payload[1];
-                    foreach (var consumer in consumers)
-                    {
-                        consumer.OnRequestStart(eventData.TimeStamp, connectionId, requestId);
-                    }
-                }
-                break;
-
-            case 4:
-                Debug.Assert(eventData.EventName == "RequestStop" && payload.Count == 2);
-                {
-                    var connectionId = (string)payload[0];
-                    var requestId = (string)payload[1];
-                    foreach (var consumer in consumers)
-                    {
-                        consumer.OnRequestStop(eventData.TimeStamp, connectionId, requestId);
-                    }
-                }
-                break;
-        }
-#endif
     }
 
     protected override bool TrySaveMetric(KestrelMetrics metrics, string name, double value)

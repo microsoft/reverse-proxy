@@ -37,7 +37,6 @@ public sealed record HttpClientConfig
     /// </summary>
     public WebProxyConfig? WebProxy { get; init; }
 
-#if NET
     /// <summary>
     /// Gets or sets a value that indicates whether additional HTTP/2 connections can
     /// be established to the same server when the maximum number of concurrent streams
@@ -49,7 +48,6 @@ public sealed record HttpClientConfig
     /// Enables non-ASCII header encoding for outgoing requests.
     /// </summary>
     public string? RequestHeaderEncoding { get; init; }
-#endif
 
     public bool Equals(HttpClientConfig? other)
     {
@@ -61,11 +59,9 @@ public sealed record HttpClientConfig
         return SslProtocols == other.SslProtocols
                && DangerousAcceptAnyServerCertificate == other.DangerousAcceptAnyServerCertificate
                && MaxConnectionsPerServer == other.MaxConnectionsPerServer
-#if NET
                && EnableMultipleHttp2Connections == other.EnableMultipleHttp2Connections
                // Comparing by reference is fine here since Encoding.GetEncoding returns the same instance for each encoding.
                && RequestHeaderEncoding == other.RequestHeaderEncoding
-#endif
                && WebProxy == other.WebProxy;
     }
 
@@ -74,10 +70,8 @@ public sealed record HttpClientConfig
         return HashCode.Combine(SslProtocols,
             DangerousAcceptAnyServerCertificate,
             MaxConnectionsPerServer,
-#if NET
             EnableMultipleHttp2Connections,
             RequestHeaderEncoding,
-#endif
             WebProxy);
     }
 }

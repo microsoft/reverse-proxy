@@ -133,9 +133,7 @@ public class HttpSysTestEnvironment
     {
         return CreateHost(webHostBuilder =>
         {
-#if NET5_0_OR_GREATER
             Debug.Assert(OperatingSystem.IsWindows());
-#endif
             webHostBuilder
                .ConfigureServices(configureServices)
                .UseHttpSys(options =>

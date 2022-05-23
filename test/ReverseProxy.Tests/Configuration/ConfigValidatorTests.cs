@@ -1036,7 +1036,7 @@ public class ConfigValidatorTests
         Assert.Contains(expectedError, errors[0].Message);
         Assert.IsType<ArgumentException>(errors[0]);
     }
-#if NET
+
     [Fact]
     public async Task HttpClient_HeaderEncoding_Valid()
     {
@@ -1077,5 +1077,4 @@ public class ConfigValidatorTests
         Assert.Equal(1, errors.Count);
         Assert.Equal("Invalid header encoding 'base64'.", errors[0].Message);
     }
-#endif
 }

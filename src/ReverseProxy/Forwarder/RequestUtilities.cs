@@ -60,16 +60,16 @@ public static class RequestUtilities
         return _headersToExclude.Contains(headerName);
     }
 
-    private static readonly HashSet<string> _headersToExclude = new(22, StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> _headersToExclude = new(17, StringComparer.OrdinalIgnoreCase)
     {
         HeaderNames.Connection,
         HeaderNames.TransferEncoding,
         HeaderNames.KeepAlive,
         HeaderNames.Upgrade,
-        "Proxy-Connection",
-        "Proxy-Authenticate",
+        HeaderNames.ProxyConnection,
+        HeaderNames.ProxyAuthenticate,
         "Proxy-Authentication-Info",
-        "Proxy-Authorization",
+        HeaderNames.ProxyAuthorization,
         "Proxy-Features",
         "Proxy-Instruction",
         "Security-Scheme",
@@ -78,11 +78,7 @@ public static class RequestUtilities
         "HTTP2-Settings",
         HeaderNames.UpgradeInsecureRequests,
         HeaderNames.TE,
-#if NET
         HeaderNames.AltSvc,
-#else
-        "Alt-Svc",
-#endif
     };
 
     // Headers marked as HttpHeaderType.Content in
@@ -337,7 +333,6 @@ public static class RequestUtilities
         }
     }
 
-#if NET6_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static StringValues Concat(in StringValues existing, in HeaderStringValues values)
     {
@@ -375,12 +370,10 @@ public static class RequestUtilities
             return newArray;
         }
     }
-#endif
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static bool TryGetValues(HttpHeaders headers, string headerName, out StringValues values)
     {
-#if NET6_0_OR_GREATER
         if (headers.NonValidated.TryGetValues(headerName, out var headerStringValues))
         {
             if (headerStringValues.Count <= 1)
@@ -405,26 +398,8 @@ public static class RequestUtilities
             Debug.Assert(i == array.Length);
             return array;
         }
-#else
-        if (headers.TryGetValues(headerName, out var headerValues))
-        {
-            Debug.Assert(headerValues is string[]);
-            values = headerValues as string[] ?? headerValues.ToArray();
-            return true;
-        }
-#endif
 
         values = default;
         return false;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static bool ContainsHeader(HttpHeaders headers, string headerName)
-    {
-#if NET6_0_OR_GREATER
-        return headers.NonValidated.Contains(headerName);
-#else
-        return headers.TryGetValues(headerName, out _);
-#endif
     }
 }

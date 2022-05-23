@@ -114,7 +114,6 @@ public class HttpProxyCookieTests_Http1 : HttpProxyCookieTests
     }
 }
 
-#if NET
 public class HttpProxyCookieTests_Http2 : HttpProxyCookieTests
 {
     public override HttpProtocols HttpProtocol => HttpProtocols.Http2;
@@ -134,4 +133,3 @@ public class HttpProxyCookieTests_Http2 : HttpProxyCookieTests
         response.EnsureSuccessStatusCode();
     }
 }
-#endif

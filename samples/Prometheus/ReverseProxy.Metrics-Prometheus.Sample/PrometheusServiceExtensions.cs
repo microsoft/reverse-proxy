@@ -15,7 +15,6 @@ namespace Yarp.Sample
             return services;
         }
 
-#if NET
         public static IServiceCollection AddPrometheusDnsMetrics(this IServiceCollection services)
         {
             services.AddTelemetryListeners();
@@ -43,17 +42,14 @@ namespace Yarp.Sample
             services.AddSingleton<IMetricsConsumer<SocketsMetrics>, PrometheusSocketMetrics>();
             return services;
         }
-#endif
 
         public static IServiceCollection AddAllPrometheusMetrics(this IServiceCollection services)
         {
             services.AddPrometheusForwarderMetrics();
-#if NET
             services.AddPrometheusDnsMetrics();
             services.AddPrometheusKestrelMetrics();
             services.AddPrometheusOutboundHttpMetrics();
             services.AddPrometheusSocketsMetrics();
-#endif
             return services;
         }
     }

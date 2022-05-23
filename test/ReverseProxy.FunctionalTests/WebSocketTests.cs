@@ -88,13 +88,7 @@ public class WebSocketTests
 
             Assert.Equal(HttpStatusCode.SwitchingProtocols, response.StatusCode);
 
-#if NET
             using var rawStream = await response.Content.ReadAsStreamAsync(cts.Token);
-#elif NETCOREAPP3_1
-            using var rawStream = await response.Content.ReadAsStreamAsync();
-#else
-#error A target framework was added to the project and needs to be added to this condition.
-#endif
 
             var buffer = new byte[1];
             for (var i = 0; i <= 255; i++)
@@ -137,13 +131,7 @@ public class WebSocketTests
             var response = await client.SendAsync(request, cts.Token);
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-#if NET
             Assert.Equal("Hello World", await response.Content.ReadAsStringAsync(cts.Token));
-#elif NETCOREAPP3_1
-            Assert.Equal("Hello World", await response.Content.ReadAsStringAsync());
-#else
-#error A target framework was added to the project and needs to be added to this condition.
-#endif
         }, cts.Token);
     }
 

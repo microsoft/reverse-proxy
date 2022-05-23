@@ -40,9 +40,7 @@ public class ForwarderMiddlewareTests : TestAutoMockBase
         {
             ActivityTimeout = TimeSpan.FromSeconds(60),
             Version = HttpVersion.Version11,
-#if NET
             VersionPolicy = HttpVersionPolicy.RequestVersionExact,
-#endif
         };
         var cluster1 = new ClusterState(clusterId: "cluster1");
         var clusterModel = new ClusterModel(new ClusterConfig() { HttpRequest = httpRequestOptions },
@@ -77,10 +75,7 @@ public class ForwarderMiddlewareTests : TestAutoMockBase
                 It.Is<ForwarderRequestConfig>(requestOptions =>
                     requestOptions.ActivityTimeout == httpRequestOptions.ActivityTimeout
                     && requestOptions.Version == httpRequestOptions.Version
-#if NET
-                    && requestOptions.VersionPolicy == httpRequestOptions.VersionPolicy
-#endif
-                    ),
+                    && requestOptions.VersionPolicy == httpRequestOptions.VersionPolicy),
                 It.IsAny<HttpTransformer>()))
             .Returns(
                 async () =>
