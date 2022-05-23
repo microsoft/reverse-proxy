@@ -8,7 +8,7 @@ This sample shows two common customizations via code of the YARP reverse proxy:
 
   This sample shows the routes and destinations being created in code, and then passed to an in-memory provider. The role of the in-memory provider is to give change notifications to YARP for when the config has been changed and needs to be updated. YARP uses a snapshot model for its configuration, so that changes are applied as an atomic action, that will apply to subsequent requests after the change is applied. Existing requests that are already being processed will be completed using the configuration snapshot from the time that they were recieved.
 
-  The ```IProxyConfig``` interface implemented in [InMemoryConfigProvider.cs](InMemoryConfigProvider.cs) includes a change token which is used to signal when a batch of changes to the configuration is complete, and the proxy should take a snapshot and update its internal configuration. Part of the snapshot processing is to create an optimized route table in ASP.NET, which can be a CPU intensive operation, for that reason we don't recommend signaling for updates more than once per 15 seconds. 
+  The ```IProxyConfig``` interface implemented in InMemoryConfigProvider includes a change token which is used to signal when a batch of changes to the configuration is complete, and the proxy should take a snapshot and update its internal configuration. Part of the snapshot processing is to create an optimized route table in ASP.NET, which can be a CPU intensive operation, for that reason we don't recommend signaling for updates more than once per 15 seconds. 
 
 - ## Custom pipeline step
 
@@ -33,16 +33,8 @@ The following files are key to implementing the features described above:
 - ### [Startup.cs](Startup.cs)
   Provides the initialization routines for ASP.NET and the reverse proxy.
 
-  ```ConfigureServices``` is called once and sets up the proxy passing in the InMemoryConfig provider instance. The sample routes and clusters definitions are created as part of this initialization. The config provider instance is used for the lifetime of the proxy.
+  ```ConfigureServices``` is called once and sets up the proxy passing in the InMemoryConfigProvider instance. The sample routes and clusters definitions are created as part of this initialization. The config provider instance is used for the lifetime of the proxy.
 
   ```Configure``` is called once at startup to setup the request pipeline. As an additional step is added, the proxy pipeline is configured here. 
   
   ```MyCustomProxyStep``` is the implementation of the additional step. It finds the proxy functionality via features added to the HttpContext, and then filters the destinations based on the presence of a "Debug" header in the request.
-
-- ### [InMemoryConfigProvider](InMemoryConfigProvider)
-  
-  ```InMemoryConfigProviderExtensions``` Implements an extension method to the proxy builder for ```LoadFromMemory``` which constructs the instance of InMemoryConfigProvider
-
-  ```InMemoryConfigProvider``` is the implementation of ```IProxyConfigProvider``` that supplies the ```GetConfig()``` method to get the current snapshot of the route and clusters configuration.
-
-  ```InMemoryConfig``` is the readonly snapshot of the configuration state. The state of this class should be immutable (never change). When a configuration change is ready, the ChangeToken on the current state should be toggled, and ```GetConfig()``` will be called to supply the new snapshot.
