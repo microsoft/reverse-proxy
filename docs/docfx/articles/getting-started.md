@@ -5,15 +5,22 @@ title: Getting Started with YARP
 
 # Getting Started with YARP
 
-YARP is designed as a library that provides the core proxy functionality which you can then customize by adding or replacing modules. YARP is currently provided as a NuGet package and code snippets. We plan on providing a project template and pre-built exe in the future. 
+YARP is designed as a library that provides the core proxy functionality which you can then customize by adding or replacing modules.
+YARP is currently provided as a NuGet package and code snippets.
+We plan on providing a project template and pre-built exe in the future.
 
-YARP is implemented on top of .NET Core infrastructure and is usable on Windows, Linux or MacOS. Development can be done with the SDK and your favorite editor, [Microsoft Visual Studio](https://visualstudio.microsoft.com/vs/) or [Visual Studio Code](https://code.visualstudio.com/).
+YARP is implemented on top of .NET Core infrastructure and is usable on Windows, Linux or MacOS.
+Development can be done with the SDK and your favorite editor, [Microsoft Visual Studio](https://visualstudio.microsoft.com/vs/) or [Visual Studio Code](https://code.visualstudio.com/).
 
-YARP 2.0.0 supports ASP.NET Core 6.0 and newer. You can download the .NET SDK from https://dotnet.microsoft.com/download/dotnet/.
+YARP 2.0.0 supports ASP.NET Core 6.0 and newer.
+You can download the .NET SDK from https://dotnet.microsoft.com/download/dotnet/.
 
 Visual Studio support for .NET 6 is included in Visual Studio 2022.
 
 ### Create a new project
+
+A complete version of the project built using the steps below can be found at [Minimal YARP Sample](https://github.com/microsoft/reverse-proxy/tree/release/latest/samples/ReverseProxy.Minimal.Sample).
+For a version that does not use [top-level statements](https://docs.microsoft.com/dotnet/csharp/fundamentals/program-structure/top-level-statements), see the [Basic YARP Sample](https://github.com/microsoft/reverse-proxy/tree/release/latest/samples/BasicYarpSample).
 
 Start by creating an "Empty" ASP.NET Core application using the command line:
 
