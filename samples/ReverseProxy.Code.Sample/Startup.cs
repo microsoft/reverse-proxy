@@ -26,7 +26,6 @@ namespace Yarp.Sample
         /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
-            // Specify a custom proxy config provider, in this case defined in InMemoryConfigProvider.cs
             // Programatically creating route and cluster configs. This allows loading the data from an arbitrary source.
             services.AddReverseProxy()
                 .LoadFromMemory(GetRoutes(), GetClusters());
@@ -40,6 +39,11 @@ namespace Yarp.Sample
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
+                endpoints.Map("/update", context =>
+                {
+                    context.RequestServices.GetRequiredService<InMemoryConfigProvider>().Update(GetRoutes(), GetClusters());
+                    return Task.CompletedTask;
+                });
                 // We can customize the proxy pipeline and add/remove/replace steps
                 endpoints.MapReverseProxy(proxyPipeline =>
                 {
@@ -58,7 +62,7 @@ namespace Yarp.Sample
             {
                 new RouteConfig()
                 {
-                    RouteId = "route1",
+                    RouteId = "route" + new Random().Next(), // Forces a new route id each time GetRoutes is called.
                     ClusterId = "cluster1",
                     Match = new RouteMatch
                     {

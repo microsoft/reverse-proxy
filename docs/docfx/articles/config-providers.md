@@ -25,6 +25,20 @@ The clusters section is an unordered collection of named clusters. A cluster pri
 
 For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.ClusterConfig).
 
+## In Memory Config
+
+The `InMemoryConfigProvider` implements `IProxyConfigProvider` and enables specifying routes and clusters directly in code by calling `LoadFromMemory`.
+
+```
+services.AddReverseProxy().LoadFromMemory(routes, clusters);
+```
+
+To update the config later, resolve the `InMemoryConfigProvider` from the services container and call `Update` with the new lists of routes and clusters.
+
+```
+httpContext.RequestServices.GetRequiredService<InMemoryConfigProvider>().Update(routes, clusters);
+```
+
 ## Lifecycle
 
 ### Startup
@@ -70,117 +84,5 @@ or
         .LoadFromConfig(Configuration.GetSection("ReverseProxy"));
 ```
 
-
 ## Example
-The following is an example `IProxyConfigProvider` that has routes and clusters manually loaded into it.
-
-```C#
-using System.Collections.Generic;
-using System.Threading;
-using Microsoft.Extensions.Primitives;
-using Yarp.ReverseProxy.Configuration;
-
-namespace Microsoft.Extensions.DependencyInjection
-{
-    public static class InMemoryConfigProviderExtensions
-    {
-        public static IReverseProxyBuilder LoadFromMemory(this IReverseProxyBuilder builder, IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
-        {
-            builder.Services.AddSingleton<IProxyConfigProvider>(new InMemoryConfigProvider(routes, clusters));
-            return builder;
-        }
-    }
-}
-
-namespace Yarp.ReverseProxy.Configuration
-{
-    public class InMemoryConfigProvider : IProxyConfigProvider
-    {
-        private volatile InMemoryConfig _config;
-
-        public InMemoryConfigProvider(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
-        {
-            _config = new InMemoryConfig(routes, clusters);
-        }
-
-        public IProxyConfig GetConfig() => _config;
-
-        public void Update(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
-        {
-            var newConfig = new InMemoryConfig(routes, clusters);
-            var oldConfig = Interlocked.Exchange(ref _config, newConfig);
-            oldConfig.SignalChange();
-        }
-
-        private class InMemoryConfig : IProxyConfig
-        {
-            private readonly CancellationTokenSource _cts = new CancellationTokenSource();
-
-            public InMemoryConfig(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
-            {
-                Routes = routes;
-                Clusters = clusters;
-                ChangeToken = new CancellationChangeToken(_cts.Token);
-            }
-
-            public IReadOnlyList<RouteConfig> Routes { get; }
-
-            public IReadOnlyList<ClusterConfig> Clusters { get; }
-
-            public IChangeToken ChangeToken { get; }
-
-            internal void SignalChange()
-            {
-                _cts.Cancel();
-            }
-        }
-    }
-}
-```
-
-And here's how it's called in Startup.cs:
-```C#
-public void ConfigureServices(IServiceCollection services)
-{
-    var routes = new[]
-    {
-        new RouteConfig()
-        {
-            RouteId = "route1",
-            ClusterId = "cluster1",
-            Match = new RouteMatch
-            {
-                Path = "{**catch-all}"
-            }
-        }
-    };
-    var clusters = new[]
-    {
-        new ClusterConfig()
-        {
-            ClusterId = "cluster1",
-            Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
-            {
-                { "destination1", new DestinationConfig() { Address = "https://example.com" } }
-            }
-        }
-    };
-
-    services.AddReverseProxy()
-        .LoadFromMemory(routes, clusters);
-}
-
-public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-{
-    if (env.IsDevelopment())
-    {
-        app.UseDeveloperExceptionPage();
-    }
-
-    app.UseRouting();
-    app.UseEndpoints(endpoints =>
-    {
-        endpoints.MapReverseProxy();
-    });
-}
-```
+The [InMemoryConfigProvider](https://github.com/microsoft/reverse-proxy/blob/main/src/ReverseProxy/Configuration/InMemoryConfigProvider.cs) gives an example of an `IProxyConfigProvider` that has routes and clusters manually loaded into it.
