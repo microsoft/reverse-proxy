@@ -62,7 +62,7 @@ namespace Yarp.Sample
             {
                 new RouteConfig()
                 {
-                    RouteId = "route" + new Random().Next(), // Forces a new route id each time GetRoutes is called.
+                    RouteId = "route" + Random.Shared.Next(), // Forces a new route id each time GetRoutes is called.
                     ClusterId = "cluster1",
                     Match = new RouteMatch
                     {
