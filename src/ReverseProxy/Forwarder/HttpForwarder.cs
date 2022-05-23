@@ -510,7 +510,7 @@ internal sealed class HttpForwarder : IHttpForwarder
 
     private static void RestoreUpgradeHeaders(HttpContext context, HttpResponseMessage response)
     {
-        // We don't use RequestUtilities.TryGetValues for the Connection as we do want value validation.
+        // We don't use NonValidated for the Connection header as we do want value validation.
         // HttpHeaders.TryGetValues will handle the parsing and split the values for us.
         if (RequestUtilities.TryGetValues(response.Headers, HeaderNames.Upgrade, out var upgradeValues)
             && response.Headers.TryGetValues(HeaderNames.Connection, out var connectionValues))
