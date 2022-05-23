@@ -9,17 +9,6 @@ YARP 2.0 supports ASP.NET Core 6.0 and newer. You can download the .NET SDK from
 
 YARP is taking advantage of new .NET features and optimizations as they become available. This does mean that some features may not be available if you're running on the previous versions of ASP.NET.
 
-## Related 5.0 Runtime Improvements
-
-These are related improvements in .NET 5.0 or ASP.NET Core 5.0 that YARP is able to take advantage of:
-- Kestrel [reloadable config](https://github.com/dotnet/aspnetcore/issues/19376).
-- Kestrel HTTP/2 performance improvements:
-  - [HPACK static compression](https://github.com/dotnet/aspnetcore/pull/20058).
-  - [HPACK dynamic compression](https://github.com/dotnet/aspnetcore/pull/19521).
-  - [Allocation savings via stream pooling](https://github.com/dotnet/aspnetcore/pull/18601).
-  - [Allocation savings via pipe pooling](https://github.com/dotnet/aspnetcore/pull/19356).
-- HttpClient HTTP/2 [performance improvements](https://github.com/dotnet/runtime/issues/35184).
-
 ## Related 6.0 Runtime Improvements
 
 - [HTTP/3](http3.md) - support for inbound and outbound connections (preview).
