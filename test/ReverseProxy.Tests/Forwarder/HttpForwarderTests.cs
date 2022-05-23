@@ -2247,6 +2247,7 @@ public class HttpForwarderTests
     [InlineData("1.1", false, "Connection: keep-alive; Keep-Alive: timeout=100", null, "Connection; Keep-Alive")]
     [InlineData("1.1", true, "Connection: upgrade; Upgrade: websocket", "Connection: upgrade; Upgrade: websocket", null)]
     [InlineData("1.1", true, "Connection: upgrade, keep-alive; Upgrade: websocket; Keep-Alive: timeout=100", "Connection: upgrade; Upgrade: websocket", "Keep-Alive")]
+    [InlineData("1.1", true, "Connection: keep-alive; Upgrade: websocket; Keep-Alive: timeout=100", null, "Connection; Upgrade; Keep-Alive")]
     [InlineData("1.1", true, "Foo: bar; Upgrade: websocket", "Foo: bar", "Upgrade")]
     [InlineData("1.1", true, "Foo: bar; Connection: upgrade", "Foo: bar", "Connection")]
     [InlineData("1.1", false, "Foo: bar", "Foo: bar", null)]
