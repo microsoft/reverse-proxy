@@ -80,7 +80,7 @@ public class Receiver : BackgroundHostedService
             catch (Exception ex)
 #pragma warning restore CA1031 // Do not catch general exception types
             {
-                Logger.LogInformation("Stream ended: {Message}", ex.Message);
+                Logger.LogInformation(ex, "Stream ended");
             }
 #pragma warning restore CA1303 // Do not pass literals as localized parameters
         }
