@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFrameworks>net6.0;net5.0</TargetFrameworks>
@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\TelemetryConsumption\Yarp.Telemetry.Consumption.csproj" />
+    <PackageReference Include="Yarp.Telemetry.Consumption" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>
