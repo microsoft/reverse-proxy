@@ -45,6 +45,7 @@ public class IngressControllerTests
     [InlineData("exact-match")]
     [InlineData("annotations")]
     [InlineData("mapped-port")]
+    [InlineData("port-mismatch")]
     [InlineData("hostname-routing")]
     [InlineData("multiple-ingresses")]
     [InlineData("multiple-ingresses-one-svc")]

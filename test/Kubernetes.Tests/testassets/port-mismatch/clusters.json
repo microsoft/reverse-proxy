@@ -1,0 +1,14 @@
+[
+  {
+    "ClusterId": "backend.default:5011",
+    "LoadBalancingPolicy": null,
+    "SessionAffinity": null,
+    "HealthCheck": null,
+    "HttpClient": null,
+    "HttpRequest": null,
+    "Destinations": {
+    },
+    "Metadata": null
+  }
+]
+

@@ -78,7 +78,7 @@ internal static class YarpParser
         {
             foreach (var port in subset.Ports ?? Enumerable.Empty<Corev1EndpointPort>())
             {
-                if (!MatchesPort(port, servicePort.TargetPort))
+                if (!MatchesPort(port, servicePort?.TargetPort))
                 {
                     continue;
                 }
