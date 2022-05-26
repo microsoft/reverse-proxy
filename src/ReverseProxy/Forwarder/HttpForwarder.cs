@@ -515,13 +515,12 @@ internal sealed class HttpForwarder : IHttpForwarder
         if (RequestUtilities.TryGetValues(response.Headers, HeaderNames.Upgrade, out var upgradeValues)
             && response.Headers.TryGetValues(HeaderNames.Connection, out var connectionValues))
         {
-            context.Response.Headers.TryAdd(HeaderNames.Upgrade, upgradeValues);
-
             foreach (var value in connectionValues)
             {
                 if (value.Equals("upgrade", StringComparison.OrdinalIgnoreCase))
                 {
                     context.Response.Headers.TryAdd(HeaderNames.Connection, value);
+                    context.Response.Headers.TryAdd(HeaderNames.Upgrade, upgradeValues);
                     break;
                 }
             }
