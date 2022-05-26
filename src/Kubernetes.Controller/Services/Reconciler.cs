@@ -57,7 +57,7 @@ public partial class Reconciler : IReconciler
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex.Message);
+            _logger.LogWarning(ex, "Uncaught exception occured while reconciling");
             throw;
         }
     }
