@@ -200,16 +200,13 @@ public class IngressController : BackgroundHostedService
             var (item, shutdown) = await _queue.GetAsync(cancellationToken).ConfigureAwait(false);
             if (shutdown)
             {
+                Logger.LogInformation("Work queue has been shutdown. Exiting reconciliation loop.");
                 return;
             }
 
             try
             {
                 await _reconciler.ProcessAsync(cancellationToken).ConfigureAwait(false);
-
-                // calling Done after GetAsync informs the queue
-                // that the item is no longer being actively processed
-                _queue.Done(item);
             }
 #pragma warning disable CA1031 // Do not catch general exception types
             catch
@@ -222,6 +219,12 @@ public class IngressController : BackgroundHostedService
                 // Any failure to process this item results in being re-queued
                 _queue.Add(item);
             }
+            finally
+            {
+                _queue.Done(item);
+            }
         }
+
+        Logger.LogInformation("Reconciliation loop cancelled");
     }
 }
