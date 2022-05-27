@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Yarp.ReverseProxy.Configuration;
 
-namespace Yarp.Kubernetes.Controller.Services;
+namespace Yarp.Kubernetes.Controller.Converters;
 
 internal sealed class YarpIngressOptions
 {

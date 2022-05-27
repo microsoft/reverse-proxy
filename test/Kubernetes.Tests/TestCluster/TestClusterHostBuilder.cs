@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using k8s;
@@ -11,7 +11,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 
-namespace Microsoft.Kubernetes.Testing;
+namespace Yarp.Kubernetes.Tests.TestCluster;
 
 public class TestClusterHostBuilder
 {

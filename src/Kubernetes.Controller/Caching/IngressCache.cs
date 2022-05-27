@@ -5,7 +5,6 @@ using k8s;
 using k8s.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Kubernetes;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;

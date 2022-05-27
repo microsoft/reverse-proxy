@@ -14,7 +14,6 @@ using k8s;
 using k8s.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Kubernetes;
 using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -23,7 +22,6 @@ using Xunit;
 using Yarp.Kubernetes.Controller;
 using Yarp.Kubernetes.Controller.Caching;
 using Yarp.Kubernetes.Controller.Converters;
-using Yarp.Kubernetes.Controller.Services;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Yarp.Kubernetes.Tests;

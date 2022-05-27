@@ -1,9 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
 
-namespace Microsoft.Kubernetes.Testing.Models;
+namespace Yarp.Kubernetes.Tests.TestCluster.Models;
 
 public class ListResult
 {

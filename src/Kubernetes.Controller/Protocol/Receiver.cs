@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Kubernetes.Controller.Hosting;
-using Microsoft.Kubernetes.Controller.Rate;
 using Yarp.Kubernetes.Controller.Configuration;
+using Yarp.Kubernetes.Controller.Hosting;
+using Yarp.Kubernetes.Controller.Rate;
 
 namespace Yarp.Kubernetes.Protocol;
 

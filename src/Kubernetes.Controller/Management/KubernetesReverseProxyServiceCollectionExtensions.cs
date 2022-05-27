@@ -4,9 +4,9 @@
 using System;
 using k8s.Models;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Kubernetes.Controller.Informers;
 using Yarp.Kubernetes.Controller;
 using Yarp.Kubernetes.Controller.Caching;
+using Yarp.Kubernetes.Controller.Client;
 using Yarp.Kubernetes.Controller.Configuration;
 using Yarp.Kubernetes.Controller.Controllers;
 using Yarp.Kubernetes.Controller.Dispatching;

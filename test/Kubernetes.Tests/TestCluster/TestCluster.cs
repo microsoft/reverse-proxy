@@ -1,16 +1,16 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using Microsoft.Kubernetes.Resources;
-using Microsoft.Kubernetes.Testing.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Yarp.Kubernetes.Tests.TestCluster.Models;
+using Yarp.Kubernetes.Tests.Utils;
 
-namespace Microsoft.Kubernetes.Testing;
+namespace Yarp.Kubernetes.Tests.TestCluster;
 
 public class TestCluster : ITestCluster
 {
