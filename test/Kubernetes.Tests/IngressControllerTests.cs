@@ -7,13 +7,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Yarp.Kubernetes.Controller.Caching;
 using Yarp.Kubernetes.Controller.Client.Tests;
 using Yarp.Kubernetes.Controller.Services;
+using Yarp.Tests.Common;
 
 namespace Yarp.Kubernetes.Tests;
 
@@ -37,8 +37,6 @@ public class IngressControllerTests
     [Fact]
     public async Task ReconciliationContinuesOnReconcilerError()
     {
-        using var cancellation = new CancellationTokenSource(Debugger.IsAttached ? TimeSpan.FromMinutes(5) : TimeSpan.FromSeconds(10));
-
         _mockCache.Setup(x => x.Update(It.IsAny<WatchEventType>(), It.IsAny<V1Ingress>())).Returns(true);
 
         var awaiter = new SemaphoreSlim(0, 1);
@@ -58,19 +56,19 @@ public class IngressControllerTests
                     return Task.CompletedTask;
                 });
 
-        await _controller.StartAsync(cancellation.Token);
-        await awaiter.WaitAsync(cancellation.Token);
+        await _controller.StartAsync(CancellationToken.None).DefaultTimeout();
+        await awaiter.WaitAsync().DefaultTimeout();
         _mockReconciler.Verify(x => x.ProcessAsync(It.IsAny<CancellationToken>()), Times.Exactly(1));
 
         _ingressInformer.PublishUpdate(WatchEventType.Added, new V1Ingress());
-        await awaiter.WaitAsync(cancellation.Token);
+        await awaiter.WaitAsync().DefaultTimeout();
         _mockReconciler.Verify(x => x.ProcessAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
 
         reconcilerError = new Exception("reconicliation failed");
         _ingressInformer.PublishUpdate(WatchEventType.Added, new V1Ingress());
-        await awaiter.WaitAsync(cancellation.Token);
+        await awaiter.WaitAsync().DefaultTimeout();
         _mockReconciler.Verify(x => x.ProcessAsync(It.IsAny<CancellationToken>()), Times.AtLeast(3));
-        await awaiter.WaitAsync(cancellation.Token);
+        await awaiter.WaitAsync().DefaultTimeout();
         _mockReconciler.Verify(x => x.ProcessAsync(It.IsAny<CancellationToken>()), Times.AtLeast(4));
     }
 }
