@@ -41,13 +41,13 @@ public struct GroupApiVersionKind : IEquatable<GroupApiVersionKind>
 
     public bool Equals(GroupApiVersionKind other)
     {
-        return ApiVersion == other.ApiVersion &&
-               Kind == other.Kind;
+        return GroupApiVersion == other.GroupApiVersion
+            && Kind == other.Kind;
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(ApiVersion, Kind);
+        return HashCode.Combine(GroupApiVersion, Kind);
     }
 
     public override string ToString()

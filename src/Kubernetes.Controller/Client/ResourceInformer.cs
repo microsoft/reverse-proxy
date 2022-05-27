@@ -5,6 +5,7 @@ using k8s;
 using k8s.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Rest;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -190,7 +191,7 @@ namespace Yarp.Kubernetes.Controller.Client
             }
         }
 
-        protected abstract Task<Microsoft.Rest.HttpOperationResponse<TListResource>> RetrieveResourceListAsync(bool? watch = null, string resourceVersion = null, CancellationToken cancellationToken = default);
+        protected abstract Task<HttpOperationResponse<TListResource>> RetrieveResourceListAsync(bool? watch = null, string resourceVersion = null, CancellationToken cancellationToken = default);
 
         private static EventId EventId(EventType eventType) => new EventId((int)eventType, eventType.ToString());
 
