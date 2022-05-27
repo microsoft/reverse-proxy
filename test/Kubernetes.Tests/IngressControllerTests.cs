@@ -3,24 +3,19 @@
 
 using k8s;
 using k8s.Models;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Kubernetes;
-using Microsoft.Kubernetes.Controller.Informers;
-using Microsoft.Kubernetes.Testing;
 using Moq;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Yarp.Kubernetes.Controller.Caching;
+using Yarp.Kubernetes.Controller.Client.Tests;
 using Yarp.Kubernetes.Controller.Services;
-using Yarp.Kubernetes.OperatorFramework.Utils;
 
-namespace Yarp.Kubernetes.OperatorFramework.Informers;
+namespace Yarp.Kubernetes.Tests;
 
 public class IngressControllerTests
 {
@@ -32,11 +27,11 @@ public class IngressControllerTests
     private readonly SyncResourceInformer<V1IngressClass> _ingressClassInformer = new();
     private readonly Mock<IHostApplicationLifetime> _mockHostApplicationLifetime = new();
     private readonly Mock<ILogger<IngressController>> _mockLogger = new();
-    private readonly IngressController controller;
+    private readonly IngressController _controller;
 
     public IngressControllerTests()
     {
-        controller = new IngressController(_mockCache.Object, _mockReconciler.Object, _ingressInformer, _serviceInformer, _endpointsInformer, _ingressClassInformer, _mockHostApplicationLifetime.Object, _mockLogger.Object);
+        _controller = new IngressController(_mockCache.Object, _mockReconciler.Object, _ingressInformer, _serviceInformer, _endpointsInformer, _ingressClassInformer, _mockHostApplicationLifetime.Object, _mockLogger.Object);
     }
 
     [Fact]
@@ -63,7 +58,7 @@ public class IngressControllerTests
                     return Task.CompletedTask;
                 });
 
-        await controller.StartAsync(cancellation.Token);
+        await _controller.StartAsync(cancellation.Token);
         await awaiter.WaitAsync(cancellation.Token);
         _mockReconciler.Verify(x => x.ProcessAsync(It.IsAny<CancellationToken>()), Times.Exactly(1));
 

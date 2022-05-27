@@ -208,13 +208,9 @@ public class IngressController : BackgroundHostedService
             {
                 await _reconciler.ProcessAsync(cancellationToken).ConfigureAwait(false);
             }
-#pragma warning disable CA1031 // Do not catch general exception types
             catch
-#pragma warning restore CA1031 // Do not catch general exception types
             {
-#pragma warning disable CA1303 // Do not pass literals as localized parameters
                 Logger.LogInformation("Rescheduling {Change}", item.Change);
-#pragma warning restore CA1303 // Do not pass literals as localized parameters
 
                 // Any failure to process this item results in being re-queued
                 _queue.Add(item);

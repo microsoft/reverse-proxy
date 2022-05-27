@@ -3,7 +3,6 @@
 
 using k8s;
 using k8s.Models;
-using Microsoft.Kubernetes.Controller.Informers;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -11,7 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Yarp.Kubernetes.OperatorFramework.Informers;
+namespace Yarp.Kubernetes.Controller.Client.Tests;
 
 internal class SyncResourceInformer<TResource> : IResourceInformer<TResource>
     where TResource : class, IKubernetesObject<V1ObjectMeta>, new()
