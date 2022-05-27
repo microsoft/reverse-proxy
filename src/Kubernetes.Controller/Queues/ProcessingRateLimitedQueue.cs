@@ -5,21 +5,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using Yarp.Kubernetes.Controller.Rate;
 
-namespace Yarp.Kubernetes.Controller.Queues
+namespace Yarp.Kubernetes.Controller.Queues;
+
+public class ProcessingRateLimitedQueue<TItem> : WorkQueue<TItem>
 {
-    public class ProcessingRateLimitedQueue<TItem> : WorkQueue<TItem>
+    private readonly Limiter _limiter;
+
+    public ProcessingRateLimitedQueue(double perSecond, int burst)
     {
-        private readonly Limiter _limiter;
+        _limiter = new Limiter(new Limit(perSecond), burst);
+    }
 
-        public ProcessingRateLimitedQueue(double perSecond, int burst)
-        {
-            _limiter = new Limiter(new Limit(perSecond), burst);
-        }
-
-        protected override async Task OnGetAsync(CancellationToken cancellationToken)
-        {
-            var delay = _limiter.Reserve().Delay();
-            await Task.Delay(delay, cancellationToken);
-        }
+    protected override async Task OnGetAsync(CancellationToken cancellationToken)
+    {
+        var delay = _limiter.Reserve().Delay();
+        await Task.Delay(delay, cancellationToken);
     }
 }

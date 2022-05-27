@@ -6,39 +6,38 @@ using Microsoft.Extensions.Options;
 using System.Linq;
 using Yarp.Kubernetes.Controller.Client;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Microsoft.Extensions.DependencyInjection;
+
+/// <summary>
+/// Class KubernetesCoreExtensions.
+/// </summary>
+public static class KubernetesCoreExtensions
 {
     /// <summary>
-    /// Class KubernetesCoreExtensions.
+    /// Adds the kubernetes.
     /// </summary>
-    public static class KubernetesCoreExtensions
+    /// <param name="services">The services.</param>
+    /// <returns>IServiceCollection.</returns>
+    public static IServiceCollection AddKubernetesCore(this IServiceCollection services)
     {
-        /// <summary>
-        /// Adds the kubernetes.
-        /// </summary>
-        /// <param name="services">The services.</param>
-        /// <returns>IServiceCollection.</returns>
-        public static IServiceCollection AddKubernetesCore(this IServiceCollection services)
+        if (!services.Any(serviceDescriptor => serviceDescriptor.ServiceType == typeof(IKubernetes)))
         {
-            if (!services.Any(serviceDescriptor => serviceDescriptor.ServiceType == typeof(IKubernetes)))
+            services = services.Configure<KubernetesClientOptions>(options =>
             {
-                services = services.Configure<KubernetesClientOptions>(options =>
+                if (options.Configuration is null)
                 {
-                    if (options.Configuration is null)
-                    {
-                        options.Configuration = KubernetesClientConfiguration.BuildDefaultConfig();
-                    }
-                });
+                    options.Configuration = KubernetesClientConfiguration.BuildDefaultConfig();
+                }
+            });
 
-                services = services.AddSingleton<IKubernetes>(sp =>
-                {
-                    var options = sp.GetRequiredService<IOptions<KubernetesClientOptions>>().Value;
+            services = services.AddSingleton<IKubernetes>(sp =>
+            {
+                var options = sp.GetRequiredService<IOptions<KubernetesClientOptions>>().Value;
 
-                    return new k8s.Kubernetes(options.Configuration);
-                });
-            }
-
-            return services;
+                return new k8s.Kubernetes(options.Configuration);
+            });
         }
+
+        return services;
     }
 }
