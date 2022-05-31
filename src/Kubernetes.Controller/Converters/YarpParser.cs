@@ -40,8 +40,14 @@ internal static class YarpParser
         foreach (var path in http.Paths ?? Enumerable.Empty<V1HTTPIngressPath>())
         {
             var service = ingressContext.Services.SingleOrDefault(s => s.Metadata.Name == path.Backend.Service.Name);
-            var servicePort = service.Spec.Ports.SingleOrDefault(p => MatchesPort(p, path.Backend.Service.Port));
-            HandleIngressRulePath(ingressContext, servicePort, endpoints, defaultSubsets, rule, path, configContext);
+            if (service.Spec != null)
+            {
+                var servicePort = service.Spec.Ports.SingleOrDefault(p => MatchesPort(p, path.Backend.Service.Port));
+                if (servicePort != null)
+                {
+                    HandleIngressRulePath(ingressContext, servicePort, endpoints, defaultSubsets, rule, path, configContext);
+                }
+            }
         }
     }
 
