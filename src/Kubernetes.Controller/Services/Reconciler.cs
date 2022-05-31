@@ -40,10 +40,17 @@ public partial class Reconciler : IReconciler
 
             foreach (var ingress in ingresses)
             {
-                if (_cache.TryGetReconcileData(new NamespacedName(ingress.Metadata.NamespaceProperty, ingress.Metadata.Name), out var data))
+                try
                 {
-                    var ingressContext = new YarpIngressContext(ingress, data.ServiceList, data.EndpointsList);
-                    YarpParser.ConvertFromKubernetesIngress(ingressContext, configContext);
+                    if (_cache.TryGetReconcileData(new NamespacedName(ingress.Metadata.NamespaceProperty, ingress.Metadata.Name), out var data))
+                    {
+                        var ingressContext = new YarpIngressContext(ingress, data.ServiceList, data.EndpointsList);
+                        YarpParser.ConvertFromKubernetesIngress(ingressContext, configContext);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Uncaught exception occured while reconciling ingress {IngressNamespace}/{IngressName}", ingress.Metadata.NamespaceProperty, ingress.Metadata.Name);
                 }
             }
 

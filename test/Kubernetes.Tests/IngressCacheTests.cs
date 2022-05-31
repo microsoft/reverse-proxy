@@ -7,24 +7,25 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
 using Yarp.Kubernetes.Controller;
 using Yarp.Kubernetes.Controller.Caching;
+using Yarp.Kubernetes.Tests.Utils;
 
 namespace Yarp.Kubernetes.Tests;
 
 public class IngressCacheTests
 {
-    private readonly Mock<ILogger<IngressCache>> _mockLogger;
     private readonly Mock<IOptions<YarpOptions>> _mockOptions;
     private readonly IngressCache _cacheUnderTest;
 
-    public IngressCacheTests()
+    public IngressCacheTests(ITestOutputHelper output)
     {
-        _mockLogger = new Mock<ILogger<IngressCache>>();
+        var logger = new TestLogger<IngressCache>(output);
         _mockOptions = new Mock<IOptions<YarpOptions>>();
         _mockOptions.SetupGet(o => o.Value).Returns(new YarpOptions { ControllerClass = "microsoft.com/ingress-yarp" });
 
-        _cacheUnderTest = new IngressCache(_mockOptions.Object, _mockLogger.Object);
+        _cacheUnderTest = new IngressCache(_mockOptions.Object, logger);
     }
 
     [Theory]
