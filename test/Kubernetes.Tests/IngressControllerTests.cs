@@ -55,7 +55,6 @@ public class IngressControllerTests
         await awaiter.WaitAsync().DefaultTimeout();
         _mockReconciler.Verify(x => x.ProcessAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
 
-        reconcilerError = new Exception("reconicliation failed");
         _ingressInformer.PublishUpdate(WatchEventType.Added, new V1Ingress());
         await awaiter.WaitAsync().DefaultTimeout();
         _mockReconciler.Verify(x => x.ProcessAsync(It.IsAny<CancellationToken>()), Times.AtLeast(3));
