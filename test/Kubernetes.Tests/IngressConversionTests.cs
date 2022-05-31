@@ -43,11 +43,13 @@ public class IngressConversionTests
     [InlineData("exact-match")]
     [InlineData("annotations")]
     [InlineData("mapped-port")]
+    [InlineData("port-mismatch")]
     [InlineData("hostname-routing")]
     [InlineData("multiple-ingresses")]
     [InlineData("multiple-ingresses-one-svc")]
     [InlineData("multiple-namespaces")]
     [InlineData("route-metadata")]
+    [InlineData("missing-svc")]
     public async Task ParsingTests(string name)
     {
         var ingressClass = KubeResourceGenerator.CreateIngressClass("yarp", "microsoft.com/ingress-yarp", true);
