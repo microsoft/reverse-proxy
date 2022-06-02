@@ -1,3 +1,4 @@
+![YARP_96x](https://user-images.githubusercontent.com/219224/171533159-51879bda-9f70-42a9-8fa5-95656e45be24.png)
 # Welcome to the YARP project
 
 YARP (which stands for "Yet Another Reverse Proxy") is a project to create a reverse proxy server. We found a bunch of internal teams at Microsoft who were either building a reverse proxy for their service or had been asking about APIs and tech for building one, so we decided to get them all together to work on a common solution, this project.
