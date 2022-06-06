@@ -40,21 +40,12 @@ public class IngressControllerTests
         _mockCache.Setup(x => x.Update(It.IsAny<WatchEventType>(), It.IsAny<V1Ingress>())).Returns(true);
 
         var awaiter = new SemaphoreSlim(0, 1);
-        Exception reconcilerError = null;
         _mockReconciler
-            .Setup(x => x.ProcessAsync(It.IsAny<CancellationToken>())).Returns(
-                (CancellationToken _) =>
-                {
-                    awaiter.Release();
-                    if (reconcilerError != null)
-                    {
-                        var e = reconcilerError;
-                        reconcilerError = null;
-                        return Task.FromException(e);
-                    }
-
-                    return Task.CompletedTask;
-                });
+            .SetupSequence(x => x.ProcessAsync(It.IsAny<CancellationToken>()))
+                .Returns(() => { awaiter.Release(); return Task.CompletedTask; })
+                .Returns(() => { awaiter.Release(); return Task.CompletedTask; })
+                .Returns(() => { awaiter.Release(); return Task.FromException(new Exception("reconicliation failed")); })
+                .Returns(() => { awaiter.Release(); return Task.CompletedTask; });
 
         await _controller.StartAsync(CancellationToken.None).DefaultTimeout();
         await awaiter.WaitAsync().DefaultTimeout();
@@ -64,7 +55,6 @@ public class IngressControllerTests
         await awaiter.WaitAsync().DefaultTimeout();
         _mockReconciler.Verify(x => x.ProcessAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
 
-        reconcilerError = new Exception("reconicliation failed");
         _ingressInformer.PublishUpdate(WatchEventType.Added, new V1Ingress());
         await awaiter.WaitAsync().DefaultTimeout();
         _mockReconciler.Verify(x => x.ProcessAsync(It.IsAny<CancellationToken>()), Times.AtLeast(3));
