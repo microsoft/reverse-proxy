@@ -81,7 +81,7 @@ See https://microsoft.github.io/reverse-proxy/articles/authn-authz.html for a li
 
 Specifies the protocol of the backend service. Defaults to http.
 
-`yarp.ingress.kubernetes.io/authorization-policy: "https"`
+`yarp.ingress.kubernetes.io/backend-protocol: "https"`
 
 #### CORS Policy
 
