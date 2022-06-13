@@ -50,7 +50,7 @@ public class HttpContextFeaturesExtensions
         Assert.Same(cm2, newFeature.Cluster);
         Assert.Same(r1, newFeature.Route);
 
-        // Beging testing ReassignProxyRequest(route, cluster) overload
+        // Begin testing ReassignProxyRequest(route, cluster) overload
         var r2 = new RouteModel(new RouteConfig() { RouteId = "r2" }, cs2, HttpTransformer.Empty);
         context.ReassignProxyRequest(r2, cs2);
 
