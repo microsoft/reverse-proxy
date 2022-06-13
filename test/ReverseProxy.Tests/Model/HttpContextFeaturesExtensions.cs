@@ -49,5 +49,18 @@ public class HttpContextFeaturesExtensions
         Assert.Same(d1, newFeature.ProxiedDestination); // Copied unmodified.
         Assert.Same(cm2, newFeature.Cluster);
         Assert.Same(r1, newFeature.Route);
+
+        // Beging testing ReassignProxyRequest(route, cluster) overload
+        var r2 = new RouteModel(new RouteConfig() { RouteId = "r2" }, cs2, HttpTransformer.Empty);
+        context.ReassignProxyRequest(r2, cs2);
+
+        var newFeatureOverload = context.GetReverseProxyFeature();
+        Assert.NotSame(newFeature, newFeatureOverload);
+        Assert.Same(d2, newFeatureOverload.AllDestinations); // Unmodified
+        Assert.Same(d2, newFeatureOverload.AvailableDestinations); // Unmodified
+        Assert.Same(d1, newFeatureOverload.ProxiedDestination); // Unmodified
+        Assert.Same(cm2, newFeatureOverload.Cluster); // Unmodified
+        Assert.Same(r2, newFeatureOverload.Route); // Asset route update
+        // Assert.Same(r1, newFeatureOverload.Route); // Test should fail
     }
 }
