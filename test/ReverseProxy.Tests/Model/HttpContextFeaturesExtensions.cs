@@ -61,6 +61,5 @@ public class HttpContextFeaturesExtensions
         Assert.Same(d1, newFeatureOverload.ProxiedDestination); // Unmodified
         Assert.Same(cm2, newFeatureOverload.Cluster); // Unmodified
         Assert.Same(r2, newFeatureOverload.Route); // Asset route update
-        // Assert.Same(r1, newFeatureOverload.Route); // Test should fail
     }
 }
