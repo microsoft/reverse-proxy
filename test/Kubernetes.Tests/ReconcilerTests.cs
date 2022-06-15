@@ -30,7 +30,7 @@ public class ReconcilerTests
     }
 
     [Fact]
-    public async Task ReconcilerDoesNotBailOnPoisonPillIngress()
+    public async Task ReconcilerDoesNotStopOnInvalidIngress()
     {
         _mockCache
             .Setup(x => x.GetIngresses())
