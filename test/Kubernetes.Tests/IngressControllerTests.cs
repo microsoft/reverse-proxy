@@ -10,9 +10,11 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 using Yarp.Kubernetes.Controller.Caching;
 using Yarp.Kubernetes.Controller.Client.Tests;
 using Yarp.Kubernetes.Controller.Services;
+using Yarp.Kubernetes.Tests.Utils;
 using Yarp.Tests.Common;
 
 namespace Yarp.Kubernetes.Tests;
@@ -26,12 +28,12 @@ public class IngressControllerTests
     private readonly SyncResourceInformer<V1Endpoints> _endpointsInformer = new();
     private readonly SyncResourceInformer<V1IngressClass> _ingressClassInformer = new();
     private readonly Mock<IHostApplicationLifetime> _mockHostApplicationLifetime = new();
-    private readonly Mock<ILogger<IngressController>> _mockLogger = new();
     private readonly IngressController _controller;
 
-    public IngressControllerTests()
+    public IngressControllerTests(ITestOutputHelper output)
     {
-        _controller = new IngressController(_mockCache.Object, _mockReconciler.Object, _ingressInformer, _serviceInformer, _endpointsInformer, _ingressClassInformer, _mockHostApplicationLifetime.Object, _mockLogger.Object);
+        var logger = new TestLogger<IngressController>(output);
+        _controller = new IngressController(_mockCache.Object, _mockReconciler.Object, _ingressInformer, _serviceInformer, _endpointsInformer, _ingressClassInformer, _mockHostApplicationLifetime.Object, logger);
     }
 
     [Fact]
