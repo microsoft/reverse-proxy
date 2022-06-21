@@ -7,7 +7,7 @@ If all that the cloud needs to access is resources that are exposed over http, t
 
 That is the principle of the gateway feature for YARP. You operate two instances of the YARP proxy service, configured as a tunnel. 
 
-[! Tunnel diagram](https://github.com/assets/95136/52d7491b-6e8a-4a2c-a51d-0734b3e41930)
+![Tunnel diagram](https://github.com/assets/95136/52d7491b-6e8a-4a2c-a51d-0734b3e41930)
 
 In the on-prem data center, you run an instance of YARP, we'll call this the backend proxy. This is configured with routes to the resources that should be externally accessible - only routes that are configured via this proxy will be exposed. The backend proxy is configured to create a tunnel connection to the frontend instance by specifying the connection URL and security details for the connection.
 
