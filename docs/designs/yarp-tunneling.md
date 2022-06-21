@@ -19,15 +19,19 @@ The tunnel will establish a Websockets connection between the backend and the fr
 
 If the tunnel connection is broken, the Backend will attempt to reconnect to the front end. If the connection fails, then it will continue to reconnect every 30s until the connection is re-established. If the connection is refused with a 400 series error then further connections for that tunnel will not be made.
 
+> Issue: Do we need an API for the tunnel? As its created from code on the Back End, the app could have additional logic for control over the duration. Does it have API for status, clean shutdown, etc.
+
+The Front End should keep the WS connection alive by sending pings every 30s if there is not other traffic.
+
 ## Moving pieces
 
 | Location | Name | Description |
 | --- | --- | --- |
-| Frontend | EndPoint | The endpoint that the backend proxy will connect to to create a tunnel. Multiple backends should be able to connect to the tunnel at once. |
-| Frontend | Cluster | The cluster that will direct to backend proxy(ies) that have created tunnels. The Load balancing and health check policies will apply.|
+| Frontend | EndPoint | The endpoint that the backend proxy will connect to to create a tunnel. |
+| Frontend | Cluster | The cluster that will direct to backend proxy(ies) that have created tunnels. |
 | Frontend | Routes | Routes need to be configured to route specific URLs to the tunnel, by using clusters that are a tunnel. | 
 | Backend | Tunnel URL(s) | The URL(s) for the frontend endpoint that can be used to establish the tunnel. |
-| Backend | Routes | The backend needs to have routes defined that will direct traffic to local resources. All traffic over the tunnel will be directed via the route table - if an applicable route doesn't exist, it should reject the request.|
+| Backend | Routes | The backend needs to have routes defined that will direct traffic to local resources. |
 
 ## Front End 
 The Front End is the proxy that will be called by clients to be able to access resources via the Back End proxy. It will route traffic over a WS connection from the Back End proxy.
@@ -61,9 +65,9 @@ app.MapTunnel(/tunnel/{ClusterId}, async (connectionContext, cluster) => {
 
 ```
 
-The frontend should have configuration for routes that direct to a cluster that is for the tunnel. The cluster must be marked as IsTunnel to enable tunnel capability, and must not have its own destinations. All the destinations will be supplied dynamically by Back Ends creating tunnel connections.
+The frontend should have configuration for routes that direct to a cluster that is for the tunnel. The cluster must be marked as IsTunnel to enable tunnel capability, and must *not* include other destinations. All the destinations will be supplied dynamically by Back Ends creating tunnel connections.
 
-In the following case it uses the extensions feature to enable storing thumbprints for client certs that are valid for that tunnel connection.
+In the following case it uses the extensions feature to enable storing thumbprints for client certs that are valid for that tunnel connection. The Route will direct all traffic under the path `/OnPrem/*` to the tunnel.
 
 ``` json
 {
@@ -72,7 +76,7 @@ In the following case it uses the extensions feature to enable storing thumbprin
         "Routes" : {
             "Tunnel1" : {
                 "Match" : {
-                    "Path" : "/onPren/{**any}"
+                    "Path" : "/OnPrem/{**any}"
                 },
                 "ClusterId" : "TunnelDestinations"
             }
@@ -94,11 +98,13 @@ In the following case it uses the extensions feature to enable storing thumbprin
 }
 ```
 
+Multiple Back Ends should be able to create tunnel connections for the same cluster. When that happens, the load balancing rules for the cluster should apply, and balance between the active tunnels. The reason for this is scalability so that there is not a single point of failure.
+
 ## Back End
 
 The Back End instance is the proxy that will reside on the same network as the resources that should be exposed. The Back End will need to be able to connect to those resources, and also be able to create a WebSocket connection to the Front End server(s).
 
-The backend proxy is configured with routes and destinations that it wishes to expose to the front end. Only URLs matching its routes should be callable via it, so that configuration is critical to the security of the tunnel.
+The backend proxy is configured with routes and destinations that it wishes to expose to the front end. Only URLs matching its routes should be proxyable via it, so that configuration is critical to the security of the tunnel.
 
 The outbound connection to the front end needs to be explicitly made for each tunnel that the backend wishes to create.
 
@@ -117,8 +123,9 @@ builder.WebHost.UseTunnelTransport(url, tunnelClient, headers);
 
 ```
 
-**Issue** Do we need a callback for the tunnel for the client to validate the server, or do we rely on TLS and a valid server certificate that must match the URL used bt the tunnel?
+**Issue** Do we need a callback for the tunnel for the client to validate the server, or do we rely on TLS and a valid server certificate that must match the URL used by the tunnel?
 
+Active health checks probably don't make sense to be performed against the Back End.
 
 ## Scalability
 
