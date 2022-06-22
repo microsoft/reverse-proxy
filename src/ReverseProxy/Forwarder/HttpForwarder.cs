@@ -567,7 +567,7 @@ internal sealed class HttpForwarder : IHttpForwarder
         using var clientStream = upgradeResult;
 
         // :: Step 7-A-2: Copy duplex streams
-        using var destinationStream = await destinationResponse.Content.ReadAsStreamAsync();
+        using var destinationStream = await destinationResponse.Content.ReadAsStreamAsync(activityCancellationSource.Token);
 
         var requestTask = StreamCopier.CopyAsync(isRequest: true, clientStream, destinationStream, StreamCopier.UnknownLength, _clock, activityCancellationSource, activityCancellationSource.Token).AsTask();
         var responseTask = StreamCopier.CopyAsync(isRequest: false, destinationStream, clientStream, StreamCopier.UnknownLength, _clock, activityCancellationSource, activityCancellationSource.Token).AsTask();
@@ -626,7 +626,7 @@ internal sealed class HttpForwarder : IHttpForwarder
         // https://github.com/dotnet/runtime/blame/8fc68f626a11d646109a758cb0fc70a0aa7826f1/src/libraries/System.Net.Http/src/System/Net/Http/HttpResponseMessage.cs#L46
         if (destinationResponseContent is not null)
         {
-            using var destinationResponseStream = await destinationResponseContent.ReadAsStreamAsync();
+            using var destinationResponseStream = await destinationResponseContent.ReadAsStreamAsync(activityCancellationSource.Token);
             // The response content-length is enforced by the server.
             return await StreamCopier.CopyAsync(isRequest: false, destinationResponseStream, clientResponseStream, StreamCopier.UnknownLength, _clock, activityCancellationSource, activityCancellationSource.Token);
         }
