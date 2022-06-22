@@ -254,7 +254,7 @@ public static class RequestUtilities
     {
         if (value.Count == 1)
         {
-            string headerValue = value;
+            string headerValue = value!;
 
             if (ContainsNewLines(headerValue))
             {
@@ -276,7 +276,7 @@ public static class RequestUtilities
         }
         else
         {
-            string[] headerValues = value;
+            string[] headerValues = value!;
 
             // HttpClient wrongly uses comma (",") instead of semi-colon (";") as a separator for Cookie headers.
             // To mitigate this, we concatenate them manually and put them back as a single header value.

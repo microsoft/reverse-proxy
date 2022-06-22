@@ -55,7 +55,7 @@ internal static class ConfigurationReadingExtensions
             return null;
         }
 
-        return new ReadOnlyDictionary<string, string>(children.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase));
+        return new ReadOnlyDictionary<string, string>(children.ToDictionary(s => s.Key, s => s.Value!, StringComparer.OrdinalIgnoreCase));
     }
 
     internal static string[]? ReadStringArray(this IConfigurationSection section)
@@ -65,6 +65,6 @@ internal static class ConfigurationReadingExtensions
             return null;
         }
 
-        return children.Select(s => s.Value).ToArray();
+        return children.Select(s => s.Value!).ToArray();
     }
 }
