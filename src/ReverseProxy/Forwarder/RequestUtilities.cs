@@ -278,6 +278,7 @@ public static class RequestUtilities
         {
             string[] headerValues = value!;
 
+#if !NET7_0_OR_GREATER
             // HttpClient wrongly uses comma (",") instead of semi-colon (";") as a separator for Cookie headers.
             // To mitigate this, we concatenate them manually and put them back as a single header value.
             // A multi-header cookie header is invalid, but we get one because of
@@ -287,6 +288,7 @@ public static class RequestUtilities
                 AddHeader(request, headerName, string.Join("; ", headerValues));
                 return;
             }
+#endif
 
             foreach (var headerValue in headerValues)
             {
