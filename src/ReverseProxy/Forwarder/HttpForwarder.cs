@@ -603,8 +603,15 @@ internal sealed class HttpForwarder : IHttpForwarder
         }
         else
         {
+            var cancelReads = !requestFinishedFirst && !secondTask.IsCompleted;
+            if (cancelReads)
+            {
+                // The response is finished, unblock the incoming reads
+                activityCancellationSource.Cancel();
+            }
+
             var (secondResult, secondException) = await secondTask;
-            if (secondResult != StreamCopyResult.Success)
+            if (!cancelReads && secondResult != StreamCopyResult.Success)
             {
                 error = ReportResult(context, !requestFinishedFirst, secondResult, secondException!);
             }
@@ -616,13 +623,13 @@ internal sealed class HttpForwarder : IHttpForwarder
 
         return error;
 
-        ForwarderError ReportResult(HttpContext context, bool reqeuest, StreamCopyResult result, Exception exception)
+        ForwarderError ReportResult(HttpContext context, bool request, StreamCopyResult result, Exception exception)
         {
             var error = result switch
             {
-                StreamCopyResult.InputError => reqeuest ? ForwarderError.UpgradeRequestClient : ForwarderError.UpgradeResponseDestination,
-                StreamCopyResult.OutputError => reqeuest ? ForwarderError.UpgradeRequestDestination : ForwarderError.UpgradeResponseClient,
-                StreamCopyResult.Canceled => reqeuest ? ForwarderError.UpgradeRequestCanceled : ForwarderError.UpgradeResponseCanceled,
+                StreamCopyResult.InputError => request ? ForwarderError.UpgradeRequestClient : ForwarderError.UpgradeResponseDestination,
+                StreamCopyResult.OutputError => request ? ForwarderError.UpgradeRequestDestination : ForwarderError.UpgradeResponseClient,
+                StreamCopyResult.Canceled => request ? ForwarderError.UpgradeRequestCanceled : ForwarderError.UpgradeResponseCanceled,
                 _ => throw new NotImplementedException(result.ToString()),
             };
             ReportProxyError(context, error, exception);
