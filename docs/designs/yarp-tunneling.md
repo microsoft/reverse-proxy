@@ -21,6 +21,8 @@ If the tunnel connection is broken, the Backend will attempt to reconnect to the
 
 > Issue: Do we need an API for the tunnel? As its created from code on the Back End, the app could have additional logic for control over the duration. Does it have API for status, clean shutdown, etc.
 
+> Issue: Will additional connections be created for scalability - H2 perf becomes limited after 100 simultaneous requests.
+
 The Front End should keep the WS connection alive by sending pings every 30s if there is not other traffic.
 
 ## Moving pieces
@@ -160,6 +162,8 @@ The purpose of the tunnel is to somewhat subvert security by creating a tunnel t
 | --- | --- |
 | No tunnel has connected | If the front end receives a request for a route that is backed by a tunnel and no tunnels have been created, then it should respond to those requests with a 502 "Bad Gateway" error|
 
+## Web Transport
 
+Web Transport is an interesting future protocol. 
 
 
