@@ -96,17 +96,19 @@ public class WebSocketTests
 #error A target framework was added to the project and needs to be added to this condition.
 #endif
 
-            var buffer = new byte[1];
+            var buffer = new byte[5];
             for (var i = 0; i <= 255; i++)
             {
                 buffer[0] = (byte)i;
-                await rawStream.WriteAsync(buffer, 0, 1, cts.Token);
+                await rawStream.WriteAsync(buffer, 0, buffer.Length, cts.Token);
                 var read = await rawStream.ReadAsync(buffer, cts.Token);
 
-                Assert.Equal(1, read);
+                Assert.Equal(buffer.Length, read);
                 Assert.Equal(i, buffer[0]);
             }
 
+            await rawStream.WriteAsync(Encoding.UTF8.GetBytes("close"));
+            while (await rawStream.ReadAsync(buffer, cts.Token) != 0) { }
             rawStream.Dispose();
         }, cts.Token);
     }
@@ -216,11 +218,16 @@ public class WebSocketTests
             }
 
             await using var stream = await upgradeFeature.UpgradeAsync();
-            var buffer = new byte[1];
+            var buffer = new byte[5];
             int read;
             while ((read = await stream.ReadAsync(buffer, httpContext.RequestAborted)) != 0)
             {
                 await stream.WriteAsync(buffer, 0, read, httpContext.RequestAborted);
+
+                if (string.Equals("close", Encoding.UTF8.GetString(buffer, 0, read), StringComparison.Ordinal))
+                {
+                    break;
+                }
             }
         }
 

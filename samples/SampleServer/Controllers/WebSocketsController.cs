@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -36,7 +36,9 @@ namespace SampleServer.Controllers
         {
             if (!HttpContext.WebSockets.IsWebSocketRequest)
             {
-                HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                HttpContext.Response.ContentType = "text/html";
+                await HttpContext.Response.SendFileAsync("./wwwroot/index.html");
+                return;
             }
 
             using (var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync())
