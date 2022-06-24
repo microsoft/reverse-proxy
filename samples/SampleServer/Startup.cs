@@ -26,7 +26,6 @@ namespace SampleServer
         /// </summary>
         public void Configure(IApplicationBuilder app)
         {
-            app.UseFileServer();
             app.UseWebSockets();
 
             app.UseRouting();
