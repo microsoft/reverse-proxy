@@ -279,9 +279,9 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         // Don't register until we're done hooking everything up to avoid cancellation races.
         source.Token.Register(ReloadConfig, this);
 
-        static void SignalChange(object obj)
+        static void SignalChange(object? obj)
         {
-            var token = (CancellationTokenSource)obj;
+            var token = (CancellationTokenSource)obj!;
             try
             {
                 token.Cancel();
