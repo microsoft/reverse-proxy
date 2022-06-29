@@ -1,11 +1,11 @@
 # YARP Tunneling
 
 ## Introduction
-While many organizations are moving their computing to the cloud, there are occasions where you need to be able to run some services in a local datacenter. The problem then is if you need to be able to communicate with those services from the cloud. Creating a VPN network connection to Azure or other cloud provider is possible, but usually involves a lot of red tape, configuration and opens up two networks to each other.
+While many organizations are moving their computing to the cloud, there are occasions where you need to be able to run some services in a local datacenter. The problem then is if you need to be able to communicate with those services from the cloud. Creating a VPN network connection to Azure or other cloud provider is possible, but usually involves a lot of red tape and configuration complexity as the two networks need to be integrated.
 
-If all that the cloud needs to access is resources that are exposed over http, then a simpler solution is to have a gateway that will route traffic to the remote resource. Outbound connections over https are not usually blocked, so having a on-prem gateway make an outbound connection to the cloud, is the easiest way to establish the route. This is the basis behind the [Azure Relay](https://docs.microsoft.com/en-us/azure/azure-relay/relay-what-is-it) service offering.
+If all that the cloud needs to access is resources that are exposed over http, then a simpler solution is to have a gateway that can route traffic to the remote resource. Additionally, outbound connections over http(s) are not usually blocked, so having a on-prem gateway make an outbound connection to the cloud, is the easiest way to establish the route. This is the basis behind the [Azure Relay](https://docs.microsoft.com/en-us/azure/azure-relay/relay-what-is-it) service offering.
 
-That is the principle of the gateway feature for YARP. You operate two instances of the YARP proxy service, configured as a tunnel. The advantage over Relay is that using a reverse proxy as an on-prem gateway means that back end services can be talked to without needing to modify the server configuration. This is particularly useful for services that may have been written by a 3rd party, or are no longer under active developemnt, and so making changes to the configuration is complicated and expensive.
+That is the principle of the tunnel feature for YARP. You operate two instances of the YARP proxy service, configured as a tunnel. The advantage over Azure Relay is that using a reverse proxy as an on-prem gateway means that both cloud and back end services can be used without needing to update the application other than addresses. This is particularly useful for services that may have been written by a 3rd party, or are no longer under active development, and so making changes to the configuration is complicated and expensive. Relay requires the sender and reciever to be updated to use its connection protocol.
 
 ![Tunnel diagram](https://github.com/assets/95136/52d7491b-6e8a-4a2c-a51d-0734b3e41930)
 
@@ -15,7 +15,7 @@ The instance in the cloud, we'll refer to as the front-end, will be configured w
 
 ## Tunnel Protocol
 
-The tunnel will establish a Websockets connection between the back-end and the front-end. The back-end will establish the connection so that it can more easily break through firewalls. Once the WS connection is created, it will be treated as a stream over which HTTP/2 traffic will be routed. HTTP/2 is used so that multiple simultaneous requests can be multiplexed over a single connection. The HTTP/2 protocol is only used between the two proxies, the connections either side can be any protocol that the proxy supports. This means we don't put any specific capability requirement on the destination servers. 
+The tunnel will establish a Websockets connection between the back-end and the front-end. The back-end will establish the connection so that it can more easily break through firewalls. Once the WSS connection is created, it will be treated as a stream over which HTTP/2 traffic will be routed. HTTP/2 is used so that multiple simultaneous requests can be multiplexed over a single connection. The HTTP/2 protocol is only used between the two proxies, the connections either side can be any protocol that the proxy supports. This means we don't put any specific capability requirement on the destination servers. 
 
 If the tunnel connection is broken, the back-end will attempt to reconnect to the front-end:
 - If the connection fails, then it will continue to reconnect every 30s until the connection is re-established.
@@ -26,7 +26,7 @@ If the tunnel connection is broken, the back-end will attempt to reconnect to th
 
 > Issue: Will additional connections be created for scalability - H2 perf becomes limited after 100 simultaneous requests. How does the front-end know to pair a second back-end connection?
 
-The Front End should keep the WS connection alive by sending pings every 30s if there is no other traffic. This should be done at the WS layer.
+The Front End should keep the WSS connection alive by sending pings every 30s if there is no other traffic. This should be done at the WSS layer.
 
 ## Moving pieces
 
@@ -39,7 +39,7 @@ The Front End should keep the WS connection alive by sending pings every 30s if 
 | back-end | Routes | The back-end needs to have routes defined that will direct traffic to local resources. |
 
 ## front-end 
-The front-end is the proxy that will be called by clients to be able to access resources via the back-end proxy. It will route traffic over a tunnel created using a WS connection from the back-end proxy. YARP needs a mechanism to know which requests will be routed via the tunnel. This will be achived by extending the existing cluster concept in YARP - The request to create a tunnel will specify the name of a cluster. Once the tunnel is established, it will be treated as a dynmamically created destination for the named cluster. Routes will not need to be changed, they will point at the cluster, and the tunnels will be used in the same way as destinations. 
+The front-end is the proxy that will be called by clients to be able to access resources via the back-end proxy. It will route traffic over a tunnel created using a WSS connection from the back-end proxy. YARP needs a mechanism to know which requests will be routed via the tunnel. This will be achived by extending the existing cluster concept in YARP - The request to create a tunnel will specify the name of a cluster. Once the tunnel is established, it will be treated as a dynmamically created destination for the named cluster. Routes will not need to be changed, they will point at the cluster, and the tunnels will be used in the same way as destinations. 
 
 Tunnel services must be enabled by the proxy server:
 
@@ -179,7 +179,7 @@ In a large deployment, there needs to be the ability to have multiple front-end 
 
 > Note: The front-end proxy will not be aware of the actual destinations that serve resources - each back-end should have its own cluster definition for the actual destinations, and so can include multiple servers for any route/cluster combination.
 
-- A back-end proxy should be able to create tunnels to multiple front-ends. The tunnels can be to related front-end proxies that are sharing the same load, or to front-ends in different cloud deployments. This enables the Front Ends to be very specific to particular deployments - and have constrained v-Lan configurations in the cloud. This limits the possibility for other connections to the proxy that may cause security issues.
+- A back-end proxy should be able to create tunnels to multiple front-ends. The tunnels can be to related front-end proxies that are sharing the same load, or to front-ends in different cloud deployments. This enables the Front Ends to be very specific to particular deployments - and have constrained v-Lan configurations in the cloud.
 
 ## Authentication
 
@@ -191,7 +191,7 @@ Samples should be created that show best practices using a secure mechanism such
 
 ## Security
 
-The purpose of the tunnel is to somewhat subvert security by creating a tunnel through the firewall that enables external requests to be made to destination servers on the back-end network. There are a number of mitigations that reduces the risk of this feature:
+The purpose of the tunnel is to simplify service exposure by creating a tunnel through the firewall that enables external requests to be made to destination servers on the back-end network. There are a number of mitigations that reduces the risk of this feature:
 
 * No endpoints are exposed via the firewall - it does not expose any new endpoints that could act as attack vectors. The tunnel is an outbound connection made between the back-end and the front-end.
 * Traffic directed via the tunnel will need to have corresponding routes in the Back End configuration. Traffic will only be routed if there is a respective route and cluster configuration. Tunnel traffic can't specify arbitrary URLs that would be directed to a hostname not included in the back-end route table configuration.
