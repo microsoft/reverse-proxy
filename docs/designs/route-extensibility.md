@@ -88,15 +88,21 @@ Using a dictionary based on object type enables easy access to the object at run
 ```c#
 services.AddReverseProxy()
     .LoadFromConfig(Configuration.GetSection("ReverseProxy"))
-    .AddRouteExtension("A-B", (section, route, previous) => new ABState(section));
+    .AddRouteExtension("A-B", (section, _, _) => new ABState(section));
 ```
   Along with a similar mechanism for clusters. The extension registration would be something like:
 ```c#
 static IReverseProxyBuilder AddRouteExtension(this IReverseProxyBuilder builder, string sectionName, Func<IConfigurationSection, RouteConfig, ExtensionType, ExtensionType> factory)  
 ```
+
+Where the factory is passed:
+* The IConfigurationSection for the extension
+* The route object that is being extended
+* The existing extension instance in the case of configuration updates
+
   When the configuration is parsed, the factory is called based on the configuration key name, and the resultant object is added to the route/cluster objects.
 
-  If the configuration is updated, and an existing instance of the extension exists, then it will be passed to the factory. The factory can compare the current instance and re-use it, or copy its data across to a new instance based on the changes. Instances should be stable, so existing instances shouldn't be modified if it would affect existing in-flight requests. YARP can't really enforce rules on how the objects are changed, so this aspect will need to be well documented.
+  If the configuration is updated, and an existing instance of the extension exists, then it will be passed to the factory. The factory can compare the current instance and re-use it, or copy its data across to a new instance based on the changes. Instances must stable, so existing instances shouldn't be modified if it would affect existing in-flight requests. YARP can't really enforce rules on how the objects are changed as we want the types to be user defined. 
 
 * When using a custom config provider, the Extensions collection can be populated by the custom provider directly, or the provider can expose an `IConfigurationSection` implementation and use the factory as described below.
 
