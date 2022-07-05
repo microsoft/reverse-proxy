@@ -170,7 +170,9 @@ The back-end configuration would use the standard routes and cluster definitions
 }
 ```
 
-Note: Active health checks probably don't make sense to be performed against the Back End. Passive health checks will verify the overall condition of the tunnel.
+In the above case, requests using the paths `/OnPrem/CNCMilling/*` and `/OnPrem/Extrusion/*` will be routed by the back-end to their respective services - other paths would result in an error.
+
+Note: Active health checks probably don't make sense to be performed by the front-end against the back-end. Passive health checks will verify the overall condition of the tunnel.
 
 ## Scalability
 
