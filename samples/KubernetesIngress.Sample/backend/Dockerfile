@@ -5,7 +5,7 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0.100 AS publish
+FROM mcr.microsoft.com/dotnet/sdk:7.0.100-preview.5 AS publish
 WORKDIR /samples
 COPY ["samples/KubernetesIngress.Sample/backend", "KubernetesIngress.Sample/backend"]
 
