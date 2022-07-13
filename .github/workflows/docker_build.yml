@@ -42,3 +42,11 @@ jobs:
           file: ./samples/KubernetesIngress.Sample/Monitor/Dockerfile
           push: false
           tags: microsoft/yarp-monitor:latest
+      - name: Build Backend
+        id: docker_backend
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: ./samples/KubernetesIngress.Sample/backend/Dockerfile
+          push: false
+          tags: microsoft/yarp-backend:latest
