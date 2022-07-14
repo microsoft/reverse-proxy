@@ -52,7 +52,7 @@ The above example is adding an "A-B" extension to the route with its own data. T
 
 ## Proposal
 
-* Add an Extensions collection to Route and Cluster. This should follow the same pattern as http features, using an `IDictionary<Type, object>` and be accessed based on the type of the extension. This would then be accessible in proxy middleware from the route or cluster objects via an `Extensions` property:
+* Add an Extensions collection to Route and Cluster. This should follow the same pattern as http features, using an `IReadOnlyDictionary<Type, object>` and be accessed based on the type of the extension. This would then be accessible in proxy middleware from the route or cluster objects via an `Extensions` property:
 
 ```c#
 public void Configure(IApplicationBuilder app, IProxyStateLookup lookup)
