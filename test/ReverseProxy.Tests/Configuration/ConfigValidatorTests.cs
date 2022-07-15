@@ -327,6 +327,35 @@ public class ConfigValidatorTests
     }
 
     [Fact]
+    public async Task Accepts_RouteHeader_NotExistsWithNoValue()
+    {
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            Match = new RouteMatch
+            {
+                Path = "/",
+                Headers = new[]
+                {
+                    new RouteHeader()
+                    {
+                        Name = "header1",
+                        Mode = HeaderMatchMode.NotExists
+                    }
+                },
+            },
+            ClusterId = "cluster1",
+        };
+
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var result = await validator.ValidateRouteAsync(route);
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
     public async Task Accepts_RouteQueryParameter_ExistsWithNoValue()
     {
         var route = new RouteConfig
@@ -404,7 +433,8 @@ public class ConfigValidatorTests
     [Theory]
     [InlineData("", "v1", HeaderMatchMode.ExactHeader, "A null or empty route header name has been set for route")]
     [InlineData("h1", null, HeaderMatchMode.ExactHeader, "No header values were set on route header")]
-    [InlineData("h1", "v1", HeaderMatchMode.Exists, "Header values where set when using mode 'Exists'")]
+    [InlineData("h1", "v1", HeaderMatchMode.Exists, "Header values were set when using mode 'Exists'")]
+    [InlineData("h1", "v1", HeaderMatchMode.NotExists, "Header values were set when using mode 'NotExists'")]
     public async Task Rejects_InvalidRouteHeader(string name, string value, HeaderMatchMode mode, string error)
     {
         var routeHeader = new RouteHeader()
