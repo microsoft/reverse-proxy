@@ -2,17 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Moq;
-using Xunit;
-using Yarp.Tests.Common;
-using Yarp.ReverseProxy.Configuration;
-using Yarp.ReverseProxy.Model;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace Yarp.ReverseProxy.Forwarder;
 
