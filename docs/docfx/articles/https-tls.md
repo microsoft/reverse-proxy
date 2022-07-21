@@ -10,7 +10,7 @@ YARP is a level 7 HTTP proxy which means that incoming HTTPS/TLS connections are
 
 TLS tunneling using the CONNECT method is a feature used to proxy requests without decrypting them. This is _not_ supported by YARP and there are no plans to add it.
 
-## Configuring incomming connections
+## Configuring incoming connections
 
 YARP can run on top of all ASP.NET Core servers and configuring HTTPS/TLS for incoming connections is server specific. Check the docs for [Kestrel](https://docs.microsoft.com/aspnet/core/fundamentals/servers/kestrel/endpoints#listenoptionsusehttps), [IIS](https://docs.microsoft.com/iis/manage/configuring-security/how-to-set-up-ssl-on-iis), and [Http.Sys](https://docs.microsoft.com/aspnet/core/fundamentals/servers/httpsys#configure-windows-server-1) for configuration details.
 
