@@ -153,9 +153,9 @@ public class HeaderMatcherPolicyTests
     [InlineData(null, HeaderMatchMode.Exists, false)]
     [InlineData("", HeaderMatchMode.Exists, false)]
     [InlineData("abc", HeaderMatchMode.Exists, true)]
-    [InlineData(null, HeaderMatchMode.NotExists,true)]
+    [InlineData(null, HeaderMatchMode.NotExists, true)]
     [InlineData("", HeaderMatchMode.NotExists, false)]
-    [InlineData("abc", HeaderMatchMode.NotExists,false)]
+    [InlineData("abc", HeaderMatchMode.NotExists, false)]
     public async Task ApplyAsync_MatchingScenarios_AnyHeaderValue(string incomingHeaderValue, HeaderMatchMode mode, bool shouldMatch)
     {
         var context = new DefaultHttpContext();

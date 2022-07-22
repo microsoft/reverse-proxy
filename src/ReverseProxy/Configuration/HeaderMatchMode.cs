@@ -44,7 +44,7 @@ public enum HeaderMatchMode
     Exists,
 
     /// <summary>
-    /// The header must not exist
+    /// The header must not exist.
     /// </summary>
-    NotExists
+    NotExists,
 }

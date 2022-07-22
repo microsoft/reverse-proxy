@@ -71,8 +71,7 @@ internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPoli
             foreach (var matcher in matchers)
             {
                 var headerExistsInRequest = headers.TryGetValue(matcher.Name, out var requestHeaderValues);
-                if ( headerExistsInRequest &&
-                    !StringValues.IsNullOrEmpty(requestHeaderValues))
+                if (headerExistsInRequest && !StringValues.IsNullOrEmpty(requestHeaderValues))
                 {
                     if (matcher.Mode is HeaderMatchMode.Exists)
                     {
@@ -92,7 +91,7 @@ internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPoli
                         continue;
                     }
                 }
-                else if ( matcher.Mode is HeaderMatchMode.NotExists && !headerExistsInRequest)
+                else if (matcher.Mode is HeaderMatchMode.NotExists && !headerExistsInRequest)
                 {
                     continue;
                 }
