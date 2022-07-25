@@ -23,14 +23,14 @@ internal sealed class HeaderMatcher
         {
             throw new ArgumentException("A header name is required.", nameof(name));
         }
-        if (mode != HeaderMatchMode.Exists
+        if ((mode != HeaderMatchMode.Exists && mode != HeaderMatchMode.NotExists)
             && (values is null || values.Count == 0))
         {
             throw new ArgumentException("Header values must have at least one value.", nameof(values));
         }
-        if (mode == HeaderMatchMode.Exists && values?.Count > 0)
+        if ((mode == HeaderMatchMode.Exists || mode == HeaderMatchMode.NotExists) && values?.Count > 0)
         {
-            throw new ArgumentException($"Header values must not be specified when using '{nameof(HeaderMatchMode.Exists)}'.", nameof(values));
+            throw new ArgumentException($"Header values must not be specified when using '{mode}'.", nameof(values));
         }
         if (values is not null && values.Any(string.IsNullOrEmpty))
         {
@@ -51,7 +51,8 @@ internal sealed class HeaderMatcher
 
     /// <summary>
     /// Returns a read-only collection of acceptable header values used during routing.
-    /// At least one value is required unless <see cref="Mode"/> is set to <see cref="HeaderMatchMode.Exists"/>.
+    /// At least one value is required unless <see cref="Mode"/> is set to <see cref="HeaderMatchMode.Exists"/>
+    /// or <see cref="HeaderMatchMode.NotExists"/>.
     /// </summary>
     public string[] Values { get; }
 
