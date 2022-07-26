@@ -9,7 +9,7 @@ Headers are a very important part of processing HTTP requests and each have thei
 
 ## YARP header filtering
 
-YARP automatically removes request and response headers that could impact its ability to forward a request correctly, or that may be used maliciously to bypass features of the proxy. A complete list can be found [here](https://github.com/microsoft/reverse-proxy/blob/a911a041300ef259663aa46474b629b90fc82e05/src/ReverseProxy/Forwarder/RequestUtilities.cs#L65-L85), with some highlights described below.
+YARP automatically removes request and response headers that could impact its ability to forward a request correctly, or that may be used maliciously to bypass features of the proxy. A complete list can be found [here](https://github.com/microsoft/reverse-proxy/blob/b0a24521b269c030c50617f9fc56be9b8a3fe247/src/ReverseProxy/Forwarder/RequestUtilities.cs#L65-L81), with some highlights described below.
 
 ### Connection, KeepAlive, Close
 
