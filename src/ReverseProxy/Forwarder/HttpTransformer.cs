@@ -157,8 +157,8 @@ public class HttpTransformer
         // we remove the 'Content-Length: 0' header if one is present.
         if (proxyResponse.Content is not null
             && BodylessStatusCodes.Contains(proxyResponse.StatusCode)
-            && proxyResponse.Content.Headers.NonValidated.TryGetValues(HeaderNames.ContentLength, out var values)
-            && values.ToString() == "0")
+            && proxyResponse.Content.Headers.NonValidated.TryGetValues(HeaderNames.ContentLength, out var contentLengthValue)
+            && contentLengthValue.ToString() == "0")
         {
             httpContext.Response.Headers.Remove(HeaderNames.ContentLength);
         }
