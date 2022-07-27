@@ -3,6 +3,8 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -31,6 +33,23 @@ public class HttpTransformer
     /// Used to create derived instances.
     /// </summary>
     protected HttpTransformer() { }
+
+    // Status codes that don't include a response body.
+    private static readonly HttpStatusCode[] BodylessStatusCodes = {
+        // A 1xx response is terminated by the end of the header section; it cannot contain content
+        // or trailers.
+        // See https://www.rfc-editor.org/rfc/rfc9110.html#section-15.2-2
+        HttpStatusCode.Continue,
+        HttpStatusCode.SwitchingProtocols,
+        // A 204 response is terminated by the end of the header section; it cannot contain content
+        // or trailers.
+        // See https://www.rfc-editor.org/rfc/rfc9110.html#section-15.3.5-5
+        HttpStatusCode.NoContent,
+        // Since the 205 status code implies that no additional content will be provided, a server
+        // MUST NOT generate content in a 205 response.
+        // See https://www.rfc-editor.org/rfc/rfc9110.html#section-15.3.6-3
+        HttpStatusCode.ResetContent
+    };
 
     /// <summary>
     /// A callback that is invoked prior to sending the proxied request. All HttpRequestMessage fields are
@@ -130,6 +149,16 @@ public class HttpTransformer
         if (proxyResponse.Content is not null
             && proxyResponse.Headers.NonValidated.Contains(HeaderNames.TransferEncoding)
             && proxyResponse.Content.Headers.NonValidated.Contains(HeaderNames.ContentLength))
+        {
+            httpContext.Response.Headers.Remove(HeaderNames.ContentLength);
+        }
+
+        // For responses with status codes that shouldn't include a body,
+        // we remove the 'Content-Length: 0' header if one is present.
+        if (proxyResponse.Content is not null
+            && BodylessStatusCodes.Contains(proxyResponse.StatusCode)
+            && proxyResponse.Content.Headers.NonValidated.TryGetValues(HeaderNames.ContentLength, out var values)
+            && values.ToString() == "0")
         {
             httpContext.Response.Headers.Remove(HeaderNames.ContentLength);
         }

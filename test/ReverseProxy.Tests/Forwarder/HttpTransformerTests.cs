@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -107,6 +108,26 @@ public class HttpTransformerTests
         Assert.False(proxyRequest.Content.Headers.TryGetValues(HeaderNames.ContentLength, out var _));
         // Transfer-Encoding is on the restricted list and removed. HttpClient will re-add it if required.
         Assert.False(proxyRequest.Headers.TryGetValues(HeaderNames.TransferEncoding, out var _));
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.Continue)]
+    [InlineData(HttpStatusCode.SwitchingProtocols)]
+    [InlineData(HttpStatusCode.NoContent)]
+    [InlineData(HttpStatusCode.ResetContent)]
+    public async Task TransformResponseAsync_ContentLength0OnBodylessStatusCode_ContentLengthRemoved(HttpStatusCode statusCode)
+    {
+        var transformer = HttpTransformer.Default;
+        var httpContext = new DefaultHttpContext();
+
+        var proxyResponse = new HttpResponseMessage(statusCode)
+        {
+            Content = new ByteArrayContent(new byte[0])
+        };
+
+        Assert.Equal(0, proxyResponse.Content.Headers.ContentLength);
+        await transformer.TransformResponseAsync(httpContext, proxyResponse);
+        Assert.False(httpContext.Response.Headers.ContainsKey(HeaderNames.ContentLength));
     }
 
     [Fact]
