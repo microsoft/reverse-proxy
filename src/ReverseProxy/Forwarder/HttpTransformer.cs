@@ -3,10 +3,10 @@
 
 using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -34,22 +34,25 @@ public class HttpTransformer
     /// </summary>
     protected HttpTransformer() { }
 
-    // Status codes that don't include a response body.
-    private static readonly HttpStatusCode[] BodylessStatusCodes = {
-        // A 1xx response is terminated by the end of the header section; it cannot contain content
-        // or trailers.
-        // See https://www.rfc-editor.org/rfc/rfc9110.html#section-15.2-2
-        HttpStatusCode.Continue,
-        HttpStatusCode.SwitchingProtocols,
-        // A 204 response is terminated by the end of the header section; it cannot contain content
-        // or trailers.
-        // See https://www.rfc-editor.org/rfc/rfc9110.html#section-15.3.5-5
-        HttpStatusCode.NoContent,
-        // Since the 205 status code implies that no additional content will be provided, a server
-        // MUST NOT generate content in a 205 response.
-        // See https://www.rfc-editor.org/rfc/rfc9110.html#section-15.3.6-3
-        HttpStatusCode.ResetContent
-    };
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsBodylessStatusCode(HttpStatusCode statusCode) =>
+        statusCode switch
+        {
+            // A 1xx response is terminated by the end of the header section; it cannot contain content
+            // or trailers.
+            // See https://www.rfc-editor.org/rfc/rfc9110.html#section-15.2-2
+            HttpStatusCode.Continue => true,
+            HttpStatusCode.SwitchingProtocols => true,
+            // A 204 response is terminated by the end of the header section; it cannot contain content
+            // or trailers.
+            // See https://www.rfc-editor.org/rfc/rfc9110.html#section-15.3.5-5
+            HttpStatusCode.NoContent => true,
+            // Since the 205 status code implies that no additional content will be provided, a server
+            // MUST NOT generate content in a 205 response.
+            // See https://www.rfc-editor.org/rfc/rfc9110.html#section-15.3.6-3
+            HttpStatusCode.ResetContent => true,
+            _ => false
+        };
 
     /// <summary>
     /// A callback that is invoked prior to sending the proxied request. All HttpRequestMessage fields are
@@ -156,7 +159,7 @@ public class HttpTransformer
         // For responses with status codes that shouldn't include a body,
         // we remove the 'Content-Length: 0' header if one is present.
         if (proxyResponse.Content is not null
-            && BodylessStatusCodes.Contains(proxyResponse.StatusCode)
+            && IsBodylessStatusCode(proxyResponse.StatusCode)
             && proxyResponse.Content.Headers.NonValidated.TryGetValues(HeaderNames.ContentLength, out var contentLengthValue)
             && contentLengthValue.ToString() == "0")
         {
