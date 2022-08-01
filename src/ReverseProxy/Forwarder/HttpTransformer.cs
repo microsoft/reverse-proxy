@@ -41,8 +41,7 @@ public class HttpTransformer
             // A 1xx response is terminated by the end of the header section; it cannot contain content
             // or trailers.
             // See https://www.rfc-editor.org/rfc/rfc9110.html#section-15.2-2
-            HttpStatusCode.Continue => true,
-            HttpStatusCode.SwitchingProtocols => true,
+            >= HttpStatusCode.Continue and < HttpStatusCode.OK => true,
             // A 204 response is terminated by the end of the header section; it cannot contain content
             // or trailers.
             // See https://www.rfc-editor.org/rfc/rfc9110.html#section-15.3.5-5
