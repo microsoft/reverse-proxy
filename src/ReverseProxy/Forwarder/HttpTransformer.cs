@@ -3,8 +3,10 @@
 
 using System;
 using System.Diagnostics;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -31,6 +33,25 @@ public class HttpTransformer
     /// Used to create derived instances.
     /// </summary>
     protected HttpTransformer() { }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool IsBodylessStatusCode(HttpStatusCode statusCode) =>
+        statusCode switch
+        {
+            // A 1xx response is terminated by the end of the header section; it cannot contain content
+            // or trailers.
+            // See https://www.rfc-editor.org/rfc/rfc9110.html#section-15.2-2
+            >= HttpStatusCode.Continue and < HttpStatusCode.OK => true,
+            // A 204 response is terminated by the end of the header section; it cannot contain content
+            // or trailers.
+            // See https://www.rfc-editor.org/rfc/rfc9110.html#section-15.3.5-5
+            HttpStatusCode.NoContent => true,
+            // Since the 205 status code implies that no additional content will be provided, a server
+            // MUST NOT generate content in a 205 response.
+            // See https://www.rfc-editor.org/rfc/rfc9110.html#section-15.3.6-3
+            HttpStatusCode.ResetContent => true,
+            _ => false
+        };
 
     /// <summary>
     /// A callback that is invoked prior to sending the proxied request. All HttpRequestMessage fields are
@@ -130,6 +151,16 @@ public class HttpTransformer
         if (proxyResponse.Content is not null
             && proxyResponse.Headers.NonValidated.Contains(HeaderNames.TransferEncoding)
             && proxyResponse.Content.Headers.NonValidated.Contains(HeaderNames.ContentLength))
+        {
+            httpContext.Response.Headers.Remove(HeaderNames.ContentLength);
+        }
+
+        // For responses with status codes that shouldn't include a body,
+        // we remove the 'Content-Length: 0' header if one is present.
+        if (proxyResponse.Content is not null
+            && IsBodylessStatusCode(proxyResponse.StatusCode)
+            && proxyResponse.Content.Headers.NonValidated.TryGetValues(HeaderNames.ContentLength, out var contentLengthValue)
+            && contentLengthValue.ToString() == "0")
         {
             httpContext.Response.Headers.Remove(HeaderNames.ContentLength);
         }
