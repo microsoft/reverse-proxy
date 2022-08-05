@@ -422,7 +422,7 @@ Config:
 routeConfig = routeConfig.WithTransformUseOriginalHostHeader(useOriginal: true);
 ```
 ```C#
-transformBuilderContext.UseOriginalHost = true;
+transformBuilderContext.AddOriginalHost(true);
 ```
 
 This specifies if the incoming request Host header should be copied to the proxy request. This setting is disabled by default and can be enabled by configuring the transform with a `true` value. Transforms that directly reference the `Host` header will override this transform.
