@@ -33,6 +33,8 @@ internal static class ProtocolHelper
     /// Checks whether the provided content type header value represents a gRPC request.
     /// </summary>
     public static bool IsGrpcContentType(string? contentType) =>
-        MediaTypeHeaderValue.TryParse(contentType, out var mediaType)
+        contentType is not null &&
+        && contentType.StartsWith(GrpcContentType, StringComparison.OrdinalIgnoreCase)
+        && MediaTypeHeaderValue.TryParse(contentType, out var mediaType)
         && mediaType.MatchesMediaType(GrpcContentType);
 }
