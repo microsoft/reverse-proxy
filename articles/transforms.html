@@ -615,7 +615,7 @@ X-Forwarded-Host: IncomingHost:5000
 </code></pre>
 <pre><code class="lang-csharp">routeConfig = routeConfig.WithTransformUseOriginalHostHeader(useOriginal: true);
 </code></pre>
-<pre><code class="lang-C#">transformBuilderContext.UseOriginalHost = true;
+<pre><code class="lang-C#">transformBuilderContext.AddOriginalHost(true);
 </code></pre>
 <p>This specifies if the incoming request Host header should be copied to the proxy request. This setting is disabled by default and can be enabled by configuring the transform with a <code>true</code> value. Transforms that directly reference the <code>Host</code> header will override this transform.</p>
 <h3 id="requestheader">RequestHeader</h3>
