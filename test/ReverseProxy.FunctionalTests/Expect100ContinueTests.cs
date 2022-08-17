@@ -315,7 +315,7 @@ public class Expect100ContinueTests
         else
         {
             var exception = await Assert.ThrowsAsync<HttpRequestException>(() => client.SendAsync(message));
-            Assert.Equal(typeof(IOException), exception.InnerException.GetType());
+            Assert.IsAssignableFrom<IOException>(exception.InnerException);
             Assert.Equal(content.Length, contentStream.Position);
         }
     }
