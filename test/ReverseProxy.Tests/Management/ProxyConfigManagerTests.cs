@@ -194,6 +194,46 @@ public class ProxyConfigManagerTests
     }
 
     [Fact]
+    public async Task BuildConfig_DuplicateRouteIds_Throws()
+    {
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            ClusterId = "cluster1",
+            Match = new RouteMatch { Path = "/" }
+        };
+
+        var services = CreateServices(new List<RouteConfig> { route, route }, new List<ClusterConfig>());
+
+        var manager = services.GetRequiredService<ProxyConfigManager>();
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => manager.InitialLoadAsync());
+        Assert.Contains("Duplicate route 'route1'", ex.ToString());
+    }
+
+    [Fact]
+    public async Task BuildConfig_DuplicateClusterIds_Throws()
+    {
+        var cluster = new ClusterConfig
+        {
+            ClusterId = "cluster1"
+        };
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            ClusterId = "cluster1",
+            Match = new RouteMatch { Path = "/" }
+        };
+
+        var services = CreateServices(new List<RouteConfig> { route }, new List<ClusterConfig> { cluster, cluster });
+
+        var manager = services.GetRequiredService<ProxyConfigManager>();
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => manager.InitialLoadAsync());
+        Assert.Contains("Duplicate cluster 'cluster1'", ex.ToString());
+    }
+
+    [Fact]
     public async Task BuildConfig_TwoDistinctConfigs_Works()
     {
         const string TestAddress = "https://localhost:123/";

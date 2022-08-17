@@ -321,7 +321,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
             return (Array.Empty<RouteConfig>(), Array.Empty<Exception>());
         }
 
-        var seenRouteIds = new HashSet<string>();
+        var seenRouteIds = new HashSet<string>(routes.Count, StringComparer.OrdinalIgnoreCase);
         var configuredRoutes = new List<RouteConfig>(routes.Count);
         var errors = new List<Exception>();
 
@@ -329,7 +329,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         {
             if (seenRouteIds.Contains(r.RouteId))
             {
-                errors.Add(new ArgumentException($"Duplicate route {r.RouteId}"));
+                errors.Add(new ArgumentException($"Duplicate route '{r.RouteId}'"));
                 continue;
             }
 
@@ -364,6 +364,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
                 continue;
             }
 
+            seenRouteIds.Add(route.RouteId);
             configuredRoutes.Add(route);
         }
 
@@ -432,7 +433,8 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
 
         foreach (var incomingCluster in incomingClusters)
         {
-            desiredClusters.Add(incomingCluster.ClusterId);
+            var added = desiredClusters.Add(incomingCluster.ClusterId);
+            Debug.Assert(added);
 
             if (_clusters.TryGetValue(incomingCluster.ClusterId, out var currentCluster))
             {
@@ -492,7 +494,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
 
                 _clusterDestinationsUpdater.UpdateAllDestinations(newClusterState);
 
-                var added = _clusters.TryAdd(newClusterState.ClusterId, newClusterState);
+                added = _clusters.TryAdd(newClusterState.ClusterId, newClusterState);
                 Debug.Assert(added);
 
                 foreach (var listener in _clusterChangeListeners)
@@ -534,7 +536,8 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         {
             foreach (var incomingDestination in incomingDestinations)
             {
-                desiredDestinations.Add(incomingDestination.Key);
+                var added = desiredDestinations.Add(incomingDestination.Key);
+                Debug.Assert(added);
 
                 if (currentDestinations.TryGetValue(incomingDestination.Key, out var currentDestination))
                 {
@@ -552,7 +555,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
                     {
                         Model = new DestinationModel(incomingDestination.Value),
                     };
-                    var added = currentDestinations.TryAdd(newDestination.DestinationId, newDestination);
+                    added = currentDestinations.TryAdd(newDestination.DestinationId, newDestination);
                     Debug.Assert(added);
                     changed = true;
                 }
