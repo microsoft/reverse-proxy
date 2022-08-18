@@ -144,6 +144,8 @@ public static class ReverseProxyServiceCollectionExtensions
             throw new ArgumentNullException(nameof(configure));
         }
 
+        // Avoid overriding any other custom factories. This does not handle the case where a IForwarderHttpClientFactory
+        // is registered after this call.
         var service = builder.Services.FirstOrDefault(service => service.ServiceType == typeof(IForwarderHttpClientFactory));
         if (service is not null)
         {
