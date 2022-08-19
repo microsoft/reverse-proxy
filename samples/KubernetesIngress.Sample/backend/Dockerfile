@@ -5,12 +5,17 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0.100-preview.7 AS publish
-WORKDIR /samples
-COPY ["samples/KubernetesIngress.Sample/backend", "KubernetesIngress.Sample/backend"]
+FROM amd64/buildpack-deps:jammy-curl AS publish
+WORKDIR /src
+COPY ["global.json", ""]
+RUN sed 's/\r$//' global.json > global-lf.json
+RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --jsonfile global-lf.json
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT 1
 
-WORKDIR KubernetesIngress.Sample/backend
-RUN dotnet publish -c Release -o /app/publish -f net6.0
+COPY ["samples/KubernetesIngress.Sample/backend", "backend"]
+
+WORKDIR /src/backend
+RUN /root/.dotnet/dotnet publish -c Release -o /app/publish -f net6.0
 
 FROM base AS final
 WORKDIR /app
