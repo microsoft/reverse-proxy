@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,11 +37,18 @@ internal class KubernetesConfigProvider : IProxyConfigProvider, IUpdateConfig
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
         public MessageConfig(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters)
+            : this(routes, clusters, Guid.NewGuid().ToString())
+        { }
+
+        public MessageConfig(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters, string revisionId)
         {
+            RevisionId = revisionId ?? throw new ArgumentNullException(nameof(revisionId));
             Routes = routes;
             Clusters = clusters;
             ChangeToken = new CancellationChangeToken(_cts.Token);
         }
+
+        public string RevisionId { get; }
 
         public IReadOnlyList<RouteConfig> Routes { get; }
 

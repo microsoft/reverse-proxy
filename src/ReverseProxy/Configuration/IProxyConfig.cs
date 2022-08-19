@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Primitives;
 
 namespace Yarp.ReverseProxy.Configuration;
@@ -11,6 +13,13 @@ namespace Yarp.ReverseProxy.Configuration;
 /// </summary>
 public interface IProxyConfig
 {
+    private static readonly ConditionalWeakTable<IProxyConfig, string> _revisionIdsTable = new();
+
+    /// <summary>
+    /// A unique identifier for this revision of the configuration.
+    /// </summary>
+    string RevisionId => _revisionIdsTable.GetValue(this, static _ => Guid.NewGuid().ToString());
+
     /// <summary>
     /// Routes matching requests to clusters.
     /// </summary>
