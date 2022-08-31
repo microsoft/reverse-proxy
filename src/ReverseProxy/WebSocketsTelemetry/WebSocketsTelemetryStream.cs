@@ -39,7 +39,7 @@ internal sealed class WebSocketsTelemetryStream : DelegatingStream
         }
 
         // One side sent a WebSocket close, but we never saw a response from the other side
-        // It is possible an error occurred, but we saw a graceful close first, so that is the intiator
+        // It is possible an error occurred, but we saw a graceful close first, so that is the initiator
         if (clientCloseTime.HasValue)
         {
             return WebSocketCloseReason.ClientGracefulClose;
