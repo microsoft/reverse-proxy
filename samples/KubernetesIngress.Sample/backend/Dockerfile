@@ -8,8 +8,7 @@ EXPOSE 443
 FROM amd64/buildpack-deps:jammy-curl AS publish
 WORKDIR /src
 COPY ["global.json", ""]
-RUN sed 's/\r$//' global.json > global-lf.json
-RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --jsonfile global-lf.json
+RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --jsonfile global.json
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT 1
 
 COPY ["samples/KubernetesIngress.Sample/backend", "backend"]
