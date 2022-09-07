@@ -5,12 +5,14 @@ using k8s;
 using k8s.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using Yarp.Kubernetes.Controller;
 using Yarp.Kubernetes.Controller.Caching;
 using Yarp.Kubernetes.Controller.Client.Tests;
 using Yarp.Kubernetes.Controller.Services;
@@ -27,13 +29,22 @@ public class IngressControllerTests
     private readonly SyncResourceInformer<V1Service> _serviceInformer = new();
     private readonly SyncResourceInformer<V1Endpoints> _endpointsInformer = new();
     private readonly SyncResourceInformer<V1IngressClass> _ingressClassInformer = new();
+    private readonly SyncResourceInformer<V1Secret> _secretInformer = new();
     private readonly Mock<IHostApplicationLifetime> _mockHostApplicationLifetime = new();
+    private readonly Mock<IOptions<YarpOptions>> _mockOptions = new();
     private readonly IngressController _controller;
 
     public IngressControllerTests(ITestOutputHelper output)
     {
+        var optionsNoWatchSecrets = new YarpOptions()
+        {
+            ServerCertificates = false,
+        };
+
+        _mockOptions.Setup(o => o.Value).Returns(optionsNoWatchSecrets);
+
         var logger = new TestLogger<IngressController>(output);
-        _controller = new IngressController(_mockCache.Object, _mockReconciler.Object, _ingressInformer, _serviceInformer, _endpointsInformer, _ingressClassInformer, _mockHostApplicationLifetime.Object, logger);
+        _controller = new IngressController(_mockCache.Object, _mockReconciler.Object, _ingressInformer, _serviceInformer, _endpointsInformer, _ingressClassInformer, _secretInformer, _mockHostApplicationLifetime.Object, _mockOptions.Object, logger);
     }
 
     [Fact]

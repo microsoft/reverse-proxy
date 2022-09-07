@@ -15,14 +15,15 @@ internal class V1IngressResourceInformer : ResourceInformer<V1Ingress, V1Ingress
 {
     public V1IngressResourceInformer(
         IKubernetes client,
+        ResourceSelector<V1Ingress> selector,
         IHostApplicationLifetime hostApplicationLifetime,
         ILogger<V1IngressResourceInformer> logger)
-        : base(client, hostApplicationLifetime, logger)
+        : base(client, selector, hostApplicationLifetime, logger)
     {
     }
 
-    protected override Task<HttpOperationResponse<V1IngressList>> RetrieveResourceListAsync(bool? watch = null, string resourceVersion = null, CancellationToken cancellationToken = default)
+    protected override Task<HttpOperationResponse<V1IngressList>> RetrieveResourceListAsync(bool? watch = null, string resourceVersion = null, ResourceSelector<V1Ingress> resourceSelector = null, CancellationToken cancellationToken = default)
     {
-        return Client.ListIngressForAllNamespacesWithHttpMessagesAsync(watch: watch, resourceVersion: resourceVersion, cancellationToken: cancellationToken); 
+        return Client.ListIngressForAllNamespacesWithHttpMessagesAsync(watch: watch, resourceVersion: resourceVersion, fieldSelector: resourceSelector?.FieldSelector, cancellationToken: cancellationToken); 
     }
 }

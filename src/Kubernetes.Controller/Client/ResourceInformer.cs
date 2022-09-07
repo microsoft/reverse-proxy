@@ -35,6 +35,7 @@ public abstract class ResourceInformer<TResource, TListResource> : BackgroundHos
     private readonly GroupApiVersionKind _names;
     private readonly SemaphoreSlim _ready = new SemaphoreSlim(0);
     private readonly SemaphoreSlim _start = new SemaphoreSlim(0);
+    private readonly ResourceSelector<TResource> _selector;
     private ImmutableList<Registration> _registrations = ImmutableList<Registration>.Empty;
     private IDictionary<NamespacedName, IList<V1OwnerReference>> _cache = new Dictionary<NamespacedName, IList<V1OwnerReference>>();
     private string _lastResourceVersion;
@@ -43,15 +44,18 @@ public abstract class ResourceInformer<TResource, TListResource> : BackgroundHos
     /// Initializes a new instance of the <see cref="ResourceInformer{TResource, TListResource}" /> class.
     /// </summary>
     /// <param name="client">The client.</param>
+    /// <param name="selector">A resource selector for (optionally) filtering the list of resources.</param>
     /// <param name="hostApplicationLifetime">The host application lifetime.</param>
     /// <param name="logger">The logger.</param>
     public ResourceInformer(
         IKubernetes client,
+        ResourceSelector<TResource> selector,
         IHostApplicationLifetime hostApplicationLifetime,
         ILogger logger)
         : base(hostApplicationLifetime, logger)
     {
         Client = client;
+        _selector = selector ?? throw new ArgumentNullException(nameof(selector));
         _names = GroupApiVersionKind.From<TResource>();
     }
 
@@ -189,7 +193,7 @@ public abstract class ResourceInformer<TResource, TListResource> : BackgroundHos
         }
     }
 
-    protected abstract Task<HttpOperationResponse<TListResource>> RetrieveResourceListAsync(bool? watch = null, string resourceVersion = null, CancellationToken cancellationToken = default);
+    protected abstract Task<HttpOperationResponse<TListResource>> RetrieveResourceListAsync(bool? watch = null, string resourceVersion = null, ResourceSelector<TResource> resourceSelector = null, CancellationToken cancellationToken = default);
 
     private static EventId EventId(EventType eventType) => new EventId((int)eventType, eventType.ToString());
 
@@ -198,10 +202,21 @@ public abstract class ResourceInformer<TResource, TListResource> : BackgroundHos
         var previousCache = _cache;
         _cache = new Dictionary<NamespacedName, IList<V1OwnerReference>>();
 
-        Logger.LogInformation(
-            EventId(EventType.SynchronizeStarted),
-            "Started synchronizing {ResourceType} resources from API server.",
-            typeof(TResource).Name);
+        if (_selector.FieldSelector is not null)
+        {
+            Logger.LogInformation(
+                EventId(EventType.SynchronizeStarted),
+                "Started synchronizing {ResourceType} resources from API server with field selector '{FieldSelector}'.",
+                typeof(TResource).Name,
+                _selector.FieldSelector);
+        }
+        else
+        {
+            Logger.LogInformation(
+                EventId(EventType.SynchronizeStarted),
+                "Started synchronizing {ResourceType} resources from API server.",
+                typeof(TResource).Name);
+        }
 
         string continueParameter = null;
         do
@@ -209,7 +224,7 @@ public abstract class ResourceInformer<TResource, TListResource> : BackgroundHos
             cancellationToken.ThrowIfCancellationRequested();
 
             // request next page of items
-            using var listWithHttpMessage = await RetrieveResourceListAsync(resourceVersion: _lastResourceVersion, cancellationToken: cancellationToken);
+            using var listWithHttpMessage = await RetrieveResourceListAsync(resourceVersion: _lastResourceVersion, resourceSelector: _selector, cancellationToken: cancellationToken);
 
             var list = listWithHttpMessage.Body;
             foreach (var item in list.Items)
@@ -273,7 +288,7 @@ public abstract class ResourceInformer<TResource, TListResource> : BackgroundHos
         var watcherCompletionSource = new TaskCompletionSource<int>();
 
         // begin watching where list left off
-        var watchWithHttpMessage = RetrieveResourceListAsync(watch: true, resourceVersion: _lastResourceVersion, cancellationToken: cancellationToken);
+        var watchWithHttpMessage = RetrieveResourceListAsync(watch: true, resourceVersion: _lastResourceVersion, resourceSelector: _selector, cancellationToken: cancellationToken);
 
         var lastEventUtc = DateTime.UtcNow;
         using var watcher = watchWithHttpMessage.Watch<TResource, TListResource>(

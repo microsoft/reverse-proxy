@@ -21,6 +21,7 @@ using Newtonsoft.Json.Linq;
 using Xunit;
 using Yarp.Kubernetes.Controller;
 using Yarp.Kubernetes.Controller.Caching;
+using Yarp.Kubernetes.Controller.Certificates;
 using Yarp.Kubernetes.Controller.Converters;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -120,10 +121,13 @@ public class IngressConversionTests
     {
         var mockLogger = new Mock<ILogger<IngressCache>>();
         var mockOptions = new Mock<IOptions<YarpOptions>>();
+        var certificateSelector = new Mock<IServerCertificateSelector>();
+        var loggerHelper = new Mock<ILogger<CertificateHelper>>();
+        var certificateHelper = new CertificateHelper(loggerHelper.Object);
 
         mockOptions.SetupGet(o => o.Value).Returns(new YarpOptions { ControllerClass = "microsoft.com/ingress-yarp" });
 
-        var cache = new IngressCache(mockOptions.Object, mockLogger.Object);
+        var cache = new IngressCache(mockOptions.Object, certificateSelector.Object, certificateHelper, mockLogger.Object);
 
         var typeMap = new Dictionary<string, Type>();
         typeMap.Add("networking.k8s.io/v1/Ingress", typeof(V1Ingress));

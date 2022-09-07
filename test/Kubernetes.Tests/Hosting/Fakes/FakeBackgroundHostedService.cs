@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System.Threading;
 using System.Threading.Tasks;
 using Yarp.Kubernetes.Controller.Hosting;
@@ -14,8 +15,9 @@ public class FakeBackgroundHostedService : BackgroundHostedService
 
     public FakeBackgroundHostedService(
         TestLatches context,
-        IHostApplicationLifetime hostApplicationLifetime)
-        : base(hostApplicationLifetime, null)
+        IHostApplicationLifetime hostApplicationLifetime,
+        ILogger<FakeBackgroundHostedService> logger)
+        : base(hostApplicationLifetime, logger)
     {
         _context = context;
     }
