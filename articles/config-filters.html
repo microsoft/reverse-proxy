@@ -80,14 +80,14 @@
 <li>Normalization and error correction</li>
 </ul>
 <h2 id="addconfigfilter">AddConfigFilter</h2>
-<p>Configuration filters are registered in the Dependency Injection system using the <a class="xref" href="../api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html">AddConfigFilter</a> API. Any number of unique filters can be added and will be applied in the order added.</p>
+<p>Configuration filters are registered in the Dependency Injection system using the <a href="xref:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions">AddConfigFilter</a> API. Any number of unique filters can be added and will be applied in the order added.</p>
 <pre><code class="lang-C#">// Load the configuration and register a config filter
 services.AddReverseProxy()
     .LoadFromConfig(_configuration.GetSection(&quot;ReverseProxy&quot;))
     .AddConfigFilter&lt;CustomConfigFilter&gt;();
 </code></pre>
 <h2 id="iproxyconfigfilter">IProxyConfigFilter</h2>
-<p>Configuration filters are written using the <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.IProxyConfigFilter.html">IProxyConfigFilter</a> interface. Because filters are registered in DI they may define a constructor to inject any dependencies.</p>
+<p>Configuration filters are written using the <a href="xref:Yarp.ReverseProxy.Configuration.IProxyConfigFilter">IProxyConfigFilter</a> interface. Because filters are registered in DI they may define a constructor to inject any dependencies.</p>
 <p>Filters are called for each route and cluster each time configuration is loaded or re-loaded. They can choose to return the original input unmodified or a modified copy. The C# 9 <a href="https://docs.microsoft.com/dotnet/csharp/language-reference/builtin-types/record#nondestructive-mutation">records syntax</a> is convenient for making modified copies.</p>
 <p>This example fills in destination addresses from environment variables and sets the route's Order field to 1.</p>
 <pre><code class="lang-C#">using System;
