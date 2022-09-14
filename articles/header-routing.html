@@ -8,7 +8,7 @@
     <title>Header Routing </title>
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Header Routing ">
-    <meta name="generator" content="docfx 2.58.0.0">
+    <meta name="generator" content="docfx 2.59.4.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -294,13 +294,13 @@
 };
 </code></pre>
 <h2 id="contract">Contract</h2>
-<p><a href="xref:Yarp.ReverseProxy.Configuration.RouteHeader">RouteHeader</a> defines the code contract and is mapped from config.</p>
+<p><a class="xref" href="../api/Yarp.ReverseProxy.Configuration.RouteHeader.html">RouteHeader</a> defines the code contract and is mapped from config.</p>
 <h3 id="name">Name</h3>
 <p>The header name to check for on the request. A non-empty value is required. This field is case-insensitive per the HTTP RFCs.</p>
 <h3 id="values">Values</h3>
 <p>A list of possible values to search for. The header must match at least one of these values according to the specified <code>Mode</code> except for the 'NotContains'. At least one value is required unless <code>Mode</code> is set to <code>Exists</code>.</p>
 <h3 id="mode">Mode</h3>
-<p><a href="xref:Yarp.ReverseProxy.Configuration.HeaderMatchMode">HeaderMatchMode</a> specifies how to match the value(s) against the request header. The default is <code>ExactHeader</code>.</p>
+<p><a class="xref" href="../api/Yarp.ReverseProxy.Configuration.HeaderMatchMode.html">HeaderMatchMode</a> specifies how to match the value(s) against the request header. The default is <code>ExactHeader</code>.</p>
 <ul>
 <li>ExactHeader - Any of the headers with the given name must match in its entirety, subject to the value of <code>IsCaseSensitive</code>. If a header contains multiple values (separated by <code>,</code> or <code>;</code>), they are split before matching. A single pair of quotes will also be stripped from the value before matching.</li>
 <li>HeaderPrefix - Any of the headers with the given name must match by prefix, subject to the value of <code>IsCaseSensitive</code>. If a header contains multiple values (separated by <code>,</code> or <code>;</code>), they are split before matching. A single pair of quotes will also be stripped from the value before matching.</li>

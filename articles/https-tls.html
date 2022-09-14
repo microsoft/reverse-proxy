@@ -8,7 +8,7 @@
     <title>HTTPS &amp; TLS </title>
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="HTTPS &amp; TLS ">
-    <meta name="generator" content="docfx 2.58.0.0">
+    <meta name="generator" content="docfx 2.59.4.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -77,7 +77,7 @@
 <h2 id="configuring-incomming-connections">Configuring incomming connections</h2>
 <p>YARP can run on top of all ASP.NET Core servers and configuring HTTPS/TLS for incoming connections is server specific. Check the docs for <a href="https://docs.microsoft.com/aspnet/core/fundamentals/servers/kestrel/endpoints#listenoptionsusehttps">Kestrel</a>, <a href="https://docs.microsoft.com/iis/manage/configuring-security/how-to-set-up-ssl-on-iis">IIS</a>, and <a href="https://docs.microsoft.com/aspnet/core/fundamentals/servers/httpsys#configure-windows-server-1">Http.Sys</a> for configuration details.</p>
 <h3 id="advanced-tls-filters-with-kestrel">Advanced TLS filters with Kestrel</h3>
-<p>Kestrel supports intercepting incoming connections before the TLS handshake. YARP includes a <a href="xref:Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper">TlsFrameHelper</a> API that can parse the raw TLS handshake and enable you to gather custom telemetry or eagerly reject connections. These APIs cannot modify the TLS handshake or decrypt the data stream. See this <a href="https://github.com/microsoft/reverse-proxy/blob/v1.0.0-rc.1/testassets/ReverseProxy.Direct/TlsFilter.cs">example</a>.</p>
+<p>Kestrel supports intercepting incoming connections before the TLS handshake. YARP includes a <a class="xref" href="../api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.html">TlsFrameHelper</a> API that can parse the raw TLS handshake and enable you to gather custom telemetry or eagerly reject connections. These APIs cannot modify the TLS handshake or decrypt the data stream. See this <a href="https://github.com/microsoft/reverse-proxy/blob/v1.0.0-rc.1/testassets/ReverseProxy.Direct/TlsFilter.cs">example</a>.</p>
 <h2 id="configuring-outgoing-connections">Configuring outgoing connections</h2>
 <p>To enable TLS encryption when communicating with a destination specify the destination address as <code>https</code> like <code>&quot;https://destinationHost&quot;</code>. See the <a href="config-files.html#configuration-structure">configuration docs</a> for examples.</p>
 <p>The host name specified in the destination address will be used for the TLS handshake by default, including SNI and server certificate validation. If proxying the <a href="transforms.html#requestheaderoriginalhost">original host header</a> is enabled, that value will be used for the TLS handshake instead. If a custom host value needs to be used then use the <a href="transforms.html#requestheader">RequestHeader</a> transform to set the host header.</p>

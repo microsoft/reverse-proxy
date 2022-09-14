@@ -8,7 +8,7 @@
     <title>Direct Forwarding </title>
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Direct Forwarding ">
-    <meta name="generator" content="docfx 2.58.0.0">
+    <meta name="generator" content="docfx 2.59.4.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -71,7 +71,7 @@
 
 <p>Some applications only need the ability to take a specific request and forward it to a specific destination. These applications do not need, or have addressed in other ways, the other features of the proxy like configuration discovery, routing, load balancing, etc..</p>
 <h2 id="ihttpforwarder">IHttpForwarder</h2>
-<p><a href="xref:Yarp.ReverseProxy.Forwarder.IHttpForwarder">IHttpForwarder</a> serves as the core proxy adapter between incoming AspNetCore and outgoing System.Net.Http requests. It handles the mechanics of creating a HttpRequestMessage from a HttpContext, sending it, and relaying the response.</p>
+<p><a class="xref" href="../api/Yarp.ReverseProxy.Forwarder.IHttpForwarder.html">IHttpForwarder</a> serves as the core proxy adapter between incoming AspNetCore and outgoing System.Net.Http requests. It handles the mechanics of creating a HttpRequestMessage from a HttpContext, sending it, and relaying the response.</p>
 <p>IHttpForwarder supports:</p>
 <ul>
 <li>Dynamic destination selection, you specify the destination for each request</li>
@@ -155,9 +155,9 @@ public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
 <p>Always use HttpMessageInvoker rather than HttpClient, HttpClient buffers responses by default. Buffering breaks streaming scenarios and increases memory usage and latency.</p>
 <p>Re-using a client for requests to the same destination is recommended for performance reasons as it allows you to re-use pooled connections. A client may also be re-used for requests to different destinations if the configuration is the same.</p>
 <h3 id="transforms">Transforms</h3>
-<p>The request and response can be modified by providing a derived <a href="xref:Yarp.ReverseProxy.Forwarder.HttpTransformer">HttpTransformer</a> as a parameter to <a href="xref:Yarp.ReverseProxy.Forwarder.IHttpForwarder"><code>SendAsync</code></a> method.</p>
+<p>The request and response can be modified by providing a derived <a class="xref" href="../api/Yarp.ReverseProxy.Forwarder.HttpTransformer.html">HttpTransformer</a> as a parameter to <a class="xref" href="../api/Yarp.ReverseProxy.Forwarder.IHttpForwarder.html"><code>SendAsync</code></a> method.</p>
 <h3 id="error-handling">Error handling</h3>
-<p>IHttpForwarder catches exceptions and timeouts from the HTTP client, logs them, and converts them to 5xx status codes or aborts the response. An error code is returned from <code>SendAsync</code>, and the error details can be accessed from the <a href="xref:Yarp.ReverseProxy.Forwarder.IForwarderErrorFeature">IForwarderErrorFeature</a> as shown above.</p>
+<p>IHttpForwarder catches exceptions and timeouts from the HTTP client, logs them, and converts them to 5xx status codes or aborts the response. An error code is returned from <code>SendAsync</code>, and the error details can be accessed from the <a class="xref" href="../api/Yarp.ReverseProxy.Forwarder.IForwarderErrorFeature.html">IForwarderErrorFeature</a> as shown above.</p>
 </article>
           </div>
           

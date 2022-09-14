@@ -9,7 +9,2167 @@
       "output": {
         ".html": {
           "relative_path": "README.html",
-          "hash": "UlRp4XDyvTy2nC/t80TJJ07w/jAIiS1oajaxU7Pmbk4="
+          "hash": "FLH4lY/dCf1gbgshRWFvcrVJM+oc5Cc4sILUWYGYmdc="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.AspNetCore.Builder.AppBuilderDelegationExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.AspNetCore.Builder.AppBuilderDelegationExtensions.html",
+          "hash": "/MeaD80mBdZ+vZUnCplrYuXorfrSfPgG5XED7OrdB5I="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.AspNetCore.Builder.AppBuilderHealthExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.AspNetCore.Builder.AppBuilderHealthExtensions.html",
+          "hash": "Aw+5rx1nYLPC8/+pKuQX8PByoTuOnblu0eef0rgiTmQ="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.AspNetCore.Builder.AppBuilderLoadBalancingExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.AspNetCore.Builder.AppBuilderLoadBalancingExtensions.html",
+          "hash": "0MoBzeyBPuaCF0oyUyVNw+c7uc5FN9AqmXvnPkpB2mE="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.AspNetCore.Builder.AppBuilderSessionAffinityExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.AspNetCore.Builder.AppBuilderSessionAffinityExtensions.html",
+          "hash": "1l6Ufsh/SCgwefH4/tqkHfqBlRuqAGDiVnNifeAWJ64="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.AspNetCore.Builder.IReverseProxyApplicationBuilder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.AspNetCore.Builder.IReverseProxyApplicationBuilder.html",
+          "hash": "HbZohG0/5lU4t5c9DcpBte0IWmKFaC9Q4R1ScJEAXMA="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.AspNetCore.Builder.ReverseProxyConventionBuilder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.AspNetCore.Builder.ReverseProxyConventionBuilder.html",
+          "hash": "OJyC9t5Nx2VaWrle4R59V4bH4o9kL807XCpqYtC5ydw="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions.html",
+          "hash": "l5TJrHAvWlYTBPNVF++9AmtgrwR/3p318m2zxKRGxkQ="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.AspNetCore.Builder.WebSocketsTelemetryExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.AspNetCore.Builder.WebSocketsTelemetryExtensions.html",
+          "hash": "XIgPrXhSbdFZpbiqAyS4MTKWqNgJ8/dP5BYp7tL4LAA="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.AspNetCore.Builder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.AspNetCore.Builder.html",
+          "hash": "aJ02/zbMRKUH4mkdVV3n/xAU/KJYKoIbMfwkDoR5dQA="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.html",
+          "hash": "4ybxXvS9uQkdthXkDkQ9kquFPgoOpGbl9jzcUqgtH+Y="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.AspNetCore.Http.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.AspNetCore.Http.html",
+          "hash": "BDAkNNdTLakS26SZ68NrRgPipKkKOrlFxGG0IiyudW0="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder.html",
+          "hash": "lofwjkQmMZhme6F62C0exfqAM+g4usjUUwC0EVjbKpI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html",
+          "hash": "RsZQ2oS9yUzVjJd391z5DV6NQkm64+PqOHGKP877a3A="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.html",
+          "hash": "bQ0SFZi4KBoUuCW3XB1TAn+RKeQx4GKLSl3bE15DDaU="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Microsoft.Extensions.DependencyInjection.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Microsoft.Extensions.DependencyInjection.html",
+          "hash": "9Xspe3Gb4mXLfBSDQpfC+Fo+JWw/v8aTl9VGfuoNPA8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.ActiveHealthCheckConfig.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.ActiveHealthCheckConfig.html",
+          "hash": "5IMDj+er4njaA0kBmlKmajAhw7N+GLIzrDXbPKa1uSQ="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.ClusterConfig.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.ClusterConfig.html",
+          "hash": "lIPNjqJKS6mGYKHv4IUzBMCdOnrzoHDRwJOy0hiFOQ4="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.DestinationConfig.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.DestinationConfig.html",
+          "hash": "pNDiUiGGvaGu7eC7lAR0BsIugrTCkmyBC1LL43zqf/Q="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.HeaderMatchMode.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.HeaderMatchMode.html",
+          "hash": "WeOWYBjM8M8/OsjNBPzGI9BAc+g/QNT3QZN3m11pYp8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.HealthCheckConfig.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.HealthCheckConfig.html",
+          "hash": "1pqANQj6bzER6W2rh8tewJLDlKFyUnTgJJF1yL7puLE="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.HttpClientConfig.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.HttpClientConfig.html",
+          "hash": "7uDmNutd5rhfeadbOSBlXGfzK8tUxZmus+q0bSeK8bg="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.IConfigValidator.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.IConfigValidator.html",
+          "hash": "gIuaKSjGZ4oR9C2/VV+IARkaIcaj6tDyr5Q8cgWQFM8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.IProxyConfig.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.IProxyConfig.html",
+          "hash": "Z8pEQZGkImq6Sb3Wco1COUFA+zQ53jruYg8FCrVOD3A="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.IProxyConfigFilter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.IProxyConfigFilter.html",
+          "hash": "htYmZ7fB+6c+cjaycSdzW/zoWnXjV3xh4M68kYTwsps="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.IProxyConfigProvider.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.IProxyConfigProvider.html",
+          "hash": "fPKqYcZWkpAnj6TvBn9g6yiNbuVfvPTll04CMPLMi90="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.PassiveHealthCheckConfig.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.PassiveHealthCheckConfig.html",
+          "hash": "IYmsvWqhWsm7BJKEZ9YqomeBz6aWRY8vvgPECwyZmQI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.QueryParameterMatchMode.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.QueryParameterMatchMode.html",
+          "hash": "jZX92kmB6kEFh7cw7iI7U8hKtfCYQPP9ooaP955oa5M="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.RouteConfig.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.RouteConfig.html",
+          "hash": "KDxEtTHyCymVhqSFfOvpKqjUVRzeksrhljKWs46ujLo="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.RouteHeader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.RouteHeader.html",
+          "hash": "d8X0YCpmtzPhgN9K6fw7HVMISerKTda8Ov4oAXSp2mc="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.RouteMatch.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.RouteMatch.html",
+          "hash": "JtgDH6oF305QL+UEM8q1UtL1CUvIA5QZjaVwQJdkozA="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.RouteQueryParameter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.RouteQueryParameter.html",
+          "hash": "IuSneQxKExV/Zv8VWY/izukfplqAmjfIcy7pyK98ZNQ="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.SessionAffinityConfig.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.SessionAffinityConfig.html",
+          "hash": "Sn3CV7iXmfaEPkhcn5FZh8M0Uwbngb5PXsvZDOizqPk="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.SessionAffinityCookieConfig.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.SessionAffinityCookieConfig.html",
+          "hash": "H5kJCChJTydvqbxLhp6bi8tbPS9D6E/GqCCni2fQFUQ="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.WebProxyConfig.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.WebProxyConfig.html",
+          "hash": "Dj+XluQUXvvD8zTCsgXBIAv5S84XR1GbJSQDLG2pd7U="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Configuration.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Configuration.html",
+          "hash": "7hIEyJC1PTWz/L0LPy5d+UG+K9iVLRfkk+NfSDsVKpI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Delegation.IHttpSysDelegator.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Delegation.IHttpSysDelegator.html",
+          "hash": "vTctFtZ+WwsraHg6OEgJcW2oAhoFLZQ6NHNQDjNpJns="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Delegation.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Delegation.html",
+          "hash": "ock6mOamgNzkPGB+kgBmFIIf9P+iDDQ8+lLVsxXTxds="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Forwarder.ForwarderError.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Forwarder.ForwarderError.html",
+          "hash": "fbTyliQGx20FM63W8Q/x5ubo7yQtf9/lx1UubuGDI/I="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Forwarder.ForwarderHttpClientContext.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Forwarder.ForwarderHttpClientContext.html",
+          "hash": "pxech1jsV+tRag+cpdK+MwUBMYSCdA+QOrSAfD2MIF8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Forwarder.ForwarderHttpClientFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Forwarder.ForwarderHttpClientFactory.html",
+          "hash": "k67kclytU8M+GaLiTZfGIAdNfuPcpxX8uhUrj0kyAEc="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.html",
+          "hash": "+Hnb+SqWVcl1tJo2tfIPpYgoa/vB+L5Vztgvjb+xZeg="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Forwarder.HttpTransformer.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Forwarder.HttpTransformer.html",
+          "hash": "8SPGuGb8aFtiJhOCEDGfQfyMzXAXUmIE8bK0oJn38Ww="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Forwarder.IForwarderErrorFeature.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Forwarder.IForwarderErrorFeature.html",
+          "hash": "yPvbQieiwMgzQMWuUTcTlvTImeIvE/bzgJgo2VkRZI0="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory.html",
+          "hash": "ANR4qJRMjFjxFwiKSj/YAeTAhrRQACjp4yAnepHnP1Q="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Forwarder.IHttpForwarder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Forwarder.IHttpForwarder.html",
+          "hash": "taCfm573IkOcz1fFy70WpuambAQIv44ZDV+kW7CDOH4="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Forwarder.IHttpForwarderExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Forwarder.IHttpForwarderExtensions.html",
+          "hash": "Zd804Plg2Qzz5lOQ1npV+Z164s0YIeyzR2xOrpWdgco="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Forwarder.RequestUtilities.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Forwarder.RequestUtilities.html",
+          "hash": "oprNAry4k5Z5DhwrIACaihc6TzfM4QoVrIQ9jb5YME0="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Forwarder.ReverseProxyPropagator.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Forwarder.ReverseProxyPropagator.html",
+          "hash": "6VmlCebkuk4BeksuXJCKnkKUajIFEKWKRXuKgb+gkGw="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Forwarder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Forwarder.html",
+          "hash": "OuNxRTAsIjYLzjaxsIScrmyXy1O3rdNUDdmtsuX5EGs="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Health.ActiveHealthCheckMonitorOptions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Health.ActiveHealthCheckMonitorOptions.html",
+          "hash": "Sxrmm5FBr5mONRAoAHPMhWA8eoXul9CUdXzN5853v1E="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Health.ConsecutiveFailuresHealthPolicyOptions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Health.ConsecutiveFailuresHealthPolicyOptions.html",
+          "hash": "TntPxgJ+O9+bO4MqLa0mMf4N4vP8JYWVzFbXADQrt34="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Health.DestinationProbingResult.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Health.DestinationProbingResult.html",
+          "hash": "tt3quwk3RSwAquVK2yNxNgcpC15X8Er+jen3oh/UpBo="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Health.HealthCheckConstants.ActivePolicy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Health.HealthCheckConstants.ActivePolicy.html",
+          "hash": "4HxoOVz1KHVqUdu3UkFFdltPVyLassjgTmZ+ifqQnVE="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Health.HealthCheckConstants.AvailableDestinations.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Health.HealthCheckConstants.AvailableDestinations.html",
+          "hash": "/WguFp/XKP+Hp2A7wnN1Haj23F6H36S7Et8WSyhWyvs="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Health.HealthCheckConstants.PassivePolicy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Health.HealthCheckConstants.PassivePolicy.html",
+          "hash": "lMw02DcAVUWfc8TtFpcCceVcSNN8JKTWcIHECJLDwdQ="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Health.HealthCheckConstants.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Health.HealthCheckConstants.html",
+          "hash": "I9G0akVMj/+s7D/48snxYZ2GjoNXWRuF/QP0t+dPGFI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Health.IActiveHealthCheckMonitor.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Health.IActiveHealthCheckMonitor.html",
+          "hash": "IYNk6KLZPOgbki2uGTgi91X4IIbgsLa4HBEdqDuG4k0="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Health.IActiveHealthCheckPolicy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Health.IActiveHealthCheckPolicy.html",
+          "hash": "6KblbgvaX/aCkZgkrL/CtpU/AGDddFGarp/Etskm8yI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Health.IAvailableDestinationsPolicy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Health.IAvailableDestinationsPolicy.html",
+          "hash": "46H0EDFFME/+Vp2OrLDaOfxtJMrYLeI2ax/A4CyPoA8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Health.IClusterDestinationsUpdater.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Health.IClusterDestinationsUpdater.html",
+          "hash": "Bp0K3FBeZswDiY5NZo3d/B3yHGi61v98/QjzZcE0IIE="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Health.IDestinationHealthUpdater.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Health.IDestinationHealthUpdater.html",
+          "hash": "dYablBRnsFNLTNzp9K/9ki54yzksHdwoXkJDkasdplw="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Health.IPassiveHealthCheckPolicy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Health.IPassiveHealthCheckPolicy.html",
+          "hash": "M8fQ1jMarJG1ZY8MmQ8859jgGwk7zDsJ2yGDDFpUrUw="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Health.IProbingRequestFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Health.IProbingRequestFactory.html",
+          "hash": "rWHX2R8TQSLjnyVRxnezVtiKiaa9PF0Jc3MCRlj+PMI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Health.NewActiveDestinationHealth.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Health.NewActiveDestinationHealth.html",
+          "hash": "JlSxr+PxvThBmqCNLlFwoIiB0c5xb0ymAWFaZOxX/Vo="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Health.PassiveHealthCheckMiddleware.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Health.PassiveHealthCheckMiddleware.html",
+          "hash": "e8LY1vawj1aHSiO500O9/6xWPlZDexjnKFmdiMdjw6A="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Health.TransportFailureRateHealthPolicyOptions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Health.TransportFailureRateHealthPolicyOptions.html",
+          "hash": "/j1YoHbFO3wZDyHZTk43gagso+aG2/lrXC+WghHkTbA="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Health.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Health.html",
+          "hash": "4hZKziSFmvXElEm8rteDeUmeqMpAkx6tNBiHrMf3iso="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.IProxyStateLookup.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.IProxyStateLookup.html",
+          "hash": "XrHJRmSYkPh19+mGrYI3yzAnWPeqJuBZrBAOMLal120="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.LoadBalancing.ILoadBalancingPolicy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.LoadBalancing.ILoadBalancingPolicy.html",
+          "hash": "mbd+PkRZZgNN+0qzmfl0av8WhVZvNKK5ugiSahTF24M="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.LoadBalancing.LoadBalancingPolicies.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.LoadBalancing.LoadBalancingPolicies.html",
+          "hash": "n9mj0JnppGWesTTSXxBv2YzXpKHPDyaRiuJUbt14HuQ="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.LoadBalancing.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.LoadBalancing.html",
+          "hash": "Waw+EGn/yNsBp5uqEHoFW7AkJdi/arTlBZxwzOas7nU="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Model.ClusterDestinationsState.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Model.ClusterDestinationsState.html",
+          "hash": "Vmz8HR0TaZqqmtogwFx1Cht+NQyJUWzngEvin+Nr94Y="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Model.ClusterModel.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Model.ClusterModel.html",
+          "hash": "UZOGJUTH44eXPxBhUFdN0Njgdb9rUpByYVy5tKIa2HY="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Model.ClusterState.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Model.ClusterState.html",
+          "hash": "lQaJ1QXUTPwr5cY1fnpGB9VF1YokaxSqcpLGJgaZrP4="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Model.DestinationHealth.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Model.DestinationHealth.html",
+          "hash": "BFlStDNM38M26i5Ig6wuGxLHBCDKCqSjd69GcQApYL4="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Model.DestinationHealthState.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Model.DestinationHealthState.html",
+          "hash": "NKXoIB8ezJGEBBHHhPXNwxas0D1xGTd4f9jYsICBU9A="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Model.DestinationModel.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Model.DestinationModel.html",
+          "hash": "v96a2ZPCoTPYLgN2yggDdZHRRSgINTXAEPh3JHrZ008="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Model.DestinationState.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Model.DestinationState.html",
+          "hash": "hTHNwor401mFfQzd1A/mZjHeb0qD+IuDjnn+zDIp9yk="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Model.IClusterChangeListener.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Model.IClusterChangeListener.html",
+          "hash": "IdoInBGIWMn9vxwbpeqKJuBwS6Ed6y9v5/7SpxL8CQs="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Model.IReverseProxyFeature.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Model.IReverseProxyFeature.html",
+          "hash": "tWAH0UJCYaGezLyxMQ6q1rTncCUwthWcN3M1sesiO18="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Model.ReverseProxyApplicationBuilder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Model.ReverseProxyApplicationBuilder.html",
+          "hash": "+FtWQKVd3eJNaYOJLKgijffzEbEwvpIbeGL4hUwz3L8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Model.ReverseProxyFeature.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Model.ReverseProxyFeature.html",
+          "hash": "Ujypzr7IcPQVihktDbGm0hxjrl/7lA935qmo23+KS7k="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Model.RouteModel.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Model.RouteModel.html",
+          "hash": "yaSLw0x1TOb++IahEsMaADAGmyalEaOfsbzpu0w4vd8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Model.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Model.html",
+          "hash": "Tee1e2i6i3O8at0CYoxcoQjFZ2Dntmrdj2HCD5pw4H0="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.SessionAffinity.AffinityResult.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.SessionAffinity.AffinityResult.html",
+          "hash": "Qy2kioTqb6KqTNt6iqHm8X0379rgyuLI4PayY4m5To8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.SessionAffinity.AffinityStatus.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.SessionAffinity.AffinityStatus.html",
+          "hash": "8V1FQpVDd5UCSa6XzNsLxE6l0OyQQgbscgMsY1fPuCo="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.SessionAffinity.IAffinityFailurePolicy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.SessionAffinity.IAffinityFailurePolicy.html",
+          "hash": "TsMue5+lmY8vI8Zyq/jXO3EAoeMo+2XPKmo9Dz0Be30="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.html",
+          "hash": "HNg0BQheYoC2mK7VTMa3W4U4IynWDHT//pw0Ov6xSHI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.FailurePolicies.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.FailurePolicies.html",
+          "hash": "b6UXxIIrgYeQrU6jUvZObZLUQHoUIINGIAd6jaFmBmc="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.html",
+          "hash": "pD4K5M3QCi0A1yOMTD09YuzKxdZw0HNM25GDrCn4IkE="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.html",
+          "hash": "tyxwy9tBpD3geF0qStvS6W+FxgpyDmjAudKFqkq/0S0="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.SessionAffinity.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.SessionAffinity.html",
+          "hash": "g/UOSRjvU1B8LxF94XBEcvcl6wnp/jJKiguex1jBTX8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.ITransformBuilder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.ITransformBuilder.html",
+          "hash": "arqDPNaf1tgl4sNeHlguLzwC3wjDTReWRxXPrY6RkVc="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.ITransformFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.ITransformFactory.html",
+          "hash": "yo63/txlXrfnheRRhFvoM7E7WcxEQT7OSOr8txEtcC8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.ITransformProvider.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.ITransformProvider.html",
+          "hash": "B24H+b19grqhIt6c5G1JUrnK+TE9wy6grjH0z+c/6oI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.TransformBuilderContext.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.TransformBuilderContext.html",
+          "hash": "zQl/seUjaBfhoKH4/a4koTZ756/25I8xA9ejfV9+Dus="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.TransformClusterValidationContext.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.TransformClusterValidationContext.html",
+          "hash": "c53ivm/9KJNeqzUD/dKX6EgX0xxxsGwGX0ORtqfPRDw="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.TransformHelpers.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.TransformHelpers.html",
+          "hash": "nC5F/w5k2cjkP86gwruSn2u2w++xFJbyYMOtQsJij8k="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.TransformRouteValidationContext.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.TransformRouteValidationContext.html",
+          "hash": "k21qWgGqusEnNogeGFNs9vXtbff/58Na5R/beY3NT6g="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.Builder.html",
+          "hash": "cT2bE8kbVpDDWhY9rl64w/7DkNV3FW28YdLHsFdN33Q="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.ForwardedTransformActions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.ForwardedTransformActions.html",
+          "hash": "M8TBtj4wfDshWMKXx9ZfCFlqBtuvK8CEzTOvRdPVDHQ="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.ForwardedTransformExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.ForwardedTransformExtensions.html",
+          "hash": "ZjTwhub9QClo5s7bXSDM/VHvA3gOUR2UwO1D12GEeDA="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.HttpMethodChangeTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.HttpMethodChangeTransform.html",
+          "hash": "3F4Ztvu/9Jn2mjzHma0Z9hDRgJYBFZNyk7C4WT1v1ms="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.HttpMethodTransformExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.HttpMethodTransformExtensions.html",
+          "hash": "aQuvvRTcCdUL+KlT3wiYayLBL7/70l+c3o6vY1O72Ug="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.NodeFormat.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.NodeFormat.html",
+          "hash": "J51ddYqqCCc9GyAFtyODJGfVM9owk+A5F9XL2k0WC4U="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.PathRouteValuesTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.PathRouteValuesTransform.html",
+          "hash": "jAGA8BXbH6XaCR2W/uCbQUdL2gaKUBXuMX6rgKrjp0g="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.PathStringTransform.PathTransformMode.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.PathStringTransform.PathTransformMode.html",
+          "hash": "34u+xjiiWSUChXXoYsvBZop0oy8jY41Niu82m7T3ujk="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.PathStringTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.PathStringTransform.html",
+          "hash": "B7cgal2twwDTvyI7/edUz4O+SdQWsaHg2GH1p4MCAZU="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.PathTransformExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.PathTransformExtensions.html",
+          "hash": "ip3SZFFqDGUWkcrmn2AGWN/t0dEjJ1ErvgC+nhcilIA="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.QueryParameterFromStaticTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.QueryParameterFromStaticTransform.html",
+          "hash": "E3lO5YL4CcpyUTkJRPEuxSLozgvx1GfbcZq6+vuSkmw="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.QueryParameterRemoveTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.QueryParameterRemoveTransform.html",
+          "hash": "0fLwTHREOfFM9BcBeSLJvmVY4GXNJNhafxSapDf+VH8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.QueryParameterRouteTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.QueryParameterRouteTransform.html",
+          "hash": "WD5plXlGpi9f/2VhIopVggdf8GGvHMlBLRKIDN3tovY="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.QueryParameterTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.QueryParameterTransform.html",
+          "hash": "mxk4A0rTiPiHVaTyAQV9WYt/qMw6GN2x+Lre9ZcYT4g="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.QueryStringTransformMode.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.QueryStringTransformMode.html",
+          "hash": "qft6WRyJ9pUeTSi3DFKV2aoQaOqjFbhud7a+uOYLGVk="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.QueryTransformContext.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.QueryTransformContext.html",
+          "hash": "P+EE+I4ZjmGCbmJ5iHL47AnXGYsNQwABIQwpbGPoSxk="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.QueryTransformExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.QueryTransformExtensions.html",
+          "hash": "4tK7tuoIJwYXC9in+tKkwBcJn5GHbU16rFro/uYx6TQ="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.RequestFuncTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestFuncTransform.html",
+          "hash": "ZirLdyXJni8vCRTZymIVGWs8y6oz4jKnjL6dZBQsfB8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderClientCertTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderClientCertTransform.html",
+          "hash": "P18/56vJCLCsyVquDwX91u8NmUbxCWwRKGEq0rH8Z2s="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderForwardedTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderForwardedTransform.html",
+          "hash": "Bff4iHT1f/P19bjlpb8oNBJUddN3FkGrl1wGwNSUT9Y="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderOriginalHostTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderOriginalHostTransform.html",
+          "hash": "VrvWoppG8zjsRN+of3xPbHZP26gtAVF5qYYKW10yApo="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderRemoveTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderRemoveTransform.html",
+          "hash": "r/EC5766pnbp1KgpxyvzGav4Tml9+FTSYGioF7OAxQs="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderValueTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderValueTransform.html",
+          "hash": "nUWs8rPwAeST/FYiMcopQAlCCfTWkfCLKKQFlGpe3tQ="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderXForwardedForTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderXForwardedForTransform.html",
+          "hash": "yZO3YpE0yffzixMe5QK1T1oRexmgaElYI/Do7j04rHs="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderXForwardedHostTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderXForwardedHostTransform.html",
+          "hash": "8di52V5O5Elxn9455fz4KdJdSJSy4+fIRQMNvmCdhWk="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderXForwardedPrefixTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderXForwardedPrefixTransform.html",
+          "hash": "xHgrorSC8XVz9HFulQ3g+NFDeTu1JBa2Akh4V39OUiE="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderXForwardedProtoTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeaderXForwardedProtoTransform.html",
+          "hash": "JVaT4s+yQHZeGZadbSzrPj3sv4MQALRKKUVltNQd7cg="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeadersAllowedTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeadersAllowedTransform.html",
+          "hash": "D3xzNXvgkFbs5hDRxCwlPJp1T3wTwpPQElNudEMKbJg="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeadersTransformExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestHeadersTransformExtensions.html",
+          "hash": "kqs2H5ajRcNWYueIOlCeaX9YYPZCSO/JDxpQXkMrYaM="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.RequestTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestTransform.html",
+          "hash": "0pWmlw4fOSs4QGT3Rq/Qoy5hdq2XG1Scm7NNp/7GLoc="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.RequestTransformContext.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestTransformContext.html",
+          "hash": "hteGi1eAcCAHCN+qqFlK4RfhXtkbBhDehFyZFiP/Ukw="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseCondition.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseCondition.html",
+          "hash": "P9bN36ez7YIg4hMKTwfoWKYSKrfqKrf4CevydHfTqh4="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseFuncTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseFuncTransform.html",
+          "hash": "z2hIwfmk6UGB8zUt1l4P/qhEwEeZ0xW/zDU9XPDYwPQ="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseHeaderRemoveTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseHeaderRemoveTransform.html",
+          "hash": "Q5TQZS5PaVV247AF2Dn6swtW73RMxLp+t15Z/Oe/cyU="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseHeaderValueTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseHeaderValueTransform.html",
+          "hash": "muugVrAtpBJL3K0RXmsFJQ4osuyPRVuUx49pMxTlQVI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseHeadersAllowedTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseHeadersAllowedTransform.html",
+          "hash": "qeVhsH3wGvkZydYpXzqNTvHjTCGZvXu4mg1WPSi6aLc="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailerRemoveTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailerRemoveTransform.html",
+          "hash": "Ziy2w2mZirJfSv4HhiwVGeCkWxNPpFWTwONQjZJkEo0="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailerValueTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailerValueTransform.html",
+          "hash": "X6TKqiKHWlsPHlKZ6ZHbg2Iw3dj/SREunzXOTkx9HfQ="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailersAllowedTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailersAllowedTransform.html",
+          "hash": "00Ra8HlT7y6HpShq3p12GCwPooO8P+u5KmIP78meShc="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailersFuncTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailersFuncTransform.html",
+          "hash": "ZMFPffGYUd47knfktjUkABc/UPFjFU+Bek6P/Ogj6/o="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailersTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailersTransform.html",
+          "hash": "NgTWvWC8wlqug2snP+HX11pMcKCEHlifnVmtCsWcGMo="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailersTransformContext.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTrailersTransformContext.html",
+          "hash": "A84FC83wL7RDtfxoKusQavgj6Qe8Rn8hjJPKiMZ7HnU="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTransform.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTransform.html",
+          "hash": "nb8jXOw1q5p3PhI6hNnF8LVWsW8YKcI6nm3WYpXr8DY="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTransformContext.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTransformContext.html",
+          "hash": "v+DuWIsTBkpQpfITnYAFy9RAYEpcgeT42QSiHKG6RR0="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTransformExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.ResponseTransformExtensions.html",
+          "hash": "Jrif5z7YNgaVDidT/KVmf0MIYNdkKqsuqt7/FSvMEgg="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.RouteConfigTransformExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.RouteConfigTransformExtensions.html",
+          "hash": "mCJNatq/4WaJ9yt+Dtm5PMwvbtfW5DWPW1ekEIHujoY="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.TransformBuilderContextFuncExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.TransformBuilderContextFuncExtensions.html",
+          "hash": "J0p9JYvOK8smKrIApU792Ar5XyFG/0fBybUuccLk4BU="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Transforms.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Transforms.html",
+          "hash": "E8WmsLSvlCEsM52KlHKm57sjN0m7//QIWqz70H/nkV8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Utilities.IClock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Utilities.IClock.html",
+          "hash": "UQ1owK9tnvzKi4q8HWHjXp/hJcTGf5vqDIKE5A4FT7w="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Utilities.IRandomFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Utilities.IRandomFactory.html",
+          "hash": "pLS1J1P1ifOYzVOpf6FEoaI6bxha2/On/GGFBuutHD4="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.ExtensionType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.ExtensionType.html",
+          "hash": "AsoDilyy4UQqq/0+jwEESmuz+JHYTpHCHrf+9Vt2LZg="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsAlertDescription.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsAlertDescription.html",
+          "hash": "EpqOTvV5lfboZZUfHuyZhvAGvomifEuaFJZtzrxKYPc="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsAlertLevel.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsAlertLevel.html",
+          "hash": "tdWeWFu2o/nD+oHgDm4hDedRIQpvhsQJJ+7g/Ktpz/0="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsContentType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsContentType.html",
+          "hash": "0Tx3zq0wlQwcNog2qy1ItVXOwn9Rr7CagwzLd+sEfIY="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHeader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHeader.html",
+          "hash": "Ik1F6ucmPthL72EAaqo0uWhC5O2J3TIEn/JzCxImCDM="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ApplicationProtocolInfo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ApplicationProtocolInfo.html",
+          "hash": "rHVUFho2NawENqIlWlHwNzn3hQGbSaFrzLeLu8C7kYI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.HelloExtensionCallback.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.HelloExtensionCallback.html",
+          "hash": "wTScFuT6+zhQTckP7SUuvDmpagtHlNhJK+QWGX6bJa8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ProcessingOptions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ProcessingOptions.html",
+          "hash": "ICuplfmVdkxt7K4kdgxx7EbAXBiwTBtdjNfATF4jWQA="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.TlsFrameInfo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.TlsFrameInfo.html",
+          "hash": "xk+h56iIWYXtYL/7J2VxJbVtr0yhfhHbb1dDy0Lif5Q="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.html",
+          "hash": "IYOPPmVxtG/4bJW3GbfG1AW5Oiyd1KjR3nZE1IpODuw="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsHandshakeType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.TlsHandshakeType.html",
+          "hash": "pPoLs1iPMUxYqy7knMtcLnn/lhSmXzmqW8U2r2FFwvs="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Utilities.Tls.html",
+          "hash": "JYWTm0ZB3Lqhno7bF9uoK50TrMrdWScSElyq3T/Eifo="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.Utilities.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.Utilities.html",
+          "hash": "nPvoyoms0q6loDMhrPHSLSgxb3PcomlMvrfp1wU0mfY="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.ReverseProxy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.ReverseProxy.html",
+          "hash": "z9BSwUDZcRIxQs8ZFgNACpU4ChkPLnocvl1oMcMUmjE="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.Telemetry.Consumption.ForwarderMetrics.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.Telemetry.Consumption.ForwarderMetrics.html",
+          "hash": "gaDUb0PQmiCGwGTheQp0gU5GrEcUU4k7JXSx9FAo8hc="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.Telemetry.Consumption.ForwarderStage.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.Telemetry.Consumption.ForwarderStage.html",
+          "hash": "uuaztXO6TM+wBI12BCdfyOM5MrM1BMU+Uht4qMplIn0="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.Telemetry.Consumption.HttpMetrics.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.Telemetry.Consumption.HttpMetrics.html",
+          "hash": "86QhVAnpufAKFwBVRCMKL1uZ+UhH3U8PEFqbsG02NLk="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.Telemetry.Consumption.IForwarderTelemetryConsumer.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.Telemetry.Consumption.IForwarderTelemetryConsumer.html",
+          "hash": "Ep4mApZqqcj0hOysTYkzutA5cra5aB/08Xu0IiGo1R4="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.Telemetry.Consumption.IHttpTelemetryConsumer.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.Telemetry.Consumption.IHttpTelemetryConsumer.html",
+          "hash": "CCf4jxHUeVXxl0UgffltmFx1M/Zy9icANRcP/DawYzo="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.html",
+          "hash": "J4kzKkXMQ2t6Lb7iMLLxTGOIk8HHeGfvBoDcg3xS5l8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.Telemetry.Consumption.IMetricsConsumer-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.Telemetry.Consumption.IMetricsConsumer-1.html",
+          "hash": "A2O4E+cngDIlDEXvFyV/66uxqdsVzcLmazsXHNou0Dc="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.Telemetry.Consumption.INameResolutionTelemetryConsumer.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.Telemetry.Consumption.INameResolutionTelemetryConsumer.html",
+          "hash": "eMGEIyW/uL4VT7cZlAzHWkBRiI5nuraw5DIAl+RZJrI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.Telemetry.Consumption.INetSecurityTelemetryConsumer.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.Telemetry.Consumption.INetSecurityTelemetryConsumer.html",
+          "hash": "TXcnu9W6PJjdQ7eZ1Smvpb4lrhpVsRER5QiqiKHyYSA="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.Telemetry.Consumption.ISocketsTelemetryConsumer.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.Telemetry.Consumption.ISocketsTelemetryConsumer.html",
+          "hash": "mNd0bF/pJk3kemfZAf1zroAfECJdF89RJ2dMJEUOYnE="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.Telemetry.Consumption.IWebSocketsTelemetryConsumer.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.Telemetry.Consumption.IWebSocketsTelemetryConsumer.html",
+          "hash": "ca9/U7I5Y09Us0wSUkK17kyT0rseQE+xV1kzV3xRMjw="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.Telemetry.Consumption.KestrelMetrics.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.Telemetry.Consumption.KestrelMetrics.html",
+          "hash": "tD7rkYuQiS5JH5p8VhdOKm++AFJfDKw6VvdCuxOBf+w="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.Telemetry.Consumption.NameResolutionMetrics.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.Telemetry.Consumption.NameResolutionMetrics.html",
+          "hash": "TKleOaM7Pf3NKwKlAAgCuGVj7mY++NOi9QKi4bsRYyA="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.Telemetry.Consumption.NetSecurityMetrics.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.Telemetry.Consumption.NetSecurityMetrics.html",
+          "hash": "kuyqPwOjqmMAOQ4uFtaZrYxa0UbuOZPsSJdVt+DvsyM="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.Telemetry.Consumption.SocketsMetrics.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.Telemetry.Consumption.SocketsMetrics.html",
+          "hash": "BWwFCAF9zfoGSxFBHuhRRUKumXQwtQwNfwE+rgQFcyI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.Telemetry.Consumption.WebSocketCloseReason.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.Telemetry.Consumption.WebSocketCloseReason.html",
+          "hash": "tZ5oVRuuvoAHuacdL0mE04vj4SX1RVordiAYEDZ1qtw="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Yarp.Telemetry.Consumption.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Yarp.Telemetry.Consumption.html",
+          "hash": "oboL++Aeh/qhMFtFHd6ihlVdMO+PtK8uz5TKxs0mTbY="
         }
       },
       "is_incremental": false,
@@ -21,7 +2181,19 @@
       "output": {
         ".html": {
           "relative_path": "api/index.html",
-          "hash": "69jzKh5NzUvk2nFb0zKsIkV9pRwk0oAJF1zVDDdL/fw="
+          "hash": "R1owpMdufflVJ2gj9zI6lSXxP9ZQv2RYBp2ZwNxWNIU="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "api/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/toc.html",
+          "hash": "EH4fmkWcjqSyjPSFQFSqFqRX23kSbE3iW3b7bjwKNxU="
         }
       },
       "is_incremental": false,
@@ -36,97 +2208,79 @@
       "output": {
         ".html": {
           "relative_path": "articles/ab-testing.html",
-          "hash": "BvWoWyP24Aouv7akZYqE312ol6Ynq3/8zXmnwNHlY+4="
+          "hash": "9Zm5Gwg1lxpGY9IPw7VSdZI5YZwiP6p4ePEIF1AtICg="
         }
       },
       "is_incremental": false,
       "version": ""
     },
     {
-      "log_codes": [
-        "UidNotFound"
-      ],
       "type": "Conceptual",
       "source_relative_path": "articles/authn-authz.md",
       "output": {
         ".html": {
           "relative_path": "articles/authn-authz.html",
-          "hash": "xEVukQ41ACO2lq4IlFIIFssedDLtHiLn5dWR7g88WFo="
+          "hash": "cCN6BjfDUQJ3g488BhYusuP3XxWO7yw/cOvsh9Qb49c="
         }
       },
       "is_incremental": false,
       "version": ""
     },
     {
-      "log_codes": [
-        "UidNotFound"
-      ],
       "type": "Conceptual",
       "source_relative_path": "articles/config-files.md",
       "output": {
         ".html": {
           "relative_path": "articles/config-files.html",
-          "hash": "y0pvNTfcCeNXx1/uZXeECFAnSbl5y9fqINpR8hO90y4="
+          "hash": "+l39TX+G0YS3eBnQj8URqfveAeR3PFFDDPzEKift9L8="
         }
       },
       "is_incremental": false,
       "version": ""
     },
     {
-      "log_codes": [
-        "UidNotFound"
-      ],
       "type": "Conceptual",
       "source_relative_path": "articles/config-filters.md",
       "output": {
         ".html": {
           "relative_path": "articles/config-filters.html",
-          "hash": "7aUfqfG6Pk8Qex3IUMPwwWGEdE44ulKjdBjs/WeEOlc="
+          "hash": "Bgt5KZA2swPFEKN2seAY+OkCBs1egu1aHWvMjxG5weY="
         }
       },
       "is_incremental": false,
       "version": ""
     },
     {
-      "log_codes": [
-        "UidNotFound"
-      ],
       "type": "Conceptual",
       "source_relative_path": "articles/config-providers.md",
       "output": {
         ".html": {
           "relative_path": "articles/config-providers.html",
-          "hash": "pcnZKXLh9WmCJTNbYpqXbSWrHW+4B5lqKYO7hfTaazo="
+          "hash": "t6UrTvuLGX8e84hH6dtjKWJUc3Zzi4J1lR1CSlqPniQ="
         }
       },
       "is_incremental": false,
       "version": ""
     },
     {
-      "log_codes": [
-        "UidNotFound"
-      ],
       "type": "Conceptual",
       "source_relative_path": "articles/cors.md",
       "output": {
         ".html": {
           "relative_path": "articles/cors.html",
-          "hash": "KerryfgKEFz9oiapLfBX2i17qR4FtLQpsonm8I4qIVA="
+          "hash": "0FVqCMC2/wuEZDhM7+mnqKsdo4XNKdipR52+aLm1lMw="
         }
       },
       "is_incremental": false,
       "version": ""
     },
     {
-      "log_codes": [
-        "UidNotFound"
-      ],
       "type": "Conceptual",
       "source_relative_path": "articles/dests-health-checks.md",
       "output": {
         ".html": {
           "relative_path": "articles/dests-health-checks.html",
-          "hash": "XXJSwt6rWIyjFNFZ5kJkTzrIHpE1HMKOFJnLlJ84iXw="
+          "hash": "3+0PZzjeGJPOqRz5vli1CZ05DEOl6N1RD13lalcD9M0="
         }
       },
       "is_incremental": false,
@@ -138,22 +2292,19 @@
       "output": {
         ".html": {
           "relative_path": "articles/diagnosing-yarp-issues.html",
-          "hash": "Ld0d0krqqNS2Yq7ubKEg+vfMm7z5+a7KQ0ZFmV2XK78="
+          "hash": "DAI56EbtZ6sbaLEhh/8G6lBaYr31vDSnOeRsseQVDzE="
         }
       },
       "is_incremental": false,
       "version": ""
     },
     {
-      "log_codes": [
-        "UidNotFound"
-      ],
       "type": "Conceptual",
       "source_relative_path": "articles/direct-forwarding.md",
       "output": {
         ".html": {
           "relative_path": "articles/direct-forwarding.html",
-          "hash": "LilqE8dqmK5M6SSOnXLmT8CXyPlfMUBVYkJlBTaeF48="
+          "hash": "OQVeT0ARqWS6d77J01L6vzsibIbayUm1gM6uQiZ6uXE="
         }
       },
       "is_incremental": false,
@@ -165,22 +2316,19 @@
       "output": {
         ".html": {
           "relative_path": "articles/distributed-tracing.html",
-          "hash": "vf56AsqmGlkANidVzUbs7J2zYOoTVJLxC4/tXkmDghM="
+          "hash": "YArE/gMC/Eei+pP9OSbseG947SxcNLHztuYbEuPxJEA="
         }
       },
       "is_incremental": false,
       "version": ""
     },
     {
-      "log_codes": [
-        "UidNotFound"
-      ],
       "type": "Conceptual",
       "source_relative_path": "articles/getting-started.md",
       "output": {
         ".html": {
           "relative_path": "articles/getting-started.html",
-          "hash": "hm0V6/MjMp7P3SuRxorZtdAlL71ovT10cmzKmOp+M9M="
+          "hash": "+T7Fidg7DdGM2++I8WhcJPzI/zkcHODS1wRe65aSW90="
         }
       },
       "is_incremental": false,
@@ -192,7 +2340,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/grpc.html",
-          "hash": "LMQbd0i5yAjLNYl4BGyTnoitDlveHcAD+WghTQVKa04="
+          "hash": "0gPROBIv/6bRFHpZoWdRjh6kJRV1gMtV4EP7es6smn0="
         }
       },
       "is_incremental": false,
@@ -204,37 +2352,31 @@
       "output": {
         ".html": {
           "relative_path": "articles/header-guidelines.html",
-          "hash": "I0R4oUo0/GYPX1dXTd7rDZbA25Wwa6LeNmF4U/0MAOU="
+          "hash": "eyN3w2WfJi+QQw1pPSRDGwK9prILBm0jzOoyfqgnRm0="
         }
       },
       "is_incremental": false,
       "version": ""
     },
     {
-      "log_codes": [
-        "UidNotFound"
-      ],
       "type": "Conceptual",
       "source_relative_path": "articles/header-routing.md",
       "output": {
         ".html": {
           "relative_path": "articles/header-routing.html",
-          "hash": "qZCuwTlLFmoo9uEWWy0yyPGIgPe1h60VHLr4uj1OpcI="
+          "hash": "l0PYPJISC6WxgdSy1lgTI5YCZBx6GfQ8s2VRbEgJTho="
         }
       },
       "is_incremental": false,
       "version": ""
     },
     {
-      "log_codes": [
-        "UidNotFound"
-      ],
       "type": "Conceptual",
       "source_relative_path": "articles/http-client-config.md",
       "output": {
         ".html": {
           "relative_path": "articles/http-client-config.html",
-          "hash": "w611dBeUaGVNAjHT/S60f8J2Wdf7VQptfZIY4cyIbyY="
+          "hash": "z4BSU+HlAWOfqoWZ83I4xgvsH8CTii93+XcaX1yUY1s="
         }
       },
       "is_incremental": false,
@@ -246,7 +2388,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/http3.html",
-          "hash": "qta5E7tjGlsH0iOSgQHu2M7xIlKTCShGE54D8PHze+Y="
+          "hash": "A0KJlDVi/hNbvS+WCuJTYQQSNJ2O6eBoaIbWrINXqMM="
         }
       },
       "is_incremental": false,
@@ -254,15 +2396,14 @@
     },
     {
       "log_codes": [
-        "InvalidFileLink",
-        "UidNotFound"
+        "InvalidFileLink"
       ],
       "type": "Conceptual",
       "source_relative_path": "articles/https-tls.md",
       "output": {
         ".html": {
           "relative_path": "articles/https-tls.html",
-          "hash": "HwSd4ayiFaYEu37rh6dw+kZjjK+r+hgPFGb5SJpqv8o="
+          "hash": "1ql1tGzJyquiWsblHfEpGfCiBg1r9gFHb7XmlMzCEQE="
         }
       },
       "is_incremental": false,
@@ -274,7 +2415,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/httpsys-delegation.html",
-          "hash": "H8cg+CUL0BwI1bRya7vS2rahhoO1eA4uKXWGnl+xKCw="
+          "hash": "6edVaA0NfRFE0itSCifJpuP/IceKNDUladBZJFzEcGc="
         }
       },
       "is_incremental": false,
@@ -286,7 +2427,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/index.html",
-          "hash": "nEGD1q0uDzwb1UdvZbjp5fzSFY38e/YqqHc9R0KdshA="
+          "hash": "wVyo5D78CV0i3juxkJxjS4zX1sFP5InegAwD8b13RLI="
         }
       },
       "is_incremental": false,
@@ -298,7 +2439,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/kubernetes-ingress.html",
-          "hash": "Obh8IQdjlH8N0NlIBl8Xkp5Fn7aGHZAUrlakYjTx51c="
+          "hash": "BrluUhE4PljHtCftHY+j3EyhRyk2wYTIxrUoD+1m3NE="
         }
       },
       "is_incremental": false,
@@ -310,7 +2451,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/lets-encrypt.html",
-          "hash": "STJ5boMttKarMhfYevNWRsBJXPAG9LP0k5b7x7TPsK0="
+          "hash": "rBveaXvUTEqd57gEW+gWKnJFYBP2N61TO12N+f0Waqw="
         }
       },
       "is_incremental": false,
@@ -322,22 +2463,19 @@
       "output": {
         ".html": {
           "relative_path": "articles/load-balancing.html",
-          "hash": "rpKKTZyI70XmNDxQES5JzB6ollXWXMenxxboSP10H0k="
+          "hash": "tsvGAZxuu5xL5e+B2emlwcfV8pf2VZAWFJyDScg/JO4="
         }
       },
       "is_incremental": false,
       "version": ""
     },
     {
-      "log_codes": [
-        "UidNotFound"
-      ],
       "type": "Conceptual",
       "source_relative_path": "articles/middleware.md",
       "output": {
         ".html": {
           "relative_path": "articles/middleware.html",
-          "hash": "zhxRiZPLoWbuydPP/JD0ttIYMVHjroEZiauUkspEM/0="
+          "hash": "km4Vhencx0ur9l1j4fhS2h72nrEvTk/1fW8CQJdu+/w="
         }
       },
       "is_incremental": false,
@@ -349,22 +2487,19 @@
       "output": {
         ".html": {
           "relative_path": "articles/packages-refs.html",
-          "hash": "6koEPZP6wlL9W5vM/10RYHvfB5ViTVz5cilZNVt90js="
+          "hash": "dcjyJtpDnqs6u9cDiiCO1DInZjhDs9XC/ycKjq7uqtg="
         }
       },
       "is_incremental": false,
       "version": ""
     },
     {
-      "log_codes": [
-        "UidNotFound"
-      ],
       "type": "Conceptual",
       "source_relative_path": "articles/queryparameter-routing.md",
       "output": {
         ".html": {
           "relative_path": "articles/queryparameter-routing.html",
-          "hash": "hk0dxL6CRuC0r2S22kcH4wsLaaMGIibKcfIuhik7y0s="
+          "hash": "sMvusw6Qjy2FwjVh/iTOspifXT7bCxo9XVE4cSw+ASg="
         }
       },
       "is_incremental": false,
@@ -376,7 +2511,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/runtimes.html",
-          "hash": "CFrMzcozeKL49DznKNzke+OYUOyUlaVuINgeHGi1s60="
+          "hash": "o1RJxEnO0bQ2xeSaEfUKOGZe7g9yNIXXfCQOUUczLfI="
         }
       },
       "is_incremental": false,
@@ -388,7 +2523,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/service-fabric-int.html",
-          "hash": "gclLnfYBkfu8MvqUmulmaOb/OEEo4iORr/gHYY2a3b0="
+          "hash": "fzn8o1NJZOKzutqCVeCvBzY3P2XnrTV+OfAfmVuKA0M="
         }
       },
       "is_incremental": false,
@@ -400,7 +2535,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/session-affinity.html",
-          "hash": "Gj/ckUYsBfVtHgPqIU3sheN10P0k+N1+jQFw5OqbGao="
+          "hash": "vhcU1r5PoyxGevLoXBZhrrYcXl345CZvIeiE3mi1VEU="
         }
       },
       "is_incremental": false,
@@ -419,15 +2554,12 @@
       "version": ""
     },
     {
-      "log_codes": [
-        "UidNotFound"
-      ],
       "type": "Conceptual",
       "source_relative_path": "articles/transforms.md",
       "output": {
         ".html": {
           "relative_path": "articles/transforms.html",
-          "hash": "twYxLcFEAmjTV6UwgfusEam7/GuFXLKfmpQ3/KIPaNU="
+          "hash": "SfZTB8ELnCX0hxkxhvkmvV/MbMMke/hE0xH7rewH2VE="
         }
       },
       "is_incremental": false,
@@ -439,7 +2571,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/websockets.html",
-          "hash": "n79fND2wCZIa+nW9dUWCd+Z1xQ3Jnjy74YWVAjbrAQ0="
+          "hash": "nNR5gTvEwd8dghmhl2y5HOsFG4SnwudAGVctndXP+tE="
         }
       },
       "is_incremental": false,
@@ -451,7 +2583,7 @@
       "output": {
         ".html": {
           "relative_path": "index.html",
-          "hash": "5GS/GVCuLGxBMelprmuz7DlfTY1vFQ75WJpm8H+a2WU="
+          "hash": "0MuTkaVa7Hah4hjSYBsoXxf5O1Wy9E1DjCIMIa8nL8Q="
         }
       },
       "is_incremental": false,
@@ -463,7 +2595,7 @@
       "output": {
         ".html": {
           "relative_path": "toc.html",
-          "hash": "3HgPPXvE6qG26DN6RYy8suhMYqo3sVdYvCkNgOD7rAs="
+          "hash": "UGDgy6ovpejoGYvZYfC/R6T2nJJ38cn0qp33E4piuog="
         }
       },
       "is_incremental": false,
@@ -485,6 +2617,12 @@
           "can_incremental": false,
           "incrementalPhase": "build",
           "total_file_count": 33,
+          "skipped_file_count": 0
+        },
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 180,
           "skipped_file_count": 0
         },
         "TocDocumentProcessor": {

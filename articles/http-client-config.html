@@ -8,7 +8,7 @@
     <title>HTTP Client Configuration </title>
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="HTTP Client Configuration ">
-    <meta name="generator" content="docfx 2.58.0.0">
+    <meta name="generator" content="docfx 2.59.4.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -70,13 +70,13 @@
 <h1 id="http-client-configuration">HTTP Client Configuration</h1>
 
 <h2 id="introduction">Introduction</h2>
-<p>Each <a href="xref:Yarp.ReverseProxy.Configuration.ClusterConfig">Cluster</a> has a dedicated <a href="https://docs.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker">HttpMessageInvoker</a> instance used to forward requests to its <a href="xref:Yarp.ReverseProxy.Configuration.DestinationConfig">Destination</a>s. The configuration is defined per cluster. On YARP startup, all clusters get new <code>HttpMessageInvoker</code> instances, however if later the cluster configuration gets changed the <a href="xref:Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory">IForwarderHttpClientFactory</a> will re-run and decide if it should create a new <code>HttpMessageInvoker</code> or keep using the existing one. The default <code>IForwarderHttpClientFactory</code> implementation creates a new <code>HttpMessageInvoker</code> when there are changes to the <a href="xref:Yarp.ReverseProxy.Configuration.HttpClientConfig">HttpClientConfig</a>.</p>
-<p>Properties of outgoing requests for a given cluster can be configured as well. They are defined in <a href="xref:Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig">ForwarderRequestConfig</a>.</p>
+<p>Each <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.ClusterConfig.html">Cluster</a> has a dedicated <a href="https://docs.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker">HttpMessageInvoker</a> instance used to forward requests to its <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.DestinationConfig.html">Destination</a>s. The configuration is defined per cluster. On YARP startup, all clusters get new <code>HttpMessageInvoker</code> instances, however if later the cluster configuration gets changed the <a class="xref" href="../api/Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory.html">IForwarderHttpClientFactory</a> will re-run and decide if it should create a new <code>HttpMessageInvoker</code> or keep using the existing one. The default <code>IForwarderHttpClientFactory</code> implementation creates a new <code>HttpMessageInvoker</code> when there are changes to the <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.HttpClientConfig.html">HttpClientConfig</a>.</p>
+<p>Properties of outgoing requests for a given cluster can be configured as well. They are defined in <a class="xref" href="../api/Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.html">ForwarderRequestConfig</a>.</p>
 <p>The configuration is represented differently if you're using the <a href="https://docs.microsoft.com/dotnet/api/microsoft.extensions.configuration.iconfiguration">IConfiguration</a> model or the code-first model.</p>
 <h2 id="iconfiguration">IConfiguration</h2>
 <p>These types are focused on defining serializable configuration. The code based configuration model is described below in the &quot;Code Configuration&quot; section.</p>
 <h3 id="httpclient">HttpClient</h3>
-<p>HTTP client configuration is based on <a href="xref:Yarp.ReverseProxy.Configuration.HttpClientConfig">HttpClientConfig</a> and represented by the following configuration schema.</p>
+<p>HTTP client configuration is based on <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.HttpClientConfig.html">HttpClientConfig</a> and represented by the following configuration schema.</p>
 <pre><code class="lang-JSON">&quot;HttpClient&quot;: {
     &quot;SslProtocols&quot;: [ &quot;&lt;protocol-names&gt;&quot; ],
     &quot;MaxConnectionsPerServer&quot;: &quot;&lt;int&gt;&quot;,
@@ -159,7 +159,7 @@
 </code></pre>
 <p>At the moment, there is no solution for changing encoding for response headers in Kestrel (see <a href="https://github.com/dotnet/aspnetcore/issues/26334">aspnetcore#26334</a>), only ASCII is accepted.</p>
 <h3 id="httprequest">HttpRequest</h3>
-<p>HTTP request configuration is based on <a href="xref:Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig">ForwarderRequestConfig</a> and represented by the following configuration schema.</p>
+<p>HTTP request configuration is based on <a class="xref" href="../api/Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.html">ForwarderRequestConfig</a> and represented by the following configuration schema.</p>
 <pre><code class="lang-JSON">&quot;HttpRequest&quot;: {
     &quot;ActivityTimeout&quot;: &quot;&lt;timespan&gt;&quot;,
     &quot;Version&quot;: &quot;&lt;string&gt;&quot;,
@@ -220,8 +220,8 @@
 }
 </code></pre>
 <h2 id="code-configuration">Code Configuration</h2>
-<p>HTTP client configuration uses the type <a href="xref:Yarp.ReverseProxy.Configuration.HttpClientConfig">HttpClientConfig</a>.</p>
-<p>The following is an example of <code>HttpClientConfig</code> using <a href="config-providers.html">code based</a> configuration. An instance of <code>HttpClientConfig</code> is assigned to the <a href="xref:Yarp.ReverseProxy.Configuration.ClusterConfig">ClusterConfig.HttpClient</a> property before passing the cluster array to <code>LoadFromMemory</code> method.</p>
+<p>HTTP client configuration uses the type <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.HttpClientConfig.html">HttpClientConfig</a>.</p>
+<p>The following is an example of <code>HttpClientConfig</code> using <a href="config-providers.html">code based</a> configuration. An instance of <code>HttpClientConfig</code> is assigned to the <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.ClusterConfig.html">ClusterConfig.HttpClient</a> property before passing the cluster array to <code>LoadFromMemory</code> method.</p>
 <pre><code class="lang-C#">public void ConfigureServices(IServiceCollection services)
 {
     var routes = new[]
@@ -263,7 +263,7 @@
         })
 </code></pre>
 <h2 id="custom-iforwarderhttpclientfactory">Custom IForwarderHttpClientFactory</h2>
-<p>If direct control of HTTP client construction is necessary, the default <a href="xref:Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory">IForwarderHttpClientFactory</a> can be replaced with a custom one. For some customizations you can derive from the default <a href="xref:Yarp.ReverseProxy.Forwarder.ForwarderHttpClientFactory">ForwarderHttpClientFactory</a> and override the methods that configure the client.</p>
+<p>If direct control of HTTP client construction is necessary, the default <a class="xref" href="../api/Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory.html">IForwarderHttpClientFactory</a> can be replaced with a custom one. For some customizations you can derive from the default <a class="xref" href="../api/Yarp.ReverseProxy.Forwarder.ForwarderHttpClientFactory.html">ForwarderHttpClientFactory</a> and override the methods that configure the client.</p>
 <p>It's recommended that any custom factory set the following <code>SocketsHttpHandler</code> properties to the same values as the default factory does in order to preserve a correct reverse proxy behavior and avoid unnecessary overhead.</p>
 <pre><code class="lang-C#">new SocketsHttpHandler
 {
