@@ -30,7 +30,7 @@ public abstract class HttpProxyCookieTests
     public abstract HttpProtocols HttpProtocol { get; }
     public abstract Task ProcessHttpRequest(Uri proxyHostUri);
 
-    [Fact(Skip = "https://github.com/microsoft/reverse-proxy/issues/1884" )]
+    [Fact]
     public async Task ProxyAsync_RequestWithCookieHeaders()
     {
         var tcs = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -87,9 +87,15 @@ public abstract class HttpProxyCookieTests
             }
             else if (context.Request.Protocol == "HTTP/2")
             {
+#if NET7_0_OR_GREATER
+                // Fixed in kestrel in 7.0
+                Assert.Single(headerValues);
+                Assert.Equal(Cookies, headerValues);
+#else
                 Assert.Equal(2, headerValues.Count);
                 Assert.Equal(CookieA, headerValues[0]);
                 Assert.Equal(CookieB, headerValues[1]);
+#endif
             }
             else
             {
