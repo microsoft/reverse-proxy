@@ -117,34 +117,51 @@ There are 2 main extensibility points in the active health check subsystem.
 The below is a simple example of a custom `IActiveHealthCheckPolicy` marking destination as `Healthy`, if a successful response code was returned for a probe, and as `Unhealthy` otherwise.
 
 ```C#
-public class FirstUnsuccessfulResponseHealthPolicy : IActiveHealthCheckPolicy
+using Microsoft.AspNetCore.Http;
+using System;
+using Yarp.ReverseProxy.Forwarder;
+using Yarp.ReverseProxy.Health;
+using Yarp.ReverseProxy.Model;
+
+public class FirstUnsuccessfulResponseHealthPolicy : IPassiveHealthCheckPolicy
 {
-    private readonly IDestinationHealthUpdater _healthUpdater;
+  private static readonly TimeSpan _defaultReactivationPeriod = TimeSpan.FromSeconds(60);
+  private readonly IDestinationHealthUpdater _healthUpdater;
 
-    public FirstUnsuccessfulResponseHealthPolicy(IDestinationHealthUpdater healthUpdater)
-    {
-        _healthUpdater = healthUpdater;
-    }
+  public FirstUnsuccessfulResponseHealthPolicy(IDestinationHealthUpdater healthUpdater)
+  {
+      _healthUpdater = healthUpdater;
+  }
 
-    public string Name => "FirstUnsuccessfulResponse";
+  public string Name => "FirstUnsuccessfulResponse";
 
-    public void ProbingCompleted(ClusterState cluster, IReadOnlyList<DestinationProbingResult> probingResults)
-    {
-        if (probingResults.Count == 0)
-        {
-            return;
-        }
+  public void RequestProxied(HttpContext context, ClusterState cluster, DestinationState destination)
+  {
+      var hasError = DetermineIfDestinationFailed(context);
+      if (hasError)
+      {
+          var reactivationPeriod = cluster.Model.Config.HealthCheck.Passive.ReactivationPeriod ?? _defaultReactivationPeriod;
+          _healthUpdater.SetPassive(cluster, destination, DestinationHealth.Unhealthy, reactivationPeriod);
+      }
+  }
 
-        var newHealthStates = new NewActiveDestinationHealth[probingResults.Count];
-        for (var i = 0; i < probingResults.Count; i++)
-        {
-            var response = probingResults[i].Response;
-            var newHealth = response is not null && response.IsSuccessStatusCode ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;
-            newHealthStates[i] = new NewActiveDestinationHealth(probingResults[i].Destination, newHealth);
-        }
+  private static bool DetermineIfDestinationFailed(HttpContext context)
+  {
+      var errorFeature = context.Features.Get<IForwarderErrorFeature>();
+      if (errorFeature is null) return false;
 
-        _healthUpdater.SetActive(cluster, newHealthStates);
-    }
+      // The client disconnected/canceled the request - the failure may not be the destination's fault
+      if (context.RequestAborted.IsCancellationRequested) return false;
+
+      var error = errorFeature.Error;
+
+      return error == ForwarderError.Request
+          || error == ForwarderError.RequestTimedOut
+          || error == ForwarderError.RequestBodyDestination
+          || error == ForwarderError.ResponseBodyDestination
+          || error == ForwarderError.UpgradeRequestDestination
+          || error == ForwarderError.UpgradeResponseDestination;
+  }
 }
 ```
 
