@@ -95,7 +95,7 @@
   <a id="Yarp_ReverseProxy_Utilities_IClock_TickCount_" data-uid="Yarp.ReverseProxy.Utilities.IClock.TickCount*"></a>
   <h4 id="Yarp_ReverseProxy_Utilities_IClock_TickCount" data-uid="Yarp.ReverseProxy.Utilities.IClock.TickCount">TickCount</h4>
   <div class="markdown level1 summary"><p>Gets a value that indicates the current tick count measured as milliseconds from an arbitrary reference time.
-The default implementation leverages <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.environment.tickcount64#system-environment-tickcount64">TickCount64</a>.
+The default implementation leverages <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.environment.tickcount64#system-environment-tickcount64">TickCount64</a>.
 This is generally more efficient than <a class="xref" href="Yarp.ReverseProxy.Utilities.IClock.html#Yarp_ReverseProxy_Utilities_IClock_GetStopwatchTime">GetStopwatchTime()</a>, but provides less precision.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -113,7 +113,7 @@ This is generally more efficient than <a class="xref" href="Yarp.ReverseProxy.Ut
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int64">Int64</a></td>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int64">Int64</a></td>
         <td></td>
       </tr>
     </tbody>
@@ -130,7 +130,7 @@ This is generally more efficient than <a class="xref" href="Yarp.ReverseProxy.Ut
   <a id="Yarp_ReverseProxy_Utilities_IClock_Delay_" data-uid="Yarp.ReverseProxy.Utilities.IClock.Delay*"></a>
   <h4 id="Yarp_ReverseProxy_Utilities_IClock_Delay_System_Int32_System_Threading_CancellationToken_" data-uid="Yarp.ReverseProxy.Utilities.IClock.Delay(System.Int32,System.Threading.CancellationToken)">Delay(Int32, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>Creates a cancellable task that completes after a specified time interval.
-This is equivalent to <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task.delay#system-threading-tasks-task-delay(system-int32-system-threading-cancellationtoken)">Delay(Int32, CancellationToken)</a>,
+This is equivalent to <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task.delay#system-threading-tasks-task-delay(system-int32-system-threading-cancellationtoken)">Delay(Int32, CancellationToken)</a>,
 and facilitates unit tests that use virtual time.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -149,13 +149,13 @@ and facilitates unit tests that use virtual time.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.int32">Int32</a></td>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.int32">Int32</a></td>
         <td><span class="parametername">millisecondsDelay</span></td>
         <td><p>The number of milliseconds to wait before completing the returned task, or -1 to wait indefinitely.</p>
 </td>
       </tr>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></td>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></td>
         <td><span class="parametername">cancellationToken</span></td>
         <td><p>A cancellation token to observe while waiting for the task to complete.</p>
 </td>
@@ -172,7 +172,7 @@ and facilitates unit tests that use virtual time.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></td>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></td>
         <td><p>A task that represents the time delay.</p>
 </td>
       </tr>
@@ -188,7 +188,7 @@ and facilitates unit tests that use virtual time.</p>
   <a id="Yarp_ReverseProxy_Utilities_IClock_Delay_" data-uid="Yarp.ReverseProxy.Utilities.IClock.Delay*"></a>
   <h4 id="Yarp_ReverseProxy_Utilities_IClock_Delay_System_TimeSpan_System_Threading_CancellationToken_" data-uid="Yarp.ReverseProxy.Utilities.IClock.Delay(System.TimeSpan,System.Threading.CancellationToken)">Delay(TimeSpan, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>Creates a cancellable task that completes after a specified time interval.
-This is equivalent to <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task.delay#system-threading-tasks-task-delay(system-timespan-system-threading-cancellationtoken)">Delay(TimeSpan, CancellationToken)</a>,
+This is equivalent to <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task.delay#system-threading-tasks-task-delay(system-timespan-system-threading-cancellationtoken)">Delay(TimeSpan, CancellationToken)</a>,
 and facilitates unit tests that use virtual time.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -207,13 +207,13 @@ and facilitates unit tests that use virtual time.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
         <td><span class="parametername">delay</span></td>
         <td><p>The time span to wait before completing the returned task, or TimeSpan.FromMilliseconds(-1) to wait indefinitely.</p>
 </td>
       </tr>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></td>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.cancellationtoken">CancellationToken</a></td>
         <td><span class="parametername">cancellationToken</span></td>
         <td><p>A cancellation token to observe while waiting for the task to complete.</p>
 </td>
@@ -230,7 +230,7 @@ and facilitates unit tests that use virtual time.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></td>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.threading.tasks.task">Task</a></td>
         <td><p>A task that represents the time delay.</p>
 </td>
       </tr>
@@ -245,7 +245,7 @@ and facilitates unit tests that use virtual time.</p>
   </span>
   <a id="Yarp_ReverseProxy_Utilities_IClock_GetStopwatchTime_" data-uid="Yarp.ReverseProxy.Utilities.IClock.GetStopwatchTime*"></a>
   <h4 id="Yarp_ReverseProxy_Utilities_IClock_GetStopwatchTime" data-uid="Yarp.ReverseProxy.Utilities.IClock.GetStopwatchTime">GetStopwatchTime()</h4>
-  <div class="markdown level1 summary"><p>Gets a precise time measurement using <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.diagnostics.stopwatch">Stopwatch</a> as the time source.</p>
+  <div class="markdown level1 summary"><p>Gets a precise time measurement using <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.diagnostics.stopwatch">Stopwatch</a> as the time source.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -262,7 +262,7 @@ and facilitates unit tests that use virtual time.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.timespan">TimeSpan</a></td>
         <td><p>The time measurement.</p>
 </td>
       </tr>
@@ -277,7 +277,7 @@ and facilitates unit tests that use virtual time.</p>
   </span>
   <a id="Yarp_ReverseProxy_Utilities_IClock_GetUtcNow_" data-uid="Yarp.ReverseProxy.Utilities.IClock.GetUtcNow*"></a>
   <h4 id="Yarp_ReverseProxy_Utilities_IClock_GetUtcNow" data-uid="Yarp.ReverseProxy.Utilities.IClock.GetUtcNow">GetUtcNow()</h4>
-  <div class="markdown level1 summary"><p>Gets the current time in UTC as a <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.datetimeoffset">DateTimeOffset</a>.</p>
+  <div class="markdown level1 summary"><p>Gets the current time in UTC as a <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetimeoffset">DateTimeOffset</a>.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -294,7 +294,7 @@ and facilitates unit tests that use virtual time.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.datetimeoffset">DateTimeOffset</a></td>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.datetimeoffset">DateTimeOffset</a></td>
         <td></td>
       </tr>
     </tbody>

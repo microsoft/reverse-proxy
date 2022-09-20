@@ -73,7 +73,7 @@
   
   <h1 id="Yarp_ReverseProxy_Forwarder_IForwarderHttpClientFactory" data-uid="Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory" class="text-break">Interface IForwarderHttpClientFactory
   </h1>
-  <div class="markdown level0 summary"><p>Provides a method to create instances of <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker">HttpMessageInvoker</a>
+  <div class="markdown level0 summary"><p>Provides a method to create instances of <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker">HttpMessageInvoker</a>
 for forwarding requests to an upstream server.</p>
 </div>
   <div class="markdown level0 conceptual"></div>
@@ -99,7 +99,7 @@ which the forwarder requires in order to keep separate pools for each cluster.</
   </span>
   <a id="Yarp_ReverseProxy_Forwarder_IForwarderHttpClientFactory_CreateClient_" data-uid="Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory.CreateClient*"></a>
   <h4 id="Yarp_ReverseProxy_Forwarder_IForwarderHttpClientFactory_CreateClient_Yarp_ReverseProxy_Forwarder_ForwarderHttpClientContext_" data-uid="Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory.CreateClient(Yarp.ReverseProxy.Forwarder.ForwarderHttpClientContext)">CreateClient(ForwarderHttpClientContext)</h4>
-  <div class="markdown level1 summary"><p>Creates and configures an <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker">HttpMessageInvoker</a> instance
+  <div class="markdown level1 summary"><p>Creates and configures an <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker">HttpMessageInvoker</a> instance
 that can be used for forwarding requests to an upstream server.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -135,7 +135,7 @@ that can be used for forwarding requests to an upstream server.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://docs.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker">HttpMessageInvoker</a></td>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker">HttpMessageInvoker</a></td>
         <td></td>
       </tr>
     </tbody>
@@ -143,9 +143,9 @@ that can be used for forwarding requests to an upstream server.</p>
   <h5 id="Yarp_ReverseProxy_Forwarder_IForwarderHttpClientFactory_CreateClient_Yarp_ReverseProxy_Forwarder_ForwarderHttpClientContext__remarks">Remarks</h5>
   <div class="markdown level1 remarks"><p>
 A call to <a class="xref" href="Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory.html#Yarp_ReverseProxy_Forwarder_IForwarderHttpClientFactory_CreateClient_Yarp_ReverseProxy_Forwarder_ForwarderHttpClientContext_">CreateClient(ForwarderHttpClientContext)</a> can return either
-a new <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker">HttpMessageInvoker</a> instance or an old one if the configuration has not changed.
-If the old configuration is null, a new <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker">HttpMessageInvoker</a> is always created.
-The returned <a class="xref" href="https://docs.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker">HttpMessageInvoker</a> instance MUST NOT be disposed
+a new <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker">HttpMessageInvoker</a> instance or an old one if the configuration has not changed.
+If the old configuration is null, a new <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker">HttpMessageInvoker</a> is always created.
+The returned <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.net.http.httpmessageinvoker">HttpMessageInvoker</a> instance MUST NOT be disposed
 because it can be used concurrently by several in-flight requests.
 </p>
 </div>
