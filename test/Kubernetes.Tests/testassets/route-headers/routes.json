@@ -1,0 +1,34 @@
+[
+  {
+    "RouteId": "minimal-ingress.default:/foo",
+    "Match": {
+      "Methods": null,
+      "Hosts": [],
+      "Path": "/foo/{**catch-all}",
+      "Headers": [
+        {
+          "Name": "headera",
+          "Values": [ "v1" ],
+          "Mode": "Exists",
+          "IsCaseSensitive": true
+        },
+        {
+          "Name": "headerb",
+          "Values": [ "v2" ],
+          "Mode": "Exists",
+          "IsCaseSensitive": false
+        }
+      ],
+      "QueryParameters": null
+    },
+    "Order": null,
+    "ClusterId": "frontend.default:80",
+    "AuthorizationPolicy": null,
+    "CorsPolicy": null,
+    "Metadata": {
+      "foo": "bar",
+      "another-key": "another-value"
+    },
+    "Transforms": null
+  }
+]
