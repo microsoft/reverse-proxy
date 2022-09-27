@@ -121,12 +121,29 @@ public class IngressCache : ICache
         var namespacedName = NamespacedName.From(secret);
         _logger.LogDebug("Found secret '{NamespacedName}'. Checking against default {CertificateSecretName}", namespacedName, _options.DefaultSslCertificate);
 
-        if (!string.Equals(namespacedName.ToString(), _options.DefaultSslCertificate, StringComparison.OrdinalIgnoreCase))
+        
+        var hosts = new List<string>();
+
+        foreach (var ingress in Namespace(secret.Namespace()).GetIngresses())
+        {
+            foreach (var tls in ingress.Spec.Tls)
+            {
+                if (tls.SecretName == secret.Name())
+                {
+                    foreach (var host in tls.Hosts)
+                    {
+                        hosts.Add(host);
+                    }
+                }
+            }
+        }
+
+        if (!string.Equals(namespacedName.ToString(), _options.DefaultSslCertificate, StringComparison.OrdinalIgnoreCase) && hosts.Any() == false)
         {
             return;
         }
 
-        _logger.LogInformation("Found secret `{NamespacedName}` to use as default certificate for HTTPS traffic", namespacedName);
+        _logger.LogInformation("Found secret `{NamespacedName}` to use as certificate for HTTPS traffic", namespacedName);
 
         var certificate = _certificateHelper.ConvertCertificate(namespacedName, secret);
         if (certificate is null)
@@ -136,7 +153,15 @@ public class IngressCache : ICache
 
         if (eventType == WatchEventType.Added || eventType == WatchEventType.Modified)
         {
-            _certificateSelector.AddCertificate(namespacedName, certificate);
+            if (string.Equals(namespacedName.ToString(), _options.DefaultSslCertificate, StringComparison.OrdinalIgnoreCase))
+            {
+                _certificateSelector.AddCertificate(namespacedName, certificate);
+            }
+
+            foreach (var host in hosts.Distinct())
+            {
+                _certificateSelector.AddCertificate(namespacedName, certificate, host);
+            }
         }
         else if (eventType == WatchEventType.Deleted)
         {
