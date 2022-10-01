@@ -26,4 +26,8 @@
     <Compile Include="..\ReverseProxy.Tests\Common\TestResources.cs" Link="Common\TestResources.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.DotNet.XUnitExtensions" Version="$(MicrosoftDotNetXUnitExtensionsVersion)" />
+  </ItemGroup>
+
 </Project>

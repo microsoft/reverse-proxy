@@ -9,5 +9,6 @@
     -->
     <PreReleaseVersionLabel>preview.1</PreReleaseVersionLabel>
     <DotNetFinalVersionKind Condition="'$(PreReleaseVersionLabel)' == 'rtw'">release</DotNetFinalVersionKind>
+    <MicrosoftDotNetXUnitExtensionsVersion>7.0.0-beta.22411.2</MicrosoftDotNetXUnitExtensionsVersion>
   </PropertyGroup>
 </Project>
