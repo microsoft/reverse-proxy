@@ -4,6 +4,7 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -114,9 +115,13 @@ public class HttpProxyCookieTests_Http1 : HttpProxyCookieTests
     }
 }
 
+[ConditionalClass(typeof(HttpProxyCookieTests_Http2), nameof(HttpProxyCookieTests_Http2.IsTestSupported))]
 public class HttpProxyCookieTests_Http2 : HttpProxyCookieTests
 {
     public override HttpProtocols HttpProtocol => HttpProtocols.Http2;
+
+    // HTTP/2 versions of these tests doesn't work on macOS.
+    public static bool IsTestSupported => !RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
 
     // HttpClient for H/2 will use different header frames for cookies from a container and message headers.
     // It will first send message header cookie and than the container one and we expect them in the order of cookieA;cookieB.

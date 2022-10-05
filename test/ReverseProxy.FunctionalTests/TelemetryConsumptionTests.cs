@@ -79,6 +79,7 @@ public class TelemetryConsumptionTests
     [InlineData(RegistrationApproach.WithInstanceHelper)]
     [InlineData(RegistrationApproach.WithGenericHelper)]
     [InlineData(RegistrationApproach.Manual)]
+    [ActiveIssue("https://github.com/microsoft/reverse-proxy/issues/1881")]
     public async Task TelemetryConsumptionWorks(RegistrationApproach registrationApproach)
     {
         var test = new TestEnvironment(
