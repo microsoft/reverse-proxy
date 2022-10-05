@@ -30,7 +30,7 @@ public abstract class HttpProxyCookieTests
     public abstract HttpProtocols HttpProtocol { get; }
     public abstract Task ProcessHttpRequest(Uri proxyHostUri);
 
-    // [Fact] // Disabled. See https://github.com/microsoft/reverse-proxy/issues/1884
+    [Fact(Skip = "https://github.com/microsoft/reverse-proxy/issues/1884" )]
     public async Task ProxyAsync_RequestWithCookieHeaders()
     {
         var tcs = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
