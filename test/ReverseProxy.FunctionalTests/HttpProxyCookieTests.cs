@@ -30,12 +30,7 @@ public abstract class HttpProxyCookieTests
     public abstract HttpProtocols HttpProtocol { get; }
     public abstract Task ProcessHttpRequest(Uri proxyHostUri);
 
-    // Disabled on macOS because the HTTP/2 version of this test doesn't
-    // work on macOS. This should be refactored to re-enable on macOS for
-    // non-HTTP/2. See https://github.com/microsoft/reverse-proxy/issues/1883
-    public static bool IsTestSupported => !RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
-
-    [ConditionalFact(nameof(IsTestSupported))]
+    // [Fact] // Disabled. See https://github.com/microsoft/reverse-proxy/issues/1884
     public async Task ProxyAsync_RequestWithCookieHeaders()
     {
         var tcs = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
