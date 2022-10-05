@@ -30,7 +30,12 @@ public abstract class HttpProxyCookieTests
     public abstract HttpProtocols HttpProtocol { get; }
     public abstract Task ProcessHttpRequest(Uri proxyHostUri);
 
-    [Fact]
+    // Disabled on macOS because the HTTP/2 version of this test doesn't
+    // work on macOS. This should be refactored to re-enable on macOS for
+    // non-HTTP/2. See https://github.com/microsoft/reverse-proxy/issues/1883
+    public static bool IsTestSupported => !RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+
+    [ConditionalFact(nameof(IsTestSupported))]
     public async Task ProxyAsync_RequestWithCookieHeaders()
     {
         var tcs = new TaskCompletionSource<StringValues>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -115,13 +120,9 @@ public class HttpProxyCookieTests_Http1 : HttpProxyCookieTests
     }
 }
 
-[ConditionalClass(typeof(HttpProxyCookieTests_Http2), nameof(HttpProxyCookieTests_Http2.IsTestSupported))]
 public class HttpProxyCookieTests_Http2 : HttpProxyCookieTests
 {
     public override HttpProtocols HttpProtocol => HttpProtocols.Http2;
-
-    // HTTP/2 versions of these tests doesn't work on macOS.
-    public static bool IsTestSupported => !RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
 
     // HttpClient for H/2 will use different header frames for cookies from a container and message headers.
     // It will first send message header cookie and than the container one and we expect them in the order of cookieA;cookieB.
