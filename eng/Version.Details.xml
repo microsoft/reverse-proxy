@@ -11,5 +11,9 @@
       <Uri>https://github.com/dotnet/arcade</Uri>
       <Sha>14df52bae2c74fc850a8c40fe68ea5be5cd30116</Sha>
     </Dependency>
+    <Dependency Name="Microsoft.DotNet.XUnitExtensions" Version="7.0.0-beta.22426.8">
+      <Uri>https://github.com/dotnet/arcade</Uri>
+      <Sha>14df52bae2c74fc850a8c40fe68ea5be5cd30116</Sha>
+    </Dependency>
   </ToolsetDependencies>
 </Dependencies>

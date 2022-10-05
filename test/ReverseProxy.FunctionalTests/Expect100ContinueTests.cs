@@ -5,9 +5,11 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.DotNet.XUnitExtensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
@@ -19,7 +21,11 @@ namespace Yarp.ReverseProxy;
 
 public class Expect100ContinueTests
 {
-    [Theory]
+    // HTTP/2 over TLS is not supported on macOS due to missing ALPN support.
+    // See https://github.com/dotnet/runtime/issues/27727
+    public static bool Http2OverTlsSupported => !RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+
+    [ConditionalTheory(nameof(Http2OverTlsSupported))]
     [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, 200)]
     [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false, 200)]
     [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, 200)]
@@ -103,7 +109,7 @@ public class Expect100ContinueTests
         });
     }
 
-    [Theory]
+    [ConditionalTheory(nameof(Http2OverTlsSupported))]
     [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, true, true, 200)]
     [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, true, true, 200)]
     [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, true, true, 200)]
@@ -181,7 +187,7 @@ public class Expect100ContinueTests
 
     // Fix was implemented in https://github.com/dotnet/runtime/pull/58548
 #if NET7_0_OR_GREATER
-    [Theory]
+    [ConditionalTheory(nameof(Http2OverTlsSupported))]
     [InlineData(HttpProtocols.Http1, HttpProtocols.Http1, false)]
     [InlineData(HttpProtocols.Http2, HttpProtocols.Http2, false)]
     [InlineData(HttpProtocols.Http1, HttpProtocols.Http2, false)]
