@@ -44,6 +44,17 @@ metadata:
     yarp.ingress.kubernetes.io/authorization-policy: authzpolicy
     yarp.ingress.kubernetes.io/transforms: |
       - PathRemovePrefix: "/apis"
+    yarp.ingress.kubernetes.io/route-headers: |
+      - Name: the-header-key
+        Values: 
+        - the-header-value
+        Mode: Contains
+        IsCaseSensitive: false
+      - Name: another-header-key
+        Values: 
+        - another-header-value
+        Mode: Contains
+        IsCaseSensitive: false
 spec:
   rules:
     - http:
@@ -70,6 +81,7 @@ The table below lists the available annotations.
 |yarp.ingress.kubernetes.io/route-metadata|Dictionary<string, string>|
 |yarp.ingress.kubernetes.io/session-affinity|[SessionAffinityConfig](https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuration.SessionAffinityConfig.html)|
 |yarp.ingress.kubernetes.io/transforms|List<Dictionary<string, string>>|
+|yarp.ingress.kubernetes.io/route-headers|List<[RouteHeaderWapper](/src/Kubernetes.Controller/Converters/YarpIngressOptions.cs#L23)>|
 
 #### Authorization Policy
 
