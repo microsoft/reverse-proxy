@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,7 +18,11 @@ namespace Yarp.ReverseProxy;
 
 public class HttpForwarderCancellationTests
 {
-    [Fact]
+    // HTTP/2 over TLS is not supported on macOS due to missing ALPN support.
+    // See https://github.com/dotnet/runtime/issues/27727
+    public static bool Http2OverTlsSupported => !RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+
+    [ConditionalFact(nameof(Http2OverTlsSupported))]
     public async Task ServerSendsHttp2Reset_ReadToClientIsCanceled()
     {
         var readAsyncCalled = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);

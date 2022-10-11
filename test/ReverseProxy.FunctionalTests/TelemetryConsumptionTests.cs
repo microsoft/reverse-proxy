@@ -75,7 +75,7 @@ public class TelemetryConsumptionTests
         }
     }
 
-    [Theory]
+    [Theory (Skip = "https://github.com/microsoft/reverse-proxy/issues/1881")]
     [InlineData(RegistrationApproach.WithInstanceHelper)]
     [InlineData(RegistrationApproach.WithGenericHelper)]
     [InlineData(RegistrationApproach.Manual)]

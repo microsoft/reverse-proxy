@@ -181,7 +181,7 @@ public class WebSocketsTelemetryTests
 
     [Theory]
     [InlineData(100, 200, WebSocketCloseReason.ClientGracefulClose)]
-    [InlineData(200, 100, WebSocketCloseReason.ServerGracefulClose)]
+    // [InlineData(200, 100, WebSocketCloseReason.ServerGracefulClose)] // See https://github.com/microsoft/reverse-proxy/issues/1882
     [InlineData(100, 100, WebSocketCloseReason.ServerGracefulClose)] // Implementation detail
     public async Task ConnectionClosed_BlameReliesOnCloseTimes(long clientCloseTime, long serverCloseTime, WebSocketCloseReason expectedCloseReason)
     {
