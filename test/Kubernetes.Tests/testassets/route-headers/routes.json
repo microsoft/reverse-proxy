@@ -7,15 +7,9 @@
       "Path": "/foo/{**catch-all}",
       "Headers": [
         {
-          "Name": "headera",
-          "Values": [ "v1" ],
-          "Mode": "Exists",
-          "IsCaseSensitive": true
-        },
-        {
-          "Name": "headerb",
-          "Values": [ "v2" ],
-          "Mode": "Exists",
+          "Name": "the-header-key",
+          "Values": [ "the-header-value" ],
+          "Mode": "Contains",
           "IsCaseSensitive": false
         }
       ],
