@@ -8,8 +8,11 @@ metadata:
       foo: bar
       another-key: another-value
     yarp.ingress.kubernetes.io/route-headers: |
-      foo: bar
-      another-key: another-value
+      - Name: the-header-key
+        Values: 
+        - the-header-value
+        Mode: Contains
+        IsCaseSensitive: false
 spec:
   rules:
   - http:
