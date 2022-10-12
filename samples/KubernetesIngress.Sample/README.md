@@ -81,7 +81,7 @@ The table below lists the available annotations.
 |yarp.ingress.kubernetes.io/route-metadata|Dictionary<string, string>|
 |yarp.ingress.kubernetes.io/session-affinity|[SessionAffinityConfig](https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuration.SessionAffinityConfig.html)|
 |yarp.ingress.kubernetes.io/transforms|List<Dictionary<string, string>>|
-|yarp.ingress.kubernetes.io/route-headers|List<[RouteHeaderWapper](/src/Kubernetes.Controller/Converters/YarpIngressOptions.cs#L23)>|
+|yarp.ingress.kubernetes.io/route-headers|List<[RouteHeader](https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuration.RouteHeader.html)>|
 
 #### Authorization Policy
 
