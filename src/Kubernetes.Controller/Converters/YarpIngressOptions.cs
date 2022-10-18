@@ -17,4 +17,24 @@ internal sealed class YarpIngressOptions
     public string CorsPolicy { get; set; }
     public HealthCheckConfig HealthCheck { get; set; }
     public Dictionary<string, string> RouteMetadata { get; set; }
+    public List<RouteHeader> RouteHeaders { get; set; }
+}
+
+internal sealed class RouteHeaderWapper
+{
+    public string Name { get; init; }
+    public List<string> Values { get; init; }
+    public HeaderMatchMode Mode { get; init; }
+    public bool IsCaseSensitive { get; init; }
+
+    public RouteHeader ToRouteHeader()
+    {
+        return new RouteHeader
+        {
+            Name = Name,
+            Values = Values,
+            Mode = Mode,
+            IsCaseSensitive = IsCaseSensitive
+        };
+    }
 }

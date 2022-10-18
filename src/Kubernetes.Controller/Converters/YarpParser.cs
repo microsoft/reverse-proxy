@@ -96,7 +96,8 @@ internal static class YarpParser
                     Match = new RouteMatch()
                     {
                         Hosts = host is not null ? new[] { host } : Array.Empty<string>(),
-                        Path = pathMatch
+                        Path = pathMatch,
+                        Headers = ingressContext.Options.RouteHeaders
                     },
                     ClusterId = cluster.ClusterId,
                     RouteId = $"{ingressContext.Ingress.Metadata.Name}.{ingressContext.Ingress.Metadata.NamespaceProperty}:{path.Path}",
@@ -202,7 +203,11 @@ internal static class YarpParser
         {
             options.RouteMetadata = YamlDeserializer.Deserialize<Dictionary<string, string>>(routeMetadata);
         }
-
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/route-headers", out var routeHeaders))
+        {
+            // YamlDeserializer does not support IReadOnlyList<string> in RouteHeader for now, so we use RouteHeaderWapper to solve this problem.
+            options.RouteHeaders = YamlDeserializer.Deserialize<List<RouteHeaderWapper>>(routeHeaders).Select(p => p.ToRouteHeader()).ToList();
+        }
         // metadata to support:
         // rewrite target
         // auth
