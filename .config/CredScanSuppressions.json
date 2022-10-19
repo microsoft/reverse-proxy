@@ -5,7 +5,9 @@
             "_justification": "Legitimate key/cert used for testing",
             "file": [
                 "testassets/BenchmarkApp/testCert.pfx",
-                "test/TestCertificates/testCert.pfx"
+                "test/TestCertificates/testCert.pfx",
+                "test/Kubernetes.Tests/Certificates/key.der",
+                "test/Kubernetes.Tests/Certificates/key.pem"
             ]
         }
     ]
