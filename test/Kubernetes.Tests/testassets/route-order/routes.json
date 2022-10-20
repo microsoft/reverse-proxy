@@ -1,0 +1,19 @@
+[
+  {
+    "RouteId": "minimal-ingress.default:/foo",
+    "Match": {
+      "Methods": null,
+      "Hosts": [],
+      "Path": "/foo/{**catch-all}",
+      "Headers": null,
+    "Order": 10,
+    "ClusterId": "frontend.default:80",
+    "AuthorizationPolicy": null,
+    "CorsPolicy": null,
+    "Metadata": {
+      "foo": "bar",
+      "another-key": "another-value"
+    },
+    "Transforms": null
+  }
+]

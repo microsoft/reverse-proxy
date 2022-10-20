@@ -9,7 +9,7 @@ namespace Yarp.Kubernetes.Controller.Converters;
 internal sealed class YarpIngressOptions
 {
     public bool Https { get; set; }
-    public List<Dictionary<string,string>> Transforms { get; set; }
+    public List<Dictionary<string, string>> Transforms { get; set; }
     public string AuthorizationPolicy { get; set; }
     public SessionAffinityConfig SessionAffinity { get; set; }
     public HttpClientConfig HttpClientConfig { get; set; }
@@ -18,6 +18,7 @@ internal sealed class YarpIngressOptions
     public HealthCheckConfig HealthCheck { get; set; }
     public Dictionary<string, string> RouteMetadata { get; set; }
     public List<RouteHeader> RouteHeaders { get; set; }
+    public int? Order { get; set; }
 }
 
 internal sealed class RouteHeaderWapper
