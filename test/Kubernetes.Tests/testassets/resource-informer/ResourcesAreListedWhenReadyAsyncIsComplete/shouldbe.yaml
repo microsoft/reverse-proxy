@@ -1,0 +1,4 @@
+- namespace: the-namespace
+  name: pod-1
+- namespace: the-namespace
+  name: pod-2

@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Rest.Serialization;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
+using System.Text.Json;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 
@@ -15,57 +13,26 @@ namespace Yarp.Kubernetes.Tests.Utils;
 /// Implements the <see cref="IResourceSerializers" />.
 /// </summary>
 /// <seealso cref="IResourceSerializers" />
-public class ResourceSerializers : IResourceSerializers
+public static class ResourceSerializers
 {
-    private readonly IDeserializer _yamlDeserializer;
-    private readonly JsonSerializerSettings _serializationSettings;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ResourceSerializers"/> class.
-    /// </summary>
-    public ResourceSerializers()
-    {
-        _yamlDeserializer = new DeserializerBuilder()
+    private static readonly IDeserializer _yamlDeserializer = new DeserializerBuilder()
             .WithNodeTypeResolver(new NonStringScalarTypeResolver())
             .Build();
 
-        _serializationSettings = new JsonSerializerSettings
-        {
-            Formatting = Formatting.None,
-            DateFormatHandling = DateFormatHandling.IsoDateFormat,
-            DateTimeZoneHandling = DateTimeZoneHandling.Utc,
-            NullValueHandling = NullValueHandling.Ignore,
-            ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
-            ContractResolver = new ReadOnlyJsonContractResolver(),
-            Converters = new List<JsonConverter>
-            {
-                new Iso8601TimeSpanConverter(),
-            },
-        };
-    }
+    private static readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-    public T DeserializeYaml<T>(string yaml)
+    public static T DeserializeYaml<T>(string yaml)
     {
         var resource = _yamlDeserializer.Deserialize<object>(yaml);
 
         return Convert<T>(resource);
     }
 
-    public T DeserializeJson<T>(string json)
+    public static TResource Convert<TResource>(object resource)
     {
-        return SafeJsonConvert.DeserializeObject<T>(json);
-    }
+        var json = JsonSerializer.Serialize(resource, _jsonOptions);
 
-    public string SerializeJson(object resource)
-    {
-        return SafeJsonConvert.SerializeObject(resource, _serializationSettings);
-    }
-
-    public TResource Convert<TResource>(object resource)
-    {
-        var json = SafeJsonConvert.SerializeObject(resource, _serializationSettings);
-
-        return DeserializeJson<TResource>(json);
+        return JsonSerializer.Deserialize<TResource>(json, _jsonOptions);
     }
 
     private class NonStringScalarTypeResolver : INodeTypeResolver

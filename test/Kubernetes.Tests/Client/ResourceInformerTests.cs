@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -18,15 +19,26 @@ namespace Yarp.Kubernetes.Controller.Client.Tests;
 
 public class ResourceInformerTests
 {
+    private static (TResources Resources, TShouldBe ShouldBe) LoadTestResource<TResources, TShouldBe>(string name)
+    {
+        var resourcesYaml = File.ReadAllText(Path.Combine("testassets/resource-informer", name, "resources.yaml"));
+        var shouldBeYaml = File.ReadAllText(Path.Combine("testassets/resource-informer", name, "shouldbe.yaml"));
+
+        var resources = ResourceSerializers.DeserializeYaml<TResources>(resourcesYaml);
+        var shouldBe = ResourceSerializers.DeserializeYaml<TShouldBe>(shouldBeYaml);
+
+        return (resources, shouldBe);
+    }
+
     [Fact]
     public async Task ResourcesAreListedWhenReadyAsyncIsComplete()
     {
         using var cancellation = new CancellationTokenSource(Debugger.IsAttached ? TimeSpan.FromMinutes(5) : TimeSpan.FromSeconds(5));
 
-        var testYaml = TestYaml.LoadFromEmbeddedStream<(V1Pod[] pods, NamespacedName[] shouldBe)>();
+        var (resources, shouldBe) = LoadTestResource<V1Pod[], NamespacedName[]>(nameof(ResourcesAreListedWhenReadyAsyncIsComplete));
 
         using var clusterHost = new TestClusterHostBuilder()
-            .UseInitialResources(testYaml.pods)
+            .UseInitialResources(resources)
             .Build();
 
         using var testHost = new HostBuilder()
@@ -55,7 +67,7 @@ public class ResourceInformerTests
 
         await registration.ReadyAsync(cancellation.Token).ConfigureAwait(false);
 
-        Assert.Equal(testYaml.shouldBe, pods.Keys);
+        Assert.Equal(shouldBe, pods.Keys);
     }
 
     [Fact]
@@ -63,10 +75,10 @@ public class ResourceInformerTests
     {
         using var cancellation = new CancellationTokenSource(Debugger.IsAttached ? TimeSpan.FromMinutes(5) : TimeSpan.FromSeconds(5));
 
-        var testYaml = TestYaml.LoadFromEmbeddedStream<(V1Deployment[] deployments, NamespacedName[] shouldBe)>();
+        var (resources, shouldBe) = LoadTestResource<V1Deployment[], NamespacedName[]>(nameof(ResourcesWithApiGroupAreListed));
 
         using var clusterHost = new TestClusterHostBuilder()
-            .UseInitialResources(testYaml.deployments)
+            .UseInitialResources(resources)
             .Build();
 
         using var testHost = new HostBuilder()
@@ -95,6 +107,6 @@ public class ResourceInformerTests
 
         await registration.ReadyAsync(cancellation.Token).ConfigureAwait(false);
 
-        Assert.Equal(testYaml.shouldBe, deployments.Keys);
+        Assert.Equal(shouldBe, deployments.Keys);
     }
 }
