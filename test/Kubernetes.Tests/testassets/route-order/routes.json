@@ -6,6 +6,8 @@
       "Hosts": [],
       "Path": "/foo/{**catch-all}",
       "Headers": null,
+      "QueryParameters": null
+    },
     "Order": 10,
     "ClusterId": "frontend.default:80",
     "AuthorizationPolicy": null,
