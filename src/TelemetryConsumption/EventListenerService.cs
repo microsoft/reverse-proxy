@@ -98,7 +98,7 @@ internal abstract class EventListenerService<TService, TTelemetryConsumer, TMetr
             return;
         }
 
-        var eventLevel = enableEvents ? EventLevel.Verbose : EventLevel.Critical;
+        var eventLevel = enableEvents ? EventLevel.Informational : EventLevel.Critical;
         var arguments = enableMetrics ? new Dictionary<string, string?> { { "EventCounterIntervalSec", MetricsOptions.Interval.TotalSeconds.ToString() } } : null;
 
         EnableEvents(eventSource, eventLevel, EventKeywords.None, arguments);

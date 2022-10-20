@@ -36,7 +36,7 @@ namespace Yarp.Sample
             services.AddHttpContextAccessor();
 
             // Interface that collects general metrics about the proxy forwarder
-            services.AddSingleton<IMetricsConsumer<ForwarderMetrics>, ForwarderMetricsConsumer>();
+            services.AddMetricsConsumer<ForwarderMetricsConsumer>();
 
             // Registration of a consumer to events for proxy forwarder telemetry
             services.AddTelemetryConsumer<ForwarderTelemetryConsumer>();
