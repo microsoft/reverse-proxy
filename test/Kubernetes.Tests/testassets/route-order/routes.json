@@ -12,10 +12,7 @@
     "ClusterId": "frontend.default:80",
     "AuthorizationPolicy": null,
     "CorsPolicy": null,
-    "Metadata": {
-      "foo": "bar",
-      "another-key": "another-value"
-    },
+    "Metadata": null,
     "Transforms": null
   }
 ]
