@@ -178,3 +178,32 @@ yarp.ingress.kubernetes.io/transforms: |
   - RequestHeader: header1
     Append: bar
 ```
+
+#### RouteHeaders
+
+RouteHeaders use the YAML for the YARP [Header Based Routing](https://microsoft.github.io/reverse-proxy/articles/header-routing.html).
+
+See https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuration.RouteHeader.html.
+
+```
+yarp.ingress.kubernetes.io/route-headers: |
+  - Name: the-header-key
+    Values: 
+    - the-header-value
+    Mode: Contains
+    IsCaseSensitive: false
+  - Name: another-header-key
+    Values: 
+    - another-header-value
+    Mode: Contains
+    IsCaseSensitive: false
+```
+
+#### Route Order
+
+Set RouteConfig.Order use the YAML for the YARP
+See https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuration.RouteConfig.html#Yarp_ReverseProxy_Configuration_RouteConfig_Order.
+
+```
+yarp.ingress.kubernetes.io/route-order: '10'
+```
