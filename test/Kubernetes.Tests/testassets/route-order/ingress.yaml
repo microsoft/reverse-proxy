@@ -4,9 +4,6 @@ metadata:
   name: minimal-ingress
   namespace: default
   annotations:
-    yarp.ingress.kubernetes.io/route-metadata: |
-      foo: bar
-      another-key: another-value
     yarp.ingress.kubernetes.io/route-order: '10'
 spec:
   rules:
