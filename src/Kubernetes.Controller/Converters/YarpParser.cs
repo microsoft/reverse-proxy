@@ -209,9 +209,9 @@ internal static class YarpParser
             // YamlDeserializer does not support IReadOnlyList<string> in RouteHeader for now, so we use RouteHeaderWapper to solve this problem.
             options.RouteHeaders = YamlDeserializer.Deserialize<List<RouteHeaderWapper>>(routeHeaders).Select(p => p.ToRouteHeader()).ToList();
         }
-        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/route-order", out var routeOrder)&& int.TryParse(routeOrder,out var order ))
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/route-order", out var routeOrder))
         {
-            options.Order = order;
+            options.Order = int.Parse(routeOrder, CultureInfo.InvariantCulture);
         }
         // metadata to support:
         // rewrite target
