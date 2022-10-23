@@ -201,7 +201,7 @@ yarp.ingress.kubernetes.io/route-headers: |
 
 #### Route Order
 
-Set RouteConfig.Order use the YAML for the YARP
+Set RouteConfig.Order use the YAML for the YARP.
 See https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuration.RouteConfig.html#Yarp_ReverseProxy_Configuration_RouteConfig_Order.
 
 ```
