@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Yarp.Kubernetes.Tests.Utils;
 
 namespace Yarp.Kubernetes.Tests.TestCluster;
 
@@ -16,9 +15,8 @@ public class TestClusterStartup
 #pragma warning restore CA1822 // Mark members as static
     {
         // services.AddTransient<ResourceManager>();
-        services.AddControllers().AddNewtonsoftJson();
+        services.AddControllers();
         services.AddSingleton<ITestCluster, TestCluster>();
-        services.AddTransient<IResourceSerializers, ResourceSerializers>();
     }
 
 #pragma warning disable CA1822 // Mark members as static

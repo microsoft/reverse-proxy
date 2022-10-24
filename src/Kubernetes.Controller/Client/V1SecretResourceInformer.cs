@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using k8s;
+using k8s.Autorest;
 using k8s.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Rest;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,6 +24,6 @@ internal class V1SecretResourceInformer : ResourceInformer<V1Secret, V1SecretLis
 
     protected override Task<HttpOperationResponse<V1SecretList>> RetrieveResourceListAsync(bool? watch = null, string resourceVersion = null, ResourceSelector<V1Secret> resourceSelector = null, CancellationToken cancellationToken = default)
     {
-        return Client.ListSecretForAllNamespacesWithHttpMessagesAsync(watch: watch, resourceVersion: resourceVersion, fieldSelector: resourceSelector?.FieldSelector, cancellationToken: cancellationToken); 
+        return Client.CoreV1.ListSecretForAllNamespacesWithHttpMessagesAsync(watch: watch, resourceVersion: resourceVersion, fieldSelector: resourceSelector?.FieldSelector, cancellationToken: cancellationToken);
     }
 }

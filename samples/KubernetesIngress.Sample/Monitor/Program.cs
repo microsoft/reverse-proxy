@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Rest;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
@@ -20,8 +19,6 @@ namespace Yarp.Kubernetes.Controller.App
                .Enrich.FromLogContext()
                .WriteTo.Console(theme: AnsiConsoleTheme.Code)
                .CreateLogger();
-
-            ServiceClientTracing.IsEnabled = true;
 
             Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration(config =>
