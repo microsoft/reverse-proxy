@@ -212,7 +212,7 @@ internal static class YarpParser
         }
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/route-order", out var routeOrder))
         {
-            options.Order = int.Parse(routeOrder, CultureInfo.InvariantCulture);
+            options.RouteOrder = int.Parse(routeOrder, CultureInfo.InvariantCulture);
         }
         // metadata to support:
         // rewrite target
