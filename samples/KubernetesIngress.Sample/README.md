@@ -179,9 +179,9 @@ yarp.ingress.kubernetes.io/transforms: |
     Append: bar
 ```
 
-#### RouteHeaders
+#### Route Headers
 
-RouteHeaders use the YAML for the YARP [Header Based Routing](https://microsoft.github.io/reverse-proxy/articles/header-routing.html).
+`route-headers` are the YAML representation of YARP [Header Based Routing](https://microsoft.github.io/reverse-proxy/articles/header-routing.html).
 
 See https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuration.RouteHeader.html.
 
