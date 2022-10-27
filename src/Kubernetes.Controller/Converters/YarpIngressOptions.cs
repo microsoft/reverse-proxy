@@ -18,7 +18,7 @@ internal sealed class YarpIngressOptions
     public HealthCheckConfig HealthCheck { get; set; }
     public Dictionary<string, string> RouteMetadata { get; set; }
     public List<RouteHeader> RouteHeaders { get; set; }
-    public int? Order { get; set; }
+    public int? RouteOrder { get; set; }
 }
 
 internal sealed class RouteHeaderWapper
