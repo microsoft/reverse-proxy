@@ -106,7 +106,7 @@ internal static class YarpParser
                     AuthorizationPolicy = ingressContext.Options.AuthorizationPolicy,
                     CorsPolicy = ingressContext.Options.CorsPolicy,
                     Metadata = ingressContext.Options.RouteMetadata,
-                    Order = ingressContext.Options.Order,
+                    Order = ingressContext.Options.RouteOrder,
                 });
 
                 // Add destination for every endpoint address
