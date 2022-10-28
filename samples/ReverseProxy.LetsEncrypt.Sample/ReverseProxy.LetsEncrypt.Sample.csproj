@@ -6,8 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LettuceEncrypt" Version="1.1.2" />
-    <PackageReference Include="Portable.BouncyCastle" Version="1.8.8" />
+    <PackageReference Include="LettuceEncrypt" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup>

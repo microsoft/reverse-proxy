@@ -141,7 +141,7 @@ public class IngressConversionTests
             cache.Update(WatchEventType.Added, ingressClass);
         }
 
-        var kubeObjects = await Yaml.LoadAllFromFileAsync(Path.Combine("testassets", name, "ingress.yaml"), typeMap).ConfigureAwait(false);
+        var kubeObjects = await KubernetesYaml.LoadAllFromFileAsync(Path.Combine("testassets", name, "ingress.yaml"), typeMap).ConfigureAwait(false);
         foreach (var obj in kubeObjects)
         {
             if (obj is V1Ingress ingress)

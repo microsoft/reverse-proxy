@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using k8s;
+using k8s.Autorest;
 using k8s.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Rest;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,6 +24,6 @@ internal class V1PodResourceInformer : ResourceInformer<V1Pod, V1PodList>
 
     protected override Task<HttpOperationResponse<V1PodList>> RetrieveResourceListAsync(bool? watch = null, string resourceVersion = null, ResourceSelector<V1Pod> resourceSelector = null, CancellationToken cancellationToken = default)
     {
-        return Client.ListPodForAllNamespacesWithHttpMessagesAsync(watch: watch, resourceVersion: resourceVersion, fieldSelector: resourceSelector?.FieldSelector, cancellationToken: cancellationToken);
+        return Client.CoreV1.ListPodForAllNamespacesWithHttpMessagesAsync(watch: watch, resourceVersion: resourceVersion, fieldSelector: resourceSelector?.FieldSelector, cancellationToken: cancellationToken);
     }
 }

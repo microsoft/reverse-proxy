@@ -1,0 +1,4 @@
+- namespace: the-namespace
+  name: deployment-1
+- namespace: the-namespace
+  name: deployment-2

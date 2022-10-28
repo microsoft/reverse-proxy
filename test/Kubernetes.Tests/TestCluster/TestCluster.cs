@@ -14,22 +14,18 @@ namespace Yarp.Kubernetes.Tests.TestCluster;
 
 public class TestCluster : ITestCluster
 {
-    private readonly IResourceSerializers _serializers;
-
     public IList<ResourceObject> Resources { get; } = new List<ResourceObject>();
 
-    public TestCluster(IOptions<TestClusterOptions> options, IResourceSerializers serializers)
+    public TestCluster(IOptions<TestClusterOptions> options)
     {
         if (options is null)
         {
             throw new ArgumentNullException(nameof(options));
         }
 
-        _serializers = serializers ?? throw new ArgumentNullException(nameof(serializers));
-
         foreach (var resource in options.Value.InitialResources)
         {
-            Resources.Add(_serializers.Convert<ResourceObject>(resource));
+            Resources.Add(ResourceSerializers.Convert<ResourceObject>(resource));
         }
     }
 
