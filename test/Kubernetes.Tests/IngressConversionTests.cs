@@ -51,6 +51,7 @@ public class IngressConversionTests
     [InlineData("multiple-namespaces")]
     [InlineData("route-metadata")]
     [InlineData("route-headers")]
+    [InlineData("route-order")]
     [InlineData("missing-svc")]
     public async Task ParsingTests(string name)
     {

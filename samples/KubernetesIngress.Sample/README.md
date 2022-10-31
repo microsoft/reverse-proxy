@@ -82,6 +82,7 @@ The table below lists the available annotations.
 |yarp.ingress.kubernetes.io/session-affinity|[SessionAffinityConfig](https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuration.SessionAffinityConfig.html)|
 |yarp.ingress.kubernetes.io/transforms|List<Dictionary<string, string>>|
 |yarp.ingress.kubernetes.io/route-headers|List<[RouteHeader](https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuration.RouteHeader.html)>|
+|yarp.ingress.kubernetes.io/route-order|int|
 
 #### Authorization Policy
 
@@ -176,4 +177,32 @@ yarp.ingress.kubernetes.io/transforms: |
   - PathPrefix: "/apis"
   - RequestHeader: header1
     Append: bar
+```
+
+#### Route Headers
+
+`route-headers` are the YAML representation of YARP [Header Based Routing](https://microsoft.github.io/reverse-proxy/articles/header-routing.html).
+
+See https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuration.RouteHeader.html.
+
+```
+yarp.ingress.kubernetes.io/route-headers: |
+  - Name: the-header-key
+    Values: 
+    - the-header-value
+    Mode: Contains
+    IsCaseSensitive: false
+  - Name: another-header-key
+    Values: 
+    - another-header-value
+    Mode: Contains
+    IsCaseSensitive: false
+```
+
+#### Route Order
+
+See https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuration.RouteConfig.html#Yarp_ReverseProxy_Configuration_RouteConfig_Order.
+
+```
+yarp.ingress.kubernetes.io/route-order: '10'
 ```
