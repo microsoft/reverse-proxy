@@ -33,15 +33,18 @@ internal class V1IngressResourceStatusUpdater : IIngressResourceStatusUpdater
     public async Task UpdateStatusAsync()
     {
         var service = _client.CoreV1.ReadNamespacedServiceStatus(_options.ControllerServiceName, _options.ControllerServiceNamespace);
-        var loadBalancerIngresses = service.Status.LoadBalancer.Ingress;
-        V1IngressStatus status = new V1IngressStatus(new V1LoadBalancerStatus(loadBalancerIngresses));
-        V1Patch patch = new V1Patch(status);
-        var ingresses = _cache.GetIngresses().ToArray();
-        foreach (var ingress in ingresses)
+        if (service.Status?.LoadBalancer?.Ingress != null)
         {
-            _logger.LogInformation("updating ingress {IngressClassNamespace}/{IngressClassName} status.", ingress.Metadata.NamespaceProperty, ingress.Metadata.Name);
-            await _client.NetworkingV1.PatchNamespacedIngressStatusAsync(patch, ingress.Metadata.Name, ingress.Metadata.NamespaceProperty);
-            _logger.LogInformation("updated ingrees {IngressClassNamespace}/{IngressClassName} status.", ingress.Metadata.NamespaceProperty, ingress.Metadata.Name);
+            var loadBalancerIngresses = service.Status.LoadBalancer.Ingress;
+            V1IngressStatus status = new V1IngressStatus(new V1LoadBalancerStatus(loadBalancerIngresses));
+            V1Patch patch = new V1Patch(status, V1Patch.PatchType.ApplyPatch);
+            var ingresses = _cache.GetIngresses().ToArray();
+            foreach (var ingress in ingresses)
+            {
+                _logger.LogInformation("updating ingress {IngressClassNamespace}/{IngressClassName} status.", ingress.Metadata.NamespaceProperty, ingress.Metadata.Name);
+                await _client.NetworkingV1.PatchNamespacedIngressStatusAsync(patch, ingress.Metadata.Name, ingress.Metadata.NamespaceProperty);
+                _logger.LogInformation("updated ingrees {IngressClassNamespace}/{IngressClassName} status.", ingress.Metadata.NamespaceProperty, ingress.Metadata.Name);
+            }
         }
     }
 }
