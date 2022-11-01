@@ -1,0 +1,12 @@
+{
+  "areaPath": "DevDiv\\ASP.NET Core\\YARP",
+  "codebaseName": "ReverseProxy",
+  "instanceUrl": "https://devdiv.visualstudio.com/",
+  "iterationPath": "DevDiv",
+  "notificationAliases": [
+    "dotnetrp@microsoft.com"
+  ],
+  "projectName": "DEVDIV",
+  "repositoryName": "ReverseProxy",
+  "template": "TFSDEVDIV"
+}
