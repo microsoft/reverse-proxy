@@ -37,7 +37,7 @@ internal class V1IngressResourceStatusUpdater : IIngressResourceStatusUpdater
         {
             var loadBalancerIngresses = service.Status.LoadBalancer.Ingress;
             V1IngressStatus status = new V1IngressStatus(new V1LoadBalancerStatus(loadBalancerIngresses));
-            V1Patch patch = new V1Patch(status, V1Patch.PatchType.ApplyPatch);
+            V1Patch patch = new V1Patch(status, V1Patch.PatchType.JsonPatch);
             var ingresses = _cache.GetIngresses().ToArray();
             foreach (var ingress in ingresses)
             {
