@@ -37,15 +37,13 @@ internal class V1IngressResourceStatusUpdater : IIngressResourceStatusUpdater
         {
             var loadBalancerIngresses = service.Status.LoadBalancer.Ingress;
             V1IngressStatus status = new V1IngressStatus(new V1LoadBalancerStatus(loadBalancerIngresses));
-            //V1Patch patch = new V1Patch(status, V1Patch.PatchType.ApplyPatch);
-
             var ingresses = _cache.GetIngresses().ToArray();
             foreach (var ingress in ingresses)
             {
                 _logger.LogInformation("updating ingress {IngressClassNamespace}/{IngressClassName} status.", ingress.Metadata.NamespaceProperty, ingress.Metadata.Name);
-                var s = await _client.NetworkingV1.ReadNamespacedIngressStatusAsync(ingress.Metadata.Name, ingress.Metadata.NamespaceProperty);
-                s.Status = status;
-                await _client.NetworkingV1.PatchNamespacedIngressStatusAsync(new V1Patch(s, V1Patch.PatchType.ApplyPatch), ingress.Metadata.Name, ingress.Metadata.NamespaceProperty);
+                var ingressStatus = await _client.NetworkingV1.ReadNamespacedIngressStatusAsync(ingress.Metadata.Name, ingress.Metadata.NamespaceProperty);
+                ingressStatus.Status = status;
+                await _client.NetworkingV1.ReplaceNamespacedIngressStatusAsync(ingressStatus, ingress.Metadata.Name, ingress.Metadata.NamespaceProperty);
                 _logger.LogInformation("updated ingrees {IngressClassNamespace}/{IngressClassName} status.", ingress.Metadata.NamespaceProperty, ingress.Metadata.Name);
             }
         }
