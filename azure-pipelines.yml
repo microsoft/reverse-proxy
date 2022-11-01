@@ -7,9 +7,7 @@ schedules:
   displayName: "Run CodeQL3000 weekly, Monday at 2:00 AM PDT"
   branches:
     include:
-    - release/1.0
-    - release/1.1
-    - release/latest
+    - release/*
     - main
   always: true
 
@@ -86,8 +84,6 @@ stages:
           # Component governance and SBOM creation are not needed here. Disable what Arcade would inject.
           disableComponentGovernance: true
           enableSbom: false
-          # CodeQL3000 extends build duration.
-          timeoutInMinutes: 180
         variables:
         - ${{ if eq(variables.runCodeQL3000, 'true') }}:
           - _OfficialBuildArgs: /p:Test=false /p:Sign=false /p:Pack=false /p:Publish=false /p:UseSharedCompilation=false
