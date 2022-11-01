@@ -94,6 +94,8 @@ public static class KubernetesReverseProxyServiceCollectionExtensions
         services.AddSingleton<IServerCertificateSelector, ServerCertificateSelector>();
         services.AddSingleton<ICertificateHelper, CertificateHelper>();
 
+        // ingress status updater
+        services.AddSingleton<IIngressResourceStatusUpdater,V1IngressResourceStatusUpdater>();
         return services.AddKubernetesCore();
     }
 
