@@ -59,9 +59,9 @@ internal sealed class WebSocketsTelemetryStream : DelegatingStream
             ForwarderError.UpgradeRequestDestination => WebSocketCloseReason.ServerDisconnect,
             ForwarderError.UpgradeResponseDestination => WebSocketCloseReason.ServerDisconnect,
 
-            // Both sides gracefully closed the underlying connection without sending a WebSocket close
-            // Neither side is doing what we recognize as WebSockets ¯\_(ツ)_/¯
-            null => WebSocketCloseReason.Unknown,
+            // Both sides gracefully closed the underlying connection without sending a WebSocket close,
+            // or the server closed the connection and we canceled the client and suppressed the errors.
+            null => WebSocketCloseReason.ServerDisconnect,
 
             // We are not expecting any other error from HttpForwarder after a successful connection upgrade
             // Technically, a user could overwrite the IForwarderErrorFeature, in which case we don't know what's going on
