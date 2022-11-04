@@ -88,6 +88,12 @@ internal sealed class StructuredTransformer : HttpTransformer
         foreach (var requestTransform in RequestTransforms)
         {
             await requestTransform.ApplyAsync(transformContext);
+
+            // The transform generated a response, do not apply further transforms and do not forward.
+            if (httpContext.Response.StatusCode != StatusCodes.Status200OK || httpContext.Response.HasStarted)
+            {
+                return;
+            }
         }
 
         // Allow a transform to directly set a custom RequestUri.

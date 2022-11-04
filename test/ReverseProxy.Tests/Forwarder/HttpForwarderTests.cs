@@ -358,6 +358,125 @@ public class HttpForwarderTests
         events.AssertContainProxyStages();
     }
 
+    [Fact]
+    public async Task TransformRequestAsync_SetsStatus_ShortCircuits()
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Protocol = "HTTP/2";
+
+        var destinationPrefix = "https://localhost/";
+
+        var transforms = new DelegateHttpTransforms()
+        {
+            CopyRequestHeaders = true,
+            OnRequest = (context, request, destination) =>
+            {
+                context.Response.StatusCode = 401;
+                return Task.CompletedTask;
+            }
+        };
+
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                throw new NotImplementedException();
+            });
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, ForwarderRequestConfig.Empty, transforms);
+
+        Assert.Equal(ForwarderError.None, proxyError);
+        Assert.Equal(StatusCodes.Status401Unauthorized, httpContext.Response.StatusCode);
+
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages(new ForwarderStage[0]);
+    }
+
+    [Fact]
+    public async Task TransformRequestAsync_StartsResponse_ShortCircuits()
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        var responseBody = new TestResponseBody();
+        httpContext.Features.Set<IHttpResponseFeature>(responseBody);
+        httpContext.Features.Set<IHttpResponseBodyFeature>(responseBody);
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Protocol = "HTTP/2";
+
+        var destinationPrefix = "https://localhost/";
+
+        var transforms = new DelegateHttpTransforms()
+        {
+            CopyRequestHeaders = true,
+            OnRequest = (context, request, destination) =>
+            {
+                return context.Response.StartAsync();
+            }
+        };
+
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                throw new NotImplementedException();
+            });
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, ForwarderRequestConfig.Empty, transforms);
+
+        Assert.Equal(ForwarderError.None, proxyError);
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        Assert.True(httpContext.Response.HasStarted);
+
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages(new ForwarderStage[0]);
+    }
+
+    [Fact]
+    public async Task TransformRequestAsync_WritesToResponse_ShortCircuits()
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        var resultStream = new MemoryStream();
+        var responseBody = new TestResponseBody(resultStream);
+        httpContext.Features.Set<IHttpResponseFeature>(responseBody);
+        httpContext.Features.Set<IHttpResponseBodyFeature>(responseBody);
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Protocol = "HTTP/2";
+
+        var destinationPrefix = "https://localhost/";
+
+        var transforms = new DelegateHttpTransforms()
+        {
+            CopyRequestHeaders = true,
+            OnRequest = (context, request, destination) =>
+            {
+                return context.Response.Body.WriteAsync(Encoding.UTF8.GetBytes("Hello World")).AsTask();
+            }
+        };
+
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                throw new NotImplementedException();
+            });
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, ForwarderRequestConfig.Empty, transforms);
+
+        Assert.Equal(ForwarderError.None, proxyError);
+        Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
+        Assert.True(httpContext.Response.HasStarted);
+        Assert.Equal("Hello World", Encoding.UTF8.GetString(resultStream.ToArray()));
+
+        AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
+        events.AssertContainProxyStages(new ForwarderStage[0]);
+    }
+
     // Tests proxying an upgradeable request.
     [Theory]
     [InlineData("WebSocket")]
@@ -1887,11 +2006,10 @@ public class HttpForwarderTests
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Method = "GET";
         httpContext.Request.Host = new HostString("example.com:3456");
-        var responseBody = new TestResponseBody() { HasStarted = true };
+        var responseBody = new TestResponseBody();
         httpContext.Features.Set<IHttpResponseFeature>(responseBody);
         httpContext.Features.Set<IHttpResponseBodyFeature>(responseBody);
         httpContext.Features.Set<IHttpRequestLifetimeFeature>(responseBody);
-        httpContext.RequestAborted = new CancellationToken(canceled: true);
 
         var destinationPrefix = "https://localhost:123/";
         var sut = CreateProxy();
@@ -1900,7 +2018,11 @@ public class HttpForwarderTests
             {
                 var message = new HttpResponseMessage()
                 {
-                    Content = new StreamContent(new MemoryStream(new byte[1]))
+                    Content = new StreamContent(new CallbackReadStream((_, _) =>
+                    {
+                        responseBody.HasStarted = true;
+                        throw new TaskCanceledException();
+                    }))
                 };
                 message.Headers.AcceptRanges.Add("bytes");
                 return Task.FromResult(message);
@@ -2828,7 +2950,8 @@ public class HttpForwarderTests
 
         public Task StartAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            OnStart();
+            return Task.CompletedTask;
         }
 
         public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)

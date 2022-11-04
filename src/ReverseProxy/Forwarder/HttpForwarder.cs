@@ -94,6 +94,11 @@ internal sealed class HttpForwarder : IHttpForwarder
         _ = requestConfig ?? throw new ArgumentNullException(nameof(requestConfig));
         _ = transformer ?? throw new ArgumentNullException(nameof(transformer));
 
+        if (context.Response.StatusCode != StatusCodes.Status200OK || context.Response.HasStarted)
+        {
+            throw new InvalidOperationException("The request cannot be forwarded, the response has already started");
+        }
+
         // HttpClient overload for SendAsync changes response behavior to fully buffered which impacts performance
         // See discussion in https://github.com/microsoft/reverse-proxy/issues/458
         if (httpClient is HttpClient)
@@ -115,6 +120,15 @@ internal sealed class HttpForwarder : IHttpForwarder
             // :: Step 1-3: Create outgoing HttpRequestMessage
             var (destinationRequest, requestContent) = await CreateRequestMessageAsync(
                 context, destinationPrefix, transformer, requestConfig, isStreamingRequest, activityCancellationSource);
+
+            // Transforms generated a response, do not proxy.
+            if (context.Response.StatusCode != StatusCodes.Status200OK || context.Response.HasStarted)
+            {
+                Log.NotProxying(_logger, context.Response.StatusCode);
+                return ForwarderError.None;
+            }
+
+            Log.Proxying(_logger, destinationRequest, isStreamingRequest);
 
             // :: Step 4: Send the outgoing request using HttpClient
             HttpResponseMessage destinationResponse;
@@ -282,6 +296,12 @@ internal sealed class HttpForwarder : IHttpForwarder
         // :: Step 3: Copy request headers Client --► Proxy --► Destination
         await transformer.TransformRequestAsync(context, destinationRequest, destinationPrefix);
 
+        // The transformer generated a response, do not forward.
+        if (context.Response.StatusCode != StatusCodes.Status200OK || context.Response.HasStarted)
+        {
+            return (destinationRequest, requestContent);
+        }
+
         if (isUpgradeRequest)
         {
             RestoreUpgradeHeaders(context, destinationRequest);
@@ -290,8 +310,6 @@ internal sealed class HttpForwarder : IHttpForwarder
         // Allow someone to custom build the request uri, otherwise provide a default for them.
         var request = context.Request;
         destinationRequest.RequestUri ??= RequestUtilities.MakeDestinationAddress(destinationPrefix, request.Path, request.QueryString);
-
-        Log.Proxying(_logger, destinationRequest, isStreamingRequest);
 
         if (requestConfig?.AllowResponseBuffering != true)
         {
@@ -765,6 +783,11 @@ internal sealed class HttpForwarder : IHttpForwarder
             EventIds.ForwardingError,
             "{error}: {message}");
 
+        private static readonly Action<ILogger, int, Exception?> _notProxying = LoggerMessage.Define<int>(
+            LogLevel.Information,
+            EventIds.NotForwarding,
+            "Not Proxying, a {statusCode} response was set by the transforms.");
+
         public static void ResponseReceived(ILogger logger, HttpResponseMessage msg)
         {
             _responseReceived(logger, msg.Version, (int)msg.StatusCode, null);
@@ -780,6 +803,11 @@ internal sealed class HttpForwarder : IHttpForwarder
                 var versionPolicy = ProtocolHelper.GetVersionPolicy(msg.VersionPolicy);
                 _proxying(logger, msg.RequestUri!.AbsoluteUri, version, versionPolicy, streaming, null);
             }
+        }
+
+        public static void NotProxying(ILogger logger, int statusCode)
+        {
+            _notProxying(logger, statusCode, null);
         }
 
         public static void ErrorProxying(ILogger logger, ForwarderError error, Exception ex)

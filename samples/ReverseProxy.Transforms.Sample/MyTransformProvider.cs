@@ -25,8 +25,7 @@ namespace Yarp.Sample
         public void ValidateCluster(TransformClusterValidationContext context)
         {
             // Check all clusters for a custom property and validate the associated transform data.
-            string value = null;
-            if (context.Cluster.Metadata?.TryGetValue("CustomMetadata", out value) ?? false)
+            if (context.Cluster.Metadata?.TryGetValue("CustomMetadata", out var value) ?? false)
             {
                 if (string.IsNullOrEmpty(value))
                 {
