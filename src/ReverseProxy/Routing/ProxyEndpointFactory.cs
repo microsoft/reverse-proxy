@@ -14,6 +14,9 @@ using Microsoft.AspNetCore.Routing.Patterns;
 using Yarp.ReverseProxy.Model;
 using CorsConstants = Yarp.ReverseProxy.Configuration.CorsConstants;
 using AuthorizationConstants = Yarp.ReverseProxy.Configuration.AuthorizationConstants;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Yarp.ReverseProxy.Routing;
 
@@ -33,9 +36,14 @@ internal sealed class ProxyEndpointFactory
 
         // Catch-all pattern when no path was specified
         var pathPattern = string.IsNullOrEmpty(match.Path) ? "/{**catchall}" : match.Path;
+        var requestDelegate = _pipeline ?? throw new InvalidOperationException("The pipeline hasn't been provided yet.");
+        if (route.Config.Response != null)
+        {
+            requestDelegate = CreateResponseDelegate(route);
+        }
 
         var endpointBuilder = new RouteEndpointBuilder(
-            requestDelegate: _pipeline ?? throw new InvalidOperationException("The pipeline hasn't been provided yet."),
+            requestDelegate: requestDelegate,
             routePattern: RoutePatternFactory.Parse(pathPattern),
             order: config.Order.GetValueOrDefault())
         {
@@ -116,6 +124,46 @@ internal sealed class ProxyEndpointFactory
         }
 
         return endpointBuilder.Build();
+    }
+
+    private static RequestDelegate CreateResponseDelegate(RouteModel route)
+    {
+        return async context =>
+        {
+            var response = context.Response;
+            var routeResponse = route.Config.Response!;
+            if (routeResponse.StatusCode.HasValue)
+            {
+                response.StatusCode = routeResponse.StatusCode.Value;
+            }
+            if (!string.IsNullOrEmpty(routeResponse.ContentType))
+            {
+                response.ContentType = routeResponse.ContentType;
+            }
+
+            await route.Transformer.TransformResponseAsync(context, null);
+
+            if (!string.IsNullOrEmpty(routeResponse.Body))
+            {
+                await response.WriteAsync(routeResponse.Body);
+            }
+            else if (!string.IsNullOrEmpty(routeResponse.File))
+            {
+                // TODO: if File contains a pattern, get the real path from the route values.
+
+                var env = context.RequestServices.GetRequiredService<IWebHostEnvironment>();
+                var file = env.WebRootFileProvider.GetFileInfo(routeResponse.File);
+                // TODO: Default content-type
+                // TODO: Content-Length, etc.
+                // TODO: UseFileServer?
+                if (file != null)
+                {
+                    await response.SendFileAsync(file);
+                }
+            }
+
+            await route.Transformer.TransformResponseTrailersAsync(context, null);
+        };
     }
 
     public void SetProxyPipeline(RequestDelegate pipeline)

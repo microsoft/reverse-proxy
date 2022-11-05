@@ -326,6 +326,12 @@ public class ConfigurationConfigProviderTests
                   }
                 ]
             },
+            ""Response"": {
+                ""StatusCode"": 401,
+                ""Content-Type"": ""text/html"",
+                ""Body"": ""Refused"",
+                ""File"": ""Refused.html"",
+            },
             ""Order"": -1,
             ""ClusterId"": ""cluster1"",
             ""AuthorizationPolicy"": ""Default"",

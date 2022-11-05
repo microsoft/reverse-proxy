@@ -150,6 +150,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             Metadata = section.GetSection(nameof(RouteConfig.Metadata)).ReadStringDictionary(),
             Transforms = CreateTransforms(section.GetSection(nameof(RouteConfig.Transforms))),
             Match = CreateRouteMatch(section.GetSection(nameof(RouteConfig.Match))),
+            Response = CreateRouteResponse(section.GetSection(nameof(RouteConfig.Response))),
         };
     }
 
@@ -220,6 +221,22 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             Values = section.GetSection(nameof(RouteQueryParameter.Values)).ReadStringArray(),
             Mode = section.ReadEnum<QueryParameterMatchMode>(nameof(RouteQueryParameter.Mode)) ?? QueryParameterMatchMode.Exact,
             IsCaseSensitive = section.ReadBool(nameof(RouteQueryParameter.IsCaseSensitive)) ?? false,
+        };
+    }
+
+    private static RouteResponse? CreateRouteResponse(IConfigurationSection section)
+    {
+        if (!section.Exists())
+        {
+            return null;
+        }
+
+        return new RouteResponse()
+        {
+            StatusCode = section.ReadInt32(nameof(RouteResponse.StatusCode)),
+            ContentType = section[Microsoft.Net.Http.Headers.HeaderNames.ContentType],
+            Body = section[nameof(RouteResponse.Body)],
+            File = section[nameof(RouteResponse.File)],
         };
     }
 

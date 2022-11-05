@@ -37,6 +37,11 @@ public sealed record RouteConfig
     public string? ClusterId { get; init; }
 
     /// <summary>
+    /// Send a static response for this route instead of proxying via a cluster.
+    /// </summary>
+    public RouteResponse? Response { get; init; }
+
+    /// <summary>
     /// The name of the AuthorizationPolicy to apply to this route.
     /// If not set then only the FallbackPolicy will apply.
     /// Set to "Default" to enable authorization with the applications default policy.
