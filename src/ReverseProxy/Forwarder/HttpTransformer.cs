@@ -59,6 +59,9 @@ public class HttpTransformer
     /// See <see cref="RequestUtilities.MakeDestinationAddress(string, PathString, QueryString)"/> for constructing a custom request Uri.
     /// The string parameter represents the destination URI prefix that should be used when constructing the RequestUri.
     /// The headers are copied by the base implementation, excluding some protocol headers like HTTP/2 pseudo headers (":authority").
+    /// This method may be overridden to conditionally produce a response, such as for error conditions, and prevent the request from
+    /// being proxied. This is indicated by setting the `HttpResponse.StatusCode` to a value other than 200, or calling `HttpResponse.StartAsync()`,
+    /// or writing to the `HttpResponse.Body` or `BodyWriter`.
     /// </summary>
     /// <param name="httpContext">The incoming request.</param>
     /// <param name="proxyRequest">The outgoing proxy request.</param>
