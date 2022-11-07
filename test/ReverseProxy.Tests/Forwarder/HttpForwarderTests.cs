@@ -381,7 +381,7 @@ public class HttpForwarderTests
 
         var sut = CreateProxy();
         var client = MockHttpHandler.CreateClient(
-            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
             {
                 throw new NotImplementedException();
             });
