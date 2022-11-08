@@ -76,27 +76,6 @@
   <div class="markdown level0 summary"><p>Affinity resolution result.</p>
 </div>
   <div class="markdown level0 conceptual"></div>
-  <div class="inheritedMembers">
-    <h5>Inherited Members</h5>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.valuetype.equals#system-valuetype-equals(system-object)">ValueType.Equals(Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.valuetype.gethashcode#system-valuetype-gethashcode">ValueType.GetHashCode()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.valuetype.tostring#system-valuetype-tostring">ValueType.ToString()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">Object.Equals(Object, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype#system-object-gettype">Object.GetType()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals#system-object-referenceequals(system-object-system-object)">Object.ReferenceEquals(Object, Object)</a>
-    </div>
-  </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Yarp.ReverseProxy.SessionAffinity.html">Yarp.ReverseProxy.SessionAffinity</a></h6>
   <h6><strong>Assembly</strong>: Yarp.ReverseProxy.dll</h6>
   <h5 id="Yarp_ReverseProxy_SessionAffinity_AffinityResult_syntax">Syntax</h5>
@@ -107,18 +86,18 @@
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_SessionAffinity_AffinityResult__ctor_System_Collections_Generic_IReadOnlyList_Yarp_ReverseProxy_Model_DestinationState__Yarp_ReverseProxy_SessionAffinity_AffinityStatus_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.SessionAffinity.AffinityResult.%23ctor(System.Collections.Generic.IReadOnlyList%7BYarp.ReverseProxy.Model.DestinationState%7D%2CYarp.ReverseProxy.SessionAffinity.AffinityStatus)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_SessionAffinity_AffinityResult__ctor_System_Nullable_IReadOnlyList_Yarp_ReverseProxy_Model_DestinationState___Yarp_ReverseProxy_SessionAffinity_AffinityStatus_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.SessionAffinity.AffinityResult.%23ctor(System.Nullable%7BIReadOnlyList%7BYarp.ReverseProxy.Model.DestinationState%7D%7D%2CYarp.ReverseProxy.SessionAffinity.AffinityStatus)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/SessionAffinity/AffinityResult.cs/#L18">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_SessionAffinity_AffinityResult__ctor_" data-uid="Yarp.ReverseProxy.SessionAffinity.AffinityResult.#ctor*"></a>
-  <h4 id="Yarp_ReverseProxy_SessionAffinity_AffinityResult__ctor_System_Collections_Generic_IReadOnlyList_Yarp_ReverseProxy_Model_DestinationState__Yarp_ReverseProxy_SessionAffinity_AffinityStatus_" data-uid="Yarp.ReverseProxy.SessionAffinity.AffinityResult.#ctor(System.Collections.Generic.IReadOnlyList{Yarp.ReverseProxy.Model.DestinationState},Yarp.ReverseProxy.SessionAffinity.AffinityStatus)">AffinityResult(IReadOnlyList&lt;DestinationState&gt;, AffinityStatus)</h4>
+  <h4 id="Yarp_ReverseProxy_SessionAffinity_AffinityResult__ctor_System_Nullable_IReadOnlyList_Yarp_ReverseProxy_Model_DestinationState___Yarp_ReverseProxy_SessionAffinity_AffinityStatus_" data-uid="Yarp.ReverseProxy.SessionAffinity.AffinityResult.#ctor(System.Nullable{IReadOnlyList{Yarp.ReverseProxy.Model.DestinationState}},Yarp.ReverseProxy.SessionAffinity.AffinityStatus)">AffinityResult(Nullable&lt;IReadOnlyList&lt;DestinationState&gt;&gt;, AffinityStatus)</h4>
   <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public AffinityResult(IReadOnlyList&lt;DestinationState&gt; destinations, AffinityStatus status)</code></pre>
+    <pre><code class="lang-csharp hljs">public AffinityResult(IReadOnlyList&lt;DestinationState&gt;? destinations, AffinityStatus status)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -131,7 +110,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="Yarp.ReverseProxy.Model.DestinationState.html">DestinationState</a>&gt;</td>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Yarp.ReverseProxy.Model.DestinationState.html">DestinationState</a>&gt;&gt;</td>
         <td><span class="parametername">destinations</span></td>
         <td></td>
       </tr>
@@ -157,7 +136,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public readonly IReadOnlyList&lt;DestinationState&gt; Destinations { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public readonly IReadOnlyList&lt;DestinationState&gt;? Destinations { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -169,7 +148,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="Yarp.ReverseProxy.Model.DestinationState.html">DestinationState</a>&gt;</td>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Yarp.ReverseProxy.Model.DestinationState.html">DestinationState</a>&gt;&gt;</td>
         <td></td>
       </tr>
     </tbody>

@@ -83,49 +83,25 @@
   <div class="implements">
     <h5>Implements</h5>
     <div><a class="xref" href="Microsoft.AspNetCore.Builder.IReverseProxyApplicationBuilder.html">IReverseProxyApplicationBuilder</a></div>
-    <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.builder.iapplicationbuilder">IApplicationBuilder</a></div>
-  </div>
-  <div class="inheritedMembers">
-    <h5>Inherited Members</h5>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">Object.Equals(Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">Object.Equals(Object, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode#system-object-gethashcode">Object.GetHashCode()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype#system-object-gettype">Object.GetType()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone#system-object-memberwiseclone">Object.MemberwiseClone()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals#system-object-referenceequals(system-object-system-object)">Object.ReferenceEquals(Object, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring#system-object-tostring">Object.ToString()</a>
-    </div>
+    <div><span class="xref">IApplicationBuilder</span></div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Yarp.ReverseProxy.Model.html">Yarp.ReverseProxy.Model</a></h6>
   <h6><strong>Assembly</strong>: Yarp.ReverseProxy.dll</h6>
   <h5 id="Yarp_ReverseProxy_Model_ReverseProxyApplicationBuilder_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class ReverseProxyApplicationBuilder : IReverseProxyApplicationBuilder, IApplicationBuilder</code></pre>
+    <pre><code class="lang-csharp hljs">public class ReverseProxyApplicationBuilder : object, IReverseProxyApplicationBuilder</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Model_ReverseProxyApplicationBuilder__ctor_Microsoft_AspNetCore_Builder_IApplicationBuilder_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Model.ReverseProxyApplicationBuilder.%23ctor(Microsoft.AspNetCore.Builder.IApplicationBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Model_ReverseProxyApplicationBuilder__ctor_IApplicationBuilder_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Model.ReverseProxyApplicationBuilder.%23ctor(IApplicationBuilder)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/ReverseProxyApplicationBuilder.cs/#L16">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Model_ReverseProxyApplicationBuilder__ctor_" data-uid="Yarp.ReverseProxy.Model.ReverseProxyApplicationBuilder.#ctor*"></a>
-  <h4 id="Yarp_ReverseProxy_Model_ReverseProxyApplicationBuilder__ctor_Microsoft_AspNetCore_Builder_IApplicationBuilder_" data-uid="Yarp.ReverseProxy.Model.ReverseProxyApplicationBuilder.#ctor(Microsoft.AspNetCore.Builder.IApplicationBuilder)">ReverseProxyApplicationBuilder(IApplicationBuilder)</h4>
+  <h4 id="Yarp_ReverseProxy_Model_ReverseProxyApplicationBuilder__ctor_IApplicationBuilder_" data-uid="Yarp.ReverseProxy.Model.ReverseProxyApplicationBuilder.#ctor(IApplicationBuilder)">ReverseProxyApplicationBuilder(IApplicationBuilder)</h4>
   <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -143,7 +119,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.builder.iapplicationbuilder">IApplicationBuilder</a></td>
+        <td><span class="xref">IApplicationBuilder</span></td>
         <td><span class="parametername">applicationBuilder</span></td>
         <td></td>
       </tr>
@@ -176,7 +152,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.iserviceprovider">IServiceProvider</a></td>
+        <td><span class="xref">IServiceProvider</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -194,7 +170,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IDictionary&lt;string, object&gt; Properties { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public IDictionary&lt;string, object?&gt; Properties { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -206,7 +182,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.idictionary-2">IDictionary</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">Object</a>&gt;</td>
+        <td><span class="xref">IDictionary</span>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object">Object</a>&gt;&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -236,7 +212,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.http.features.ifeaturecollection">IFeatureCollection</a></td>
+        <td><span class="xref">IFeatureCollection</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -268,7 +244,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.http.requestdelegate">RequestDelegate</a></td>
+        <td><span class="xref">RequestDelegate</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -298,20 +274,20 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.builder.iapplicationbuilder">IApplicationBuilder</a></td>
+        <td><span class="xref">IApplicationBuilder</span></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Model_ReverseProxyApplicationBuilder_Use_System_Func_Microsoft_AspNetCore_Http_RequestDelegate_Microsoft_AspNetCore_Http_RequestDelegate__.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Model.ReverseProxyApplicationBuilder.Use(System.Func%7BMicrosoft.AspNetCore.Http.RequestDelegate%2CMicrosoft.AspNetCore.Http.RequestDelegate%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Model_ReverseProxyApplicationBuilder_Use_Func_RequestDelegate_RequestDelegate__.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Model.ReverseProxyApplicationBuilder.Use(Func%7BRequestDelegate%2CRequestDelegate%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/ReverseProxyApplicationBuilder.cs/#L35">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Model_ReverseProxyApplicationBuilder_Use_" data-uid="Yarp.ReverseProxy.Model.ReverseProxyApplicationBuilder.Use*"></a>
-  <h4 id="Yarp_ReverseProxy_Model_ReverseProxyApplicationBuilder_Use_System_Func_Microsoft_AspNetCore_Http_RequestDelegate_Microsoft_AspNetCore_Http_RequestDelegate__" data-uid="Yarp.ReverseProxy.Model.ReverseProxyApplicationBuilder.Use(System.Func{Microsoft.AspNetCore.Http.RequestDelegate,Microsoft.AspNetCore.Http.RequestDelegate})">Use(Func&lt;RequestDelegate, RequestDelegate&gt;)</h4>
+  <h4 id="Yarp_ReverseProxy_Model_ReverseProxyApplicationBuilder_Use_Func_RequestDelegate_RequestDelegate__" data-uid="Yarp.ReverseProxy.Model.ReverseProxyApplicationBuilder.Use(Func{RequestDelegate,RequestDelegate})">Use(Func&lt;RequestDelegate, RequestDelegate&gt;)</h4>
   <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -329,7 +305,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.func-2">Func</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.http.requestdelegate">RequestDelegate</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.http.requestdelegate">RequestDelegate</a>&gt;</td>
+        <td><span class="xref">Func</span>&lt;<span class="xref">RequestDelegate</span>, <span class="xref">RequestDelegate</span>&gt;</td>
         <td><span class="parametername">middleware</span></td>
         <td></td>
       </tr>
@@ -345,7 +321,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.builder.iapplicationbuilder">IApplicationBuilder</a></td>
+        <td><span class="xref">IApplicationBuilder</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -355,23 +331,7 @@
       <a class="xref" href="Microsoft.AspNetCore.Builder.IReverseProxyApplicationBuilder.html">IReverseProxyApplicationBuilder</a>
   </div>
   <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.builder.iapplicationbuilder">Microsoft.AspNetCore.Builder.IApplicationBuilder</a>
-  </div>
-  <h3 id="extensionmethods">Extension Methods</h3>
-  <div>
-      <a class="xref" href="Microsoft.AspNetCore.Builder.AppBuilderDelegationExtensions.html#Microsoft_AspNetCore_Builder_AppBuilderDelegationExtensions_UseHttpSysDelegation_Microsoft_AspNetCore_Builder_IReverseProxyApplicationBuilder_">AppBuilderDelegationExtensions.UseHttpSysDelegation(IReverseProxyApplicationBuilder)</a>
-  </div>
-  <div>
-      <a class="xref" href="Microsoft.AspNetCore.Builder.AppBuilderHealthExtensions.html#Microsoft_AspNetCore_Builder_AppBuilderHealthExtensions_UsePassiveHealthChecks_Microsoft_AspNetCore_Builder_IReverseProxyApplicationBuilder_">AppBuilderHealthExtensions.UsePassiveHealthChecks(IReverseProxyApplicationBuilder)</a>
-  </div>
-  <div>
-      <a class="xref" href="Microsoft.AspNetCore.Builder.AppBuilderLoadBalancingExtensions.html#Microsoft_AspNetCore_Builder_AppBuilderLoadBalancingExtensions_UseLoadBalancing_Microsoft_AspNetCore_Builder_IReverseProxyApplicationBuilder_">AppBuilderLoadBalancingExtensions.UseLoadBalancing(IReverseProxyApplicationBuilder)</a>
-  </div>
-  <div>
-      <a class="xref" href="Microsoft.AspNetCore.Builder.AppBuilderSessionAffinityExtensions.html#Microsoft_AspNetCore_Builder_AppBuilderSessionAffinityExtensions_UseSessionAffinity_Microsoft_AspNetCore_Builder_IReverseProxyApplicationBuilder_">AppBuilderSessionAffinityExtensions.UseSessionAffinity(IReverseProxyApplicationBuilder)</a>
-  </div>
-  <div>
-      <a class="xref" href="Microsoft.AspNetCore.Builder.WebSocketsTelemetryExtensions.html#Microsoft_AspNetCore_Builder_WebSocketsTelemetryExtensions_UseWebSocketsTelemetry_Microsoft_AspNetCore_Builder_IApplicationBuilder_">WebSocketsTelemetryExtensions.UseWebSocketsTelemetry(IApplicationBuilder)</a>
+      <span class="xref">IApplicationBuilder</span>
   </div>
 </article>
           </div>

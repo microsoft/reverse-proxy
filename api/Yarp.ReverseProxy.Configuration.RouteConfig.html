@@ -86,32 +86,11 @@ and proxies matching requests to the cluster identified by its <a class="xref" h
     <h5>Implements</h5>
     <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.iequatable-1">IEquatable</a>&lt;<a class="xref" href="Yarp.ReverseProxy.Configuration.RouteConfig.html">RouteConfig</a>&gt;</div>
   </div>
-  <div class="inheritedMembers">
-    <h5>Inherited Members</h5>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object)">Object.Equals(Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.equals#system-object-equals(system-object-system-object)">Object.Equals(Object, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gettype#system-object-gettype">Object.GetType()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.memberwiseclone#system-object-memberwiseclone">Object.MemberwiseClone()</a>
-    </div>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.referenceequals#system-object-referenceequals(system-object-system-object)">Object.ReferenceEquals(Object, Object)</a>
-    </div>
-    <div>
-      <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.tostring#system-object-tostring">Object.ToString()</a>
-    </div>
-  </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="Yarp.ReverseProxy.Configuration.html">Yarp.ReverseProxy.Configuration</a></h6>
   <h6><strong>Assembly</strong>: Yarp.ReverseProxy.dll</h6>
   <h5 id="Yarp_ReverseProxy_Configuration_RouteConfig_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public sealed class RouteConfig : IEquatable&lt;RouteConfig&gt;</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed class RouteConfig : object</code></pre>
   </div>
   <h3 id="properties">Properties
   </h3>
@@ -132,7 +111,7 @@ Set to &quot;Anonymous&quot; to disable all authorization checks for this route.
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string AuthorizationPolicy { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public string? AuthorizationPolicy { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -144,7 +123,7 @@ Set to &quot;Anonymous&quot; to disable all authorization checks for this route.
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -164,7 +143,7 @@ should be proxied to.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string ClusterId { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public string? ClusterId { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -176,7 +155,7 @@ should be proxied to.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -198,7 +177,7 @@ Set to &quot;Disable&quot; to refuses cors requests for this route.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string CorsPolicy { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public string? CorsPolicy { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -210,7 +189,7 @@ Set to &quot;Disable&quot; to refuses cors requests for this route.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a>&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -261,7 +240,7 @@ This field is required.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IReadOnlyDictionary&lt;string, string&gt; Metadata { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public IReadOnlyDictionary&lt;string, string&gt;? Metadata { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -273,7 +252,7 @@ This field is required.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlydictionary-2">IReadOnlyDictionary</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a>&gt;</td>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<span class="xref">IReadOnlyDictionary</span>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a>&gt;&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -355,7 +334,7 @@ This field is required.</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;IReadOnlyDictionary&lt;string, string&gt;&gt; Transforms { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public IReadOnlyList&lt;IReadOnlyDictionary&lt;string, string&gt;&gt;? Transforms { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -367,7 +346,7 @@ This field is required.</p>
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlylist-1">IReadOnlyList</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.collections.generic.ireadonlydictionary-2">IReadOnlyDictionary</a>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a>&gt;&gt;</td>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<span class="xref">IReadOnlyList</span>&lt;<span class="xref">IReadOnlyDictionary</span>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a>, <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a>&gt;&gt;&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -451,8 +430,6 @@ This field is required.</p>
       </tr>
     </tbody>
   </table>
-  <h5 class="overrides">Overrides</h5>
-  <div><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.object.gethashcode#system-object-gethashcode">Object.GetHashCode()</a></div>
   <h3 id="implements">Implements</h3>
   <div>
       <a class="xref" href="https://learn.microsoft.com/dotnet/api/system.iequatable-1">System.IEquatable&lt;T&gt;</a>
@@ -471,16 +448,16 @@ This field is required.</p>
       <a class="xref" href="Yarp.ReverseProxy.Transforms.HttpMethodTransformExtensions.html#Yarp_ReverseProxy_Transforms_HttpMethodTransformExtensions_WithTransformHttpMethodChange_Yarp_ReverseProxy_Configuration_RouteConfig_System_String_System_String_">HttpMethodTransformExtensions.WithTransformHttpMethodChange(RouteConfig, String, String)</a>
   </div>
   <div>
-      <a class="xref" href="Yarp.ReverseProxy.Transforms.PathTransformExtensions.html#Yarp_ReverseProxy_Transforms_PathTransformExtensions_WithTransformPathSet_Yarp_ReverseProxy_Configuration_RouteConfig_Microsoft_AspNetCore_Http_PathString_">PathTransformExtensions.WithTransformPathSet(RouteConfig, PathString)</a>
+      <a class="xref" href="Yarp.ReverseProxy.Transforms.PathTransformExtensions.html#Yarp_ReverseProxy_Transforms_PathTransformExtensions_WithTransformPathSet_Yarp_ReverseProxy_Configuration_RouteConfig_PathString_">PathTransformExtensions.WithTransformPathSet(RouteConfig, PathString)</a>
   </div>
   <div>
-      <a class="xref" href="Yarp.ReverseProxy.Transforms.PathTransformExtensions.html#Yarp_ReverseProxy_Transforms_PathTransformExtensions_WithTransformPathPrefix_Yarp_ReverseProxy_Configuration_RouteConfig_Microsoft_AspNetCore_Http_PathString_">PathTransformExtensions.WithTransformPathPrefix(RouteConfig, PathString)</a>
+      <a class="xref" href="Yarp.ReverseProxy.Transforms.PathTransformExtensions.html#Yarp_ReverseProxy_Transforms_PathTransformExtensions_WithTransformPathPrefix_Yarp_ReverseProxy_Configuration_RouteConfig_PathString_">PathTransformExtensions.WithTransformPathPrefix(RouteConfig, PathString)</a>
   </div>
   <div>
-      <a class="xref" href="Yarp.ReverseProxy.Transforms.PathTransformExtensions.html#Yarp_ReverseProxy_Transforms_PathTransformExtensions_WithTransformPathRemovePrefix_Yarp_ReverseProxy_Configuration_RouteConfig_Microsoft_AspNetCore_Http_PathString_">PathTransformExtensions.WithTransformPathRemovePrefix(RouteConfig, PathString)</a>
+      <a class="xref" href="Yarp.ReverseProxy.Transforms.PathTransformExtensions.html#Yarp_ReverseProxy_Transforms_PathTransformExtensions_WithTransformPathRemovePrefix_Yarp_ReverseProxy_Configuration_RouteConfig_PathString_">PathTransformExtensions.WithTransformPathRemovePrefix(RouteConfig, PathString)</a>
   </div>
   <div>
-      <a class="xref" href="Yarp.ReverseProxy.Transforms.PathTransformExtensions.html#Yarp_ReverseProxy_Transforms_PathTransformExtensions_WithTransformPathRouteValues_Yarp_ReverseProxy_Configuration_RouteConfig_Microsoft_AspNetCore_Http_PathString_">PathTransformExtensions.WithTransformPathRouteValues(RouteConfig, PathString)</a>
+      <a class="xref" href="Yarp.ReverseProxy.Transforms.PathTransformExtensions.html#Yarp_ReverseProxy_Transforms_PathTransformExtensions_WithTransformPathRouteValues_Yarp_ReverseProxy_Configuration_RouteConfig_PathString_">PathTransformExtensions.WithTransformPathRouteValues(RouteConfig, PathString)</a>
   </div>
   <div>
       <a class="xref" href="Yarp.ReverseProxy.Transforms.QueryTransformExtensions.html#Yarp_ReverseProxy_Transforms_QueryTransformExtensions_WithTransformQueryValue_Yarp_ReverseProxy_Configuration_RouteConfig_System_String_System_String_System_Boolean_">QueryTransformExtensions.WithTransformQueryValue(RouteConfig, String, String, Boolean)</a>
@@ -531,7 +508,7 @@ This field is required.</p>
       <a class="xref" href="Yarp.ReverseProxy.Transforms.ResponseTransformExtensions.html#Yarp_ReverseProxy_Transforms_ResponseTransformExtensions_WithTransformResponseTrailersAllowed_Yarp_ReverseProxy_Configuration_RouteConfig_System_String___">ResponseTransformExtensions.WithTransformResponseTrailersAllowed(RouteConfig, String[])</a>
   </div>
   <div>
-      <a class="xref" href="Yarp.ReverseProxy.Transforms.RouteConfigTransformExtensions.html#Yarp_ReverseProxy_Transforms_RouteConfigTransformExtensions_WithTransform_Yarp_ReverseProxy_Configuration_RouteConfig_System_Action_System_Collections_Generic_IDictionary_System_String_System_String___">RouteConfigTransformExtensions.WithTransform(RouteConfig, Action&lt;IDictionary&lt;String, String&gt;&gt;)</a>
+      <a class="xref" href="Yarp.ReverseProxy.Transforms.RouteConfigTransformExtensions.html#Yarp_ReverseProxy_Transforms_RouteConfigTransformExtensions_WithTransform_Yarp_ReverseProxy_Configuration_RouteConfig_Action_IDictionary_System_String_System_String___">RouteConfigTransformExtensions.WithTransform(RouteConfig, Action&lt;IDictionary&lt;String, String&gt;&gt;)</a>
   </div>
 </article>
           </div>
