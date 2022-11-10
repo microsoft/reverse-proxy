@@ -11,7 +11,7 @@ using Yarp.Kubernetes.Controller.Caching;
 
 namespace Yarp.Kubernetes.Controller.Client;
 
-internal class V1IngressResourceStatusUpdater : IIngressResourceStatusUpdater
+internal sealed class V1IngressResourceStatusUpdater : IIngressResourceStatusUpdater
 {
     private readonly IKubernetes _client;
     private readonly YarpOptions _options;
