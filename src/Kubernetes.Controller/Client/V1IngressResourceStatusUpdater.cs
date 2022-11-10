@@ -17,6 +17,7 @@ internal sealed class V1IngressResourceStatusUpdater : IIngressResourceStatusUpd
     private readonly YarpOptions _options;
     private readonly ICache _cache;
     private readonly ILogger _logger;
+
     public V1IngressResourceStatusUpdater(
         IKubernetes client,
         IOptions<YarpOptions> options,
