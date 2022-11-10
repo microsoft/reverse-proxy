@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Yarp.Kubernetes.Controller.Client;
+
 public interface IIngressResourceStatusUpdater
 {
     /// <summary>
