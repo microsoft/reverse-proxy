@@ -44,7 +44,7 @@ internal sealed class V1IngressResourceStatusUpdater : IIngressResourceStatusUpd
                 var ingressStatus = await _client.NetworkingV1.ReadNamespacedIngressStatusAsync(ingress.Metadata.Name, ingress.Metadata.NamespaceProperty);
                 ingressStatus.Status = status;
                 await _client.NetworkingV1.ReplaceNamespacedIngressStatusAsync(ingressStatus, ingress.Metadata.Name, ingress.Metadata.NamespaceProperty);
-                _logger.LogInformation("updated ingrees {IngressClassNamespace}/{IngressClassName} status.", ingress.Metadata.NamespaceProperty, ingress.Metadata.Name);
+                _logger.LogInformation("Updated ingress {IngressClassNamespace}/{IngressClassName} status.", ingress.Metadata.NamespaceProperty, ingress.Metadata.Name);
             }
         }
     }
