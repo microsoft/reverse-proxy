@@ -17,5 +17,3 @@ public interface IIngressResourceStatusUpdater
     /// </summary>
     Task UpdateStatusAsync();
 }
-
-
