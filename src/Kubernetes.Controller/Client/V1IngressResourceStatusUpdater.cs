@@ -36,7 +36,7 @@ internal sealed class V1IngressResourceStatusUpdater : IIngressResourceStatusUpd
         var service = _client.CoreV1.ReadNamespacedServiceStatus(_options.ControllerServiceName, _options.ControllerServiceNamespace);
         if (service.Status?.LoadBalancer?.Ingress is { } loadBalancerIngresses)
         {
-            V1IngressStatus status = new V1IngressStatus(new V1LoadBalancerStatus(loadBalancerIngresses));
+            var status = new V1IngressStatus(new V1LoadBalancerStatus(loadBalancerIngresses));
             var ingresses = _cache.GetIngresses().ToArray();
             foreach (var ingress in ingresses)
             {
