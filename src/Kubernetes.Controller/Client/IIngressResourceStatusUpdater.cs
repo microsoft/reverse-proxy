@@ -13,7 +13,7 @@ namespace Yarp.Kubernetes.Controller.Client;
 public interface IIngressResourceStatusUpdater
 {
     /// <summary>
-    /// <see cref="IIngressResourceStatusUpdater"/>update the cached ingress status 
+    /// Updates the status of cached ingresses.
     /// </summary>
     Task UpdateStatusAsync();
 }
