@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
@@ -94,7 +95,7 @@ internal sealed class HttpForwarder : IHttpForwarder
         _ = requestConfig ?? throw new ArgumentNullException(nameof(requestConfig));
         _ = transformer ?? throw new ArgumentNullException(nameof(transformer));
 
-        if (context.Response.StatusCode != StatusCodes.Status200OK || context.Response.HasStarted)
+        if (RequestUtilities.IsResponseSet(context.Response))
         {
             throw new InvalidOperationException("The request cannot be forwarded, the response has already started");
         }
@@ -122,7 +123,7 @@ internal sealed class HttpForwarder : IHttpForwarder
                 context, destinationPrefix, transformer, requestConfig, isStreamingRequest, activityCancellationSource);
 
             // Transforms generated a response, do not proxy.
-            if (context.Response.StatusCode != StatusCodes.Status200OK || context.Response.HasStarted)
+            if (RequestUtilities.IsResponseSet(context.Response))
             {
                 Log.NotProxying(_logger, context.Response.StatusCode);
                 return ForwarderError.None;
@@ -297,7 +298,7 @@ internal sealed class HttpForwarder : IHttpForwarder
         await transformer.TransformRequestAsync(context, destinationRequest, destinationPrefix);
 
         // The transformer generated a response, do not forward.
-        if (context.Response.StatusCode != StatusCodes.Status200OK || context.Response.HasStarted)
+        if (RequestUtilities.IsResponseSet(context.Response))
         {
             return (destinationRequest, requestContent);
         }

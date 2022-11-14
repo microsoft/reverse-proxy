@@ -90,7 +90,7 @@ internal sealed class StructuredTransformer : HttpTransformer
             await requestTransform.ApplyAsync(transformContext);
 
             // The transform generated a response, do not apply further transforms and do not forward.
-            if (httpContext.Response.StatusCode != StatusCodes.Status200OK || httpContext.Response.HasStarted)
+            if (RequestUtilities.IsResponseSet(httpContext.Response))
             {
                 return;
             }
