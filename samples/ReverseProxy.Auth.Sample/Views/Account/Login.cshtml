@@ -6,7 +6,7 @@
 
 <form action="Login" method="post">
     <input hidden name="returnurl" type="text" value="@ViewData["ReturnUrl"]" /><br />
-    <input name="Name" type="text" value="My Name" /><br />
+    <input name="Name" type="text" value="Bob" /><br />
     <input name="myClaimValue" type="text" value="green" /><br />
     <input type="submit">
     <div><b>Note:</b>The authorization policy will check for the value of "green", other values should pass authentication, but not authorize for specific routes</div>

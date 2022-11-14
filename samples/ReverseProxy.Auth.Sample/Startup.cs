@@ -1,10 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Yarp.ReverseProxy.Transforms;
 
 namespace Yarp.Sample
 {
@@ -31,8 +34,37 @@ namespace Yarp.Sample
             // Required to supply the authentication UI in Views/*
             services.AddRazorPages();
 
+            services.AddSingleton<TokenService>();
+
             services.AddReverseProxy()
-                .LoadFromConfig(_configuration.GetSection("ReverseProxy"));
+                .LoadFromConfig(_configuration.GetSection("ReverseProxy"))
+                .AddTransforms(transformBuilderContext =>  // Add transforms inline
+                {
+                    // For each route+cluster pair decide if we want to add transforms, and if so, which?
+                    // This logic is re-run each time a route is rebuilt.
+
+                    // Only do this for routes that require auth.
+                    if (string.Equals("myPolicy", transformBuilderContext.Route.AuthorizationPolicy))
+                    {
+                        transformBuilderContext.AddRequestTransform(async transformContext =>
+                        {
+                            // AuthN and AuthZ will have already been completed after request routing.
+                            var ticket = await transformContext.HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                            var tokenService = transformContext.HttpContext.RequestServices.GetRequiredService<TokenService>();
+                            var token = await tokenService.GetAuthTokenAsync(ticket.Principal);
+
+                            // Reject invalid requests
+                            if (string.IsNullOrEmpty(token))
+                            {
+                                var response = transformContext.HttpContext.Response;
+                                response.StatusCode = 401;
+                                return;
+                            }
+
+                            transformContext.ProxyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                        });
+                    }
+                }); ;
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie();

@@ -404,4 +404,10 @@ public static class RequestUtilities
         values = default;
         return false;
     }
+
+    internal static bool IsResponseSet(HttpResponse response)
+    {
+        return response.StatusCode != StatusCodes.Status200OK
+            || response.HasStarted;
+    }
 }
