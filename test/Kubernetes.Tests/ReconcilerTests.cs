@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Yarp.Kubernetes.Controller;
+using Yarp.Kubernetes.Controller.Client;
 using Yarp.Kubernetes.Controller.Caching;
 using Yarp.Kubernetes.Controller.Configuration;
 using Yarp.Kubernetes.Controller.Services;
@@ -21,12 +22,13 @@ public class ReconcilerTests
 {
     private readonly Mock<ICache> _mockCache = new();
     private readonly Mock<IUpdateConfig> _mockUpdateConfig = new();
+    private readonly Mock<IIngressResourceStatusUpdater> _mockIngressResourceStatusUpdater = new();
     private readonly Reconciler _reconciler;
 
     public ReconcilerTests(ITestOutputHelper output)
     {
         var logger = new TestLogger<Reconciler>(output);
-        _reconciler = new Reconciler(_mockCache.Object, _mockUpdateConfig.Object, logger);
+        _reconciler = new Reconciler(_mockCache.Object, _mockUpdateConfig.Object, _mockIngressResourceStatusUpdater.Object, logger);
     }
 
     [Fact]
