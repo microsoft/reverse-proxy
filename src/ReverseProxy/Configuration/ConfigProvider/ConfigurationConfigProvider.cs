@@ -235,8 +235,8 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
         {
             StatusCode = section.ReadInt32(nameof(RouteResponse.StatusCode)),
             ContentType = section[Microsoft.Net.Http.Headers.HeaderNames.ContentType],
-            Body = section[nameof(RouteResponse.Body)],
-            File = section[nameof(RouteResponse.File)],
+            BodyText = section[nameof(RouteResponse.BodyText)],
+            BodyFilePath = section[nameof(RouteResponse.BodyFilePath)],
         };
     }
 

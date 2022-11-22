@@ -34,12 +34,26 @@ public sealed record RouteConfig
     /// Gets or sets the cluster that requests matching this route
     /// should be proxied to.
     /// </summary>
+    /// <remarks>
+    /// <see cref="Response"/>, <see cref="Files"/>, and <see cref="ClusterId"/> are mutually exclusive.
+    /// </remarks>
     public string? ClusterId { get; init; }
 
     /// <summary>
     /// Send a static response for this route instead of proxying via a cluster.
     /// </summary>
+    /// <remarks>
+    /// <see cref="Response"/>, <see cref="Files"/>, and <see cref="ClusterId"/> are mutually exclusive.
+    /// </remarks>
     public RouteResponse? Response { get; init; }
+
+    /// <summary>
+    /// Send static file responses for this route instead of proxying via a cluster.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="Response"/>, <see cref="Files"/>, and <see cref="ClusterId"/> are mutually exclusive.
+    /// </remarks>
+    public RouteFiles? Files { get; init; }
 
     /// <summary>
     /// The name of the AuthorizationPolicy to apply to this route.

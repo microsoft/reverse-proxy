@@ -17,6 +17,10 @@ using AuthorizationConstants = Yarp.ReverseProxy.Configuration.AuthorizationCons
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text;
+using System.IO;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Primitives;
 
 namespace Yarp.ReverseProxy.Routing;
 
@@ -26,6 +30,7 @@ internal sealed class ProxyEndpointFactory
     private static readonly IEnableCorsAttribute _defaultCors = new EnableCorsAttribute();
     private static readonly IDisableCorsAttribute _disableCors = new DisableCorsAttribute();
     private static readonly IAllowAnonymous _allowAnonymous = new AllowAnonymousAttribute();
+    private static readonly IContentTypeProvider _contentTypeProvider = new FileExtensionContentTypeProvider();
 
     private RequestDelegate? _pipeline;
 
@@ -36,10 +41,18 @@ internal sealed class ProxyEndpointFactory
 
         // Catch-all pattern when no path was specified
         var pathPattern = string.IsNullOrEmpty(match.Path) ? "/{**catchall}" : match.Path;
-        var requestDelegate = _pipeline ?? throw new InvalidOperationException("The pipeline hasn't been provided yet.");
+        RequestDelegate? requestDelegate;
         if (route.Config.Response != null)
         {
             requestDelegate = CreateResponseDelegate(route);
+        }
+        else if (route.Config.Files?.Root != null)
+        {
+            requestDelegate = CreateStaticFilesDelegate(route);
+        }
+        else
+        {
+            requestDelegate = _pipeline ?? throw new InvalidOperationException("The pipeline hasn't been provided yet.");
         }
 
         var endpointBuilder = new RouteEndpointBuilder(
@@ -132,6 +145,7 @@ internal sealed class ProxyEndpointFactory
         {
             var response = context.Response;
             var routeResponse = route.Config.Response!;
+
             if (routeResponse.StatusCode.HasValue)
             {
                 response.StatusCode = routeResponse.StatusCode.Value;
@@ -143,27 +157,66 @@ internal sealed class ProxyEndpointFactory
 
             await route.Transformer.TransformResponseAsync(context, null);
 
-            if (!string.IsNullOrEmpty(routeResponse.Body))
+            if (!string.IsNullOrEmpty(routeResponse.BodyText))
             {
-                await response.WriteAsync(routeResponse.Body);
+                response.ContentLength = Encoding.UTF8.GetByteCount(routeResponse.BodyText);
+                await response.WriteAsync(routeResponse.BodyText);
             }
-            else if (!string.IsNullOrEmpty(routeResponse.File))
+            else if (!string.IsNullOrEmpty(routeResponse.BodyFilePath))
             {
                 // TODO: if File contains a pattern, get the real path from the route values.
 
                 var env = context.RequestServices.GetRequiredService<IWebHostEnvironment>();
-                var file = env.WebRootFileProvider.GetFileInfo(routeResponse.File);
-                // TODO: Default content-type
-                // TODO: Content-Length, etc.
-                // TODO: UseFileServer?
-                if (file != null)
+                var file = env.WebRootFileProvider.GetFileInfo(routeResponse.BodyFilePath);
+                if (file == null)
                 {
-                    await response.SendFileAsync(file);
+                    throw new FileNotFoundException("Unable to find the BodyFilePath.", routeResponse.BodyFilePath);
                 }
+
+                // Would you ever want to disable this?
+                if (string.IsNullOrEmpty(response.ContentType)
+                    && _contentTypeProvider.TryGetContentType(routeResponse.BodyFilePath, out var contentType))
+                {
+                    response.ContentType = contentType;
+                }
+                // TODO: Default content-type if not specified?
+                // Not supported: ranges, e-tags, last-modified, etc.
+                // the client isn't supposed to know this is a file.
+                response.ContentLength = file.Length;
+                await response.SendFileAsync(file);
             }
 
             await route.Transformer.TransformResponseTrailersAsync(context, null);
         };
+    }
+
+    private static RequestDelegate CreateStaticFilesDelegate(RouteModel route)
+    {
+        var options = new FileServerOptions();
+        // TODO: https://github.com/dotnet/aspnetcore/pull/45062 .NET 8 OnPrepareResponseAsync
+        options.StaticFileOptions.OnPrepareResponse = context =>
+        {
+            context.Context.Response.OnStarting(state =>
+            {
+                var httpContext = (HttpContext)state;
+                return route.Transformer.TransformResponseAsync(httpContext, null).AsTask();
+            }, context.Context);
+        };
+        // TODO: Content-Type mappings
+        // TODO: ServeUnknownFileTypes, default content-type
+        // TODO: Default files
+        // TODO: Directory browsing
+
+        var builder = new ApplicationBuilder(new ServiceCollection().BuildServiceProvider());
+        builder.Use(async (context, next) =>
+        {
+            // Clear the endpoint so static files will run.
+            context.SetEndpoint(null);
+            await next(context);
+            await route.Transformer.TransformResponseTrailersAsync(context, null);
+        });
+        builder.UseFileServer(options);
+        return builder.Build();
     }
 
     public void SetProxyPipeline(RequestDelegate pipeline)
