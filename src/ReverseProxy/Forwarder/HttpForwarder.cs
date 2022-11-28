@@ -779,7 +779,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             "Proxying to {targetUrl} {version} {versionPolicy} {isStreaming}");
 
         private static readonly Action<ILogger, ForwarderError, string, Exception> _proxyError = LoggerMessage.Define<ForwarderError, string>(
-            LogLevel.Information,
+            LogLevel.Warning,
             EventIds.ForwardingError,
             "{error}: {message}");
 
