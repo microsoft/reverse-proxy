@@ -144,6 +144,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
         {
             RouteId = section.Key,
             Order = section.ReadInt32(nameof(RouteConfig.Order)),
+            MaxRequestBodySize = section.ReadInt64(nameof(RouteConfig.MaxRequestBodySize)),
             ClusterId = section[nameof(RouteConfig.ClusterId)],
             AuthorizationPolicy = section[nameof(RouteConfig.AuthorizationPolicy)],
             CorsPolicy = section[nameof(RouteConfig.CorsPolicy)],

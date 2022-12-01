@@ -5,9 +5,10 @@ using System;
 using System.Linq;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Yarp.ReverseProxy.Forwarder;
+using Yarp.ReverseProxy.Limits;
 using Yarp.ReverseProxy.Management;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Routing;
 
 namespace Microsoft.AspNetCore.Builder;
@@ -49,6 +50,7 @@ public static class ReverseProxyIEndpointRouteBuilderExtensions
         var proxyAppBuilder = new ReverseProxyApplicationBuilder(endpoints.CreateApplicationBuilder());
         proxyAppBuilder.UseMiddleware<ProxyPipelineInitializerMiddleware>();
         configureApp(proxyAppBuilder);
+        proxyAppBuilder.UseMiddleware<LimitsMiddleware>();
         proxyAppBuilder.UseMiddleware<ForwarderMiddleware>();
         var app = proxyAppBuilder.Build();
 

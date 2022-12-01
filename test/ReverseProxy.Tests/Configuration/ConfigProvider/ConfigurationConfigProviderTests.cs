@@ -129,6 +129,7 @@ public class ConfigurationConfigProviderTests
                 AuthorizationPolicy = "Default",
                 CorsPolicy = "Default",
                 Order = -1,
+                MaxRequestBodySize = -1,
                 Match = new RouteMatch
                 {
                     Hosts = new List<string> { "host-A" },
@@ -166,6 +167,7 @@ public class ConfigurationConfigProviderTests
                 RouteId = "routeB",
                 ClusterId = "cluster2",
                 Order = 2,
+                MaxRequestBodySize = 1,
                 Match = new RouteMatch
                 {
                     Hosts = new List<string> { "host-B" },
@@ -327,6 +329,7 @@ public class ConfigurationConfigProviderTests
                 ]
             },
             ""Order"": -1,
+            ""MaxRequestBodySize"": -1,
             ""ClusterId"": ""cluster1"",
             ""AuthorizationPolicy"": ""Default"",
             ""CorsPolicy"": ""Default"",
@@ -369,6 +372,7 @@ public class ConfigurationConfigProviderTests
                 ]
             },
             ""Order"": 2,
+            ""MaxRequestBodySize"": 1,
             ""ClusterId"": ""cluster2"",
             ""AuthorizationPolicy"": null,
             ""CorsPolicy"": null,
@@ -560,6 +564,7 @@ public class ConfigurationConfigProviderTests
         var abstractRoute = abstractConfig.Routes.Single(c => c.RouteId == routeId);
         Assert.Equal(route.ClusterId, abstractRoute.ClusterId);
         Assert.Equal(route.Order, abstractRoute.Order);
+        Assert.Equal(route.MaxRequestBodySize, abstractRoute.MaxRequestBodySize);
         Assert.Equal(route.Match.Hosts, abstractRoute.Match.Hosts);
         Assert.Equal(route.Match.Methods, abstractRoute.Match.Methods);
         Assert.Equal(route.Match.Path, abstractRoute.Match.Path);
