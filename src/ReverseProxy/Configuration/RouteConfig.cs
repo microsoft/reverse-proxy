@@ -53,6 +53,12 @@ public sealed record RouteConfig
     public string? CorsPolicy { get; init; }
 
     /// <summary>
+    /// An optional override for how large request bodies can be in bytes. If set, this overrides the server's default (30MB) per request.
+    /// Set to '-1' to disable the limit for this route.
+    /// </summary>
+    public long? MaxRequestBodySize { get; init; }
+
+    /// <summary>
     /// Arbitrary key-value pairs that further describe this route.
     /// </summary>
     public IReadOnlyDictionary<string, string>? Metadata { get; init; }

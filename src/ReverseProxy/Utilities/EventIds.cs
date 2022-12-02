@@ -63,4 +63,5 @@ internal static class EventIds
     public static readonly EventId DelegationQueueReset = new EventId(57, "DelegationQueueReset");
     public static readonly EventId Http10RequestVersionDetected = new EventId(58, "Http10RequestVersionDetected");
     public static readonly EventId NotForwarding = new EventId(59, "NotForwarding");
+    public static readonly EventId MaxRequestBodySizeSet = new EventId(60, "MaxRequestBodySizeSet");
 }
