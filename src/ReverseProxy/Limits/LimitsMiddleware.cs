@@ -11,8 +11,9 @@ namespace Yarp.ReverseProxy.Limits;
 
 /// <summary>
 /// Updates request limits based on route config. This is implemented as middleware at the end of the proxy
-/// pipeline so that apps can call ReassignProxyRequest to move the request to a different route before limits are applied.
-/// This may be replaced in the future by route metadata and an aspnetcore middleware https://github.com/dotnet/aspnetcore/issues/40452.
+/// pipeline so that apps can call ReassignProxyRequest to move the request to a different route before limits are applied. While similar to a proposed aspnetcore feature (https://github.com/dotnet/aspnetcore/issues/40452),
+/// the possibility of reassigning routes means we need to apply this limit very late. Trying to apply it twice could
+/// result in unexpected behavior like being unable to set it back to the server default.
 /// </summary>
 internal sealed class LimitsMiddleware
 {
