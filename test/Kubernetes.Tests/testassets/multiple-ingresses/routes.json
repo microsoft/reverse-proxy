@@ -1,6 +1,6 @@
 [
   {
-    "RouteId": "repro-1-ingress.foo:/",
+    "RouteId": "repro-1-ingress.foo:subdomain1.example.com/",
     "Match": {
       "Methods": null,
       "Hosts": [ "subdomain1.example.com" ],
@@ -16,7 +16,7 @@
     "Transforms": null
   },
   {
-    "RouteId": "repro-2-ingress.foo:/",
+    "RouteId": "repro-2-ingress.foo:subdomain2.example.com/",
     "Match": {
       "Methods": null,
       "Hosts": [ "subdomain2.example.com" ],

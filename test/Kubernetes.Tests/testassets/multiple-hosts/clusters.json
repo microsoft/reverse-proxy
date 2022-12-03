@@ -1,0 +1,34 @@
+[
+  {
+    "ClusterId": "repro-1-service.foo:http",
+    "LoadBalancingPolicy": null,
+    "SessionAffinity": null,
+    "HealthCheck": null,
+    "HttpClient": null,
+    "HttpRequest": null,
+    "Destinations": {
+      "http://10.244.1.11:80": {
+        "Address": "http://10.244.1.11:80",
+        "Health": null,
+        "Metadata": null
+      }
+    },
+    "Metadata": null
+  },
+  {
+    "ClusterId": "repro-2-service.foo:http",
+    "LoadBalancingPolicy": null,
+    "SessionAffinity": null,
+    "HealthCheck": null,
+    "HttpClient": null,
+    "HttpRequest": null,
+    "Destinations": {
+      "http://10.244.2.22:80": {
+        "Address": "http://10.244.2.22:80",
+        "Health": null,
+        "Metadata": null
+      }
+    },
+    "Metadata": null
+  }
+]
