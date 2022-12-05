@@ -25,6 +25,15 @@ spec:
                 name: repro-2-service
                 port:
                   name: http
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: repro-3-service
+                port:
+                  name: http
 ---
 apiVersion: v1
 kind: Service
@@ -75,6 +84,33 @@ metadata:
 subsets:
   - addresses:
     - ip: 10.244.2.22
+    ports:
+    - name: http
+      port: 80
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: repro-3-service
+  namespace: foo
+spec:
+  selector:
+    app: repro-2
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: repro-3-service
+  namespace: foo
+subsets:
+  - addresses:
+    - ip: 10.244.3.33
     ports:
     - name: http
       port: 80

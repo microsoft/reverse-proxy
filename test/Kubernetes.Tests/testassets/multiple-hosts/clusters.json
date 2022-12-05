@@ -30,5 +30,21 @@
       }
     },
     "Metadata": null
+  },
+  {
+    "ClusterId": "repro-3-service.foo:http",
+    "LoadBalancingPolicy": null,
+    "SessionAffinity": null,
+    "HealthCheck": null,
+    "HttpClient": null,
+    "HttpRequest": null,
+    "Destinations": {
+      "http://10.244.3.33:80": {
+        "Address": "http://10.244.3.33:80",
+        "Health": null,
+        "Metadata": null
+      }
+    },
+    "Metadata": null
   }
 ]

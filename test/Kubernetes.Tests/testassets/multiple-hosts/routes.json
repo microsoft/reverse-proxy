@@ -30,5 +30,21 @@
     "CorsPolicy": null,
     "Metadata": null,
     "Transforms": null
+  },
+  {
+    "RouteId": "repro-1-ingress.foo:/",
+    "Match": {
+      "Methods": null,
+      "Hosts": [],
+      "Path": "/{**catch-all}",
+      "Headers": null,
+      "QueryParameters": null
+    },
+    "Order": null,
+    "ClusterId": "repro-3-service.foo:http",
+    "AuthorizationPolicy": null,
+    "CorsPolicy": null,
+    "Metadata": null,
+    "Transforms": null
   }
 ]
