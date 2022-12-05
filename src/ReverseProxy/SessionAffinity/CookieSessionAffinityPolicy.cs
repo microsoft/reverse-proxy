@@ -11,7 +11,7 @@ using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.SessionAffinity;
 
-internal sealed class CookieSessionAffinityPolicy : BaseSessionAffinityPolicy<string>
+public class CookieSessionAffinityPolicy : BaseSessionAffinityPolicy<string>
 {
     private readonly IClock _clock;
 
@@ -37,9 +37,9 @@ internal sealed class CookieSessionAffinityPolicy : BaseSessionAffinityPolicy<st
         return Unprotect(encryptedRequestKey);
     }
 
-    protected override void SetAffinityKey(HttpContext context, ClusterState cluster, SessionAffinityConfig config, string unencryptedKey)
+    protected virtual CookieOptions CreateCookieOptions(HttpContext context, ClusterState cluster, SessionAffinityConfig config)
     {
-        var affinityCookieOptions = new CookieOptions
+        return new CookieOptions
         {
             Path = config.Cookie?.Path ?? "/",
             SameSite = config.Cookie?.SameSite ?? SameSiteMode.Unspecified,
@@ -50,6 +50,11 @@ internal sealed class CookieSessionAffinityPolicy : BaseSessionAffinityPolicy<st
             Secure = config.Cookie?.SecurePolicy == CookieSecurePolicy.Always || (config.Cookie?.SecurePolicy == CookieSecurePolicy.SameAsRequest && context.Request.IsHttps),
             Expires = config.Cookie?.Expiration is not null ? _clock.GetUtcNow().Add(config.Cookie.Expiration.Value) : default(DateTimeOffset?),
         };
+    }
+
+    protected override void SetAffinityKey(HttpContext context, ClusterState cluster, SessionAffinityConfig config, string unencryptedKey)
+    {
+        var affinityCookieOptions = CreateCookieOptions(context, cluster, config);
         context.Response.Cookies.Append(config.AffinityKeyName, Protect(unencryptedKey), affinityCookieOptions);
     }
 }

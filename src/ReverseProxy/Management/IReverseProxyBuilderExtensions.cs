@@ -85,6 +85,7 @@ internal static class IReverseProxyBuilderExtensions
             ServiceDescriptor.Singleton<IAffinityFailurePolicy, Return503ErrorAffinityFailurePolicy>()
         });
         builder.Services.TryAddEnumerable(new[] {
+            ServiceDescriptor.Singleton<ISessionAffinityPolicy, CustomCookieSessionAffinityPolicy>(),
             ServiceDescriptor.Singleton<ISessionAffinityPolicy, CookieSessionAffinityPolicy>(),
             ServiceDescriptor.Singleton<ISessionAffinityPolicy, CustomHeaderSessionAffinityPolicy>()
         });

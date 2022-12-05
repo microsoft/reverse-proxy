@@ -12,7 +12,7 @@ using Yarp.ReverseProxy.Model;
 
 namespace Yarp.ReverseProxy.SessionAffinity;
 
-internal abstract class BaseSessionAffinityPolicy<T> : ISessionAffinityPolicy
+public abstract class BaseSessionAffinityPolicy<T> : ISessionAffinityPolicy
 {
     private readonly IDataProtector _dataProtector;
     protected static readonly object AffinityKeyId = new object();
