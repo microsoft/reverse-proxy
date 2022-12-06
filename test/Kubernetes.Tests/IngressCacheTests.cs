@@ -61,12 +61,11 @@ public class IngressCacheTests
         var ingress = KubeResourceGenerator.CreateIngress("ingress-with-class", "ns-test", "yarp");
 
         // Act
-        var change = _cacheUnderTest.Update(WatchEventType.Added, ingress);
+        _cacheUnderTest.Update(WatchEventType.Added, ingress);
 
         // Assert
-        var ingresses = _cacheUnderTest.GetIngresses().ToArray();
+        var ingresses = _cacheUnderTest.GetIngresses().Where(_cacheUnderTest.IsYarpIngress).ToArray();
 
-        Assert.Equal(expectedIngressCount != 0, change);
         Assert.Equal(expectedIngressCount, ingresses.Length);
     }
 
@@ -88,12 +87,11 @@ public class IngressCacheTests
         var ingress = KubeResourceGenerator.CreateIngress("ingress-without-class", "ns-test", null);
 
         // Act
-        var change = _cacheUnderTest.Update(WatchEventType.Added, ingress);
+        _cacheUnderTest.Update(WatchEventType.Added, ingress);
 
         // Assert
-        var ingresses = _cacheUnderTest.GetIngresses().ToArray();
+        var ingresses = _cacheUnderTest.GetIngresses().Where(_cacheUnderTest.IsYarpIngress).ToArray();
 
-        Assert.Equal(expectedIngressCount != 0, change);
         Assert.Equal(expectedIngressCount, ingresses.Length);
     }
 
@@ -113,7 +111,7 @@ public class IngressCacheTests
 
         // Assert
         var ingresses = _cacheUnderTest.GetIngresses().ToArray();
-        Assert.Empty(ingresses);
+        Assert.All(ingresses, i => Assert.False(_cacheUnderTest.IsYarpIngress(i)));
     }
 
     [Fact]
@@ -151,7 +149,7 @@ public class IngressCacheTests
 
         // Assert
         var ingresses = _cacheUnderTest.GetIngresses().ToArray();
-        Assert.Empty(ingresses);
+        Assert.All(ingresses, i => Assert.False(_cacheUnderTest.IsYarpIngress(i)));
     }
 
     [Fact]

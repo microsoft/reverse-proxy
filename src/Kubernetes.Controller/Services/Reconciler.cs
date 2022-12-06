@@ -45,6 +45,11 @@ public partial class Reconciler : IReconciler
             {
                 try
                 {
+                    if (!_cache.IsYarpIngress(ingress))
+                    {
+                        continue;
+                    }
+
                     if (_cache.TryGetReconcileData(new NamespacedName(ingress.Metadata.NamespaceProperty, ingress.Metadata.Name), out var data))
                     {
                         var ingressContext = new YarpIngressContext(ingress, data.ServiceList, data.EndpointsList);
