@@ -46,6 +46,7 @@ public class IngressConversionTests
     [InlineData("mapped-port")]
     [InlineData("port-mismatch")]
     [InlineData("hostname-routing")]
+    [InlineData("multiple-hosts")]
     [InlineData("multiple-ingresses")]
     [InlineData("multiple-ingresses-one-svc")]
     [InlineData("multiple-namespaces")]

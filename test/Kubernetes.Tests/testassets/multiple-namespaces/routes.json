@@ -1,6 +1,6 @@
 [
   {
-    "RouteId": "the-ingress.ns-one:/",
+    "RouteId": "the-ingress.ns-one:subdomain1.example.com/",
     "Match": {
       "Methods": null,
       "Hosts": [ "subdomain1.example.com" ],
@@ -16,7 +16,7 @@
     "Transforms": null
   },
   {
-    "RouteId": "the-ingress.ns-two:/",
+    "RouteId": "the-ingress.ns-two:subdomain2.example.com/",
     "Match": {
       "Methods": null,
       "Hosts": [ "subdomain2.example.com" ],

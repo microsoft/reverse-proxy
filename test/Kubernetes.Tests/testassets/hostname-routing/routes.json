@@ -1,6 +1,6 @@
 [
   {
-    "RouteId": "hostname-routing.foo:/",
+    "RouteId": "hostname-routing.foo:foo.bar.com/",
     "Match": {
       "Methods": null,
       "Hosts": [ "foo.bar.com" ],
