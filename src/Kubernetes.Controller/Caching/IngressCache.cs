@@ -79,25 +79,8 @@ public class IngressCache : ICache
             throw new ArgumentNullException(nameof(ingress));
         }
 
-        if (IsYarpIngress(ingress.Spec))
-        {
-            Namespace(ingress.Namespace()).Update(eventType, ingress);
-            return true;
-        }
-
-#pragma warning disable CA1303 // Do not pass literals as localized parameters
-        if (eventType == WatchEventType.Modified && Namespace(ingress.Namespace()).IngressExists(ingress))
-        {
-            // Special handling for an ingress that has the ingressClassName removed
-            _logger.LogInformation("Removing ingress {IngressNamespace}/{IngressName} because of unknown ingress class", ingress.Metadata.NamespaceProperty, ingress.Metadata.Name);
-            Namespace(ingress.Namespace()).Update(WatchEventType.Deleted, ingress);
-            return true;
-        }
-
-        _logger.LogInformation("Ignoring ingress {IngressNamespace}/{IngressName} because of ingress class", ingress.Metadata.NamespaceProperty, ingress.Metadata.Name);
-#pragma warning restore CA1303 // Do not pass literals as localized parameters
-
-        return false;
+        Namespace(ingress.Namespace()).Update(eventType, ingress);
+        return true;
     }
 
 
@@ -175,17 +158,18 @@ public class IngressCache : ICache
         return ingresses;
     }
 
-    private bool IsYarpIngress(V1IngressSpec spec)
+    public bool IsYarpIngress(IngressData ingress)
     {
-        if (spec.IngressClassName is not null)
+        if (ingress.Spec.IngressClassName is null)
         {
-            lock (_sync)
-            {
-                return _ingressClassData.ContainsKey(spec.IngressClassName);
-            }
+            return _isDefaultController;
         }
 
-        return _isDefaultController;
+        lock (_sync)
+        {
+            return _ingressClassData.ContainsKey(ingress.Spec.IngressClassName);
+        }
+
     }
 
     private NamespaceCache Namespace(string key)
