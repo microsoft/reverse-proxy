@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Yarp.ReverseProxy.Common;
@@ -139,12 +140,13 @@ public class WebSocketTests
 
     private static TestEnvironment CreateTestEnvironment(bool forceUpgradable = false)
     {
-        return new TestEnvironment(
-            destinationServies =>
+        return new TestEnvironment()
+        {
+            ConfigureDestinationServices = destinationServies =>
             {
                 destinationServies.AddRouting();
             },
-            destinationApp =>
+            ConfigureDestinationApp = destinationApp =>
             {
                 destinationApp.UseWebSockets();
                 destinationApp.UseRouting();
@@ -155,9 +157,7 @@ public class WebSocketTests
                     builder.Map("/post", Post);
                 });
             },
-            proxyServices => { },
-            proxyBuilder => { },
-            proxyApp =>
+            ConfigureProxyApp = proxyApp =>
             {
                 // Mimic the IIS issue https://github.com/microsoft/reverse-proxy/issues/255
                 proxyApp.Use((context, next) =>
@@ -168,7 +168,8 @@ public class WebSocketTests
                     }
                     return next();
                 });
-            });
+            },
+        };
 
         static async Task WebSocket(HttpContext httpContext)
         {

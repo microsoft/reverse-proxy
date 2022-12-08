@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Xunit;
 using Yarp.ReverseProxy.Common;
 using Yarp.ReverseProxy.Utilities;
@@ -40,9 +41,11 @@ public class HttpForwarderCancellationTests
                 var resetFeature = context.Features.Get<IHttpResetFeature>();
                 Assert.NotNull(resetFeature);
                 resetFeature.Reset(0); // NO_ERROR
-            },
-            proxyBuilder => { },
-            proxyApp =>
+            })
+        {
+            UseHttpsOnDestination = true,
+            UseHttpsOnProxy = true,
+            ConfigureProxyApp = proxyApp =>
             {
                 proxyApp.Use(next => context =>
                 {
@@ -64,8 +67,7 @@ public class HttpForwarderCancellationTests
                     return next(context);
                 });
             },
-            useHttpsOnDestination: true,
-            useHttpsOnProxy: true);
+        };
 
         await test.Invoke(async uri =>
         {

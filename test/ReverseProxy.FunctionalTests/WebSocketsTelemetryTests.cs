@@ -303,9 +303,9 @@ public class WebSocketsTelemetryTests
     {
         var telemetryConsumer = new TelemetryConsumer();
 
-        var test = new TestEnvironment(
-            destinationServies => { },
-            destinationApp =>
+        var test = new TestEnvironment()
+        {
+            ConfigureDestinationApp = destinationApp =>
             {
                 destinationApp.UseWebSockets();
 
@@ -319,21 +319,22 @@ public class WebSocketsTelemetryTests
                     }
                 });
             },
-            proxyServices =>
+            ConfigureProxyServices = proxyServices =>
             {
                 if (clock is not null)
                 {
                     proxyServices.AddSingleton(clock);
                 }
             },
-            proxyBuilder =>
+            ConfigureProxy = proxyBuilder =>
             {
                 proxyBuilder.Services.AddTelemetryConsumer(telemetryConsumer);
             },
-            proxyApp =>
+            ConfigureProxyApp = proxyApp =>
             {
                 proxyApp.UseWebSocketsTelemetry();
-            });
+            },
+        };
 
         await test.Invoke(async uri =>
         {

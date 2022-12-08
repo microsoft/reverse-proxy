@@ -57,10 +57,9 @@ public class PassiveHealthCheckTests
             {
                 destinationReached = true;
                 throw new InvalidOperationException();
-            },
-            proxyBuilder => proxyBuilder.Services.AddSingleton<IForwarderHttpClientFactory>(new MockHttpClientFactory((_, _) => throw new IOException())),
-            proxyApp => { },
-            configTransformer: (c, r) =>
+            })
+        {
+            ConfigTransformer = (c, r) =>
             {
                 c = c with
                 {
@@ -74,7 +73,9 @@ public class PassiveHealthCheckTests
                 };
 
                 return (c, r);
-            });
+            },
+            ConfigureProxy = proxyBuilder => proxyBuilder.Services.AddSingleton<IForwarderHttpClientFactory>(new MockHttpClientFactory((_, _) => throw new IOException())),
+        };
 
         await test.Invoke(async uri =>
         {
@@ -122,10 +123,9 @@ public class PassiveHealthCheckTests
             {
                 destinationReached = true;
                 throw new InvalidOperationException();
-            },
-            proxyBuilder => proxyBuilder.Services.AddSingleton<IForwarderHttpClientFactory>(new MockHttpClientFactory(proxySendAsync)),
-            proxyApp => { },
-            configTransformer: (c, r) =>
+            })
+        {
+            ConfigTransformer = (c, r) =>
             {
                 c = c with
                 {
@@ -139,7 +139,9 @@ public class PassiveHealthCheckTests
                 };
 
                 return (c, r);
-            });
+            },
+            ConfigureProxy = proxyBuilder => proxyBuilder.Services.AddSingleton<IForwarderHttpClientFactory>(new MockHttpClientFactory(proxySendAsync)),
+        };
 
         await test.Invoke(async uri =>
         {

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,77 +12,61 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Yarp.Tests.Common;
-using Yarp.ReverseProxy.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
+using Yarp.ReverseProxy.Configuration;
+using Yarp.Tests.Common;
 
 namespace Yarp.ReverseProxy.Common;
 
 public class TestEnvironment
 {
-    private readonly Action<IServiceCollection> _configureDestinationServices;
-    private readonly Action<IApplicationBuilder> _configureDestinationApp;
-    private readonly Action<IServiceCollection> _configureProxyServices;
-    private readonly Action<IReverseProxyBuilder> _configureProxy;
-    private readonly Action<IApplicationBuilder> _configureProxyApp;
-    private readonly HttpProtocols _proxyProtocol;
-    private readonly bool _useHttpsOnDestination;
-    private readonly bool _useHttpsOnProxy;
-    private readonly Encoding _headerEncoding;
-    private readonly Func<ClusterConfig, RouteConfig, (ClusterConfig Cluster, RouteConfig Route)> _configTransformer;
+    public HttpProtocols ProxyProtocol { get; set; } = HttpProtocols.Http1AndHttp2;
+
+    public bool UseHttpsOnProxy { get; set; }
+
+    public Encoding HeaderEncoding { get; set; }
+
+    public Action<IServiceCollection> ConfigureProxyServices { get; set; } = _ => { };
+
+    public Action<IReverseProxyBuilder> ConfigureProxy { get; set; } = _ => { };
+
+    public Action<IApplicationBuilder> ConfigureProxyApp { get; set; } = _ => { };
 
     public string ClusterId { get; set; } = "cluster1";
 
-    public TestEnvironment(
-        RequestDelegate destinationGetDelegate,
-        Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp,
-        HttpProtocols proxyProtocol = HttpProtocols.Http1AndHttp2, bool useHttpsOnDestination = false,
-        bool useHttpsOnProxy = false, Encoding headerEncoding = null,
-        Func<ClusterConfig, RouteConfig, (ClusterConfig Cluster, RouteConfig Route)> configTransformer = null)
-        : this(
-              destinationServices => { },
-              destinationApp =>
-              {
-                  destinationApp.Run(destinationGetDelegate);
-              },
-              configureProxyServices: null,
-              configureProxy,
-              configureProxyApp,
-              proxyProtocol,
-              useHttpsOnDestination,
-              useHttpsOnProxy,
-              headerEncoding,
-              configTransformer)
-    { }
+    public Func<ClusterConfig, RouteConfig, (ClusterConfig Cluster, RouteConfig Route)> ConfigTransformer { get; set; } = (a, b) => (a, b);
 
-    public TestEnvironment(
-        Action<IServiceCollection> configureDestinationServices, Action<IApplicationBuilder> configureDestinationApp,
-        Action<IServiceCollection> configureProxyServices, Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp,
-        HttpProtocols proxyProtocol = HttpProtocols.Http1AndHttp2, bool useHttpsOnDestination = false,
-        bool useHttpsOnProxy = false, Encoding headerEncoding = null,
-        Func<ClusterConfig, RouteConfig, (ClusterConfig Cluster, RouteConfig Route)> configTransformer = null)
+    public Version? DestionationHttpVersion { get; set; }
+
+    public HttpVersionPolicy? DestionationHttpVersionPolicy { get; set; }
+
+    public HttpProtocols DestinationProtocol { get; set; } = HttpProtocols.Http1AndHttp2;
+
+    public bool UseHttpsOnDestination { get; set; }
+
+    public Action<IServiceCollection> ConfigureDestinationServices { get; set; } = _ => { };
+
+    public Action<IApplicationBuilder> ConfigureDestinationApp { get; set; } = _ => { };
+
+    public TestEnvironment() { }
+
+    public TestEnvironment(RequestDelegate destinationGetDelegate)
     {
-        _configureDestinationServices = configureDestinationServices;
-        _configureDestinationApp = configureDestinationApp;
-        _configureProxy = configureProxy;
-        _configureProxyApp = configureProxyApp;
-        _configureProxyServices = configureProxyServices ?? (_ => { });
-        _proxyProtocol = proxyProtocol;
-        _useHttpsOnDestination = useHttpsOnDestination;
-        _useHttpsOnProxy = useHttpsOnProxy;
-        _headerEncoding = headerEncoding;
-        _configTransformer = configTransformer ?? ((ClusterConfig c, RouteConfig r) => (c, r));
+        ConfigureDestinationApp = destinationApp =>
+        {
+            destinationApp.Run(destinationGetDelegate);
+        };
     }
 
     public async Task Invoke(Func<string, Task> clientFunc, CancellationToken cancellationToken = default)
     {
-        using var destination = CreateHost(HttpProtocols.Http1AndHttp2, _useHttpsOnDestination, _headerEncoding, _configureDestinationServices, _configureDestinationApp);
+        using var destination = CreateHost(DestinationProtocol, UseHttpsOnDestination, HeaderEncoding, ConfigureDestinationServices, ConfigureDestinationApp);
         await destination.StartAsync(cancellationToken);
 
-        using var proxy = CreateProxy(_proxyProtocol, _useHttpsOnDestination, _useHttpsOnProxy, _headerEncoding, ClusterId, destination.GetAddress(), _configureProxyServices, _configureProxy, _configureProxyApp, _configTransformer);
+        using var proxy = CreateProxy(destination.GetAddress());
         await proxy.StartAsync(cancellationToken);
 
         try
@@ -95,41 +80,45 @@ public class TestEnvironment
         }
     }
 
-    public static IHost CreateProxy(HttpProtocols protocols, bool useHttpsOnDestination, bool httpsOnProxy, Encoding requestHeaderEncoding, string clusterId, string destinationAddress,
-        Action<IServiceCollection> configureServices, Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp, Func<ClusterConfig, RouteConfig, (ClusterConfig Cluster, RouteConfig Route)> configTransformer)
+    public IHost CreateProxy(string destinationAddress)
     {
-        return CreateHost(protocols, httpsOnProxy, requestHeaderEncoding,
+        return CreateHost(ProxyProtocol, UseHttpsOnProxy, HeaderEncoding,
             services =>
             {
-                configureServices(services);
+                ConfigureProxyServices(services);
 
                 var route = new RouteConfig
                 {
                     RouteId = "route1",
-                    ClusterId = clusterId,
+                    ClusterId = ClusterId,
                     Match = new RouteMatch { Path = "/{**catchall}" }
                 };
 
                 var cluster = new ClusterConfig
                 {
-                    ClusterId = clusterId,
+                    ClusterId = ClusterId,
                     Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                     {
                         { "destination1",  new DestinationConfig() { Address = destinationAddress } }
                     },
                     HttpClient = new HttpClientConfig
                     {
-                        DangerousAcceptAnyServerCertificate = useHttpsOnDestination,
-                        RequestHeaderEncoding = requestHeaderEncoding?.WebName,
+                        DangerousAcceptAnyServerCertificate = UseHttpsOnDestination,
+                        RequestHeaderEncoding = HeaderEncoding?.WebName,
+                    },
+                    HttpRequest = new Forwarder.ForwarderRequestConfig
+                    {
+                        Version = DestionationHttpVersion,
+                        VersionPolicy = DestionationHttpVersionPolicy,
                     }
                 };
-                (cluster, route) = configTransformer(cluster, route);
+                (cluster, route) = ConfigTransformer(cluster, route);
                 var proxyBuilder = services.AddReverseProxy().LoadFromMemory(new[] { route }, new[] { cluster });
-                configureProxy(proxyBuilder);
+                ConfigureProxy(proxyBuilder);
             },
             app =>
             {
-                configureProxyApp(app);
+                ConfigureProxyApp(app);
                 app.UseRouting();
                 app.UseEndpoints(builder =>
                 {

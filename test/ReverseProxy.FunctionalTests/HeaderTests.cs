@@ -10,6 +10,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
@@ -53,9 +54,10 @@ public class HeaderTests
 
 
                 return Task.CompletedTask;
-            },
-            proxyBuilder => { },
-            proxyApp =>
+            })
+        {
+            ProxyProtocol = HttpProtocols.Http1,
+            ConfigureProxyApp = proxyApp =>
             {
                 proxyApp.Use(async (context, next) =>
                 {
@@ -79,7 +81,7 @@ public class HeaderTests
                     }
                 });
             },
-            proxyProtocol: HttpProtocols.Http1);
+        };
 
         await test.Invoke(async proxyUri =>
         {
@@ -137,9 +139,10 @@ public class HeaderTests
                 context.Response.Headers.Add(HeaderNames.WWWAuthenticate, "");
                 context.Response.Headers.Add("custom", "");
                 return Task.CompletedTask;
-            },
-            proxyBuilder => { },
-            proxyApp =>
+            })
+        {
+            ProxyProtocol = HttpProtocols.Http1,
+            ConfigureProxyApp = proxyApp =>
             {
                 proxyApp.Use(async (context, next) =>
                 {
@@ -164,7 +167,7 @@ public class HeaderTests
                     }
                 });
             },
-            proxyProtocol: HttpProtocols.Http1);
+        };
 
         await test.Invoke(async proxyUri =>
         {
@@ -230,9 +233,11 @@ public class HeaderTests
                     tcs.SetException(new Exception($"Missing '{HeaderNames.Referer}' header in request"));
                 }
                 return Task.CompletedTask;
-            },
-            proxyBuilder => { },
-            proxyApp =>
+            })
+        {
+            ProxyProtocol = HttpProtocols.Http1,
+            HeaderEncoding = encoding,
+            ConfigureProxyApp = proxyApp =>
             {
                 proxyApp.Use(async (context, next) =>
                 {
@@ -252,7 +257,7 @@ public class HeaderTests
                     }
                 });
             },
-            proxyProtocol: HttpProtocols.Http1, headerEncoding: encoding);
+        };
 
         await test.Invoke(async proxyUri =>
         {
@@ -340,10 +345,12 @@ public class HeaderTests
         IForwarderErrorFeature proxyError = null;
         Exception unhandledError = null;
 
-        using var proxy = TestEnvironment.CreateProxy(HttpProtocols.Http1, false, false, encoding, "cluster1", $"http://{tcpListener.LocalEndpoint}",
-            proxyServices => { },
-            proxyBuilder => { },
-            proxyApp =>
+        var proxyTest = new TestEnvironment()
+        {
+            ProxyProtocol = HttpProtocols.Http1,
+            HeaderEncoding = encoding,
+            ClusterId = "cluster1",
+            ConfigureProxyApp = proxyApp =>
             {
                 proxyApp.Use(async (context, next) =>
                 {
@@ -359,7 +366,9 @@ public class HeaderTests
                     }
                 });
             },
-            (c, r) => (c, r));
+        };
+
+        using var proxy = proxyTest.CreateProxy($"http://{tcpListener.LocalEndpoint}");
 
         await proxy.StartAsync();
 
@@ -409,9 +418,10 @@ public class HeaderTests
                     appTcs.SetException(ex);
                 }
                 return Task.CompletedTask;
-            },
-            proxyBuilder => { },
-            proxyApp =>
+            })
+        {
+            ProxyProtocol = HttpProtocols.Http1,
+            ConfigureProxyApp = proxyApp =>
             {
                 proxyApp.Use(async (context, next) =>
                 {
@@ -429,7 +439,7 @@ public class HeaderTests
                     await next();
                 });
             },
-            proxyProtocol: HttpProtocols.Http1);
+        };
 
         await test.Invoke(async proxyUri =>
         {
@@ -489,9 +499,10 @@ public class HeaderTests
                     appTcs.SetException(ex);
                 }
                 return Task.CompletedTask;
-            },
-            proxyBuilder => { },
-            proxyApp =>
+            })
+        {
+            ProxyProtocol = HttpProtocols.Http1,
+            ConfigureProxyApp = proxyApp =>
             {
                 proxyApp.Use(async (context, next) =>
                 {
@@ -513,7 +524,7 @@ public class HeaderTests
                     await next();
                 });
             },
-            proxyProtocol: HttpProtocols.Http1);
+        };
 
         await test.Invoke(async proxyUri =>
         {
@@ -633,9 +644,10 @@ public class HeaderTests
             {
                 Assert.True(context.Response.Headers.TryAdd(headerName, values));
                 return Task.CompletedTask;
-            },
-            proxyBuilder => { },
-            proxyApp =>
+            })
+        {
+            ProxyProtocol = HttpProtocols.Http1,
+            ConfigureProxyApp = proxyApp =>
             {
                 proxyApp.Use(async (context, next) =>
                 {
@@ -659,7 +671,7 @@ public class HeaderTests
                     }
                 });
             },
-            proxyProtocol: HttpProtocols.Http1);
+        };
 
         await test.Invoke(async proxyUri =>
         {

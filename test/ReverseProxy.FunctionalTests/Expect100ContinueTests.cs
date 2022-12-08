@@ -66,16 +66,12 @@ public class Expect100ContinueTests
                 }
 
                 context.Response.StatusCode = destResponseCode;
-            },
-            proxyBuilder =>
-            {
-                proxyBuilder.Services.AddSingleton<IForwarderHttpClientFactory, TestForwarderHttpClientFactory>();
-            },
-            proxyApp => { },
-            proxyProtocol: proxyProtocol,
-            useHttpsOnDestination: true,
-            useHttpsOnProxy: true,
-            configTransformer: (c, r) =>
+            })
+        {
+            ProxyProtocol = proxyProtocol,
+            UseHttpsOnDestination = true,
+            UseHttpsOnProxy = true,
+            ConfigTransformer = (c, r) =>
             {
                 c = c with
                 {
@@ -85,7 +81,12 @@ public class Expect100ContinueTests
                     }
                 };
                 return (c, r);
-            });
+            },
+            ConfigureProxy = proxyBuilder =>
+            {
+                proxyBuilder.Services.AddSingleton<IForwarderHttpClientFactory, TestForwarderHttpClientFactory>();
+            },
+        };
 
         await test.Invoke(async uri =>
         {
@@ -152,16 +153,12 @@ public class Expect100ContinueTests
                 {
                     await context.Response.Body.WriteAsync(responseBody.AsMemory());
                 }
-            },
-            proxyBuilder =>
-            {
-                proxyBuilder.Services.AddSingleton<IForwarderHttpClientFactory, TestForwarderHttpClientFactory>();
-            },
-            proxyApp => { },
-            proxyProtocol: proxyProtocol,
-            useHttpsOnDestination: true,
-            useHttpsOnProxy: true,
-            configTransformer: (c, r) =>
+            })
+        {
+            ProxyProtocol = proxyProtocol,
+            UseHttpsOnDestination = true,
+            UseHttpsOnProxy = true,
+            ConfigTransformer = (c, r) =>
             {
                 c = c with
                 {
@@ -171,7 +168,12 @@ public class Expect100ContinueTests
                     }
                 };
                 return (c, r);
-            });
+            },
+            ConfigureProxy = proxyBuilder =>
+            {
+                proxyBuilder.Services.AddSingleton<IForwarderHttpClientFactory, TestForwarderHttpClientFactory>();
+            },
+        };
 
         await test.Invoke(async uri =>
         {
@@ -213,15 +215,12 @@ public class Expect100ContinueTests
                 }
 
                 await context.Response.Body.WriteAsync(responseBody.AsMemory());
-            },
-            proxyBuilder => {
-                proxyBuilder.Services.AddSingleton<IForwarderHttpClientFactory, TestForwarderHttpClientFactory>();
-            },
-            proxyApp => { },
-            proxyProtocol: proxyProtocol,
-            useHttpsOnDestination: true,
-            useHttpsOnProxy: true,
-            configTransformer: (c, r) =>
+            })
+        {
+            ProxyProtocol = proxyProtocol,
+            UseHttpsOnDestination = true,
+            UseHttpsOnProxy = true,
+            ConfigTransformer = (c, r) =>
             {
                 c = c with
                 {
@@ -231,7 +230,12 @@ public class Expect100ContinueTests
                     }
                 };
                 return (c, r);
-            });
+            },
+            ConfigureProxy = proxyBuilder =>
+            {
+                proxyBuilder.Services.AddSingleton<IForwarderHttpClientFactory, TestForwarderHttpClientFactory>();
+            },
+        };
 
         await test.Invoke(async uri =>
         {

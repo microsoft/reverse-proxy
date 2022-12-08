@@ -47,13 +47,14 @@ public abstract class HttpProxyCookieTests
                     tcs.SetException(new Exception("Missing 'Cookie' header in request"));
                 }
                 return Task.CompletedTask;
-            },
-            proxyBuilder => { },
-            proxyApp =>
+            })
+        {
+            ProxyProtocol = HttpProtocol,
+            ConfigureProxyApp = proxyApp =>
             {
                 proxyApp.UseMiddleware<CheckCookieHeaderMiddleware>();
             },
-            proxyProtocol: HttpProtocol);
+        };
 
         await test.Invoke(async uri =>
         {

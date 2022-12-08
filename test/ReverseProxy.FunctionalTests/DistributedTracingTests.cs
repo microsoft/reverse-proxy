@@ -36,9 +36,9 @@ public class DistributedTracingTests
                     downstreamHeaders.Add(header);
                 }
                 await context.Response.Body.WriteAsync(Encoding.UTF8.GetBytes("Hello"));
-            },
-            proxyBuilder => { },
-            proxyApp =>
+            })
+        {
+            ConfigureProxyApp = proxyApp =>
             {
                 proxyApp.Use(next => context =>
                 {
@@ -48,7 +48,8 @@ public class DistributedTracingTests
                     }
                     return next(context);
                 });
-            });
+            },
+        };
 
         var clientActivity = new Activity("Foo");
         clientActivity.SetIdFormat(idFormat);
