@@ -39,7 +39,7 @@ public class TestEnvironment
 
     public Func<ClusterConfig, RouteConfig, (ClusterConfig Cluster, RouteConfig Route)> ConfigTransformer { get; set; } = (a, b) => (a, b);
 
-    public Version? DestionationHttpVersion { get; set; }
+    public Version DestionationHttpVersion { get; set; }
 
     public HttpVersionPolicy? DestionationHttpVersionPolicy { get; set; }
 
