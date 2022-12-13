@@ -106,12 +106,12 @@ public class TelemetryConsumptionTests
     public async Task TelemetryConsumptionWorks(RegistrationApproach registrationApproach)
     {
         var test = new TestEnvironment(
-            async context => await context.Response.WriteAsync("Foo"),
-            proxyBuilder => RegisterTelemetryConsumers(proxyBuilder.Services, registrationApproach),
-            proxyApp => { },
-            useHttpsOnDestination: true);
-
-        test.ClusterId = Guid.NewGuid().ToString();
+            async context => await context.Response.WriteAsync("Foo"))
+        {
+            UseHttpsOnDestination = true,
+            ClusterId = Guid.NewGuid().ToString(),
+            ConfigureProxy = proxyBuilder => RegisterTelemetryConsumers(proxyBuilder.Services, registrationApproach),
+        };
 
         await test.Invoke(async uri =>
         {
@@ -158,11 +158,11 @@ public class TelemetryConsumptionTests
     public async Task NonProxyTelemetryConsumptionWorks(RegistrationApproach registrationApproach)
     {
         var test = new TestEnvironment(
-            async context => await context.Response.WriteAsync("Foo"),
-            proxyBuilder => RegisterTelemetryConsumers(proxyBuilder.Services, registrationApproach),
-            proxyApp => { },
-            useHttpsOnDestination: true);
-
+            async context => await context.Response.WriteAsync("Foo"))
+        {
+            UseHttpsOnDestination = true,
+            ConfigureProxy = proxyBuilder => RegisterTelemetryConsumers(proxyBuilder.Services, registrationApproach),
+        };
         var path = $"/{Guid.NewGuid()}";
 
         await test.Invoke(async uri =>
@@ -265,11 +265,11 @@ public class TelemetryConsumptionTests
         MetricsOptions.Interval = TimeSpan.FromMilliseconds(10);
 
         var test = new TestEnvironment(
-            async context => await context.Response.WriteAsync("Foo"),
-            proxyBuilder => RegisterMetricsConsumers(proxyBuilder.Services, registrationApproach),
-            proxyApp => { },
-            useHttpsOnDestination: true);
-
+            async context => await context.Response.WriteAsync("Foo"))
+        {
+            UseHttpsOnDestination = true,
+            ConfigureProxy = proxyBuilder => RegisterMetricsConsumers(proxyBuilder.Services, registrationApproach),
+        };
         var consumerBox = new MetricsConsumer.MetricsConsumerBox();
         MetricsConsumer.ScopeInstance.Value = consumerBox;
         MetricsConsumer consumer = null;
