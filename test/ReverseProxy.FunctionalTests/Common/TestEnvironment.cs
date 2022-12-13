@@ -23,6 +23,8 @@ namespace Yarp.ReverseProxy.Common;
 
 public class TestEnvironment
 {
+    public ILoggerFactory LoggerFactory { get; set; }
+
     public HttpProtocols ProxyProtocol { get; set; } = HttpProtocols.Http1AndHttp2;
 
     public bool UseHttpsOnProxy { get; set; }
@@ -127,42 +129,49 @@ public class TestEnvironment
             });
     }
 
-    private static IHost CreateHost(HttpProtocols protocols, bool useHttps, Encoding requestHeaderEncoding,
+    private IHost CreateHost(HttpProtocols protocols, bool useHttps, Encoding requestHeaderEncoding,
         Action<IServiceCollection> configureServices, Action<IApplicationBuilder> configureApp)
     {
-        return new HostBuilder()
-            .ConfigureAppConfiguration(config =>
+        var hostBuilder = new HostBuilder();
+        if (LoggerFactory != null)
+        {
+            hostBuilder.ConfigureServices(s => s.AddSingleton(LoggerFactory));
+        }
+
+        hostBuilder.ConfigureAppConfiguration(config =>
+        {
+            config.AddInMemoryCollection(new Dictionary<string, string>()
             {
-                config.AddInMemoryCollection(new Dictionary<string, string>()
+                { "Logging:LogLevel:Microsoft.AspNetCore.Hosting.Diagnostics", "Information" }
+            });
+        })
+        .ConfigureLogging((hostingContext, loggingBuilder) =>
+        {
+            loggingBuilder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+            loggingBuilder.AddEventSourceLogger();
+        })
+        .ConfigureWebHost(webHostBuilder =>
+        {
+            webHostBuilder
+                .ConfigureServices(configureServices)
+                .UseKestrel(kestrel =>
                 {
-                    { "Logging:LogLevel:Microsoft.AspNetCore.Hosting.Diagnostics", "Information" }
-                });
-            })
-            .ConfigureLogging((hostingContext, loggingBuilder) =>
-            {
-                loggingBuilder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                loggingBuilder.AddEventSourceLogger();
-            })
-            .ConfigureWebHost(webHostBuilder =>
-            {
-                webHostBuilder
-                    .ConfigureServices(configureServices)
-                    .UseKestrel(kestrel =>
+                    if (requestHeaderEncoding is not null)
                     {
-                        if (requestHeaderEncoding is not null)
+                        kestrel.RequestHeaderEncodingSelector = _ => requestHeaderEncoding;
+                    }
+                    kestrel.Listen(IPAddress.Loopback, 0, listenOptions =>
+                    {
+                        listenOptions.Protocols = protocols;
+                        if (useHttps)
                         {
-                            kestrel.RequestHeaderEncodingSelector = _ => requestHeaderEncoding;
+                            listenOptions.UseHttps(TestResources.GetTestCertificate());
                         }
-                        kestrel.Listen(IPAddress.Loopback, 0, listenOptions =>
-                        {
-                            listenOptions.Protocols = protocols;
-                            if (useHttps)
-                            {
-                                listenOptions.UseHttps(TestResources.GetTestCertificate());
-                            }
-                        });
-                    })
-                    .Configure(configureApp);
-            }).Build();
+                    });
+                })
+                .Configure(configureApp);
+        });
+
+        return hostBuilder.Build();
     }
 }
