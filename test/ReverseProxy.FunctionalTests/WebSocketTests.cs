@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -14,19 +15,28 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
+using Xunit.Abstractions;
 using Yarp.ReverseProxy.Common;
 
 namespace Yarp.ReverseProxy;
 
 public class WebSocketTests
 {
+    private readonly ITestOutputHelper _output;
+
+    public WebSocketTests(ITestOutputHelper output)
+    {
+        _output = output;
+    }
+
     [Theory]
     [InlineData(WebSocketMessageType.Binary)]
     [InlineData(WebSocketMessageType.Text)]
-    public async Task WebSocketTest(WebSocketMessageType messageType)
+    public async Task WebSocketMessageTypes(WebSocketMessageType messageType)
     {
-        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        using var cts = CreateTimer();
 
         var test = CreateTestEnvironment();
 
@@ -62,20 +72,13 @@ public class WebSocketTests
     [Fact]
     public async Task RawUpgradeTest()
     {
-        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        using var cts = CreateTimer();
 
         var test = CreateTestEnvironment();
 
         await test.Invoke(async uri =>
         {
-            using var handler = new HttpClientHandler
-            {
-                AllowAutoRedirect = false,
-                AutomaticDecompression = DecompressionMethods.None,
-                UseCookies = false,
-                UseProxy = false
-            };
-            using var client = new HttpMessageInvoker(handler);
+            using var client = WebSocketTests.CreateInvoker();
             var targetUri = new Uri(new Uri(uri, UriKind.Absolute), "rawupgrade");
             using var request = new HttpRequestMessage(HttpMethod.Get, targetUri);
 
@@ -112,20 +115,13 @@ public class WebSocketTests
     // https://github.com/microsoft/reverse-proxy/issues/255 IIS claims all requests are upgradeable.
     public async Task FalseUpgradeTest()
     {
-        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        using var cts = CreateTimer();
 
         var test = CreateTestEnvironment(forceUpgradable: true);
 
         await test.Invoke(async uri =>
         {
-            using var handler = new HttpClientHandler
-            {
-                AllowAutoRedirect = false,
-                AutomaticDecompression = DecompressionMethods.None,
-                UseCookies = false,
-                UseProxy = false
-            };
-            using var client = new HttpMessageInvoker(handler);
+            using var client = WebSocketTests.CreateInvoker();
             var targetUri = new Uri(new Uri(uri, UriKind.Absolute), "post");
             using var request = new HttpRequestMessage(HttpMethod.Post, targetUri);
             request.Content = new StringContent("Hello World");
@@ -138,10 +134,141 @@ public class WebSocketTests
         }, cts.Token);
     }
 
-    private static TestEnvironment CreateTestEnvironment(bool forceUpgradable = false)
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task WebSocket11_To_11(bool useHttps)
+    {
+        using var cts = CreateTimer();
+
+        var test = CreateTestEnvironment();
+        test.ProxyProtocol = HttpProtocols.Http1;
+        test.DestinationProtocol = HttpProtocols.Http1;
+        test.DestionationHttpVersion = HttpVersion.Version11;
+        test.UseHttpsOnProxy = useHttps;
+        test.UseHttpsOnDestination = useHttps;
+
+        await test.Invoke(async uri =>
+        {
+            using var client = new ClientWebSocket();
+            await SendWebSocketRequestAsync(client, uri, cts.Token);
+        }, cts.Token);
+    }
+
+#if NET7_0_OR_GREATER
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task WebSocket20_To_20(bool useHttps)
+    {
+        using var cts = CreateTimer();
+
+        var test = CreateTestEnvironment();
+        test.ProxyProtocol = HttpProtocols.Http2;
+        test.DestinationProtocol = HttpProtocols.Http2;
+        test.DestionationHttpVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+        test.UseHttpsOnProxy = useHttps;
+        test.UseHttpsOnDestination = useHttps;
+
+        await test.Invoke(async uri =>
+        {
+            using var client = new ClientWebSocket();
+            client.Options.HttpVersion = HttpVersion.Version20;
+            client.Options.HttpVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+            await SendWebSocketRequestAsync(client, uri, cts.Token);
+        }, cts.Token);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task WebSocket20_To_11(bool useHttps)
+    {
+        using var cts = CreateTimer();
+
+        var test = CreateTestEnvironment();
+        test.ProxyProtocol = HttpProtocols.Http2;
+        test.DestinationProtocol = HttpProtocols.Http1;
+        test.DestionationHttpVersion = HttpVersion.Version11;
+        test.UseHttpsOnProxy = useHttps;
+        test.UseHttpsOnDestination = useHttps;
+
+        await test.Invoke(async uri =>
+        {
+            using var client = new ClientWebSocket();
+            client.Options.HttpVersion = HttpVersion.Version20;
+            client.Options.HttpVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+            await SendWebSocketRequestAsync(client, uri, cts.Token);
+        }, cts.Token);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task WebSocket11_To_20(bool useHttps)
+    {
+        using var cts = CreateTimer();
+
+        var test = CreateTestEnvironment();
+        test.ProxyProtocol = HttpProtocols.Http1;
+        test.DestinationProtocol = HttpProtocols.Http2;
+        test.DestionationHttpVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+        test.UseHttpsOnProxy = useHttps;
+        test.UseHttpsOnDestination = useHttps;
+
+        await test.Invoke(async uri =>
+        {
+            using var client = new ClientWebSocket();
+            client.Options.HttpVersion = HttpVersion.Version11;
+            client.Options.HttpVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+            await SendWebSocketRequestAsync(client, uri, cts.Token);
+        }, cts.Token);
+    }
+#endif
+
+    private async Task SendWebSocketRequestAsync(ClientWebSocket client, string uri, CancellationToken token)
+    {
+        var webSocketsTarget = uri.Replace("https://", "wss://").Replace("http://", "ws://");
+        var targetUri = new Uri(new Uri(webSocketsTarget, UriKind.Absolute), "websockets");
+#if NET7_0_OR_GREATER
+        using var invoker = CreateInvoker();
+        await client.ConnectAsync(targetUri, invoker, token);
+#else
+        client.Options.RemoteCertificateValidationCallback = (_, _, _, _) => true;
+        await client.ConnectAsync(targetUri, token);
+#endif
+        _output.WriteLine("Client connected.");
+
+        var buffer = new byte[1024];
+        var textToSend = $"Hello World!";
+        var numBytes = Encoding.UTF8.GetBytes(textToSend, buffer.AsSpan());
+        await client.SendAsync(new ArraySegment<byte>(buffer, 0, numBytes),
+            WebSocketMessageType.Text,
+            endOfMessage: true,
+            token);
+        _output.WriteLine($"Client sent {numBytes}.");
+
+        var message = await client.ReceiveAsync(buffer, token);
+        _output.WriteLine($"Client received {message.Count}.");
+
+        Assert.Equal(WebSocketMessageType.Text, message.MessageType);
+        Assert.True(message.EndOfMessage);
+
+        var text = Encoding.UTF8.GetString(buffer.AsSpan(0, message.Count));
+        Assert.Equal(textToSend, text);
+
+        _output.WriteLine($"Client sending Close.");
+        await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "Bye", token);
+        Assert.Equal(WebSocketCloseStatus.NormalClosure, client.CloseStatus);
+        Assert.Equal("Bye", client.CloseStatusDescription);
+        _output.WriteLine($"Client Closed.");
+    }
+
+    private TestEnvironment CreateTestEnvironment(bool forceUpgradable = false)
     {
         return new TestEnvironment()
         {
+            TestOutput = _output,
             ConfigureDestinationServices = destinationServies =>
             {
                 destinationServies.AddRouting();
@@ -173,12 +300,16 @@ public class WebSocketTests
 
         static async Task WebSocket(HttpContext httpContext)
         {
+            var logger = httpContext.RequestServices.GetRequiredService<ILogger<WebSocketTests>>();
             if (!httpContext.WebSockets.IsWebSocketRequest)
             {
                 httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                logger.LogInformation("Non-WebSocket request refused.");
+                return;
             }
 
             using var webSocket = await httpContext.WebSockets.AcceptWebSocketAsync();
+            logger.LogInformation("WebSocket accepted.");
 
             var buffer = new byte[1024];
             while (true)
@@ -186,14 +317,20 @@ public class WebSocketTests
                 var message = await webSocket.ReceiveAsync(buffer, httpContext.RequestAborted);
                 if (message.MessageType == WebSocketMessageType.Close)
                 {
+                    logger.LogInformation("WebSocket Close received {0}.", message.CloseStatus);
                     await webSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, message.CloseStatusDescription, httpContext.RequestAborted);
+                    logger.LogInformation("WebSocket Close sent {0}.", WebSocketCloseStatus.NormalClosure);
                     return;
                 }
+
+                logger.LogInformation("WebSocket received {0} bytes.", message.Count);
 
                 await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, message.Count),
                     message.MessageType,
                     message.EndOfMessage,
                     httpContext.RequestAborted);
+
+                logger.LogInformation("WebSocket sent {0} bytes.", message.Count);
             }
         }
 
@@ -225,6 +362,28 @@ public class WebSocketTests
             var body = await new StreamReader(httpContext.Request.Body).ReadToEndAsync();
             await httpContext.Response.WriteAsync(body);
         }
+    }
+
+    private static CancellationTokenSource CreateTimer()
+    {
+        if (Debugger.IsAttached)
+        {
+            return new CancellationTokenSource();
+        }
+        return new CancellationTokenSource(TimeSpan.FromSeconds(15));
+    }
+
+    private static HttpMessageInvoker CreateInvoker()
+    {
+        var handler = new SocketsHttpHandler
+        {
+            AllowAutoRedirect = false,
+            AutomaticDecompression = DecompressionMethods.None,
+            UseCookies = false,
+            UseProxy = false
+        };
+        handler.SslOptions.RemoteCertificateValidationCallback = (_, _, _, _) => true;
+        return new HttpMessageInvoker(handler);
     }
 
     private class AlwaysUpgradeFeature : IHttpUpgradeFeature

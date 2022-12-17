@@ -16,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Xunit.Abstractions;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.Tests.Common;
 
@@ -23,7 +24,7 @@ namespace Yarp.ReverseProxy.Common;
 
 public class TestEnvironment
 {
-    public ILoggerFactory LoggerFactory { get; set; }
+    public ITestOutputHelper TestOutput { get; set; }
 
     public HttpProtocols ProxyProtocol { get; set; } = HttpProtocols.Http1AndHttp2;
 
@@ -132,46 +133,45 @@ public class TestEnvironment
     private IHost CreateHost(HttpProtocols protocols, bool useHttps, Encoding requestHeaderEncoding,
         Action<IServiceCollection> configureServices, Action<IApplicationBuilder> configureApp)
     {
-        var hostBuilder = new HostBuilder();
-        if (LoggerFactory != null)
-        {
-            hostBuilder.ConfigureServices(s => s.AddSingleton(LoggerFactory));
-        }
-
-        hostBuilder.ConfigureAppConfiguration(config =>
-        {
-            config.AddInMemoryCollection(new Dictionary<string, string>()
+        return new HostBuilder()
+            .ConfigureAppConfiguration(config =>
             {
-                { "Logging:LogLevel:Microsoft.AspNetCore.Hosting.Diagnostics", "Information" }
-            });
-        })
-        .ConfigureLogging((hostingContext, loggingBuilder) =>
-        {
-            loggingBuilder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-            loggingBuilder.AddEventSourceLogger();
-        })
-        .ConfigureWebHost(webHostBuilder =>
-        {
-            webHostBuilder
-                .ConfigureServices(configureServices)
-                .UseKestrel(kestrel =>
+                config.AddInMemoryCollection(new Dictionary<string, string>()
                 {
-                    if (requestHeaderEncoding is not null)
+                    { "Logging:LogLevel:Microsoft", "Trace" },
+                    { "Logging:LogLevel:Microsoft.AspNetCore.Hosting.Diagnostics", "Information" }
+                });
+            })
+            .ConfigureLogging((hostingContext, loggingBuilder) =>
+            {
+                loggingBuilder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                loggingBuilder.AddEventSourceLogger();
+                if (TestOutput != null)
+                {
+                    loggingBuilder.AddXunit(TestOutput);
+                }
+            })
+            .ConfigureWebHost(webHostBuilder =>
+            {
+                webHostBuilder
+                    .ConfigureServices(configureServices)
+                    .UseKestrel(kestrel =>
                     {
-                        kestrel.RequestHeaderEncodingSelector = _ => requestHeaderEncoding;
-                    }
-                    kestrel.Listen(IPAddress.Loopback, 0, listenOptions =>
-                    {
-                        listenOptions.Protocols = protocols;
-                        if (useHttps)
+                        if (requestHeaderEncoding is not null)
                         {
-                            listenOptions.UseHttps(TestResources.GetTestCertificate());
+                            kestrel.RequestHeaderEncodingSelector = _ => requestHeaderEncoding;
                         }
-                    });
-                })
-                .Configure(configureApp);
-        });
-
-        return hostBuilder.Build();
+                        kestrel.Listen(IPAddress.Loopback, 0, listenOptions =>
+                        {
+                            listenOptions.Protocols = protocols;
+                            if (useHttps)
+                            {
+                                listenOptions.UseHttps(TestResources.GetTestCertificate());
+                            }
+                            listenOptions.UseConnectionLogging();
+                        });
+                    })
+                    .Configure(configureApp);
+            }).Build();
     }
 }
