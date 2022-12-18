@@ -11,6 +11,7 @@
     "Order": null,
     "ClusterId": "repro-1-service.foo:http",
     "AuthorizationPolicy": null,
+    "RateLimiterPolicy": null,
     "CorsPolicy": null,
     "Metadata": null,
     "Transforms": null
@@ -27,6 +28,7 @@
     "Order": null,
     "ClusterId": "repro-2-service.foo:http",
     "AuthorizationPolicy": null,
+    "RateLimiterPolicy": null,
     "CorsPolicy": null,
     "Metadata": null,
     "Transforms": null
@@ -43,6 +45,7 @@
     "Order": null,
     "ClusterId": "repro-3-service.foo:http",
     "AuthorizationPolicy": null,
+    "RateLimiterPolicy": null,
     "CorsPolicy": null,
     "Metadata": null,
     "Transforms": null

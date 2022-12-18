@@ -104,6 +104,7 @@ internal static class YarpParser
                     RouteId = $"{ingressContext.Ingress.Metadata.Name}.{ingressContext.Ingress.Metadata.NamespaceProperty}:{host}{path.Path}",
                     Transforms = ingressContext.Options.Transforms,
                     AuthorizationPolicy = ingressContext.Options.AuthorizationPolicy,
+                    RateLimiterPolicy = ingressContext.Options.RateLimiterPolicy,
                     CorsPolicy = ingressContext.Options.CorsPolicy,
                     Metadata = ingressContext.Options.RouteMetadata,
                     Order = ingressContext.Options.RouteOrder,
@@ -171,15 +172,19 @@ internal static class YarpParser
 
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/backend-protocol", out var http))
         {
-        	options.Https = http.Equals("https", StringComparison.OrdinalIgnoreCase);
+            options.Https = http.Equals("https", StringComparison.OrdinalIgnoreCase);
         }
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/transforms", out var transforms))
         {
-            options.Transforms = YamlDeserializer.Deserialize<List<Dictionary<string,string>>>(transforms);
+            options.Transforms = YamlDeserializer.Deserialize<List<Dictionary<string, string>>>(transforms);
         }
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/authorization-policy", out var authorizationPolicy))
         {
             options.AuthorizationPolicy = authorizationPolicy;
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/rate-limiter-policy", out var rateLimiterPolicy))
+        {
+            options.RateLimiterPolicy = rateLimiterPolicy;
         }
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/cors-policy", out var corsPolicy))
         {

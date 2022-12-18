@@ -15,6 +15,7 @@ public class RouteConfigTests
         var a = new RouteConfig()
         {
             AuthorizationPolicy = "a",
+            RateLimiterPolicy = "rl",
             ClusterId = "c",
             CorsPolicy = "co",
             Match = new RouteMatch()
@@ -43,6 +44,7 @@ public class RouteConfigTests
         var b = new RouteConfig()
         {
             AuthorizationPolicy = "A",
+            RateLimiterPolicy = "RL",
             ClusterId = "C",
             CorsPolicy = "Co",
             Match = new RouteMatch()
@@ -82,6 +84,7 @@ public class RouteConfigTests
         var a = new RouteConfig()
         {
             AuthorizationPolicy = "a",
+            RateLimiterPolicy = "rl",
             ClusterId = "c",
             CorsPolicy = "co",
             Match = new RouteMatch()
@@ -114,6 +117,7 @@ public class RouteConfigTests
         var f = a with { Metadata = new Dictionary<string, string>() { { "f", "f1" } } };
         var g = a with { Order = null };
         var h = a with { RouteId = "h" };
+        var i = a with { RateLimiterPolicy = "i" };
 
         Assert.False(a.Equals(b));
         Assert.False(a.Equals(c));
@@ -122,6 +126,7 @@ public class RouteConfigTests
         Assert.False(a.Equals(f));
         Assert.False(a.Equals(g));
         Assert.False(a.Equals(h));
+        Assert.False(a.Equals(i));
     }
 
     [Fact]
@@ -136,6 +141,7 @@ public class RouteConfigTests
         var route1 = new RouteConfig()
         {
             AuthorizationPolicy = "a",
+            RateLimiterPolicy = "rl",
             ClusterId = "c",
             CorsPolicy = "co",
             Match = new RouteMatch()

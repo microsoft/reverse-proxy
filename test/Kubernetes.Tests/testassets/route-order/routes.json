@@ -11,6 +11,7 @@
     "Order": 10,
     "ClusterId": "frontend.default:80",
     "AuthorizationPolicy": null,
+    "RateLimiterPolicy": null,
     "CorsPolicy": null,
     "Metadata": null,
     "Transforms": null

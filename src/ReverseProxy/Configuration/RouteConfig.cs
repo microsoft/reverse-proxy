@@ -45,6 +45,13 @@ public sealed record RouteConfig
     public string? AuthorizationPolicy { get; init; }
 
     /// <summary>
+    /// The name of the RateLimiterPolicy to apply to this route.
+    /// If not set then only the GlobalLimiter will apply.
+    /// Set to "Disable" to disable rate limiting for this route.
+    /// </summary>
+    public string? RateLimiterPolicy { get; init; }
+
+    /// <summary>
     /// The name of the CorsPolicy to apply to this route.
     /// If not set then the route won't be automatically matched for cors preflight requests.
     /// Set to "Default" to enable cors with the default policy.
@@ -79,6 +86,7 @@ public sealed record RouteConfig
             && string.Equals(RouteId, other.RouteId, StringComparison.OrdinalIgnoreCase)
             && string.Equals(ClusterId, other.ClusterId, StringComparison.OrdinalIgnoreCase)
             && string.Equals(AuthorizationPolicy, other.AuthorizationPolicy, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(RateLimiterPolicy, other.RateLimiterPolicy, StringComparison.OrdinalIgnoreCase)
             && string.Equals(CorsPolicy, other.CorsPolicy, StringComparison.OrdinalIgnoreCase)
             && Match == other.Match
             && CaseSensitiveEqualHelper.Equals(Metadata, other.Metadata)
@@ -87,13 +95,17 @@ public sealed record RouteConfig
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Order,
-            RouteId?.GetHashCode(StringComparison.OrdinalIgnoreCase),
-            ClusterId?.GetHashCode(StringComparison.OrdinalIgnoreCase),
-            AuthorizationPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
-            CorsPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase),
-            Match,
-            CaseSensitiveEqualHelper.GetHashCode(Metadata),
-            CaseSensitiveEqualHelper.GetHashCode(Transforms));
+        // HashCode.Combine(...) takes only 8 arguments
+        var hash = new HashCode();
+        hash.Add(Order);
+        hash.Add(RouteId?.GetHashCode(StringComparison.OrdinalIgnoreCase));
+        hash.Add(ClusterId?.GetHashCode(StringComparison.OrdinalIgnoreCase));
+        hash.Add(AuthorizationPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
+        hash.Add(RateLimiterPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
+        hash.Add(CorsPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
+        hash.Add(Match);
+        hash.Add(CaseSensitiveEqualHelper.GetHashCode(Metadata));
+        hash.Add(CaseSensitiveEqualHelper.GetHashCode(Transforms));
+        return hash.ToHashCode();
     }
 }

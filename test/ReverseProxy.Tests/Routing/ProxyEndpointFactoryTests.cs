@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+#if NET7_0_OR_GREATER
+using Microsoft.AspNetCore.RateLimiting;
+#endif
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.Extensions.DependencyInjection;
@@ -320,6 +323,78 @@ public class ProxyEndpointFactoryTests
         Assert.Null(routeEndpoint.Metadata.GetMetadata<IAuthorizeData>());
         Assert.Null(routeEndpoint.Metadata.GetMetadata<IAllowAnonymous>());
     }
+
+#if NET7_0_OR_GREATER
+    [Fact]
+    public void AddEndpoint_CustomRateLimiter_Works()
+    {
+        var services = CreateServices();
+        var factory = services.GetRequiredService<ProxyEndpointFactory>();
+        factory.SetProxyPipeline(context => Task.CompletedTask);
+
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            RateLimiterPolicy = "custom",
+            Order = 12,
+            Match = new RouteMatch(),
+        };
+        var cluster = new ClusterState("cluster1");
+        var routeState = new RouteState("route1");
+
+        var (routeEndpoint, _) = CreateEndpoint(factory, routeState, route, cluster);
+
+        var attribute = routeEndpoint.Metadata.GetMetadata<EnableRateLimitingAttribute>();
+        Assert.NotNull(attribute);
+        Assert.Equal("custom", attribute.PolicyName);
+        Assert.Null(routeEndpoint.Metadata.GetMetadata<DisableRateLimitingAttribute>());
+    }
+
+    [Fact]
+    public void AddEndpoint_DisableRateLimiter_Works()
+    {
+        var services = CreateServices();
+        var factory = services.GetRequiredService<ProxyEndpointFactory>();
+        factory.SetProxyPipeline(context => Task.CompletedTask);
+
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            RateLimiterPolicy = "disAble",
+            Order = 12,
+            Match = new RouteMatch(),
+        };
+        var cluster = new ClusterState("cluster1");
+        var routeState = new RouteState("route1");
+
+        var (routeEndpoint, _) = CreateEndpoint(factory, routeState, route, cluster);
+
+        Assert.NotNull(routeEndpoint.Metadata.GetMetadata<DisableRateLimitingAttribute>());
+        Assert.Null(routeEndpoint.Metadata.GetMetadata<EnableRateLimitingAttribute>());
+    }
+
+    [Fact]
+    public void AddEndpoint_NoRateLimiter_Works()
+    {
+        var services = CreateServices();
+        var factory = services.GetRequiredService<ProxyEndpointFactory>();
+        factory.SetProxyPipeline(context => Task.CompletedTask);
+
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            Order = 12,
+            Match = new RouteMatch(),
+        };
+        var cluster = new ClusterState("cluster1");
+        var routeState = new RouteState("route1");
+
+        var (routeEndpoint, _) = CreateEndpoint(factory, routeState, route, cluster);
+
+        Assert.Null(routeEndpoint.Metadata.GetMetadata<EnableRateLimitingAttribute>());
+        Assert.Null(routeEndpoint.Metadata.GetMetadata<DisableRateLimitingAttribute>());
+    }
+#endif
 
     [Fact]
     public void AddEndpoint_DefaultCors_Works()

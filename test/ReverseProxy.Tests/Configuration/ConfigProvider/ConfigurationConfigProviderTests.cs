@@ -127,6 +127,7 @@ public class ConfigurationConfigProviderTests
                 RouteId = "routeA",
                 ClusterId = "cluster1",
                 AuthorizationPolicy = "Default",
+                RateLimiterPolicy = "mypolicy",
                 CorsPolicy = "Default",
                 Order = -1,
                 MaxRequestBodySize = -1,
@@ -332,6 +333,7 @@ public class ConfigurationConfigProviderTests
             ""MaxRequestBodySize"": -1,
             ""ClusterId"": ""cluster1"",
             ""AuthorizationPolicy"": ""Default"",
+            ""RateLimiterPolicy"": ""mypolicy"",
             ""CorsPolicy"": ""Default"",
             ""Metadata"": {
                 ""routeA-K1"": ""routeA-V1"",
@@ -375,6 +377,7 @@ public class ConfigurationConfigProviderTests
             ""MaxRequestBodySize"": 1,
             ""ClusterId"": ""cluster2"",
             ""AuthorizationPolicy"": null,
+            ""RateLimiterPolicy"": null,
             ""CorsPolicy"": null,
             ""Metadata"": null,
             ""Transforms"": null

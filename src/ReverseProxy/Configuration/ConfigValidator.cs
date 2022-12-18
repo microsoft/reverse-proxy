@@ -72,6 +72,7 @@ internal sealed class ConfigValidator : IConfigValidator
 
         errors.AddRange(_transformBuilder.ValidateRoute(route));
         await ValidateAuthorizationPolicyAsync(errors, route.AuthorizationPolicy, route.RouteId);
+        await ValidateRateLimiterPolicyAsync(errors, route.RateLimiterPolicy, route.RouteId);
         await ValidateCorsPolicyAsync(errors, route.CorsPolicy, route.RouteId);
 
         if (route.Match is null)
@@ -285,6 +286,47 @@ internal sealed class ConfigValidator : IConfigValidator
         {
             errors.Add(new ArgumentException($"Unable to retrieve the authorization policy '{authorizationPolicyName}' for route '{routeId}'.", ex));
         }
+    }
+
+    private ValueTask ValidateRateLimiterPolicyAsync(IList<Exception> errors, string? rateLimiterPolicyName, string routeId)
+    {
+        if (string.IsNullOrEmpty(rateLimiterPolicyName))
+        {
+            //return;
+            return ValueTask.CompletedTask;
+        }
+
+        // TODO: update this once AspNetCore provides a mechanism to validate the RateLimiter policies (maybe .NET8?)
+
+        if (string.Equals(RateLimitingConstants.Disable, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase))
+        {
+#if NET7_0_OR_GREATER
+            //var policy = await _rateLimiterPolicyProvider.GetPolicyAsync(rateLimiterPolicyName);
+            //if (policy is not null)
+            //{
+            //    errors.Add(new ArgumentException($"The application has registered a RateLimiter policy named '{rateLimiterPolicyName}' that conflicts with the reserved RateLimiter policy name used on this route. The registered policy name needs to be changed for this route to function."));
+            //}
+#endif
+            //return;
+            return ValueTask.CompletedTask;
+        }
+
+        try
+        {
+#if NET7_0_OR_GREATER
+            //var policy = await _rateLimiterPolicyProvider.GetPolicyAsync(rateLimiterPolicyName);
+            //if (policy is null)
+            //{
+            //    errors.Add(new ArgumentException($"RateLimiter policy '{rateLimiterPolicyName}' not found for route '{routeId}'."));
+            //}
+#endif
+        }
+        catch (Exception ex)
+        {
+            errors.Add(new ArgumentException($"Unable to retrieve the RateLimiter policy '{rateLimiterPolicyName}' for route '{routeId}'.", ex));
+        }
+
+        return ValueTask.CompletedTask;
     }
 
     private async ValueTask ValidateCorsPolicyAsync(IList<Exception> errors, string? corsPolicyName, string routeId)
