@@ -3,6 +3,8 @@
 ## Introduction
 The reverse proxy can be used to rate-limit requests before they are proxied to the destination servers. This can reduce load on the destination servers, add a layer of protection, and ensure consistent policies are implemented across your applications.
 
+> This feature is only available when using .NET 7.0 or later
+
 ## Defaults
 
 No rate limiting is performed on requests unless enabled in the route or application configuration.
@@ -36,7 +38,7 @@ Example:
 }
 ```
 
-[RateLimiter policies](https://learn.microsoft.com/en-us/aspnet/core/performance/rate-limit) are an ASP.NET Core concept that the proxy utilizes. The proxy provides the above configuration to specify a policy per route and the rest is handled by existing ASP.NET Core rate limiting middleware.
+[RateLimiter policies](https://learn.microsoft.com//aspnet/core/performance/rate-limit) are an ASP.NET Core concept that the proxy utilizes. The proxy provides the above configuration to specify a policy per route and the rest is handled by existing ASP.NET Core rate limiting middleware.
 
 RateLimiter policies can be configured in Startup.ConfigureServices as follows:
 ```
@@ -71,8 +73,8 @@ public void Configure(IApplicationBuilder app)
 }
 ```
 
-See the [Rate Limiting](https://learn.microsoft.com/en-us/aspnet/core/performance/rate-limit) docs for setting up your preferred kind of rate limiting.
+See the [Rate Limiting](https://learn.microsoft.com//aspnet/core/performance/rate-limit) docs for setting up your preferred kind of rate limiting.
 
-### Disable CORS
+### Disable Rate Limiting
 
-Specifying the value `disable` in a route's `RateLimiterPolicy` parameter means the rate limiter middleware will not rate limit requests.
+Specifying the value `disable` in a route's `RateLimiterPolicy` parameter means the rate limiter middleware will not  apply any policies to this route, even the default policy.
