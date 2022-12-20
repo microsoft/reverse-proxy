@@ -296,7 +296,7 @@ internal sealed class ConfigValidator : IConfigValidator
             return ValueTask.CompletedTask;
         }
 
-        // TODO: update this once AspNetCore provides a mechanism to validate the RateLimiter policies (maybe .NET8?)
+        // TODO: update this once AspNetCore provides a mechanism to validate the RateLimiter policies https://github.com/dotnet/aspnetcore/issues/45684
 
         if (string.Equals(RateLimitingConstants.Default, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase))
         {

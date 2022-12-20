@@ -7,7 +7,12 @@ The reverse proxy can be used to rate-limit requests before they are proxied to 
 
 ## Defaults
 
-No rate limiting is performed on requests unless enabled in the route or application configuration.
+No rate limiting is performed on requests unless enabled in the route or application configuration. However, the Rate Limiting middleware (`app.UseRateLimiter()`) can apply a default limiter applied to all routes, and this doesn't require any opt-in from the config.
+
+Example:
+```
+builder.Services.AddRateLimiter(options => options.GlobalLimiter = globalLimiter);
+```
 
 ## Configuration
 Rate Limiter policies can be specified per route via [RouteConfig.RateLimiterPolicy](xref:Yarp.ReverseProxy.Configuration.RouteConfig) and can be bound from the `Routes` sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.
