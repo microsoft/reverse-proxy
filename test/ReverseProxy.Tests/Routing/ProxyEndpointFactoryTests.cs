@@ -326,6 +326,29 @@ public class ProxyEndpointFactoryTests
 
 #if NET7_0_OR_GREATER
     [Fact]
+    public void AddEndpoint_DefaultRateLimiter_Works()
+    {
+        var services = CreateServices();
+        var factory = services.GetRequiredService<ProxyEndpointFactory>();
+        factory.SetProxyPipeline(context => Task.CompletedTask);
+
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            RateLimiterPolicy = "defaulT",
+            Order = 12,
+            Match = new RouteMatch(),
+        };
+        var cluster = new ClusterState("cluster1");
+        var routeState = new RouteState("route1");
+
+        var (routeEndpoint, _) = CreateEndpoint(factory, routeState, route, cluster);
+
+        Assert.Null(routeEndpoint.Metadata.GetMetadata<EnableRateLimitingAttribute>());
+        Assert.Null(routeEndpoint.Metadata.GetMetadata<DisableRateLimitingAttribute>());
+    }
+
+    [Fact]
     public void AddEndpoint_CustomRateLimiter_Works()
     {
         var services = CreateServices();

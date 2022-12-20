@@ -5,5 +5,6 @@ namespace Yarp.ReverseProxy.Configuration;
 
 internal static class RateLimitingConstants
 {
+    internal const string Default = "Default";
     internal const string Disable = "Disable";
 }

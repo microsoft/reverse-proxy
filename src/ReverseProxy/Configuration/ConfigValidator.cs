@@ -298,6 +298,19 @@ internal sealed class ConfigValidator : IConfigValidator
 
         // TODO: update this once AspNetCore provides a mechanism to validate the RateLimiter policies (maybe .NET8?)
 
+        if (string.Equals(RateLimitingConstants.Default, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase))
+        {
+#if NET7_0_OR_GREATER
+            //var policy = await _rateLimiterPolicyProvider.GetPolicyAsync(rateLimiterPolicyName);
+            //if (policy is not null)
+            //{
+            //    errors.Add(new ArgumentException($"The application has registered a RateLimiter policy named '{rateLimiterPolicyName}' that conflicts with the reserved RateLimiter policy name used on this route. The registered policy name needs to be changed for this route to function."));
+            //}
+#endif
+            //return;
+            return ValueTask.CompletedTask;
+        }
+
         if (string.Equals(RateLimitingConstants.Disable, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase))
         {
 #if NET7_0_OR_GREATER

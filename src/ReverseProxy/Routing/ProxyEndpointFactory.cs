@@ -25,7 +25,7 @@ internal sealed class ProxyEndpointFactory
 {
     private static readonly IAuthorizeData _defaultAuthorization = new AuthorizeAttribute();
 #if NET7_0_OR_GREATER
-    private static readonly DisableRateLimitingAttribute _disableRateLimit = new DisableRateLimitingAttribute();
+    private static readonly DisableRateLimitingAttribute _disableRateLimit = new();
 #endif
     private static readonly IEnableCorsAttribute _defaultCors = new EnableCorsAttribute();
     private static readonly IDisableCorsAttribute _disableCors = new DisableCorsAttribute();
@@ -118,7 +118,11 @@ internal sealed class ProxyEndpointFactory
         }
 
 #if NET7_0_OR_GREATER
-        if (string.Equals(RateLimitingConstants.Disable, config.RateLimiterPolicy, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(RateLimitingConstants.Default, config.RateLimiterPolicy, StringComparison.OrdinalIgnoreCase))
+        {
+            // No-op (middleware applies the default)
+        }
+        else if (string.Equals(RateLimitingConstants.Disable, config.RateLimiterPolicy, StringComparison.OrdinalIgnoreCase))
         {
             endpointBuilder.Metadata.Add(_disableRateLimit);
         }
