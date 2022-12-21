@@ -48,6 +48,7 @@ public sealed record RouteConfig
     /// The name of the RateLimiterPolicy to apply to this route.
     /// If not set then only the GlobalLimiter will apply.
     /// Set to "Disable" to disable rate limiting for this route.
+    /// Set to "Default" or leave empty use the global rate limits, if any.
     /// </summary>
     public string? RateLimiterPolicy { get; init; }
 
