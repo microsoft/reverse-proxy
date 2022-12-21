@@ -1244,7 +1244,7 @@ public class HttpForwarderTests
         var events = TestEventListener.Collect();
 
         // Use any non-default value
-        var version = new Version(5, 5);
+        var version = new Version(3, 0);
         var versionPolicy = HttpVersionPolicy.RequestVersionExact;
 
         var httpContext = new DefaultHttpContext();
@@ -1286,8 +1286,8 @@ public class HttpForwarderTests
         var events = TestEventListener.Collect();
 
         // Use any non-default value
-        var version = new Version(5, 5);
-        var transformedVersion = new Version(6, 6);
+        var version = new Version(0, 9);
+        var transformedVersion = new Version(3, 0);
         var versionPolicy = HttpVersionPolicy.RequestVersionExact;
         var transformedVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
 
