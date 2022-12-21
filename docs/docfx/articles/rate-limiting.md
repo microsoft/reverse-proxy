@@ -82,4 +82,4 @@ See the [Rate Limiting](https://learn.microsoft.com/aspnet/core/performance/rate
 
 ### Disable Rate Limiting
 
-Specifying the value `disable` in a route's `RateLimiterPolicy` parameter means the rate limiter middleware will not  apply any policies to this route, even the default policy.
+Specifying the value `disable` in a route's `RateLimiterPolicy` parameter means the rate limiter middleware will not apply any policies to this route, even the default policy.
