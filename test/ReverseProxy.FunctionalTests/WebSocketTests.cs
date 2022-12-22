@@ -151,7 +151,7 @@ public class WebSocketTests
         await test.Invoke(async uri =>
         {
             using var client = new ClientWebSocket();
-            await SendWebSocketRequestAsync(client, uri, cts.Token);
+            await SendWebSocketRequestAsync(client, uri, "HTTP/1.1", cts.Token);
         }, cts.Token);
     }
 
@@ -161,6 +161,12 @@ public class WebSocketTests
     [InlineData(false)]
     public async Task WebSocket20_To_20(bool useHttps)
     {
+        if (OperatingSystem.IsMacOS() && useHttps)
+        {
+            // Does not support ALPN until .NET 8
+            return;
+        }
+
         using var cts = CreateTimer();
 
         var test = CreateTestEnvironment();
@@ -175,7 +181,7 @@ public class WebSocketTests
             using var client = new ClientWebSocket();
             client.Options.HttpVersion = HttpVersion.Version20;
             client.Options.HttpVersionPolicy = HttpVersionPolicy.RequestVersionExact;
-            await SendWebSocketRequestAsync(client, uri, cts.Token);
+            await SendWebSocketRequestAsync(client, uri, "HTTP/2", cts.Token);
         }, cts.Token);
     }
 
@@ -184,6 +190,12 @@ public class WebSocketTests
     [InlineData(false)]
     public async Task WebSocket20_To_11(bool useHttps)
     {
+        if (OperatingSystem.IsMacOS() && useHttps)
+        {
+            // Does not support ALPN until .NET 8
+            return;
+        }
+
         using var cts = CreateTimer();
 
         var test = CreateTestEnvironment();
@@ -198,7 +210,7 @@ public class WebSocketTests
             using var client = new ClientWebSocket();
             client.Options.HttpVersion = HttpVersion.Version20;
             client.Options.HttpVersionPolicy = HttpVersionPolicy.RequestVersionExact;
-            await SendWebSocketRequestAsync(client, uri, cts.Token);
+            await SendWebSocketRequestAsync(client, uri, "HTTP/1.1", cts.Token);
         }, cts.Token);
     }
 
@@ -207,6 +219,12 @@ public class WebSocketTests
     [InlineData(false)]
     public async Task WebSocket11_To_20(bool useHttps)
     {
+        if (OperatingSystem.IsMacOS() && useHttps)
+        {
+            // Does not support ALPN until .NET 8
+            return;
+        }
+
         using var cts = CreateTimer();
 
         var test = CreateTestEnvironment();
@@ -221,7 +239,7 @@ public class WebSocketTests
             using var client = new ClientWebSocket();
             client.Options.HttpVersion = HttpVersion.Version11;
             client.Options.HttpVersionPolicy = HttpVersionPolicy.RequestVersionExact;
-            await SendWebSocketRequestAsync(client, uri, cts.Token);
+            await SendWebSocketRequestAsync(client, uri, "HTTP/2", cts.Token);
         }, cts.Token);
     }
 
@@ -240,11 +258,11 @@ public class WebSocketTests
         await test.Invoke(async uri =>
         {
             using var client = new ClientWebSocket();
-            await SendWebSocketRequestAsync(client, uri, cts.Token);
+            await SendWebSocketRequestAsync(client, uri, "HTTP/1.1", cts.Token);
         }, cts.Token);
     }
 
-    [Fact]
+    [Fact(Skip = "Manual test only, the CI doesn't always have the IIS Express test cert installed.")]
     public async Task WebSocketFallbackFromH2WS()
     {
         if (!OperatingSystem.IsWindows())
@@ -264,7 +282,7 @@ public class WebSocketTests
         await test.Invoke(async uri =>
         {
             using var client = new ClientWebSocket();
-            await SendWebSocketRequestAsync(client, uri, cts.Token);
+            await SendWebSocketRequestAsync(client, uri, "HTTP/1.1", cts.Token);
         }, cts.Token);
     }
 
@@ -300,10 +318,10 @@ public class WebSocketTests
     }
 #endif
 
-    private async Task SendWebSocketRequestAsync(ClientWebSocket client, string uri, CancellationToken token)
+    private async Task SendWebSocketRequestAsync(ClientWebSocket client, string uri, string destinationProtocol, CancellationToken token)
     {
         var webSocketsTarget = uri.Replace("https://", "wss://").Replace("http://", "ws://");
-        var targetUri = new Uri(new Uri(webSocketsTarget, UriKind.Absolute), "websockets");
+        var targetUri = new Uri(new Uri(webSocketsTarget, UriKind.Absolute), "websocketversion");
 #if NET7_0_OR_GREATER
         using var invoker = CreateInvoker();
         await client.ConnectAsync(targetUri, invoker, token);
@@ -329,7 +347,7 @@ public class WebSocketTests
         Assert.True(message.EndOfMessage);
 
         var text = Encoding.UTF8.GetString(buffer.AsSpan(0, message.Count));
-        Assert.Equal(textToSend, text);
+        Assert.Equal(destinationProtocol, text);
 
         _output.WriteLine($"Client sending Close.");
         await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "Bye", token);
@@ -354,6 +372,7 @@ public class WebSocketTests
                 destinationApp.UseEndpoints(builder =>
                 {
                     builder.Map("/websockets", WebSocket);
+                    builder.Map("/websocketVersion", WebSocketVersion);
                     builder.Map("/rawupgrade", RawUpgrade);
                     builder.Map("/post", Post);
                 });
@@ -399,12 +418,48 @@ public class WebSocketTests
 
                 logger.LogInformation("WebSocket received {0} bytes.", message.Count);
 
-                await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, message.Count),
+                await webSocket.SendAsync(buffer[0..message.Count],
                     message.MessageType,
                     message.EndOfMessage,
                     httpContext.RequestAborted);
 
                 logger.LogInformation("WebSocket sent {0} bytes.", message.Count);
+            }
+        }
+
+        static async Task WebSocketVersion(HttpContext httpContext)
+        {
+            var logger = httpContext.RequestServices.GetRequiredService<ILogger<WebSocketTests>>();
+            if (!httpContext.WebSockets.IsWebSocketRequest)
+            {
+                httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                logger.LogInformation("Non-WebSocket request refused.");
+                return;
+            }
+
+            using var webSocket = await httpContext.WebSockets.AcceptWebSocketAsync();
+            logger.LogInformation("WebSocket accepted.");
+
+            var buffer = new byte[1024];
+            while (true)
+            {
+                var message = await webSocket.ReceiveAsync(buffer, httpContext.RequestAborted);
+                if (message.MessageType == WebSocketMessageType.Close)
+                {
+                    logger.LogInformation("WebSocket Close received {0}.", message.CloseStatus);
+                    await webSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, message.CloseStatusDescription, httpContext.RequestAborted);
+                    logger.LogInformation("WebSocket Close sent {0}.", WebSocketCloseStatus.NormalClosure);
+                    return;
+                }
+
+                logger.LogInformation("WebSocket received {0} bytes.", message.Count);
+
+                await webSocket.SendAsync(Encoding.ASCII.GetBytes(httpContext.Request.Protocol),
+                    WebSocketMessageType.Text,
+                    endOfMessage: true,
+                    httpContext.RequestAborted);
+
+                logger.LogInformation("WebSocket sent {0} bytes.", httpContext.Request.Protocol.Length);
             }
         }
 

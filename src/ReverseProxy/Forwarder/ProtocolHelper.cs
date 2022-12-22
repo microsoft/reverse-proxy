@@ -2,15 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
-using System.Security.Cryptography;
 
 namespace Yarp.ReverseProxy.Forwarder;
 
@@ -46,7 +44,6 @@ internal static class ProtocolHelper
     /// <summary>
     /// Creates a security key for sending in the Sec-WebSocket-Key header.
     /// </summary>
-    /// <returns>The request header security key.</returns>
     internal static string CreateSecWebSocketKey()
     {
         Span<byte> bytes = stackalloc byte[16];
@@ -58,10 +55,8 @@ internal static class ProtocolHelper
     }
 
     /// <summary>
-    /// Creates a pair of a security key for sending in the Sec-WebSocket-Key header and
-    /// the associated response we expect to receive as the Sec-WebSocket-Accept header value.
+    /// Creates the Accept response to a given security key for sending in or verifying the Sec-WebSocket-Accept header value.
     /// </summary>
-    /// <returns>A key-value pair of the request header security key and expected response header value.</returns>
     internal static string CreateSecWebSocketAccept(string? key)
     {
         // GUID appended by the server as part of the security key response.  Defined in the RFC.
