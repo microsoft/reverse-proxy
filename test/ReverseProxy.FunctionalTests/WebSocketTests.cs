@@ -224,6 +224,80 @@ public class WebSocketTests
             await SendWebSocketRequestAsync(client, uri, cts.Token);
         }, cts.Token);
     }
+
+    [Fact]
+    public async Task WebSocketFallbackFromH2()
+    {
+        using var cts = CreateTimer();
+
+        var test = CreateTestEnvironment();
+        test.ProxyProtocol = HttpProtocols.Http1;
+        // The destination doesn't support HTTP/2, as determined by ALPN
+        test.DestinationProtocol = HttpProtocols.Http1;
+        test.DestionationHttpVersion = HttpVersion.Version20;
+        test.UseHttpsOnDestination = true;
+
+        await test.Invoke(async uri =>
+        {
+            using var client = new ClientWebSocket();
+            await SendWebSocketRequestAsync(client, uri, cts.Token);
+        }, cts.Token);
+    }
+
+    [Fact]
+    public async Task WebSocketFallbackFromH2WS()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            // This test relies on Windows/HttpSys
+            return;
+        }
+
+        using var cts = CreateTimer();
+
+        var test = CreateTestEnvironment();
+        test.ProxyProtocol = HttpProtocols.Http1;
+        // The destination supports HTTP/2, but not H2WS
+        test.UseHttpSysOnDestination = true;
+        test.UseHttpsOnDestination = true;
+
+        await test.Invoke(async uri =>
+        {
+            using var client = new ClientWebSocket();
+            await SendWebSocketRequestAsync(client, uri, cts.Token);
+        }, cts.Token);
+    }
+
+    [Theory]
+    [InlineData(HttpVersionPolicy.RequestVersionExact, true)]
+    // [InlineData(HttpVersionPolicy.RequestVersionExact, false)] HttpClient bug causes this to time out?
+    [InlineData(HttpVersionPolicy.RequestVersionOrHigher, true)]
+    public async Task WebSocketCantFallbackFromH2(HttpVersionPolicy policy, bool useHttps)
+    {
+        using var cts = CreateTimer();
+
+        var test = CreateTestEnvironment();
+        test.ProxyProtocol = HttpProtocols.Http1;
+        test.DestinationProtocol = HttpProtocols.Http1;
+        test.DestionationHttpVersion = HttpVersion.Version20;
+        test.DestionationHttpVersionPolicy = policy;
+        test.UseHttpsOnDestination = useHttps;
+
+        await test.Invoke(async uri =>
+        {
+            using var client = new ClientWebSocket();
+            var webSocketsTarget = uri.Replace("https://", "wss://").Replace("http://", "ws://");
+            var targetUri = new Uri(new Uri(webSocketsTarget, UriKind.Absolute), "websockets");
+#if NET7_0_OR_GREATER
+            using var invoker = CreateInvoker();
+            var wse = await Assert.ThrowsAsync<WebSocketException>(() => client.ConnectAsync(targetUri, invoker, cts.Token));
+#else
+            client.Options.RemoteCertificateValidationCallback = (_, _, _, _) => true;
+            var wse = await Assert.ThrowsAsync<WebSocketException>(() => await client.ConnectAsync(targetUri, cts.Token));
+#endif
+            Assert.Equal("The server returned status code '502' when status code '101' was expected.", wse.Message);
+        }, cts.Token);
+    }
 #endif
 
     private async Task SendWebSocketRequestAsync(ClientWebSocket client, string uri, CancellationToken token)
