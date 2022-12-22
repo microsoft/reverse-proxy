@@ -669,16 +669,13 @@ internal sealed class HttpForwarder : IHttpForwarder
     {
         ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.ResponseUpgrade);
 
-        // SocketHttpHandler and similar transports always provide an HttpContent object, even if it's empty.
-        // Note as of 5.0 HttpResponse.Content never returns null.
-        // https://github.com/dotnet/runtime/blame/8fc68f626a11d646109a758cb0fc70a0aa7826f1/src/libraries/System.Net.Http/src/System/Net/Http/HttpResponseMessage.cs#L46
-        if (destinationResponse.Content is null)
-        {
-            throw new InvalidOperationException("A response content is required for upgrades.");
-        }
-
         var isHttp2Request = HttpProtocol.IsHttp2(context.Request.Protocol);
-        FixupUpgradeResponseHeaders(context, destinationResponse, isHttp2Request);
+        var headerError = FixupUpgradeResponseHeaders(context, destinationResponse, isHttp2Request);
+        if (headerError != ForwarderError.None)
+        {
+            destinationResponse.Dispose();
+            return headerError;
+        }
 
         // :: Step 7-A-1: Upgrade the client channel. This will also send response headers.
         Stream upgradeResult;
@@ -769,25 +766,28 @@ internal sealed class HttpForwarder : IHttpForwarder
     }
 
     // The Connection and Upgrade headers were not copied by default
-    private static void FixupUpgradeResponseHeaders(HttpContext context, HttpResponseMessage response, bool isHttp2Request)
+    private ForwarderError FixupUpgradeResponseHeaders(HttpContext context, HttpResponseMessage response, bool isHttp2Request)
     {
         if (isHttp2Request)
         {
             // H2 <- H1 Validate & remove the Sec-WebSocket-Accept header.
             if (response.Version != HttpVersion.Version20)
             {
-                var key = context.Request.Headers[HeaderNames.SecWebSocketKey];
+                var key = response.RequestMessage!.Headers.GetValues(HeaderNames.SecWebSocketKey);
                 var accept = context.Response.Headers[HeaderNames.SecWebSocketAccept];
-                var expectedAccept = ProtocolHelper.CreateSecWebSocketAccept(key);
-                if (!string.Equals(expectedAccept, accept, StringComparison.Ordinal))
+                var expectedAccept = ProtocolHelper.CreateSecWebSocketAccept(key.FirstOrDefault());
+                if (!string.Equals(expectedAccept, accept, StringComparison.Ordinal)) // Base64 is case sensitive
                 {
-                    // TODO: Fail
+                    context.Response.Clear();
+                    context.Response.StatusCode = StatusCodes.Status502BadGateway;
+                    ReportProxyError(context, ForwarderError.ResponseHeaders, new InvalidOperationException("The Sec-WebSocket-Accept header does not match the expected value."));
+                    return ForwarderError.ResponseHeaders;
                 }
                 context.Response.Headers.Remove(HeaderNames.SecWebSocketAccept);
                 context.Response.StatusCode = StatusCodes.Status200OK;
             }
             // else H2 <- H2, no changes needed
-            return;
+            return ForwarderError.None;
         }
 
         // H1 <- H2
@@ -799,7 +799,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             context.Response.Headers.TryAdd(HeaderNames.SecWebSocketAccept, accept);
             context.Response.Headers.TryAdd(HeaderNames.Connection, HeaderNames.Upgrade);
             context.Response.Headers.TryAdd(HeaderNames.Upgrade, "websocket");
-            return;
+            return ForwarderError.None;
         }
 
         // H1 <- H1
@@ -819,6 +819,8 @@ internal sealed class HttpForwarder : IHttpForwarder
                 }
             }
         }
+
+        return ForwarderError.None;
     }
 
     private async ValueTask<(StreamCopyResult, Exception?)> CopyResponseBodyAsync(HttpContent destinationResponseContent, Stream clientResponseStream,

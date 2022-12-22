@@ -62,7 +62,7 @@ internal static class ProtocolHelper
     /// the associated response we expect to receive as the Sec-WebSocket-Accept header value.
     /// </summary>
     /// <returns>A key-value pair of the request header security key and expected response header value.</returns>
-    internal static string CreateSecWebSocketAccept(string key)
+    internal static string CreateSecWebSocketAccept(string? key)
     {
         // GUID appended by the server as part of the security key response.  Defined in the RFC.
         var wsServerGuidBytes = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"u8;
