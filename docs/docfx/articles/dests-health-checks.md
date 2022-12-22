@@ -314,13 +314,13 @@ public class FirstUnsuccessfulResponseHealthPolicy : IPassiveHealthCheckPolicy
 
     public string Name => "FirstUnsuccessfulResponse";
 
-    public void RequestProxied(ClusterState cluster, DestinationState destination, HttpContext context)
+   public void RequestProxied(HttpContext context, ClusterState cluster, DestinationState destination)
     {
-        var error = context.Features.Get<IProxyErrorFeature>();
+        var error = context.Features.Get<IForwarderErrorFeature>();
         if (error is not null)
         {
-            var reactivationPeriod = cluster.Model.Config.HealthCheck.Passive.ReactivationPeriod ?? _defaultReactivationPeriod;
-            _ = _healthUpdater.SetPassiveAsync(cluster, destination, DestinationHealth.Unhealthy, reactivationPeriod);
+            var reactivationPeriod = cluster.Model.Config.HealthCheck?.Passive?.ReactivationPeriod ?? _defaultReactivationPeriod;
+            _healthUpdater.SetPassive(cluster, destination, DestinationHealth.Unhealthy, reactivationPeriod);
         }
     }
 }
