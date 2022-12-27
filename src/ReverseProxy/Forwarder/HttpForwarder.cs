@@ -226,7 +226,7 @@ internal sealed class HttpForwarder : IHttpForwarder
 #if NET7_0_OR_GREATER
                 || destinationResponse.StatusCode == HttpStatusCode.OK
                 && destinationResponse.Version == HttpVersion.Version20
-                && destinationRequest.Headers.Protocol != null
+                && destinationRequest.Headers.Protocol is not null
                 && destinationRequest.Method.Equals(HttpMethod.Connect)
 #endif
                 )
@@ -386,8 +386,8 @@ internal sealed class HttpForwarder : IHttpForwarder
         else
         {
             destinationRequest.Method = RequestUtilities.GetHttpMethod(context.Request.Method);
-            destinationRequest.Version = requestConfig?.Version ?? DefaultVersion;
-            destinationRequest.VersionPolicy = requestConfig?.VersionPolicy ?? DefaultVersionPolicy;
+            destinationRequest.Version = outgoingVersion;
+            destinationRequest.VersionPolicy = outgoingPolicy;
         }
 
         // :: Step 2: Setup copy of request body (background) Client --► Proxy --► Destination

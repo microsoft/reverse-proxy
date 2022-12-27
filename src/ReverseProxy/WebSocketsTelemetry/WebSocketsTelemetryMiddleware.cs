@@ -9,7 +9,7 @@ using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.WebSocketsTelemetry;
 
-internal sealed partial class WebSocketsTelemetryMiddleware
+internal sealed class WebSocketsTelemetryMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly IClock _clock;

@@ -312,7 +312,7 @@ public class WebSocketTests
             var wse = await Assert.ThrowsAsync<WebSocketException>(() => client.ConnectAsync(targetUri, invoker, cts.Token));
 #else
             client.Options.RemoteCertificateValidationCallback = (_, _, _, _) => true;
-            var wse = await Assert.ThrowsAsync<WebSocketException>(() => await client.ConnectAsync(targetUri, cts.Token));
+            var wse = await Assert.ThrowsAsync<WebSocketException>(() => client.ConnectAsync(targetUri, cts.Token));
 #endif
             Assert.Equal("The server returned status code '502' when status code '101' was expected.", wse.Message);
         }, cts.Token);
