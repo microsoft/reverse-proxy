@@ -84,7 +84,7 @@ internal static class YarpParser
         {
             foreach (var port in subset.Ports ?? Enumerable.Empty<Corev1EndpointPort>())
             {
-                if (!MatchesPort(port, servicePort?.TargetPort))
+                if (!MatchesPort(port, servicePort))
                 {
                     continue;
                 }
@@ -229,17 +229,17 @@ internal static class YarpParser
         return options;
     }
 
-    private static bool MatchesPort(Corev1EndpointPort port1, IntstrIntOrString port2)
+    private static bool MatchesPort(Corev1EndpointPort port1, V1ServicePort port2)
     {
-        if (port1 is null || port2 is null)
+        if (port1 is null || port2?.TargetPort is null)
         {
             return false;
         }
-        if (int.TryParse(port2, out var port2Number) && port2Number == port1.Port)
+        if (int.TryParse(port2.TargetPort, out var port2Number) && port2Number == port1.Port)
         {
             return true;
         }
-        if (string.Equals(port2, port1.Name, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(port2.Name, port1.Name, StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }

@@ -1,0 +1,18 @@
+[
+  {
+    "RouteId": "port-diff-name.default:/foo",
+    "Match": {
+      "Methods": null,
+      "Hosts": [],
+      "Path": "/foo/{**catch-all}",
+      "Headers": null,
+      "QueryParameters": null
+    },
+    "Order": null,
+    "ClusterId": "backend.default:88",
+    "AuthorizationPolicy": null,
+    "CorsPolicy": null,
+    "Metadata": null,
+    "Transforms": null
+  }
+]
