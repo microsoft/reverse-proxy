@@ -54,6 +54,7 @@ public class IngressConversionTests
     [InlineData("route-headers")]
     [InlineData("route-order")]
     [InlineData("missing-svc")]
+    [InlineData("port-diff-name")]
     public async Task ParsingTests(string name)
     {
         var ingressClass = KubeResourceGenerator.CreateIngressClass("yarp", "microsoft.com/ingress-yarp", true);
