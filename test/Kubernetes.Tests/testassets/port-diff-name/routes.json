@@ -9,7 +9,7 @@
       "QueryParameters": null
     },
     "Order": null,
-    "ClusterId": "port-diff-name:my-http",
+    "ClusterId": "backend.default:88",
     "AuthorizationPolicy": null,
     "CorsPolicy": null,
     "Metadata": null,
