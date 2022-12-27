@@ -314,7 +314,7 @@ public class FirstUnsuccessfulResponseHealthPolicy : IPassiveHealthCheckPolicy
 
     public string Name => "FirstUnsuccessfulResponse";
 
-   public void RequestProxied(HttpContext context, ClusterState cluster, DestinationState destination)
+    public void RequestProxied(HttpContext context, ClusterState cluster, DestinationState destination)
     {
         var error = context.Features.Get<IForwarderErrorFeature>();
         if (error is not null)
