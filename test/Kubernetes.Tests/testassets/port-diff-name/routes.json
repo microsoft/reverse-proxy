@@ -1,6 +1,6 @@
 [
   {
-    "RouteId": "port-diff-name:/foo",
+    "RouteId": "port-diff-name.default:/foo",
     "Match": {
       "Methods": null,
       "Hosts": [],
