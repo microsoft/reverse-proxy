@@ -10,7 +10,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
@@ -26,6 +25,7 @@ namespace Yarp.ReverseProxy.Forwarder;
 /// </summary>
 internal sealed class HttpForwarder : IHttpForwarder
 {
+    private static readonly string WebSocketName = "websocket";
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
     private static readonly Version DefaultVersion = HttpVersion.Version20;
     private static readonly HttpVersionPolicy DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
@@ -137,50 +137,44 @@ internal sealed class HttpForwarder : IHttpForwarder
             try
             {
                 ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.SendAsyncStart);
-                destinationResponse = await httpClient.SendAsync(destinationRequest, activityCancellationSource.Token);
-                ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.SendAsyncStop);
-
-                // Reset the timeout since we received the response headers.
-                activityCancellationSource.ResetTimeout();
-            }
-            catch (HttpRequestException hre) when (tryDowngradingH2WsOnFailure)
-            {
-                if (hre.Data.Contains("SETTINGS_ENABLE_CONNECT_PROTOCOL"))
-                {
-                    Log.RetryingWebSocketDowngradeNoConnect(_logger);
-                }
-                else if (hre.Data.Contains("HTTP2_ENABLED"))
-                {
-                    Log.RetryingWebSocketDowngradeNoHttp2(_logger);
-                }
-                else
-                {
-                    return await HandleRequestFailureAsync(context, requestContent, hre, transformer, activityCancellationSource);
-                }
-
-                // Trying again
-                activityCancellationSource.ResetTimeout();
-
-                var config = requestConfig! with
-                {
-                    Version = HttpVersion.Version11,
-                    VersionPolicy = HttpVersionPolicy.RequestVersionExact
-                };
-                (destinationRequest, requestContent, _) = await CreateRequestMessageAsync(
-                    context, destinationPrefix, transformer, config, isStreamingRequest, activityCancellationSource);
 
                 try
                 {
                     destinationResponse = await httpClient.SendAsync(destinationRequest, activityCancellationSource.Token);
-                    ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.SendAsyncStop);
-
-                    // Reset the timeout since we received the response headers.
-                    activityCancellationSource.ResetTimeout();
                 }
-                catch (Exception requestException)
+                catch (HttpRequestException hre) when (tryDowngradingH2WsOnFailure)
                 {
-                    return await HandleRequestFailureAsync(context, requestContent, requestException, transformer, activityCancellationSource);
+                    if (hre.Data.Contains("SETTINGS_ENABLE_CONNECT_PROTOCOL"))
+                    {
+                        Log.RetryingWebSocketDowngradeNoConnect(_logger);
+                    }
+                    else if (hre.Data.Contains("HTTP2_ENABLED"))
+                    {
+                        Log.RetryingWebSocketDowngradeNoHttp2(_logger);
+                    }
+                    else
+                    {
+                        throw;
+                    }
+
+                    // Trying again
+                    activityCancellationSource.ResetTimeout();
+
+                    var config = requestConfig! with
+                    {
+                        Version = HttpVersion.Version11,
+                        VersionPolicy = HttpVersionPolicy.RequestVersionExact
+                    };
+                    (destinationRequest, requestContent, _) = await CreateRequestMessageAsync(
+                        context, destinationPrefix, transformer, config, isStreamingRequest, activityCancellationSource);
+
+                    destinationResponse = await httpClient.SendAsync(destinationRequest, activityCancellationSource.Token);
                 }
+
+                ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.SendAsyncStop);
+
+                // Reset the timeout since we received the response headers.
+                activityCancellationSource.ResetTimeout();
             }
             catch (Exception requestException)
             {
@@ -322,18 +316,17 @@ internal sealed class HttpForwarder : IHttpForwarder
         var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
         var upgradeHeader = context.Request.Headers[HeaderNames.Upgrade].ToString();
 
-        // Mitigate https://github.com/microsoft/reverse-proxy/issues/255, IIS considers all requests upgradeable.
-        var isSpdyRequest = (upgradeFeature?.IsUpgradableRequest ?? false) &&
-            upgradeHeader.StartsWith("SPDY/", StringComparison.OrdinalIgnoreCase);
+        var isSpdyRequest = (upgradeFeature?.IsUpgradableRequest ?? false)
+            && upgradeHeader.StartsWith("SPDY/", StringComparison.OrdinalIgnoreCase);
         var isH1WsRequest = (upgradeFeature?.IsUpgradableRequest ?? false)
-            && string.Equals("WebSocket", upgradeHeader, StringComparison.OrdinalIgnoreCase);
+            && string.Equals(WebSocketName, upgradeHeader, StringComparison.OrdinalIgnoreCase);
         var incomingUpgrade = isSpdyRequest || isH1WsRequest;
         var isH2WsRequest = false;
 #if NET7_0_OR_GREATER
         var connectFeature = context.Features.Get<IHttpExtendedConnectFeature>();
         var connectProtocol = connectFeature?.Protocol;
         isH2WsRequest = (connectFeature?.IsExtendedConnect ?? false)
-            && string.Equals("WebSocket", connectProtocol, StringComparison.OrdinalIgnoreCase);
+            && string.Equals(WebSocketName, connectProtocol, StringComparison.OrdinalIgnoreCase);
 #endif
 
         var outgoingHttps = destinationPrefix.StartsWith("https://");
@@ -387,7 +380,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             destinationRequest.Version = HttpVersion.Version20;
             destinationRequest.VersionPolicy = HttpVersionPolicy.RequestVersionExact;
             destinationRequest.Method = HttpMethod.Connect;
-            destinationRequest.Headers.Protocol = connectProtocol ?? "websocket";
+            destinationRequest.Headers.Protocol = connectProtocol ?? WebSocketName;
         }
 #endif
         else
@@ -435,7 +428,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             if (HttpProtocol.IsHttp2(context.Request.Protocol))
             {
                 request.Headers.TryAddWithoutValidation(HeaderNames.Connection, HeaderNames.Upgrade);
-                request.Headers.TryAddWithoutValidation(HeaderNames.Upgrade, "WebSocket");
+                request.Headers.TryAddWithoutValidation(HeaderNames.Upgrade, WebSocketName);
                 var key = ProtocolHelper.CreateSecWebSocketKey();
                 request.Headers.TryAddWithoutValidation(HeaderNames.SecWebSocketKey, key);
             }
@@ -798,7 +791,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             var accept = ProtocolHelper.CreateSecWebSocketAccept(key);
             context.Response.Headers.TryAdd(HeaderNames.SecWebSocketAccept, accept);
             context.Response.Headers.TryAdd(HeaderNames.Connection, HeaderNames.Upgrade);
-            context.Response.Headers.TryAdd(HeaderNames.Upgrade, "websocket");
+            context.Response.Headers.TryAdd(HeaderNames.Upgrade, WebSocketName);
             return ForwarderError.None;
         }
 

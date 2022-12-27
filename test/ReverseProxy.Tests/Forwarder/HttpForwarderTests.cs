@@ -544,11 +544,7 @@ public class HttpForwarderTests
                 return response;
             });
 
-        // TODO: Revert, use the default downgrade logic?
-        await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig
-        {
-            Version = HttpVersion.Version11,
-        });
+        await sut.SendAsync(httpContext, destinationPrefix, client);
 
         Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
         Assert.Contains("response", httpContext.Response.Headers["x-ms-response-test"].ToArray());
@@ -615,10 +611,7 @@ public class HttpForwarderTests
                 return response;
             });
 
-        await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig
-        {
-            Version = HttpVersion.Version11,
-        });
+        await sut.SendAsync(httpContext, destinationPrefix, client);
 
         Assert.Equal(234, httpContext.Response.StatusCode);
         var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
@@ -692,7 +685,6 @@ public class HttpForwarderTests
         var result = await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig
         {
             ActivityTimeout = TimeSpan.FromSeconds(1),
-            Version = HttpVersion.Version11,
         }).DefaultTimeout();
 
         Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
@@ -2233,10 +2225,7 @@ public class HttpForwarderTests
                 return Task.FromResult(response);
             });
 
-        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig
-        {
-            Version = HttpVersion.Version11,
-        });
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
 
         Assert.Equal(ForwarderError.UpgradeRequestClient, proxyError);
         Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
@@ -2293,10 +2282,7 @@ public class HttpForwarderTests
                 return Task.FromResult(response);
             });
 
-        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig
-        {
-            Version = HttpVersion.Version11,
-        });
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
 
         Assert.Equal(ForwarderError.UpgradeResponseDestination, proxyError);
         Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
