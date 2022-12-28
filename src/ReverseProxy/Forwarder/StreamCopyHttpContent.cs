@@ -42,9 +42,6 @@ internal sealed class StreamCopyHttpContent : HttpContent
     private readonly HttpRequest _request;
     // HttpClient's machinery keeps an internal buffer that doesn't get flushed to the socket on every write.
     // Some protocols (e.g. gRPC) may rely on specific bytes being sent, and HttpClient's buffering would prevent it.
-    // AutoFlushingStream delegates to the provided stream, adding calls to FlushAsync on every WriteAsync.
-    // Note that HttpClient does NOT call Flush on the underlying socket, so the perf impact of this is expected to be small.
-    // This statement is based on current knowledge as of .NET Core 3.1.201.
     private readonly bool _autoFlushHttpClientOutgoingStream;
     private readonly IClock _clock;
     private readonly ActivityCancellationTokenSource _activityToken;
