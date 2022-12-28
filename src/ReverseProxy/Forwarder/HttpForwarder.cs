@@ -144,12 +144,15 @@ internal sealed class HttpForwarder : IHttpForwarder
                 }
                 catch (HttpRequestException hre) when (tryDowngradingH2WsOnFailure)
                 {
+                    Debug.Assert(requestContent is null);
                     if (hre.Data.Contains("SETTINGS_ENABLE_CONNECT_PROTOCOL"))
                     {
+                        Debug.Assert(false == (bool?)hre.Data["SETTINGS_ENABLE_CONNECT_PROTOCOL"]);
                         Log.RetryingWebSocketDowngradeNoConnect(_logger);
                     }
                     else if (hre.Data.Contains("HTTP2_ENABLED"))
                     {
+                        Debug.Assert(false == (bool?)hre.Data["HTTP2_ENABLED"]);
                         Log.RetryingWebSocketDowngradeNoHttp2(_logger);
                     }
                     else
@@ -170,17 +173,15 @@ internal sealed class HttpForwarder : IHttpForwarder
 
                     destinationResponse = await httpClient.SendAsync(destinationRequest, activityCancellationSource.Token);
                 }
-
-                ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.SendAsyncStop);
-
-                // Reset the timeout since we received the response headers.
-                activityCancellationSource.ResetTimeout();
             }
             catch (Exception requestException)
             {
                 return await HandleRequestFailureAsync(context, requestContent, requestException, transformer, activityCancellationSource);
             }
 
+            ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.SendAsyncStop);
+            // Reset the timeout since we received the response headers.
+            activityCancellationSource.ResetTimeout();
             Log.ResponseReceived(_logger, destinationResponse);
 
             try
@@ -224,10 +225,10 @@ internal sealed class HttpForwarder : IHttpForwarder
             // Also check for HTTP/2 CONNECT 200 responses, they function similarly.
             if (destinationResponse.StatusCode == HttpStatusCode.SwitchingProtocols
 #if NET7_0_OR_GREATER
-                || destinationResponse.StatusCode == HttpStatusCode.OK
+                || (destinationResponse.StatusCode == HttpStatusCode.OK
                 && destinationResponse.Version == HttpVersion.Version20
                 && destinationRequest.Headers.Protocol is not null
-                && destinationRequest.Method.Equals(HttpMethod.Connect)
+                && destinationRequest.Method.Equals(HttpMethod.Connect))
 #endif
                 )
             {
