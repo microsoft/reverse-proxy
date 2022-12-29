@@ -290,7 +290,7 @@ public class WebSocketTests
 
     [Theory]
     [InlineData(HttpVersionPolicy.RequestVersionExact, true)]
-    // [InlineData(HttpVersionPolicy.RequestVersionExact, false)] HttpClient bug causes this to time out?
+    // [InlineData(HttpVersionPolicy.RequestVersionExact, false)] // Times out. https://github.com/dotnet/runtime/issues/80056
     [InlineData(HttpVersionPolicy.RequestVersionOrHigher, true)]
     public async Task WebSocketCantFallbackFromH2(HttpVersionPolicy policy, bool useHttps)
     {
