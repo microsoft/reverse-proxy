@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -15,6 +17,8 @@ namespace Microsoft.AspNetCore.Builder;
 /// </summary>
 public static class DirectForwardingIEndpointRouteBuilderExtensions
 {
+    private static readonly ConditionalWeakTable<IServiceProvider, HttpMessageInvoker> _httpClients = new();
+
     /// <summary>
     /// Adds direct forwarding of HTTP requests that match the specified pattern to a specific destination using default configuration for the outgoing request, default transforms, and default HTTP client.
     /// </summary>
@@ -36,13 +40,7 @@ public static class DirectForwardingIEndpointRouteBuilderExtensions
     /// </summary>
     public static IEndpointConventionBuilder MapForwarder(this IEndpointRouteBuilder endpoints, string pattern, string destinationPrefix, ForwarderRequestConfig requestConfig, HttpTransformer transformer)
     {
-        var httpClientFactory = endpoints.ServiceProvider.GetService<IForwarderHttpClientFactory>()
-            ?? new ForwarderHttpClientFactory(endpoints.ServiceProvider.GetRequiredService<ILogger<ForwarderHttpClientFactory>>());
-
-        var httpClient = httpClientFactory.CreateClient(new ForwarderHttpClientContext
-        {
-            NewConfig = HttpClientConfig.Empty
-        });
+        var httpClient = GetHttpClient(endpoints.ServiceProvider);
 
         return endpoints.MapForwarder(pattern, destinationPrefix, requestConfig, transformer, httpClient);
     }
@@ -52,11 +50,34 @@ public static class DirectForwardingIEndpointRouteBuilderExtensions
     /// </summary>
     public static IEndpointConventionBuilder MapForwarder(this IEndpointRouteBuilder endpoints, string pattern, string destinationPrefix, ForwarderRequestConfig requestConfig, HttpTransformer transformer, HttpMessageInvoker httpClient)
     {
+        ArgumentNullException.ThrowIfNull(endpoints, nameof(endpoints));
+        ArgumentNullException.ThrowIfNull(destinationPrefix, nameof(destinationPrefix));
+        ArgumentNullException.ThrowIfNull(httpClient, nameof(httpClient));
+        ArgumentNullException.ThrowIfNull(requestConfig, nameof(requestConfig));
+        ArgumentNullException.ThrowIfNull(transformer, nameof(transformer));
+
         var forwarder = endpoints.ServiceProvider.GetRequiredService<IHttpForwarder>();
 
         return endpoints.Map(pattern, async httpContext =>
         {
             await forwarder.SendAsync(httpContext, destinationPrefix, httpClient, requestConfig, transformer);
         });
+    }
+
+    private static HttpMessageInvoker GetHttpClient(IServiceProvider serviceProvider)
+    {
+        lock (_httpClients)
+        {
+            return _httpClients.GetValue(serviceProvider, static serviceProvider =>
+            {
+                var httpClientFactory = serviceProvider.GetService<IForwarderHttpClientFactory>()
+                    ?? new ForwarderHttpClientFactory(serviceProvider.GetRequiredService<ILogger<ForwarderHttpClientFactory>>());
+
+                return httpClientFactory.CreateClient(new ForwarderHttpClientContext
+                {
+                    NewConfig = HttpClientConfig.Empty
+                });
+            });
+        }
     }
 }
