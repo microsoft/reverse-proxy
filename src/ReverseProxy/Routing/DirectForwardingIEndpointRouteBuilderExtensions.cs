@@ -50,11 +50,11 @@ public static class DirectForwardingIEndpointRouteBuilderExtensions
     /// </summary>
     public static IEndpointConventionBuilder MapForwarder(this IEndpointRouteBuilder endpoints, string pattern, string destinationPrefix, ForwarderRequestConfig requestConfig, HttpTransformer transformer, HttpMessageInvoker httpClient)
     {
-        ArgumentNullException.ThrowIfNull(endpoints, nameof(endpoints));
-        ArgumentNullException.ThrowIfNull(destinationPrefix, nameof(destinationPrefix));
-        ArgumentNullException.ThrowIfNull(httpClient, nameof(httpClient));
-        ArgumentNullException.ThrowIfNull(requestConfig, nameof(requestConfig));
-        ArgumentNullException.ThrowIfNull(transformer, nameof(transformer));
+        ArgumentNullException.ThrowIfNull(endpoints);
+        ArgumentNullException.ThrowIfNull(destinationPrefix);
+        ArgumentNullException.ThrowIfNull(httpClient);
+        ArgumentNullException.ThrowIfNull(requestConfig);
+        ArgumentNullException.ThrowIfNull(transformer);
 
         var forwarder = endpoints.ServiceProvider.GetRequiredService<IHttpForwarder>();
 
