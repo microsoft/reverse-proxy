@@ -145,11 +145,16 @@ internal sealed class HttpForwarder : IHttpForwarder
                 catch (HttpRequestException hre) when (tryDowngradingH2WsOnFailure)
                 {
                     Debug.Assert(requestContent is null);
+                    // This is how SocketsHttpHandler communicates to us that we tried a HTTP/2 extension that wasn't
+                    // enabled by the server. We should retry on HTTP/1.1.
                     if (hre.Data.Contains("SETTINGS_ENABLE_CONNECT_PROTOCOL"))
                     {
                         Debug.Assert(false == (bool?)hre.Data["SETTINGS_ENABLE_CONNECT_PROTOCOL"]);
                         Log.RetryingWebSocketDowngradeNoConnect(_logger);
                     }
+                    // This is how SocketsHttpHandler communicates to us that we tried HTTP/2, but the server only supports 
+                    // HTTP/1.x (as determined by ALPN). We'll only get this when using TLS/https. Retry on HTTP/1.1.
+                    // We don't let SocketsHttpHandler downgrade automatically for us because we need to send different headers.
                     else if (hre.Data.Contains("HTTP2_ENABLED"))
                     {
                         Debug.Assert(false == (bool?)hre.Data["HTTP2_ENABLED"]);
