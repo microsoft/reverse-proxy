@@ -333,7 +333,8 @@ public class WebSocketTests
         test.ProxyProtocol = HttpProtocols.Http1;
         test.DestinationProtocol = destinationProtocol;
         test.DestionationHttpVersion = HttpVersion.Version20;
-        test.UseHttpsOnDestination = true;
+        test.DestionationHttpVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+
         test.ConfigureProxyApp = builder =>
         {
             builder.Use((context, next) =>
@@ -346,11 +347,18 @@ public class WebSocketTests
         await test.Invoke(async uri =>
         {
             using var client = new ClientWebSocket();
+#if NET7_0_OR_GREATER
+            client.Options.CollectHttpResponseDetails = true;
+#endif
             var webSocketsTarget = uri.Replace("https://", "wss://").Replace("http://", "ws://");
             var targetUri = new Uri(new Uri(webSocketsTarget, UriKind.Absolute), "websockets");
             client.Options.RemoteCertificateValidationCallback = (_, _, _, _) => true;
             var wse = await Assert.ThrowsAsync<WebSocketException>(() => client.ConnectAsync(targetUri, cts.Token));
             Assert.Equal("The server returned status code '400' when status code '101' was expected.", wse.Message);
+#if NET7_0_OR_GREATER
+            Assert.Equal(HttpStatusCode.BadRequest, client.HttpStatusCode);
+#endif
+            // TODO: Assert the version https://github.com/dotnet/runtime/issues/75353
         }, cts.Token);
     }
 
