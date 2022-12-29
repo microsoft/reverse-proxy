@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using Xunit;
 using Xunit.Abstractions;
 using Yarp.ReverseProxy.Common;
@@ -319,6 +320,40 @@ public class WebSocketTests
     }
 #endif
 
+    [Theory]
+    [InlineData(HttpProtocols.Http1)] // Checked by destination
+#if NET7_0_OR_GREATER
+    [InlineData(HttpProtocols.Http2)] // Checked by proxy
+#endif
+    public async Task InvalidKeyHeader_400(HttpProtocols destinationProtocol)
+    {
+        using var cts = CreateTimer();
+
+        var test = CreateTestEnvironment();
+        test.ProxyProtocol = HttpProtocols.Http1;
+        test.DestinationProtocol = destinationProtocol;
+        test.DestionationHttpVersion = HttpVersion.Version20;
+        test.UseHttpsOnDestination = true;
+        test.ConfigureProxyApp = builder =>
+        {
+            builder.Use((context, next) =>
+            {
+                context.Request.Headers[HeaderNames.SecWebSocketKey] = "ThisIsAnIncorrectKeyHeaderLongerThan24Bytes";
+                return next(context);
+            });
+        };
+
+        await test.Invoke(async uri =>
+        {
+            using var client = new ClientWebSocket();
+            var webSocketsTarget = uri.Replace("https://", "wss://").Replace("http://", "ws://");
+            var targetUri = new Uri(new Uri(webSocketsTarget, UriKind.Absolute), "websockets");
+            client.Options.RemoteCertificateValidationCallback = (_, _, _, _) => true;
+            var wse = await Assert.ThrowsAsync<WebSocketException>(() => client.ConnectAsync(targetUri, cts.Token));
+            Assert.Equal("The server returned status code '400' when status code '101' was expected.", wse.Message);
+        }, cts.Token);
+    }
+
     private async Task SendWebSocketRequestAsync(ClientWebSocket client, string uri, string destinationProtocol, CancellationToken token)
     {
         var webSocketsTarget = uri.Replace("https://", "wss://").Replace("http://", "ws://");
@@ -411,20 +446,20 @@ public class WebSocketTests
                 var message = await webSocket.ReceiveAsync(buffer, httpContext.RequestAborted);
                 if (message.MessageType == WebSocketMessageType.Close)
                 {
-                    logger.LogInformation("WebSocket Close received {0}.", message.CloseStatus);
+                    logger.LogInformation("WebSocket Close received {status}.", message.CloseStatus);
                     await webSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, message.CloseStatusDescription, httpContext.RequestAborted);
-                    logger.LogInformation("WebSocket Close sent {0}.", WebSocketCloseStatus.NormalClosure);
+                    logger.LogInformation("WebSocket Close sent {status}.", WebSocketCloseStatus.NormalClosure);
                     return;
                 }
 
-                logger.LogInformation("WebSocket received {0} bytes.", message.Count);
+                logger.LogInformation("WebSocket received {count} bytes.", message.Count);
 
                 await webSocket.SendAsync(buffer[0..message.Count],
                     message.MessageType,
                     message.EndOfMessage,
                     httpContext.RequestAborted);
 
-                logger.LogInformation("WebSocket sent {0} bytes.", message.Count);
+                logger.LogInformation("WebSocket sent {count} bytes.", message.Count);
             }
         }
 
@@ -447,20 +482,20 @@ public class WebSocketTests
                 var message = await webSocket.ReceiveAsync(buffer, httpContext.RequestAborted);
                 if (message.MessageType == WebSocketMessageType.Close)
                 {
-                    logger.LogInformation("WebSocket Close received {0}.", message.CloseStatus);
+                    logger.LogInformation("WebSocket Close received {status}.", message.CloseStatus);
                     await webSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, message.CloseStatusDescription, httpContext.RequestAborted);
-                    logger.LogInformation("WebSocket Close sent {0}.", WebSocketCloseStatus.NormalClosure);
+                    logger.LogInformation("WebSocket Close sent {status}.", WebSocketCloseStatus.NormalClosure);
                     return;
                 }
 
-                logger.LogInformation("WebSocket received {0} bytes.", message.Count);
+                logger.LogInformation("WebSocket received {count} bytes.", message.Count);
 
                 await webSocket.SendAsync(Encoding.ASCII.GetBytes(httpContext.Request.Protocol),
                     WebSocketMessageType.Text,
                     endOfMessage: true,
                     httpContext.RequestAborted);
 
-                logger.LogInformation("WebSocket sent {0} bytes.", httpContext.Request.Protocol.Length);
+                logger.LogInformation("WebSocket sent {count} bytes.", httpContext.Request.Protocol.Length);
             }
         }
 

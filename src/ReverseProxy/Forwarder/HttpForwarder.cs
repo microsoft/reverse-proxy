@@ -426,7 +426,7 @@ internal sealed class HttpForwarder : IHttpForwarder
     }
 
     // Connection and Upgrade headers were not copied with the rest of the headers.
-    private static void FixupUpgradeRequestHeaders(HttpContext context, HttpRequestMessage request, bool outgoingUpgrade, bool outgoingConnect)
+    private void FixupUpgradeRequestHeaders(HttpContext context, HttpRequestMessage request, bool outgoingUpgrade, bool outgoingConnect)
     {
         if (outgoingUpgrade)
         {
@@ -463,6 +463,13 @@ internal sealed class HttpForwarder : IHttpForwarder
         // H1->H2, remove Sec-WebSocket-Key
         else if (outgoingConnect && !HttpProtocol.IsHttp2(context.Request.Protocol))
         {
+            var key = context.Request.Headers[HeaderNames.SecWebSocketKey];
+            if (!ProtocolHelper.CheckSecWebSocketKey(key))
+            {
+                Log.InvalidSecWebSocketKeyHeader(_logger, key);
+                // The request will not be forwarded if we change the status code.
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            }
             request.Headers.Remove(HeaderNames.SecWebSocketKey);
         }
         // else not an upgrade, or H2->H2, no changes needed
@@ -978,6 +985,11 @@ internal sealed class HttpForwarder : IHttpForwarder
             EventIds.RetryingWebSocketDowngradeNoHttp2,
             "Unable to proxy the WebSocket using HTTP/2, server does not support HTTP/2. Retrying with HTTP/1.1. Disable HTTP/2 negotiation for improved performance.");
 
+        private static readonly Action<ILogger, string?, Exception?> _invalidKeyHeader = LoggerMessage.Define<string?>(
+            LogLevel.Information,
+            EventIds.InvalidSecWebSocketKeyHeader,
+            "Invalid Sec-WebSocket-Key header: '{key}'.");
+
         public static void ResponseReceived(ILogger logger, HttpResponseMessage msg)
         {
             _responseReceived(logger, msg.Version, (int)msg.StatusCode, null);
@@ -998,6 +1010,11 @@ internal sealed class HttpForwarder : IHttpForwarder
         public static void NotProxying(ILogger logger, int statusCode)
         {
             _notProxying(logger, statusCode, null);
+        }
+
+        public static void InvalidSecWebSocketKeyHeader(ILogger logger, string? key)
+        {
+            _invalidKeyHeader(logger, key, null);
         }
 
         public static void ErrorProxying(ILogger logger, ForwarderError error, Exception ex)

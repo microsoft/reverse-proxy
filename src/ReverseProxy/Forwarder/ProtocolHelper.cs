@@ -46,6 +46,8 @@ internal static class ProtocolHelper
     /// </summary>
     internal static string CreateSecWebSocketKey()
     {
+        // The value of this header field MUST be a nonce consisting of a randomly selected 16-byte
+        // value that has been base64-encoded
         Span<byte> bytes = stackalloc byte[16];
         // Base64-encode a new Guid's bytes to get the security key
         var success = Guid.NewGuid().TryWriteBytes(bytes);
@@ -54,11 +56,19 @@ internal static class ProtocolHelper
         return secKey;
     }
 
+    internal static bool CheckSecWebSocketKey(string? key)
+    {
+        // The value of this header field MUST be a nonce consisting of a randomly selected 16-byte
+        // value that has been base64-encoded
+        return !string.IsNullOrEmpty(key) && key.Length == 24;
+    }
+
     /// <summary>
     /// Creates the Accept response to a given security key for sending in or verifying the Sec-WebSocket-Accept header value.
     /// </summary>
     internal static string CreateSecWebSocketAccept(string? key)
     {
+        Debug.Assert(CheckSecWebSocketKey(key)); // This should have already been validated elsewhere.
         // GUID appended by the server as part of the security key response.  Defined in the RFC.
         var wsServerGuidBytes = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"u8;
         Span<byte> bytes = stackalloc byte[24 /* Base64 guid length */ + wsServerGuidBytes.Length];
