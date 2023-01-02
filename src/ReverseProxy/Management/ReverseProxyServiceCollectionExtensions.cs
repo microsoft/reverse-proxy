@@ -30,6 +30,7 @@ public static class ReverseProxyServiceCollectionExtensions
     {
         services.TryAddSingleton<IClock, Clock>();
         services.TryAddSingleton<IHttpForwarder, HttpForwarder>();
+        services.TryAddSingleton<DirectForwardingHttpClientProvider>();
         services.TryAddSingleton<ITransformBuilder, TransformBuilder>();
         return services;
     }

@@ -3,12 +3,9 @@
 
 using System;
 using System.Net.Http;
-using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Forwarder;
-using Yarp.ReverseProxy.Configuration;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -17,8 +14,6 @@ namespace Microsoft.AspNetCore.Builder;
 /// </summary>
 public static class DirectForwardingIEndpointRouteBuilderExtensions
 {
-    private static readonly ConditionalWeakTable<IServiceProvider, HttpMessageInvoker> _httpClients = new();
-
     /// <summary>
     /// Adds direct forwarding of HTTP requests that match the specified pattern to a specific destination using default configuration for the outgoing request, default transforms, and default HTTP client.
     /// </summary>
@@ -40,9 +35,9 @@ public static class DirectForwardingIEndpointRouteBuilderExtensions
     /// </summary>
     public static IEndpointConventionBuilder MapForwarder(this IEndpointRouteBuilder endpoints, string pattern, string destinationPrefix, ForwarderRequestConfig requestConfig, HttpTransformer transformer)
     {
-        var httpClient = GetHttpClient(endpoints.ServiceProvider);
+        var httpClientProvider = endpoints.ServiceProvider.GetRequiredService<DirectForwardingHttpClientProvider>();
 
-        return endpoints.MapForwarder(pattern, destinationPrefix, requestConfig, transformer, httpClient);
+        return endpoints.MapForwarder(pattern, destinationPrefix, requestConfig, transformer, httpClientProvider.HttpClient);
     }
 
     /// <summary>
@@ -62,22 +57,5 @@ public static class DirectForwardingIEndpointRouteBuilderExtensions
         {
             await forwarder.SendAsync(httpContext, destinationPrefix, httpClient, requestConfig, transformer);
         });
-    }
-
-    private static HttpMessageInvoker GetHttpClient(IServiceProvider serviceProvider)
-    {
-        lock (_httpClients)
-        {
-            return _httpClients.GetValue(serviceProvider, static serviceProvider =>
-            {
-                var httpClientFactory = serviceProvider.GetService<IForwarderHttpClientFactory>()
-                    ?? new ForwarderHttpClientFactory(serviceProvider.GetRequiredService<ILogger<ForwarderHttpClientFactory>>());
-
-                return httpClientFactory.CreateClient(new ForwarderHttpClientContext
-                {
-                    NewConfig = HttpClientConfig.Empty
-                });
-            });
-        }
     }
 }
