@@ -6,7 +6,7 @@ using Yarp.ReverseProxy.Configuration;
 
 namespace Yarp.ReverseProxy.Forwarder;
 
-internal class DirectForwardingHttpClientProvider
+internal sealed class DirectForwardingHttpClientProvider
 {
     public HttpMessageInvoker HttpClient { get; }
 
