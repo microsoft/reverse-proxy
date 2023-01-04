@@ -290,7 +290,9 @@ public class WebSocketTests
 
     [Theory]
     [InlineData(HttpVersionPolicy.RequestVersionExact, true)]
-    // [InlineData(HttpVersionPolicy.RequestVersionExact, false)] // Times out. https://github.com/dotnet/runtime/issues/80056
+#if NET8_0_OR_GREATER
+    [InlineData(HttpVersionPolicy.RequestVersionExact, false)] // Times out. https://github.com/dotnet/runtime/issues/80056
+#endif
     [InlineData(HttpVersionPolicy.RequestVersionOrHigher, true)]
     public async Task WebSocketCantFallbackFromH2(HttpVersionPolicy policy, bool useHttps)
     {

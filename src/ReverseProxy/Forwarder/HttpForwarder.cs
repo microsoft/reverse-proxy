@@ -779,9 +779,10 @@ internal sealed class HttpForwarder : IHttpForwarder
             // H2 <- H1 Validate & remove the Sec-WebSocket-Accept header.
             if (response.Version != HttpVersion.Version20)
             {
-                var key = response.RequestMessage!.Headers.GetValues(HeaderNames.SecWebSocketKey);
+                var success = RequestUtilities.TryGetValues(response.RequestMessage!.Headers, HeaderNames.SecWebSocketKey, out var key);
+                Debug.Assert(success);
                 var accept = context.Response.Headers[HeaderNames.SecWebSocketAccept];
-                var expectedAccept = ProtocolHelper.CreateSecWebSocketAccept(key.FirstOrDefault());
+                var expectedAccept = ProtocolHelper.CreateSecWebSocketAccept(key.ToString());
                 if (!string.Equals(expectedAccept, accept, StringComparison.Ordinal)) // Base64 is case sensitive
                 {
                     context.Response.Clear();
