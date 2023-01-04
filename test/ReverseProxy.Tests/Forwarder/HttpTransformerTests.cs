@@ -33,6 +33,7 @@ public class HttpTransformerTests
         HeaderNames.UpgradeInsecureRequests,
         HeaderNames.TE,
         HeaderNames.AltSvc,
+        HeaderNames.StrictTransportSecurity,
     };
 
     [Fact]
