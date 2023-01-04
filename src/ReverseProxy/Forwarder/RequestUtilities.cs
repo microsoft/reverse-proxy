@@ -60,7 +60,7 @@ public static class RequestUtilities
         return _headersToExclude.Contains(headerName);
     }
 
-    private static readonly HashSet<string> _headersToExclude = new(17, StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> _headersToExclude = new(18, StringComparer.OrdinalIgnoreCase)
     {
         HeaderNames.Connection,
         HeaderNames.TransferEncoding,
@@ -79,6 +79,7 @@ public static class RequestUtilities
         HeaderNames.UpgradeInsecureRequests,
         HeaderNames.TE,
         HeaderNames.AltSvc,
+        HeaderNames.StrictTransportSecurity,
     };
 
     // Headers marked as HttpHeaderType.Content in
