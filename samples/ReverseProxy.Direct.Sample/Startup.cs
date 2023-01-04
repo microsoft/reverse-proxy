@@ -48,6 +48,9 @@ namespace Yarp.Sample
             var requestOptions = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
 
             app.UseRouting();
+
+            // When using IHttpForwarder for direct forwarding you are responsible for routing, destination discovery, load balancing, affinity, etc..
+            // For an alternate example that includes those features see BasicYarpSample.
             app.UseEndpoints(endpoints =>
             {
                 endpoints.Map("/test/{**catch-all}", async httpContext =>
@@ -78,18 +81,8 @@ namespace Yarp.Sample
                 });
 
 
-                // When using IHttpForwarder for direct forwarding you are responsible for routing, destination discovery, load balancing, affinity, etc..
-                // For an alternate example that includes those features see BasicYarpSample.
-                endpoints.Map("/{**catch-all}", async httpContext =>
-                {
-                    var error = await forwarder.SendAsync(httpContext, "https://example.com", httpClient, requestOptions, transformer);
-                    // Check if the proxy operation was successful
-                    if (error != ForwarderError.None)
-                    {
-                        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-                        var exception = errorFeature.Exception;
-                    }
-                });
+                // When using extension methods for registering IHttpForwarder providing configuration, transforms, and HttpMessageInvoker is optional (defaults will be used).
+                endpoints.MapForwarder("/{**catch-all}", "https://example.com", requestOptions, transformer, httpClient);
             });
         }
 

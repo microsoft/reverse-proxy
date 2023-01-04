@@ -30,7 +30,7 @@ public class Startup
     /// <summary>
     /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     /// </summary>
-    public void Configure(IApplicationBuilder app, IHttpForwarder httpProxy)
+    public void Configure(IApplicationBuilder app)
     {
         var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
         {
@@ -56,16 +56,7 @@ public class Startup
         app.UseRouting();
         app.UseEndpoints(endpoints =>
         {
-            endpoints.Map("/{**catch-all}", async httpContext =>
-            {
-                await httpProxy.SendAsync(httpContext, "https://example.com", httpClient, requestConfig, transformer);
-                var errorFeature = httpContext.GetForwarderErrorFeature();
-                if (errorFeature is not null)
-                {
-                    var error = errorFeature.Error;
-                    var exception = errorFeature.Exception;
-                }
-            });
+            endpoints.MapForwarder("/{**catch-all}", "https://example.com", requestConfig, transformer, httpClient);
         });
     }
 

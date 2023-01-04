@@ -98,6 +98,23 @@ private class CustomTransformer : HttpTransformer
 }
 ```
 
+There are also [extension methods](xref:Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions) available that simplify the mapping of IHttpForwarder to endpoints.
+
+```C#
+...
+
+public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
+{
+    ...
+
+    app.UseRouting();
+    app.UseEndpoints(endpoints =>
+    {
+        endpoints.MapForwarder("/{**catch-all}", "https://localhost:10000/", requestConfig, transformer, httpClient);
+    });
+}
+```
+
 ### The HTTP Client
 
 The http client may be customized, but the above example is recommended for common proxy scenarios.
