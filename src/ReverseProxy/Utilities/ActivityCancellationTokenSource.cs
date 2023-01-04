@@ -19,7 +19,8 @@ internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
     };
 
     private int _activityTimeoutMs;
-    private CancellationTokenRegistration _linkedRegistration;
+    private CancellationTokenRegistration _linkedRegistration1;
+    private CancellationTokenRegistration _linkedRegistration2;
 
     private ActivityCancellationTokenSource() { }
 
@@ -28,7 +29,7 @@ internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
         CancelAfter(_activityTimeoutMs);
     }
 
-    public static ActivityCancellationTokenSource Rent(TimeSpan activityTimeout, CancellationToken linkedToken)
+    public static ActivityCancellationTokenSource Rent(TimeSpan activityTimeout, CancellationToken linkedToken1 = default, CancellationToken linkedToken2 = default)
     {
         if (_sharedSources.TryDequeue(out var cts))
         {
@@ -40,7 +41,8 @@ internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
         }
 
         cts._activityTimeoutMs = (int)activityTimeout.TotalMilliseconds;
-        cts._linkedRegistration = linkedToken.UnsafeRegister(_linkedTokenCancelDelegate, cts);
+        cts._linkedRegistration1 = linkedToken1.UnsafeRegister(_linkedTokenCancelDelegate, cts);
+        cts._linkedRegistration2 = linkedToken2.UnsafeRegister(_linkedTokenCancelDelegate, cts);
         cts.ResetTimeout();
 
         return cts;
@@ -48,8 +50,10 @@ internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
 
     public void Return()
     {
-        _linkedRegistration.Dispose();
-        _linkedRegistration = default;
+        _linkedRegistration1.Dispose();
+        _linkedRegistration1 = default;
+        _linkedRegistration2.Dispose();
+        _linkedRegistration2 = default;
 
         if (TryReset())
         {

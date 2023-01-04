@@ -83,12 +83,21 @@ internal sealed class HttpForwarder : IHttpForwarder
     /// ASP .NET Core (Kestrel) will finally send response trailers (if any)
     /// after we complete the steps above and relinquish control.
     /// </remarks>
-    public async ValueTask<ForwarderError> SendAsync(
+    public ValueTask<ForwarderError> SendAsync(
         HttpContext context,
         string destinationPrefix,
         HttpMessageInvoker httpClient,
         ForwarderRequestConfig requestConfig,
         HttpTransformer transformer)
+        => SendAsync(context, destinationPrefix, httpClient, requestConfig, transformer, CancellationToken.None);
+
+    public async ValueTask<ForwarderError> SendAsync(
+        HttpContext context,
+        string destinationPrefix,
+        HttpMessageInvoker httpClient,
+        ForwarderRequestConfig requestConfig,
+        HttpTransformer transformer,
+        CancellationToken cancellationToken)
     {
         _ = context ?? throw new ArgumentNullException(nameof(context));
         _ = destinationPrefix ?? throw new ArgumentNullException(nameof(destinationPrefix));
@@ -110,7 +119,7 @@ internal sealed class HttpForwarder : IHttpForwarder
 
         ForwarderTelemetry.Log.ForwarderStart(destinationPrefix);
 
-        var activityCancellationSource = ActivityCancellationTokenSource.Rent(requestConfig?.ActivityTimeout ?? DefaultTimeout, context.RequestAborted);
+        var activityCancellationSource = ActivityCancellationTokenSource.Rent(requestConfig?.ActivityTimeout ?? DefaultTimeout, context.RequestAborted, cancellationToken);
         try
         {
             var isClientHttp2OrGreater = ProtocolHelper.IsHttp2OrGreater(context.Request.Protocol);
