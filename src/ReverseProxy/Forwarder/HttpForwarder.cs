@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -24,6 +25,7 @@ namespace Yarp.ReverseProxy.Forwarder;
 /// </summary>
 internal sealed class HttpForwarder : IHttpForwarder
 {
+    private static readonly string WebSocketName = "websocket";
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
     private static readonly Version DefaultVersion = HttpVersion.Version20;
     private static readonly HttpVersionPolicy DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
@@ -118,7 +120,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             var isStreamingRequest = isClientHttp2OrGreater && ProtocolHelper.IsGrpcContentType(context.Request.ContentType);
 
             // :: Step 1-3: Create outgoing HttpRequestMessage
-            var (destinationRequest, requestContent) = await CreateRequestMessageAsync(
+            var (destinationRequest, requestContent, tryDowngradingH2WsOnFailure) = await CreateRequestMessageAsync(
                 context, destinationPrefix, transformer, requestConfig, isStreamingRequest, activityCancellationSource);
 
             // Transforms generated a response, do not proxy.
@@ -135,17 +137,56 @@ internal sealed class HttpForwarder : IHttpForwarder
             try
             {
                 ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.SendAsyncStart);
-                destinationResponse = await httpClient.SendAsync(destinationRequest, activityCancellationSource.Token);
-                ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.SendAsyncStop);
 
-                // Reset the timeout since we received the response headers.
-                activityCancellationSource.ResetTimeout();
+                try
+                {
+                    destinationResponse = await httpClient.SendAsync(destinationRequest, activityCancellationSource.Token);
+                }
+                catch (HttpRequestException hre) when (tryDowngradingH2WsOnFailure)
+                {
+                    Debug.Assert(requestContent is null);
+                    // This is how SocketsHttpHandler communicates to us that we tried a HTTP/2 extension that wasn't
+                    // enabled by the server. We should retry on HTTP/1.1.
+                    if (hre.Data.Contains("SETTINGS_ENABLE_CONNECT_PROTOCOL"))
+                    {
+                        Debug.Assert(false == (bool?)hre.Data["SETTINGS_ENABLE_CONNECT_PROTOCOL"]);
+                        Log.RetryingWebSocketDowngradeNoConnect(_logger);
+                    }
+                    // This is how SocketsHttpHandler communicates to us that we tried HTTP/2, but the server only supports 
+                    // HTTP/1.x (as determined by ALPN). We'll only get this when using TLS/https. Retry on HTTP/1.1.
+                    // We don't let SocketsHttpHandler downgrade automatically for us because we need to send different headers.
+                    else if (hre.Data.Contains("HTTP2_ENABLED"))
+                    {
+                        Debug.Assert(false == (bool?)hre.Data["HTTP2_ENABLED"]);
+                        Log.RetryingWebSocketDowngradeNoHttp2(_logger);
+                    }
+                    else
+                    {
+                        throw;
+                    }
+
+                    // Trying again
+                    activityCancellationSource.ResetTimeout();
+
+                    var config = requestConfig! with
+                    {
+                        Version = HttpVersion.Version11,
+                        VersionPolicy = HttpVersionPolicy.RequestVersionExact
+                    };
+                    (destinationRequest, requestContent, _) = await CreateRequestMessageAsync(
+                        context, destinationPrefix, transformer, config, isStreamingRequest, activityCancellationSource);
+
+                    destinationResponse = await httpClient.SendAsync(destinationRequest, activityCancellationSource.Token);
+                }
             }
             catch (Exception requestException)
             {
                 return await HandleRequestFailureAsync(context, requestContent, requestException, transformer, activityCancellationSource);
             }
 
+            ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.SendAsyncStop);
+            // Reset the timeout since we received the response headers.
+            activityCancellationSource.ResetTimeout();
             Log.ResponseReceived(_logger, destinationResponse);
 
             try
@@ -186,7 +227,15 @@ internal sealed class HttpForwarder : IHttpForwarder
             }
 
             // :: Step 7-A: Check for a 101 upgrade response, this takes care of WebSockets as well as any other upgradeable protocol.
-            if (destinationResponse.StatusCode == HttpStatusCode.SwitchingProtocols)
+            // Also check for HTTP/2 CONNECT 200 responses, they function similarly.
+            if (destinationResponse.StatusCode == HttpStatusCode.SwitchingProtocols
+#if NET7_0_OR_GREATER
+                || (destinationResponse.StatusCode == HttpStatusCode.OK
+                && destinationResponse.Version == HttpVersion.Version20
+                && destinationRequest.Headers.Protocol is not null
+                && destinationRequest.Method.Equals(HttpMethod.Connect))
+#endif
+                )
             {
                 Debug.Assert(requestContent?.Started != true);
                 return await HandleUpgradedResponse(context, destinationResponse, activityCancellationSource);
@@ -259,7 +308,7 @@ internal sealed class HttpForwarder : IHttpForwarder
         return ForwarderError.None;
     }
 
-    private async ValueTask<(HttpRequestMessage, StreamCopyHttpContent?)> CreateRequestMessageAsync(HttpContext context, string destinationPrefix,
+    private async ValueTask<(HttpRequestMessage, StreamCopyHttpContent?, bool)> CreateRequestMessageAsync(HttpContext context, string destinationPrefix,
         HttpTransformer transformer, ForwarderRequestConfig? requestConfig, bool isStreamingRequest, ActivityCancellationTokenSource activityToken)
     {
         // "http://a".Length = 8
@@ -270,23 +319,82 @@ internal sealed class HttpForwarder : IHttpForwarder
 
         var destinationRequest = new HttpRequestMessage();
 
-        destinationRequest.Method = RequestUtilities.GetHttpMethod(context.Request.Method);
-
         var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
         var upgradeHeader = context.Request.Headers[HeaderNames.Upgrade].ToString();
-        var isUpgradeRequest = (upgradeFeature?.IsUpgradableRequest ?? false)
-            // Mitigate https://github.com/microsoft/reverse-proxy/issues/255, IIS considers all requests upgradeable.
-            && (string.Equals("WebSocket", upgradeHeader, StringComparison.OrdinalIgnoreCase)
-                // https://github.com/microsoft/reverse-proxy/issues/467 for kubernetes APIs
-                || upgradeHeader.StartsWith("SPDY/", StringComparison.OrdinalIgnoreCase));
 
-        // Default to HTTP/1.1 for proxying upgradeable requests. This is already the default as of .NET Core 3.1
-        // Otherwise request what's set in proxyOptions (e.g. default HTTP/2) and let HttpClient negotiate the protocol
-        // based on VersionPolicy. For example, downgrading to HTTP/1.1 if it cannot establish HTTP/2 with the target.
-        // This is done without extra round-trips thanks to ALPN. We can detect a downgrade after calling HttpClient.SendAsync
-        // (see Step 3 below). TBD how this will change when HTTP/3 is supported.
-        destinationRequest.Version = isUpgradeRequest ? ProtocolHelper.Http11Version : (requestConfig?.Version ?? DefaultVersion);
-        destinationRequest.VersionPolicy = isUpgradeRequest ? HttpVersionPolicy.RequestVersionOrLower : (requestConfig?.VersionPolicy ?? DefaultVersionPolicy);
+        var isSpdyRequest = (upgradeFeature?.IsUpgradableRequest ?? false)
+            && upgradeHeader.StartsWith("SPDY/", StringComparison.OrdinalIgnoreCase);
+        var isH1WsRequest = (upgradeFeature?.IsUpgradableRequest ?? false)
+            && string.Equals(WebSocketName, upgradeHeader, StringComparison.OrdinalIgnoreCase);
+        var incomingUpgrade = isSpdyRequest || isH1WsRequest;
+        var isH2WsRequest = false;
+#if NET7_0_OR_GREATER
+        var connectFeature = context.Features.Get<IHttpExtendedConnectFeature>();
+        var connectProtocol = connectFeature?.Protocol;
+        isH2WsRequest = (connectFeature?.IsExtendedConnect ?? false)
+            && string.Equals(WebSocketName, connectProtocol, StringComparison.OrdinalIgnoreCase);
+#endif
+
+        var outgoingHttps = destinationPrefix.StartsWith("https://");
+        var outgoingVersion = requestConfig?.Version ?? DefaultVersion;
+        var outgoingPolicy = requestConfig?.VersionPolicy ?? DefaultVersionPolicy;
+        var outgoingUpgrade = false;
+        var outgoingConnect = false;
+        var tryDowngradingH2WsOnFailure = false;
+        if (isSpdyRequest)
+        {
+            // Can only be done on HTTP/1.1, force regardless of options.
+            outgoingUpgrade = true;
+        }
+        else if (isH1WsRequest || isH2WsRequest)
+        {
+            switch (outgoingVersion.Major, outgoingPolicy, outgoingHttps)
+            {
+#if NET7_0_OR_GREATER
+                case (2, HttpVersionPolicy.RequestVersionExact, _):
+                case (2, HttpVersionPolicy.RequestVersionOrHigher, true):
+                    outgoingConnect = true;
+                    break;
+                case (1, HttpVersionPolicy.RequestVersionOrHigher, true):
+                case (2, HttpVersionPolicy.RequestVersionOrLower, true):
+                case (3, HttpVersionPolicy.RequestVersionOrLower, true):
+                    // Try H2WS, downgrade if needed.
+                    outgoingConnect = true;
+                    tryDowngradingH2WsOnFailure = true;
+                    break;
+#endif
+                // 1.x Lower or Exact, regardless of HTTPS
+                // Anything else without HTTPS except 2 Exact
+                default:
+                    // Override to use HTTP/1.1, nothing else is supported.
+                    outgoingUpgrade = true;
+                    break;
+            }
+        }
+
+        if (outgoingUpgrade)
+        {
+            // Can only be done on HTTP/1.1, force regardless of options.
+            destinationRequest.Version = HttpVersion.Version11;
+            destinationRequest.VersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
+            destinationRequest.Method = HttpMethod.Get;
+        }
+#if NET7_0_OR_GREATER
+        else if (outgoingConnect)
+        {
+            // HTTP/2 only (for now).
+            destinationRequest.Version = HttpVersion.Version20;
+            destinationRequest.VersionPolicy = HttpVersionPolicy.RequestVersionExact;
+            destinationRequest.Method = HttpMethod.Connect;
+            destinationRequest.Headers.Protocol = connectProtocol ?? WebSocketName;
+        }
+#endif
+        else
+        {
+            destinationRequest.Method = RequestUtilities.GetHttpMethod(context.Request.Method);
+            destinationRequest.Version = outgoingVersion;
+            destinationRequest.VersionPolicy = outgoingPolicy;
+        }
 
         // :: Step 2: Setup copy of request body (background) Client --► Proxy --► Destination
         // Note that we must do this before step (3) because step (3) may also add headers to the HttpContent that we set up here.
@@ -299,13 +407,10 @@ internal sealed class HttpForwarder : IHttpForwarder
         // The transformer generated a response, do not forward.
         if (RequestUtilities.IsResponseSet(context.Response))
         {
-            return (destinationRequest, requestContent);
+            return (destinationRequest, requestContent, false);
         }
 
-        if (isUpgradeRequest)
-        {
-            RestoreUpgradeHeaders(context, destinationRequest);
-        }
+        FixupUpgradeRequestHeaders(context, destinationRequest, outgoingUpgrade, outgoingConnect);
 
         // Allow someone to custom build the request uri, otherwise provide a default for them.
         var request = context.Request;
@@ -317,27 +422,57 @@ internal sealed class HttpForwarder : IHttpForwarder
         }
 
         // TODO: What if they replace the HttpContent object? That would mess with our tracking and error handling.
-        return (destinationRequest, requestContent);
+        return (destinationRequest, requestContent, tryDowngradingH2WsOnFailure);
     }
 
-    private static void RestoreUpgradeHeaders(HttpContext context, HttpRequestMessage request)
+    // Connection and Upgrade headers were not copied with the rest of the headers.
+    private void FixupUpgradeRequestHeaders(HttpContext context, HttpRequestMessage request, bool outgoingUpgrade, bool outgoingConnect)
     {
-        var connectionValues = context.Request.Headers.GetCommaSeparatedValues(HeaderNames.Connection);
-        string? connectionUpgradeValue = null;
-        foreach (var headerValue in connectionValues)
+        if (outgoingUpgrade)
         {
-            if (headerValue.Equals("upgrade", StringComparison.OrdinalIgnoreCase))
+            // H2->H1, add Connection, Upgrade, Sec-WebSocket-Key
+            if (HttpProtocol.IsHttp2(context.Request.Protocol))
             {
-                connectionUpgradeValue = headerValue;
-                break;
+                request.Headers.TryAddWithoutValidation(HeaderNames.Connection, HeaderNames.Upgrade);
+                request.Headers.TryAddWithoutValidation(HeaderNames.Upgrade, WebSocketName);
+                var key = ProtocolHelper.CreateSecWebSocketKey();
+                request.Headers.TryAddWithoutValidation(HeaderNames.SecWebSocketKey, key);
+            }
+            // H1->H1, re-add the original Connection, Upgrade headers.
+            else
+            {
+                var connectionValues = context.Request.Headers.GetCommaSeparatedValues(HeaderNames.Connection);
+                string? connectionUpgradeValue = null;
+                foreach (var headerValue in connectionValues)
+                {
+                    if (headerValue.Equals(HeaderNames.Upgrade, StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Preserve original value, case
+                        connectionUpgradeValue = headerValue;
+                        break;
+                    }
+                }
+
+                if (connectionUpgradeValue is not null && context.Request.Headers.TryGetValue(HeaderNames.Upgrade, out var upgradeValue))
+                {
+                    request.Headers.TryAddWithoutValidation(HeaderNames.Connection, connectionUpgradeValue);
+                    request.Headers.TryAddWithoutValidation(HeaderNames.Upgrade, (IEnumerable<string>)upgradeValue);
+                }
             }
         }
-
-        if (connectionUpgradeValue is not null && context.Request.Headers.TryGetValue(HeaderNames.Upgrade, out var upgradeValue))
+        // H1->H2, remove Sec-WebSocket-Key
+        else if (outgoingConnect && !HttpProtocol.IsHttp2(context.Request.Protocol))
         {
-            request.Headers.TryAddWithoutValidation(HeaderNames.Connection, connectionUpgradeValue);
-            request.Headers.TryAddWithoutValidation(HeaderNames.Upgrade, (IEnumerable<string>)upgradeValue);
+            var key = context.Request.Headers[HeaderNames.SecWebSocketKey];
+            if (!ProtocolHelper.CheckSecWebSocketKey(key))
+            {
+                Log.InvalidSecWebSocketKeyHeader(_logger, key);
+                // The request will not be forwarded if we change the status code.
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            }
+            request.Headers.Remove(HeaderNames.SecWebSocketKey);
         }
+        // else not an upgrade, or H2->H2, no changes needed
     }
 
     private StreamCopyHttpContent? SetupRequestBodyCopy(HttpRequest request, bool isStreamingRequest, ActivityCancellationTokenSource activityToken)
@@ -355,6 +490,15 @@ internal sealed class HttpForwarder : IHttpForwarder
         {
             // 5.0 servers provide a definitive answer for us.
             hasBody = canHaveBodyFeature.CanHaveBody;
+
+            // TODO: Kestrel bug, this shouldn't be true for ExtendedConnect.
+#if NET7_0_OR_GREATER
+            var connectFeature = request.HttpContext.Features.Get<IHttpExtendedConnectFeature>();
+            if (connectFeature?.Protocol != null)
+            {
+                hasBody = false;
+            }
+#endif
         }
         // https://tools.ietf.org/html/rfc7230#section-3.3.3
         // All HTTP/1.1 requests should have Transfer-Encoding or Content-Length.
@@ -526,55 +670,37 @@ internal sealed class HttpForwarder : IHttpForwarder
         return transformer.TransformResponseAsync(context, source);
     }
 
-    private static void RestoreUpgradeHeaders(HttpContext context, HttpResponseMessage response)
-    {
-        // We don't use NonValidated for the Connection header as we do want value validation.
-        // HttpHeaders.TryGetValues will handle the parsing and split the values for us.
-        if (RequestUtilities.TryGetValues(response.Headers, HeaderNames.Upgrade, out var upgradeValues)
-            && response.Headers.TryGetValues(HeaderNames.Connection, out var connectionValues))
-        {
-            foreach (var value in connectionValues)
-            {
-                if (value.Equals("upgrade", StringComparison.OrdinalIgnoreCase))
-                {
-                    context.Response.Headers.TryAdd(HeaderNames.Connection, value);
-                    context.Response.Headers.TryAdd(HeaderNames.Upgrade, upgradeValues);
-                    break;
-                }
-            }
-        }
-    }
-
     private async ValueTask<ForwarderError> HandleUpgradedResponse(HttpContext context, HttpResponseMessage destinationResponse,
         ActivityCancellationTokenSource activityCancellationSource)
     {
         ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.ResponseUpgrade);
 
-        // SocketHttpHandler and similar transports always provide an HttpContent object, even if it's empty.
-        // Note as of 5.0 HttpResponse.Content never returns null.
-        // https://github.com/dotnet/runtime/blame/8fc68f626a11d646109a758cb0fc70a0aa7826f1/src/libraries/System.Net.Http/src/System/Net/Http/HttpResponseMessage.cs#L46
-        if (destinationResponse.Content is null)
+        var isHttp2Request = HttpProtocol.IsHttp2(context.Request.Protocol);
+        var headerError = FixupUpgradeResponseHeaders(context, destinationResponse, isHttp2Request);
+        if (headerError != ForwarderError.None)
         {
-            throw new InvalidOperationException("A response content is required for upgrades.");
+            destinationResponse.Dispose();
+            return headerError;
         }
 
         // :: Step 7-A-1: Upgrade the client channel. This will also send response headers.
-        var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
-        if (upgradeFeature is null)
-        {
-            var ex = new InvalidOperationException("Invalid 101 response when upgrades aren't supported.");
-            destinationResponse.Dispose();
-            context.Response.StatusCode = StatusCodes.Status502BadGateway;
-            ReportProxyError(context, ForwarderError.UpgradeResponseDestination, ex);
-            return ForwarderError.UpgradeResponseDestination;
-        }
-
-        RestoreUpgradeHeaders(context, destinationResponse);
-
         Stream upgradeResult;
         try
         {
-            upgradeResult = await upgradeFeature.UpgradeAsync();
+#if NET7_0_OR_GREATER
+            if (isHttp2Request)
+            {
+                var connectFeature = context.Features.Get<IHttpExtendedConnectFeature>();
+                Debug.Assert(connectFeature != null);
+                upgradeResult = await connectFeature.AcceptAsync();
+            }
+            else
+#endif
+            {
+                var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
+                Debug.Assert(upgradeFeature != null);
+                upgradeResult = await upgradeFeature.UpgradeAsync();
+            }
         }
         catch (Exception ex)
         {
@@ -582,12 +708,15 @@ internal sealed class HttpForwarder : IHttpForwarder
             ReportProxyError(context, ForwarderError.UpgradeResponseClient, ex);
             return ForwarderError.UpgradeResponseClient;
         }
+
         using var clientStream = upgradeResult;
 
         // :: Step 7-A-2: Copy duplex streams
         using var destinationStream = await destinationResponse.Content.ReadAsStreamAsync(activityCancellationSource.Token);
 
-        var requestTask = StreamCopier.CopyAsync(isRequest: true, clientStream, destinationStream, StreamCopier.UnknownLength, _clock, activityCancellationSource, activityCancellationSource.Token).AsTask();
+        var requestTask = StreamCopier.CopyAsync(isRequest: true, clientStream, destinationStream, StreamCopier.UnknownLength, _clock, activityCancellationSource,
+            // HTTP/2 HttpClient request streams buffer by default.
+            autoFlush: destinationResponse.Version == HttpVersion.Version20, activityCancellationSource.Token).AsTask();
         var responseTask = StreamCopier.CopyAsync(isRequest: false, destinationStream, clientStream, StreamCopier.UnknownLength, _clock, activityCancellationSource, activityCancellationSource.Token).AsTask();
 
         // Make sure we report the first failure.
@@ -640,6 +769,65 @@ internal sealed class HttpForwarder : IHttpForwarder
             ReportProxyError(context, error, exception);
             return error;
         }
+    }
+
+    // The Connection and Upgrade headers were not copied by default
+    private ForwarderError FixupUpgradeResponseHeaders(HttpContext context, HttpResponseMessage response, bool isHttp2Request)
+    {
+        if (isHttp2Request)
+        {
+            // H2 <- H1 Validate & remove the Sec-WebSocket-Accept header.
+            if (response.Version != HttpVersion.Version20)
+            {
+                var success = RequestUtilities.TryGetValues(response.RequestMessage!.Headers, HeaderNames.SecWebSocketKey, out var key);
+                Debug.Assert(success);
+                var accept = context.Response.Headers[HeaderNames.SecWebSocketAccept];
+                var expectedAccept = ProtocolHelper.CreateSecWebSocketAccept(key.ToString());
+                if (!string.Equals(expectedAccept, accept, StringComparison.Ordinal)) // Base64 is case sensitive
+                {
+                    context.Response.Clear();
+                    context.Response.StatusCode = StatusCodes.Status502BadGateway;
+                    ReportProxyError(context, ForwarderError.ResponseHeaders, new InvalidOperationException("The Sec-WebSocket-Accept header does not match the expected value."));
+                    return ForwarderError.ResponseHeaders;
+                }
+                context.Response.Headers.Remove(HeaderNames.SecWebSocketAccept);
+                context.Response.StatusCode = StatusCodes.Status200OK;
+            }
+            // else H2 <- H2, no changes needed
+            return ForwarderError.None;
+        }
+
+        // H1 <- H2
+        if (response.Version == HttpVersion.Version20)
+        {
+            // Generate and add the Sec-WebSocket-Accept header, and the Connection and Upgrade headers
+            var key = context.Request.Headers[HeaderNames.SecWebSocketKey];
+            var accept = ProtocolHelper.CreateSecWebSocketAccept(key);
+            context.Response.Headers.TryAdd(HeaderNames.SecWebSocketAccept, accept);
+            context.Response.Headers.TryAdd(HeaderNames.Connection, HeaderNames.Upgrade);
+            context.Response.Headers.TryAdd(HeaderNames.Upgrade, WebSocketName);
+            return ForwarderError.None;
+        }
+
+        // H1 <- H1
+        // Restore the Connection and Upgrade headers
+        // We don't use NonValidated for the Connection header as we do want value validation.
+        // HttpHeaders.TryGetValues will handle the parsing and split the values for us.
+        if (RequestUtilities.TryGetValues(response.Headers, HeaderNames.Upgrade, out var upgradeValues)
+            && response.Headers.TryGetValues(HeaderNames.Connection, out var connectionValues))
+        {
+            foreach (var value in connectionValues)
+            {
+                if (value.Equals(HeaderNames.Upgrade, StringComparison.OrdinalIgnoreCase))
+                {
+                    context.Response.Headers.TryAdd(HeaderNames.Connection, value);
+                    context.Response.Headers.TryAdd(HeaderNames.Upgrade, upgradeValues);
+                    break;
+                }
+            }
+        }
+
+        return ForwarderError.None;
     }
 
     private async ValueTask<(StreamCopyResult, Exception?)> CopyResponseBodyAsync(HttpContent destinationResponseContent, Stream clientResponseStream,
@@ -788,6 +976,21 @@ internal sealed class HttpForwarder : IHttpForwarder
             EventIds.NotForwarding,
             "Not Proxying, a {statusCode} response was set by the transforms.");
 
+        private static readonly Action<ILogger, Exception?> _retryingWebSocketDowngradeNoConnect = LoggerMessage.Define(
+            LogLevel.Information,
+            EventIds.RetryingWebSocketDowngradeNoConnect,
+            "Unable to proxy the WebSocket using HTTP/2, the server does not support RFC 8441, retrying with HTTP/1.1.");
+
+        private static readonly Action<ILogger, Exception?> _retryingWebSocketDowngradeNoHttp2 = LoggerMessage.Define(
+            LogLevel.Information,
+            EventIds.RetryingWebSocketDowngradeNoHttp2,
+            "Unable to proxy the WebSocket using HTTP/2, server does not support HTTP/2. Retrying with HTTP/1.1. Disable HTTP/2 negotiation for improved performance.");
+
+        private static readonly Action<ILogger, string?, Exception?> _invalidKeyHeader = LoggerMessage.Define<string?>(
+            LogLevel.Information,
+            EventIds.InvalidSecWebSocketKeyHeader,
+            "Invalid Sec-WebSocket-Key header: '{key}'.");
+
         public static void ResponseReceived(ILogger logger, HttpResponseMessage msg)
         {
             _responseReceived(logger, msg.Version, (int)msg.StatusCode, null);
@@ -810,9 +1013,24 @@ internal sealed class HttpForwarder : IHttpForwarder
             _notProxying(logger, statusCode, null);
         }
 
+        public static void InvalidSecWebSocketKeyHeader(ILogger logger, string? key)
+        {
+            _invalidKeyHeader(logger, key, null);
+        }
+
         public static void ErrorProxying(ILogger logger, ForwarderError error, Exception ex)
         {
             _proxyError(logger, error, GetMessage(error), ex);
+        }
+
+        public static void RetryingWebSocketDowngradeNoConnect(ILogger logger)
+        {
+            _retryingWebSocketDowngradeNoConnect(logger, null);
+        }
+
+        public static void RetryingWebSocketDowngradeNoHttp2(ILogger logger)
+        {
+            _retryingWebSocketDowngradeNoHttp2(logger, null);
         }
 
         private static string GetMessage(ForwarderError error)

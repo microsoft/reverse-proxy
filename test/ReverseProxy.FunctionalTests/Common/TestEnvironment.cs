@@ -10,12 +10,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Xunit.Abstractions;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.Tests.Common;
 
@@ -23,6 +27,8 @@ namespace Yarp.ReverseProxy.Common;
 
 public class TestEnvironment
 {
+    public ITestOutputHelper TestOutput { get; set; }
+
     public HttpProtocols ProxyProtocol { get; set; } = HttpProtocols.Http1AndHttp2;
 
     public bool UseHttpsOnProxy { get; set; }
@@ -47,6 +53,8 @@ public class TestEnvironment
 
     public bool UseHttpsOnDestination { get; set; }
 
+    public bool UseHttpSysOnDestination { get; set; }
+
     public Action<IServiceCollection> ConfigureDestinationServices { get; set; } = _ => { };
 
     public Action<IApplicationBuilder> ConfigureDestinationApp { get; set; } = _ => { };
@@ -63,7 +71,8 @@ public class TestEnvironment
 
     public async Task Invoke(Func<string, Task> clientFunc, CancellationToken cancellationToken = default)
     {
-        using var destination = CreateHost(DestinationProtocol, UseHttpsOnDestination, HeaderEncoding, ConfigureDestinationServices, ConfigureDestinationApp);
+        using var destination = CreateHost(DestinationProtocol, UseHttpsOnDestination, HeaderEncoding,
+            ConfigureDestinationServices, ConfigureDestinationApp, UseHttpSysOnDestination);
         await destination.StartAsync(cancellationToken);
 
         using var proxy = CreateProxy(destination.GetAddress());
@@ -127,14 +136,15 @@ public class TestEnvironment
             });
     }
 
-    private static IHost CreateHost(HttpProtocols protocols, bool useHttps, Encoding requestHeaderEncoding,
-        Action<IServiceCollection> configureServices, Action<IApplicationBuilder> configureApp)
+    private IHost CreateHost(HttpProtocols protocols, bool useHttps, Encoding requestHeaderEncoding,
+        Action<IServiceCollection> configureServices, Action<IApplicationBuilder> configureApp, bool useHttpSys = false)
     {
         return new HostBuilder()
             .ConfigureAppConfiguration(config =>
             {
                 config.AddInMemoryCollection(new Dictionary<string, string>()
                 {
+                    { "Logging:LogLevel:Microsoft", "Trace" },
                     { "Logging:LogLevel:Microsoft.AspNetCore.Hosting.Diagnostics", "Information" }
                 });
             })
@@ -142,6 +152,10 @@ public class TestEnvironment
             {
                 loggingBuilder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
                 loggingBuilder.AddEventSourceLogger();
+                if (TestOutput != null)
+                {
+                    loggingBuilder.AddXunit(TestOutput);
+                }
             })
             .ConfigureWebHost(webHostBuilder =>
             {
@@ -160,9 +174,83 @@ public class TestEnvironment
                             {
                                 listenOptions.UseHttps(TestResources.GetTestCertificate());
                             }
+                            listenOptions.UseConnectionLogging();
                         });
                     })
                     .Configure(configureApp);
+                if (useHttpSys)
+                {
+#pragma warning disable CA1416 // Validate platform compatibility
+                    webHostBuilder.UseHttpSys(httpSys =>
+                    {
+                        if (useHttps)
+                        {
+                            httpSys.UrlPrefixes.Add("https://localhost:" + FindHttpSysHttpsPortAsync(TestOutput).Result);
+                        }
+                        else
+                        {
+                            httpSys.UrlPrefixes.Add("http://localhost:0");
+                        }
+                    });
+#pragma warning restore CA1416 // Validate platform compatibility
+                }
             }).Build();
+    }
+
+    private const int BaseHttpsPort = 44300;
+    private const int MaxHttpsPort = 44399;
+    private static int NextHttpsPort = BaseHttpsPort;
+    private static readonly SemaphoreSlim PortLock = new SemaphoreSlim(1);
+
+    internal static async Task<int> FindHttpSysHttpsPortAsync(ITestOutputHelper output)
+    {
+        await PortLock.WaitAsync();
+        try
+        {
+            while (NextHttpsPort < MaxHttpsPort)
+            {
+                var port = NextHttpsPort++;
+                using var host = new HostBuilder()
+                    .ConfigureAppConfiguration(config =>
+                    {
+                        config.AddInMemoryCollection(new Dictionary<string, string>()
+                        {
+                            { "Logging:LogLevel:Microsoft", "Trace" },
+                        });
+                    })
+                    .ConfigureLogging((hostingContext, loggingBuilder) =>
+                    {
+                        loggingBuilder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                        loggingBuilder.AddEventSourceLogger();
+                        loggingBuilder.AddXunit(output);
+                    })
+                    .ConfigureWebHost(webHostBuilder =>
+                    {
+#pragma warning disable CA1416 // Validate platform compatibility
+                        webHostBuilder.UseHttpSys(httpSys =>
+                        {
+                            httpSys.UrlPrefixes.Add("https://localhost:" + port);
+                        });
+                        webHostBuilder.Configure(app => { });
+#pragma warning restore CA1416 // Validate platform compatibility
+                    }).Build();
+
+                try
+                {
+                    await host.StartAsync();
+                    await host.StopAsync();
+                    return port;
+                }
+                catch (HttpSysException)
+                {
+                }
+            }
+            NextHttpsPort = BaseHttpsPort;
+        }
+        finally
+        {
+            PortLock.Release();
+        }
+        throw new Exception("Failed to locate a free port.");
     }
 }

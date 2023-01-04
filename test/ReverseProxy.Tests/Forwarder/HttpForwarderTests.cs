@@ -9,28 +9,37 @@ using System.IO.Pipelines;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Moq;
 using Xunit;
-using Yarp.Tests.Common;
+using Xunit.Abstractions;
 using Yarp.ReverseProxy.Utilities;
-using System.Net.Http.Headers;
-using Microsoft.Extensions.Primitives;
+using Yarp.Tests.Common;
 
 namespace Yarp.ReverseProxy.Forwarder.Tests;
 
 public class HttpForwarderTests
 {
+    private readonly ITestOutputHelper _output;
+
+    public HttpForwarderTests(ITestOutputHelper output)
+    {
+        _output = output;
+    }
+
     private IHttpForwarder CreateProxy()
     {
         var services = new ServiceCollection();
-        services.AddLogging();
+        services.AddLogging(b => b.AddXunit(_output));
         services.AddHttpForwarder();
         var provider = services.BuildServiceProvider();
         return provider.GetRequiredService<IHttpForwarder>();
@@ -535,7 +544,10 @@ public class HttpForwarderTests
                 return response;
             });
 
-        await sut.SendAsync(httpContext, destinationPrefix, client);
+        await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig()
+        {
+            Version = HttpVersion.Version11,
+        });
 
         Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
         Assert.Contains("response", httpContext.Response.Headers["x-ms-response-test"].ToArray());
@@ -551,43 +563,6 @@ public class HttpForwarderTests
 
         AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
         events.AssertContainProxyStages(upgrade: true);
-    }
-
-    [Fact]
-    public async Task NonUpgradableRequestReturns101_Aborted()
-    {
-        var events = TestEventListener.Collect();
-
-        var httpContext = new DefaultHttpContext();
-        httpContext.Request.Method = "GET";
-
-        DuplexStream upstreamStream = null;
-
-        var destinationPrefix = "https://localhost:123/a/b/";
-        var sut = CreateProxy();
-        var client = MockHttpHandler.CreateClient(
-            async (HttpRequestMessage request, CancellationToken cancellationToken) =>
-            {
-                await Task.Yield();
-
-                Assert.Equal(new Version(2, 0), request.Version);
-                Assert.Equal(HttpMethod.Get, request.Method);
-                Assert.Null(request.Content);
-
-                var response = new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
-                upstreamStream = new DuplexStream(
-                    readStream: StringToStream("response content"),
-                    writeStream: new MemoryStream());
-                response.Content = new RawStreamContent(upstreamStream);
-                return response;
-            });
-
-        await sut.SendAsync(httpContext, destinationPrefix, client);
-
-        Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
-
-        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, ForwarderError.UpgradeResponseDestination);
-        events.AssertContainProxyStages(upgrade: true, hasRequestContent: false, hasResponseContent: false);
     }
 
     // Tests proxying an upgradeable request where the destination refused to upgrade.
@@ -639,7 +614,10 @@ public class HttpForwarderTests
                 return response;
             });
 
-        await sut.SendAsync(httpContext, destinationPrefix, client);
+        await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig()
+        {
+            Version = HttpVersion.Version11,
+        });
 
         Assert.Equal(234, httpContext.Response.StatusCode);
         var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
@@ -712,7 +690,8 @@ public class HttpForwarderTests
 
         var result = await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig
         {
-            ActivityTimeout = TimeSpan.FromSeconds(1)
+            Version = HttpVersion.Version11,
+            ActivityTimeout = TimeSpan.FromSeconds(1),
         }).DefaultTimeout();
 
         Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
@@ -1264,7 +1243,7 @@ public class HttpForwarderTests
         var events = TestEventListener.Collect();
 
         // Use any non-default value
-        var version = new Version(5, 5);
+        var version = new Version(3, 0);
         var versionPolicy = HttpVersionPolicy.RequestVersionExact;
 
         var httpContext = new DefaultHttpContext();
@@ -1306,8 +1285,8 @@ public class HttpForwarderTests
         var events = TestEventListener.Collect();
 
         // Use any non-default value
-        var version = new Version(5, 5);
-        var transformedVersion = new Version(6, 6);
+        var version = new Version(0, 9);
+        var transformedVersion = new Version(3, 0);
         var versionPolicy = HttpVersionPolicy.RequestVersionExact;
         var transformedVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
 
@@ -2253,7 +2232,10 @@ public class HttpForwarderTests
                 return Task.FromResult(response);
             });
 
-        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig()
+        {
+            Version = HttpVersion.Version11,
+        });
 
         Assert.Equal(ForwarderError.UpgradeRequestClient, proxyError);
         Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
@@ -2310,7 +2292,10 @@ public class HttpForwarderTests
                 return Task.FromResult(response);
             });
 
-        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, new ForwarderRequestConfig()
+        {
+            Version = HttpVersion.Version11,
+        });
 
         Assert.Equal(ForwarderError.UpgradeResponseDestination, proxyError);
         Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);

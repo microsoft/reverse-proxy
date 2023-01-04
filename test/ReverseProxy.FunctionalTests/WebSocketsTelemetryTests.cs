@@ -4,12 +4,14 @@
 #nullable enable
 
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Yarp.ReverseProxy.Common;
@@ -71,6 +73,44 @@ public class WebSocketsTelemetryTests
         Assert.Equal(read, telemetry!.MessagesRead);
         Assert.Equal(written, telemetry.MessagesWritten);
     }
+
+#if NET7_0_OR_GREATER
+    [Fact]
+    public async Task Http2WebSocketsWork()
+    {
+        var read = 11;
+        var written = 13;
+        var messageSize = 100;
+        var telemetry = await TestAsync(
+            async uri =>
+            {
+                using var invoker = CreateInvoker();
+                using var client = new ClientWebSocket();
+                client.Options.HttpVersion = HttpVersion.Version20;
+                client.Options.HttpVersionPolicy = HttpVersionPolicy.RequestVersionExact;
+                await client.ConnectAsync(uri, invoker, CancellationToken.None);
+                var webSocket = new WebSocketAdapter(client);
+
+                await Task.WhenAll(
+                    SendMessagesAndCloseAsync(webSocket, read, messageSize),
+                    ReceiveAllMessagesAsync(webSocket));
+            },
+            async (context, webSocket) =>
+            {
+                await Task.WhenAll(
+                    SendMessagesAndCloseAsync(webSocket, written, messageSize),
+                    ReceiveAllMessagesAsync(webSocket));
+            },
+            new ManualClock(new TimeSpan(42)),
+            http2Proxy: true);
+
+        Assert.NotNull(telemetry);
+        Assert.Equal(42, telemetry!.EstablishedTime.Ticks);
+        Assert.Contains(telemetry.CloseReason, new[] { WebSocketCloseReason.ClientGracefulClose, WebSocketCloseReason.ServerGracefulClose });
+        Assert.Equal(read, telemetry!.MessagesRead);
+        Assert.Equal(written, telemetry.MessagesWritten);
+    }
+#endif
 
     public enum Behavior
     {
@@ -299,7 +339,7 @@ public class WebSocketsTelemetryTests
         }
     }
 
-    private static async Task<WebSocketsTelemetry?> TestAsync(Func<Uri, Task> requestDelegate, Func<HttpContext, WebSocketAdapter, Task> destinationDelegate, IClock? clock = null)
+    private static async Task<WebSocketsTelemetry?> TestAsync(Func<Uri, Task> requestDelegate, Func<HttpContext, WebSocketAdapter, Task> destinationDelegate, IClock? clock = null, bool http2Proxy = false)
     {
         var telemetryConsumer = new TelemetryConsumer();
 
@@ -336,6 +376,11 @@ public class WebSocketsTelemetryTests
             },
         };
 
+        if (http2Proxy)
+        {
+            test.ProxyProtocol = HttpProtocols.Http2;
+        }
+
         await test.Invoke(async uri =>
         {
             var webSocketsTarget = uri.Replace("https://", "wss://").Replace("http://", "ws://");
@@ -357,5 +402,18 @@ public class WebSocketsTelemetryTests
         {
             Telemetry = new WebSocketsTelemetry(timestamp, establishedTime, closeReason, messagesRead, messagesWritten);
         }
+    }
+
+    private static HttpMessageInvoker CreateInvoker()
+    {
+        var handler = new SocketsHttpHandler
+        {
+            AllowAutoRedirect = false,
+            AutomaticDecompression = DecompressionMethods.None,
+            UseCookies = false,
+            UseProxy = false
+        };
+        handler.SslOptions.RemoteCertificateValidationCallback = (_, _, _, _) => true;
+        return new HttpMessageInvoker(handler);
     }
 }

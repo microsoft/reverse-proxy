@@ -22,6 +22,9 @@ internal static class StreamCopier
     public const long UnknownLength = -1;
 
     public static ValueTask<(StreamCopyResult, Exception?)> CopyAsync(bool isRequest, Stream input, Stream output, long promisedContentLength, IClock clock, ActivityCancellationTokenSource activityToken, CancellationToken cancellation)
+        => CopyAsync(isRequest, input, output, promisedContentLength, clock, activityToken, autoFlush: false, cancellation);
+
+    public static ValueTask<(StreamCopyResult, Exception?)> CopyAsync(bool isRequest, Stream input, Stream output, long promisedContentLength, IClock clock, ActivityCancellationTokenSource activityToken, bool autoFlush, CancellationToken cancellation)
     {
         Debug.Assert(input is not null);
         Debug.Assert(output is not null);
@@ -33,10 +36,10 @@ internal static class StreamCopier
             ? new StreamCopierTelemetry(isRequest, clock)
             : null;
 
-        return CopyAsync(input, output, promisedContentLength, telemetry, activityToken, cancellation);
+        return CopyAsync(input, output, promisedContentLength, telemetry, activityToken, autoFlush, cancellation);
     }
 
-    private static async ValueTask<(StreamCopyResult, Exception?)> CopyAsync(Stream input, Stream output, long promisedContentLength, StreamCopierTelemetry? telemetry, ActivityCancellationTokenSource activityToken, CancellationToken cancellation)
+    private static async ValueTask<(StreamCopyResult, Exception?)> CopyAsync(Stream input, Stream output, long promisedContentLength, StreamCopierTelemetry? telemetry, ActivityCancellationTokenSource activityToken, bool autoFlush, CancellationToken cancellation)
     {
         var buffer = ArrayPool<byte>.Shared.Rent(DefaultBufferSize);
         var read = 0;
@@ -97,6 +100,12 @@ internal static class StreamCopier
                 }
 
                 await output.WriteAsync(buffer.AsMemory(0, read), cancellation);
+                if (autoFlush)
+                {
+                    // HttpClient doesn't always flush outgoing data unless the buffer is full or the caller asks.
+                    // This is a problem for streaming protocols like WebSockets and gRPC.
+                    await output.FlushAsync(cancellation);
+                }
 
                 telemetry?.AfterWrite();
 
