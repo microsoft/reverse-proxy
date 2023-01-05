@@ -151,6 +151,8 @@ public class WebSocketsTelemetryTests
     [InlineData(Behavior.SendsClose_ClosesConnection, Behavior.SendsClose_ClosesConnection, WebSocketCloseReason.ClientGracefulClose, WebSocketCloseReason.ServerGracefulClose)]
     public async Task ConnectionClosed_BlameAttributedCorrectly(Behavior clientBehavior, Behavior serverBehavior, params WebSocketCloseReason[] expectedReasons)
     {
+        var serverSawClose = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+
         var telemetry = await TestAsync(
             async uri =>
             {
@@ -186,7 +188,7 @@ public class WebSocketsTelemetryTests
         Assert.NotNull(telemetry);
         Assert.Contains(telemetry!.CloseReason, expectedReasons);
 
-        static async Task ProcessAsync(WebSocketAdapter webSocket, Behavior behavior, ClientWebSocket? client = null, HttpContext? context = null)
+        async Task ProcessAsync(WebSocketAdapter webSocket, Behavior behavior, ClientWebSocket? client = null, HttpContext? context = null)
         {
             if (behavior == Behavior.SendsClose_WaitsForClose ||
                 behavior == Behavior.SendsClose_ClosesConnection)
@@ -199,6 +201,11 @@ public class WebSocketsTelemetryTests
                 behavior == Behavior.WaitsForClose_ClosesConnection)
             {
                 await ReceiveAllMessagesAsync(webSocket);
+
+                if (context is not null)
+                {
+                    serverSawClose.SetResult();
+                }
             }
 
             if (behavior == Behavior.WaitsForClose_SendsClose)
@@ -208,6 +215,14 @@ public class WebSocketsTelemetryTests
 
             if (behavior.HasFlag(Behavior.ClosesConnection))
             {
+                if (client is not null &&
+                    behavior is Behavior.SendsClose_ClosesConnection &&
+                    serverBehavior is Behavior.WaitsForClose_SendsClose or Behavior.WaitsForClose_ClosesConnection)
+                {
+                    // If we're sending a close message and expect the server to receive it, wait before killing the connection.
+                    await serverSawClose.Task.WaitAsync(TimeSpan.FromMinutes(1));
+                }
+
                 client?.Abort();
 
                 if (context is not null)
