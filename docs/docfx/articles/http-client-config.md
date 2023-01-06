@@ -209,7 +209,8 @@ new SocketsHttpHandler
     AllowAutoRedirect = false,
     AutomaticDecompression = DecompressionMethods.None,
     UseCookies = false,
-    ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
+    ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
+    ConnectTimeout = TimeSpan.FromSeconds(15),
 };
 ```
 

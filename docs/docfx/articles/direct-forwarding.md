@@ -52,7 +52,8 @@ public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
         AllowAutoRedirect = false,
         AutomaticDecompression = DecompressionMethods.None,
         UseCookies = false,
-        ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
+        ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
+        ConnectTimeout = TimeSpan.FromSeconds(15),
     });
     var transformer = new CustomTransformer(); // or HttpTransformer.Default;
     var requestConfig = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
