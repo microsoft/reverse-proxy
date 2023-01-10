@@ -94,7 +94,7 @@ There are three built-in affinity polices that format and store the key differen
 
 ### Key Protection
 
-The HashCookie policy uses a SHA-256 hash to produce a standard, obscured output format for the cookie value. This is not a strong privacy protection and sensitive data should not be included in destination ids.
+The `HashCookie` policy uses a SHA-256 hash to produce a standard, obscured output format for the cookie value. This is not a strong privacy protection and sensitive data should not be included in destination ids. The `HashCookie` policy does not conceal the total number of unique destinations behind the proxy and should not be used if that's a concern.
 
 The Cookie and CustomHeader policies encrypt the key using Data Protection. This provides strong privacy protections for the key, but requires [additional configuration](https://learn.microsoft.com/aspnet/core/security/data-protection/configuration/overview) when more than once proxy instance is in use.
 

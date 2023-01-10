@@ -39,17 +39,7 @@ internal sealed class CookieSessionAffinityPolicy : BaseSessionAffinityPolicy<st
 
     protected override void SetAffinityKey(HttpContext context, ClusterState cluster, SessionAffinityConfig config, string unencryptedKey)
     {
-        var affinityCookieOptions = new CookieOptions
-        {
-            Path = config.Cookie?.Path ?? "/",
-            SameSite = config.Cookie?.SameSite ?? SameSiteMode.Unspecified,
-            HttpOnly = config.Cookie?.HttpOnly ?? true,
-            MaxAge = config.Cookie?.MaxAge,
-            Domain = config.Cookie?.Domain,
-            IsEssential = config.Cookie?.IsEssential ?? false,
-            Secure = config.Cookie?.SecurePolicy == CookieSecurePolicy.Always || (config.Cookie?.SecurePolicy == CookieSecurePolicy.SameAsRequest && context.Request.IsHttps),
-            Expires = config.Cookie?.Expiration is not null ? _clock.GetUtcNow().Add(config.Cookie.Expiration.Value) : default(DateTimeOffset?),
-        };
+        var affinityCookieOptions = AffinityHelpers.CreateCookieOptions(config.Cookie, context.Request.IsHttps, _clock);
         context.Response.Cookies.Append(config.AffinityKeyName, Protect(unencryptedKey), affinityCookieOptions);
     }
 }

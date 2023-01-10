@@ -14,7 +14,7 @@ using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.SessionAffinity;
 
-internal sealed class HashCookieSessionAffinityPolicy : ISessionAffinityPolicy
+internal sealed partial class HashCookieSessionAffinityPolicy : ISessionAffinityPolicy
 {
     private static readonly object AffinityKeyId = new();
     private readonly ConditionalWeakTable<DestinationState, string> _hashes = new();
@@ -42,20 +42,7 @@ internal sealed class HashCookieSessionAffinityPolicy : ISessionAffinityPolicy
         if (!context.Items.ContainsKey(AffinityKeyId))
         {
             var affinityKey = GetDestinationHash(destination);
-
-            // Nothing is written to the response
-            var affinityCookieOptions = new CookieOptions
-            {
-                Path = config.Cookie?.Path ?? "/",
-                SameSite = config.Cookie?.SameSite ?? SameSiteMode.Unspecified,
-                HttpOnly = config.Cookie?.HttpOnly ?? true,
-                MaxAge = config.Cookie?.MaxAge,
-                Domain = config.Cookie?.Domain,
-                IsEssential = config.Cookie?.IsEssential ?? false,
-                Secure = config.Cookie?.SecurePolicy == CookieSecurePolicy.Always || (config.Cookie?.SecurePolicy == CookieSecurePolicy.SameAsRequest && context.Request.IsHttps),
-                Expires = config.Cookie?.Expiration is not null ? _clock.GetUtcNow().Add(config.Cookie.Expiration.Value) : default(DateTimeOffset?),
-            };
-
+            var affinityCookieOptions = AffinityHelpers.CreateCookieOptions(config.Cookie, context.Request.IsHttps, _clock);
             context.Response.Cookies.Append(config.AffinityKeyName, affinityKey, affinityCookieOptions);
         }
     }
@@ -105,28 +92,5 @@ internal sealed class HashCookieSessionAffinityPolicy : ISessionAffinityPolicy
             var hashBytes = SHA256.HashData(destinationIdBytes);
             return Convert.ToHexString(hashBytes);
         });
-    }
-
-    private static class Log
-    {
-        private static readonly Action<ILogger, string, Exception?> _affinityCannotBeEstablishedBecauseNoDestinationsFound = LoggerMessage.Define<string>(
-            LogLevel.Warning,
-            EventIds.AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnCluster,
-            "The request affinity cannot be established because no destinations are found on cluster `{clusterId}`.");
-
-        private static readonly Action<ILogger, string, Exception?> _destinationMatchingToAffinityKeyNotFound = LoggerMessage.Define<string>(
-            LogLevel.Warning,
-            EventIds.DestinationMatchingToAffinityKeyNotFound,
-            "Destination matching to the request affinity key is not found on cluster `{backnedId}`. Configured failure policy will be applied.");
-
-        public static void AffinityCannotBeEstablishedBecauseNoDestinationsFound(ILogger logger, string clusterId)
-        {
-            _affinityCannotBeEstablishedBecauseNoDestinationsFound(logger, clusterId, null);
-        }
-
-        public static void DestinationMatchingToAffinityKeyNotFound(ILogger logger, string clusterId)
-        {
-            _destinationMatchingToAffinityKeyNotFound(logger, clusterId, null);
-        }
     }
 }
