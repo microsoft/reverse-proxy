@@ -12,13 +12,13 @@ using Yarp.ReverseProxy.Model;
 
 namespace Yarp.ReverseProxy.SessionAffinity;
 
-internal abstract class BaseSessionAffinityPolicy<T> : ISessionAffinityPolicy
+internal abstract class BaseEncryptedSessionAffinityPolicy<T> : ISessionAffinityPolicy
 {
     private readonly IDataProtector _dataProtector;
     protected static readonly object AffinityKeyId = new object();
     protected readonly ILogger Logger;
 
-    protected BaseSessionAffinityPolicy(IDataProtectionProvider dataProtectionProvider, ILogger logger)
+    protected BaseEncryptedSessionAffinityPolicy(IDataProtectionProvider dataProtectionProvider, ILogger logger)
     {
         _dataProtector = dataProtectionProvider?.CreateProtector(GetType().FullName!) ?? throw new ArgumentNullException(nameof(dataProtectionProvider));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));

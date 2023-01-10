@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.IO.Hashing;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Model;
@@ -11,25 +11,25 @@ using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.SessionAffinity;
 
-internal sealed class HashCookieSessionAffinityPolicy : BaseHashCookieSessionAffinityPolicy
+internal sealed class ArrCookieSessionAffinityPolicy : BaseHashCookieSessionAffinityPolicy
 {
     private readonly ConditionalWeakTable<DestinationState, string> _hashes = new();
 
-    public HashCookieSessionAffinityPolicy(
+    public ArrCookieSessionAffinityPolicy(
         IClock clock,
-        ILogger<HashCookieSessionAffinityPolicy> logger)
+        ILogger<ArrCookieSessionAffinityPolicy> logger)
         : base(clock, logger) { }
 
-    public override string Name => SessionAffinityConstants.Policies.HashCookie;
+    public override string Name => SessionAffinityConstants.Policies.ArrCookie;
 
     protected override string GetDestinationHash(DestinationState d)
     {
         return _hashes.GetValue(d, static d =>
         {
-            // Stable format across instances
-            var destinationIdBytes = Encoding.Unicode.GetBytes(d.DestinationId.ToUpperInvariant());
-            var hashBytes = XxHash64.Hash(destinationIdBytes);
-            return Convert.ToHexString(hashBytes).ToLowerInvariant();
+            // Matches the format used by ARR
+            var destinationIdBytes = Encoding.Unicode.GetBytes(d.DestinationId.ToLowerInvariant());
+            var hashBytes = SHA256.HashData(destinationIdBytes);
+            return Convert.ToHexString(hashBytes);
         });
     }
 }

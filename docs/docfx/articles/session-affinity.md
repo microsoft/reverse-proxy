@@ -26,7 +26,7 @@ Session affinity is configured per cluster according to the following configurat
         "<cluster-name>": {
             "SessionAffinity": {
                 "Enabled": "(true|false)", // defaults to 'false'
-                "Policy": "(HashCookie|Cookie|CustomHeader)", // defaults to 'HashCookie'
+                "Policy": "(HashCookie|ArrCookie|Cookie|CustomHeader)", // defaults to 'HashCookie'
                 "FailurePolicy": "(Redistribute|Return503Error)", // defaults to 'Redistribute'
                 "AffinityKeyName": "Key1",
                 "Cookie": {
@@ -87,16 +87,20 @@ Once a request arrives and gets routed to a cluster with session affinity enable
 If a new affinity was established for the request, the affinity key gets attached to a response where exact key representation and location depends on the implementation. Currently, there are two built-in policies storing the key on a cookie or custom header. Once the response gets delivered to the client, it's the client responsibility to attach the key to all following requests in the same session. Further, when the next request carrying the key arrives to the proxy, it resolves the existing affinity, but affinity key does not get again attached to the response. Thus, only the first response carries the affinity key.
 
 There are three built-in affinity polices that format and store the key differently on requests and responses. The default policy is `HashCookie`.
-- `HashCookie` and `Cookie` store the key as a cookie, hashed or encrypted respectively, see [Key Protection](#key-protection) below. The request's key will be delivered as a cookie with configured name and sets the same cookie with `Set-Cookie` header on the first response in an affinitized sequence. The cookie name must be explicitly set via `SessionAffinityConfig.AffinityKeyName`. Other cookie properties can be configured via `SessionAffinityCookieConfig`.
-- `CustomHeader` - stores the key as an encrypted header. It expects the affinity key to be delivered in a custom header with configured name and sets the same header on the first response in an affinitized sequence. The header name must be set via `SessionAffinityConfig.AffinityKeyName`.
+- `HashCookie`, `ArrCookie`, and `Cookie` policies store the key as a cookie, hashed or encrypted respectively, see [Key Protection](#key-protection) below. The request's key will be delivered as a cookie with the configured name and sets the same cookie with `Set-Cookie` header on the first response in an affinitized sequence. The cookie name must be explicitly set via `SessionAffinityConfig.AffinityKeyName`. Other cookie properties can be configured via `SessionAffinityCookieConfig`.
+- `CustomHeader` stores the key as an encrypted header. It expects the affinity key to be delivered in a custom header with the configured name and sets the same header on the first response in an affinitized sequence. The header name must be set via `SessionAffinityConfig.AffinityKeyName`.
 
 **Important**: `AffinityKeyName` must be unique across all clusters with enabled session affinity to avoid conflicts.
 
 ### Key Protection
 
-The `HashCookie` policy uses a SHA-256 hash to produce a standard, obscured output format for the cookie value. This is not a strong privacy protection and sensitive data should not be included in destination ids. The `HashCookie` policy does not conceal the total number of unique destinations behind the proxy and should not be used if that's a concern.
+The `HashCookie` policy uses the XxHash64 hash to produce a fast, compact, obscured output format for the cookie value.
 
-The Cookie and CustomHeader policies encrypt the key using Data Protection. This provides strong privacy protections for the key, but requires [additional configuration](https://learn.microsoft.com/aspnet/core/security/data-protection/configuration/overview) when more than once proxy instance is in use.
+The `ArrCookie` policy uses the SHA-256 hash to produce an obscured output for the cookie value that matches IIS's [ARR](https://www.iis.net/downloads/microsoft/application-request-routing) affinity cookie format. ARR uses the destination host name as the input value so YARP's destination ids would need to be configured to match if used in conjunction with ARR. 
+
+`HashCookie` and `ArrCookie` do not provide strong privacy protection and sensitive data should not be included in destination ids. These policies also don't conceal the total number of unique destinations behind the proxy and should not be used if that's a concern.
+
+The `Cookie` and `CustomHeader` policies encrypt the key using Data Protection. This provides strong privacy protections for the key, but requires [additional configuration](https://learn.microsoft.com/aspnet/core/security/data-protection/configuration/overview) when more than once proxy instance is in use.
 
 ## Affinity failure policy
 If the affinity key cannot be decoded or no healthy destination found it's considered as a failure and an affinity failure policy is called to handle it. The policy has the full access to `HttpContext` and can send response to the client by itself. It returns a boolean value indicating whether the request processing can proceed down the pipeline or must be terminated.

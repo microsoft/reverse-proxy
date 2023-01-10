@@ -87,6 +87,7 @@ internal static class IReverseProxyBuilderExtensions
         builder.Services.TryAddEnumerable(new[] {
             ServiceDescriptor.Singleton<ISessionAffinityPolicy, CookieSessionAffinityPolicy>(),
             ServiceDescriptor.Singleton<ISessionAffinityPolicy, HashCookieSessionAffinityPolicy>(),
+            ServiceDescriptor.Singleton<ISessionAffinityPolicy, ArrCookieSessionAffinityPolicy>(),
             ServiceDescriptor.Singleton<ISessionAffinityPolicy, CustomHeaderSessionAffinityPolicy>()
         });
         builder.AddTransforms<AffinitizeTransformProvider>();

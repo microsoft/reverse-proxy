@@ -11,7 +11,7 @@ using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.SessionAffinity;
 
-internal sealed class CookieSessionAffinityPolicy : BaseSessionAffinityPolicy<string>
+internal sealed class CookieSessionAffinityPolicy : BaseEncryptedSessionAffinityPolicy<string>
 {
     private readonly IClock _clock;
 
