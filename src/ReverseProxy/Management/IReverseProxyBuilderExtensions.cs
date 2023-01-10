@@ -22,6 +22,9 @@ internal static class IReverseProxyBuilderExtensions
 {
     public static IReverseProxyBuilder AddConfigBuilder(this IReverseProxyBuilder builder)
     {
+#if NET7_0_OR_GREATER
+        builder.Services.TryAddSingleton<IYarpRateLimiterPolicyProvider, YarpRateLimiterPolicyProvider>();
+#endif
         builder.Services.TryAddSingleton<IConfigValidator, ConfigValidator>();
         builder.Services.TryAddSingleton<IRandomFactory, RandomFactory>();
         builder.AddTransformFactory<ForwardedTransformFactory>();
