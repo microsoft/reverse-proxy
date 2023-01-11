@@ -29,7 +29,7 @@ internal abstract class BaseHashCookieSessionAffinityPolicy : ISessionAffinityPo
     {
         if (!config.Enabled.GetValueOrDefault())
         {
-            throw new InvalidOperationException($"Session affinity is disabled for cluster.");
+            throw new InvalidOperationException("Session affinity is disabled for cluster.");
         }
 
         // Affinity key is set on the response only if it's a new affinity.
