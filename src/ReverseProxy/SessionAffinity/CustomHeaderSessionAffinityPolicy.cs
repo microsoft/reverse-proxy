@@ -11,7 +11,7 @@ using Yarp.ReverseProxy.Model;
 
 namespace Yarp.ReverseProxy.SessionAffinity;
 
-internal sealed class CustomHeaderSessionAffinityPolicy : BaseSessionAffinityPolicy<string>
+internal sealed class CustomHeaderSessionAffinityPolicy : BaseEncryptedSessionAffinityPolicy<string>
 {
     public CustomHeaderSessionAffinityPolicy(
         IDataProtectionProvider dataProtectionProvider,

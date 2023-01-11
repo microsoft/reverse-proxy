@@ -53,7 +53,7 @@ internal sealed class SessionAffinityMiddleware
         var destinations = proxyFeature.AvailableDestinations;
         var cluster = proxyFeature.Route.Cluster!;
 
-        var policy = _sessionAffinityPolicies.GetRequiredServiceById(config.Policy, SessionAffinityConstants.Policies.Cookie);
+        var policy = _sessionAffinityPolicies.GetRequiredServiceById(config.Policy, SessionAffinityConstants.Policies.HashCookie);
         var affinityResult = policy.FindAffinitizedDestinations(context, cluster, config, destinations);
 
         switch (affinityResult.Status)

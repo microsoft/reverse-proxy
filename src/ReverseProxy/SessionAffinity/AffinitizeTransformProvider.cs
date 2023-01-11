@@ -34,7 +34,7 @@ internal sealed class AffinitizeTransformProvider : ITransformProvider
         if (string.IsNullOrEmpty(policy))
         {
             // The default.
-            policy = SessionAffinityConstants.Policies.Cookie;
+            policy = SessionAffinityConstants.Policies.HashCookie;
         }
 
         if (!_sessionAffinityPolicies.ContainsKey(policy))
@@ -49,7 +49,7 @@ internal sealed class AffinitizeTransformProvider : ITransformProvider
 
         if (options is not null && options.Enabled.GetValueOrDefault())
         {
-            var policy = _sessionAffinityPolicies.GetRequiredServiceById(options.Policy, SessionAffinityConstants.Policies.Cookie);
+            var policy = _sessionAffinityPolicies.GetRequiredServiceById(options.Policy, SessionAffinityConstants.Policies.HashCookie);
             context.ResponseTransforms.Add(new AffinitizeTransform(policy));
         }
     }
