@@ -7,6 +7,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.WebSockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -236,7 +237,7 @@ public class WebSocketsTelemetryTests
 
     [Theory]
     [InlineData(100, 200, WebSocketCloseReason.ClientGracefulClose)]
-    // [InlineData(200, 100, WebSocketCloseReason.ServerGracefulClose)] // See https://github.com/microsoft/reverse-proxy/issues/1882
+    [InlineData(200, 100, WebSocketCloseReason.ServerGracefulClose)]
     [InlineData(100, 100, WebSocketCloseReason.ServerGracefulClose)] // Implementation detail
     public async Task ConnectionClosed_BlameReliesOnCloseTimes(long clientCloseTime, long serverCloseTime, WebSocketCloseReason expectedCloseReason)
     {
@@ -263,6 +264,8 @@ public class WebSocketsTelemetryTests
 
         static async Task ProcessAsync(WebSocketAdapter webSocket, ManualClock clock, long closeTime, bool sendCloseFirst)
         {
+            await SendAndAcknowledgeMessageAsync(webSocket);
+
             var receiveTask = ReceiveAllMessagesAsync(webSocket);
 
             if (!sendCloseFirst)
@@ -279,6 +282,18 @@ public class WebSocketsTelemetryTests
 
             await receiveTask;
         }
+    }
+
+    private static async Task SendAndAcknowledgeMessageAsync(WebSocketAdapter webSocket)
+    {
+        var receiveBuffer = new byte[10];
+
+        var sendTask = webSocket.SendAsync("Hello"u8.ToArray(), WebSocketMessageType.Text, endOfMessage: true).AsTask();
+        var receiveTask = webSocket.ReceiveAsync(receiveBuffer).AsTask();
+
+        await Task.WhenAll(sendTask, receiveTask);
+
+        Assert.Equal("Hello", Encoding.UTF8.GetString(receiveBuffer[..(await receiveTask).Count]));
     }
 
     private static async Task ReceiveAllMessagesAsync(WebSocketAdapter webSocket)
