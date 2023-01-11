@@ -45,7 +45,7 @@ Session affinity is configured per cluster according to the following configurat
 ```
 
 ### Cookie configuration
-Attributes for configuring the cookie used with the HashCookie and Cookie policies can be configured using `SessionAffinityCookieConfig`. The properties can be JSON config as show above or in code as shown below:
+Attributes for configuring the cookie used with the HashCookie, ArrCookie and Cookie policies can be configured using `SessionAffinityCookieConfig`. The properties can be JSON config as show above or in code as shown below:
 ```C#
 new ClusterConfig
 {
@@ -72,7 +72,7 @@ new ClusterConfig
 ```
 
 ## Affinity Key
-Request to destination affinity is established via the affinity key identifying the target destination. That key can be stored on different request parts depending on the given session affinity implementation, but each request cannot have more than one such key. The exact key semantics is implementation dependent, but the built-in policies currently use `DestinationId` as the affinity key.
+Request to destination affinity is established via the affinity key identifying the target destination. That key can be stored on different request parts depending on the given session affinity implementation, but each request cannot have more than one such key. The exact key semantics are implementation dependent, but the built-in policies currently use `DestinationId` as the affinity key.
 
 The current design doesn't require a key to uniquely identify the single affinitized destination. It's allowed to establish affinity to a destination group. In this case, the exact destination to handle the given request will be determined by the load balancer.
 
@@ -86,7 +86,7 @@ Once a request arrives and gets routed to a cluster with session affinity enable
 
 If a new affinity was established for the request, the affinity key gets attached to a response where exact key representation and location depends on the implementation. Currently, there are two built-in policies storing the key on a cookie or custom header. Once the response gets delivered to the client, it's the client responsibility to attach the key to all following requests in the same session. Further, when the next request carrying the key arrives to the proxy, it resolves the existing affinity, but affinity key does not get again attached to the response. Thus, only the first response carries the affinity key.
 
-There are three built-in affinity polices that format and store the key differently on requests and responses. The default policy is `HashCookie`.
+There are four built-in affinity polices that format and store the key differently on requests and responses. The default policy is `HashCookie`.
 - `HashCookie`, `ArrCookie`, and `Cookie` policies store the key as a cookie, hashed or encrypted respectively, see [Key Protection](#key-protection) below. The request's key will be delivered as a cookie with the configured name and sets the same cookie with `Set-Cookie` header on the first response in an affinitized sequence. The cookie name must be explicitly set via `SessionAffinityConfig.AffinityKeyName`. Other cookie properties can be configured via `SessionAffinityCookieConfig`.
 - `CustomHeader` stores the key as an encrypted header. It expects the affinity key to be delivered in a custom header with the configured name and sets the same header on the first response in an affinitized sequence. The header name must be set via `SessionAffinityConfig.AffinityKeyName`.
 
