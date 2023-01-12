@@ -105,10 +105,12 @@ public class TelemetryConsumptionTests
     [InlineData(RegistrationApproach.Manual)]
     public async Task TelemetryConsumptionWorks(RegistrationApproach registrationApproach)
     {
+        var useHttpsOnDestination = !OperatingSystem.IsMacOS();
+
         var test = new TestEnvironment(
             async context => await context.Response.WriteAsync("Foo"))
         {
-            UseHttpsOnDestination = true,
+            UseHttpsOnDestination = useHttpsOnDestination,
             ClusterId = Guid.NewGuid().ToString(),
             ConfigureProxy = proxyBuilder => RegisterTelemetryConsumers(proxyBuilder.Services, registrationApproach),
         };
@@ -143,6 +145,11 @@ public class TelemetryConsumptionTests
             "OnForwarderStop",
             "OnRequestStop-Kestrel"
         };
+
+        if (!useHttpsOnDestination)
+        {
+            expected = expected.Where(s => !s.Contains("OnHandshake", StringComparison.Ordinal)).ToArray();
+        }
 
         foreach (var consumerType in new[] { typeof(TelemetryConsumer), typeof(SecondTelemetryConsumer) })
         {
