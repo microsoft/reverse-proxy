@@ -11,7 +11,9 @@ internal sealed class YarpIngressOptions
     public bool Https { get; set; }
     public List<Dictionary<string, string>> Transforms { get; set; }
     public string AuthorizationPolicy { get; set; }
+#if NET7_0_OR_GREATER
     public string RateLimiterPolicy { get; set; }
+#endif
     public SessionAffinityConfig SessionAffinity { get; set; }
     public HttpClientConfig HttpClientConfig { get; set; }
     public string LoadBalancingPolicy { get; set; }

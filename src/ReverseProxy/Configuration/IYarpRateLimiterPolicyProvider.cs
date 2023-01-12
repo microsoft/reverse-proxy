@@ -1,19 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Reflection;
-using System.Threading.Tasks;
 #if NET7_0_OR_GREATER
+using System;
+using System.Collections;
+using System.Reflection;
 using Microsoft.AspNetCore.RateLimiting;
-#endif
 using Microsoft.Extensions.Options;
+#endif
+
+using System.Threading.Tasks;
 
 namespace Yarp.ReverseProxy.Configuration;
 
-// TODO: update this once AspNetCore provides a mechanism to validate the RateLimiter policies https://github.com/dotnet/aspnetcore/issues/45684
+// TODO: update or remove this once AspNetCore provides a mechanism to validate the RateLimiter policies https://github.com/dotnet/aspnetcore/issues/45684
 
-#if NET7_0_OR_GREATER
 
 internal interface IYarpRateLimiterPolicyProvider
 {
@@ -22,9 +23,10 @@ internal interface IYarpRateLimiterPolicyProvider
 
 internal class YarpRateLimiterPolicyProvider : IYarpRateLimiterPolicyProvider
 {
+#if NET7_0_OR_GREATER
     private readonly RateLimiterOptions _rateLimiterOptions;
 
-    private readonly System.Collections.IDictionary _policyMap, _unactivatedPolicyMap;
+    private readonly IDictionary _policyMap, _unactivatedPolicyMap;
 
     public YarpRateLimiterPolicyProvider(IOptions<RateLimiterOptions> rateLimiterOptions)
     {
@@ -32,13 +34,20 @@ internal class YarpRateLimiterPolicyProvider : IYarpRateLimiterPolicyProvider
 
         var type = typeof(RateLimiterOptions);
         var flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        _policyMap = (System.Collections.IDictionary)type.GetProperty("PolicyMap", flags)!.GetValue(_rateLimiterOptions, null)!;
-        _unactivatedPolicyMap = (System.Collections.IDictionary)type.GetProperty("UnactivatedPolicyMap", flags)!.GetValue(_rateLimiterOptions, null)!;
+        _policyMap = type.GetProperty("PolicyMap", flags)?.GetValue(_rateLimiterOptions, null) as IDictionary
+            ?? throw new NotSupportedException("This version of YARP is incompatible with the current version of ASP.NET Core.");
+        _unactivatedPolicyMap = type.GetProperty("UnactivatedPolicyMap", flags)?.GetValue(_rateLimiterOptions, null) as IDictionary
+            ?? throw new NotSupportedException("This version of YARP is incompatible with the current version of ASP.NET Core.");
     }
 
     public ValueTask<object?> GetPolicyAsync(string policyName)
     {
         return ValueTask.FromResult(_policyMap[policyName] ?? _unactivatedPolicyMap[policyName]);
     }
-}
+#else
+    public ValueTask<object?> GetPolicyAsync(string policyName)
+    {
+        return default;
+    }
 #endif
+}

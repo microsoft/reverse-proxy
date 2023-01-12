@@ -147,7 +147,9 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             MaxRequestBodySize = section.ReadInt64(nameof(RouteConfig.MaxRequestBodySize)),
             ClusterId = section[nameof(RouteConfig.ClusterId)],
             AuthorizationPolicy = section[nameof(RouteConfig.AuthorizationPolicy)],
+#if NET7_0_OR_GREATER
             RateLimiterPolicy = section[nameof(RouteConfig.RateLimiterPolicy)],
+#endif
             CorsPolicy = section[nameof(RouteConfig.CorsPolicy)],
             Metadata = section.GetSection(nameof(RouteConfig.Metadata)).ReadStringDictionary(),
             Transforms = CreateTransforms(section.GetSection(nameof(RouteConfig.Transforms))),

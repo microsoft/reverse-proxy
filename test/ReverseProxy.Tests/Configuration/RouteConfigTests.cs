@@ -15,7 +15,9 @@ public class RouteConfigTests
         var a = new RouteConfig()
         {
             AuthorizationPolicy = "a",
+#if NET7_0_OR_GREATER
             RateLimiterPolicy = "rl",
+#endif
             ClusterId = "c",
             CorsPolicy = "co",
             Match = new RouteMatch()
@@ -44,7 +46,9 @@ public class RouteConfigTests
         var b = new RouteConfig()
         {
             AuthorizationPolicy = "A",
+#if NET7_0_OR_GREATER
             RateLimiterPolicy = "RL",
+#endif
             ClusterId = "C",
             CorsPolicy = "Co",
             Match = new RouteMatch()
@@ -84,7 +88,9 @@ public class RouteConfigTests
         var a = new RouteConfig()
         {
             AuthorizationPolicy = "a",
+#if NET7_0_OR_GREATER
             RateLimiterPolicy = "rl",
+#endif
             ClusterId = "c",
             CorsPolicy = "co",
             Match = new RouteMatch()
@@ -117,7 +123,9 @@ public class RouteConfigTests
         var f = a with { Metadata = new Dictionary<string, string>() { { "f", "f1" } } };
         var g = a with { Order = null };
         var h = a with { RouteId = "h" };
+#if NET7_0_OR_GREATER
         var i = a with { RateLimiterPolicy = "i" };
+#endif
 
         Assert.False(a.Equals(b));
         Assert.False(a.Equals(c));
@@ -126,7 +134,9 @@ public class RouteConfigTests
         Assert.False(a.Equals(f));
         Assert.False(a.Equals(g));
         Assert.False(a.Equals(h));
+#if NET7_0_OR_GREATER
         Assert.False(a.Equals(i));
+#endif
     }
 
     [Fact]
@@ -141,7 +151,9 @@ public class RouteConfigTests
         var route1 = new RouteConfig()
         {
             AuthorizationPolicy = "a",
+#if NET7_0_OR_GREATER
             RateLimiterPolicy = "rl",
+#endif
             ClusterId = "c",
             CorsPolicy = "co",
             Match = new RouteMatch()

@@ -29,9 +29,7 @@ internal sealed class ConfigValidator : IConfigValidator
 
     private readonly ITransformBuilder _transformBuilder;
     private readonly IAuthorizationPolicyProvider _authorizationPolicyProvider;
-#if NET7_0_OR_GREATER
     private readonly IYarpRateLimiterPolicyProvider _rateLimiterPolicyProvider;
-#endif
     private readonly ICorsPolicyProvider _corsPolicyProvider;
     private readonly IDictionary<string, ILoadBalancingPolicy> _loadBalancingPolicies;
     private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
@@ -43,9 +41,7 @@ internal sealed class ConfigValidator : IConfigValidator
 
     public ConfigValidator(ITransformBuilder transformBuilder,
         IAuthorizationPolicyProvider authorizationPolicyProvider,
-#if NET7_0_OR_GREATER
         IYarpRateLimiterPolicyProvider rateLimiterPolicyProvider,
-#endif
         ICorsPolicyProvider corsPolicyProvider,
         IEnumerable<ILoadBalancingPolicy> loadBalancingPolicies,
         IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
@@ -56,9 +52,7 @@ internal sealed class ConfigValidator : IConfigValidator
     {
         _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
         _authorizationPolicyProvider = authorizationPolicyProvider ?? throw new ArgumentNullException(nameof(authorizationPolicyProvider));
-#if NET7_0_OR_GREATER
         _rateLimiterPolicyProvider = rateLimiterPolicyProvider ?? throw new ArgumentNullException(nameof(rateLimiterPolicyProvider));
-#endif
         _corsPolicyProvider = corsPolicyProvider ?? throw new ArgumentNullException(nameof(corsPolicyProvider));
         _loadBalancingPolicies = loadBalancingPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(loadBalancingPolicies));
         _affinityFailurePolicies = affinityFailurePolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
@@ -299,7 +293,6 @@ internal sealed class ConfigValidator : IConfigValidator
         }
     }
 
-#if NET7_0_OR_GREATER
     private async ValueTask ValidateRateLimiterPolicyAsync(IList<Exception> errors, string? rateLimiterPolicyName, string routeId)
     {
         if (string.IsNullOrEmpty(rateLimiterPolicyName))
@@ -307,32 +300,20 @@ internal sealed class ConfigValidator : IConfigValidator
             return;
         }
 
-        if (string.Equals(RateLimitingConstants.Default, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase))
-        {
-            var policy = await _rateLimiterPolicyProvider.GetPolicyAsync(rateLimiterPolicyName);
-            if (policy is not null)
-            {
-                errors.Add(new ArgumentException($"The application has registered a RateLimiter policy named '{rateLimiterPolicyName}' that conflicts with the reserved RateLimiter policy name used on this route. The registered policy name needs to be changed for this route to function."));
-            }
-            return;
-        }
-
-        if (string.Equals(RateLimitingConstants.Disable, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase))
-        {
-            var policy = await _rateLimiterPolicyProvider.GetPolicyAsync(rateLimiterPolicyName);
-            if (policy is not null)
-            {
-                errors.Add(new ArgumentException($"The application has registered a RateLimiter policy named '{rateLimiterPolicyName}' that conflicts with the reserved RateLimiter policy name used on this route. The registered policy name needs to be changed for this route to function."));
-            }
-            return;
-        }
-
         try
         {
             var policy = await _rateLimiterPolicyProvider.GetPolicyAsync(rateLimiterPolicyName);
+
             if (policy is null)
             {
                 errors.Add(new ArgumentException($"RateLimiter policy '{rateLimiterPolicyName}' not found for route '{routeId}'."));
+                return;
+            }
+
+            if (string.Equals(RateLimitingConstants.Default, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(RateLimitingConstants.Disable, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase))
+            {
+                errors.Add(new ArgumentException($"The application has registered a RateLimiter policy named '{rateLimiterPolicyName}' that conflicts with the reserved RateLimiter policy name used on this route. The registered policy name needs to be changed for this route to function."));
             }
         }
         catch (Exception ex)
@@ -340,7 +321,6 @@ internal sealed class ConfigValidator : IConfigValidator
             errors.Add(new ArgumentException($"Unable to retrieve the RateLimiter policy '{rateLimiterPolicyName}' for route '{routeId}'.", ex));
         }
     }
-#endif
 
     private async ValueTask ValidateCorsPolicyAsync(IList<Exception> errors, string? corsPolicyName, string routeId)
     {

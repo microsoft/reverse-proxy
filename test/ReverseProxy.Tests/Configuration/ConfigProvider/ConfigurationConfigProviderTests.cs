@@ -127,7 +127,9 @@ public class ConfigurationConfigProviderTests
                 RouteId = "routeA",
                 ClusterId = "cluster1",
                 AuthorizationPolicy = "Default",
+#if NET7_0_OR_GREATER
                 RateLimiterPolicy = "Default",
+#endif
                 CorsPolicy = "Default",
                 Order = -1,
                 MaxRequestBodySize = -1,

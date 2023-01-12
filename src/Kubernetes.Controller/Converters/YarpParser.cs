@@ -104,7 +104,9 @@ internal static class YarpParser
                     RouteId = $"{ingressContext.Ingress.Metadata.Name}.{ingressContext.Ingress.Metadata.NamespaceProperty}:{host}{path.Path}",
                     Transforms = ingressContext.Options.Transforms,
                     AuthorizationPolicy = ingressContext.Options.AuthorizationPolicy,
+#if NET7_0_OR_GREATER
                     RateLimiterPolicy = ingressContext.Options.RateLimiterPolicy,
+#endif
                     CorsPolicy = ingressContext.Options.CorsPolicy,
                     Metadata = ingressContext.Options.RouteMetadata,
                     Order = ingressContext.Options.RouteOrder,
@@ -182,10 +184,12 @@ internal static class YarpParser
         {
             options.AuthorizationPolicy = authorizationPolicy;
         }
+#if NET7_0_OR_GREATER
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/rate-limiter-policy", out var rateLimiterPolicy))
         {
             options.RateLimiterPolicy = rateLimiterPolicy;
         }
+#endif
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/cors-policy", out var corsPolicy))
         {
             options.CorsPolicy = corsPolicy;

@@ -43,15 +43,15 @@ public sealed record RouteConfig
     /// Set to "Anonymous" to disable all authorization checks for this route.
     /// </summary>
     public string? AuthorizationPolicy { get; init; }
-
+#if NET7_0_OR_GREATER
     /// <summary>
     /// The name of the RateLimiterPolicy to apply to this route.
     /// If not set then only the GlobalLimiter will apply.
     /// Set to "Disable" to disable rate limiting for this route.
-    /// Set to "Default" or leave empty use the global rate limits, if any.
+    /// Set to "Default" or leave empty to use the global rate limits, if any.
     /// </summary>
     public string? RateLimiterPolicy { get; init; }
-
+#endif
     /// <summary>
     /// The name of the CorsPolicy to apply to this route.
     /// If not set then the route won't be automatically matched for cors preflight requests.
@@ -87,7 +87,9 @@ public sealed record RouteConfig
             && string.Equals(RouteId, other.RouteId, StringComparison.OrdinalIgnoreCase)
             && string.Equals(ClusterId, other.ClusterId, StringComparison.OrdinalIgnoreCase)
             && string.Equals(AuthorizationPolicy, other.AuthorizationPolicy, StringComparison.OrdinalIgnoreCase)
+#if NET7_0_OR_GREATER
             && string.Equals(RateLimiterPolicy, other.RateLimiterPolicy, StringComparison.OrdinalIgnoreCase)
+#endif
             && string.Equals(CorsPolicy, other.CorsPolicy, StringComparison.OrdinalIgnoreCase)
             && Match == other.Match
             && CaseSensitiveEqualHelper.Equals(Metadata, other.Metadata)
@@ -102,7 +104,9 @@ public sealed record RouteConfig
         hash.Add(RouteId?.GetHashCode(StringComparison.OrdinalIgnoreCase));
         hash.Add(ClusterId?.GetHashCode(StringComparison.OrdinalIgnoreCase));
         hash.Add(AuthorizationPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
+#if NET7_0_OR_GREATER
         hash.Add(RateLimiterPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
+#endif
         hash.Add(CorsPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
         hash.Add(Match);
         hash.Add(CaseSensitiveEqualHelper.GetHashCode(Metadata));

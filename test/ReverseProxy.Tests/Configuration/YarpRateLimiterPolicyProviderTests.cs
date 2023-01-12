@@ -1,12 +1,12 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+#if NET7_0_OR_GREATER
 using System;
 using System.Threading.Tasks;
-#if NET7_0_OR_GREATER
 using System.Threading.RateLimiting;
-#endif
 using Microsoft.AspNetCore.Builder;
-#if NET7_0_OR_GREATER
 using Microsoft.AspNetCore.RateLimiting;
-#endif
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -14,7 +14,6 @@ namespace Yarp.ReverseProxy.Configuration;
 
 public class YarpRateLimiterPolicyProviderTests
 {
-#if NET7_0_OR_GREATER
     [Fact]
     public async Task GetPolicyAsync_Works()
     {
@@ -37,5 +36,5 @@ public class YarpRateLimiterPolicyProviderTests
         Assert.Null(await rateLimiterPolicyProvider.GetPolicyAsync("anotherPolicy"));
         Assert.NotNull(await rateLimiterPolicyProvider.GetPolicyAsync("customPolicy"));
     }
-#endif
 }
+#endif
