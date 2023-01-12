@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Net.Http;
+using System.Threading;
 using Microsoft.AspNetCore.Http;
 
 namespace Yarp.ReverseProxy.Transforms;
@@ -27,4 +28,9 @@ public class ResponseTrailersTransformContext
     /// should operate on.
     /// </summary>
     public bool HeadersCopied { get; set; }
+
+    /// <summary>
+    /// A <see cref="CancellationToken"/> indicating that the request is being aborted.
+    /// </summary>
+    public CancellationToken CancellationToken { get; set; }
 }
