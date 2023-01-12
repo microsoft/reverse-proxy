@@ -10,7 +10,7 @@ The reverse proxy can be used to rate-limit requests before they are proxied to 
 No rate limiting is performed on requests unless enabled in the route or application configuration. However, the Rate Limiting middleware (`app.UseRateLimiter()`) can apply a default limiter applied to all routes, and this doesn't require any opt-in from the config.
 
 Example:
-```
+```c#
 builder.Services.AddRateLimiter(options => options.GlobalLimiter = globalLimiter);
 ```
 
@@ -46,7 +46,7 @@ Example:
 [RateLimiter policies](https://learn.microsoft.com/aspnet/core/performance/rate-limit) are an ASP.NET Core concept that the proxy utilizes. The proxy provides the above configuration to specify a policy per route and the rest is handled by existing ASP.NET Core rate limiting middleware.
 
 RateLimiter policies can be configured in Startup.ConfigureServices as follows:
-```
+```c#
 public void ConfigureServices(IServiceCollection services)
 {
     services.AddRateLimiter(options =>
@@ -64,7 +64,7 @@ public void ConfigureServices(IServiceCollection services)
 
 In Startup.Configure add the RateLimiter middleware between Routing and Endpoints.
 
-```
+```c#
 public void Configure(IApplicationBuilder app)
 {
     app.UseRouting();
