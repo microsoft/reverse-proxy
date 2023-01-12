@@ -419,6 +419,9 @@ internal sealed class HttpForwarder : IHttpForwarder
             return (destinationRequest, requestContent, false);
         }
 
+        // Transforms may have taken a while, especially if they buffered the body, they count as forward progress.
+        activityToken.ResetTimeout();
+
         FixupUpgradeRequestHeaders(context, destinationRequest, outgoingUpgrade, outgoingConnect);
 
         // Allow someone to custom build the request uri, otherwise provide a default for them.
