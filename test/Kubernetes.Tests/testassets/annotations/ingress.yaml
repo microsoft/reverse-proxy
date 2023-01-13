@@ -5,6 +5,7 @@ metadata:
   namespace: default
   annotations:
     yarp.ingress.kubernetes.io/authorization-policy: authzpolicy
+    yarp.ingress.kubernetes.io/rate-limiter-policy: ratelimiterpolicy
     yarp.ingress.kubernetes.io/cors-policy: corspolicy
     yarp.ingress.kubernetes.io/load-balancing: Random
     yarp.ingress.kubernetes.io/health-check: |
