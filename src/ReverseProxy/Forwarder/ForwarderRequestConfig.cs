@@ -3,11 +3,13 @@
 
 using System;
 using System.Net.Http;
+using System.Threading;
+using Microsoft.AspNetCore.Http;
 
 namespace Yarp.ReverseProxy.Forwarder;
 
 /// <summary>
-/// Config for <see cref="IHttpForwarder.SendAsync"/>
+/// Config for <see cref="IHttpForwarder.SendAsync(HttpContext, string, HttpMessageInvoker, ForwarderRequestConfig, HttpTransformer, CancellationToken)"/>
 /// </summary>
 public sealed record ForwarderRequestConfig
 {

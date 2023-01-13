@@ -83,12 +83,21 @@ internal sealed class HttpForwarder : IHttpForwarder
     /// ASP .NET Core (Kestrel) will finally send response trailers (if any)
     /// after we complete the steps above and relinquish control.
     /// </remarks>
-    public async ValueTask<ForwarderError> SendAsync(
+    public ValueTask<ForwarderError> SendAsync(
         HttpContext context,
         string destinationPrefix,
         HttpMessageInvoker httpClient,
         ForwarderRequestConfig requestConfig,
         HttpTransformer transformer)
+        => SendAsync(context, destinationPrefix, httpClient, requestConfig, transformer, CancellationToken.None);
+
+    public async ValueTask<ForwarderError> SendAsync(
+        HttpContext context,
+        string destinationPrefix,
+        HttpMessageInvoker httpClient,
+        ForwarderRequestConfig requestConfig,
+        HttpTransformer transformer,
+        CancellationToken cancellationToken)
     {
         _ = context ?? throw new ArgumentNullException(nameof(context));
         _ = destinationPrefix ?? throw new ArgumentNullException(nameof(destinationPrefix));
@@ -110,7 +119,7 @@ internal sealed class HttpForwarder : IHttpForwarder
 
         ForwarderTelemetry.Log.ForwarderStart(destinationPrefix);
 
-        var activityCancellationSource = ActivityCancellationTokenSource.Rent(requestConfig?.ActivityTimeout ?? DefaultTimeout, context.RequestAborted);
+        var activityCancellationSource = ActivityCancellationTokenSource.Rent(requestConfig?.ActivityTimeout ?? DefaultTimeout, context.RequestAborted, cancellationToken);
         try
         {
             var isClientHttp2OrGreater = ProtocolHelper.IsHttp2OrGreater(context.Request.Protocol);
@@ -193,7 +202,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             {
                 // :: Step 5: Copy response status line Client ◄-- Proxy ◄-- Destination
                 // :: Step 6: Copy response headers Client ◄-- Proxy ◄-- Destination
-                var copyBody = await CopyResponseStatusAndHeadersAsync(destinationResponse, context, transformer);
+                var copyBody = await CopyResponseStatusAndHeadersAsync(destinationResponse, context, transformer, activityCancellationSource.Token);
 
                 if (!copyBody)
                 {
@@ -260,7 +269,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             }
 
             // :: Step 8: Copy response trailer headers and finish response Client ◄-- Proxy ◄-- Destination
-            await CopyResponseTrailingHeadersAsync(destinationResponse, context, transformer);
+            await CopyResponseTrailingHeadersAsync(destinationResponse, context, transformer, activityCancellationSource.Token);
 
             if (isStreamingRequest)
             {
@@ -402,13 +411,16 @@ internal sealed class HttpForwarder : IHttpForwarder
         destinationRequest.Content = requestContent;
 
         // :: Step 3: Copy request headers Client --► Proxy --► Destination
-        await transformer.TransformRequestAsync(context, destinationRequest, destinationPrefix);
+        await transformer.TransformRequestAsync(context, destinationRequest, destinationPrefix, activityToken.Token);
 
         // The transformer generated a response, do not forward.
         if (RequestUtilities.IsResponseSet(context.Response))
         {
             return (destinationRequest, requestContent, false);
         }
+
+        // Transforms may have taken a while, especially if they buffered the body, they count as forward progress.
+        activityToken.ResetTimeout();
 
         FixupUpgradeRequestHeaders(context, destinationRequest, outgoingUpgrade, outgoingConnect);
 
@@ -653,7 +665,7 @@ internal sealed class HttpForwarder : IHttpForwarder
         }
     }
 
-    private static ValueTask<bool> CopyResponseStatusAndHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
+    private static ValueTask<bool> CopyResponseStatusAndHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer, CancellationToken cancellationToken)
     {
         context.Response.StatusCode = (int)source.StatusCode;
 
@@ -667,7 +679,7 @@ internal sealed class HttpForwarder : IHttpForwarder
         }
 
         // Copies headers
-        return transformer.TransformResponseAsync(context, source);
+        return transformer.TransformResponseAsync(context, source, cancellationToken);
     }
 
     private async ValueTask<ForwarderError> HandleUpgradedResponse(HttpContext context, HttpResponseMessage destinationResponse,
@@ -891,10 +903,10 @@ internal sealed class HttpForwarder : IHttpForwarder
         return error;
     }
 
-    private static ValueTask CopyResponseTrailingHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer)
+    private static ValueTask CopyResponseTrailingHeadersAsync(HttpResponseMessage source, HttpContext context, HttpTransformer transformer, CancellationToken cancellationToken)
     {
         // Copies trailers
-        return transformer.TransformResponseTrailersAsync(context, source);
+        return transformer.TransformResponseTrailersAsync(context, source, cancellationToken);
     }
 
 
