@@ -41,6 +41,6 @@ internal sealed class AffinitizeTransform : ResponseTransform
             proxyFeature.Route.Cluster,
             options,
             proxyFeature.ProxiedDestination,
-            context.HttpContext.RequestAborted);
+            context.CancellationToken);
     }
 }

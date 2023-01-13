@@ -39,7 +39,7 @@ public interface ISessionAffinityPolicy
     /// <param name="destinations"><see cref="DestinationState"/>s available for the request.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns><see cref="AffinityResult"/> carrying the found affinitized destinations if any and the <see cref="AffinityStatus"/>.</returns>
-    ValueTask<AffinityResult> FindAffinitizedDestinationsAsync(HttpContext context, ClusterState cluster, SessionAffinityConfig config, IReadOnlyList<DestinationState> destinations, CancellationToken cancellationToken = default)
+    ValueTask<AffinityResult> FindAffinitizedDestinationsAsync(HttpContext context, ClusterState cluster, SessionAffinityConfig config, IReadOnlyList<DestinationState> destinations, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -63,7 +63,7 @@ public interface ISessionAffinityPolicy
     /// <param name="config">Affinity config.</param>
     /// <param name="destination"><see cref="DestinationState"/> to which request is to be affinitized.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-    ValueTask AffinitizeResponseAsync(HttpContext context, ClusterState cluster, SessionAffinityConfig config, DestinationState destination, CancellationToken cancellationToken = default)
+    ValueTask AffinitizeResponseAsync(HttpContext context, ClusterState cluster, SessionAffinityConfig config, DestinationState destination, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
