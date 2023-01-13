@@ -3,6 +3,7 @@
 
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -22,7 +23,14 @@ public class AffinitizeTransformTests
         var cluster = GetCluster();
         var destination = cluster.Destinations.Values.First();
         var provider = new Mock<ISessionAffinityPolicy>(MockBehavior.Strict);
-        provider.Setup(p => p.AffinitizeResponse(It.IsAny<HttpContext>(), It.IsAny<ClusterState>(), It.IsNotNull<SessionAffinityConfig>(), It.IsAny<DestinationState>()));
+        provider
+            .Setup(p => p.AffinitizeResponseAsync(
+                It.IsAny<HttpContext>(),
+                It.IsAny<ClusterState>(),
+                It.IsNotNull<SessionAffinityConfig>(),
+                It.IsAny<DestinationState>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(new ValueTask());
 
         var transform = new AffinitizeTransform(provider.Object);
 

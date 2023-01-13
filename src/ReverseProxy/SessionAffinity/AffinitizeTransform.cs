@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Yarp.ReverseProxy.Model;
@@ -31,8 +32,15 @@ internal sealed class AffinitizeTransform : ResponseTransform
         {
             return default;
         }
-        var selectedDestination = proxyFeature.ProxiedDestination!;
-        _sessionAffinityPolicy.AffinitizeResponse(context.HttpContext, proxyFeature.Route.Cluster!, options!, selectedDestination);
-        return default;
+
+        Debug.Assert(proxyFeature.Route.Cluster is not null);
+        Debug.Assert(proxyFeature.ProxiedDestination is not null);
+
+        return _sessionAffinityPolicy.AffinitizeResponseAsync(
+            context.HttpContext,
+            proxyFeature.Route.Cluster,
+            options,
+            proxyFeature.ProxiedDestination,
+            context.CancellationToken);
     }
 }
