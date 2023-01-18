@@ -7,6 +7,9 @@ title: YARP Documentation
 
 Welcome to the documentation for YARP! YARP is a library to help create reverse proxy servers that are high-performance, production-ready, and highly customizable. Please provide us your feedback by going to [the GitHub repository](https://github.com/microsoft/reverse-proxy).
 
+This is the documentation for YARP 2.0.
+For documentation of YARP 1.1.1, see https://github.com/microsoft/reverse-proxy/tree/release/1.1/docs/docfx/articles.
+
 ## Why YARP
 
 We found a bunch of internal teams at Microsoft who were either building a reverse proxy for their service or had been asking about APIs and tech for building one, so we decided to get them all together to work on a common solution, this project. Each of these projects was doing something slightly off the beaten path which meant they were not well served by existing proxies, and customization of those proxies had a high cost and ongoing maintenance considerations.
