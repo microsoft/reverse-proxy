@@ -5,6 +5,7 @@
     <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <OutputType>Library</OutputType>
     <NoWarn>$(NoWarn);CS8002</NoWarn>
+    <IsPackable>$('System.TeamProject') != 'internal'</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
