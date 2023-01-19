@@ -34,7 +34,7 @@ Or create a new ASP.NET Core web application in Visual Studio 2022, and choose "
 
  ```XML
 <ItemGroup> 
-  <PackageReference Include="Yarp.ReverseProxy" Version="1.1.0-rc.2.22152.2" />
+  <PackageReference Include="Yarp.ReverseProxy" Version="2.0.0-rc.1.23068.3" />
 </ItemGroup> 
 ```
 
