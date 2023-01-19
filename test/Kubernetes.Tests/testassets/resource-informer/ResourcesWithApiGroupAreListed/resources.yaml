@@ -1,0 +1,23 @@
+﻿# pods
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: deployment-1
+    namespace: the-namespace
+  spec:
+    template:
+      spec:
+        containers:
+        - name: test
+          image: test
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: deployment-2
+    namespace: the-namespace
+  spec:
+    template:
+      spec:
+        containers:
+        - name: test
+          image: test

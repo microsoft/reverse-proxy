@@ -7,7 +7,7 @@ using Yarp.Kubernetes.Controller.Caching;
 namespace Yarp.Kubernetes.Controller.Services;
 
 /// <summary>
-/// ReconcileData is the information returned from <see cref="ICache.TryGetReconcileData(Microsoft.Kubernetes.NamespacedName, out ReconcileData)"/>
+/// ReconcileData is the information returned from <see cref="ICache.TryGetReconcileData(Yarp.Kubernetes.Controller.NamespacedName, out ReconcileData)"/>
 /// and needed by <see cref="IReconciler.ProcessAsync(System.Threading.CancellationToken)"/>.
 /// </summary>
 #pragma warning disable CA1815 // Override equals and operator equals on value types

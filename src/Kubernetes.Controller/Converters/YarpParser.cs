@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using k8s.Models;
+using YamlDotNet.Serialization;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.Kubernetes.Controller.Caching;
-using Yarp.Kubernetes.Controller.Services;
-using YamlDotNet.Serialization;
 
 namespace Yarp.Kubernetes.Controller.Converters;
 
@@ -40,8 +40,14 @@ internal static class YarpParser
         foreach (var path in http.Paths ?? Enumerable.Empty<V1HTTPIngressPath>())
         {
             var service = ingressContext.Services.SingleOrDefault(s => s.Metadata.Name == path.Backend.Service.Name);
-            var servicePort = service.Spec.Ports.SingleOrDefault(p => MatchesPort(p, path.Backend.Service.Port));
-            HandleIngressRulePath(ingressContext, servicePort, endpoints, defaultSubsets, rule, path, configContext);
+            if (service.Spec != null)
+            {
+                var servicePort = service.Spec.Ports.SingleOrDefault(p => MatchesPort(p, path.Backend.Service.Port));
+                if (servicePort != null)
+                {
+                    HandleIngressRulePath(ingressContext, servicePort, endpoints, defaultSubsets, rule, path, configContext);
+                }
+            }
         }
     }
 
@@ -78,7 +84,7 @@ internal static class YarpParser
         {
             foreach (var port in subset.Ports ?? Enumerable.Empty<Corev1EndpointPort>())
             {
-                if (!MatchesPort(port, servicePort.TargetPort))
+                if (!MatchesPort(port, servicePort))
                 {
                     continue;
                 }
@@ -91,14 +97,19 @@ internal static class YarpParser
                     Match = new RouteMatch()
                     {
                         Hosts = host is not null ? new[] { host } : Array.Empty<string>(),
-                        Path = pathMatch
+                        Path = pathMatch,
+                        Headers = ingressContext.Options.RouteHeaders
                     },
                     ClusterId = cluster.ClusterId,
-                    RouteId = $"{ingressContext.Ingress.Metadata.Name}.{ingressContext.Ingress.Metadata.NamespaceProperty}:{path.Path}",
+                    RouteId = $"{ingressContext.Ingress.Metadata.Name}.{ingressContext.Ingress.Metadata.NamespaceProperty}:{host}{path.Path}",
                     Transforms = ingressContext.Options.Transforms,
                     AuthorizationPolicy = ingressContext.Options.AuthorizationPolicy,
+#if NET7_0_OR_GREATER
+                    RateLimiterPolicy = ingressContext.Options.RateLimiterPolicy,
+#endif
                     CorsPolicy = ingressContext.Options.CorsPolicy,
                     Metadata = ingressContext.Options.RouteMetadata,
+                    Order = ingressContext.Options.RouteOrder,
                 });
 
                 // Add destination for every endpoint address
@@ -163,17 +174,22 @@ internal static class YarpParser
 
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/backend-protocol", out var http))
         {
-        	options.Https = http.Equals("https", StringComparison.OrdinalIgnoreCase);
+            options.Https = http.Equals("https", StringComparison.OrdinalIgnoreCase);
         }
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/transforms", out var transforms))
         {
-
-            options.Transforms = YamlDeserializer.Deserialize<List<Dictionary<string,string>>>(transforms);
+            options.Transforms = YamlDeserializer.Deserialize<List<Dictionary<string, string>>>(transforms);
         }
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/authorization-policy", out var authorizationPolicy))
         {
             options.AuthorizationPolicy = authorizationPolicy;
         }
+#if NET7_0_OR_GREATER
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/rate-limiter-policy", out var rateLimiterPolicy))
+        {
+            options.RateLimiterPolicy = rateLimiterPolicy;
+        }
+#endif
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/cors-policy", out var corsPolicy))
         {
             options.CorsPolicy = corsPolicy;
@@ -198,7 +214,15 @@ internal static class YarpParser
         {
             options.RouteMetadata = YamlDeserializer.Deserialize<Dictionary<string, string>>(routeMetadata);
         }
-
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/route-headers", out var routeHeaders))
+        {
+            // YamlDeserializer does not support IReadOnlyList<string> in RouteHeader for now, so we use RouteHeaderWapper to solve this problem.
+            options.RouteHeaders = YamlDeserializer.Deserialize<List<RouteHeaderWapper>>(routeHeaders).Select(p => p.ToRouteHeader()).ToList();
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/route-order", out var routeOrder))
+        {
+            options.RouteOrder = int.Parse(routeOrder, CultureInfo.InvariantCulture);
+        }
         // metadata to support:
         // rewrite target
         // auth
@@ -214,17 +238,17 @@ internal static class YarpParser
         return options;
     }
 
-    private static bool MatchesPort(Corev1EndpointPort port1, IntstrIntOrString port2)
+    private static bool MatchesPort(Corev1EndpointPort port1, V1ServicePort port2)
     {
-        if (port1 is null || port2 is null)
+        if (port1 is null || port2?.TargetPort is null)
         {
             return false;
         }
-        if (int.TryParse(port2, out var port2Number) && port2Number == port1.Port)
+        if (int.TryParse(port2.TargetPort, out var port2Number) && port2Number == port1.Port)
         {
             return true;
         }
-        if (string.Equals(port2, port1.Name, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(port2.Name, port1.Name, StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }

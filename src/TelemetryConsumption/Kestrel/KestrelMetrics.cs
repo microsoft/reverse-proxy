@@ -8,12 +8,7 @@ namespace Yarp.Telemetry.Consumption;
 /// <summary>
 /// Represents metrics reported by the Microsoft-AspNetCore-Server-Kestrel event counters.
 /// </summary>
-#if NET
-public
-#else
-internal
-#endif
-    sealed class KestrelMetrics
+public sealed class KestrelMetrics
 {
     public KestrelMetrics() => Timestamp = DateTime.UtcNow;
 

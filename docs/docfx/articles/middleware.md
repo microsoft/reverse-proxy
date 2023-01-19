@@ -48,7 +48,7 @@ endpoints.MapReverseProxy(proxyPipeline =>
 });
 ```
 
-By default this overload of `MapReverseProxy` only includes the minimal setup and proxying logic at the start and end of its pipeline. Middleware for session affinity, load balancing, and passive health checks are not included by default so that you can exclude, replace, or control their ordering with any additional middleware.
+By default this overload of `MapReverseProxy` only includes the minimal setup, proxying logic, and limit enforcement at the start and end of its pipeline. Middleware for session affinity, load balancing, and passive health checks are not included by default so that you can exclude, replace, or control their ordering with any additional middleware.
 
 ## Custom Proxy Middleware
 

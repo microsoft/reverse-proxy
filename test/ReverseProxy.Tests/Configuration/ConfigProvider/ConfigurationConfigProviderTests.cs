@@ -95,17 +95,13 @@ public class ConfigurationConfigProviderTests
                         SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                         MaxConnectionsPerServer = 10,
                         DangerousAcceptAnyServerCertificate = true,
-#if NET
                         EnableMultipleHttp2Connections = true,
-#endif
                     },
                     HttpRequest = new ForwarderRequestConfig()
                     {
                         ActivityTimeout = TimeSpan.FromSeconds(60),
                         Version = Version.Parse("1.0"),
-#if NET
                         VersionPolicy = HttpVersionPolicy.RequestVersionExact,
-#endif
                         AllowResponseBuffering = true
                     },
                     Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
@@ -131,8 +127,12 @@ public class ConfigurationConfigProviderTests
                 RouteId = "routeA",
                 ClusterId = "cluster1",
                 AuthorizationPolicy = "Default",
+#if NET7_0_OR_GREATER
+                RateLimiterPolicy = "Default",
+#endif
                 CorsPolicy = "Default",
                 Order = -1,
+                MaxRequestBodySize = -1,
                 Match = new RouteMatch
                 {
                     Hosts = new List<string> { "host-A" },
@@ -170,6 +170,7 @@ public class ConfigurationConfigProviderTests
                 RouteId = "routeB",
                 ClusterId = "cluster2",
                 Order = 2,
+                MaxRequestBodySize = 1,
                 Match = new RouteMatch
                 {
                     Hosts = new List<string> { "host-B" },
@@ -331,8 +332,10 @@ public class ConfigurationConfigProviderTests
                 ]
             },
             ""Order"": -1,
+            ""MaxRequestBodySize"": -1,
             ""ClusterId"": ""cluster1"",
             ""AuthorizationPolicy"": ""Default"",
+            ""RateLimiterPolicy"": ""Default"",
             ""CorsPolicy"": ""Default"",
             ""Metadata"": {
                 ""routeA-K1"": ""routeA-V1"",
@@ -373,8 +376,10 @@ public class ConfigurationConfigProviderTests
                 ]
             },
             ""Order"": 2,
+            ""MaxRequestBodySize"": 1,
             ""ClusterId"": ""cluster2"",
             ""AuthorizationPolicy"": null,
+            ""RateLimiterPolicy"": null,
             ""CorsPolicy"": null,
             ""Metadata"": null,
             ""Transforms"": null
@@ -532,16 +537,12 @@ public class ConfigurationConfigProviderTests
         Assert.Equal(cluster1.SessionAffinity.Cookie.SameSite, abstractCluster1.SessionAffinity.Cookie.SameSite);
         Assert.Equal(cluster1.SessionAffinity.Cookie.SecurePolicy, abstractCluster1.SessionAffinity.Cookie.SecurePolicy);
         Assert.Equal(cluster1.HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClient.MaxConnectionsPerServer);
-#if NET
         Assert.Equal(cluster1.HttpClient.EnableMultipleHttp2Connections, abstractCluster1.HttpClient.EnableMultipleHttp2Connections);
         Assert.Equal(Encoding.UTF8.WebName, abstractCluster1.HttpClient.RequestHeaderEncoding);
-#endif
         Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);
         Assert.Equal(cluster1.HttpRequest.ActivityTimeout, abstractCluster1.HttpRequest.ActivityTimeout);
         Assert.Equal(HttpVersion.Version10, abstractCluster1.HttpRequest.Version);
-#if NET
         Assert.Equal(cluster1.HttpRequest.VersionPolicy, abstractCluster1.HttpRequest.VersionPolicy);
-#endif
         Assert.Equal(cluster1.HttpRequest.AllowResponseBuffering, abstractCluster1.HttpRequest.AllowResponseBuffering);
         Assert.Equal(cluster1.HttpClient.DangerousAcceptAnyServerCertificate, abstractCluster1.HttpClient.DangerousAcceptAnyServerCertificate);
         Assert.Equal(cluster1.Metadata, abstractCluster1.Metadata);
@@ -568,6 +569,7 @@ public class ConfigurationConfigProviderTests
         var abstractRoute = abstractConfig.Routes.Single(c => c.RouteId == routeId);
         Assert.Equal(route.ClusterId, abstractRoute.ClusterId);
         Assert.Equal(route.Order, abstractRoute.Order);
+        Assert.Equal(route.MaxRequestBodySize, abstractRoute.MaxRequestBodySize);
         Assert.Equal(route.Match.Hosts, abstractRoute.Match.Hosts);
         Assert.Equal(route.Match.Methods, abstractRoute.Match.Methods);
         Assert.Equal(route.Match.Path, abstractRoute.Match.Path);

@@ -1,30 +1,46 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using k8s;
-using Microsoft.Extensions.Logging;
+using k8s.Models;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
 using Yarp.Kubernetes.Controller;
 using Yarp.Kubernetes.Controller.Caching;
+using Yarp.Kubernetes.Controller.Certificates;
+using Yarp.Kubernetes.Tests.Utils;
 
-namespace IngressController.Tests;
+namespace Yarp.Kubernetes.Tests;
 
 public class IngressCacheTests
 {
-    private readonly Mock<ILogger<IngressCache>> _mockLogger;
     private readonly Mock<IOptions<YarpOptions>> _mockOptions;
+    private readonly Mock<IServerCertificateSelector> _certificateSelector;
+    private readonly Mock<ICertificateHelper> _certificateHelper;
     private readonly IngressCache _cacheUnderTest;
+    private readonly X509Certificate2 _localhostCertificate;
 
-    public IngressCacheTests()
+    public IngressCacheTests(ITestOutputHelper output)
     {
-        _mockLogger = new Mock<ILogger<IngressCache>>();
+        var logger = new TestLogger<IngressCache>(output);
         _mockOptions = new Mock<IOptions<YarpOptions>>();
-        _mockOptions.SetupGet(o => o.Value).Returns(new YarpOptions { ControllerClass = "microsoft.com/ingress-yarp" });
+        _certificateSelector = new Mock<IServerCertificateSelector>();
+        _certificateHelper = new Mock<ICertificateHelper>();
 
-        _cacheUnderTest = new IngressCache(_mockOptions.Object, _mockLogger.Object);
+        _mockOptions.SetupGet(o => o.Value).Returns(new YarpOptions { ControllerClass = "microsoft.com/ingress-yarp", DefaultSslCertificate = "default/yarp-ingress-tls" });
+
+        _cacheUnderTest = new IngressCache(_mockOptions.Object, _certificateSelector.Object, _certificateHelper.Object, logger);
+
+        // Generate a certificate for testing
+        var ecdsa = ECDsa.Create();
+        var req = new CertificateRequest("cn=localhost", ecdsa, HashAlgorithmName.SHA256);
+        _localhostCertificate = req.CreateSelfSigned(DateTimeOffset.Now, DateTimeOffset.Now.AddYears(5));
     }
 
     [Theory]
@@ -45,15 +61,13 @@ public class IngressCacheTests
         var ingress = KubeResourceGenerator.CreateIngress("ingress-with-class", "ns-test", "yarp");
 
         // Act
-        var change = _cacheUnderTest.Update(WatchEventType.Added, ingress);
+        _cacheUnderTest.Update(WatchEventType.Added, ingress);
 
         // Assert
-        var ingresses = _cacheUnderTest.GetIngresses().ToArray();
+        var ingresses = _cacheUnderTest.GetIngresses().Where(_cacheUnderTest.IsYarpIngress).ToArray();
 
-        Assert.Equal(expectedIngressCount != 0, change);
         Assert.Equal(expectedIngressCount, ingresses.Length);
     }
-
 
     [Theory]
     [InlineData("yarp", "microsoft.com/ingress-yarp", true, 1)]
@@ -73,12 +87,11 @@ public class IngressCacheTests
         var ingress = KubeResourceGenerator.CreateIngress("ingress-without-class", "ns-test", null);
 
         // Act
-        var change = _cacheUnderTest.Update(WatchEventType.Added, ingress);
+        _cacheUnderTest.Update(WatchEventType.Added, ingress);
 
         // Assert
-        var ingresses = _cacheUnderTest.GetIngresses().ToArray();
+        var ingresses = _cacheUnderTest.GetIngresses().Where(_cacheUnderTest.IsYarpIngress).ToArray();
 
-        Assert.Equal(expectedIngressCount != 0, change);
         Assert.Equal(expectedIngressCount, ingresses.Length);
     }
 
@@ -98,7 +111,7 @@ public class IngressCacheTests
 
         // Assert
         var ingresses = _cacheUnderTest.GetIngresses().ToArray();
-        Assert.Empty(ingresses);
+        Assert.All(ingresses, i => Assert.False(_cacheUnderTest.IsYarpIngress(i)));
     }
 
     [Fact]
@@ -136,6 +149,88 @@ public class IngressCacheTests
 
         // Assert
         var ingresses = _cacheUnderTest.GetIngresses().ToArray();
-        Assert.Empty(ingresses);
+        Assert.All(ingresses, i => Assert.False(_cacheUnderTest.IsYarpIngress(i)));
+    }
+
+    [Fact]
+    public void SecretNotMatchDefaultNameIgnored()
+    {
+        // Arrange
+        var secret = KubeResourceGenerator.CreateSecret("yarp", "not-my-tls");
+
+        // Act
+        _cacheUnderTest.Update(WatchEventType.Added, secret);
+
+        // Assert
+        _certificateHelper.Verify(h => h.ConvertCertificate(It.IsAny<NamespacedName>(), It.IsAny<V1Secret>()), Times.Never);
+        _certificateSelector.Verify(s => s.AddCertificate(It.IsAny<NamespacedName>(), It.IsAny<X509Certificate2>()), Times.Never);
+    }
+
+    [Fact]
+    public void SecretMatchDefaultNameAdded()
+    {
+        // Arrange
+        var secret = KubeResourceGenerator.CreateSecret("yarp-ingress-tls", "default");
+        _certificateHelper
+            .Setup(h => h.ConvertCertificate(It.Is<NamespacedName>(n => n.Name == "yarp-ingress-tls" && n.Namespace == "default"), It.Is<V1Secret>(s => s == secret)))
+            .Returns(_localhostCertificate);
+
+        // Act
+        _cacheUnderTest.Update(WatchEventType.Added, secret);
+
+        // Assert
+        _certificateHelper.Verify(h => h.ConvertCertificate(It.Is<NamespacedName>(n => n.Name == "yarp-ingress-tls" && n.Namespace == "default"), It.Is<V1Secret>(s => s == secret)), Times.Once);
+        _certificateSelector.Verify(s => s.AddCertificate(It.Is<NamespacedName>(n => n.Name == "yarp-ingress-tls" && n.Namespace == "default"), It.Is<X509Certificate2>(c => c == _localhostCertificate)), Times.Once);
+    }
+
+    [Fact]
+    public void SecretMatchDefaultNameModified()
+    {
+        // Arrange
+        var secret = KubeResourceGenerator.CreateSecret("yarp-ingress-tls", "default");
+        _certificateHelper
+            .Setup(h => h.ConvertCertificate(It.Is<NamespacedName>(n => n.Name == "yarp-ingress-tls" && n.Namespace == "default"), It.Is<V1Secret>(s => s == secret)))
+            .Returns(_localhostCertificate);
+
+        // Act
+        _cacheUnderTest.Update(WatchEventType.Modified, secret);
+
+        // Assert
+        _certificateHelper.Verify(h => h.ConvertCertificate(It.Is<NamespacedName>(n => n.Name == "yarp-ingress-tls" && n.Namespace == "default"), It.Is<V1Secret>(s => s == secret)), Times.Once);
+        _certificateSelector.Verify(s => s.AddCertificate(It.Is<NamespacedName>(n => n.Name == "yarp-ingress-tls" && n.Namespace == "default"), It.Is<X509Certificate2>(c => c == _localhostCertificate)), Times.Once);
+    }
+
+    [Fact]
+    public void SecretMatchDefaultNameRemoved()
+    {
+        // Arrange
+        var secret = KubeResourceGenerator.CreateSecret("yarp-ingress-tls", "default");
+        _certificateHelper
+            .Setup(h => h.ConvertCertificate(It.Is<NamespacedName>(n => n.Name == "yarp-ingress-tls" && n.Namespace == "default"), It.Is<V1Secret>(s => s == secret)))
+            .Returns(_localhostCertificate);
+
+        // Act
+        _cacheUnderTest.Update(WatchEventType.Deleted, secret);
+
+        // Assert
+        _certificateHelper.Verify(h => h.ConvertCertificate(It.Is<NamespacedName>(n => n.Name == "yarp-ingress-tls" && n.Namespace == "default"), It.Is<V1Secret>(s => s == secret)), Times.Once);
+        _certificateSelector.Verify(s => s.RemoveCertificate(It.Is<NamespacedName>(n => n.Name == "yarp-ingress-tls" && n.Namespace == "default")), Times.Once);
+    }
+
+    [Fact]
+    public void SecretMatchDefaultNameCantConvertNotAdded()
+    {
+        // Arrange
+        var secret = KubeResourceGenerator.CreateSecret("yarp-ingress-tls", "default");
+        _certificateHelper
+            .Setup(h => h.ConvertCertificate(It.Is<NamespacedName>(n => n.Name == "yarp-ingress-tls" && n.Namespace == "default"), It.Is<V1Secret>(s => s == secret)))
+            .Returns((X509Certificate2)null);
+
+        // Act
+        _cacheUnderTest.Update(WatchEventType.Added, secret);
+
+        // Assert
+        _certificateHelper.Verify(h => h.ConvertCertificate(It.Is<NamespacedName>(n => n.Name == "yarp-ingress-tls" && n.Namespace == "default"), It.Is<V1Secret>(s => s == secret)), Times.Once);
+        _certificateSelector.Verify(s => s.AddCertificate(It.IsAny<NamespacedName>(), It.IsAny<X509Certificate2>()), Times.Never);
     }
 }

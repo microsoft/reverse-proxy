@@ -10,7 +10,6 @@ namespace Yarp.ReverseProxy.Utilities.Tests;
 
 public class ActivityCancellationTokenSourceTests
 {
-#if NET6_0_OR_GREATER // CancellationTokenSource.TryReset() is only available in 6.0+
     [Fact]
     public void ActivityCancellationTokenSource_PoolsSources()
     {
@@ -33,7 +32,6 @@ public class ActivityCancellationTokenSourceTests
 
         Assert.True(false, "CancellationTokenSources were not pooled");
     }
-#endif
 
     [Fact]
     public void ActivityCancellationTokenSource_DoesNotPoolsCanceledSources()
@@ -47,7 +45,7 @@ public class ActivityCancellationTokenSourceTests
     }
 
     [Fact]
-    public void ActivityCancellationTokenSource_RespectsLinkedToken()
+    public void ActivityCancellationTokenSource_RespectsLinkedToken1()
     {
         var linkedCts = new CancellationTokenSource();
 
@@ -58,14 +56,40 @@ public class ActivityCancellationTokenSourceTests
     }
 
     [Fact]
-    public void ActivityCancellationTokenSource_ClearsRegistrations()
+    public void ActivityCancellationTokenSource_RespectsLinkedToken2()
     {
         var linkedCts = new CancellationTokenSource();
 
-        var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), linkedCts.Token);
+        var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), default, linkedCts.Token);
+        linkedCts.Cancel();
+
+        Assert.True(cts.IsCancellationRequested);
+    }
+
+    [Fact]
+    public void ActivityCancellationTokenSource_RespectsBothLinkedTokens()
+    {
+        var linkedCts1 = new CancellationTokenSource();
+        var linkedCts2 = new CancellationTokenSource();
+
+        var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), linkedCts1.Token, linkedCts2.Token);
+        linkedCts1.Cancel();
+        linkedCts2.Cancel();
+
+        Assert.True(cts.IsCancellationRequested);
+    }
+
+    [Fact]
+    public void ActivityCancellationTokenSource_ClearsRegistrations()
+    {
+        var linkedCts1 = new CancellationTokenSource();
+        var linkedCts2 = new CancellationTokenSource();
+
+        var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), linkedCts1.Token, linkedCts2.Token);
         cts.Return();
 
-        linkedCts.Cancel();
+        linkedCts1.Cancel();
+        linkedCts2.Cancel();
 
         Assert.False(cts.IsCancellationRequested);
     }

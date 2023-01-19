@@ -94,8 +94,8 @@ public class ManualClock : IClock
             var next = _delayItems.ElementAt(0);
             _currentTime = next.Key;
 
-            // Note: this will unfortunately have O(N) cost. However, this code is only used for testing right now, and the list is generally short. If that
-            // ever changes, suggest finding a priority queue / heap data structure for .Net (core libraries are lacking this data structure).
+            // Note: this will unfortunately have O(N) cost. However, this code is only used for testing right now, and the list is generally short.
+            // If that ever changes, consider using a PriorityQueue.
             _delayItems.RemoveAt(0);
 
             // Unblock the task. It's no longer asleep.

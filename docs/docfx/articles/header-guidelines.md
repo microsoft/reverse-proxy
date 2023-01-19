@@ -9,7 +9,7 @@ Headers are a very important part of processing HTTP requests and each have thei
 
 ## YARP header filtering
 
-YARP automatically removes request and response headers that could impact its ability to forward a request correctly, or that may be used maliciously to bypass features of the proxy. A complete list can be found [here](https://github.com/microsoft/reverse-proxy/blob/v1.0.0-rc.1/src/ReverseProxy/Forwarder/RequestUtilities.cs#L62-L94), with some highlights described below.
+YARP automatically removes request and response headers that could impact its ability to forward a request correctly, or that may be used maliciously to bypass features of the proxy. A complete list can be found [here](https://github.com/microsoft/reverse-proxy/blob/main/src/ReverseProxy/Forwarder/RequestUtilities.cs#L63), with some highlights described below.
 
 ### Connection, KeepAlive, Close
 
@@ -37,7 +37,8 @@ This response header is used with HTTP/3 upgrades and only applies to the immedi
 
 ### Distributed tracing headers
 
-These headers include TraceParent, Request-Id, TraceState, Baggage, Correlation-Context. They are automatically removed on .NET 6 or later based on `DistributedContextPropagator.Fields` so that the forwarding HttpClient can replace them with updated values.
+These headers include TraceParent, Request-Id, TraceState, Baggage, Correlation-Context.
+They are automatically removed based on `DistributedContextPropagator.Fields` so that the forwarding HttpClient can replace them with updated values.
 You can opt out of modifying these headers by setting `SocketsHttpHandler.ActivityHeadersPropagator` to `null`:
 ```C#
 services.AddReverseProxy()

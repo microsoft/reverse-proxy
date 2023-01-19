@@ -60,4 +60,24 @@ public static class HttpContextFeaturesExtensions
         };
         context.Features.Set<IReverseProxyFeature>(newFeature);
     }
+
+    // ReassignProxyRequest overload to also replace the route when updating IReverseProxyFeature
+    /// <summary>
+    /// Replaces the assigned route, cluster, and destinations in <see cref="IReverseProxyFeature"/> with the new <see cref="RouteModel"/>
+    /// and new <see cref="ClusterState"/>, causing the request to be sent using the new route to the new cluster.
+    /// </summary>
+    public static void ReassignProxyRequest(this HttpContext context, RouteModel route, ClusterState cluster)
+    {
+        var oldFeature = context.GetReverseProxyFeature();
+        var destinations = cluster.DestinationsState;
+        var newFeature = new ReverseProxyFeature()
+        {
+            Route = route,
+            Cluster = cluster.Model,
+            AllDestinations = destinations.AllDestinations,
+            AvailableDestinations = destinations.AvailableDestinations,
+            ProxiedDestination = oldFeature.ProxiedDestination,
+        };
+        context.Features.Set<IReverseProxyFeature>(newFeature);
+    }
 }

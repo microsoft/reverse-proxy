@@ -9,6 +9,7 @@ schedules:
     include:
     - release/1.0
     - release/1.1
+    - release/2.0.0-rc1
     - release/latest
     - main
   always: true

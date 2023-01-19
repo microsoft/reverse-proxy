@@ -40,6 +40,8 @@ namespace Yarp.ReverseProxy.Forwarder;
 internal sealed class StreamCopyHttpContent : HttpContent
 {
     private readonly HttpRequest _request;
+    // HttpClient's machinery keeps an internal buffer that doesn't get flushed to the socket on every write.
+    // Some protocols (e.g. gRPC) may rely on specific bytes being sent, and HttpClient's buffering would prevent it.
     private readonly bool _autoFlushHttpClientOutgoingStream;
     private readonly IClock _clock;
     private readonly ActivityCancellationTokenSource _activityToken;
@@ -56,7 +58,7 @@ internal sealed class StreamCopyHttpContent : HttpContent
     }
 
     /// <summary>
-    /// Gets a <see cref="System.Threading.Tasks.Task"/> that completes in successful or failed state
+    /// Gets a <see cref="Task"/> that completes in successful or failed state
     /// mimicking the result of SerializeToStreamAsync.
     /// </summary>
     public Task<(StreamCopyResult, Exception?)> ConsumptionTask => _tcs.Task;
@@ -122,12 +124,7 @@ internal sealed class StreamCopyHttpContent : HttpContent
         return SerializeToStreamAsync(stream, context, CancellationToken.None);
     }
 
-#if NET
-    protected override
-#else
-    private
-#endif
-        async Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
+    protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
     {
         if (Interlocked.Exchange(ref _started, 1) == 1)
         {
@@ -140,31 +137,15 @@ internal sealed class StreamCopyHttpContent : HttpContent
         // _cancellation will be the same as cancellationToken for HTTP/1.1, so we can avoid the overhead of linking them
         CancellationTokenSource? linkedCts = null;
 
-#if NET
         if (_activityToken.Token != cancellationToken)
         {
             Debug.Assert(cancellationToken.CanBeCanceled);
             linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_activityToken.Token, cancellationToken);
             cancellationToken = linkedCts.Token;
         }
-#else
-        // On .NET Core 3.1, cancellationToken will always be CancellationToken.None
-        Debug.Assert(!cancellationToken.CanBeCanceled);
-        cancellationToken = _activityToken.Token;
-#endif
 
         try
         {
-            if (_autoFlushHttpClientOutgoingStream)
-            {
-                // HttpClient's machinery keeps an internal buffer that doesn't get flushed to the socket on every write.
-                // Some protocols (e.g. gRPC) may rely on specific bytes being sent, and HttpClient's buffering would prevent it.
-                // AutoFlushingStream delegates to the provided stream, adding calls to FlushAsync on every WriteAsync.
-                // Note that HttpClient does NOT call Flush on the underlying socket, so the perf impact of this is expected to be small.
-                // This statement is based on current knowledge as of .NET Core 3.1.201.
-                stream = new AutoFlushingStream(stream);
-            }
-
             // Immediately flush request stream to send headers
             // https://github.com/dotnet/corefx/issues/39586#issuecomment-516210081
             try
@@ -183,7 +164,7 @@ internal sealed class StreamCopyHttpContent : HttpContent
             }
 
             // Check that the content-length matches the request body size. This can be removed in .NET 7 now that SocketsHttpHandler enforces this: https://github.com/dotnet/runtime/issues/62258.
-            var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _request.Body, stream, Headers.ContentLength ?? StreamCopier.UnknownLength, _clock, _activityToken, cancellationToken);
+            var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _request.Body, stream, Headers.ContentLength ?? StreamCopier.UnknownLength, _clock, _activityToken, _autoFlushHttpClientOutgoingStream, cancellationToken);
             _tcs.TrySetResult((result, error));
 
             // Check for errors that weren't the result of the destination failing.

@@ -150,10 +150,13 @@ public class HeaderMatcherPolicyTests
     }
 
     [Theory]
-    [InlineData(null, false)]
-    [InlineData("", false)]
-    [InlineData("abc", true)]
-    public async Task ApplyAsync_MatchingScenarios_AnyHeaderValue(string incomingHeaderValue, bool shouldMatch)
+    [InlineData(null, HeaderMatchMode.Exists, false)]
+    [InlineData("", HeaderMatchMode.Exists, false)]
+    [InlineData("abc", HeaderMatchMode.Exists, true)]
+    [InlineData(null, HeaderMatchMode.NotExists, true)]
+    [InlineData("", HeaderMatchMode.NotExists, false)]
+    [InlineData("abc", HeaderMatchMode.NotExists, false)]
+    public async Task ApplyAsync_MatchingScenarios_AnyHeaderValue(string incomingHeaderValue, HeaderMatchMode mode, bool shouldMatch)
     {
         var context = new DefaultHttpContext();
         if (incomingHeaderValue is not null)
@@ -161,7 +164,7 @@ public class HeaderMatcherPolicyTests
             context.Request.Headers.Add("org-id", incomingHeaderValue);
         }
 
-        var endpoint = CreateEndpoint("org-id", new string[0], HeaderMatchMode.Exists);
+        var endpoint = CreateEndpoint("org-id", new string[0], mode);
         var candidates = new CandidateSet(new[] { endpoint }, new RouteValueDictionary[1], new int[1]);
         var sut = new HeaderMatcherPolicy();
 

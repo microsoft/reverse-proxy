@@ -41,7 +41,7 @@ public class BaseSesstionAffinityPolicyTests
         EventId expectedEventId)
     {
         var dataProtector = GetDataProtector();
-        var logger = AffinityTestHelper.GetLogger<BaseSessionAffinityPolicy<string>>();
+        var logger = AffinityTestHelper.GetLogger<BaseEncryptedSessionAffinityPolicy<string>>();
         var provider = new ProviderStub(dataProtector.Object, logger.Object);
         var cluster = new ClusterState("cluster");
         var affinityResult = provider.FindAffinitizedDestinations(context, cluster, _defaultOptions, allDestinations);
@@ -74,7 +74,7 @@ public class BaseSesstionAffinityPolicyTests
     [Fact]
     public void FindAffinitizedDestination_AffinityDisabledOnCluster_ReturnsAffinityDisabled()
     {
-        var provider = new ProviderStub(GetDataProtector().Object, AffinityTestHelper.GetLogger<BaseSessionAffinityPolicy<string>>().Object);
+        var provider = new ProviderStub(GetDataProtector().Object, AffinityTestHelper.GetLogger<BaseEncryptedSessionAffinityPolicy<string>>().Object);
         var options = new SessionAffinityConfig
         {
             Enabled = false,
@@ -90,7 +90,7 @@ public class BaseSesstionAffinityPolicyTests
     public void AffinitizeRequest_AffinityDisabled_DoNothing()
     {
         var dataProtector = GetDataProtector();
-        var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseSessionAffinityPolicy<string>>().Object);
+        var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseEncryptedSessionAffinityPolicy<string>>().Object);
         Assert.Throws<InvalidOperationException>(() => provider.AffinitizeResponse(new DefaultHttpContext(), new ClusterState("cluster"), new SessionAffinityConfig(), new DestinationState("id")));
     }
 
@@ -98,7 +98,7 @@ public class BaseSesstionAffinityPolicyTests
     public void AffinitizeRequest_RequestIsAffinitized_DoNothing()
     {
         var dataProtector = GetDataProtector();
-        var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseSessionAffinityPolicy<string>>().Object);
+        var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseEncryptedSessionAffinityPolicy<string>>().Object);
         var context = new DefaultHttpContext();
         provider.DirectlySetExtractedKeyOnContext(context, "ExtractedKey");
         provider.AffinitizeResponse(context, new ClusterState("cluster"), _defaultOptions, new DestinationState("id"));
@@ -110,7 +110,7 @@ public class BaseSesstionAffinityPolicyTests
     public void AffinitizeRequest_RequestIsNotAffinitized_SetAffinityKey()
     {
         var dataProtector = GetDataProtector();
-        var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseSessionAffinityPolicy<string>>().Object);
+        var provider = new ProviderStub(dataProtector.Object, AffinityTestHelper.GetLogger<BaseEncryptedSessionAffinityPolicy<string>>().Object);
         var destination = new DestinationState("dest-A");
         provider.AffinitizeResponse(new DefaultHttpContext(), new ClusterState("cluster"), _defaultOptions, destination);
         Assert.Equal("ZGVzdC1B", provider.LastSetEncryptedKey);
@@ -161,7 +161,7 @@ public class BaseSesstionAffinityPolicyTests
         return result;
     }
 
-    private class ProviderStub : BaseSessionAffinityPolicy<string>
+    private class ProviderStub : BaseEncryptedSessionAffinityPolicy<string>
     {
         public static readonly string KeyNameSetting = "AffinityKeyName";
 

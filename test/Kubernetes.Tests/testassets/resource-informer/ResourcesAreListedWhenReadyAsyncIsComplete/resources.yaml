@@ -1,0 +1,19 @@
+﻿# pods
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    name: pod-1
+    namespace: the-namespace
+  spec:
+    containers:
+      - name: test
+        image: test
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    name: pod-2
+    namespace: the-namespace
+  spec:
+    containers:
+      - name: test
+        image: test

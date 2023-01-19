@@ -47,9 +47,8 @@ public class ForwarderHttpClientFactory : IForwarderHttpClientFactory
             AllowAutoRedirect = false,
             AutomaticDecompression = DecompressionMethods.None,
             UseCookies = false,
-#if NET6_0_OR_GREATER
-            ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
-#endif
+            ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
+            ConnectTimeout = TimeSpan.FromSeconds(15),
 
             // NOTE: MaxResponseHeadersLength = 64, which means up to 64 KB of headers are allowed by default as of .NET Core 3.1.
         };
@@ -94,7 +93,7 @@ public class ForwarderHttpClientFactory : IForwarderHttpClientFactory
         {
             handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
         }
-#if NET
+
         handler.EnableMultipleHttp2Connections = newConfig.EnableMultipleHttp2Connections.GetValueOrDefault(true);
 
         if (newConfig.RequestHeaderEncoding is not null)
@@ -102,7 +101,7 @@ public class ForwarderHttpClientFactory : IForwarderHttpClientFactory
             var encoding = Encoding.GetEncoding(newConfig.RequestHeaderEncoding);
             handler.RequestHeaderEncodingSelector = (_, _) => encoding;
         }
-#endif
+
         var webProxy = TryCreateWebProxy(newConfig.WebProxy);
         if (webProxy is not null)
         {

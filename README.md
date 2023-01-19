@@ -1,3 +1,4 @@
+![YARP_96x](https://user-images.githubusercontent.com/219224/171533159-51879bda-9f70-42a9-8fa5-95656e45be24.png)
 # Welcome to the YARP project
 
 YARP (which stands for "Yet Another Reverse Proxy") is a project to create a reverse proxy server. We found a bunch of internal teams at Microsoft who were either building a reverse proxy for their service or had been asking about APIs and tech for building one, so we decided to get them all together to work on a common solution, this project.
@@ -5,6 +6,12 @@ YARP (which stands for "Yet Another Reverse Proxy") is a project to create a rev
 YARP is a reverse proxy toolkit for building fast proxy servers in .NET using the infrastructure from ASP.NET and .NET. The key differentiator for YARP is that it's been designed to be easily customized and tweaked to match the specific needs of each deployment scenario. 
 
 We expect YARP to ship as a library and project template that together provide a robust, performant proxy server. Its pipeline and modules are designed so that you can then customize the functionality for your needs. For example, while YARP supports configuration files, we expect that many users will want to manage the configuration programmatically based on their own backend configuration management system, YARP will provide a configuration API to enable that customization in-proc.  YARP is designed with customizability as a primary scenario, rather than requiring you to break out to script or having to rebuild from source.
+
+# Getting started
+
+- See our [Getting Started](https://microsoft.github.io/reverse-proxy/articles/getting-started.html) docs.
+- Try our [previews](https://github.com/microsoft/reverse-proxy/releases).
+- Try our latest [daily build](/docs/DailyBuilds.md).
 
 # Updates
 
@@ -38,12 +45,6 @@ If you're having trouble building the project, or developing in Visual Studio, p
 The command to build and run all tests: `build.cmd/sh -test`.
 To run specific test you may use XunitMethodName property: `dotnet build /t:Test /p:XunitMethodName={FullyQualifiedNamespace}.{ClassName}.{MethodName}`.
 The tests can also be run from Visual Studio if launched using `startvs.cmd`.
-
-# Getting started
-
-- See our [Getting Started](https://microsoft.github.io/reverse-proxy/articles/getting-started.html) docs.
-- Try our [previews](https://github.com/microsoft/reverse-proxy/releases).
-- Try our latest [daily build](/docs/DailyBuilds.md).
 
 # Roadmap
 

@@ -1,0 +1,53 @@
+[
+  {
+    "RouteId": "repro-1-ingress.foo:subdomain1.example.com/",
+    "Match": {
+      "Methods": null,
+      "Hosts": [ "subdomain1.example.com" ],
+      "Path": "/{**catch-all}",
+      "Headers": null,
+      "QueryParameters": null
+    },
+    "Order": null,
+    "ClusterId": "repro-1-service.foo:http",
+    "AuthorizationPolicy": null,
+    "RateLimiterPolicy": null,
+    "CorsPolicy": null,
+    "Metadata": null,
+    "Transforms": null
+  },
+  {
+    "RouteId": "repro-1-ingress.foo:subdomain2.example.com/",
+    "Match": {
+      "Methods": null,
+      "Hosts": [ "subdomain2.example.com" ],
+      "Path": "/{**catch-all}",
+      "Headers": null,
+      "QueryParameters": null
+    },
+    "Order": null,
+    "ClusterId": "repro-2-service.foo:http",
+    "AuthorizationPolicy": null,
+    "RateLimiterPolicy": null,
+    "CorsPolicy": null,
+    "Metadata": null,
+    "Transforms": null
+  },
+  {
+    "RouteId": "repro-1-ingress.foo:/",
+    "Match": {
+      "Methods": null,
+      "Hosts": [],
+      "Path": "/{**catch-all}",
+      "Headers": null,
+      "QueryParameters": null
+    },
+    "Order": null,
+    "ClusterId": "repro-3-service.foo:http",
+    "AuthorizationPolicy": null,
+    "RateLimiterPolicy": null,
+    "CorsPolicy": null,
+    "Metadata": null,
+    "Transforms": null
+  }
+]

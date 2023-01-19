@@ -5,13 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Yarp.ReverseProxy.Configuration;
-using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Transforms.Builder.Tests;
 
@@ -308,7 +308,7 @@ public class TransformBuilderTests
         httpContext.Request.Host = new HostString("StartHost");
         var proxyRequest = new HttpRequestMessage();
         var destinationPrefix = "http://destinationhost:9090/path";
-        await results.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+        await results.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix, CancellationToken.None);
 
         if (useOriginalHost.GetValueOrDefault(false))
         {
@@ -374,7 +374,7 @@ public class TransformBuilderTests
         var proxyRequest = new HttpRequestMessage();
         var destinationPrefix = "http://destinationhost:9090/path";
 
-        await results.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+        await results.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix, CancellationToken.None);
 
         Assert.Equal("CustomHost", proxyRequest.Headers.Host);
     }

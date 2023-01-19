@@ -23,7 +23,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider;
 /// </summary>
 internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDisposable
 {
-    private readonly object _lockObject = new object();
+    private readonly object _lockObject = new();
     private readonly ILogger<ConfigurationConfigProvider> _logger;
     private readonly IConfiguration _configuration;
     private ConfigurationSnapshot? _snapshot;
@@ -144,8 +144,12 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
         {
             RouteId = section.Key,
             Order = section.ReadInt32(nameof(RouteConfig.Order)),
+            MaxRequestBodySize = section.ReadInt64(nameof(RouteConfig.MaxRequestBodySize)),
             ClusterId = section[nameof(RouteConfig.ClusterId)],
             AuthorizationPolicy = section[nameof(RouteConfig.AuthorizationPolicy)],
+#if NET7_0_OR_GREATER
+            RateLimiterPolicy = section[nameof(RouteConfig.RateLimiterPolicy)],
+#endif
             CorsPolicy = section[nameof(RouteConfig.CorsPolicy)],
             Metadata = section.GetSection(nameof(RouteConfig.Metadata)).ReadStringDictionary(),
             Transforms = CreateTransforms(section.GetSection(nameof(RouteConfig.Transforms))),
@@ -161,7 +165,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
         }
 
         return children.Select(subSection =>
-                subSection.GetChildren().ToDictionary(d => d.Key, d => d.Value, StringComparer.OrdinalIgnoreCase)).ToList();
+                subSection.GetChildren().ToDictionary(d => d.Key, d => d.Value!, StringComparer.OrdinalIgnoreCase)).ToList();
     }
 
     private static RouteMatch CreateRouteMatch(IConfigurationSection section)
@@ -195,7 +199,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
     {
         return new RouteHeader()
         {
-            Name = section[nameof(RouteHeader.Name)],
+            Name = section[nameof(RouteHeader.Name)]!,
             Values = section.GetSection(nameof(RouteHeader.Values)).ReadStringArray(),
             Mode = section.ReadEnum<HeaderMatchMode>(nameof(RouteHeader.Mode)) ?? HeaderMatchMode.ExactHeader,
             IsCaseSensitive = section.ReadBool(nameof(RouteHeader.IsCaseSensitive)) ?? false,
@@ -216,7 +220,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
     {
         return new RouteQueryParameter()
         {
-            Name = section[nameof(RouteQueryParameter.Name)],
+            Name = section[nameof(RouteQueryParameter.Name)]!,
             Values = section.GetSection(nameof(RouteQueryParameter.Values)).ReadStringArray(),
             Mode = section.ReadEnum<QueryParameterMatchMode>(nameof(RouteQueryParameter.Mode)) ?? QueryParameterMatchMode.Exact,
             IsCaseSensitive = section.ReadBool(nameof(RouteQueryParameter.IsCaseSensitive)) ?? false,
@@ -235,7 +239,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             Enabled = section.ReadBool(nameof(SessionAffinityConfig.Enabled)),
             Policy = section[nameof(SessionAffinityConfig.Policy)],
             FailurePolicy = section[nameof(SessionAffinityConfig.FailurePolicy)],
-            AffinityKeyName = section[nameof(SessionAffinityConfig.AffinityKeyName)],
+            AffinityKeyName = section[nameof(SessionAffinityConfig.AffinityKeyName)]!,
             Cookie = CreateSessionAffinityCookieConfig(section.GetSection(nameof(SessionAffinityConfig.Cookie)))
         };
     }
@@ -317,7 +321,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
         SslProtocols? sslProtocols = null;
         if (section.GetSection(nameof(HttpClientConfig.SslProtocols)) is IConfigurationSection sslProtocolsSection)
         {
-            foreach (var protocolConfig in sslProtocolsSection.GetChildren().Select(s => Enum.Parse<SslProtocols>(s.Value, ignoreCase: true)))
+            foreach (var protocolConfig in sslProtocolsSection.GetChildren().Select(s => Enum.Parse<SslProtocols>(s.Value!, ignoreCase: true)))
             {
                 sslProtocols = sslProtocols is null ? protocolConfig : sslProtocols | protocolConfig;
             }
@@ -344,10 +348,8 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             SslProtocols = sslProtocols,
             DangerousAcceptAnyServerCertificate = section.ReadBool(nameof(HttpClientConfig.DangerousAcceptAnyServerCertificate)),
             MaxConnectionsPerServer = section.ReadInt32(nameof(HttpClientConfig.MaxConnectionsPerServer)),
-#if NET
             EnableMultipleHttp2Connections = section.ReadBool(nameof(HttpClientConfig.EnableMultipleHttp2Connections)),
             RequestHeaderEncoding = section[nameof(HttpClientConfig.RequestHeaderEncoding)],
-#endif
             WebProxy = webProxy
         };
     }
@@ -363,9 +365,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
         {
             ActivityTimeout = section.ReadTimeSpan(nameof(ForwarderRequestConfig.ActivityTimeout)),
             Version = section.ReadVersion(nameof(ForwarderRequestConfig.Version)),
-#if NET
             VersionPolicy = section.ReadEnum<HttpVersionPolicy>(nameof(ForwarderRequestConfig.VersionPolicy)),
-#endif
             AllowResponseBuffering = section.ReadBool(nameof(ForwarderRequestConfig.AllowResponseBuffering))
         };
     }
@@ -374,7 +374,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
     {
         return new DestinationConfig
         {
-            Address = section[nameof(DestinationConfig.Address)],
+            Address = section[nameof(DestinationConfig.Address)]!,
             Health = section[nameof(DestinationConfig.Health)],
             Metadata = section.GetSection(nameof(DestinationConfig.Metadata)).ReadStringDictionary(),
         };

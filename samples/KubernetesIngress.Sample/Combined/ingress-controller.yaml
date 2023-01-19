@@ -1,0 +1,165 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: yarp
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: yarp-config
+  namespace: yarp
+data:
+  yarp.json: |
+    {
+      "Yarp": {
+        "ControllerClass": "microsoft.com/ingress-yarp",
+        "ServerCertificates": false,
+        "DefaultSslCertificate": "yarp/yarp-ingress-tls"
+      }
+    }
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: yarp-serviceaccount
+  namespace: yarp
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: yarp-ingress-clusterrole
+  namespace: yarp
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - endpoints
+  - nodes
+  - pods
+  - secrets
+  - namespaces
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  - extensions
+  - networking.internal.knative.dev
+  resources:
+  - ingresses
+  - ingressclasses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - networking.k8s.io
+  - extensions
+  - networking.internal.knative.dev
+  resources:
+  - ingresses/status
+  verbs:
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: yarp-ingress-clusterrole-nisa-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: yarp-ingress-clusterrole
+subjects:
+- kind: ServiceAccount
+  name: yarp-serviceaccount
+  namespace: yarp
+---
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: yarp
+  annotations:
+    #ingressclass.kubernetes.io/is-default-class: "true"
+spec:
+  controller: microsoft.com/ingress-yarp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-yarp-controller
+  namespace: yarp
+spec:
+  ports:
+  - name: proxy
+    port: 80
+    protocol: TCP
+    targetPort: 8000
+  - name: proxy-ssl
+    port: 443
+    protocol: TCP
+    targetPort: 8443
+  selector:
+    app: ingress-yarp-controller
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ingress-yarp-controller
+  name: ingress-yarp
+  namespace: yarp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ingress-yarp-controller
+  template:
+    metadata:
+      labels:
+        app: ingress-yarp-controller
+    spec:
+      containers:
+      - name: yarp-controller
+        imagePullPolicy: IfNotPresent
+        image: <REGISTRY_NAME>/yarp-combined:<TAG>
+        ports:
+        - containerPort: 8000
+          name: proxy
+          protocol: TCP
+        - containerPort: 8443
+          name: proxy-ssl
+          protocol: TCP
+        env:
+        - name: ASPNETCORE_URLS
+          value: http://*:8000;https://*:8443
+        volumeMounts:
+          - name: config
+            readOnly: true
+            mountPath: /app/config
+      volumes:
+        - name: config
+          configMap:
+            name: yarp-config
+      serviceAccountName: yarp-serviceaccount

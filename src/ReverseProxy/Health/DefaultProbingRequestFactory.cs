@@ -25,9 +25,7 @@ internal sealed class DefaultProbingRequestFactory : IProbingRequestFactory
         var request = new HttpRequestMessage(HttpMethod.Get, probeUri)
         {
             Version = cluster.Config.HttpRequest?.Version ?? HttpVersion.Version20,
-#if NET
-            VersionPolicy = cluster.Config.HttpRequest?.VersionPolicy ?? HttpVersionPolicy.RequestVersionOrLower
-#endif
+            VersionPolicy = cluster.Config.HttpRequest?.VersionPolicy ?? HttpVersionPolicy.RequestVersionOrLower,
         };
 
         request.Headers.Add(HeaderNames.UserAgent, _defaultUserAgent);

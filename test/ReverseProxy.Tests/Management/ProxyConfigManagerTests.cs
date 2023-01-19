@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Primitives;
 using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Configuration;
@@ -29,7 +30,11 @@ namespace Yarp.ReverseProxy.Management.Tests;
 
 public class ProxyConfigManagerTests
 {
-    private static IServiceProvider CreateServices(List<RouteConfig> routes, List<ClusterConfig> clusters, Action<IReverseProxyBuilder> configureProxy = null)
+    private static IServiceProvider CreateServices(
+        List<RouteConfig> routes,
+        List<ClusterConfig> clusters,
+        Action<IReverseProxyBuilder> configureProxy = null,
+        IEnumerable<IConfigChangeListener> configListeners = null)
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddLogging();
@@ -41,13 +46,23 @@ public class ProxyConfigManagerTests
         activeHealthPolicy.SetupGet(p => p.Name).Returns("activePolicyA");
         serviceCollection.AddSingleton(activeHealthPolicy.Object);
         configureProxy?.Invoke(proxyBuilder);
+        if (configListeners is not null)
+        {
+            foreach (var configListener in configListeners)
+            {
+                serviceCollection.AddSingleton(configListener);
+            }
+        }
         var services = serviceCollection.BuildServiceProvider();
         var routeBuilder = services.GetRequiredService<ProxyEndpointFactory>();
         routeBuilder.SetProxyPipeline(context => Task.CompletedTask);
         return services;
     }
 
-    private static IServiceProvider CreateServices(IEnumerable<IProxyConfigProvider> configProviders, Action<IReverseProxyBuilder> configureProxy = null)
+    private static IServiceProvider CreateServices(
+        IEnumerable<IProxyConfigProvider> configProviders,
+        Action<IReverseProxyBuilder> configureProxy = null,
+        IEnumerable<IConfigChangeListener> configListeners = null)
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddLogging();
@@ -63,6 +78,13 @@ public class ProxyConfigManagerTests
         activeHealthPolicy.SetupGet(p => p.Name).Returns("activePolicyA");
         serviceCollection.AddSingleton(activeHealthPolicy.Object);
         configureProxy?.Invoke(proxyBuilder);
+        if (configListeners is not null)
+        {
+            foreach (var configListener in configListeners)
+            {
+                serviceCollection.AddSingleton(configListener);
+            }
+        }
         var services = serviceCollection.BuildServiceProvider();
         var routeBuilder = services.GetRequiredService<ProxyEndpointFactory>();
         routeBuilder.SetProxyPipeline(context => Task.CompletedTask);
@@ -191,6 +213,46 @@ public class ProxyConfigManagerTests
         Assert.Equal("d1", destination.DestinationId);
         Assert.NotNull(destination.Model);
         Assert.Equal(TestAddress, destination.Model.Config.Address);
+    }
+
+    [Fact]
+    public async Task BuildConfig_DuplicateRouteIds_Throws()
+    {
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            ClusterId = "cluster1",
+            Match = new RouteMatch { Path = "/" }
+        };
+
+        var services = CreateServices(new List<RouteConfig> { route, route }, new List<ClusterConfig>());
+
+        var manager = services.GetRequiredService<ProxyConfigManager>();
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => manager.InitialLoadAsync());
+        Assert.Contains("Duplicate route 'route1'", ex.ToString());
+    }
+
+    [Fact]
+    public async Task BuildConfig_DuplicateClusterIds_Throws()
+    {
+        var cluster = new ClusterConfig
+        {
+            ClusterId = "cluster1"
+        };
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            ClusterId = "cluster1",
+            Match = new RouteMatch { Path = "/" }
+        };
+
+        var services = CreateServices(new List<RouteConfig> { route }, new List<ClusterConfig> { cluster, cluster });
+
+        var manager = services.GetRequiredService<ProxyConfigManager>();
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => manager.InitialLoadAsync());
+        Assert.Contains("Duplicate cluster 'cluster1'", ex.ToString());
     }
 
     [Fact]
@@ -367,6 +429,357 @@ public class ProxyConfigManagerTests
         Assert.Equal(TestAddress, destination.Model.Config.Address);
     }
 
+    private class FakeConfigChangeListener : IConfigChangeListener
+    {
+        public bool? HasApplyingSucceeded { get; private set; }
+        public bool DidAtLeastOneErrorOccurWhileLoading { get; private set; }
+        public string[] EventuallyLoaded;
+        public string[] SuccessfullyApplied;
+        public string[] FailedApplied;
+
+        public FakeConfigChangeListener()
+        {
+            Reset();
+        }
+
+        public void Reset()
+        {
+            DidAtLeastOneErrorOccurWhileLoading = false;
+            HasApplyingSucceeded = null;
+            EventuallyLoaded = Array.Empty<string>();
+            SuccessfullyApplied = Array.Empty<string>();
+            FailedApplied = Array.Empty<string>();
+        }
+
+        public void ConfigurationLoadingFailed(IProxyConfigProvider configProvider, Exception ex)
+        {
+            DidAtLeastOneErrorOccurWhileLoading = true;
+        }
+
+        public void ConfigurationLoaded(IReadOnlyList<IProxyConfig> proxyConfigs)
+        {
+            EventuallyLoaded = proxyConfigs.Select(c => c.RevisionId).ToArray();
+        }
+
+        public void ConfigurationApplyingFailed(IReadOnlyList<IProxyConfig> proxyConfigs, Exception ex)
+        {
+            HasApplyingSucceeded = false;
+            FailedApplied = proxyConfigs.Select(c => c.RevisionId).ToArray();
+        }
+
+        public void ConfigurationApplied(IReadOnlyList<IProxyConfig> proxyConfigs)
+        {
+            HasApplyingSucceeded = true;
+            SuccessfullyApplied = proxyConfigs.Select(c => c.RevisionId).ToArray();
+        }
+    }
+
+    private class ConfigChangeListenerCounter : IConfigChangeListener
+    {
+        public int NumberOfLoadedConfigurations { get; private set; }
+        public int NumberOfFailedConfigurationLoads { get; private set; }
+        public int NumberOfAppliedConfigurations { get; private set; }
+        public int NumberOfFailedConfigurationApplications { get; private set; }
+
+        public ConfigChangeListenerCounter()
+        {
+            Reset();
+        }
+
+        public void Reset()
+        {
+            NumberOfLoadedConfigurations = 0;
+            NumberOfFailedConfigurationLoads = 0;
+            NumberOfAppliedConfigurations = 0;
+            NumberOfFailedConfigurationApplications = 0;
+        }
+
+        public void ConfigurationLoadingFailed(IProxyConfigProvider configProvider, Exception ex)
+        {
+            NumberOfFailedConfigurationLoads++;
+        }
+
+        public void ConfigurationLoaded(IReadOnlyList<IProxyConfig> proxyConfigs)
+        {
+            NumberOfLoadedConfigurations += proxyConfigs.Count;
+        }
+
+        public void ConfigurationApplyingFailed(IReadOnlyList<IProxyConfig> proxyConfigs, Exception ex)
+        {
+            NumberOfFailedConfigurationApplications += proxyConfigs.Count;
+        }
+
+        public void ConfigurationApplied(IReadOnlyList<IProxyConfig> proxyConfigs)
+        {
+            NumberOfAppliedConfigurations += proxyConfigs.Count;
+        }
+    }
+
+    private class InMemoryConfig : IProxyConfig
+    {
+        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
+
+        public InMemoryConfig(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters, string revisionId)
+        {
+            RevisionId = revisionId;
+            Routes = routes;
+            Clusters = clusters;
+            ChangeToken = new CancellationChangeToken(_cts.Token);
+        }
+
+        public string RevisionId { get; }
+
+        public IReadOnlyList<RouteConfig> Routes { get; }
+
+        public IReadOnlyList<ClusterConfig> Clusters { get; }
+
+        public IChangeToken ChangeToken { get; }
+
+        internal void SignalChange()
+        {
+            _cts.Cancel();
+        }
+    }
+
+    private class OnDemandFailingInMemoryConfigProvider : IProxyConfigProvider
+    {
+        private volatile InMemoryConfig _config;
+
+        public OnDemandFailingInMemoryConfigProvider(
+            InMemoryConfig config)
+        {
+            _config = config;
+        }
+
+        public OnDemandFailingInMemoryConfigProvider(
+            IReadOnlyList<RouteConfig> routes,
+            IReadOnlyList<ClusterConfig> clusters,
+            string revisionId) : this(new InMemoryConfig(routes, clusters, revisionId))
+        {
+        }
+
+        public IProxyConfig GetConfig()
+        {
+            if (ShouldConfigLoadingFail)
+            {
+                return null;
+            }
+
+            return _config;
+        }
+
+        public void Update(IReadOnlyList<RouteConfig> routes, IReadOnlyList<ClusterConfig> clusters, string revisionId)
+        {
+            Update(new InMemoryConfig(routes, clusters, revisionId));
+        }
+
+        public void Update(InMemoryConfig config)
+        {
+            var oldConfig = Interlocked.Exchange(ref _config, config);
+            oldConfig.SignalChange();
+        }
+
+        public bool ShouldConfigLoadingFail { get; set; }
+    }
+
+    [Fact]
+    public async Task BuildConfig_CanBeNotifiedOfProxyConfigSuccessfulAndFailedLoading()
+    {
+        var configProviderA = new OnDemandFailingInMemoryConfigProvider(new List<RouteConfig>() { }, new List<ClusterConfig>() { }, "A1");
+        var configProviderB = new OnDemandFailingInMemoryConfigProvider(new List<RouteConfig>() { }, new List<ClusterConfig>() { }, "B1");
+
+        var configChangeListenerCounter = new ConfigChangeListenerCounter();
+        var fakeConfigChangeListener = new FakeConfigChangeListener();
+
+        var services = CreateServices(new[] { configProviderA, configProviderB }, null, new IConfigChangeListener[] { fakeConfigChangeListener, configChangeListenerCounter });
+
+        var manager = services.GetRequiredService<ProxyConfigManager>();
+        await manager.InitialLoadAsync();
+
+        Assert.Equal(2, configChangeListenerCounter.NumberOfLoadedConfigurations);
+        Assert.Equal(0, configChangeListenerCounter.NumberOfFailedConfigurationLoads);
+        Assert.Equal(2, configChangeListenerCounter.NumberOfAppliedConfigurations);
+        Assert.Equal(0, configChangeListenerCounter.NumberOfFailedConfigurationApplications);
+
+        Assert.False(fakeConfigChangeListener.DidAtLeastOneErrorOccurWhileLoading);
+        Assert.Equal(new[] { "A1", "B1" }, fakeConfigChangeListener.EventuallyLoaded);
+        Assert.True(fakeConfigChangeListener.HasApplyingSucceeded);
+        Assert.Equal(new[] { "A1", "B1" }, fakeConfigChangeListener.SuccessfullyApplied);
+        Assert.Empty(fakeConfigChangeListener.FailedApplied);
+
+        const string TestAddress = "https://localhost:123/";
+
+        var cluster1 = new ClusterConfig
+        {
+            ClusterId = "cluster1",
+            Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "d1", new DestinationConfig { Address = TestAddress } }
+            }
+        };
+        var cluster2 = new ClusterConfig
+        {
+            ClusterId = "cluster2",
+            Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "d2", new DestinationConfig { Address = TestAddress } }
+            }
+        };
+
+        var route1 = new RouteConfig
+        {
+            RouteId = "route1",
+            ClusterId = "cluster1",
+            Match = new RouteMatch { Path = "/" }
+        };
+        var route2 = new RouteConfig
+        {
+            RouteId = "route2",
+            ClusterId = "cluster2",
+            Match = new RouteMatch { Path = "/" }
+        };
+
+        fakeConfigChangeListener.Reset();
+        configChangeListenerCounter.Reset();
+
+        configProviderA.Update(new List<RouteConfig>() { route1 }, new List<ClusterConfig>() { cluster1 }, "A2");
+
+        Assert.Equal(2, configChangeListenerCounter.NumberOfLoadedConfigurations);
+        Assert.Equal(0, configChangeListenerCounter.NumberOfFailedConfigurationLoads);
+        Assert.Equal(2, configChangeListenerCounter.NumberOfAppliedConfigurations);
+        Assert.Equal(0, configChangeListenerCounter.NumberOfFailedConfigurationApplications);
+
+        Assert.False(fakeConfigChangeListener.DidAtLeastOneErrorOccurWhileLoading);
+        Assert.Equal(new[] { "A2", "B1" }, fakeConfigChangeListener.EventuallyLoaded);
+        Assert.True(fakeConfigChangeListener.HasApplyingSucceeded);
+        Assert.Equal(new[] { "A2", "B1" }, fakeConfigChangeListener.SuccessfullyApplied);
+        Assert.Empty(fakeConfigChangeListener.FailedApplied);
+
+        configProviderB.ShouldConfigLoadingFail = true;
+
+        fakeConfigChangeListener.Reset();
+        configChangeListenerCounter.Reset();
+
+        configProviderB.Update(new List<RouteConfig>() { route2 }, new List<ClusterConfig>() { cluster2 }, "B2");
+
+        Assert.Equal(2, configChangeListenerCounter.NumberOfLoadedConfigurations);
+        Assert.Equal(1, configChangeListenerCounter.NumberOfFailedConfigurationLoads);
+        Assert.Equal(2, configChangeListenerCounter.NumberOfAppliedConfigurations);
+        Assert.Equal(0, configChangeListenerCounter.NumberOfFailedConfigurationApplications);
+
+        Assert.True(fakeConfigChangeListener.DidAtLeastOneErrorOccurWhileLoading);
+        Assert.Equal(new[] { "A2", "B1" }, fakeConfigChangeListener.EventuallyLoaded);
+        Assert.True(fakeConfigChangeListener.HasApplyingSucceeded);
+        Assert.Equal(new[] { "A2", "B1" }, fakeConfigChangeListener.SuccessfullyApplied);
+        Assert.Empty(fakeConfigChangeListener.FailedApplied);
+    }
+
+    [Fact]
+    public async Task BuildConfig_CanBeNotifiedOfProxyConfigSuccessfulAndFailedUpdating()
+    {
+        var configProviderA = new InMemoryConfigProvider(new List<RouteConfig>() { }, new List<ClusterConfig>() { }, "A1");
+        var configProviderB = new InMemoryConfigProvider(new List<RouteConfig>() { }, new List<ClusterConfig>() { }, "B1");
+
+        var configChangeListenerCounter = new ConfigChangeListenerCounter();
+        var fakeConfigChangeListener = new FakeConfigChangeListener();
+
+        var services = CreateServices(new[] { configProviderA, configProviderB }, null, new IConfigChangeListener[] { fakeConfigChangeListener, configChangeListenerCounter });
+
+        var manager = services.GetRequiredService<ProxyConfigManager>();
+        await manager.InitialLoadAsync();
+
+        Assert.Equal(2, configChangeListenerCounter.NumberOfLoadedConfigurations);
+        Assert.Equal(0, configChangeListenerCounter.NumberOfFailedConfigurationLoads);
+        Assert.Equal(2, configChangeListenerCounter.NumberOfAppliedConfigurations);
+        Assert.Equal(0, configChangeListenerCounter.NumberOfFailedConfigurationApplications);
+
+        Assert.False(fakeConfigChangeListener.DidAtLeastOneErrorOccurWhileLoading);
+        Assert.Equal(new[] { "A1", "B1" }, fakeConfigChangeListener.EventuallyLoaded);
+        Assert.True(fakeConfigChangeListener.HasApplyingSucceeded);
+        Assert.Equal(new[] { "A1", "B1" }, fakeConfigChangeListener.SuccessfullyApplied);
+        Assert.Empty(fakeConfigChangeListener.FailedApplied);
+
+        const string TestAddress = "https://localhost:123/";
+
+        var cluster1 = new ClusterConfig
+        {
+            ClusterId = "cluster1",
+            Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "d1", new DestinationConfig { Address = TestAddress } }
+            }
+        };
+        var cluster2 = new ClusterConfig
+        {
+            ClusterId = "cluster2",
+            Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "d2", new DestinationConfig { Address = TestAddress } }
+            }
+        };
+
+        var route1 = new RouteConfig
+        {
+            RouteId = "route1",
+            ClusterId = "cluster1",
+            Match = new RouteMatch { Path = "/" }
+        };
+        var route2 = new RouteConfig
+        {
+            RouteId = "route2",
+            ClusterId = "cluster2",
+            // Missing Match here will be caught by the analysis
+        };
+
+        fakeConfigChangeListener.Reset();
+        configChangeListenerCounter.Reset();
+
+        configProviderA.Update(new List<RouteConfig>() { route1 }, new List<ClusterConfig>() { cluster1 }, "A2");
+
+        Assert.Equal(2, configChangeListenerCounter.NumberOfLoadedConfigurations);
+        Assert.Equal(0, configChangeListenerCounter.NumberOfFailedConfigurationLoads);
+        Assert.Equal(2, configChangeListenerCounter.NumberOfAppliedConfigurations);
+        Assert.Equal(0, configChangeListenerCounter.NumberOfFailedConfigurationApplications);
+
+        Assert.False(fakeConfigChangeListener.DidAtLeastOneErrorOccurWhileLoading);
+        Assert.Equal(new[] { "A2", "B1" }, fakeConfigChangeListener.EventuallyLoaded);
+        Assert.True(fakeConfigChangeListener.HasApplyingSucceeded);
+        Assert.Equal(new[] { "A2", "B1" }, fakeConfigChangeListener.SuccessfullyApplied);
+        Assert.Empty(fakeConfigChangeListener.FailedApplied);
+
+        fakeConfigChangeListener.Reset();
+        configChangeListenerCounter.Reset();
+
+        configProviderB.Update(new List<RouteConfig>() { route2 }, new List<ClusterConfig>() { cluster2 }, "B2");
+
+        Assert.Equal(2, configChangeListenerCounter.NumberOfLoadedConfigurations);
+        Assert.Equal(0, configChangeListenerCounter.NumberOfFailedConfigurationLoads);
+        Assert.Equal(0, configChangeListenerCounter.NumberOfAppliedConfigurations);
+        Assert.Equal(2, configChangeListenerCounter.NumberOfFailedConfigurationApplications);
+
+        Assert.False(fakeConfigChangeListener.DidAtLeastOneErrorOccurWhileLoading);
+        Assert.Equal(new[] { "A2", "B2" }, fakeConfigChangeListener.EventuallyLoaded);
+        Assert.False(fakeConfigChangeListener.HasApplyingSucceeded);
+        Assert.Empty(fakeConfigChangeListener.SuccessfullyApplied);
+        Assert.Equal(new[] { "A2", "B2" }, fakeConfigChangeListener.FailedApplied);
+    }
+
+    public class DummyProxyConfig : IProxyConfig
+    {
+        public IReadOnlyList<RouteConfig> Routes => throw new NotImplementedException();
+        public IReadOnlyList<ClusterConfig> Clusters => throw new NotImplementedException();
+        public IChangeToken ChangeToken => throw new NotImplementedException();
+    }
+
+    [Fact]
+    public void IProxyConfigDerivedTypes_RevisionIdIsAutomaticallySet()
+    {
+        IProxyConfig config = new DummyProxyConfig();
+        Assert.NotNull(config.RevisionId);
+        Assert.NotEmpty(config.RevisionId);
+        Assert.Same(config.RevisionId, config.RevisionId);
+    }
+
     [Fact]
     public async Task InitialLoadAsync_ProxyHttpClientOptionsSet_CreateAndSetHttpClient()
     {
@@ -383,9 +796,7 @@ public class ProxyConfigManagerTests
             {
                 SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                 MaxConnectionsPerServer = 10,
-#if NET
-                RequestHeaderEncoding = Encoding.UTF8.WebName
-#endif
+                RequestHeaderEncoding = Encoding.UTF8.WebName,
             },
             HealthCheck = new HealthCheckConfig
             {
@@ -413,16 +824,12 @@ public class ProxyConfigManagerTests
         Assert.NotNull(clusterModel.HttpClient);
         Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, clusterModel.Config.HttpClient.SslProtocols);
         Assert.Equal(10, clusterModel.Config.HttpClient.MaxConnectionsPerServer);
-#if NET
         Assert.Equal(Encoding.UTF8.WebName, clusterModel.Config.HttpClient.RequestHeaderEncoding);
-#endif
 
         var handler = ForwarderHttpClientFactoryTests.GetHandler(clusterModel.HttpClient);
         Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, handler.SslOptions.EnabledSslProtocols);
         Assert.Equal(10, handler.MaxConnectionsPerServer);
-#if NET
         Assert.Equal(Encoding.UTF8, handler.RequestHeaderEncodingSelector(default, default));
-#endif
         var activeMonitor = (ActiveHealthCheckMonitor)services.GetRequiredService<IActiveHealthCheckMonitor>();
         Assert.True(activeMonitor.Scheduler.IsScheduled(clusterState));
     }

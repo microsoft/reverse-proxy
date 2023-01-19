@@ -12,6 +12,10 @@ public static class SessionAffinityConstants
     {
         public static string Cookie => nameof(Cookie);
 
+        public static string HashCookie => nameof(HashCookie);
+
+        public static string ArrCookie => nameof(ArrCookie);
+
         public static string CustomHeader => nameof(CustomHeader);
     }
 

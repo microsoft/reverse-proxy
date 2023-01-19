@@ -36,7 +36,7 @@ public class RequestHeaderOriginalHostTransform : RequestTransform
             if (!context.HeadersCopied)
             {
                 // Don't override a custom host
-                if (!RequestUtilities.ContainsHeader(context.ProxyRequest.Headers, HeaderNames.Host))
+                if (!context.ProxyRequest.Headers.NonValidated.Contains(HeaderNames.Host))
                 {
                     context.ProxyRequest.Headers.TryAddWithoutValidation(HeaderNames.Host, context.HttpContext.Request.Host.Value);
                 }

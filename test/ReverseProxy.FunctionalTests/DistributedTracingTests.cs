@@ -14,8 +14,7 @@ namespace Yarp.ReverseProxy;
 
 public class DistributedTracingTests
 {
-    // These constants depend on the default behavior of DiagnosticsHandler in 5.0
-    // and the DistributedContextPropagator used in 6.0
+    // These constants depend on the default behavior of DistributedContextPropagator
     private const string Baggage = "Correlation-Context";
     private const string TraceParent = "traceparent";
     private const string TraceState = "tracestate";
@@ -37,9 +36,9 @@ public class DistributedTracingTests
                     downstreamHeaders.Add(header);
                 }
                 await context.Response.Body.WriteAsync(Encoding.UTF8.GetBytes("Hello"));
-            },
-            proxyBuilder => { },
-            proxyApp =>
+            })
+        {
+            ConfigureProxyApp = proxyApp =>
             {
                 proxyApp.Use(next => context =>
                 {
@@ -49,7 +48,8 @@ public class DistributedTracingTests
                     }
                     return next(context);
                 });
-            });
+            },
+        };
 
         var clientActivity = new Activity("Foo");
         clientActivity.SetIdFormat(idFormat);
@@ -78,7 +78,6 @@ public class DistributedTracingTests
 
         if (idFormat == ActivityIdFormat.W3C)
         {
-#if NET
             Assert.True(ActivityContext.TryParse(proxy[TraceParent], proxy[TraceState], out var proxyContext));
             Assert.True(ActivityContext.TryParse(downstream[TraceParent], downstream[TraceState], out var downstreamContext));
             Assert.Equal(client.TraceStateString, proxyContext.TraceState);
@@ -87,40 +86,17 @@ public class DistributedTracingTests
             var proxySpanId = proxyContext.SpanId.ToHexString();
             var downstreamTraceId = downstreamContext.TraceId.ToHexString();
             var downstreamSpanId = downstreamContext.SpanId.ToHexString();
-#else
-            // 3.1 does not have ActivityContext
-            Assert.Equal(client.TraceStateString, proxy[TraceState]);
-            Assert.Equal(client.TraceStateString, downstream[TraceState]);
-            var proxyTraceId = proxy[TraceParent].ToString().Split('-')[1];
-            var proxySpanId = proxy[TraceParent].ToString().Split('-')[2];
-            var downstreamTraceId = downstream[TraceParent].ToString().Split('-')[1];
-            var downstreamSpanId = downstream[TraceParent].ToString().Split('-')[2];
-#endif
-
             Assert.Equal(client.TraceId.ToHexString(), proxyTraceId);
             Assert.Equal(client.TraceId.ToHexString(), downstreamTraceId);
-
-#if NET6_0_OR_GREATER
             Assert.NotEqual(proxySpanId, downstreamSpanId);
-#else
-            // Before 6.0, YARP is just pass-through as far as distributed tracing is concerned
-            Assert.Equal(proxySpanId, downstreamSpanId);
-#endif
         }
         else
         {
             var proxyId = proxy[RequestId].ToString();
             var downstreamId = downstream[RequestId].ToString();
-
             Assert.StartsWith(client.Id, proxyId);
             Assert.StartsWith(proxyId, downstreamId);
-
-#if NET6_0_OR_GREATER
             Assert.NotEqual(proxyId, downstreamId);
-#else
-            // Before 6.0, YARP is just pass-through as far as distributed tracing is concerned
-            Assert.Equal(proxyId, downstreamId);
-#endif
         }
     }
 }

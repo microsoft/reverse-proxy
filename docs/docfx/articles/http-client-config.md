@@ -44,7 +44,7 @@ Configuration settings:
 ```JSON
 "DangerousAcceptAnyServerCertificate": "true"
 ```
-- RequestHeaderEncoding - enables other than ASCII encoding for outgoing request headers. Setting this value will leverage [`SocketsHttpHandler.RequestHeaderEncodingSelector`](https://docs.microsoft.com/dotnet/api/system.net.http.socketshttphandler.requestheaderencodingselector) and use the selected encoding for all headers. If you need more granular approach, please use custom `IProxyHttpClientFactory`. The value is then parsed by [`Encoding.GetEncoding`](https://docs.microsoft.com/dotnet/api/system.text.encoding.getencoding#System_Text_Encoding_GetEncoding_System_String_), use values like: "utf-8", "iso-8859-1", etc. **This setting is only available for .NET 5.0.**
+- RequestHeaderEncoding - enables other than ASCII encoding for outgoing request headers. Setting this value will leverage [`SocketsHttpHandler.RequestHeaderEncodingSelector`](https://docs.microsoft.com/dotnet/api/system.net.http.socketshttphandler.requestheaderencodingselector) and use the selected encoding for all headers. If you need more granular approach, please use custom `IProxyHttpClientFactory`. The value is then parsed by [`Encoding.GetEncoding`](https://docs.microsoft.com/dotnet/api/system.text.encoding.getencoding#System_Text_Encoding_GetEncoding_System_String_), use values like: "utf-8", "iso-8859-1", etc.
 ```JSON
 "RequestHeaderEncoding": "utf-8"
 ```
@@ -61,7 +61,7 @@ private static IHostBuilder CreateHostBuilder(string[] args) =>
                       });
         );
 ```
-- EnableMultipleHttp2Connections - enables opening additional HTTP/2 connections to the same server when the maximum number of concurrent streams is reached on all existing connections. The default is `true`. **This feature is available from .NET 5.0**, see [SocketsHttpHandler.EnableMultipleHttp2Connections](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.socketshttphandler.enablemultiplehttp2connections)
+- EnableMultipleHttp2Connections - enables opening additional HTTP/2 connections to the same server when the maximum number of concurrent streams is reached on all existing connections. The default is `true`. See [SocketsHttpHandler.EnableMultipleHttp2Connections](https://docs.microsoft.com/dotnet/api/system.net.http.socketshttphandler.enablemultiplehttp2connections)
 ```JSON
 "EnableMultipleHttp2Connections": false
 ```
@@ -75,21 +75,6 @@ private static IHostBuilder CreateHostBuilder(string[] args) =>
     "BypassOnLocal": "true",
     "UseDefaultCredentials": "false"
 }
-```
-
-
-For .NET Core 3.1, Latin1 ("iso-8859-1") is the only non-ASCII header encoding that can be accepted and only via `appsettings.json`:
-```JSON
-{
-    "Kestrel":
-    {
-        "Latin1RequestHeaders": true
-    }
-}
-```
-together with an application wide switch:
-```C#
-AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.AllowLatin1Headers", true);
 ```
 
 At the moment, there is no solution for changing encoding for response headers in Kestrel (see [aspnetcore#26334](https://github.com/dotnet/aspnetcore/issues/26334)), only ASCII is accepted.
@@ -109,7 +94,7 @@ HTTP request configuration is based on [ForwarderRequestConfig](xref:Yarp.Revers
 Configuration settings:
 - ActivityTimeout - how long a request is allowed to remain idle between any operation completing, after which it will be canceled. The default is 100 seconds. The timeout will reset when response headers are received or after successfully reading or writing any request, response, or streaming data like gRPC or WebSockets. TCP keep-alives and HTTP/2 protocol pings will not reset the timeout, but WebSocket pings will.
 - Version - outgoing request [version](https://docs.microsoft.com/dotnet/api/system.net.http.httprequestmessage.version). The supported values at the moment are `1.0`, `1.1`, `2` and `3`. Default value is 2.
-- VersionPolicy - defines how the final version is selected for the outgoing requests. **This feature is available from .NET 5.0**, see [HttpRequestMessage.VersionPolicy](https://docs.microsoft.com/dotnet/api/system.net.http.httprequestmessage.versionpolicy). The default value is `RequestVersionOrLower`.
+- VersionPolicy - defines how the final version is selected for the outgoing requests. See [HttpRequestMessage.VersionPolicy](https://docs.microsoft.com/dotnet/api/system.net.http.httprequestmessage.versionpolicy). The default value is `RequestVersionOrLower`.
 - AllowResponseBuffering - allows to use write buffering when sending a response back to the client, if the server hosting YARP (e.g. IIS) supports it. **NOTE**: enabling it can break SSE (server side event) scenarios.
 
 
@@ -224,7 +209,8 @@ new SocketsHttpHandler
     AllowAutoRedirect = false,
     AutomaticDecompression = DecompressionMethods.None,
     UseCookies = false,
-    ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
+    ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
+    ConnectTimeout = TimeSpan.FromSeconds(15),
 };
 ```
 

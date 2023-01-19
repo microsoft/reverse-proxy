@@ -16,6 +16,11 @@ internal static class ConfigurationReadingExtensions
         return configuration[name] is string value ? int.Parse(value, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture) : null;
     }
 
+    internal static long? ReadInt64(this IConfiguration configuration, string name)
+    {
+        return configuration[name] is string value ? long.Parse(value, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture) : null;
+    }
+
     internal static double? ReadDouble(this IConfiguration configuration, string name)
     {
         return configuration[name] is string value ? double.Parse(value, CultureInfo.InvariantCulture) : null;
@@ -55,7 +60,7 @@ internal static class ConfigurationReadingExtensions
             return null;
         }
 
-        return new ReadOnlyDictionary<string, string>(children.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase));
+        return new ReadOnlyDictionary<string, string>(children.ToDictionary(s => s.Key, s => s.Value!, StringComparer.OrdinalIgnoreCase));
     }
 
     internal static string[]? ReadStringArray(this IConfigurationSection section)
@@ -65,6 +70,6 @@ internal static class ConfigurationReadingExtensions
             return null;
         }
 
-        return children.Select(s => s.Value).ToArray();
+        return children.Select(s => s.Value!).ToArray();
     }
 }

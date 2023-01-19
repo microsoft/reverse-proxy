@@ -108,7 +108,7 @@ internal sealed class DestinationHealthUpdater : IDestinationHealthUpdater, IDis
     private static class Log
     {
         private static readonly Action<ILogger, string, TimeSpan, Exception?> _unhealthyDestinationIsScheduledForReactivation = LoggerMessage.Define<string, TimeSpan>(
-            LogLevel.Information,
+            LogLevel.Warning,
             EventIds.UnhealthyDestinationIsScheduledForReactivation,
             "Destination `{destinationId}` marked as 'Unhealthy` by the passive health check is scheduled for a reactivation in `{reactivationPeriod}`.");
 

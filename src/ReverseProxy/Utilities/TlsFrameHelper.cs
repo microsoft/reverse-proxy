@@ -36,7 +36,7 @@ public enum TlsHandshakeType : byte
     CertificateVerify = 15,
     ClientKeyExchange = 16,
     Finished = 20,
-    KeyEpdate = 24,
+    KeyUpdate = 24,
     MessageHash = 254
 }
 
@@ -161,11 +161,11 @@ public static class TlsFrameHelper
 
     public delegate bool HelloExtensionCallback(ref TlsFrameInfo info, ExtensionType type, ReadOnlySpan<byte> extensionsData);
 
-    private static byte[] s_protocolMismatch13 = new byte[] { (byte)TlsContentType.Alert, 3, 4, 0, 2, 2, 70 };
-    private static byte[] s_protocolMismatch12 = new byte[] { (byte)TlsContentType.Alert, 3, 3, 0, 2, 2, 70 };
-    private static byte[] s_protocolMismatch11 = new byte[] { (byte)TlsContentType.Alert, 3, 2, 0, 2, 2, 70 };
-    private static byte[] s_protocolMismatch10 = new byte[] { (byte)TlsContentType.Alert, 3, 1, 0, 2, 2, 70 };
-    private static byte[] s_protocolMismatch30 = new byte[] { (byte)TlsContentType.Alert, 3, 0, 0, 2, 2, 40 };
+    private static readonly byte[] s_protocolMismatch13 = new byte[] { (byte)TlsContentType.Alert, 3, 4, 0, 2, 2, 70 };
+    private static readonly byte[] s_protocolMismatch12 = new byte[] { (byte)TlsContentType.Alert, 3, 3, 0, 2, 2, 70 };
+    private static readonly byte[] s_protocolMismatch11 = new byte[] { (byte)TlsContentType.Alert, 3, 2, 0, 2, 2, 70 };
+    private static readonly byte[] s_protocolMismatch10 = new byte[] { (byte)TlsContentType.Alert, 3, 1, 0, 2, 2, 70 };
+    private static readonly byte[] s_protocolMismatch30 = new byte[] { (byte)TlsContentType.Alert, 3, 0, 0, 2, 2, 40 };
 
     private const int UInt24Size = 3;
     private const int RandomSize = 32;
@@ -182,7 +182,7 @@ public static class TlsFrameHelper
 
     public static bool TryGetFrameHeader(ReadOnlySpan<byte> frame, ref TlsFrameHeader header)
     {
-        bool result = frame.Length > 4;
+        var result = frame.Length > 4;
 
         if (frame.Length >= 1)
         {
@@ -262,7 +262,7 @@ public static class TlsFrameHelper
         }
 
         // This will not fail since we have enough data.
-        bool gotHeader = TryGetFrameHeader(frame, ref info.Header);
+        var gotHeader = TryGetFrameHeader(frame, ref info.Header);
         Debug.Assert(gotHeader);
 
         info.SupportedVersions = info.Header.Version;
@@ -300,9 +300,11 @@ public static class TlsFrameHelper
         info.HandshakeType = (TlsHandshakeType)frame[HandshakeTypeOffset];
 
         // Check if we have full frame.
-        bool isComplete = frame.Length >= HeaderSize + info.Header.Length;
+        var isComplete = frame.Length >= HeaderSize + info.Header.Length;
 
+#pragma warning disable SYSLIB0039 // TLS 1.0 and 1.1 are obsolete
         if (((int)info.Header.Version >= (int)SslProtocols.Tls) &&
+#pragma warning restore SYSLIB0039
             (info.HandshakeType == TlsHandshakeType.ClientHello || info.HandshakeType == TlsHandshakeType.ServerHello))
         {
             if (!TryParseHelloFrame(frame.Slice(HeaderSize), ref info, options, callback))
@@ -346,8 +348,10 @@ public static class TlsFrameHelper
         {
             SslProtocols.Tls13 => s_protocolMismatch13,
             SslProtocols.Tls12 => s_protocolMismatch12,
+#pragma warning disable SYSLIB0039 // TLS 1.0 and 1.1 are obsolete
             SslProtocols.Tls11 => s_protocolMismatch11,
             SslProtocols.Tls => s_protocolMismatch10,
+#pragma warning restore SYSLIB0039
 #pragma warning disable 0618
             SslProtocols.Ssl3 => s_protocolMismatch30,
 #pragma warning restore 0618
@@ -360,10 +364,11 @@ public static class TlsFrameHelper
         {
             return CreateProtocolVersionAlert(version);
         }
+#pragma warning disable SYSLIB0039 // TLS 1.0 and 1.1 are obsolete
         else if ((int)version > (int)SslProtocols.Tls)
         {
             // Create TLS1.2 alert
-            byte[] buffer = new byte[] { (byte)TlsContentType.Alert, 3, 3, 0, 2, 2, (byte)reason };
+            var buffer = new byte[] { (byte)TlsContentType.Alert, 3, 3, 0, 2, 2, (byte)reason };
             switch (version)
             {
                 case SslProtocols.Tls13:
@@ -376,7 +381,7 @@ public static class TlsFrameHelper
                     buffer[2] = 1;
                     break;
             }
-
+#pragma warning restore SYSLIB0039
             return buffer;
         }
 
@@ -407,8 +412,8 @@ public static class TlsFrameHelper
             return false;
         }
 
-        int helloLength = ReadUInt24BigEndian(sslHandshake.Slice(HelloLengthOffset));
-        ReadOnlySpan<byte> helloData = sslHandshake.Slice(HelloOffset);
+        var helloLength = ReadUInt24BigEndian(sslHandshake.Slice(HelloLengthOffset));
+        var helloData = sslHandshake.Slice(HelloOffset);
 
         if (helloData.Length < helloLength)
         {
@@ -439,7 +444,7 @@ public static class TlsFrameHelper
         //     Extension client_hello_extension_list<0..2^16-1>;
         // } ClientHello;
 
-        ReadOnlySpan<byte> p = SkipBytes(clientHello, ProtocolVersionSize + RandomSize);
+        var p = SkipBytes(clientHello, ProtocolVersionSize + RandomSize);
 
         // Skip SessionID (max size 32 => size fits in 1 byte)
         p = SkipOpaqueType1(p);
@@ -487,7 +492,7 @@ public static class TlsFrameHelper
         const int CipherSuiteLength = 2;
         const int CompressionMethiodLength = 1;
 
-        ReadOnlySpan<byte> p = SkipBytes(serverHello, ProtocolVersionSize + RandomSize);
+        var p = SkipBytes(serverHello, ProtocolVersionSize + RandomSize);
         // Skip SessionID (max size 32 => size fits in 1 byte)
         p = SkipOpaqueType1(p);
         p = SkipBytes(p, CipherSuiteLength + CompressionMethiodLength);
@@ -513,14 +518,14 @@ public static class TlsFrameHelper
     private static bool TryParseHelloExtensions(ReadOnlySpan<byte> extensions, ref TlsFrameInfo info, ProcessingOptions options, HelloExtensionCallback? callback)
     {
         const int ExtensionHeader = 4;
-        bool isComplete = true;
+        var isComplete = true;
 
         while (extensions.Length >= ExtensionHeader)
         {
-            ExtensionType extensionType = (ExtensionType)BinaryPrimitives.ReadUInt16BigEndian(extensions);
+            var extensionType = (ExtensionType)BinaryPrimitives.ReadUInt16BigEndian(extensions);
             extensions = SkipBytes(extensions, sizeof(ushort));
 
-            ushort extensionLength = BinaryPrimitives.ReadUInt16BigEndian(extensions);
+            var extensionLength = BinaryPrimitives.ReadUInt16BigEndian(extensions);
             extensions = SkipBytes(extensions, sizeof(ushort));
             if (extensions.Length < extensionLength)
             {
@@ -528,11 +533,11 @@ public static class TlsFrameHelper
                 break;
             }
 
-            ReadOnlySpan<byte> extensionData = extensions.Slice(0, extensionLength);
+            var extensionData = extensions.Slice(0, extensionLength);
 
             if (extensionType == ExtensionType.ServerName && options.HasFlag(ProcessingOptions.ServerName))
             {
-                if (!TryGetSniFromServerNameList(extensionData, out string? sni))
+                if (!TryGetSniFromServerNameList(extensionData, out var sni))
                 {
                     return false;
                 }
@@ -541,7 +546,7 @@ public static class TlsFrameHelper
             }
             else if (extensionType == ExtensionType.SupportedVersions && options.HasFlag(ProcessingOptions.Versions))
             {
-                if (!TryGetSupportedVersionsFromExtension(extensionData, out SslProtocols versions))
+                if (!TryGetSupportedVersionsFromExtension(extensionData, out var versions))
                 {
                     return false;
                 }
@@ -550,7 +555,7 @@ public static class TlsFrameHelper
             }
             else if (extensionType == ExtensionType.ApplicationProtocols && options.HasFlag(ProcessingOptions.ApplicationProtocol))
             {
-                if (!TryGetApplicationProtocolsFromExtension(extensionData, out ApplicationProtocolInfo alpn))
+                if (!TryGetApplicationProtocolsFromExtension(extensionData, out var alpn))
                 {
                     return false;
                 }
@@ -581,16 +586,16 @@ public static class TlsFrameHelper
         }
 
         int serverNameListLength = BinaryPrimitives.ReadUInt16BigEndian(serverNameListExtension);
-        ReadOnlySpan<byte> serverNameList = serverNameListExtension.Slice(ServerNameListOffset);
+        var serverNameList = serverNameListExtension.Slice(ServerNameListOffset);
 
         if (serverNameListLength != serverNameList.Length)
         {
             return false;
         }
 
-        ReadOnlySpan<byte> serverName = serverNameList.Slice(0, serverNameListLength);
+        var serverName = serverNameList.Slice(0, serverNameListLength);
 
-        sni = GetSniFromServerName(serverName, out bool invalid);
+        sni = GetSniFromServerName(serverName, out var invalid);
         return invalid == false;
     }
 
@@ -613,8 +618,8 @@ public static class TlsFrameHelper
         }
 
         // Following can underflow but it is ok due to equality check below
-        NameType nameType = (NameType)serverName[NameTypeOffset];
-        ReadOnlySpan<byte> hostNameStruct = serverName.Slice(HostNameStructOffset);
+        var nameType = (NameType)serverName[NameTypeOffset];
+        var hostNameStruct = serverName.Slice(HostNameStructOffset);
         if (nameType != NameType.HostName)
         {
             invalid = true;
@@ -632,7 +637,7 @@ public static class TlsFrameHelper
         const int HostNameOffset = HostNameLengthOffset + sizeof(ushort);
 
         int hostNameLength = BinaryPrimitives.ReadUInt16BigEndian(hostNameStruct);
-        ReadOnlySpan<byte> hostName = hostNameStruct.Slice(HostNameOffset);
+        var hostName = hostNameStruct.Slice(HostNameOffset);
         if (hostNameLength != hostName.Length)
         {
             invalid = true;
@@ -660,7 +665,7 @@ public static class TlsFrameHelper
 
         protocols = SslProtocols.None;
 
-        byte supportedVersionLength = extensionData[VersionListLengthOffset];
+        var supportedVersionLength = extensionData[VersionListLengthOffset];
         extensionData = extensionData.Slice(VersionListNameOffset);
 
         if (extensionData.Length != supportedVersionLength)
@@ -702,7 +707,7 @@ public static class TlsFrameHelper
         }
 
         int AlpnListLength = BinaryPrimitives.ReadUInt16BigEndian(extensionData);
-        ReadOnlySpan<byte> alpnList = extensionData.Slice(AlpnListOffset);
+        var alpnList = extensionData.Slice(AlpnListOffset);
         if (AlpnListLength != alpnList.Length)
         {
             return false;
@@ -710,13 +715,13 @@ public static class TlsFrameHelper
 
         while (!alpnList.IsEmpty)
         {
-            byte protocolLength = alpnList[0];
+            var protocolLength = alpnList[0];
             if (alpnList.Length < protocolLength + 1)
             {
                 return false;
             }
 
-            ReadOnlySpan<byte> protocol = alpnList.Slice(1, protocolLength);
+            var protocol = alpnList.Slice(1, protocolLength);
             if (protocolLength == 2)
             {
                 if (protocol.SequenceEqual(SslApplicationProtocol.Http2.Protocol.Span))
@@ -751,17 +756,17 @@ public static class TlsFrameHelper
             return false;
         }
 
-        ushort length = BinaryPrimitives.ReadUInt16BigEndian(bytes);
+        var length = BinaryPrimitives.ReadUInt16BigEndian(bytes);
         if (bytes.Length < OpaqueType2LengthSize + length)
         {
             return false;
         }
 
         bytes = bytes.Slice(OpaqueType2LengthSize, length);
-        int count = length / 2;
+        var count = length / 2;
 
         info._ciphers = new TlsCipherSuite[count];
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
             info._ciphers[i] = (TlsCipherSuite)BinaryPrimitives.ReadUInt16BigEndian(bytes.Slice(i * 2, 2));
         }
@@ -775,8 +780,10 @@ public static class TlsFrameHelper
         {
             4 => SslProtocols.Tls13,
             3 => SslProtocols.Tls12,
+#pragma warning disable SYSLIB0039 // TLS 1.0 and 1.1 are obsolete
             2 => SslProtocols.Tls11,
             1 => SslProtocols.Tls,
+#pragma warning restore SYSLIB0039
 #pragma warning disable 0618
             0 => SslProtocols.Ssl3,
 #pragma warning restore 0618
@@ -845,8 +852,8 @@ public static class TlsFrameHelper
             return ReadOnlySpan<byte>.Empty;
         }
 
-        byte length = bytes[0];
-        int totalBytes = OpaqueType1LengthSize + length;
+        var length = bytes[0];
+        var totalBytes = OpaqueType1LengthSize + length;
 
         return SkipBytes(bytes, totalBytes);
     }
@@ -858,8 +865,8 @@ public static class TlsFrameHelper
             return ReadOnlySpan<byte>.Empty;
         }
 
-        ushort length = BinaryPrimitives.ReadUInt16BigEndian(bytes);
-        int totalBytes = OpaqueType2LengthSize + length;
+        var length = BinaryPrimitives.ReadUInt16BigEndian(bytes);
+        var totalBytes = OpaqueType2LengthSize + length;
 
         return SkipBytes(bytes, totalBytes);
     }

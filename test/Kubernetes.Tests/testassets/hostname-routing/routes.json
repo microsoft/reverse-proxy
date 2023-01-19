@@ -1,6 +1,6 @@
 [
   {
-    "RouteId": "hostname-routing.foo:/",
+    "RouteId": "hostname-routing.foo:foo.bar.com/",
     "Match": {
       "Methods": null,
       "Hosts": [ "foo.bar.com" ],
@@ -11,6 +11,7 @@
     "Order": null,
     "ClusterId": "frontend.foo:80",
     "AuthorizationPolicy": null,
+    "RateLimiterPolicy": null,
     "CorsPolicy": null,
     "Metadata": null,
     "Transforms": null

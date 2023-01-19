@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -30,6 +31,9 @@ public static class ReverseProxyServiceCollectionExtensions
         services.TryAddSingleton<IClock, Clock>();
         services.TryAddSingleton<IHttpForwarder, HttpForwarder>();
         services.TryAddSingleton<ITransformBuilder, TransformBuilder>();
+
+        services.AddSingleton<DirectForwardingHttpClientProvider>();
+
         return services;
     }
 
@@ -141,6 +145,17 @@ public static class ReverseProxyServiceCollectionExtensions
         if (configure is null)
         {
             throw new ArgumentNullException(nameof(configure));
+        }
+
+        // Avoid overriding any other custom factories. This does not handle the case where a IForwarderHttpClientFactory
+        // is registered after this call.
+        var service = builder.Services.FirstOrDefault(service => service.ServiceType == typeof(IForwarderHttpClientFactory));
+        if (service is not null)
+        {
+            if (service.ImplementationType != typeof(ForwarderHttpClientFactory))
+            {
+                throw new InvalidOperationException($"ConfigureHttpClient will override the custom IForwarderHttpClientFactory type.");
+            }
         }
 
         builder.Services.AddSingleton<IForwarderHttpClientFactory>(services =>

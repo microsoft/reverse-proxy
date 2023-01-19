@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Yarp.Kubernetes.Controller.Caching;
 
-namespace Yarp.Kubernetes.Controller.Services;
+namespace Yarp.Kubernetes.Controller.Converters;
 
 internal sealed class YarpIngressContext
 {

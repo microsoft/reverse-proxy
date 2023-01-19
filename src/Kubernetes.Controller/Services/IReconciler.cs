@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Yarp.Kubernetes.Controller.Dispatching;
 
 namespace Yarp.Kubernetes.Controller.Services;
 
@@ -14,6 +12,5 @@ namespace Yarp.Kubernetes.Controller.Services;
 /// </summary>
 public interface IReconciler
 {
-    void OnAttach(Action<IDispatchTarget> attached);
     Task ProcessAsync(CancellationToken cancellationToken);
 }

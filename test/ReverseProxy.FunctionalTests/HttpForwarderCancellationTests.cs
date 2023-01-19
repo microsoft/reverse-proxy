@@ -5,10 +5,12 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Xunit;
 using Yarp.ReverseProxy.Common;
 using Yarp.ReverseProxy.Utilities;
@@ -17,8 +19,11 @@ namespace Yarp.ReverseProxy;
 
 public class HttpForwarderCancellationTests
 {
-#if NET
-    [Fact]
+    // HTTP/2 over TLS is not supported on macOS due to missing ALPN support.
+    // See https://github.com/dotnet/runtime/issues/27727
+    public static bool Http2OverTlsSupported => !RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+
+    [ConditionalFact(nameof(Http2OverTlsSupported))]
     public async Task ServerSendsHttp2Reset_ReadToClientIsCanceled()
     {
         var readAsyncCalled = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -36,9 +41,11 @@ public class HttpForwarderCancellationTests
                 var resetFeature = context.Features.Get<IHttpResetFeature>();
                 Assert.NotNull(resetFeature);
                 resetFeature.Reset(0); // NO_ERROR
-            },
-            proxyBuilder => { },
-            proxyApp =>
+            })
+        {
+            UseHttpsOnDestination = true,
+            UseHttpsOnProxy = true,
+            ConfigureProxyApp = proxyApp =>
             {
                 proxyApp.Use(next => context =>
                 {
@@ -60,8 +67,7 @@ public class HttpForwarderCancellationTests
                     return next(context);
                 });
             },
-            useHttpsOnDestination: true,
-            useHttpsOnProxy: true);
+        };
 
         await test.Invoke(async uri =>
         {
@@ -123,7 +129,6 @@ public class HttpForwarderCancellationTests
             return false;
         }
     }
-#endif
 
     private sealed class ReadDelegatingStream : DelegatingStream
     {

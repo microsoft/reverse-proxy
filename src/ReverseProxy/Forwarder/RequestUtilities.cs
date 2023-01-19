@@ -60,16 +60,16 @@ public static class RequestUtilities
         return _headersToExclude.Contains(headerName);
     }
 
-    private static readonly HashSet<string> _headersToExclude = new(22, StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> _headersToExclude = new(18, StringComparer.OrdinalIgnoreCase)
     {
         HeaderNames.Connection,
         HeaderNames.TransferEncoding,
         HeaderNames.KeepAlive,
         HeaderNames.Upgrade,
-        "Proxy-Connection",
-        "Proxy-Authenticate",
+        HeaderNames.ProxyConnection,
+        HeaderNames.ProxyAuthenticate,
         "Proxy-Authentication-Info",
-        "Proxy-Authorization",
+        HeaderNames.ProxyAuthorization,
         "Proxy-Features",
         "Proxy-Instruction",
         "Security-Scheme",
@@ -78,11 +78,8 @@ public static class RequestUtilities
         "HTTP2-Settings",
         HeaderNames.UpgradeInsecureRequests,
         HeaderNames.TE,
-#if NET
         HeaderNames.AltSvc,
-#else
-        "Alt-Svc",
-#endif
+        HeaderNames.StrictTransportSecurity,
     };
 
     // Headers marked as HttpHeaderType.Content in
@@ -258,7 +255,7 @@ public static class RequestUtilities
     {
         if (value.Count == 1)
         {
-            string headerValue = value;
+            string headerValue = value!;
 
             if (ContainsNewLines(headerValue))
             {
@@ -280,8 +277,9 @@ public static class RequestUtilities
         }
         else
         {
-            string[] headerValues = value;
+            string[] headerValues = value!;
 
+#if !NET7_0_OR_GREATER
             // HttpClient wrongly uses comma (",") instead of semi-colon (";") as a separator for Cookie headers.
             // To mitigate this, we concatenate them manually and put them back as a single header value.
             // A multi-header cookie header is invalid, but we get one because of
@@ -291,6 +289,7 @@ public static class RequestUtilities
                 AddHeader(request, headerName, string.Join("; ", headerValues));
                 return;
             }
+#endif
 
             foreach (var headerValue in headerValues)
             {
@@ -337,7 +336,6 @@ public static class RequestUtilities
         }
     }
 
-#if NET6_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static StringValues Concat(in StringValues existing, in HeaderStringValues values)
     {
@@ -375,12 +373,10 @@ public static class RequestUtilities
             return newArray;
         }
     }
-#endif
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static bool TryGetValues(HttpHeaders headers, string headerName, out StringValues values)
     {
-#if NET6_0_OR_GREATER
         if (headers.NonValidated.TryGetValues(headerName, out var headerStringValues))
         {
             if (headerStringValues.Count <= 1)
@@ -405,26 +401,14 @@ public static class RequestUtilities
             Debug.Assert(i == array.Length);
             return array;
         }
-#else
-        if (headers.TryGetValues(headerName, out var headerValues))
-        {
-            Debug.Assert(headerValues is string[]);
-            values = headerValues as string[] ?? headerValues.ToArray();
-            return true;
-        }
-#endif
 
         values = default;
         return false;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static bool ContainsHeader(HttpHeaders headers, string headerName)
+    internal static bool IsResponseSet(HttpResponse response)
     {
-#if NET6_0_OR_GREATER
-        return headers.NonValidated.Contains(headerName);
-#else
-        return headers.TryGetValues(headerName, out _);
-#endif
+        return response.StatusCode != StatusCodes.Status200OK
+            || response.HasStarted;
     }
 }

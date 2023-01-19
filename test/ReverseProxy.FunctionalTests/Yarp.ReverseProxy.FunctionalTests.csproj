@@ -1,9 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net5.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <OutputType>Library</OutputType>
     <RootNamespace>Yarp.ReverseProxy</RootNamespace>
+
+    <!--
+      Arcade test detection looks for known suffixes like '.Tests' or '.UnitTests'
+      so we need to explicitly specify that this is a test project.
+      -->
+    <IsUnitTestProject>true</IsUnitTestProject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +24,10 @@
 
   <ItemGroup>
     <Compile Include="..\ReverseProxy.Tests\Common\TestResources.cs" Link="Common\TestResources.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.DotNet.XUnitExtensions" Version="$(MicrosoftDotNetXUnitExtensionsPackageVersion)" />
   </ItemGroup>
 
 </Project>

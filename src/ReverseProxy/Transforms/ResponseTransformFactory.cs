@@ -222,21 +222,13 @@ internal sealed class ResponseTransformFactory : ITransformFactory
         else if (transformValues.TryGetValue(ResponseHeadersAllowedKey, out var allowedHeaders))
         {
             TransformHelpers.CheckTooManyParameters(transformValues, expected: 1);
-            var headersList = allowedHeaders.Split(';', options: StringSplitOptions.RemoveEmptyEntries
-#if NET
-                | StringSplitOptions.TrimEntries
-#endif
-                );
+            var headersList = allowedHeaders.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             context.AddResponseHeadersAllowed(headersList);
         }
         else if (transformValues.TryGetValue(ResponseTrailersAllowedKey, out var allowedTrailers))
         {
             TransformHelpers.CheckTooManyParameters(transformValues, expected: 1);
-            var headersList = allowedTrailers.Split(';', options: StringSplitOptions.RemoveEmptyEntries
-#if NET
-                | StringSplitOptions.TrimEntries
-#endif
-                );
+            var headersList = allowedTrailers.Split(';', options: StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             context.AddResponseTrailersAllowed(headersList);
         }
         else

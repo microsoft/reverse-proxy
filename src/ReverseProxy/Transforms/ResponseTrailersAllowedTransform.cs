@@ -4,12 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Transforms;
@@ -64,7 +62,6 @@ public class ResponseTrailersAllowedTransform : ResponseTrailersTransform
     // See https://github.com/microsoft/reverse-proxy/blob/main/src/ReverseProxy/Forwarder/HttpTransformer.cs#:~:text=void-,CopyResponseHeaders
     private void CopyResponseHeaders(HttpHeaders source, IHeaderDictionary destination)
     {
-#if NET6_0_OR_GREATER
         foreach (var header in source.NonValidated)
         {
             var headerName = header.Key;
@@ -75,19 +72,5 @@ public class ResponseTrailersAllowedTransform : ResponseTrailersTransform
 
             destination[headerName] = RequestUtilities.Concat(destination[headerName], header.Value);
         }
-#else
-        foreach (var header in source)
-        {
-            var headerName = header.Key;
-            if (!AllowedHeadersSet.Contains(headerName))
-            {
-                continue;
-            }
-
-            Debug.Assert(header.Value is string[]);
-            var values = header.Value as string[] ?? header.Value.ToArray();
-            destination[headerName] = StringValues.Concat(destination[headerName], values);
-        }
-#endif
     }
 }

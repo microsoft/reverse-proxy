@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Net.Http;
+using System.Threading;
 using Microsoft.AspNetCore.Http;
 
 namespace Yarp.ReverseProxy.Transforms;
@@ -48,4 +49,9 @@ public class RequestTransformContext
     /// port and path base. The 'Path' and 'Query' properties will be appended to this after the transforms have run.
     /// </summary>
     public string DestinationPrefix { get; init; } = default!;
+
+    /// <summary>
+    /// A <see cref="CancellationToken"/> indicating that the request is being aborted.
+    /// </summary>
+    public CancellationToken CancellationToken { get; set; }
 }

@@ -4,84 +4,78 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Yarp.Tests.Common;
-using Yarp.ReverseProxy.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
+using Xunit.Abstractions;
+using Yarp.ReverseProxy.Configuration;
+using Yarp.Tests.Common;
 
 namespace Yarp.ReverseProxy.Common;
 
 public class TestEnvironment
 {
-    private readonly Action<IServiceCollection> _configureDestinationServices;
-    private readonly Action<IApplicationBuilder> _configureDestinationApp;
-    private readonly Action<IServiceCollection> _configureProxyServices;
-    private readonly Action<IReverseProxyBuilder> _configureProxy;
-    private readonly Action<IApplicationBuilder> _configureProxyApp;
-    private readonly HttpProtocols _proxyProtocol;
-    private readonly bool _useHttpsOnDestination;
-    private readonly bool _useHttpsOnProxy;
-    private readonly Encoding _headerEncoding;
-    private readonly Func<ClusterConfig, RouteConfig, (ClusterConfig Cluster, RouteConfig Route)> _configTransformer;
+    public ITestOutputHelper TestOutput { get; set; }
+
+    public HttpProtocols ProxyProtocol { get; set; } = HttpProtocols.Http1AndHttp2;
+
+    public bool UseHttpsOnProxy { get; set; }
+
+    public Encoding HeaderEncoding { get; set; }
+
+    public Action<IServiceCollection> ConfigureProxyServices { get; set; } = _ => { };
+
+    public Action<IReverseProxyBuilder> ConfigureProxy { get; set; } = _ => { };
+
+    public Action<IApplicationBuilder> ConfigureProxyApp { get; set; } = _ => { };
 
     public string ClusterId { get; set; } = "cluster1";
 
-    public TestEnvironment(
-        RequestDelegate destinationGetDelegate,
-        Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp,
-        HttpProtocols proxyProtocol = HttpProtocols.Http1AndHttp2, bool useHttpsOnDestination = false,
-        bool useHttpsOnProxy = false, Encoding headerEncoding = null,
-        Func<ClusterConfig, RouteConfig, (ClusterConfig Cluster, RouteConfig Route)> configTransformer = null)
-        : this(
-              destinationServices => { },
-              destinationApp =>
-              {
-                  destinationApp.Run(destinationGetDelegate);
-              },
-              configureProxyServices: null,
-              configureProxy,
-              configureProxyApp,
-              proxyProtocol,
-              useHttpsOnDestination,
-              useHttpsOnProxy,
-              headerEncoding,
-              configTransformer)
-    { }
+    public Func<ClusterConfig, RouteConfig, (ClusterConfig Cluster, RouteConfig Route)> ConfigTransformer { get; set; } = (a, b) => (a, b);
 
-    public TestEnvironment(
-        Action<IServiceCollection> configureDestinationServices, Action<IApplicationBuilder> configureDestinationApp,
-        Action<IServiceCollection> configureProxyServices, Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp,
-        HttpProtocols proxyProtocol = HttpProtocols.Http1AndHttp2, bool useHttpsOnDestination = false,
-        bool useHttpsOnProxy = false, Encoding headerEncoding = null,
-        Func<ClusterConfig, RouteConfig, (ClusterConfig Cluster, RouteConfig Route)> configTransformer = null)
+    public Version DestionationHttpVersion { get; set; }
+
+    public HttpVersionPolicy? DestionationHttpVersionPolicy { get; set; }
+
+    public HttpProtocols DestinationProtocol { get; set; } = HttpProtocols.Http1AndHttp2;
+
+    public bool UseHttpsOnDestination { get; set; }
+
+    public bool UseHttpSysOnDestination { get; set; }
+
+    public Action<IServiceCollection> ConfigureDestinationServices { get; set; } = _ => { };
+
+    public Action<IApplicationBuilder> ConfigureDestinationApp { get; set; } = _ => { };
+
+    public TestEnvironment() { }
+
+    public TestEnvironment(RequestDelegate destinationGetDelegate)
     {
-        _configureDestinationServices = configureDestinationServices;
-        _configureDestinationApp = configureDestinationApp;
-        _configureProxy = configureProxy;
-        _configureProxyApp = configureProxyApp;
-        _configureProxyServices = configureProxyServices ?? (_ => { });
-        _proxyProtocol = proxyProtocol;
-        _useHttpsOnDestination = useHttpsOnDestination;
-        _useHttpsOnProxy = useHttpsOnProxy;
-        _headerEncoding = headerEncoding;
-        _configTransformer = configTransformer ?? ((ClusterConfig c, RouteConfig r) => (c, r));
+        ConfigureDestinationApp = destinationApp =>
+        {
+            destinationApp.Run(destinationGetDelegate);
+        };
     }
 
     public async Task Invoke(Func<string, Task> clientFunc, CancellationToken cancellationToken = default)
     {
-        using var destination = CreateHost(HttpProtocols.Http1AndHttp2, _useHttpsOnDestination, _headerEncoding, _configureDestinationServices, _configureDestinationApp);
+        using var destination = CreateHost(DestinationProtocol, UseHttpsOnDestination, HeaderEncoding,
+            ConfigureDestinationServices, ConfigureDestinationApp, UseHttpSysOnDestination);
         await destination.StartAsync(cancellationToken);
 
-        using var proxy = CreateProxy(_proxyProtocol, _useHttpsOnDestination, _useHttpsOnProxy, _headerEncoding, ClusterId, destination.GetAddress(), _configureProxyServices, _configureProxy, _configureProxyApp, _configTransformer);
+        using var proxy = CreateProxy(destination.GetAddress());
         await proxy.StartAsync(cancellationToken);
 
         try
@@ -95,43 +89,45 @@ public class TestEnvironment
         }
     }
 
-    public static IHost CreateProxy(HttpProtocols protocols, bool useHttpsOnDestination, bool httpsOnProxy, Encoding requestHeaderEncoding, string clusterId, string destinationAddress,
-        Action<IServiceCollection> configureServices, Action<IReverseProxyBuilder> configureProxy, Action<IApplicationBuilder> configureProxyApp, Func<ClusterConfig, RouteConfig, (ClusterConfig Cluster, RouteConfig Route)> configTransformer)
+    public IHost CreateProxy(string destinationAddress)
     {
-        return CreateHost(protocols, httpsOnProxy, requestHeaderEncoding,
+        return CreateHost(ProxyProtocol, UseHttpsOnProxy, HeaderEncoding,
             services =>
             {
-                configureServices(services);
+                ConfigureProxyServices(services);
 
                 var route = new RouteConfig
                 {
                     RouteId = "route1",
-                    ClusterId = clusterId,
+                    ClusterId = ClusterId,
                     Match = new RouteMatch { Path = "/{**catchall}" }
                 };
 
                 var cluster = new ClusterConfig
                 {
-                    ClusterId = clusterId,
+                    ClusterId = ClusterId,
                     Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                     {
                         { "destination1",  new DestinationConfig() { Address = destinationAddress } }
                     },
                     HttpClient = new HttpClientConfig
                     {
-                        DangerousAcceptAnyServerCertificate = useHttpsOnDestination,
-#if NET
-                        RequestHeaderEncoding = requestHeaderEncoding?.WebName,
-#endif
+                        DangerousAcceptAnyServerCertificate = UseHttpsOnDestination,
+                        RequestHeaderEncoding = HeaderEncoding?.WebName,
+                    },
+                    HttpRequest = new Forwarder.ForwarderRequestConfig
+                    {
+                        Version = DestionationHttpVersion,
+                        VersionPolicy = DestionationHttpVersionPolicy,
                     }
                 };
-                (cluster, route) = configTransformer(cluster, route);
+                (cluster, route) = ConfigTransformer(cluster, route);
                 var proxyBuilder = services.AddReverseProxy().LoadFromMemory(new[] { route }, new[] { cluster });
-                configureProxy(proxyBuilder);
+                ConfigureProxy(proxyBuilder);
             },
             app =>
             {
-                configureProxyApp(app);
+                ConfigureProxyApp(app);
                 app.UseRouting();
                 app.UseEndpoints(builder =>
                 {
@@ -140,14 +136,15 @@ public class TestEnvironment
             });
     }
 
-    private static IHost CreateHost(HttpProtocols protocols, bool useHttps, Encoding requestHeaderEncoding,
-        Action<IServiceCollection> configureServices, Action<IApplicationBuilder> configureApp)
+    private IHost CreateHost(HttpProtocols protocols, bool useHttps, Encoding requestHeaderEncoding,
+        Action<IServiceCollection> configureServices, Action<IApplicationBuilder> configureApp, bool useHttpSys = false)
     {
         return new HostBuilder()
             .ConfigureAppConfiguration(config =>
             {
                 config.AddInMemoryCollection(new Dictionary<string, string>()
                 {
+                    { "Logging:LogLevel:Microsoft", "Trace" },
                     { "Logging:LogLevel:Microsoft.AspNetCore.Hosting.Diagnostics", "Information" }
                 });
             })
@@ -155,6 +152,10 @@ public class TestEnvironment
             {
                 loggingBuilder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
                 loggingBuilder.AddEventSourceLogger();
+                if (TestOutput != null)
+                {
+                    loggingBuilder.AddXunit(TestOutput);
+                }
             })
             .ConfigureWebHost(webHostBuilder =>
             {
@@ -162,12 +163,10 @@ public class TestEnvironment
                     .ConfigureServices(configureServices)
                     .UseKestrel(kestrel =>
                     {
-#if NET
                         if (requestHeaderEncoding is not null)
                         {
                             kestrel.RequestHeaderEncodingSelector = _ => requestHeaderEncoding;
                         }
-#endif
                         kestrel.Listen(IPAddress.Loopback, 0, listenOptions =>
                         {
                             listenOptions.Protocols = protocols;
@@ -175,9 +174,83 @@ public class TestEnvironment
                             {
                                 listenOptions.UseHttps(TestResources.GetTestCertificate());
                             }
+                            listenOptions.UseConnectionLogging();
                         });
                     })
                     .Configure(configureApp);
+                if (useHttpSys)
+                {
+#pragma warning disable CA1416 // Validate platform compatibility
+                    webHostBuilder.UseHttpSys(httpSys =>
+                    {
+                        if (useHttps)
+                        {
+                            httpSys.UrlPrefixes.Add("https://localhost:" + FindHttpSysHttpsPortAsync(TestOutput).Result);
+                        }
+                        else
+                        {
+                            httpSys.UrlPrefixes.Add("http://localhost:0");
+                        }
+                    });
+#pragma warning restore CA1416 // Validate platform compatibility
+                }
             }).Build();
+    }
+
+    private const int BaseHttpsPort = 44300;
+    private const int MaxHttpsPort = 44399;
+    private static int NextHttpsPort = BaseHttpsPort;
+    private static readonly SemaphoreSlim PortLock = new SemaphoreSlim(1);
+
+    internal static async Task<int> FindHttpSysHttpsPortAsync(ITestOutputHelper output)
+    {
+        await PortLock.WaitAsync();
+        try
+        {
+            while (NextHttpsPort < MaxHttpsPort)
+            {
+                var port = NextHttpsPort++;
+                using var host = new HostBuilder()
+                    .ConfigureAppConfiguration(config =>
+                    {
+                        config.AddInMemoryCollection(new Dictionary<string, string>()
+                        {
+                            { "Logging:LogLevel:Microsoft", "Trace" },
+                        });
+                    })
+                    .ConfigureLogging((hostingContext, loggingBuilder) =>
+                    {
+                        loggingBuilder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                        loggingBuilder.AddEventSourceLogger();
+                        loggingBuilder.AddXunit(output);
+                    })
+                    .ConfigureWebHost(webHostBuilder =>
+                    {
+#pragma warning disable CA1416 // Validate platform compatibility
+                        webHostBuilder.UseHttpSys(httpSys =>
+                        {
+                            httpSys.UrlPrefixes.Add("https://localhost:" + port);
+                        });
+                        webHostBuilder.Configure(app => { });
+#pragma warning restore CA1416 // Validate platform compatibility
+                    }).Build();
+
+                try
+                {
+                    await host.StartAsync();
+                    await host.StopAsync();
+                    return port;
+                }
+                catch (HttpSysException)
+                {
+                }
+            }
+            NextHttpsPort = BaseHttpsPort;
+        }
+        finally
+        {
+            PortLock.Release();
+        }
+        throw new Exception("Failed to locate a free port.");
     }
 }

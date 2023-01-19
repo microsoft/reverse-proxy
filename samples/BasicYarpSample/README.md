@@ -23,7 +23,7 @@ This sample reads its configuration from the [appsettings.json](appsettings.json
 The proxy will listen to HTTP requests on port 5000, and HTTPS on port 5001. These are changable via the URLs property in config, and can be limited to just one protocol if required.
 
 ## Files
-- [BasicYarpSample.csproj](BasicYarpSample.csproj) - A C# project file (conceptually similar to a make file) that tells it to target the .NET 5 and .NET 6 runtimes, and to reference the proxy library from [nuget](https://www.nuget.org/packages/Yarp.ReverseProxy/) (.NET's package manager).
+- [BasicYarpSample.csproj](BasicYarpSample.csproj) - A C# project file (conceptually similar to a make file) that tells it to target the .NET 6 runtime, and to reference the proxy library from [nuget](https://www.nuget.org/packages/Yarp.ReverseProxy/) (.NET's package manager).
 - [Program.cs](Program.cs) - Provides the main entrypoint for .NET which uses an WebHostBuilder to initialize the server which listens for http requests. Typically, this file does not need to be modified for any proxy scenarios.
 - [Startup.cs](Startup.cs) - Provides a class that is used to configure and control how http requests are handled by the server. In this sample, it does the bare minimum of:
   - Adding proxy functionality to the services collection.

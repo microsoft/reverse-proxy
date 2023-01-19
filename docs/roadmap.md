@@ -2,13 +2,12 @@
 
 ## Current status
 
-YARP 1.0 has [released](https://github.com/microsoft/reverse-proxy/releases/tag/v1.0.0).
+YARP 1.1 has [released](https://github.com/microsoft/reverse-proxy/releases/tag/v1.1.0).
 
 We are planning our next steps, we think the outline will probably look something like:
 
-- 1.0.x - Servicing high impact issues found by customers deploying 1.0 (bug fixes, small features)
-- 1.1 - Larger feedback items, non-breaking API changes
-- 2.0+ - Major features eg Kubernetes, HTTP/3
+- 1.1.x - Servicing high impact issues found by customers deploying 1.1 (bug fixes, small features)
+- 2.0+ - Major features eg Kubernetes
 
 The cadence for these will depend on the issues reported by customers.
 

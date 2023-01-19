@@ -20,6 +20,8 @@
   href: header-routing.md
 - name: Authentication and Authorization
   href: authn-authz.md
+- name: Rate Limiting
+  href: rate-limiting.md
 - name: Cross-Origin Requests (CORS)
   href: cors.md
 - name: Session Affinity

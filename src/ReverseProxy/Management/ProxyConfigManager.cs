@@ -49,7 +49,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
     private readonly List<Action<EndpointBuilder>> _conventions;
     private readonly IActiveHealthCheckMonitor _activeHealthCheckMonitor;
     private readonly IClusterDestinationsUpdater _clusterDestinationsUpdater;
-
+    private readonly IConfigChangeListener[] _configChangeListeners;
     private List<Endpoint>? _endpoints;
     private CancellationTokenSource _endpointsChangeSource = new();
     private IChangeToken _endpointsChangeToken;
@@ -66,7 +66,8 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         ITransformBuilder transformBuilder,
         IForwarderHttpClientFactory httpClientFactory,
         IActiveHealthCheckMonitor activeHealthCheckMonitor,
-        IClusterDestinationsUpdater clusterDestinationsUpdater)
+        IClusterDestinationsUpdater clusterDestinationsUpdater,
+        IEnumerable<IConfigChangeListener> configChangeListeners)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _providers = providers?.ToArray() ?? throw new ArgumentNullException(nameof(providers));
@@ -79,6 +80,8 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         _activeHealthCheckMonitor = activeHealthCheckMonitor ?? throw new ArgumentNullException(nameof(activeHealthCheckMonitor));
         _clusterDestinationsUpdater = clusterDestinationsUpdater ?? throw new ArgumentNullException(nameof(clusterDestinationsUpdater));
+
+        _configChangeListeners = configChangeListeners?.ToArray() ?? Array.Empty<IConfigChangeListener>();
 
         if (_providers.Length == 0)
         {
@@ -141,6 +144,11 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
     /// <inheritdoc/>
     public override IChangeToken GetChangeToken() => Volatile.Read(ref _endpointsChangeToken);
 
+    private static IReadOnlyList<IProxyConfig> ExtractListOfProxyConfigs(IEnumerable<ConfigState> configStates)
+    {
+        return configStates.Select(state => state.LatestConfig).ToList().AsReadOnly();
+    }
+
     internal async Task<EndpointDataSource> InitialLoadAsync()
     {
         // Trigger the first load immediately and throw if it fails.
@@ -160,7 +168,19 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
                 clusters.AddRange(config.Clusters ?? Array.Empty<ClusterConfig>());
             }
 
+            var proxyConfigs = ExtractListOfProxyConfigs(_configs);
+
+            foreach (var configChangeListener in _configChangeListeners)
+            {
+                configChangeListener.ConfigurationLoaded(proxyConfigs);
+            }
+
             await ApplyConfigAsync(routes, clusters);
+
+            foreach (var configChangeListener in _configChangeListeners)
+            {
+                configChangeListener.ConfigurationApplied(proxyConfigs);
+            }
 
             ListenForConfigChanges();
         }
@@ -199,6 +219,11 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
             {
                 instance.LoadFailed = true;
                 Log.ErrorReloadingConfig(_logger, ex);
+
+                foreach (var configChangeListener in _configChangeListeners)
+                {
+                    configChangeListener.ConfigurationLoadingFailed(instance.Provider, ex);
+                }
             }
 
             // If we didn't/couldn't get a new config then re-use the last one.
@@ -206,10 +231,16 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
             clusters.AddRange(instance.LatestConfig.Clusters ?? Array.Empty<ClusterConfig>());
         }
 
-        // Only reload if at least one provider changed.
-        if (sourcesChanged)
+        var proxyConfigs = ExtractListOfProxyConfigs(_configs);
+        foreach (var configChangeListener in _configChangeListeners)
         {
-            try
+            configChangeListener.ConfigurationLoaded(proxyConfigs);
+        }
+
+        try
+        {
+            // Only reload if at least one provider changed.
+            if (sourcesChanged)
             {
                 var hasChanged = await ApplyConfigAsync(routes, clusters);
                 lock (_syncRoot)
@@ -222,9 +253,19 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
                     }
                 }
             }
-            catch (Exception ex)
+
+            foreach (var configChangeListener in _configChangeListeners)
             {
-                Log.ErrorApplyingConfig(_logger, ex);
+                configChangeListener.ConfigurationApplied(proxyConfigs);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.ErrorApplyingConfig(_logger, ex);
+
+            foreach (var configChangeListener in _configChangeListeners)
+            {
+                configChangeListener.ConfigurationApplyingFailed(proxyConfigs, ex);
             }
         }
 
@@ -279,9 +320,9 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         // Don't register until we're done hooking everything up to avoid cancellation races.
         source.Token.Register(ReloadConfig, this);
 
-        static void SignalChange(object obj)
+        static void SignalChange(object? obj)
         {
-            var token = (CancellationTokenSource)obj;
+            var token = (CancellationTokenSource)obj!;
             try
             {
                 token.Cancel();
@@ -321,7 +362,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
             return (Array.Empty<RouteConfig>(), Array.Empty<Exception>());
         }
 
-        var seenRouteIds = new HashSet<string>();
+        var seenRouteIds = new HashSet<string>(routes.Count, StringComparer.OrdinalIgnoreCase);
         var configuredRoutes = new List<RouteConfig>(routes.Count);
         var errors = new List<Exception>();
 
@@ -329,7 +370,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         {
             if (seenRouteIds.Contains(r.RouteId))
             {
-                errors.Add(new ArgumentException($"Duplicate route {r.RouteId}"));
+                errors.Add(new ArgumentException($"Duplicate route '{r.RouteId}'"));
                 continue;
             }
 
@@ -364,6 +405,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
                 continue;
             }
 
+            seenRouteIds.Add(route.RouteId);
             configuredRoutes.Add(route);
         }
 
@@ -432,7 +474,8 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
 
         foreach (var incomingCluster in incomingClusters)
         {
-            desiredClusters.Add(incomingCluster.ClusterId);
+            var added = desiredClusters.Add(incomingCluster.ClusterId);
+            Debug.Assert(added);
 
             if (_clusters.TryGetValue(incomingCluster.ClusterId, out var currentCluster))
             {
@@ -492,7 +535,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
 
                 _clusterDestinationsUpdater.UpdateAllDestinations(newClusterState);
 
-                var added = _clusters.TryAdd(newClusterState.ClusterId, newClusterState);
+                added = _clusters.TryAdd(newClusterState.ClusterId, newClusterState);
                 Debug.Assert(added);
 
                 foreach (var listener in _clusterChangeListeners)
@@ -534,7 +577,8 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         {
             foreach (var incomingDestination in incomingDestinations)
             {
-                desiredDestinations.Add(incomingDestination.Key);
+                var added = desiredDestinations.Add(incomingDestination.Key);
+                Debug.Assert(added);
 
                 if (currentDestinations.TryGetValue(incomingDestination.Key, out var currentDestination))
                 {
@@ -552,7 +596,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
                     {
                         Model = new DestinationModel(incomingDestination.Value),
                     };
-                    var added = currentDestinations.TryAdd(newDestination.DestinationId, newDestination);
+                    added = currentDestinations.TryAdd(newDestination.DestinationId, newDestination);
                     Debug.Assert(added);
                     changed = true;
                 }

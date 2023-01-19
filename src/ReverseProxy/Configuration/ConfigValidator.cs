@@ -29,6 +29,7 @@ internal sealed class ConfigValidator : IConfigValidator
 
     private readonly ITransformBuilder _transformBuilder;
     private readonly IAuthorizationPolicyProvider _authorizationPolicyProvider;
+    private readonly IYarpRateLimiterPolicyProvider _rateLimiterPolicyProvider;
     private readonly ICorsPolicyProvider _corsPolicyProvider;
     private readonly IDictionary<string, ILoadBalancingPolicy> _loadBalancingPolicies;
     private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
@@ -40,6 +41,7 @@ internal sealed class ConfigValidator : IConfigValidator
 
     public ConfigValidator(ITransformBuilder transformBuilder,
         IAuthorizationPolicyProvider authorizationPolicyProvider,
+        IYarpRateLimiterPolicyProvider rateLimiterPolicyProvider,
         ICorsPolicyProvider corsPolicyProvider,
         IEnumerable<ILoadBalancingPolicy> loadBalancingPolicies,
         IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
@@ -50,6 +52,7 @@ internal sealed class ConfigValidator : IConfigValidator
     {
         _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
         _authorizationPolicyProvider = authorizationPolicyProvider ?? throw new ArgumentNullException(nameof(authorizationPolicyProvider));
+        _rateLimiterPolicyProvider = rateLimiterPolicyProvider ?? throw new ArgumentNullException(nameof(rateLimiterPolicyProvider));
         _corsPolicyProvider = corsPolicyProvider ?? throw new ArgumentNullException(nameof(corsPolicyProvider));
         _loadBalancingPolicies = loadBalancingPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(loadBalancingPolicies));
         _affinityFailurePolicies = affinityFailurePolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
@@ -72,6 +75,9 @@ internal sealed class ConfigValidator : IConfigValidator
 
         errors.AddRange(_transformBuilder.ValidateRoute(route));
         await ValidateAuthorizationPolicyAsync(errors, route.AuthorizationPolicy, route.RouteId);
+#if NET7_0_OR_GREATER
+        await ValidateRateLimiterPolicyAsync(errors, route.RateLimiterPolicy, route.RouteId);
+#endif
         await ValidateCorsPolicyAsync(errors, route.CorsPolicy, route.RouteId);
 
         if (route.Match is null)
@@ -199,15 +205,15 @@ internal sealed class ConfigValidator : IConfigValidator
                 errors.Add(new ArgumentException($"A null or empty route header name has been set for route '{routeId}'."));
             }
 
-            if (header.Mode != HeaderMatchMode.Exists
+            if ((header.Mode != HeaderMatchMode.Exists && header.Mode != HeaderMatchMode.NotExists)
                 && (header.Values is null || header.Values.Count == 0))
             {
                 errors.Add(new ArgumentException($"No header values were set on route header '{header.Name}' for route '{routeId}'."));
             }
 
-            if (header.Mode == HeaderMatchMode.Exists && header.Values?.Count > 0)
+            if ((header.Mode == HeaderMatchMode.Exists || header.Mode == HeaderMatchMode.NotExists) && header.Values?.Count > 0)
             {
-                errors.Add(new ArgumentException($"Header values where set when using mode '{nameof(HeaderMatchMode.Exists)}' on route header '{header.Name}' for route '{routeId}'."));
+                errors.Add(new ArgumentException($"Header values were set when using mode '{header.Mode}' on route header '{header.Name}' for route '{routeId}'."));
             }
         }
     }
@@ -284,6 +290,35 @@ internal sealed class ConfigValidator : IConfigValidator
         catch (Exception ex)
         {
             errors.Add(new ArgumentException($"Unable to retrieve the authorization policy '{authorizationPolicyName}' for route '{routeId}'.", ex));
+        }
+    }
+
+    private async ValueTask ValidateRateLimiterPolicyAsync(IList<Exception> errors, string? rateLimiterPolicyName, string routeId)
+    {
+        if (string.IsNullOrEmpty(rateLimiterPolicyName))
+        {
+            return;
+        }
+
+        try
+        {
+            var policy = await _rateLimiterPolicyProvider.GetPolicyAsync(rateLimiterPolicyName);
+
+            if (policy is null)
+            {
+                errors.Add(new ArgumentException($"RateLimiter policy '{rateLimiterPolicyName}' not found for route '{routeId}'."));
+                return;
+            }
+
+            if (string.Equals(RateLimitingConstants.Default, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(RateLimitingConstants.Disable, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase))
+            {
+                errors.Add(new ArgumentException($"The application has registered a RateLimiter policy named '{rateLimiterPolicyName}' that conflicts with the reserved RateLimiter policy name used on this route. The registered policy name needs to be changed for this route to function."));
+            }
+        }
+        catch (Exception ex)
+        {
+            errors.Add(new ArgumentException($"Unable to retrieve the RateLimiter policy '{rateLimiterPolicyName}' for route '{routeId}'.", ex));
         }
     }
 
@@ -403,7 +438,7 @@ internal sealed class ConfigValidator : IConfigValidator
         {
             errors.Add(new ArgumentException($"Max connections per server limit set on the cluster '{cluster.ClusterId}' must be positive."));
         }
-#if NET
+
         var encoding = cluster.HttpClient.RequestHeaderEncoding;
         if (encoding is not null)
         {
@@ -416,7 +451,6 @@ internal sealed class ConfigValidator : IConfigValidator
                 errors.Add(new ArgumentException($"Invalid header encoding '{encoding}'.", aex));
             }
         }
-#endif
     }
 
     private void ValidateProxyHttpRequest(IList<Exception> errors, ClusterConfig cluster)
@@ -430,11 +464,8 @@ internal sealed class ConfigValidator : IConfigValidator
         if (cluster.HttpRequest.Version is not null &&
             cluster.HttpRequest.Version != HttpVersion.Version10 &&
             cluster.HttpRequest.Version != HttpVersion.Version11 &&
-            cluster.HttpRequest.Version != HttpVersion.Version20
-#if NET6_0_OR_GREATER
-            && cluster.HttpRequest.Version != HttpVersion.Version30
-#endif
-            )
+            cluster.HttpRequest.Version != HttpVersion.Version20 &&
+            cluster.HttpRequest.Version != HttpVersion.Version30)
         {
             errors.Add(new ArgumentException($"Outgoing request version '{cluster.HttpRequest.Version}' is not any of supported HTTP versions (1.0, 1.1, 2 and 3)."));
         }

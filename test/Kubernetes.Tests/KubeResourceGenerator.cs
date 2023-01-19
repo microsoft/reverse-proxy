@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using k8s.Models;
 
-namespace IngressController.Tests;
+namespace Yarp.Kubernetes.Tests;
 
 internal static class KubeResourceGenerator
 {
@@ -50,5 +52,39 @@ internal static class KubeResourceGenerator
         }
 
         return ingress;
+    }
+
+    public static V1Secret CreateSecret(string name, string namespaceName, byte[] publicData = null, byte[] privateData = null)
+    {
+        var secret = new V1Secret
+        {
+            Metadata = new V1ObjectMeta
+            {
+                Name = name,
+                NamespaceProperty = namespaceName,
+            }
+        };
+
+        if (publicData != null)
+        {
+            if (secret.Data == null)
+            {
+                secret.Data = new Dictionary<string, byte[]>();
+            }
+
+            secret.Data["tls.crt"] = publicData;
+        }
+
+        if (privateData != null)
+        {
+            if (secret.Data == null)
+            {
+                secret.Data = new Dictionary<string, byte[]>();
+            }
+
+            secret.Data["tls.key"] = privateData;
+        }
+
+        return secret;
     }
 }

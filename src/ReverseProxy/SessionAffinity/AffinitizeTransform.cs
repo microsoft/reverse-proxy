@@ -32,8 +32,15 @@ internal sealed class AffinitizeTransform : ResponseTransform
         {
             return default;
         }
-        var selectedDestination = proxyFeature.ProxiedDestination!;
-        _sessionAffinityPolicy.AffinitizeResponse(context.HttpContext, proxyFeature.Route.Cluster!, options!, selectedDestination);
-        return default;
+
+        Debug.Assert(proxyFeature.Route.Cluster is not null);
+        Debug.Assert(proxyFeature.ProxiedDestination is not null);
+
+        return _sessionAffinityPolicy.AffinitizeResponseAsync(
+            context.HttpContext,
+            proxyFeature.Route.Cluster,
+            options,
+            proxyFeature.ProxiedDestination,
+            context.CancellationToken);
     }
 }

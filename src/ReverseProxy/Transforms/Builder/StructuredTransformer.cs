@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -63,11 +64,11 @@ internal sealed class StructuredTransformer : HttpTransformer
     /// </summary>
     internal ResponseTrailersTransform[] ResponseTrailerTransforms { get; }
 
-    public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
+    public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix, CancellationToken cancellationToken)
     {
         if (ShouldCopyRequestHeaders.GetValueOrDefault(true))
         {
-            await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+            await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix, cancellationToken);
         }
 
         if (RequestTransforms.Length == 0)
@@ -83,11 +84,18 @@ internal sealed class StructuredTransformer : HttpTransformer
             Path = httpContext.Request.Path,
             Query = new QueryTransformContext(httpContext.Request),
             HeadersCopied = ShouldCopyRequestHeaders.GetValueOrDefault(true),
+            CancellationToken = cancellationToken,
         };
 
         foreach (var requestTransform in RequestTransforms)
         {
             await requestTransform.ApplyAsync(transformContext);
+
+            // The transform generated a response, do not apply further transforms and do not forward.
+            if (RequestUtilities.IsResponseSet(httpContext.Response))
+            {
+                return;
+            }
         }
 
         // Allow a transform to directly set a custom RequestUri.
@@ -95,11 +103,11 @@ internal sealed class StructuredTransformer : HttpTransformer
             transformContext.DestinationPrefix, transformContext.Path, transformContext.Query.QueryString);
     }
 
-    public override async ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage? proxyResponse)
+    public override async ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage? proxyResponse, CancellationToken cancellationToken)
     {
         if (ShouldCopyResponseHeaders.GetValueOrDefault(true))
         {
-            await base.TransformResponseAsync(httpContext, proxyResponse);
+            await base.TransformResponseAsync(httpContext, proxyResponse, cancellationToken);
         }
 
         if (ResponseTransforms.Length == 0)
@@ -112,6 +120,7 @@ internal sealed class StructuredTransformer : HttpTransformer
             HttpContext = httpContext,
             ProxyResponse = proxyResponse,
             HeadersCopied = ShouldCopyResponseHeaders.GetValueOrDefault(true),
+            CancellationToken = cancellationToken,
         };
 
         foreach (var responseTransform in ResponseTransforms)
@@ -122,11 +131,11 @@ internal sealed class StructuredTransformer : HttpTransformer
         return !transformContext.SuppressResponseBody;
     }
 
-    public override async ValueTask TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+    public override async ValueTask TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse, CancellationToken cancellationToken)
     {
         if (ShouldCopyResponseTrailers.GetValueOrDefault(true))
         {
-            await base.TransformResponseTrailersAsync(httpContext, proxyResponse);
+            await base.TransformResponseTrailersAsync(httpContext, proxyResponse, cancellationToken);
         }
 
         if (ResponseTrailerTransforms.Length == 0)
@@ -144,6 +153,7 @@ internal sealed class StructuredTransformer : HttpTransformer
                 HttpContext = httpContext,
                 ProxyResponse = proxyResponse,
                 HeadersCopied = ShouldCopyResponseTrailers.GetValueOrDefault(true),
+                CancellationToken = cancellationToken,
             };
 
             foreach (var responseTrailerTransform in ResponseTrailerTransforms)

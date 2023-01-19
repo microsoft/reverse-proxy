@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Net.Http;
+using System.Threading;
 using Microsoft.AspNetCore.Http;
 
 namespace Yarp.ReverseProxy.Transforms;
@@ -33,4 +34,9 @@ public class ResponseTransformContext
     /// Defaults to false.
     /// </summary>
     public bool SuppressResponseBody { get; set; }
+
+    /// <summary>
+    /// A <see cref="CancellationToken"/> indicating that the request is being aborted.
+    /// </summary>
+    public CancellationToken CancellationToken { get; set; }
 }
