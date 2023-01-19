@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\TelemetryConsumption\Yarp.Telemetry.Consumption.csproj" />
+    <PackageReference Include="Yarp.Telemetry.Consumption" Version="2.0.0-rc.1.23068.3" />
   </ItemGroup>
 
   <ItemGroup>
