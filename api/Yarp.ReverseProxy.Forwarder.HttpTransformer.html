@@ -93,7 +93,7 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_HttpTransformer__ctor.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.HttpTransformer.%23ctor%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/HttpTransformer.cs/#L35">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/HttpTransformer.cs/#L36">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Forwarder_HttpTransformer__ctor_" data-uid="Yarp.ReverseProxy.Forwarder.HttpTransformer.#ctor*"></a>
   <h4 id="Yarp_ReverseProxy_Forwarder_HttpTransformer__ctor" data-uid="Yarp.ReverseProxy.Forwarder.HttpTransformer.#ctor">HttpTransformer()</h4>
@@ -111,7 +111,7 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_HttpTransformer_Default.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.HttpTransformer.Default%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/HttpTransformer.cs/#L24">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/HttpTransformer.cs/#L25">View Source</a>
   </span>
   <h4 id="Yarp_ReverseProxy_Forwarder_HttpTransformer_Default" data-uid="Yarp.ReverseProxy.Forwarder.HttpTransformer.Default">Default</h4>
   <div class="markdown level1 summary"><p>A default set of transforms that adds X-Forwarded-* headers, removes the original Host value and
@@ -142,7 +142,7 @@ copies all other request and response fields and headers, except for some protoc
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_HttpTransformer_Empty.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.HttpTransformer.Empty%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/HttpTransformer.cs/#L30">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/HttpTransformer.cs/#L31">View Source</a>
   </span>
   <h4 id="Yarp_ReverseProxy_Forwarder_HttpTransformer_Empty" data-uid="Yarp.ReverseProxy.Forwarder.HttpTransformer.Empty">Empty</h4>
   <div class="markdown level1 summary"><p>An empty transformer that copies all request and response fields and headers, except for some
@@ -175,7 +175,7 @@ protocol specific values.</p>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformRequestAsync_HttpContext_HttpRequestMessage_System_String_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformRequestAsync(HttpContext%2CHttpRequestMessage%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/HttpTransformer.cs/#L47">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/HttpTransformer.cs/#L87">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformRequestAsync_" data-uid="Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformRequestAsync*"></a>
   <h4 id="Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformRequestAsync_HttpContext_HttpRequestMessage_System_String_" data-uid="Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformRequestAsync(HttpContext,HttpRequestMessage,System.String)">TransformRequestAsync(HttpContext, HttpRequestMessage, String)</h4>
@@ -183,7 +183,10 @@ protocol specific values.</p>
 initialized except RequestUri, which will be initialized after the callback if no value is provided.
 See <a class="xref" href="Yarp.ReverseProxy.Forwarder.RequestUtilities.html#Yarp_ReverseProxy_Forwarder_RequestUtilities_MakeDestinationAddress_System_String_PathString_QueryString_">MakeDestinationAddress(String, PathString, QueryString)</a> for constructing a custom request Uri.
 The string parameter represents the destination URI prefix that should be used when constructing the RequestUri.
-The headers are copied by the base implementation, excluding some protocol headers like HTTP/2 pseudo headers (&quot;:authority&quot;).</p>
+The headers are copied by the base implementation, excluding some protocol headers like HTTP/2 pseudo headers (&quot;:authority&quot;).
+This method may be overridden to conditionally produce a response, such as for error conditions, and prevent the request from
+being proxied. This is indicated by setting the <code>HttpResponse.StatusCode</code> to a value other than 200, or calling <code>HttpResponse.StartAsync()</code>,
+or writing to the <code>HttpResponse.Body</code> or <code>BodyWriter</code>.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -237,10 +240,84 @@ The headers are copied by the base implementation, excluding some protocol heade
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformRequestAsync_HttpContext_HttpRequestMessage_System_String_CancellationToken_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformRequestAsync(HttpContext%2CHttpRequestMessage%2CSystem.String%2CCancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/HttpTransformer.cs/#L71">View Source</a>
+  </span>
+  <a id="Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformRequestAsync_" data-uid="Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformRequestAsync*"></a>
+  <h4 id="Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformRequestAsync_HttpContext_HttpRequestMessage_System_String_CancellationToken_" data-uid="Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformRequestAsync(HttpContext,HttpRequestMessage,System.String,CancellationToken)">TransformRequestAsync(HttpContext, HttpRequestMessage, String, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>A callback that is invoked prior to sending the proxied request. All HttpRequestMessage fields are
+initialized except RequestUri, which will be initialized after the callback if no value is provided.
+See <a class="xref" href="Yarp.ReverseProxy.Forwarder.RequestUtilities.html#Yarp_ReverseProxy_Forwarder_RequestUtilities_MakeDestinationAddress_System_String_PathString_QueryString_">MakeDestinationAddress(String, PathString, QueryString)</a> for constructing a custom request Uri.
+The string parameter represents the destination URI prefix that should be used when constructing the RequestUri.
+The headers are copied by the base implementation, excluding some protocol headers like HTTP/2 pseudo headers (&quot;:authority&quot;).
+This method may be overridden to conditionally produce a response, such as for error conditions, and prevent the request from
+being proxied. This is indicated by setting the <code>HttpResponse.StatusCode</code> to a value other than 200, or calling <code>HttpResponse.StartAsync()</code>,
+or writing to the <code>HttpResponse.Body</code> or <code>BodyWriter</code>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix, CancellationToken cancellationToken)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">HttpContext</span></td>
+        <td><span class="parametername">httpContext</span></td>
+        <td><p>The incoming request.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">HttpRequestMessage</span></td>
+        <td><span class="parametername">proxyRequest</span></td>
+        <td><p>The outgoing proxy request.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">destinationPrefix</span></td>
+        <td><p>The uri prefix for the selected destination server which can be used to create the RequestUri.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td><p>Indicates that the request is being canceled.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">ValueTask</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformResponseAsync_HttpContext_System_Nullable_HttpResponseMessage__.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseAsync(HttpContext%2CSystem.Nullable%7BHttpResponseMessage%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/HttpTransformer.cs/#L110">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/HttpTransformer.cs/#L165">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformResponseAsync_" data-uid="Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseAsync*"></a>
   <h4 id="Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformResponseAsync_HttpContext_System_Nullable_HttpResponseMessage__" data-uid="Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseAsync(HttpContext,System.Nullable{HttpResponseMessage})">TransformResponseAsync(HttpContext, Nullable&lt;HttpResponseMessage&gt;)</h4>
@@ -298,10 +375,77 @@ etc.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformResponseAsync_HttpContext_System_Nullable_HttpResponseMessage__CancellationToken_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseAsync(HttpContext%2CSystem.Nullable%7BHttpResponseMessage%7D%2CCancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/HttpTransformer.cs/#L151">View Source</a>
+  </span>
+  <a id="Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformResponseAsync_" data-uid="Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseAsync*"></a>
+  <h4 id="Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformResponseAsync_HttpContext_System_Nullable_HttpResponseMessage__CancellationToken_" data-uid="Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseAsync(HttpContext,System.Nullable{HttpResponseMessage},CancellationToken)">TransformResponseAsync(HttpContext, Nullable&lt;HttpResponseMessage&gt;, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>A callback that is invoked when the proxied response is received. The status code and reason phrase will be copied
+to the HttpContext.Response before the callback is invoked, but may still be modified there. The headers will be
+copied to HttpContext.Response.Headers by the base implementation, excludes certain protocol headers like
+<code>Transfer-Encoding: chunked</code>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual ValueTask&lt;bool&gt; TransformResponseAsync(HttpContext httpContext, HttpResponseMessage? proxyResponse, CancellationToken cancellationToken)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">HttpContext</span></td>
+        <td><span class="parametername">httpContext</span></td>
+        <td><p>The incoming request.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.nullable-1">Nullable</a>&lt;<span class="xref">HttpResponseMessage</span>&gt;</td>
+        <td><span class="parametername">proxyResponse</span></td>
+        <td><p>The response from the destination. This can be null if the destination did not respond.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td><p>Indicates that the request is being canceled.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">ValueTask</span>&lt;<a class="xref" href="https://learn.microsoft.com/dotnet/api/system.boolean">Boolean</a>&gt;</td>
+        <td><p>A bool indicating if the response should be proxied to the client or not. A derived implementation
+that returns false may send an alternate response inline or return control to the caller for it to retry, respond,
+etc.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformResponseTrailersAsync_HttpContext_HttpResponseMessage_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseTrailersAsync(HttpContext%2CHttpResponseMessage)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/HttpTransformer.cs/#L148">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/HttpTransformer.cs/#L223">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformResponseTrailersAsync_" data-uid="Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseTrailersAsync*"></a>
   <h4 id="Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformResponseTrailersAsync_HttpContext_HttpResponseMessage_" data-uid="Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseTrailersAsync(HttpContext,HttpResponseMessage)">TransformResponseTrailersAsync(HttpContext, HttpResponseMessage)</h4>
@@ -352,6 +496,68 @@ copied to the HttpContext.Response by the base implementation.</p>
       </tr>
     </tbody>
   </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformResponseTrailersAsync_HttpContext_HttpResponseMessage_CancellationToken_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseTrailersAsync(HttpContext%2CHttpResponseMessage%2CCancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/HttpTransformer.cs/#L214">View Source</a>
+  </span>
+  <a id="Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformResponseTrailersAsync_" data-uid="Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseTrailersAsync*"></a>
+  <h4 id="Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformResponseTrailersAsync_HttpContext_HttpResponseMessage_CancellationToken_" data-uid="Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseTrailersAsync(HttpContext,HttpResponseMessage,CancellationToken)">TransformResponseTrailersAsync(HttpContext, HttpResponseMessage, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>A callback that is invoked after the response body to modify trailers, if supported. The trailers will be
+copied to the HttpContext.Response by the base implementation.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual ValueTask TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse, CancellationToken cancellationToken)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">HttpContext</span></td>
+        <td><span class="parametername">httpContext</span></td>
+        <td><p>The incoming request.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">HttpResponseMessage</span></td>
+        <td><span class="parametername">proxyResponse</span></td>
+        <td><p>The response from the destination.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td><p>Indicates that the request is being canceled.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">ValueTask</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
 </article>
           </div>
           
@@ -363,7 +569,7 @@ copied to the HttpContext.Response by the base implementation.</p>
                     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_HttpTransformer.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.HttpTransformer%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/HttpTransformer.cs/#L18" class="contribution-link">View Source</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/HttpTransformer.cs/#L19" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>

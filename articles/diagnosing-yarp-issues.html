@@ -179,8 +179,8 @@
 </tbody>
 </table>
 <p>The above gives general information about the request and how it was processed.</p>
-<h3 id="using-aspnet-6-request-logging">Using ASP.NET 6 Request Logging</h3>
-<p>If running on .NET 6, then ASP.NET includes an additional middleware component that can be used to provide more details about the request and response. The <code>UseHttpLogging</code> component can be added to the request pipeline. It will add additional entries to the log detailing the incoming and outgoing request headers.</p>
+<h3 id="using-aspnet-request-logging">Using ASP.NET Request Logging</h3>
+<p>ASP.NET includes a middleware component that can be used to provide more details about the request and response. The <code>UseHttpLogging</code> component can be added to the request pipeline. It will add additional entries to the log detailing the incoming and outgoing request headers.</p>
 <pre><code class="lang-C#">// This method gets called by the runtime. Use this method to configure the HTTP request 
 // pipeline that handles requests
 public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

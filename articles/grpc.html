@@ -88,7 +88,7 @@
 </code></pre>
 <h2 id="configure-yarps-outgoing-protocols">Configure YARP's Outgoing Protocols</h2>
 <p>YARP automatically negotiates HTTP/1.1 or HTTP/2 for outgoing proxy requests, but only for https (TLS). HTTP/2 over http (non-TLS) requires additional settings. Note outgoing protocols are independent of incoming ones. E.g. https can be used for the incoming connection and http for the outgoing one, this is called TLS termination. See <a href="http-client-config.html#httprequest">here</a> for configuration details.</p>
-<p>This shows configuring the outgoing proxy request to use HTTP/2 over http. Note the <code>VersionPolicy</code> settings requires .NET 5.0:</p>
+<p>This shows configuring the outgoing proxy request to use HTTP/2 over http.</p>
 <pre><code class="lang-json">&quot;cluster1&quot;: {
   &quot;HttpRequest&quot;: {
     &quot;Version&quot;: &quot;2&quot;,

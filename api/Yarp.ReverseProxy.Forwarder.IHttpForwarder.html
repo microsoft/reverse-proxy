@@ -89,7 +89,7 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_IHttpForwarder_SendAsync_HttpContext_System_String_HttpMessageInvoker_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Yarp_ReverseProxy_Forwarder_HttpTransformer_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.IHttpForwarder.SendAsync(HttpContext%2CSystem.String%2CHttpMessageInvoker%2CYarp.ReverseProxy.Forwarder.ForwarderRequestConfig%2CYarp.ReverseProxy.Forwarder.HttpTransformer)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/IHttpForwarder.cs/#L25">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/IHttpForwarder.cs/#L26">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Forwarder_IHttpForwarder_SendAsync_" data-uid="Yarp.ReverseProxy.Forwarder.IHttpForwarder.SendAsync*"></a>
   <h4 id="Yarp_ReverseProxy_Forwarder_IHttpForwarder_SendAsync_HttpContext_System_String_HttpMessageInvoker_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Yarp_ReverseProxy_Forwarder_HttpTransformer_" data-uid="Yarp.ReverseProxy.Forwarder.IHttpForwarder.SendAsync(HttpContext,System.String,HttpMessageInvoker,Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig,Yarp.ReverseProxy.Forwarder.HttpTransformer)">SendAsync(HttpContext, String, HttpMessageInvoker, ForwarderRequestConfig, HttpTransformer)</h4>
@@ -159,6 +159,87 @@ custom transformations are not needed.</p>
       </tr>
     </tbody>
   </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_IHttpForwarder_SendAsync_HttpContext_System_String_HttpMessageInvoker_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Yarp_ReverseProxy_Forwarder_HttpTransformer_CancellationToken_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.IHttpForwarder.SendAsync(HttpContext%2CSystem.String%2CHttpMessageInvoker%2CYarp.ReverseProxy.Forwarder.ForwarderRequestConfig%2CYarp.ReverseProxy.Forwarder.HttpTransformer%2CCancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/IHttpForwarder.cs/#L40">View Source</a>
+  </span>
+  <a id="Yarp_ReverseProxy_Forwarder_IHttpForwarder_SendAsync_" data-uid="Yarp.ReverseProxy.Forwarder.IHttpForwarder.SendAsync*"></a>
+  <h4 id="Yarp_ReverseProxy_Forwarder_IHttpForwarder_SendAsync_HttpContext_System_String_HttpMessageInvoker_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Yarp_ReverseProxy_Forwarder_HttpTransformer_CancellationToken_" data-uid="Yarp.ReverseProxy.Forwarder.IHttpForwarder.SendAsync(HttpContext,System.String,HttpMessageInvoker,Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig,Yarp.ReverseProxy.Forwarder.HttpTransformer,CancellationToken)">SendAsync(HttpContext, String, HttpMessageInvoker, ForwarderRequestConfig, HttpTransformer, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>Forwards the incoming request to the destination server, and the response back to the client.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">virtual ValueTask&lt;ForwarderError&gt; SendAsync(HttpContext context, string destinationPrefix, HttpMessageInvoker httpClient, ForwarderRequestConfig requestConfig, HttpTransformer transformer, CancellationToken cancellationToken)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">HttpContext</span></td>
+        <td><span class="parametername">context</span></td>
+        <td><p>The HttpContext to forward.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">destinationPrefix</span></td>
+        <td><p>The url prefix for where to forward the request to.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">HttpMessageInvoker</span></td>
+        <td><span class="parametername">httpClient</span></td>
+        <td><p>The HTTP client used to forward the request.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.html">ForwarderRequestConfig</a></td>
+        <td><span class="parametername">requestConfig</span></td>
+        <td><p>Config for the outgoing request.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Yarp.ReverseProxy.Forwarder.HttpTransformer.html">HttpTransformer</a></td>
+        <td><span class="parametername">transformer</span></td>
+        <td><p>Request and response transforms. Use <a class="xref" href="Yarp.ReverseProxy.Forwarder.HttpTransformer.html#Yarp_ReverseProxy_Forwarder_HttpTransformer_Default">Default</a> if
+custom transformations are not needed.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td><p>A cancellation token that can be used to abort the request.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">ValueTask</span>&lt;<a class="xref" href="Yarp.ReverseProxy.Forwarder.ForwarderError.html">ForwarderError</a>&gt;</td>
+        <td><p>The result of forwarding the request and response.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
   <h3 id="extensionmethods">Extension Methods</h3>
   <div>
       <a class="xref" href="Yarp.ReverseProxy.Forwarder.IHttpForwarderExtensions.html#Yarp_ReverseProxy_Forwarder_IHttpForwarderExtensions_SendAsync_Yarp_ReverseProxy_Forwarder_IHttpForwarder_HttpContext_System_String_HttpMessageInvoker_">IHttpForwarderExtensions.SendAsync(IHttpForwarder, HttpContext, String, HttpMessageInvoker)</a>
@@ -183,7 +264,7 @@ custom transformations are not needed.</p>
                     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Forwarder_IHttpForwarder.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Forwarder.IHttpForwarder%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/IHttpForwarder.cs/#L13" class="contribution-link">View Source</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Forwarder/IHttpForwarder.cs/#L14" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>

@@ -182,6 +182,7 @@ Route matching is based on the most specific routes having highest precedence as
         // matches /something/* and routes to &quot;allclusterprops&quot;
         &quot;ClusterId&quot;: &quot;allclusterprops&quot;, // Name of one of the clusters
         &quot;Order&quot; : 100, // Lower numbers have higher precedence
+        &quot;MaxRequestBodySize&quot; : 1000000, // In bytes. An optional override of the server's limit (30MB default). Set to -1 to disable.
         &quot;Authorization Policy&quot; : &quot;Anonymous&quot;, // Name of the policy or &quot;Default&quot;, &quot;Anonymous&quot;
         &quot;CorsPolicy&quot; : &quot;Default&quot;, // Name of the CorsPolicy to apply to this route or &quot;Default&quot;, &quot;Disable&quot;
         &quot;Match&quot;: {

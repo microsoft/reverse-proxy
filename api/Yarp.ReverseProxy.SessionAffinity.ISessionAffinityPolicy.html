@@ -89,7 +89,7 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_Name.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.Name%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/SessionAffinity/ISessionAffinityPolicy.cs/#L19">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/SessionAffinity/ISessionAffinityPolicy.cs/#L21">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_Name_" data-uid="Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.Name*"></a>
   <h4 id="Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_Name" data-uid="Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.Name">Name</h4>
@@ -122,7 +122,7 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_AffinitizeResponse_HttpContext_Yarp_ReverseProxy_Model_ClusterState_Yarp_ReverseProxy_Configuration_SessionAffinityConfig_Yarp_ReverseProxy_Model_DestinationState_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.AffinitizeResponse(HttpContext%2CYarp.ReverseProxy.Model.ClusterState%2CYarp.ReverseProxy.Configuration.SessionAffinityConfig%2CYarp.ReverseProxy.Model.DestinationState)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/SessionAffinity/ISessionAffinityPolicy.cs/#L38">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/SessionAffinity/ISessionAffinityPolicy.cs/#L56">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_AffinitizeResponse_" data-uid="Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.AffinitizeResponse*"></a>
   <h4 id="Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_AffinitizeResponse_HttpContext_Yarp_ReverseProxy_Model_ClusterState_Yarp_ReverseProxy_Configuration_SessionAffinityConfig_Yarp_ReverseProxy_Model_DestinationState_" data-uid="Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.AffinitizeResponse(HttpContext,Yarp.ReverseProxy.Model.ClusterState,Yarp.ReverseProxy.Configuration.SessionAffinityConfig,Yarp.ReverseProxy.Model.DestinationState)">AffinitizeResponse(HttpContext, ClusterState, SessionAffinityConfig, DestinationState)</h4>
@@ -171,10 +171,83 @@
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_AffinitizeResponseAsync_HttpContext_Yarp_ReverseProxy_Model_ClusterState_Yarp_ReverseProxy_Configuration_SessionAffinityConfig_Yarp_ReverseProxy_Model_DestinationState_CancellationToken_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.AffinitizeResponseAsync(HttpContext%2CYarp.ReverseProxy.Model.ClusterState%2CYarp.ReverseProxy.Configuration.SessionAffinityConfig%2CYarp.ReverseProxy.Model.DestinationState%2CCancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/SessionAffinity/ISessionAffinityPolicy.cs/#L66">View Source</a>
+  </span>
+  <a id="Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_AffinitizeResponseAsync_" data-uid="Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.AffinitizeResponseAsync*"></a>
+  <h4 id="Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_AffinitizeResponseAsync_HttpContext_Yarp_ReverseProxy_Model_ClusterState_Yarp_ReverseProxy_Configuration_SessionAffinityConfig_Yarp_ReverseProxy_Model_DestinationState_CancellationToken_" data-uid="Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.AffinitizeResponseAsync(HttpContext,Yarp.ReverseProxy.Model.ClusterState,Yarp.ReverseProxy.Configuration.SessionAffinityConfig,Yarp.ReverseProxy.Model.DestinationState,CancellationToken)">AffinitizeResponseAsync(HttpContext, ClusterState, SessionAffinityConfig, DestinationState, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>Affinitize the current response to the given <a class="xref" href="Yarp.ReverseProxy.Model.DestinationState.html">DestinationState</a> by setting the affinity key extracted from <a class="xref" href="Yarp.ReverseProxy.Model.DestinationState.html">DestinationState</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">virtual ValueTask AffinitizeResponseAsync(HttpContext context, ClusterState cluster, SessionAffinityConfig config, DestinationState destination, CancellationToken cancellationToken)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">HttpContext</span></td>
+        <td><span class="parametername">context</span></td>
+        <td><p>Current request's context.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Yarp.ReverseProxy.Model.ClusterState.html">ClusterState</a></td>
+        <td><span class="parametername">cluster</span></td>
+        <td><p>Current request's cluster.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Yarp.ReverseProxy.Configuration.SessionAffinityConfig.html">SessionAffinityConfig</a></td>
+        <td><span class="parametername">config</span></td>
+        <td><p>Affinity config.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Yarp.ReverseProxy.Model.DestinationState.html">DestinationState</a></td>
+        <td><span class="parametername">destination</span></td>
+        <td><p><a class="xref" href="Yarp.ReverseProxy.Model.DestinationState.html">DestinationState</a> to which request is to be affinitized.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td><p>The token to monitor for cancellation requests.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">ValueTask</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_FindAffinitizedDestinations_HttpContext_Yarp_ReverseProxy_Model_ClusterState_Yarp_ReverseProxy_Configuration_SessionAffinityConfig_IReadOnlyList_Yarp_ReverseProxy_Model_DestinationState__.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.FindAffinitizedDestinations(HttpContext%2CYarp.ReverseProxy.Model.ClusterState%2CYarp.ReverseProxy.Configuration.SessionAffinityConfig%2CIReadOnlyList%7BYarp.ReverseProxy.Model.DestinationState%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/SessionAffinity/ISessionAffinityPolicy.cs/#L29">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/SessionAffinity/ISessionAffinityPolicy.cs/#L31">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_FindAffinitizedDestinations_" data-uid="Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.FindAffinitizedDestinations*"></a>
   <h4 id="Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_FindAffinitizedDestinations_HttpContext_Yarp_ReverseProxy_Model_ClusterState_Yarp_ReverseProxy_Configuration_SessionAffinityConfig_IReadOnlyList_Yarp_ReverseProxy_Model_DestinationState__" data-uid="Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.FindAffinitizedDestinations(HttpContext,Yarp.ReverseProxy.Model.ClusterState,Yarp.ReverseProxy.Configuration.SessionAffinityConfig,IReadOnlyList{Yarp.ReverseProxy.Model.DestinationState})">FindAffinitizedDestinations(HttpContext, ClusterState, SessionAffinityConfig, IReadOnlyList&lt;DestinationState&gt;)</h4>
@@ -237,6 +310,80 @@
       </tr>
     </tbody>
   </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_FindAffinitizedDestinationsAsync_HttpContext_Yarp_ReverseProxy_Model_ClusterState_Yarp_ReverseProxy_Configuration_SessionAffinityConfig_IReadOnlyList_Yarp_ReverseProxy_Model_DestinationState__CancellationToken_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.FindAffinitizedDestinationsAsync(HttpContext%2CYarp.ReverseProxy.Model.ClusterState%2CYarp.ReverseProxy.Configuration.SessionAffinityConfig%2CIReadOnlyList%7BYarp.ReverseProxy.Model.DestinationState%7D%2CCancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/SessionAffinity/ISessionAffinityPolicy.cs/#L42">View Source</a>
+  </span>
+  <a id="Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_FindAffinitizedDestinationsAsync_" data-uid="Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.FindAffinitizedDestinationsAsync*"></a>
+  <h4 id="Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_FindAffinitizedDestinationsAsync_HttpContext_Yarp_ReverseProxy_Model_ClusterState_Yarp_ReverseProxy_Configuration_SessionAffinityConfig_IReadOnlyList_Yarp_ReverseProxy_Model_DestinationState__CancellationToken_" data-uid="Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.FindAffinitizedDestinationsAsync(HttpContext,Yarp.ReverseProxy.Model.ClusterState,Yarp.ReverseProxy.Configuration.SessionAffinityConfig,IReadOnlyList{Yarp.ReverseProxy.Model.DestinationState},CancellationToken)">FindAffinitizedDestinationsAsync(HttpContext, ClusterState, SessionAffinityConfig, IReadOnlyList&lt;DestinationState&gt;, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>Finds <a class="xref" href="Yarp.ReverseProxy.Model.DestinationState.html">DestinationState</a> to which the current request is affinitized by the affinity key.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">virtual ValueTask&lt;AffinityResult&gt; FindAffinitizedDestinationsAsync(HttpContext context, ClusterState cluster, SessionAffinityConfig config, IReadOnlyList&lt;DestinationState&gt; destinations, CancellationToken cancellationToken)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">HttpContext</span></td>
+        <td><span class="parametername">context</span></td>
+        <td><p>Current request's context.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Yarp.ReverseProxy.Model.ClusterState.html">ClusterState</a></td>
+        <td><span class="parametername">cluster</span></td>
+        <td><p>Current request's cluster.</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Yarp.ReverseProxy.Configuration.SessionAffinityConfig.html">SessionAffinityConfig</a></td>
+        <td><span class="parametername">config</span></td>
+        <td><p>Affinity config.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">IReadOnlyList</span>&lt;<a class="xref" href="Yarp.ReverseProxy.Model.DestinationState.html">DestinationState</a>&gt;</td>
+        <td><span class="parametername">destinations</span></td>
+        <td><p><a class="xref" href="Yarp.ReverseProxy.Model.DestinationState.html">DestinationState</a>s available for the request.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td><p>The token to monitor for cancellation requests.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">ValueTask</span>&lt;<a class="xref" href="Yarp.ReverseProxy.SessionAffinity.AffinityResult.html">AffinityResult</a>&gt;</td>
+        <td><p><a class="xref" href="Yarp.ReverseProxy.SessionAffinity.AffinityResult.html">AffinityResult</a> carrying the found affinitized destinations if any and the <a class="xref" href="Yarp.ReverseProxy.SessionAffinity.AffinityStatus.html">AffinityStatus</a>.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
 </article>
           </div>
           
@@ -248,7 +395,7 @@
                     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/SessionAffinity/ISessionAffinityPolicy.cs/#L14" class="contribution-link">View Source</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/SessionAffinity/ISessionAffinityPolicy.cs/#L16" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>

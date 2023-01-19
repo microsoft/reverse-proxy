@@ -216,7 +216,7 @@ IActiveHealthCheckPolicy --(New active health states)--&gt; IDestinationHealthUp
 </code></pre>
 <h2 id="passive-health-checks">Passive health checks</h2>
 <p>YARP can passively watch for successes and failures in client request proxying to reactively evaluate destination health states. Responses to the proxied requests are intercepted by a dedicated passive health check middleware which passes them to a policy configured on the cluster. The policy analyzes the responses to evaluate if the destinations that produced them are healthy or not. Then, it calculates and assigns new passive health states to the respective destinations and rebuilds the cluster's healthy destination collection.</p>
-<p>Note the response is normally send to the client before the passive health policy runs, so a policy cannot intercept the response body, nor modify anything in the response headers unless the proxy application introduces full response buffering.</p>
+<p>Note the response is normally sent to the client before the passive health policy runs, so a policy cannot intercept the response body, nor modify anything in the response headers unless the proxy application introduces full response buffering.</p>
 <p>There is one important difference from the active health check logic. Once a destination gets assigned an unhealthy passive state, it stops receiving all new traffic which blocks future health reevaluation. The policy also schedules a destination reactivation after the configured period. Reactivation means resetting the passive health state from <code>Unhealthy</code> back to the initial <code>Unknown</code> value which makes destination eligible for traffic again.</p>
 <p>There are several cluster-wide configuration settings controlling passive health checks that can be set either in the config file or in code.</p>
 <h4 id="file-example-1">File example</h4>
@@ -335,7 +335,7 @@ There are two sets of policy parameters defined globally and on per cluster leve
 
     public string Name =&gt; &quot;FirstUnsuccessfulResponse&quot;;
 
-   public void RequestProxied(HttpContext context, ClusterState cluster, DestinationState destination)
+    public void RequestProxied(HttpContext context, ClusterState cluster, DestinationState destination)
     {
         var error = context.Features.Get&lt;IForwarderErrorFeature&gt;();
         if (error is not null)

@@ -107,7 +107,8 @@ public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
         AllowAutoRedirect = false,
         AutomaticDecompression = DecompressionMethods.None,
         UseCookies = false,
-        ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
+        ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
+        ConnectTimeout = TimeSpan.FromSeconds(15),
     });
     var transformer = new CustomTransformer(); // or HttpTransformer.Default;
     var requestConfig = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
@@ -148,6 +149,20 @@ public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
         // Suppress the original request header, use the one from the destination Uri.
         proxyRequest.Headers.Host = null;
     }
+}
+</code></pre>
+<p>There are also <a class="xref" href="../api/Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.html">extension methods</a> available that simplify the mapping of IHttpForwarder to endpoints.</p>
+<pre><code class="lang-C#">...
+
+public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
+{
+    ...
+
+    app.UseRouting();
+    app.UseEndpoints(endpoints =&gt;
+    {
+        endpoints.MapForwarder(&quot;/{**catch-all}&quot;, &quot;https://localhost:10000/&quot;, requestConfig, transformer, httpClient);
+    });
 }
 </code></pre>
 <h3 id="the-http-client">The HTTP Client</h3>

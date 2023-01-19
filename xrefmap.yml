@@ -98,6 +98,43 @@ references:
   isSpec: "True"
   fullName: Microsoft.AspNetCore.Builder.AppBuilderSessionAffinityExtensions.UseSessionAffinity
   nameWithType: AppBuilderSessionAffinityExtensions.UseSessionAffinity
+- uid: Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions
+  name: DirectForwardingIEndpointRouteBuilderExtensions
+  href: api/Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.html
+  commentId: T:Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions
+  fullName: Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions
+  nameWithType: DirectForwardingIEndpointRouteBuilderExtensions
+- uid: Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder,System.String,System.String)
+  name: MapForwarder(IEndpointRouteBuilder, String, String)
+  href: api/Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.html#Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_
+  commentId: M:Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder,System.String,System.String)
+  fullName: Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder, System.String, System.String)
+  nameWithType: DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder, String, String)
+- uid: Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder,System.String,System.String,Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig)
+  name: MapForwarder(IEndpointRouteBuilder, String, String, ForwarderRequestConfig)
+  href: api/Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.html#Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_
+  commentId: M:Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder,System.String,System.String,Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig)
+  fullName: Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder, System.String, System.String, Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig)
+  nameWithType: DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder, String, String, ForwarderRequestConfig)
+- uid: Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder,System.String,System.String,Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig,Yarp.ReverseProxy.Forwarder.HttpTransformer)
+  name: MapForwarder(IEndpointRouteBuilder, String, String, ForwarderRequestConfig, HttpTransformer)
+  href: api/Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.html#Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Yarp_ReverseProxy_Forwarder_HttpTransformer_
+  commentId: M:Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder,System.String,System.String,Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig,Yarp.ReverseProxy.Forwarder.HttpTransformer)
+  fullName: Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder, System.String, System.String, Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig, Yarp.ReverseProxy.Forwarder.HttpTransformer)
+  nameWithType: DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder, String, String, ForwarderRequestConfig, HttpTransformer)
+- uid: Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder,System.String,System.String,Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig,Yarp.ReverseProxy.Forwarder.HttpTransformer,HttpMessageInvoker)
+  name: MapForwarder(IEndpointRouteBuilder, String, String, ForwarderRequestConfig, HttpTransformer, HttpMessageInvoker)
+  href: api/Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.html#Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Yarp_ReverseProxy_Forwarder_HttpTransformer_HttpMessageInvoker_
+  commentId: M:Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder,System.String,System.String,Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig,Yarp.ReverseProxy.Forwarder.HttpTransformer,HttpMessageInvoker)
+  fullName: Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder, System.String, System.String, Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig, Yarp.ReverseProxy.Forwarder.HttpTransformer, HttpMessageInvoker)
+  nameWithType: DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder, String, String, ForwarderRequestConfig, HttpTransformer, HttpMessageInvoker)
+- uid: Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder*
+  name: MapForwarder
+  href: api/Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.html#Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_
+  commentId: Overload:Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder
+  isSpec: "True"
+  fullName: Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder
+  nameWithType: DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder
 - uid: Microsoft.AspNetCore.Builder.IReverseProxyApplicationBuilder
   name: IReverseProxyApplicationBuilder
   href: api/Microsoft.AspNetCore.Builder.IReverseProxyApplicationBuilder.html
@@ -264,6 +301,12 @@ references:
   commentId: M:Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.ReassignProxyRequest(HttpContext,Yarp.ReverseProxy.Model.ClusterState)
   fullName: Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.ReassignProxyRequest(HttpContext, Yarp.ReverseProxy.Model.ClusterState)
   nameWithType: HttpContextFeaturesExtensions.ReassignProxyRequest(HttpContext, ClusterState)
+- uid: Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.ReassignProxyRequest(HttpContext,Yarp.ReverseProxy.Model.RouteModel,Yarp.ReverseProxy.Model.ClusterState)
+  name: ReassignProxyRequest(HttpContext, RouteModel, ClusterState)
+  href: api/Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.html#Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_ReassignProxyRequest_HttpContext_Yarp_ReverseProxy_Model_RouteModel_Yarp_ReverseProxy_Model_ClusterState_
+  commentId: M:Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.ReassignProxyRequest(HttpContext,Yarp.ReverseProxy.Model.RouteModel,Yarp.ReverseProxy.Model.ClusterState)
+  fullName: Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.ReassignProxyRequest(HttpContext, Yarp.ReverseProxy.Model.RouteModel, Yarp.ReverseProxy.Model.ClusterState)
+  nameWithType: HttpContextFeaturesExtensions.ReassignProxyRequest(HttpContext, RouteModel, ClusterState)
 - uid: Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.ReassignProxyRequest*
   name: ReassignProxyRequest
   href: api/Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.html#Microsoft_AspNetCore_Http_HttpContextFeaturesExtensions_ReassignProxyRequest_
@@ -277,6 +320,28 @@ references:
   commentId: N:Microsoft.Extensions.DependencyInjection
   fullName: Microsoft.Extensions.DependencyInjection
   nameWithType: Microsoft.Extensions.DependencyInjection
+- uid: Microsoft.Extensions.DependencyInjection.InMemoryConfigProviderExtensions
+  name: InMemoryConfigProviderExtensions
+  href: api/Microsoft.Extensions.DependencyInjection.InMemoryConfigProviderExtensions.html
+  commentId: T:Microsoft.Extensions.DependencyInjection.InMemoryConfigProviderExtensions
+  fullName: Microsoft.Extensions.DependencyInjection.InMemoryConfigProviderExtensions
+  nameWithType: InMemoryConfigProviderExtensions
+- uid: Microsoft.Extensions.DependencyInjection.InMemoryConfigProviderExtensions.LoadFromMemory(Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder,IReadOnlyList{Yarp.ReverseProxy.Configuration.RouteConfig},IReadOnlyList{Yarp.ReverseProxy.Configuration.ClusterConfig})
+  name: LoadFromMemory(IReverseProxyBuilder, IReadOnlyList<RouteConfig>, IReadOnlyList<ClusterConfig>)
+  href: api/Microsoft.Extensions.DependencyInjection.InMemoryConfigProviderExtensions.html#Microsoft_Extensions_DependencyInjection_InMemoryConfigProviderExtensions_LoadFromMemory_Microsoft_Extensions_DependencyInjection_IReverseProxyBuilder_IReadOnlyList_Yarp_ReverseProxy_Configuration_RouteConfig__IReadOnlyList_Yarp_ReverseProxy_Configuration_ClusterConfig__
+  commentId: M:Microsoft.Extensions.DependencyInjection.InMemoryConfigProviderExtensions.LoadFromMemory(Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder,IReadOnlyList{Yarp.ReverseProxy.Configuration.RouteConfig},IReadOnlyList{Yarp.ReverseProxy.Configuration.ClusterConfig})
+  name.vb: LoadFromMemory(IReverseProxyBuilder, IReadOnlyList(Of RouteConfig), IReadOnlyList(Of ClusterConfig))
+  fullName: Microsoft.Extensions.DependencyInjection.InMemoryConfigProviderExtensions.LoadFromMemory(Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder, IReadOnlyList<Yarp.ReverseProxy.Configuration.RouteConfig>, IReadOnlyList<Yarp.ReverseProxy.Configuration.ClusterConfig>)
+  fullName.vb: Microsoft.Extensions.DependencyInjection.InMemoryConfigProviderExtensions.LoadFromMemory(Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder, IReadOnlyList(Of Yarp.ReverseProxy.Configuration.RouteConfig), IReadOnlyList(Of Yarp.ReverseProxy.Configuration.ClusterConfig))
+  nameWithType: InMemoryConfigProviderExtensions.LoadFromMemory(IReverseProxyBuilder, IReadOnlyList<RouteConfig>, IReadOnlyList<ClusterConfig>)
+  nameWithType.vb: InMemoryConfigProviderExtensions.LoadFromMemory(IReverseProxyBuilder, IReadOnlyList(Of RouteConfig), IReadOnlyList(Of ClusterConfig))
+- uid: Microsoft.Extensions.DependencyInjection.InMemoryConfigProviderExtensions.LoadFromMemory*
+  name: LoadFromMemory
+  href: api/Microsoft.Extensions.DependencyInjection.InMemoryConfigProviderExtensions.html#Microsoft_Extensions_DependencyInjection_InMemoryConfigProviderExtensions_LoadFromMemory_
+  commentId: Overload:Microsoft.Extensions.DependencyInjection.InMemoryConfigProviderExtensions.LoadFromMemory
+  isSpec: "True"
+  fullName: Microsoft.Extensions.DependencyInjection.InMemoryConfigProviderExtensions.LoadFromMemory
+  nameWithType: InMemoryConfigProviderExtensions.LoadFromMemory
 - uid: Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder
   name: IReverseProxyBuilder
   href: api/Microsoft.Extensions.DependencyInjection.IReverseProxyBuilder.html
@@ -420,6 +485,28 @@ references:
   commentId: T:Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions
   fullName: Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions
   nameWithType: TelemetryConsumptionExtensions
+- uid: Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddMetricsConsumer(IServiceCollection,System.Object)
+  name: AddMetricsConsumer(IServiceCollection, Object)
+  href: api/Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.html#Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddMetricsConsumer_IServiceCollection_System_Object_
+  commentId: M:Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddMetricsConsumer(IServiceCollection,System.Object)
+  fullName: Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddMetricsConsumer(IServiceCollection, System.Object)
+  nameWithType: TelemetryConsumptionExtensions.AddMetricsConsumer(IServiceCollection, Object)
+- uid: Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddMetricsConsumer*
+  name: AddMetricsConsumer
+  href: api/Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.html#Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddMetricsConsumer_
+  commentId: Overload:Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddMetricsConsumer
+  isSpec: "True"
+  fullName: Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddMetricsConsumer
+  nameWithType: TelemetryConsumptionExtensions.AddMetricsConsumer
+- uid: Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddMetricsConsumer``1(IServiceCollection)
+  name: AddMetricsConsumer<TConsumer>(IServiceCollection)
+  href: api/Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.html#Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddMetricsConsumer__1_IServiceCollection_
+  commentId: M:Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddMetricsConsumer``1(IServiceCollection)
+  name.vb: AddMetricsConsumer(Of TConsumer)(IServiceCollection)
+  fullName: Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddMetricsConsumer<TConsumer>(IServiceCollection)
+  fullName.vb: Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddMetricsConsumer(Of TConsumer)(IServiceCollection)
+  nameWithType: TelemetryConsumptionExtensions.AddMetricsConsumer<TConsumer>(IServiceCollection)
+  nameWithType.vb: TelemetryConsumptionExtensions.AddMetricsConsumer(Of TConsumer)(IServiceCollection)
 - uid: Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.AddTelemetryConsumer(IServiceCollection,System.Object)
   name: AddTelemetryConsumer(IServiceCollection, Object)
   href: api/Microsoft.Extensions.DependencyInjection.TelemetryConsumptionExtensions.html#Microsoft_Extensions_DependencyInjection_TelemetryConsumptionExtensions_AddTelemetryConsumer_IServiceCollection_System_Object_
@@ -816,6 +903,12 @@ references:
   commentId: F:Yarp.ReverseProxy.Configuration.HeaderMatchMode.NotContains
   fullName: Yarp.ReverseProxy.Configuration.HeaderMatchMode.NotContains
   nameWithType: HeaderMatchMode.NotContains
+- uid: Yarp.ReverseProxy.Configuration.HeaderMatchMode.NotExists
+  name: NotExists
+  href: api/Yarp.ReverseProxy.Configuration.HeaderMatchMode.html#Yarp_ReverseProxy_Configuration_HeaderMatchMode_NotExists
+  commentId: F:Yarp.ReverseProxy.Configuration.HeaderMatchMode.NotExists
+  fullName: Yarp.ReverseProxy.Configuration.HeaderMatchMode.NotExists
+  nameWithType: HeaderMatchMode.NotExists
 - uid: Yarp.ReverseProxy.Configuration.HealthCheckConfig
   name: HealthCheckConfig
   href: api/Yarp.ReverseProxy.Configuration.HealthCheckConfig.html
@@ -1003,6 +1096,73 @@ references:
   isSpec: "True"
   fullName: Yarp.ReverseProxy.Configuration.HttpClientConfig.WebProxy
   nameWithType: HttpClientConfig.WebProxy
+- uid: Yarp.ReverseProxy.Configuration.IConfigChangeListener
+  name: IConfigChangeListener
+  href: api/Yarp.ReverseProxy.Configuration.IConfigChangeListener.html
+  commentId: T:Yarp.ReverseProxy.Configuration.IConfigChangeListener
+  fullName: Yarp.ReverseProxy.Configuration.IConfigChangeListener
+  nameWithType: IConfigChangeListener
+- uid: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationApplied(IReadOnlyList{Yarp.ReverseProxy.Configuration.IProxyConfig})
+  name: ConfigurationApplied(IReadOnlyList<IProxyConfig>)
+  href: api/Yarp.ReverseProxy.Configuration.IConfigChangeListener.html#Yarp_ReverseProxy_Configuration_IConfigChangeListener_ConfigurationApplied_IReadOnlyList_Yarp_ReverseProxy_Configuration_IProxyConfig__
+  commentId: M:Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationApplied(IReadOnlyList{Yarp.ReverseProxy.Configuration.IProxyConfig})
+  name.vb: ConfigurationApplied(IReadOnlyList(Of IProxyConfig))
+  fullName: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationApplied(IReadOnlyList<Yarp.ReverseProxy.Configuration.IProxyConfig>)
+  fullName.vb: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationApplied(IReadOnlyList(Of Yarp.ReverseProxy.Configuration.IProxyConfig))
+  nameWithType: IConfigChangeListener.ConfigurationApplied(IReadOnlyList<IProxyConfig>)
+  nameWithType.vb: IConfigChangeListener.ConfigurationApplied(IReadOnlyList(Of IProxyConfig))
+- uid: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationApplied*
+  name: ConfigurationApplied
+  href: api/Yarp.ReverseProxy.Configuration.IConfigChangeListener.html#Yarp_ReverseProxy_Configuration_IConfigChangeListener_ConfigurationApplied_
+  commentId: Overload:Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationApplied
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationApplied
+  nameWithType: IConfigChangeListener.ConfigurationApplied
+- uid: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationApplyingFailed(IReadOnlyList{Yarp.ReverseProxy.Configuration.IProxyConfig},Exception)
+  name: ConfigurationApplyingFailed(IReadOnlyList<IProxyConfig>, Exception)
+  href: api/Yarp.ReverseProxy.Configuration.IConfigChangeListener.html#Yarp_ReverseProxy_Configuration_IConfigChangeListener_ConfigurationApplyingFailed_IReadOnlyList_Yarp_ReverseProxy_Configuration_IProxyConfig__Exception_
+  commentId: M:Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationApplyingFailed(IReadOnlyList{Yarp.ReverseProxy.Configuration.IProxyConfig},Exception)
+  name.vb: ConfigurationApplyingFailed(IReadOnlyList(Of IProxyConfig), Exception)
+  fullName: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationApplyingFailed(IReadOnlyList<Yarp.ReverseProxy.Configuration.IProxyConfig>, Exception)
+  fullName.vb: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationApplyingFailed(IReadOnlyList(Of Yarp.ReverseProxy.Configuration.IProxyConfig), Exception)
+  nameWithType: IConfigChangeListener.ConfigurationApplyingFailed(IReadOnlyList<IProxyConfig>, Exception)
+  nameWithType.vb: IConfigChangeListener.ConfigurationApplyingFailed(IReadOnlyList(Of IProxyConfig), Exception)
+- uid: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationApplyingFailed*
+  name: ConfigurationApplyingFailed
+  href: api/Yarp.ReverseProxy.Configuration.IConfigChangeListener.html#Yarp_ReverseProxy_Configuration_IConfigChangeListener_ConfigurationApplyingFailed_
+  commentId: Overload:Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationApplyingFailed
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationApplyingFailed
+  nameWithType: IConfigChangeListener.ConfigurationApplyingFailed
+- uid: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationLoaded(IReadOnlyList{Yarp.ReverseProxy.Configuration.IProxyConfig})
+  name: ConfigurationLoaded(IReadOnlyList<IProxyConfig>)
+  href: api/Yarp.ReverseProxy.Configuration.IConfigChangeListener.html#Yarp_ReverseProxy_Configuration_IConfigChangeListener_ConfigurationLoaded_IReadOnlyList_Yarp_ReverseProxy_Configuration_IProxyConfig__
+  commentId: M:Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationLoaded(IReadOnlyList{Yarp.ReverseProxy.Configuration.IProxyConfig})
+  name.vb: ConfigurationLoaded(IReadOnlyList(Of IProxyConfig))
+  fullName: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationLoaded(IReadOnlyList<Yarp.ReverseProxy.Configuration.IProxyConfig>)
+  fullName.vb: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationLoaded(IReadOnlyList(Of Yarp.ReverseProxy.Configuration.IProxyConfig))
+  nameWithType: IConfigChangeListener.ConfigurationLoaded(IReadOnlyList<IProxyConfig>)
+  nameWithType.vb: IConfigChangeListener.ConfigurationLoaded(IReadOnlyList(Of IProxyConfig))
+- uid: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationLoaded*
+  name: ConfigurationLoaded
+  href: api/Yarp.ReverseProxy.Configuration.IConfigChangeListener.html#Yarp_ReverseProxy_Configuration_IConfigChangeListener_ConfigurationLoaded_
+  commentId: Overload:Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationLoaded
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationLoaded
+  nameWithType: IConfigChangeListener.ConfigurationLoaded
+- uid: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationLoadingFailed(Yarp.ReverseProxy.Configuration.IProxyConfigProvider,Exception)
+  name: ConfigurationLoadingFailed(IProxyConfigProvider, Exception)
+  href: api/Yarp.ReverseProxy.Configuration.IConfigChangeListener.html#Yarp_ReverseProxy_Configuration_IConfigChangeListener_ConfigurationLoadingFailed_Yarp_ReverseProxy_Configuration_IProxyConfigProvider_Exception_
+  commentId: M:Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationLoadingFailed(Yarp.ReverseProxy.Configuration.IProxyConfigProvider,Exception)
+  fullName: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationLoadingFailed(Yarp.ReverseProxy.Configuration.IProxyConfigProvider, Exception)
+  nameWithType: IConfigChangeListener.ConfigurationLoadingFailed(IProxyConfigProvider, Exception)
+- uid: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationLoadingFailed*
+  name: ConfigurationLoadingFailed
+  href: api/Yarp.ReverseProxy.Configuration.IConfigChangeListener.html#Yarp_ReverseProxy_Configuration_IConfigChangeListener_ConfigurationLoadingFailed_
+  commentId: Overload:Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationLoadingFailed
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.Configuration.IConfigChangeListener.ConfigurationLoadingFailed
+  nameWithType: IConfigChangeListener.ConfigurationLoadingFailed
 - uid: Yarp.ReverseProxy.Configuration.IConfigValidator
   name: IConfigValidator
   href: api/Yarp.ReverseProxy.Configuration.IConfigValidator.html
@@ -1035,6 +1195,75 @@ references:
   isSpec: "True"
   fullName: Yarp.ReverseProxy.Configuration.IConfigValidator.ValidateRouteAsync
   nameWithType: IConfigValidator.ValidateRouteAsync
+- uid: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider
+  name: InMemoryConfigProvider
+  href: api/Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.html
+  commentId: T:Yarp.ReverseProxy.Configuration.InMemoryConfigProvider
+  fullName: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider
+  nameWithType: InMemoryConfigProvider
+- uid: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.#ctor(IReadOnlyList{Yarp.ReverseProxy.Configuration.RouteConfig},IReadOnlyList{Yarp.ReverseProxy.Configuration.ClusterConfig})
+  name: InMemoryConfigProvider(IReadOnlyList<RouteConfig>, IReadOnlyList<ClusterConfig>)
+  href: api/Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.html#Yarp_ReverseProxy_Configuration_InMemoryConfigProvider__ctor_IReadOnlyList_Yarp_ReverseProxy_Configuration_RouteConfig__IReadOnlyList_Yarp_ReverseProxy_Configuration_ClusterConfig__
+  commentId: M:Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.#ctor(IReadOnlyList{Yarp.ReverseProxy.Configuration.RouteConfig},IReadOnlyList{Yarp.ReverseProxy.Configuration.ClusterConfig})
+  name.vb: InMemoryConfigProvider(IReadOnlyList(Of RouteConfig), IReadOnlyList(Of ClusterConfig))
+  fullName: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.InMemoryConfigProvider(IReadOnlyList<Yarp.ReverseProxy.Configuration.RouteConfig>, IReadOnlyList<Yarp.ReverseProxy.Configuration.ClusterConfig>)
+  fullName.vb: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.InMemoryConfigProvider(IReadOnlyList(Of Yarp.ReverseProxy.Configuration.RouteConfig), IReadOnlyList(Of Yarp.ReverseProxy.Configuration.ClusterConfig))
+  nameWithType: InMemoryConfigProvider.InMemoryConfigProvider(IReadOnlyList<RouteConfig>, IReadOnlyList<ClusterConfig>)
+  nameWithType.vb: InMemoryConfigProvider.InMemoryConfigProvider(IReadOnlyList(Of RouteConfig), IReadOnlyList(Of ClusterConfig))
+- uid: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.#ctor(IReadOnlyList{Yarp.ReverseProxy.Configuration.RouteConfig},IReadOnlyList{Yarp.ReverseProxy.Configuration.ClusterConfig},System.String)
+  name: InMemoryConfigProvider(IReadOnlyList<RouteConfig>, IReadOnlyList<ClusterConfig>, String)
+  href: api/Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.html#Yarp_ReverseProxy_Configuration_InMemoryConfigProvider__ctor_IReadOnlyList_Yarp_ReverseProxy_Configuration_RouteConfig__IReadOnlyList_Yarp_ReverseProxy_Configuration_ClusterConfig__System_String_
+  commentId: M:Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.#ctor(IReadOnlyList{Yarp.ReverseProxy.Configuration.RouteConfig},IReadOnlyList{Yarp.ReverseProxy.Configuration.ClusterConfig},System.String)
+  name.vb: InMemoryConfigProvider(IReadOnlyList(Of RouteConfig), IReadOnlyList(Of ClusterConfig), String)
+  fullName: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.InMemoryConfigProvider(IReadOnlyList<Yarp.ReverseProxy.Configuration.RouteConfig>, IReadOnlyList<Yarp.ReverseProxy.Configuration.ClusterConfig>, System.String)
+  fullName.vb: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.InMemoryConfigProvider(IReadOnlyList(Of Yarp.ReverseProxy.Configuration.RouteConfig), IReadOnlyList(Of Yarp.ReverseProxy.Configuration.ClusterConfig), System.String)
+  nameWithType: InMemoryConfigProvider.InMemoryConfigProvider(IReadOnlyList<RouteConfig>, IReadOnlyList<ClusterConfig>, String)
+  nameWithType.vb: InMemoryConfigProvider.InMemoryConfigProvider(IReadOnlyList(Of RouteConfig), IReadOnlyList(Of ClusterConfig), String)
+- uid: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.#ctor*
+  name: InMemoryConfigProvider
+  href: api/Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.html#Yarp_ReverseProxy_Configuration_InMemoryConfigProvider__ctor_
+  commentId: Overload:Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.#ctor
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.InMemoryConfigProvider
+  nameWithType: InMemoryConfigProvider.InMemoryConfigProvider
+- uid: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.GetConfig
+  name: GetConfig()
+  href: api/Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.html#Yarp_ReverseProxy_Configuration_InMemoryConfigProvider_GetConfig
+  commentId: M:Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.GetConfig
+  fullName: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.GetConfig()
+  nameWithType: InMemoryConfigProvider.GetConfig()
+- uid: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.GetConfig*
+  name: GetConfig
+  href: api/Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.html#Yarp_ReverseProxy_Configuration_InMemoryConfigProvider_GetConfig_
+  commentId: Overload:Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.GetConfig
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.GetConfig
+  nameWithType: InMemoryConfigProvider.GetConfig
+- uid: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.Update(IReadOnlyList{Yarp.ReverseProxy.Configuration.RouteConfig},IReadOnlyList{Yarp.ReverseProxy.Configuration.ClusterConfig})
+  name: Update(IReadOnlyList<RouteConfig>, IReadOnlyList<ClusterConfig>)
+  href: api/Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.html#Yarp_ReverseProxy_Configuration_InMemoryConfigProvider_Update_IReadOnlyList_Yarp_ReverseProxy_Configuration_RouteConfig__IReadOnlyList_Yarp_ReverseProxy_Configuration_ClusterConfig__
+  commentId: M:Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.Update(IReadOnlyList{Yarp.ReverseProxy.Configuration.RouteConfig},IReadOnlyList{Yarp.ReverseProxy.Configuration.ClusterConfig})
+  name.vb: Update(IReadOnlyList(Of RouteConfig), IReadOnlyList(Of ClusterConfig))
+  fullName: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.Update(IReadOnlyList<Yarp.ReverseProxy.Configuration.RouteConfig>, IReadOnlyList<Yarp.ReverseProxy.Configuration.ClusterConfig>)
+  fullName.vb: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.Update(IReadOnlyList(Of Yarp.ReverseProxy.Configuration.RouteConfig), IReadOnlyList(Of Yarp.ReverseProxy.Configuration.ClusterConfig))
+  nameWithType: InMemoryConfigProvider.Update(IReadOnlyList<RouteConfig>, IReadOnlyList<ClusterConfig>)
+  nameWithType.vb: InMemoryConfigProvider.Update(IReadOnlyList(Of RouteConfig), IReadOnlyList(Of ClusterConfig))
+- uid: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.Update(IReadOnlyList{Yarp.ReverseProxy.Configuration.RouteConfig},IReadOnlyList{Yarp.ReverseProxy.Configuration.ClusterConfig},System.String)
+  name: Update(IReadOnlyList<RouteConfig>, IReadOnlyList<ClusterConfig>, String)
+  href: api/Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.html#Yarp_ReverseProxy_Configuration_InMemoryConfigProvider_Update_IReadOnlyList_Yarp_ReverseProxy_Configuration_RouteConfig__IReadOnlyList_Yarp_ReverseProxy_Configuration_ClusterConfig__System_String_
+  commentId: M:Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.Update(IReadOnlyList{Yarp.ReverseProxy.Configuration.RouteConfig},IReadOnlyList{Yarp.ReverseProxy.Configuration.ClusterConfig},System.String)
+  name.vb: Update(IReadOnlyList(Of RouteConfig), IReadOnlyList(Of ClusterConfig), String)
+  fullName: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.Update(IReadOnlyList<Yarp.ReverseProxy.Configuration.RouteConfig>, IReadOnlyList<Yarp.ReverseProxy.Configuration.ClusterConfig>, System.String)
+  fullName.vb: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.Update(IReadOnlyList(Of Yarp.ReverseProxy.Configuration.RouteConfig), IReadOnlyList(Of Yarp.ReverseProxy.Configuration.ClusterConfig), System.String)
+  nameWithType: InMemoryConfigProvider.Update(IReadOnlyList<RouteConfig>, IReadOnlyList<ClusterConfig>, String)
+  nameWithType.vb: InMemoryConfigProvider.Update(IReadOnlyList(Of RouteConfig), IReadOnlyList(Of ClusterConfig), String)
+- uid: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.Update*
+  name: Update
+  href: api/Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.html#Yarp_ReverseProxy_Configuration_InMemoryConfigProvider_Update_
+  commentId: Overload:Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.Update
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.Configuration.InMemoryConfigProvider.Update
+  nameWithType: InMemoryConfigProvider.Update
 - uid: Yarp.ReverseProxy.Configuration.IProxyConfig
   name: IProxyConfig
   href: api/Yarp.ReverseProxy.Configuration.IProxyConfig.html
@@ -1067,6 +1296,19 @@ references:
   isSpec: "True"
   fullName: Yarp.ReverseProxy.Configuration.IProxyConfig.Clusters
   nameWithType: IProxyConfig.Clusters
+- uid: Yarp.ReverseProxy.Configuration.IProxyConfig.RevisionId
+  name: RevisionId
+  href: api/Yarp.ReverseProxy.Configuration.IProxyConfig.html#Yarp_ReverseProxy_Configuration_IProxyConfig_RevisionId
+  commentId: P:Yarp.ReverseProxy.Configuration.IProxyConfig.RevisionId
+  fullName: Yarp.ReverseProxy.Configuration.IProxyConfig.RevisionId
+  nameWithType: IProxyConfig.RevisionId
+- uid: Yarp.ReverseProxy.Configuration.IProxyConfig.RevisionId*
+  name: RevisionId
+  href: api/Yarp.ReverseProxy.Configuration.IProxyConfig.html#Yarp_ReverseProxy_Configuration_IProxyConfig_RevisionId_
+  commentId: Overload:Yarp.ReverseProxy.Configuration.IProxyConfig.RevisionId
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.Configuration.IProxyConfig.RevisionId
+  nameWithType: IProxyConfig.RevisionId
 - uid: Yarp.ReverseProxy.Configuration.IProxyConfig.Routes
   name: Routes
   href: api/Yarp.ReverseProxy.Configuration.IProxyConfig.html#Yarp_ReverseProxy_Configuration_IProxyConfig_Routes
@@ -1322,6 +1564,19 @@ references:
   isSpec: "True"
   fullName: Yarp.ReverseProxy.Configuration.RouteConfig.Match
   nameWithType: RouteConfig.Match
+- uid: Yarp.ReverseProxy.Configuration.RouteConfig.MaxRequestBodySize
+  name: MaxRequestBodySize
+  href: api/Yarp.ReverseProxy.Configuration.RouteConfig.html#Yarp_ReverseProxy_Configuration_RouteConfig_MaxRequestBodySize
+  commentId: P:Yarp.ReverseProxy.Configuration.RouteConfig.MaxRequestBodySize
+  fullName: Yarp.ReverseProxy.Configuration.RouteConfig.MaxRequestBodySize
+  nameWithType: RouteConfig.MaxRequestBodySize
+- uid: Yarp.ReverseProxy.Configuration.RouteConfig.MaxRequestBodySize*
+  name: MaxRequestBodySize
+  href: api/Yarp.ReverseProxy.Configuration.RouteConfig.html#Yarp_ReverseProxy_Configuration_RouteConfig_MaxRequestBodySize_
+  commentId: Overload:Yarp.ReverseProxy.Configuration.RouteConfig.MaxRequestBodySize
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.Configuration.RouteConfig.MaxRequestBodySize
+  nameWithType: RouteConfig.MaxRequestBodySize
 - uid: Yarp.ReverseProxy.Configuration.RouteConfig.Metadata
   name: Metadata
   href: api/Yarp.ReverseProxy.Configuration.RouteConfig.html#Yarp_ReverseProxy_Configuration_RouteConfig_Metadata
@@ -2386,6 +2641,12 @@ references:
   commentId: M:Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformRequestAsync(HttpContext,HttpRequestMessage,System.String)
   fullName: Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformRequestAsync(HttpContext, HttpRequestMessage, System.String)
   nameWithType: HttpTransformer.TransformRequestAsync(HttpContext, HttpRequestMessage, String)
+- uid: Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformRequestAsync(HttpContext,HttpRequestMessage,System.String,CancellationToken)
+  name: TransformRequestAsync(HttpContext, HttpRequestMessage, String, CancellationToken)
+  href: api/Yarp.ReverseProxy.Forwarder.HttpTransformer.html#Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformRequestAsync_HttpContext_HttpRequestMessage_System_String_CancellationToken_
+  commentId: M:Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformRequestAsync(HttpContext,HttpRequestMessage,System.String,CancellationToken)
+  fullName: Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformRequestAsync(HttpContext, HttpRequestMessage, System.String, CancellationToken)
+  nameWithType: HttpTransformer.TransformRequestAsync(HttpContext, HttpRequestMessage, String, CancellationToken)
 - uid: Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformRequestAsync*
   name: TransformRequestAsync
   href: api/Yarp.ReverseProxy.Forwarder.HttpTransformer.html#Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformRequestAsync_
@@ -2402,6 +2663,15 @@ references:
   fullName.vb: Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseAsync(HttpContext, System.Nullable(Of HttpResponseMessage))
   nameWithType: HttpTransformer.TransformResponseAsync(HttpContext, Nullable<HttpResponseMessage>)
   nameWithType.vb: HttpTransformer.TransformResponseAsync(HttpContext, Nullable(Of HttpResponseMessage))
+- uid: Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseAsync(HttpContext,System.Nullable{HttpResponseMessage},CancellationToken)
+  name: TransformResponseAsync(HttpContext, Nullable<HttpResponseMessage>, CancellationToken)
+  href: api/Yarp.ReverseProxy.Forwarder.HttpTransformer.html#Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformResponseAsync_HttpContext_System_Nullable_HttpResponseMessage__CancellationToken_
+  commentId: M:Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseAsync(HttpContext,System.Nullable{HttpResponseMessage},CancellationToken)
+  name.vb: TransformResponseAsync(HttpContext, Nullable(Of HttpResponseMessage), CancellationToken)
+  fullName: Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseAsync(HttpContext, System.Nullable<HttpResponseMessage>, CancellationToken)
+  fullName.vb: Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseAsync(HttpContext, System.Nullable(Of HttpResponseMessage), CancellationToken)
+  nameWithType: HttpTransformer.TransformResponseAsync(HttpContext, Nullable<HttpResponseMessage>, CancellationToken)
+  nameWithType.vb: HttpTransformer.TransformResponseAsync(HttpContext, Nullable(Of HttpResponseMessage), CancellationToken)
 - uid: Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseAsync*
   name: TransformResponseAsync
   href: api/Yarp.ReverseProxy.Forwarder.HttpTransformer.html#Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformResponseAsync_
@@ -2415,6 +2685,12 @@ references:
   commentId: M:Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseTrailersAsync(HttpContext,HttpResponseMessage)
   fullName: Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseTrailersAsync(HttpContext, HttpResponseMessage)
   nameWithType: HttpTransformer.TransformResponseTrailersAsync(HttpContext, HttpResponseMessage)
+- uid: Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseTrailersAsync(HttpContext,HttpResponseMessage,CancellationToken)
+  name: TransformResponseTrailersAsync(HttpContext, HttpResponseMessage, CancellationToken)
+  href: api/Yarp.ReverseProxy.Forwarder.HttpTransformer.html#Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformResponseTrailersAsync_HttpContext_HttpResponseMessage_CancellationToken_
+  commentId: M:Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseTrailersAsync(HttpContext,HttpResponseMessage,CancellationToken)
+  fullName: Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseTrailersAsync(HttpContext, HttpResponseMessage, CancellationToken)
+  nameWithType: HttpTransformer.TransformResponseTrailersAsync(HttpContext, HttpResponseMessage, CancellationToken)
 - uid: Yarp.ReverseProxy.Forwarder.HttpTransformer.TransformResponseTrailersAsync*
   name: TransformResponseTrailersAsync
   href: api/Yarp.ReverseProxy.Forwarder.HttpTransformer.html#Yarp_ReverseProxy_Forwarder_HttpTransformer_TransformResponseTrailersAsync_
@@ -2485,6 +2761,12 @@ references:
   commentId: M:Yarp.ReverseProxy.Forwarder.IHttpForwarder.SendAsync(HttpContext,System.String,HttpMessageInvoker,Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig,Yarp.ReverseProxy.Forwarder.HttpTransformer)
   fullName: Yarp.ReverseProxy.Forwarder.IHttpForwarder.SendAsync(HttpContext, System.String, HttpMessageInvoker, Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig, Yarp.ReverseProxy.Forwarder.HttpTransformer)
   nameWithType: IHttpForwarder.SendAsync(HttpContext, String, HttpMessageInvoker, ForwarderRequestConfig, HttpTransformer)
+- uid: Yarp.ReverseProxy.Forwarder.IHttpForwarder.SendAsync(HttpContext,System.String,HttpMessageInvoker,Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig,Yarp.ReverseProxy.Forwarder.HttpTransformer,CancellationToken)
+  name: SendAsync(HttpContext, String, HttpMessageInvoker, ForwarderRequestConfig, HttpTransformer, CancellationToken)
+  href: api/Yarp.ReverseProxy.Forwarder.IHttpForwarder.html#Yarp_ReverseProxy_Forwarder_IHttpForwarder_SendAsync_HttpContext_System_String_HttpMessageInvoker_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Yarp_ReverseProxy_Forwarder_HttpTransformer_CancellationToken_
+  commentId: M:Yarp.ReverseProxy.Forwarder.IHttpForwarder.SendAsync(HttpContext,System.String,HttpMessageInvoker,Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig,Yarp.ReverseProxy.Forwarder.HttpTransformer,CancellationToken)
+  fullName: Yarp.ReverseProxy.Forwarder.IHttpForwarder.SendAsync(HttpContext, System.String, HttpMessageInvoker, Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig, Yarp.ReverseProxy.Forwarder.HttpTransformer, CancellationToken)
+  nameWithType: IHttpForwarder.SendAsync(HttpContext, String, HttpMessageInvoker, ForwarderRequestConfig, HttpTransformer, CancellationToken)
 - uid: Yarp.ReverseProxy.Forwarder.IHttpForwarder.SendAsync*
   name: SendAsync
   href: api/Yarp.ReverseProxy.Forwarder.IHttpForwarder.html#Yarp_ReverseProxy_Forwarder_IHttpForwarder_SendAsync_
@@ -4145,6 +4427,19 @@ references:
   isSpec: "True"
   fullName: Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.AffinitizeResponse
   nameWithType: ISessionAffinityPolicy.AffinitizeResponse
+- uid: Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.AffinitizeResponseAsync(HttpContext,Yarp.ReverseProxy.Model.ClusterState,Yarp.ReverseProxy.Configuration.SessionAffinityConfig,Yarp.ReverseProxy.Model.DestinationState,CancellationToken)
+  name: AffinitizeResponseAsync(HttpContext, ClusterState, SessionAffinityConfig, DestinationState, CancellationToken)
+  href: api/Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.html#Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_AffinitizeResponseAsync_HttpContext_Yarp_ReverseProxy_Model_ClusterState_Yarp_ReverseProxy_Configuration_SessionAffinityConfig_Yarp_ReverseProxy_Model_DestinationState_CancellationToken_
+  commentId: M:Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.AffinitizeResponseAsync(HttpContext,Yarp.ReverseProxy.Model.ClusterState,Yarp.ReverseProxy.Configuration.SessionAffinityConfig,Yarp.ReverseProxy.Model.DestinationState,CancellationToken)
+  fullName: Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.AffinitizeResponseAsync(HttpContext, Yarp.ReverseProxy.Model.ClusterState, Yarp.ReverseProxy.Configuration.SessionAffinityConfig, Yarp.ReverseProxy.Model.DestinationState, CancellationToken)
+  nameWithType: ISessionAffinityPolicy.AffinitizeResponseAsync(HttpContext, ClusterState, SessionAffinityConfig, DestinationState, CancellationToken)
+- uid: Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.AffinitizeResponseAsync*
+  name: AffinitizeResponseAsync
+  href: api/Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.html#Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_AffinitizeResponseAsync_
+  commentId: Overload:Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.AffinitizeResponseAsync
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.AffinitizeResponseAsync
+  nameWithType: ISessionAffinityPolicy.AffinitizeResponseAsync
 - uid: Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.FindAffinitizedDestinations(HttpContext,Yarp.ReverseProxy.Model.ClusterState,Yarp.ReverseProxy.Configuration.SessionAffinityConfig,IReadOnlyList{Yarp.ReverseProxy.Model.DestinationState})
   name: FindAffinitizedDestinations(HttpContext, ClusterState, SessionAffinityConfig, IReadOnlyList<DestinationState>)
   href: api/Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.html#Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_FindAffinitizedDestinations_HttpContext_Yarp_ReverseProxy_Model_ClusterState_Yarp_ReverseProxy_Configuration_SessionAffinityConfig_IReadOnlyList_Yarp_ReverseProxy_Model_DestinationState__
@@ -4161,6 +4456,22 @@ references:
   isSpec: "True"
   fullName: Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.FindAffinitizedDestinations
   nameWithType: ISessionAffinityPolicy.FindAffinitizedDestinations
+- uid: Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.FindAffinitizedDestinationsAsync(HttpContext,Yarp.ReverseProxy.Model.ClusterState,Yarp.ReverseProxy.Configuration.SessionAffinityConfig,IReadOnlyList{Yarp.ReverseProxy.Model.DestinationState},CancellationToken)
+  name: FindAffinitizedDestinationsAsync(HttpContext, ClusterState, SessionAffinityConfig, IReadOnlyList<DestinationState>, CancellationToken)
+  href: api/Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.html#Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_FindAffinitizedDestinationsAsync_HttpContext_Yarp_ReverseProxy_Model_ClusterState_Yarp_ReverseProxy_Configuration_SessionAffinityConfig_IReadOnlyList_Yarp_ReverseProxy_Model_DestinationState__CancellationToken_
+  commentId: M:Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.FindAffinitizedDestinationsAsync(HttpContext,Yarp.ReverseProxy.Model.ClusterState,Yarp.ReverseProxy.Configuration.SessionAffinityConfig,IReadOnlyList{Yarp.ReverseProxy.Model.DestinationState},CancellationToken)
+  name.vb: FindAffinitizedDestinationsAsync(HttpContext, ClusterState, SessionAffinityConfig, IReadOnlyList(Of DestinationState), CancellationToken)
+  fullName: Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.FindAffinitizedDestinationsAsync(HttpContext, Yarp.ReverseProxy.Model.ClusterState, Yarp.ReverseProxy.Configuration.SessionAffinityConfig, IReadOnlyList<Yarp.ReverseProxy.Model.DestinationState>, CancellationToken)
+  fullName.vb: Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.FindAffinitizedDestinationsAsync(HttpContext, Yarp.ReverseProxy.Model.ClusterState, Yarp.ReverseProxy.Configuration.SessionAffinityConfig, IReadOnlyList(Of Yarp.ReverseProxy.Model.DestinationState), CancellationToken)
+  nameWithType: ISessionAffinityPolicy.FindAffinitizedDestinationsAsync(HttpContext, ClusterState, SessionAffinityConfig, IReadOnlyList<DestinationState>, CancellationToken)
+  nameWithType.vb: ISessionAffinityPolicy.FindAffinitizedDestinationsAsync(HttpContext, ClusterState, SessionAffinityConfig, IReadOnlyList(Of DestinationState), CancellationToken)
+- uid: Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.FindAffinitizedDestinationsAsync*
+  name: FindAffinitizedDestinationsAsync
+  href: api/Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.html#Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_FindAffinitizedDestinationsAsync_
+  commentId: Overload:Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.FindAffinitizedDestinationsAsync
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.FindAffinitizedDestinationsAsync
+  nameWithType: ISessionAffinityPolicy.FindAffinitizedDestinationsAsync
 - uid: Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.Name
   name: Name
   href: api/Yarp.ReverseProxy.SessionAffinity.ISessionAffinityPolicy.html#Yarp_ReverseProxy_SessionAffinity_ISessionAffinityPolicy_Name
@@ -4218,6 +4529,19 @@ references:
   commentId: T:Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies
   fullName: Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies
   nameWithType: SessionAffinityConstants.Policies
+- uid: Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.ArrCookie
+  name: ArrCookie
+  href: api/Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.html#Yarp_ReverseProxy_SessionAffinity_SessionAffinityConstants_Policies_ArrCookie
+  commentId: P:Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.ArrCookie
+  fullName: Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.ArrCookie
+  nameWithType: SessionAffinityConstants.Policies.ArrCookie
+- uid: Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.ArrCookie*
+  name: ArrCookie
+  href: api/Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.html#Yarp_ReverseProxy_SessionAffinity_SessionAffinityConstants_Policies_ArrCookie_
+  commentId: Overload:Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.ArrCookie
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.ArrCookie
+  nameWithType: SessionAffinityConstants.Policies.ArrCookie
 - uid: Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.Cookie
   name: Cookie
   href: api/Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.html#Yarp_ReverseProxy_SessionAffinity_SessionAffinityConstants_Policies_Cookie
@@ -4244,6 +4568,19 @@ references:
   isSpec: "True"
   fullName: Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.CustomHeader
   nameWithType: SessionAffinityConstants.Policies.CustomHeader
+- uid: Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.HashCookie
+  name: HashCookie
+  href: api/Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.html#Yarp_ReverseProxy_SessionAffinity_SessionAffinityConstants_Policies_HashCookie
+  commentId: P:Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.HashCookie
+  fullName: Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.HashCookie
+  nameWithType: SessionAffinityConstants.Policies.HashCookie
+- uid: Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.HashCookie*
+  name: HashCookie
+  href: api/Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.html#Yarp_ReverseProxy_SessionAffinity_SessionAffinityConstants_Policies_HashCookie_
+  commentId: Overload:Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.HashCookie
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.SessionAffinity.SessionAffinityConstants.Policies.HashCookie
+  nameWithType: SessionAffinityConstants.Policies.HashCookie
 - uid: Yarp.ReverseProxy.Transforms
   name: Yarp.ReverseProxy.Transforms
   href: api/Yarp.ReverseProxy.Transforms.html
@@ -5999,6 +6336,19 @@ references:
   commentId: T:Yarp.ReverseProxy.Transforms.RequestTransformContext
   fullName: Yarp.ReverseProxy.Transforms.RequestTransformContext
   nameWithType: RequestTransformContext
+- uid: Yarp.ReverseProxy.Transforms.RequestTransformContext.CancellationToken
+  name: CancellationToken
+  href: api/Yarp.ReverseProxy.Transforms.RequestTransformContext.html#Yarp_ReverseProxy_Transforms_RequestTransformContext_CancellationToken
+  commentId: P:Yarp.ReverseProxy.Transforms.RequestTransformContext.CancellationToken
+  fullName: Yarp.ReverseProxy.Transforms.RequestTransformContext.CancellationToken
+  nameWithType: RequestTransformContext.CancellationToken
+- uid: Yarp.ReverseProxy.Transforms.RequestTransformContext.CancellationToken*
+  name: CancellationToken
+  href: api/Yarp.ReverseProxy.Transforms.RequestTransformContext.html#Yarp_ReverseProxy_Transforms_RequestTransformContext_CancellationToken_
+  commentId: Overload:Yarp.ReverseProxy.Transforms.RequestTransformContext.CancellationToken
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.Transforms.RequestTransformContext.CancellationToken
+  nameWithType: RequestTransformContext.CancellationToken
 - uid: Yarp.ReverseProxy.Transforms.RequestTransformContext.DestinationPrefix
   name: DestinationPrefix
   href: api/Yarp.ReverseProxy.Transforms.RequestTransformContext.html#Yarp_ReverseProxy_Transforms_RequestTransformContext_DestinationPrefix
@@ -6388,6 +6738,19 @@ references:
   commentId: T:Yarp.ReverseProxy.Transforms.ResponseTrailersTransformContext
   fullName: Yarp.ReverseProxy.Transforms.ResponseTrailersTransformContext
   nameWithType: ResponseTrailersTransformContext
+- uid: Yarp.ReverseProxy.Transforms.ResponseTrailersTransformContext.CancellationToken
+  name: CancellationToken
+  href: api/Yarp.ReverseProxy.Transforms.ResponseTrailersTransformContext.html#Yarp_ReverseProxy_Transforms_ResponseTrailersTransformContext_CancellationToken
+  commentId: P:Yarp.ReverseProxy.Transforms.ResponseTrailersTransformContext.CancellationToken
+  fullName: Yarp.ReverseProxy.Transforms.ResponseTrailersTransformContext.CancellationToken
+  nameWithType: ResponseTrailersTransformContext.CancellationToken
+- uid: Yarp.ReverseProxy.Transforms.ResponseTrailersTransformContext.CancellationToken*
+  name: CancellationToken
+  href: api/Yarp.ReverseProxy.Transforms.ResponseTrailersTransformContext.html#Yarp_ReverseProxy_Transforms_ResponseTrailersTransformContext_CancellationToken_
+  commentId: Overload:Yarp.ReverseProxy.Transforms.ResponseTrailersTransformContext.CancellationToken
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.Transforms.ResponseTrailersTransformContext.CancellationToken
+  nameWithType: ResponseTrailersTransformContext.CancellationToken
 - uid: Yarp.ReverseProxy.Transforms.ResponseTrailersTransformContext.HeadersCopied
   name: HeadersCopied
   href: api/Yarp.ReverseProxy.Transforms.ResponseTrailersTransformContext.html#Yarp_ReverseProxy_Transforms_ResponseTrailersTransformContext_HeadersCopied
@@ -6510,6 +6873,19 @@ references:
   commentId: T:Yarp.ReverseProxy.Transforms.ResponseTransformContext
   fullName: Yarp.ReverseProxy.Transforms.ResponseTransformContext
   nameWithType: ResponseTransformContext
+- uid: Yarp.ReverseProxy.Transforms.ResponseTransformContext.CancellationToken
+  name: CancellationToken
+  href: api/Yarp.ReverseProxy.Transforms.ResponseTransformContext.html#Yarp_ReverseProxy_Transforms_ResponseTransformContext_CancellationToken
+  commentId: P:Yarp.ReverseProxy.Transforms.ResponseTransformContext.CancellationToken
+  fullName: Yarp.ReverseProxy.Transforms.ResponseTransformContext.CancellationToken
+  nameWithType: ResponseTransformContext.CancellationToken
+- uid: Yarp.ReverseProxy.Transforms.ResponseTransformContext.CancellationToken*
+  name: CancellationToken
+  href: api/Yarp.ReverseProxy.Transforms.ResponseTransformContext.html#Yarp_ReverseProxy_Transforms_ResponseTransformContext_CancellationToken_
+  commentId: Overload:Yarp.ReverseProxy.Transforms.ResponseTransformContext.CancellationToken
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.Transforms.ResponseTransformContext.CancellationToken
+  nameWithType: ResponseTransformContext.CancellationToken
 - uid: Yarp.ReverseProxy.Transforms.ResponseTransformContext.HeadersCopied
   name: HeadersCopied
   href: api/Yarp.ReverseProxy.Transforms.ResponseTransformContext.html#Yarp_ReverseProxy_Transforms_ResponseTransformContext_HeadersCopied
@@ -7527,12 +7903,12 @@ references:
   commentId: F:Yarp.ReverseProxy.Utilities.Tls.TlsHandshakeType.HelloRequest
   fullName: Yarp.ReverseProxy.Utilities.Tls.TlsHandshakeType.HelloRequest
   nameWithType: TlsHandshakeType.HelloRequest
-- uid: Yarp.ReverseProxy.Utilities.Tls.TlsHandshakeType.KeyEpdate
-  name: KeyEpdate
-  href: api/Yarp.ReverseProxy.Utilities.Tls.TlsHandshakeType.html#Yarp_ReverseProxy_Utilities_Tls_TlsHandshakeType_KeyEpdate
-  commentId: F:Yarp.ReverseProxy.Utilities.Tls.TlsHandshakeType.KeyEpdate
-  fullName: Yarp.ReverseProxy.Utilities.Tls.TlsHandshakeType.KeyEpdate
-  nameWithType: TlsHandshakeType.KeyEpdate
+- uid: Yarp.ReverseProxy.Utilities.Tls.TlsHandshakeType.KeyUpdate
+  name: KeyUpdate
+  href: api/Yarp.ReverseProxy.Utilities.Tls.TlsHandshakeType.html#Yarp_ReverseProxy_Utilities_Tls_TlsHandshakeType_KeyUpdate
+  commentId: F:Yarp.ReverseProxy.Utilities.Tls.TlsHandshakeType.KeyUpdate
+  fullName: Yarp.ReverseProxy.Utilities.Tls.TlsHandshakeType.KeyUpdate
+  nameWithType: TlsHandshakeType.KeyUpdate
 - uid: Yarp.ReverseProxy.Utilities.Tls.TlsHandshakeType.MessageHash
   name: MessageHash
   href: api/Yarp.ReverseProxy.Utilities.Tls.TlsHandshakeType.html#Yarp_ReverseProxy_Utilities_Tls_TlsHandshakeType_MessageHash

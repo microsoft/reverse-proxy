@@ -106,7 +106,7 @@
     proxyPipeline.UsePassiveHealthChecks();
 });
 </code></pre>
-<p>By default this overload of <code>MapReverseProxy</code> only includes the minimal setup and proxying logic at the start and end of its pipeline. Middleware for session affinity, load balancing, and passive health checks are not included by default so that you can exclude, replace, or control their ordering with any additional middleware.</p>
+<p>By default this overload of <code>MapReverseProxy</code> only includes the minimal setup, proxying logic, and limit enforcement at the start and end of its pipeline. Middleware for session affinity, load balancing, and passive health checks are not included by default so that you can exclude, replace, or control their ordering with any additional middleware.</p>
 <h2 id="custom-proxy-middleware">Custom Proxy Middleware</h2>
 <p>Middlware inside the <code>MapReverseProxy</code> pipeline have access to all of the proxy data and state associated with a request (the route, cluster, destinations, etc.) through the <a class="xref" href="../api/Yarp.ReverseProxy.Model.IReverseProxyFeature.html">IReverseProxyFeature</a>. This is available from <code>HttpContext.Features</code> or the extension method <code>HttpContext.GetReverseProxyFeature()</code>.</p>
 <p>The data in <code>IReverseProxyFeature</code> are snapshotted from the proxy configuration at the start of the proxy pipeline and will not be affected by proxy configuration changes that occur while the request is being processed.</p>
