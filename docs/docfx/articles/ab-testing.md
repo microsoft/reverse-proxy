@@ -39,7 +39,7 @@ A/B testing and rolling upgrades require procedures for dynamically assigning in
 
 ## Usage
 
-This scenario makes use of two APIs, [IProxyStateLookup](xref:Yarp.ReverseProxy.IProxyStateLookup) and [ReassignProxyRequest](xref:Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.ReassignProxyRequest), called from a custom proxy middleware as shown in the sample above.
+This scenario makes use of two APIs, [IProxyStateLookup](xref:Yarp.ReverseProxy.IProxyStateLookup) and [ReassignProxyRequest](xref:Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.ReassignProxyRequest(Microsoft.AspNetCore.Http.HttpContext,Yarp.ReverseProxy.Model.ClusterState)), called from a custom proxy middleware as shown in the sample above.
 
 `IProxyStateLookup` is a service available in the Dependency Injection container that can be used to look up or enumerate the current routes and clusters. Note this data may change if the configuration changes. An A/B orchestration algorithm can examine the request, decide which cluster to send it to, and then retrieve that cluster from `IProxyStateLookup.TryGetCluster`.
 
