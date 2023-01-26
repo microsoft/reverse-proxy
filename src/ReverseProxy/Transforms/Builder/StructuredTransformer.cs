@@ -82,7 +82,6 @@ internal sealed class StructuredTransformer : HttpTransformer
             HttpContext = httpContext,
             ProxyRequest = proxyRequest,
             Path = httpContext.Request.Path,
-            Query = new QueryTransformContext(httpContext.Request),
             HeadersCopied = ShouldCopyRequestHeaders.GetValueOrDefault(true),
             CancellationToken = cancellationToken,
         };
@@ -99,8 +98,13 @@ internal sealed class StructuredTransformer : HttpTransformer
         }
 
         // Allow a transform to directly set a custom RequestUri.
-        proxyRequest.RequestUri ??= RequestUtilities.MakeDestinationAddress(
-            transformContext.DestinationPrefix, transformContext.Path, transformContext.Query.QueryString);
+        if (proxyRequest.RequestUri is null)
+        {
+            var queryString = transformContext.MaybeQuery?.QueryString ?? httpContext.Request.QueryString;
+
+            proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress(
+                transformContext.DestinationPrefix, transformContext.Path, queryString);
+        }
     }
 
     public override async ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage? proxyResponse, CancellationToken cancellationToken)
