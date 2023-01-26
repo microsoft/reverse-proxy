@@ -14,7 +14,7 @@ YARP is taking advantage of new .NET features and optimizations as they become a
 - [HTTP/3](http3.md) - support for inbound and outbound connections (preview).
 - [Distributed Tracing](distributed-tracing.md) - .NET 6.0 has built-in configurable support that YARP takes advantage of to enable more scenarios out-of-the-box.
 - [Http.sys Delegation](httpsys-delegation.md) - a kernel-level ASP.NET Core 6 feature that allows a request to be transferred to a different process.
-- [UseHttpLogging](diagnosing-yarp-issues.md#using-aspnet-6-request-logging) - includes an additional middleware component that can be used to provide more details about the request and response.
+- [UseHttpLogging](diagnosing-yarp-issues.md#using-aspnet-request-logging) - includes an additional middleware component that can be used to provide more details about the request and response.
 - [Dynamic HTTP/2 window scaling](https://github.com/dotnet/runtime/pull/54755) - improves HTTP/2 download speed on high-latency connections.
 - [NonValidated headers](https://github.com/microsoft/reverse-proxy/pull/1507) - improves perfomance by using non-validated HttpClient headers.
 
