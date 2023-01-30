@@ -2594,8 +2594,10 @@ public class HttpForwarderTests
         }
     }
 
-    [Fact]
-    public async Task RequestFailure_ResponseTransformsAreCalled()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task RequestFailure_ResponseTransformsAreCalled(bool failureInRequestTransform)
     {
         var events = TestEventListener.Collect();
 
@@ -2615,6 +2617,15 @@ public class HttpForwarderTests
 
         var transformer = new DelegateHttpTransforms
         {
+            OnRequest = (context, request, prefix) =>
+            {
+                if (failureInRequestTransform)
+                {
+                    throw new Exception();
+                }
+
+                return Task.CompletedTask;
+            },
             OnResponse = (context, response) =>
             {
                 if (response is null)
@@ -2630,14 +2641,18 @@ public class HttpForwarderTests
 
         Assert.True(responseTransformWithNullResponseCalled);
 
-        Assert.Equal(ForwarderError.Request, proxyError);
+        var expectedError = failureInRequestTransform
+            ? ForwarderError.RequestCreation
+            : ForwarderError.Request;
+
+        Assert.Equal(expectedError, proxyError);
         Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
         var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-        Assert.Equal(ForwarderError.Request, errorFeature.Error);
+        Assert.Equal(expectedError, errorFeature.Error);
         Assert.IsType<Exception>(errorFeature.Exception);
 
         AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
-        events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart });
+        events.AssertContainProxyStages(failureInRequestTransform ? Array.Empty<ForwarderStage>() : new [] { ForwarderStage.SendAsyncStart });
     }
 
     public enum CancellationScenario

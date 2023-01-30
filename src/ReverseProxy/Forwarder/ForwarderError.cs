@@ -98,4 +98,9 @@ public enum ForwarderError : int
     /// The configured destinations may have been excluded due to heath or other considerations.
     /// </summary>
     NoAvailableDestinations,
+
+    /// <summary>
+    /// Failed while creating the request message.
+    /// </summary>
+    RequestCreation,
 }

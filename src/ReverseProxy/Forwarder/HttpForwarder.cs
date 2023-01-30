@@ -134,7 +134,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             // See https://github.com/microsoft/reverse-proxy/issues/118 for design discussion.
             var isStreamingRequest = isClientHttp2OrGreater && ProtocolHelper.IsGrpcContentType(context.Request.ContentType);
 
-            HttpRequestMessage destinationRequest;
+            HttpRequestMessage? destinationRequest = null;
             StreamCopyHttpContent? requestContent = null;
             HttpResponseMessage destinationResponse;
             try
@@ -199,7 +199,8 @@ internal sealed class HttpForwarder : IHttpForwarder
             }
             catch (Exception requestException)
             {
-                return await HandleRequestFailureAsync(context, requestContent, requestException, transformer, activityCancellationSource);
+                return await HandleRequestFailureAsync(context, requestContent, requestException, transformer, activityCancellationSource,
+                    failedDuringRequestCreation: destinationRequest is null);
             }
 
             ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.SendAsyncStop);
@@ -621,7 +622,8 @@ internal sealed class HttpForwarder : IHttpForwarder
         return requestBodyError;
     }
 
-    private async ValueTask<ForwarderError> HandleRequestFailureAsync(HttpContext context, StreamCopyHttpContent? requestContent, Exception requestException, HttpTransformer transformer, ActivityCancellationTokenSource requestCancellationSource)
+    private async ValueTask<ForwarderError> HandleRequestFailureAsync(HttpContext context, StreamCopyHttpContent? requestContent, Exception requestException,
+        HttpTransformer transformer, ActivityCancellationTokenSource requestCancellationSource, bool failedDuringRequestCreation)
     {
         if (requestException is OperationCanceledException)
         {
@@ -651,7 +653,7 @@ internal sealed class HttpForwarder : IHttpForwarder
         }
 
         // We couldn't communicate with the destination.
-        return await ReportErrorAsync(ForwarderError.Request, StatusCodes.Status502BadGateway);
+        return await ReportErrorAsync(failedDuringRequestCreation ? ForwarderError.RequestCreation : ForwarderError.Request, StatusCodes.Status502BadGateway);
 
         async ValueTask<ForwarderError> ReportErrorAsync(ForwarderError error, int statusCode)
         {
@@ -1055,6 +1057,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             {
                 ForwarderError.None => throw new NotSupportedException("A more specific error must be used"),
                 ForwarderError.Request => "An error was encountered before receiving a response.",
+                ForwarderError.RequestCreation => "An error was encountered while creating the request message.",
                 ForwarderError.RequestTimedOut => "The request timed out before receiving a response.",
                 ForwarderError.RequestCanceled => "The request was canceled before receiving a response.",
                 ForwarderError.RequestBodyCanceled => "Copying the request body was canceled.",
