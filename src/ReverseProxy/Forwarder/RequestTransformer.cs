@@ -3,12 +3,13 @@
 
 using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
 namespace Yarp.ReverseProxy.Forwarder;
 
-internal class RequestTransformer : HttpTransformer
+internal sealed class RequestTransformer : HttpTransformer
 {
     private readonly Func<HttpContext, HttpRequestMessage, ValueTask> _requestTransform;
 
@@ -17,9 +18,9 @@ internal class RequestTransformer : HttpTransformer
         _requestTransform = requestTransform;
     }
 
-    public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
+    public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix, CancellationToken cancellationToken)
     {
-        await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+        await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix, cancellationToken);
         await _requestTransform(httpContext, proxyRequest);
     }
 }

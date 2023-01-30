@@ -22,6 +22,8 @@ using Microsoft.Net.Http.Headers;
 using Moq;
 using Xunit;
 using Xunit.Abstractions;
+using Yarp.ReverseProxy.Transforms;
+using Yarp.ReverseProxy.Transforms.Builder.Tests;
 using Yarp.ReverseProxy.Utilities;
 using Yarp.Tests.Common;
 
@@ -2592,6 +2594,143 @@ public class HttpForwarderTests
         }
     }
 
+    [Fact]
+    public async Task RequestFailure_ResponseTransformsAreCalled()
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Host = new HostString("example.com:3456");
+
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                throw new Exception();
+            });
+
+        var responseTransformWithNullResponseCalled = false;
+
+        var transformer = new DelegateHttpTransforms
+        {
+            OnResponse = (context, response) =>
+            {
+                if (response is null)
+                {
+                    responseTransformWithNullResponseCalled = true;
+                }
+
+                return new ValueTask<bool>(true);
+            }
+        };
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, ForwarderRequestConfig.Empty, transformer);
+
+        Assert.True(responseTransformWithNullResponseCalled);
+
+        Assert.Equal(ForwarderError.Request, proxyError);
+        Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.Request, errorFeature.Error);
+        Assert.IsType<Exception>(errorFeature.Exception);
+
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart });
+    }
+
+    public enum CancellationScenario
+    {
+        RequestAborted,
+        ActivityTimeout,
+        ManualCancellationToken,
+    }
+
+    [Theory]
+    [InlineData(CancellationScenario.RequestAborted)]
+    [InlineData(CancellationScenario.ActivityTimeout)]
+    [InlineData(CancellationScenario.ManualCancellationToken)]
+    public async Task ForwarderCancellations_CancellationsAreVisibleInTransforms(CancellationScenario cancellationScenario)
+    {
+        var events = TestEventListener.Collect();
+
+        using var requestAbortedCts = new CancellationTokenSource();
+        using var parameterCts = new CancellationTokenSource();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        httpContext.RequestAborted = requestAbortedCts.Token;
+
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                throw new InvalidOperationException();
+            });
+
+        var requestConfig = new ForwarderRequestConfig();
+
+        if (cancellationScenario == CancellationScenario.ActivityTimeout)
+        {
+            requestConfig = requestConfig with { ActivityTimeout = TimeSpan.FromMilliseconds(42) };
+        }
+
+        var ctWasAlreadyCancelled = false;
+        var inTheTransformsTcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var transformer = TransformBuilderTests.CreateTransformBuilder().CreateInternal(context =>
+        {
+            context.AddRequestTransform(async context =>
+            {
+                ctWasAlreadyCancelled = context.CancellationToken.IsCancellationRequested;
+
+                inTheTransformsTcs.SetResult();
+
+                await Task.Delay(-1, context.CancellationToken);
+            });
+        });
+
+        var proxyTask = sut.SendAsync(httpContext, destinationPrefix, client, requestConfig, transformer, parameterCts.Token);
+
+        await inTheTransformsTcs.Task;
+
+        if (cancellationScenario == CancellationScenario.RequestAborted)
+        {
+            requestAbortedCts.Cancel();
+        }
+        else if (cancellationScenario == CancellationScenario.ManualCancellationToken)
+        {
+            parameterCts.Cancel();
+        }
+
+        var proxyError = await proxyTask;
+
+        if (cancellationScenario != CancellationScenario.ManualCancellationToken)
+        {
+            Assert.False(ctWasAlreadyCancelled);
+        }
+
+        var expectedError = cancellationScenario == CancellationScenario.ActivityTimeout
+            ? ForwarderError.RequestTimedOut
+            : ForwarderError.RequestCanceled;
+
+        var expectedStatusCode = cancellationScenario == CancellationScenario.ActivityTimeout
+            ? StatusCodes.Status504GatewayTimeout
+            : StatusCodes.Status502BadGateway;
+
+        Assert.Equal(expectedError, proxyError);
+        Assert.Equal(expectedStatusCode, httpContext.Response.StatusCode);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(expectedError, errorFeature.Error);
+        Assert.IsType<TaskCanceledException>(errorFeature.Exception);
+
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(Array.Empty<ForwarderStage>());
+    }
+
     public static IEnumerable<object[]> GetProhibitedHeaders()
     {
         var headers = new[]
@@ -2782,11 +2921,6 @@ public class HttpForwarderTests
         {
             throw new NotImplementedException();
         }
-    }
-
-    private class TestTrailersFeature : IHttpResponseTrailersFeature
-    {
-        public IHeaderDictionary Trailers { get; set; } = new HeaderDictionary();
     }
 
     private class ThrowStream : DelegatingStream
@@ -2982,26 +3116,26 @@ public class HttpForwarderTests
         public Func<HttpContext, HttpResponseMessage, ValueTask<bool>> OnResponse { get; set; } = (_, _) => new(true);
         public Func<HttpContext, HttpResponseMessage, Task> OnResponseTrailers { get; set; } = (_, _) => Task.CompletedTask;
 
-        public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
+        public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix, CancellationToken cancellationToken)
         {
             if (CopyRequestHeaders)
             {
-                await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+                await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix, cancellationToken);
             }
 
             await OnRequest(httpContext, proxyRequest, destinationPrefix);
         }
 
-        public override async ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+        public override async ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse, CancellationToken cancellationToken)
         {
-            await base.TransformResponseAsync(httpContext, proxyResponse);
+            await base.TransformResponseAsync(httpContext, proxyResponse, cancellationToken);
 
             return await OnResponse(httpContext, proxyResponse);
         }
 
-        public override async ValueTask TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+        public override async ValueTask TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse, CancellationToken cancellationToken)
         {
-            await base.TransformResponseTrailersAsync(httpContext, proxyResponse);
+            await base.TransformResponseTrailersAsync(httpContext, proxyResponse, cancellationToken);
 
             await OnResponseTrailers(httpContext, proxyResponse);
         }

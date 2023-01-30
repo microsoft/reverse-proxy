@@ -117,6 +117,12 @@ internal sealed class HttpForwarder : IHttpForwarder
             throw new ArgumentException($"The http client must be of type HttpMessageInvoker, not HttpClient", nameof(httpClient));
         }
 
+        // "http://a".Length = 8
+        if (destinationPrefix is null || destinationPrefix.Length < 8)
+        {
+            throw new ArgumentException("Invalid destination prefix.", nameof(destinationPrefix));
+        }
+
         ForwarderTelemetry.Log.ForwarderStart(destinationPrefix);
 
         var activityCancellationSource = ActivityCancellationTokenSource.Rent(requestConfig?.ActivityTimeout ?? DefaultTimeout, context.RequestAborted, cancellationToken);
@@ -128,23 +134,26 @@ internal sealed class HttpForwarder : IHttpForwarder
             // See https://github.com/microsoft/reverse-proxy/issues/118 for design discussion.
             var isStreamingRequest = isClientHttp2OrGreater && ProtocolHelper.IsGrpcContentType(context.Request.ContentType);
 
-            // :: Step 1-3: Create outgoing HttpRequestMessage
-            var (destinationRequest, requestContent, tryDowngradingH2WsOnFailure) = await CreateRequestMessageAsync(
-                context, destinationPrefix, transformer, requestConfig, isStreamingRequest, activityCancellationSource);
-
-            // Transforms generated a response, do not proxy.
-            if (RequestUtilities.IsResponseSet(context.Response))
-            {
-                Log.NotProxying(_logger, context.Response.StatusCode);
-                return ForwarderError.None;
-            }
-
-            Log.Proxying(_logger, destinationRequest, isStreamingRequest);
-
-            // :: Step 4: Send the outgoing request using HttpClient
+            HttpRequestMessage destinationRequest;
+            StreamCopyHttpContent? requestContent = null;
             HttpResponseMessage destinationResponse;
             try
             {
+                // :: Step 1-3: Create outgoing HttpRequestMessage
+                bool tryDowngradingH2WsOnFailure;
+                (destinationRequest, requestContent, tryDowngradingH2WsOnFailure) = await CreateRequestMessageAsync(
+                    context, destinationPrefix, transformer, requestConfig, isStreamingRequest, activityCancellationSource);
+
+                // Transforms generated a response, do not proxy.
+                if (RequestUtilities.IsResponseSet(context.Response))
+                {
+                    Log.NotProxying(_logger, context.Response.StatusCode);
+                    return ForwarderError.None;
+                }
+
+                Log.Proxying(_logger, destinationRequest, isStreamingRequest);
+
+                // :: Step 4: Send the outgoing request using HttpClient
                 ForwarderTelemetry.Log.ForwarderStage(ForwarderStage.SendAsyncStart);
 
                 try
@@ -320,12 +329,6 @@ internal sealed class HttpForwarder : IHttpForwarder
     private async ValueTask<(HttpRequestMessage, StreamCopyHttpContent?, bool)> CreateRequestMessageAsync(HttpContext context, string destinationPrefix,
         HttpTransformer transformer, ForwarderRequestConfig? requestConfig, bool isStreamingRequest, ActivityCancellationTokenSource activityToken)
     {
-        // "http://a".Length = 8
-        if (destinationPrefix is null || destinationPrefix.Length < 8)
-        {
-            throw new ArgumentException("Invalid destination prefix.", nameof(destinationPrefix));
-        }
-
         var destinationRequest = new HttpRequestMessage();
 
         var upgradeFeature = context.Features.Get<IHttpUpgradeFeature>();
@@ -618,11 +621,11 @@ internal sealed class HttpForwarder : IHttpForwarder
         return requestBodyError;
     }
 
-    private async ValueTask<ForwarderError> HandleRequestFailureAsync(HttpContext context, StreamCopyHttpContent? requestContent, Exception requestException, HttpTransformer transformer, CancellationTokenSource requestCancellationSource)
+    private async ValueTask<ForwarderError> HandleRequestFailureAsync(HttpContext context, StreamCopyHttpContent? requestContent, Exception requestException, HttpTransformer transformer, ActivityCancellationTokenSource requestCancellationSource)
     {
         if (requestException is OperationCanceledException)
         {
-            if (context.RequestAborted.IsCancellationRequested)
+            if (context.RequestAborted.IsCancellationRequested || requestCancellationSource.CancelledByLinkedToken)
             {
                 return await ReportErrorAsync(ForwarderError.RequestCanceled, StatusCodes.Status502BadGateway);
             }
@@ -641,7 +644,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             if (requestBodyCopyResult != StreamCopyResult.Success)
             {
                 var error = HandleRequestBodyFailure(context, requestBodyCopyResult, requestBodyException!, requestException);
-                await transformer.TransformResponseAsync(context, proxyResponse: null);
+                await transformer.TransformResponseAsync(context, proxyResponse: null, requestCancellationSource.Token);
                 return error;
             }
         }
@@ -660,7 +663,7 @@ internal sealed class HttpForwarder : IHttpForwarder
                 await requestContent.ConsumptionTask;
             }
 
-            await transformer.TransformResponseAsync(context, null);
+            await transformer.TransformResponseAsync(context, null, requestCancellationSource.Token);
             return error;
         }
     }

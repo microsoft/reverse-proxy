@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -104,10 +105,10 @@ namespace Yarp.Sample
             /// <param name="proxyRequest">The outgoing proxy request.</param>
             /// <param name="destinationPrefix">The uri prefix for the selected destination server which can be used to create
             /// the RequestUri.</param>
-            public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
+            public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix, CancellationToken cancellationToken)
             {
                 // Copy all request headers
-                await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+                await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix, cancellationToken);
 
                 // Customize the query string:
                 var queryContext = new QueryTransformContext(httpContext.Request);

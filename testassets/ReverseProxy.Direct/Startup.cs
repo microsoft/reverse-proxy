@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -65,10 +66,10 @@ public class Startup
 
     private class CustomTransformer : HttpTransformer
     {
-        public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
+        public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix, CancellationToken cancellationToken)
         {
             // Copy all request headers
-            await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+            await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix, cancellationToken);
 
             // Customize the query string:
             var queryContext = new QueryTransformContext(httpContext.Request);
@@ -82,7 +83,7 @@ public class Startup
             proxyRequest.Headers.Host = null;
         }
 
-        public override ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
+        public override ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage proxyResponse, CancellationToken cancellationToken)
         {
             // Suppress the response body from errors.
             // The status code was already copied.
@@ -91,7 +92,7 @@ public class Startup
                 return new ValueTask<bool>(false);
             }
 
-            return base.TransformResponseAsync(httpContext, proxyResponse);
+            return base.TransformResponseAsync(httpContext, proxyResponse, cancellationToken);
         }
     }
 }
