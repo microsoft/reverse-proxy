@@ -625,8 +625,9 @@ internal sealed class HttpForwarder : IHttpForwarder
     {
         if (requestException is OperationCanceledException)
         {
-            if (context.RequestAborted.IsCancellationRequested || requestCancellationSource.CancelledByLinkedToken)
+            if (requestCancellationSource.CancelledByLinkedToken)
             {
+                // Either the client went away (HttpContext.RequestAborted) or the CancellationToken provided to SendAsync was signaled. 
                 return await ReportErrorAsync(ForwarderError.RequestCanceled, StatusCodes.Status502BadGateway);
             }
             else
