@@ -52,6 +52,7 @@ public class ActivityCancellationTokenSourceTests
         var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), linkedCts.Token);
         linkedCts.Cancel();
 
+        Assert.True(cts.CancelledByLinkedToken);
         Assert.True(cts.IsCancellationRequested);
     }
 
@@ -63,6 +64,7 @@ public class ActivityCancellationTokenSourceTests
         var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), default, linkedCts.Token);
         linkedCts.Cancel();
 
+        Assert.True(cts.CancelledByLinkedToken);
         Assert.True(cts.IsCancellationRequested);
     }
 
@@ -76,6 +78,7 @@ public class ActivityCancellationTokenSourceTests
         linkedCts1.Cancel();
         linkedCts2.Cancel();
 
+        Assert.True(cts.CancelledByLinkedToken);
         Assert.True(cts.IsCancellationRequested);
     }
 
@@ -103,6 +106,7 @@ public class ActivityCancellationTokenSourceTests
         {
             if (cts.IsCancellationRequested)
             {
+                Assert.False(cts.CancelledByLinkedToken);
                 return;
             }
 

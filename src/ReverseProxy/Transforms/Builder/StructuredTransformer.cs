@@ -64,11 +64,29 @@ internal sealed class StructuredTransformer : HttpTransformer
     /// </summary>
     internal ResponseTrailersTransform[] ResponseTrailerTransforms { get; }
 
+#pragma warning disable CS0672 // We're overriding the obsolete overloads to preserve backwards compatibility.
+    public override ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix) =>
+        TransformRequestAsync(httpContext, proxyRequest, destinationPrefix, CancellationToken.None);
+
+    public override ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage? proxyResponse) =>
+        TransformResponseAsync(httpContext, proxyResponse, CancellationToken.None);
+
+    public override ValueTask TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse) =>
+        TransformResponseTrailersAsync(httpContext, proxyResponse, CancellationToken.None);
+#pragma warning restore
+
     public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix, CancellationToken cancellationToken)
     {
         if (ShouldCopyRequestHeaders.GetValueOrDefault(true))
         {
-            await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix, cancellationToken);
+            // We own the base implementation and know it doesn't make use of the cancellation token.
+            // We're intentionally calling the overload without it to avoid it calling back into this derived implementation, causing a stack overflow.
+
+#pragma warning disable CA2016 // Forward the 'CancellationToken' parameter to methods
+#pragma warning disable CS0618 // Type or member is obsolete
+            await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+#pragma warning restore CS0618
+#pragma warning restore CA2016
         }
 
         if (RequestTransforms.Length == 0)
@@ -111,7 +129,14 @@ internal sealed class StructuredTransformer : HttpTransformer
     {
         if (ShouldCopyResponseHeaders.GetValueOrDefault(true))
         {
-            await base.TransformResponseAsync(httpContext, proxyResponse, cancellationToken);
+            // We own the base implementation and know it doesn't make use of the cancellation token.
+            // We're intentionally calling the overload without it to avoid it calling back into this derived implementation, causing a stack overflow.
+
+#pragma warning disable CA2016 // Forward the 'CancellationToken' parameter to methods
+#pragma warning disable CS0618 // Type or member is obsolete
+            await base.TransformResponseAsync(httpContext, proxyResponse);
+#pragma warning restore CS0618
+#pragma warning restore CA2016
         }
 
         if (ResponseTransforms.Length == 0)
@@ -139,7 +164,14 @@ internal sealed class StructuredTransformer : HttpTransformer
     {
         if (ShouldCopyResponseTrailers.GetValueOrDefault(true))
         {
-            await base.TransformResponseTrailersAsync(httpContext, proxyResponse, cancellationToken);
+            // We own the base implementation and know it doesn't make use of the cancellation token.
+            // We're intentionally calling the overload without it to avoid it calling back into this derived implementation, causing a stack overflow.
+
+#pragma warning disable CA2016 // Forward the 'CancellationToken' parameter to methods
+#pragma warning disable CS0618 // Type or member is obsolete
+            await base.TransformResponseTrailersAsync(httpContext, proxyResponse);
+#pragma warning restore CS0618
+#pragma warning restore CA2016
         }
 
         if (ResponseTrailerTransforms.Length == 0)

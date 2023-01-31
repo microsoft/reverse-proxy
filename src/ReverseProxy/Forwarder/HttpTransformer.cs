@@ -69,7 +69,9 @@ public class HttpTransformer
     /// <param name="destinationPrefix">The uri prefix for the selected destination server which can be used to create the RequestUri.</param>
     /// <param name="cancellationToken">Indicates that the request is being canceled.</param>
     public virtual ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix, CancellationToken cancellationToken)
+#pragma warning disable CS0618 // We're calling the overload without the CancellationToken for backwards compatibility.
         => TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+#pragma warning restore CS0618
 
     /// <summary>
     /// A callback that is invoked prior to sending the proxied request. All HttpRequestMessage fields are
@@ -84,6 +86,7 @@ public class HttpTransformer
     /// <param name="httpContext">The incoming request.</param>
     /// <param name="proxyRequest">The outgoing proxy request.</param>
     /// <param name="destinationPrefix">The uri prefix for the selected destination server which can be used to create the RequestUri.</param>
+    [Obsolete("This overload of TransformRequestAsync is obsolete. Override and use the overload accepting a CancellationToken instead.")]
     public virtual ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix)
     {
         foreach (var header in httpContext.Request.Headers)
@@ -149,7 +152,9 @@ public class HttpTransformer
     /// that returns false may send an alternate response inline or return control to the caller for it to retry, respond, 
     /// etc.</returns>
     public virtual ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage? proxyResponse, CancellationToken cancellationToken)
+#pragma warning disable CS0618 // We're calling the overload without the CancellationToken for backwards compatibility.
         => TransformResponseAsync(httpContext, proxyResponse);
+#pragma warning restore CS0618
 
     /// <summary>
     /// A callback that is invoked when the proxied response is received. The status code and reason phrase will be copied
@@ -162,6 +167,7 @@ public class HttpTransformer
     /// <returns>A bool indicating if the response should be proxied to the client or not. A derived implementation
     /// that returns false may send an alternate response inline or return control to the caller for it to retry, respond,
     /// etc.</returns>
+    [Obsolete("This overload of TransformResponseAsync is obsolete. Override and use the overload accepting a CancellationToken instead.")]
     public virtual ValueTask<bool> TransformResponseAsync(HttpContext httpContext, HttpResponseMessage? proxyResponse)
     {
         if (proxyResponse is null)
@@ -212,7 +218,9 @@ public class HttpTransformer
     /// <param name="proxyResponse">The response from the destination.</param>
     /// <param name="cancellationToken">Indicates that the request is being canceled.</param>
     public virtual ValueTask TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse, CancellationToken cancellationToken)
+#pragma warning disable CS0618 // We're calling the overload without the CancellationToken for backwards compatibility.
         => TransformResponseTrailersAsync(httpContext, proxyResponse);
+#pragma warning restore CS0618
 
     /// <summary>
     /// A callback that is invoked after the response body to modify trailers, if supported. The trailers will be
@@ -220,6 +228,7 @@ public class HttpTransformer
     /// </summary>
     /// <param name="httpContext">The incoming request.</param>
     /// <param name="proxyResponse">The response from the destination.</param>
+    [Obsolete("This overload of TransformResponseTrailersAsync is obsolete. Override and use the overload accepting a CancellationToken instead.")]
     public virtual ValueTask TransformResponseTrailersAsync(HttpContext httpContext, HttpResponseMessage proxyResponse)
     {
         // NOTE: Deliberately not using `context.Response.SupportsTrailers()`, `context.Response.AppendTrailer(...)`

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading;
 
 namespace Yarp.ReverseProxy.Utilities;
@@ -15,7 +16,9 @@ internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
 
     private static readonly Action<object?> _linkedTokenCancelDelegate = static s =>
     {
-        ((ActivityCancellationTokenSource)s!).Cancel(throwOnFirstException: false);
+        var cts = (ActivityCancellationTokenSource)s!;
+        cts.CancelledByLinkedToken = true;
+        cts.Cancel(throwOnFirstException: false);
     };
 
     private int _activityTimeoutMs;
@@ -23,6 +26,8 @@ internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
     private CancellationTokenRegistration _linkedRegistration2;
 
     private ActivityCancellationTokenSource() { }
+
+    public bool CancelledByLinkedToken { get; private set; }
 
     public void ResetTimeout()
     {
@@ -57,6 +62,8 @@ internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
 
         if (TryReset())
         {
+            Debug.Assert(!CancelledByLinkedToken);
+
             if (Interlocked.Increment(ref _count) <= MaxQueueSize)
             {
                 _sharedSources.Enqueue(this);

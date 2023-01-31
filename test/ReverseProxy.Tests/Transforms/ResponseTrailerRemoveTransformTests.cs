@@ -60,9 +60,4 @@ public class ResponseTrailerRemoveTransformTests
         var expectedHeaders = expected.Split("; ", StringSplitOptions.RemoveEmptyEntries);
         Assert.Equal(expectedHeaders, trailerFeature.Trailers.Select(h => h.Key));
     }
-
-    private class TestTrailersFeature : IHttpResponseTrailersFeature
-    {
-        public IHeaderDictionary Trailers { get; set; } = new HeaderDictionary();
-    }
 }

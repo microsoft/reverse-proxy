@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Xunit;
+using Yarp.Tests.Common;
 
 namespace Yarp.ReverseProxy.Transforms.Tests;
 
@@ -51,10 +52,5 @@ public class ResponseTrailerValueTransformTests
         var transform = new ResponseTrailerValueTransform("name", value, append, condition);
         await transform.ApplyAsync(transformContext);
         Assert.Equal(expected.Split(";", System.StringSplitOptions.RemoveEmptyEntries), trailerFeature.Trailers["name"]);
-    }
-
-    private class TestTrailersFeature : IHttpResponseTrailersFeature
-    {
-        public IHeaderDictionary Trailers { get; set; } = new HeaderDictionary();
     }
 }
