@@ -873,7 +873,7 @@ public class HttpForwarderTests
                 catch (HttpRequestException ex)
                 {
                     Assert.Contains("Content-Length", ex.InnerException.InnerException.Message);
-                    throw ex;
+                    throw;
                 }
 
                 return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
