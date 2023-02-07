@@ -80,7 +80,7 @@ public class HttpController : ControllerBase
     {
         foreach (var (key, value) in headers)
         {
-            Response.Headers.Add(key, value);
+            Response.Headers.Append(key, value);
         }
     }
 
