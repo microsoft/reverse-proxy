@@ -1049,7 +1049,7 @@ services.AddReverseProxy()
 ```C#
 internal class MyTransformProvider : ITransformProvider
 {
-    public void Validate(TransformValidationContext context)
+    public void Validate(TransformRouteValidationContext context)
     {
         // Check all routes for a custom property and validate the associated
         // transform data.
