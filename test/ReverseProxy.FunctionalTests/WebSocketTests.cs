@@ -15,11 +15,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Xunit;
 using Xunit.Abstractions;
 using Yarp.ReverseProxy.Common;
+using Yarp.ReverseProxy.Forwarder;
+using Yarp.ReverseProxy.Transforms;
 
 namespace Yarp.ReverseProxy;
 
@@ -261,6 +264,61 @@ public class WebSocketTests
             using var client = new ClientWebSocket();
             await SendWebSocketRequestAsync(client, uri, "HTTP/1.1", cts.Token);
         }, cts.Token);
+    }
+
+    [Fact]
+    public async Task WebSocketFallbackFromH2_FailureInSecondRequestTransform_TreatedAsRequestCreationFailure()
+    {
+        using var cts = CreateTimer();
+
+        ForwarderError? error = null;
+
+        var test = new TestEnvironment()
+        {
+            TestOutput = _output,
+            ProxyProtocol = HttpProtocols.Http1,
+            // The destination doesn't support HTTP/2, as determined by ALPN
+            DestinationProtocol = HttpProtocols.Http1,
+            DestionationHttpVersion = HttpVersion.Version20,
+            UseHttpsOnDestination = true,
+            ConfigureProxy = builder =>
+            {
+                builder.AddTransforms(transforms =>
+                {
+                    transforms.AddRequestTransform(context =>
+                    {
+                        if (context.ProxyRequest.Version.Major == 1)
+                        {
+                            // This is the second (downgrade) request.
+                            throw new Exception("Foo");
+                        }
+
+                        return default;
+                    });
+                });
+            },
+            ConfigureProxyApp = builder =>
+            {
+                builder.Use(async (context, next) =>
+                {
+                    await next(context);
+
+                    error = context.Features.Get<IForwarderErrorFeature>()?.Error;
+                });
+            },
+        };
+
+        await test.Invoke(async uri =>
+        {
+            try
+            {
+                using var client = new ClientWebSocket();
+                await SendWebSocketRequestAsync(client, uri, "HTTP/1.1", cts.Token);
+            }
+            catch { }
+        }, cts.Token);
+
+        Assert.Equal(ForwarderError.RequestCreation, error);
     }
 
     // [Fact]

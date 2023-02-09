@@ -191,6 +191,11 @@ internal sealed class HttpForwarder : IHttpForwarder
                         Version = HttpVersion.Version11,
                         VersionPolicy = HttpVersionPolicy.RequestVersionExact
                     };
+
+                    // Set the request back to null while we call into CreateRequestMessageAsync so that
+                    // potential exceptions are correctly treated as 'RequestCreation'.
+                    destinationRequest = null;
+
                     (destinationRequest, requestContent, _) = await CreateRequestMessageAsync(
                         context, destinationPrefix, transformer, config, isStreamingRequest, activityCancellationSource);
 
