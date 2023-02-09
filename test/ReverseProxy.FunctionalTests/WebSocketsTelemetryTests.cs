@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Xunit.Abstractions;
 using Yarp.ReverseProxy.Common;
 using Yarp.ReverseProxy.Utilities;
 using Yarp.Telemetry.Consumption;
@@ -24,6 +25,13 @@ namespace Yarp.ReverseProxy;
 
 public class WebSocketsTelemetryTests
 {
+    private readonly ITestOutputHelper _output;
+
+    public WebSocketsTelemetryTests(ITestOutputHelper output)
+    {
+        _output = output;
+    }
+
     [Fact]
     public async Task NoWebSocketsUpgrade_NoTelemetryWritten()
     {
@@ -169,8 +177,10 @@ public class WebSocketsTelemetryTests
                 {
                     await ProcessAsync(webSocket, clientBehavior, client: client);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _output.WriteLine($"Ignored client exception: {ex}");
+
                     Assert.True(serverBehavior.HasFlag(Behavior.ClosesConnection));
                 }
             },
@@ -180,8 +190,10 @@ public class WebSocketsTelemetryTests
                 {
                     await ProcessAsync(webSocket, serverBehavior, context: context);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _output.WriteLine($"Ignored destination exception: {ex}");
+
                     Assert.True(clientBehavior.HasFlag(Behavior.ClosesConnection));
                 }
             });
