@@ -102,7 +102,7 @@
     }
 </code></pre>
 <h2 id="usage">Usage</h2>
-<p>This scenario makes use of two APIs, <a class="xref" href="../api/Yarp.ReverseProxy.IProxyStateLookup.html">IProxyStateLookup</a> and <a href="xref:Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.ReassignProxyRequest">ReassignProxyRequest</a>, called from a custom proxy middleware as shown in the sample above.</p>
+<p>This scenario makes use of two APIs, <a class="xref" href="../api/Yarp.ReverseProxy.IProxyStateLookup.html">IProxyStateLookup</a> and <a href="xref:Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.ReassignProxyRequest(Microsoft.AspNetCore.Http.HttpContext,Yarp.ReverseProxy.Model.ClusterState)">ReassignProxyRequest</a>, called from a custom proxy middleware as shown in the sample above.</p>
 <p><code>IProxyStateLookup</code> is a service available in the Dependency Injection container that can be used to look up or enumerate the current routes and clusters. Note this data may change if the configuration changes. An A/B orchestration algorithm can examine the request, decide which cluster to send it to, and then retrieve that cluster from <code>IProxyStateLookup.TryGetCluster</code>.</p>
 <p>Once the cluster is selected, <code>ReassignProxyRequest</code> can be called to assign the request to that cluster. This updates the <a class="xref" href="../api/Yarp.ReverseProxy.Model.IReverseProxyFeature.html">IReverseProxyFeature</a> with the new cluster and destination information needed for the rest of the proxy middleware pipeline to handle the request.</p>
 <h2 id="session-affinity">Session affinity</h2>

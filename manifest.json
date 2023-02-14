@@ -513,7 +513,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Forwarder.ForwarderError.html",
-          "hash": "QXyTe/zhpfB7vgfcgHskuy4DjJdA7CZ4eUwCOubmYUU="
+          "hash": "cXplORbhaotbazQVD4aCWuhKZ9bXCyuR9VL8j/iJ+JQ="
         }
       },
       "is_incremental": false,
@@ -561,7 +561,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Forwarder.HttpTransformer.html",
-          "hash": "79zGepZSNkCSNA9OVWqRpsChYtYJc7x1gpPGpDdY4Y8="
+          "hash": "hxnTCOhsCQENErvO+5T2JAA+Qrf/6VF9iAZk5ti4FC0="
         }
       },
       "is_incremental": false,
@@ -1617,7 +1617,7 @@
       "output": {
         ".html": {
           "relative_path": "api/Yarp.ReverseProxy.Transforms.RequestTransformContext.html",
-          "hash": "uipxAcAU7PoJewCmTexngHbrpXF3gmxVl7HystrqpPk="
+          "hash": "sWyBD9YWB9kkvJRs1YnmrsiYf9EOEu8y4sDz5xrqFK0="
         }
       },
       "is_incremental": false,
@@ -2256,7 +2256,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/ab-testing.html",
-          "hash": "9Zm5Gwg1lxpGY9IPw7VSdZI5YZwiP6p4ePEIF1AtICg="
+          "hash": "7OdM70WlXHGAngoqtkro8DiC8Kd0O0EqwS6BmAqWmcs="
         }
       },
       "is_incremental": false,
@@ -2352,7 +2352,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/direct-forwarding.html",
-          "hash": "I6NQOKYfBcfuXvy/N/5nk9JbUaXFPCEtTWDMImsTTWQ="
+          "hash": "iC6wmSzst+frKVb2Ym0wlDdcIvrZ4ZvC2aN4iCMbmcM="
         }
       },
       "is_incremental": false,
@@ -2376,7 +2376,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/getting-started.html",
-          "hash": "TOzfZW7e8UUwBGZQNttt1B4mtrdDUtzZNMSnFKG3qgw="
+          "hash": "DlbWA68U06qaYAQJOLa+e31Jbrtub9sQKdrDuZmogDk="
         }
       },
       "is_incremental": false,
@@ -2443,9 +2443,6 @@
       "version": ""
     },
     {
-      "log_codes": [
-        "InvalidFileLink"
-      ],
       "type": "Conceptual",
       "source_relative_path": "articles/https-tls.md",
       "output": {
@@ -2523,7 +2520,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/middleware.html",
-          "hash": "aTs+nsVHjORETjFQfFHaQ9TibIEtPu6euTcH5c0FWz0="
+          "hash": "tC3aCi1Rys4+Q/4vkqrzNcohfoHxr+3LrlbzA1h8jGU="
         }
       },
       "is_incremental": false,
@@ -2571,7 +2568,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/runtimes.html",
-          "hash": "zdnlwVcquZ9k+jLujlj/sdnVlveKuXlkIBWsY0yT9ZM="
+          "hash": "8kyr7aDMy8L8AkCF72IFF59Zb08qU8sh5kwuFaW2Xu4="
         }
       },
       "is_incremental": false,
@@ -2619,7 +2616,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/transforms.html",
-          "hash": "iuUrellW2gXzSYedp79M5Kr3HsJ8AstC95HXVtqV1uk="
+          "hash": "tVbRu1bKX4UDhRr2yBTkXvhW48QrXBh6Fcut/EwxpuU="
         }
       },
       "is_incremental": false,

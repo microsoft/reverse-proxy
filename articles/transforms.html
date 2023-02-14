@@ -1362,17 +1362,26 @@ AnotherHeader: AnotherValue
 </code></pre>
 <pre><code class="lang-C#">internal class MyTransformProvider : ITransformProvider
 {
-    public void Validate(TransformValidationContext context)
+    public void ValidateRoute(TransformRouteValidationContext context)
     {
-        // Check all routes for a custom property and validate the associated
-        // transform data.
-        string value = null;
-        if (context.Route.Metadata?.TryGetValue(&quot;CustomMetadata&quot;, out value) ?? false)
+        // Check all routes for a custom property and validate the associated transform data.
+        if (context.Route.Metadata?.TryGetValue(&quot;CustomMetadata&quot;, out var value) ?? false)
         {
             if (string.IsNullOrEmpty(value))
             {
-                context.Errors.Add(new ArgumentException(
-                    &quot;A non-empty CustomMetadata value is required&quot;)); 
+                context.Errors.Add(new ArgumentException(&quot;A non-empty CustomMetadata value is required&quot;));
+            }
+        }
+    }
+
+    public void ValidateCluster(TransformClusterValidationContext context)
+    {
+        // Check all clusters for a custom property and validate the associated transform data.
+        if (context.Cluster.Metadata?.TryGetValue(&quot;CustomMetadata&quot;, out var value) ?? false)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                context.Errors.Add(new ArgumentException(&quot;A non-empty CustomMetadata value is required&quot;));
             }
         }
     }
@@ -1380,19 +1389,17 @@ AnotherHeader: AnotherValue
     public void Apply(TransformBuilderContext transformBuildContext)
     {
         // Check all routes for a custom property and add the associated transform.
-        string value = null;
-        if (transformBuildContext.Route.Metadata?.TryGetValue(&quot;CustomMetadata&quot;, out value)
-            ?? false)
+        if ((transformBuildContext.Route.Metadata?.TryGetValue(&quot;CustomMetadata&quot;, out var value) ?? false)
+            || (transformBuildContext.Cluster?.Metadata?.TryGetValue(&quot;CustomMetadata&quot;, out value) ?? false))
         {
             if (string.IsNullOrEmpty(value))
             {
-                throw new ArgumentException(
-                    &quot;A non-empty CustomMetadata value is required&quot;);
+                throw new ArgumentException(&quot;A non-empty CustomMetadata value is required&quot;);
             }
 
             transformBuildContext.AddRequestTransform(transformContext =&gt;
             {
-                transformContext.ProxyRequest.Headers.Add(&quot;CustomHeader&quot;, value);
+                transformContext.ProxyRequest.Options.Set(new HttpRequestOptionsKey&lt;string&gt;(&quot;CustomMetadata&quot;), value);
                 return default;
             });
         }
@@ -1410,15 +1417,13 @@ AnotherHeader: AnotherValue
 </code></pre>
 <pre><code class="lang-C#">internal class MyTransformFactory : ITransformFactory
 {
-    public bool Validate(TransformValidationContext context,
-        IReadOnlyDictionary&lt;string, string&gt; transformValues)
+    public bool Validate(TransformRouteValidationContext context, IReadOnlyDictionary&lt;string, string&gt; transformValues)
     {
         if (transformValues.TryGetValue(&quot;CustomTransform&quot;, out var value))
         {
             if (string.IsNullOrEmpty(value))
             {
-                context.Errors.Add(new ArgumentException(
-                    &quot;A non-empty CustomTransform value is required&quot;));
+                context.Errors.Add(new ArgumentException(&quot;A non-empty CustomTransform value is required&quot;));
             }
 
             return true; // Matched
@@ -1426,24 +1431,22 @@ AnotherHeader: AnotherValue
         return false;
     }
 
-    public bool Build(TransformBuilderContext context,
-        IReadOnlyDictionary&lt;string, string&gt; transformValues)
+    public bool Build(TransformBuilderContext context, IReadOnlyDictionary&lt;string, string&gt; transformValues)
     {
         if (transformValues.TryGetValue(&quot;CustomTransform&quot;, out var value))
         {
             if (string.IsNullOrEmpty(value))
             {
-                throw new ArgumentException(
-                    &quot;A non-empty CustomTransform value is required&quot;);
+                throw new ArgumentException(&quot;A non-empty CustomTransform value is required&quot;);
             }
 
             context.AddRequestTransform(transformContext =&gt;
             {
-                transformContext.ProxyRequest.Headers.Add(&quot;CustomHeader&quot;, value);
+                transformContext.ProxyRequest.Options.Set(new HttpRequestOptionsKey&lt;string&gt;(&quot;CustomTransform&quot;), value);
                 return default;
             });
 
-            return true; // Matched
+            return true;
         }
 
         return false;

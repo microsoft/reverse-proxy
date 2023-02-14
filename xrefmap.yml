@@ -2277,6 +2277,12 @@ references:
   commentId: F:Yarp.ReverseProxy.Forwarder.ForwarderError.RequestCanceled
   fullName: Yarp.ReverseProxy.Forwarder.ForwarderError.RequestCanceled
   nameWithType: ForwarderError.RequestCanceled
+- uid: Yarp.ReverseProxy.Forwarder.ForwarderError.RequestCreation
+  name: RequestCreation
+  href: api/Yarp.ReverseProxy.Forwarder.ForwarderError.html#Yarp_ReverseProxy_Forwarder_ForwarderError_RequestCreation
+  commentId: F:Yarp.ReverseProxy.Forwarder.ForwarderError.RequestCreation
+  fullName: Yarp.ReverseProxy.Forwarder.ForwarderError.RequestCreation
+  nameWithType: ForwarderError.RequestCreation
 - uid: Yarp.ReverseProxy.Forwarder.ForwarderError.RequestTimedOut
   name: RequestTimedOut
   href: api/Yarp.ReverseProxy.Forwarder.ForwarderError.html#Yarp_ReverseProxy_Forwarder_ForwarderError_RequestTimedOut

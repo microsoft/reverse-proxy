@@ -133,10 +133,10 @@ public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
 <pre><code class="lang-C#">private class CustomTransformer : HttpTransformer
 {
     public override async ValueTask TransformRequestAsync(HttpContext httpContext,
-        HttpRequestMessage proxyRequest, string destinationPrefix)
+        HttpRequestMessage proxyRequest, string destinationPrefix, CancellationToken cancellationToken)
     {
         // Copy all request headers
-        await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix);
+        await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix, cancellationToken);
 
         // Customize the query string:
         var queryContext = new QueryTransformContext(httpContext.Request);
