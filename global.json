@@ -1,9 +1,9 @@
 {
   "sdk": {
-    "version": "7.0.200-preview.22531.7"
+    "version": "8.0.100-alpha.1.23061.8"
   },
   "tools": {
-    "dotnet": "7.0.200-preview.22531.7",
+    "dotnet": "8.0.100-alpha.1.23061.8",
     "runtimes": {
       "dotnet": [
         "6.0.13"
@@ -14,7 +14,7 @@
     }
   },
   "msbuild-sdks": {
-    "Microsoft.DotNet.Arcade.Sdk": "7.0.0-beta.22426.8",
-    "Microsoft.DotNet.Helix.Sdk": "7.0.0-beta.22426.8"
+    "Microsoft.DotNet.Arcade.Sdk": "8.0.0-beta.23115.1",
+    "Microsoft.DotNet.Helix.Sdk": "8.0.0-beta.23115.1"
   }
 }
