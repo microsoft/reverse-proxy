@@ -42,8 +42,6 @@ public class Receiver : BackgroundHostedService
 
     public override async Task RunAsync(CancellationToken cancellationToken)
     {
-        using var client = new HttpClient();
-
         while (!cancellationToken.IsCancellationRequested)
         {
             await _limiter.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -53,7 +51,7 @@ public class Receiver : BackgroundHostedService
 
             try
             {
-                using var stream = await client.GetStreamAsync(_options.ControllerUrl, cancellationToken).ConfigureAwait(false);
+                using var stream = await _options.Client.GetStreamAsync(_options.ControllerUrl, cancellationToken).ConfigureAwait(false);
                 using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
                 using var cancellation = cancellationToken.Register(stream.Close);
                 while (true)
