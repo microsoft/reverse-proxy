@@ -990,7 +990,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             "Proxying to {targetUrl} {version} {versionPolicy} {isStreaming}");
 
         private static readonly Action<ILogger, ForwarderError, string, Exception> _proxyError = LoggerMessage.Define<ForwarderError, string>(
-            LogLevel.Information,
+            LogLevel.Warning,
             EventIds.ForwardingError,
             "{error}: {message}");
 
@@ -1010,7 +1010,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             "Unable to proxy the WebSocket using HTTP/2, server does not support HTTP/2. Retrying with HTTP/1.1. Disable HTTP/2 negotiation for improved performance.");
 
         private static readonly Action<ILogger, string?, Exception?> _invalidKeyHeader = LoggerMessage.Define<string?>(
-            LogLevel.Information,
+            LogLevel.Warning,
             EventIds.InvalidSecWebSocketKeyHeader,
             "Invalid Sec-WebSocket-Key header: '{key}'.");
 
