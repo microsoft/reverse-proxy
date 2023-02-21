@@ -35,6 +35,12 @@ public class Receiver : BackgroundHostedService
 
         _options = options.Value;
 
+        if (_options.Client == null)
+        {
+            _options.Client = new(_options.ClientHttpHandler ?? new HttpClientHandler());
+            _options.Client.Timeout = _options.ClientTimeout;
+        }
+
         // two requests per second after third failure
         _limiter = new Limiter(new Limit(2), 3);
         _proxyConfigProvider = proxyConfigProvider;

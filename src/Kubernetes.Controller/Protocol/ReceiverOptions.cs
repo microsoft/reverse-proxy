@@ -10,5 +10,9 @@ public class ReceiverOptions
 {
     public Uri ControllerUrl { get; set; }
 
+    public TimeSpan ClientTimeout { get; set; } = TimeSpan.FromSeconds(60);
+
+    public HttpMessageHandler ClientHttpHandler { get; set; }
+
     public HttpClient Client { get; set; } = default!;
 }
