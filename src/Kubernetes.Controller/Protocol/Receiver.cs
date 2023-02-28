@@ -38,18 +38,10 @@ public class Receiver : BackgroundHostedService
 
         _options = options.Value;
 
-        if (_options.Client == null)
+        _options.Client ??= new HttpMessageInvoker(new SocketsHttpHandler
         {
-            _options.Client = new(new SocketsHttpHandler
-            {
-                UseProxy = false,
-                AllowAutoRedirect = false,
-                AutomaticDecompression = DecompressionMethods.None,
-                UseCookies = false,
-                ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
-                ConnectTimeout = TimeSpan.FromSeconds(15),
-            });
-        }
+            ConnectTimeout = TimeSpan.FromSeconds(15),
+        });
 
         // two requests per second after third failure
         _limiter = new Limiter(new Limit(2), 3);
