@@ -38,9 +38,8 @@ public class Receiver : BackgroundHostedService
 
         _options = options.Value;
 
-        _options.Client ??= new HttpClient(new SocketsHttpHandler
+        _options.Client ??= new HttpMessageInvoker(new SocketsHttpHandler
         {
-            UseCookies = false,
             ConnectTimeout = TimeSpan.FromSeconds(15),
         });
 
