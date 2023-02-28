@@ -68,7 +68,7 @@ public class Receiver : BackgroundHostedService
             try
             {
                 var requestMessage = new HttpRequestMessage(HttpMethod.Get, _options.ControllerUrl);
-                var responseMessage = await _options.Client.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                var responseMessage = await _options.Client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
                 using var stream = await responseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
                 using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
                 using var cancellation = cancellationToken.Register(stream.Close);
