@@ -98,17 +98,18 @@ info: Microsoft.AspNetCore.HttpLogging.HttpLoggingMiddleware[2]
 
 ## Using Telemetry Events
 
+We recommend reading https://learn.microsoft.com/dotnet/fundamentals/networking/networking-telemetry as a primer on how to consume networking telemetry in .NET.
+
 The [Metrics sample](https://github.com/microsoft/reverse-proxy/tree/main/samples/ReverseProxy.Metrics.Sample) shows how to listen to events from the different providers that collect telemetry as part of YARP. The most important from a diagnostics perspective are:
 
-* ForwarderTelemetryConsumer
-* HttpClientTelemetryConsumer
+* `ForwarderTelemetryConsumer`
+* `HttpClientTelemetryConsumer`
 
 To use either of these you create a class implementing a [telemetry interface](https://microsoft.github.io/reverse-proxy/api/Yarp.Telemetry.Consumption.html#interfaces), such as [`IForwarderTelemetryConsumer`](https://github.com/microsoft/reverse-proxy/blob/release/latest/src/TelemetryConsumption/Forwarder/IForwarderTelemetryConsumer.cs):
 
 ```C#
 public class ForwarderTelemetry : IForwarderTelemetryConsumer
 {
-
       /// Called before forwarding a request.
       public void OnForwarderStart(DateTime timestamp, string destinationPrefix)
       {
@@ -153,7 +154,7 @@ public class ForwarderTelemetry : IForwarderTelemetryConsumer
 }
 ```
 
-And then register the class as part of `Configure Services`, for example:
+And then register the class as part of `ConfigureServices`, for example:
 
 ```C#
 public void ConfigureServices(IServiceCollection services)
