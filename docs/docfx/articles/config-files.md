@@ -141,7 +141,7 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
             {
               "Name": "MyCustomHeader", // Name of the header
               "Values": [ "value1", "value2", "another value" ], // Matches are against any of these values
-              "Mode": "ExactHeader", // or "HeaderPrefix", "Exists" , "Contains", "NotContains"
+              "Mode": "ExactHeader", // or "HeaderPrefix", "Exists" , "Contains", "NotContains", "NotExists"
               "IsCaseSensitive": true
             }
           ],
