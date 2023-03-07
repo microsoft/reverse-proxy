@@ -100,7 +100,7 @@ Configuration:
       ]
     }
   },
-   "route6" : {
+  "route6" : {
     "ClusterId": "cluster1",
     "Match": {
       "Path": "{**catch-all}",
@@ -113,6 +113,18 @@ Configuration:
         {
           "Name": "header7",
           "Mode": "Exists"
+        }
+      ]
+    }
+  },
+  "route7" : {
+    "ClusterId": "cluster1",
+    "Match": {
+      "Path": "{**catch-all}",
+      "Headers": [
+        {
+          "Name": "header7",
+          "Mode": "NotExists"
         }
       ]
     }
@@ -235,6 +247,23 @@ var routes = new[]
                 }
             }
         }
+    },
+    new RouteConfig()
+    {
+        RouteId = "route7",
+        ClusterId = "cluster1",
+        Match = new RouteMatch
+        {
+            Path = "{**catch-all}",
+            Headers = new[]
+            {
+                new RouteHeader()
+                {
+                    Name = "Header7",
+                    Mode = HeaderMatchMode.NotExists
+                }
+            }
+        }
     }
 };
 ```
@@ -249,7 +278,7 @@ The header name to check for on the request. A non-empty value is required. This
 
 ### Values
 
-A list of possible values to search for. The header must match at least one of these values according to the specified `Mode` except for the 'NotContains'. At least one value is required unless `Mode` is set to `Exists`.
+A list of possible values to search for. The header must match at least one of these values according to the specified `Mode` except for the 'NotContains'. At least one value is required unless `Mode` is set to `Exists` or `NotExists`.
 
 ### Mode
 
@@ -372,4 +401,24 @@ Header4: value2
 ```
 ```
 Header5: AnyValue
+```
+
+### Scenario 5 - NotExists
+
+Route7 requires that the header "Header7" must not exists
+
+The following headers will match route7:
+
+```
+NotHeader7: AnyValue
+```
+
+
+The following headers will _not_ match route7 because the header "Header7" exists.
+
+```
+Header7: AnyValue
+```
+```
+Header7:
 ```
