@@ -59,7 +59,7 @@ private static IHostBuilder CreateHostBuilder(string[] args) =>
                       {
                           kestrel.RequestHeaderEncodingSelector = _ => Encoding.Latin1;
                       });
-        );
+        });
 ```
 - EnableMultipleHttp2Connections - enables opening additional HTTP/2 connections to the same server when the maximum number of concurrent streams is reached on all existing connections. The default is `true`. See [SocketsHttpHandler.EnableMultipleHttp2Connections](https://docs.microsoft.com/dotnet/api/system.net.http.socketshttphandler.enablemultiplehttp2connections)
 ```JSON
