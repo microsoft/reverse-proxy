@@ -39,6 +39,6 @@ public class ReverseProxyFeature : IReverseProxyFeature
     public ReverseProxyFeature()
     {
         if (Observability.IsListening)
-        ActivityForTracing = (Observability.IsListening) ? Observability.YarpActivitySource.CreateActivity("Forward", ActivityKind.Server) : null;
+        ActivityForTracing = (Observability.IsListening) ? Observability.YarpActivitySource.StartActivity("Proxy Forwarder", ActivityKind.Server) : null;
     }
 }

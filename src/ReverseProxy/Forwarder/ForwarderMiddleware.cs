@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.Extensions.Logging;
@@ -77,12 +78,14 @@ internal sealed class ForwarderMiddleware
         {
             cluster.ConcurrencyCounter.Increment();
             destination.ConcurrencyCounter.Increment();
-            activityForTracing?.Start();
             ForwarderTelemetry.Log.ForwarderInvoke(cluster.ClusterId, route.Config.RouteId, destination.DestinationId);
 
             var clusterConfig = reverseProxyFeature.Cluster;
-            await _forwarder.SendAsync(context, destinationModel.Config.Address, clusterConfig.HttpClient,
+            var result = await _forwarder.SendAsync(context, destinationModel.Config.Address, clusterConfig.HttpClient,
                 clusterConfig.Config.HttpRequest ?? ForwarderRequestConfig.Empty, route.Transformer);
+
+            activityForTracing?.SetStatus( (result == ForwarderError.None) ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
+
         }
         finally
         {

@@ -109,7 +109,7 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
             return;
         }
 
-        var activity = Observability.YarpActivitySource.CreateActivity("Yarp.ActiveHealthCheck", ActivityKind.Internal);
+        var activity = Observability.YarpActivitySource.StartActivity("Proxy active destination health check", ActivityKind.Internal);
 
         Log.StartingActiveHealthProbingOnCluster(_logger, cluster.ClusterId);
 
@@ -121,7 +121,7 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
 
         for (var i = 0; i < probeTasks.Length; i++)
         {
-            probeTasks[i] = ProbeDestinationAsync(cluster, allDestinations[i], timeout, activity);
+            probeTasks[i] = ProbeDestinationAsync(cluster, allDestinations[i], timeout);
         }
 
         for (var i = 0; i < probeResults.Length; i++)
@@ -133,10 +133,12 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
         {
             var policy = _policies.GetRequiredServiceById(config.Policy, HealthCheckConstants.ActivePolicy.ConsecutiveFailures);
             policy.ProbingCompleted(cluster, probeResults);
+            activity?.SetStatus(ActivityStatusCode.Ok);
         }
         catch (Exception ex)
         {
             Log.ActiveHealthProbingFailedOnCluster(_logger, cluster.ClusterId, ex);
+            activity?.SetStatus(ActivityStatusCode.Error);
         }
         finally
         {
@@ -157,7 +159,7 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
         }
     }
 
-    private async Task<DestinationProbingResult> ProbeDestinationAsync(ClusterState cluster, DestinationState destination, TimeSpan timeout, Activity? healthCheckActivity)
+    private async Task<DestinationProbingResult> ProbeDestinationAsync(ClusterState cluster, DestinationState destination, TimeSpan timeout)
     {
         HttpRequestMessage request;
         try
@@ -171,9 +173,9 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
             return new DestinationProbingResult(destination, null, ex);
         }
 
-        var probeActivity = Observability.YarpActivitySource.StartActivity("Probe Destination", ActivityKind.Internal);
-        probeActivity?.AddTag("Cluster", cluster.ClusterId);
-        probeActivity?.AddTag("Destination", destination.DestinationId);
+        var probeActivity = Observability.YarpActivitySource.StartActivity("Proxy destination health check", ActivityKind.Client);
+        probeActivity?.AddTag("Cluster ID", cluster.ClusterId);
+        probeActivity?.AddTag("Destination ID", destination.DestinationId);
         var cts = new CancellationTokenSource(timeout);
         try
         {
