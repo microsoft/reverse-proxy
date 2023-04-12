@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Model;
 
@@ -31,4 +33,12 @@ public class ReverseProxyFeature : IReverseProxyFeature
 
     /// <inheritdoc/>
     public DestinationState? ProxiedDestination { get; set; }
+
+    public Activity? ActivityForTracing { get; init; }
+
+    public ReverseProxyFeature()
+    {
+        if (Observability.IsListening)
+        ActivityForTracing = (Observability.IsListening) ? Observability.YarpActivitySource.CreateActivity("Forward", ActivityKind.Server) : null;
+    }
 }

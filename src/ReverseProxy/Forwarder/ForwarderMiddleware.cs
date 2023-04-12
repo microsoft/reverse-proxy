@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Utilities;
@@ -64,11 +65,19 @@ internal sealed class ForwarderMiddleware
             throw new InvalidOperationException($"Chosen destination has no model set: '{destination.DestinationId}'");
         }
 
+        var activityForTracing = reverseProxyFeature.ActivityForTracing;
+        if (activityForTracing != null)
+        {
+            activityForTracing.AddTag("Route", route.Config.RouteId);
+            activityForTracing.AddTag("Cluster", cluster.ClusterId);
+            activityForTracing.AddTag("Destination", destination.DestinationId);
+        }
+
         try
         {
             cluster.ConcurrencyCounter.Increment();
             destination.ConcurrencyCounter.Increment();
-
+            activityForTracing?.Start();
             ForwarderTelemetry.Log.ForwarderInvoke(cluster.ClusterId, route.Config.RouteId, destination.DestinationId);
 
             var clusterConfig = reverseProxyFeature.Cluster;
@@ -79,6 +88,7 @@ internal sealed class ForwarderMiddleware
         {
             destination.ConcurrencyCounter.Decrement();
             cluster.ConcurrencyCounter.Decrement();
+            activityForTracing?.Stop();
         }
     }
 
