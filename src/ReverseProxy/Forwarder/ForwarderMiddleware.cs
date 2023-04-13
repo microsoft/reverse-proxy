@@ -42,11 +42,20 @@ internal sealed class ForwarderMiddleware
         var route = context.GetRouteModel();
         var cluster = route.Cluster!;
 
+
+        var activityForTracing = reverseProxyFeature.ActivityForTracing;
+        activityForTracing?.AddTag("RouteId", route.Config.RouteId);
+        activityForTracing?.AddTag("ClusterId", cluster.ClusterId);
+
+
         if (destinations.Count == 0)
         {
             Log.NoAvailableDestinations(_logger, cluster.ClusterId);
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
             context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.NoAvailableDestinations, ex: null));
+            activityForTracing?.SetStatus(ActivityStatusCode.Error);
+            activityForTracing?.AddTag("DestinationId", "No destinations available");
+            activityForTracing?.Stop();
             return;
         }
 
@@ -59,19 +68,12 @@ internal sealed class ForwarderMiddleware
         }
 
         reverseProxyFeature.ProxiedDestination = destination;
+        activityForTracing?.AddTag("DestinationId", destination.DestinationId);
 
         var destinationModel = destination.Model;
         if (destinationModel is null)
         {
             throw new InvalidOperationException($"Chosen destination has no model set: '{destination.DestinationId}'");
-        }
-
-        var activityForTracing = reverseProxyFeature.ActivityForTracing;
-        if (activityForTracing != null)
-        {
-            activityForTracing.AddTag("Route", route.Config.RouteId);
-            activityForTracing.AddTag("Cluster", cluster.ClusterId);
-            activityForTracing.AddTag("Destination", destination.DestinationId);
         }
 
         try

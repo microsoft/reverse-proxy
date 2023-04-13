@@ -109,7 +109,8 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
             return;
         }
 
-        var activity = Observability.YarpActivitySource.StartActivity("Proxy active destination health check", ActivityKind.Internal);
+        var activity = Observability.YarpActivitySource.StartActivity("Proxy cluster active health checks", ActivityKind.Consumer);
+        activity?.AddTag("ClusterId", cluster.ClusterId);
 
         Log.StartingActiveHealthProbingOnCluster(_logger, cluster.ClusterId);
 
@@ -174,8 +175,8 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
         }
 
         var probeActivity = Observability.YarpActivitySource.StartActivity("Proxy destination health check", ActivityKind.Client);
-        probeActivity?.AddTag("Cluster ID", cluster.ClusterId);
-        probeActivity?.AddTag("Destination ID", destination.DestinationId);
+        probeActivity?.AddTag("ClusterId", cluster.ClusterId);
+        probeActivity?.AddTag("DestinationId", destination.DestinationId);
         var cts = new CancellationTokenSource(timeout);
         try
         {
