@@ -43,7 +43,7 @@ internal sealed class ForwarderMiddleware
         var cluster = route.Cluster!;
 
 
-        var activityForTracing = reverseProxyFeature.ActivityForTracing;
+        var activityForTracing = ((ReverseProxyFeature)reverseProxyFeature).ActivityForTracing;
         activityForTracing?.AddTag("RouteId", route.Config.RouteId);
         activityForTracing?.AddTag("ClusterId", cluster.ClusterId);
 
@@ -55,7 +55,6 @@ internal sealed class ForwarderMiddleware
             context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.NoAvailableDestinations, ex: null));
             activityForTracing?.SetStatus(ActivityStatusCode.Error);
             activityForTracing?.AddTag("DestinationId", "No destinations available");
-            activityForTracing?.Stop();
             return;
         }
 
@@ -87,13 +86,11 @@ internal sealed class ForwarderMiddleware
                 clusterConfig.Config.HttpRequest ?? ForwarderRequestConfig.Empty, route.Transformer);
 
             activityForTracing?.SetStatus( (result == ForwarderError.None) ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
-
         }
         finally
         {
             destination.ConcurrencyCounter.Decrement();
             cluster.ConcurrencyCounter.Decrement();
-            activityForTracing?.Stop();
         }
     }
 

@@ -9,10 +9,8 @@ namespace Yarp.ReverseProxy.Utilities
 {
     internal class Observability
     {
-        private static ActivitySource _activitySource = new ActivitySource("Yarp.ReverseProxy");
+        private static readonly ActivitySource _activitySource = new ActivitySource("Yarp.ReverseProxy");
 
         public static ActivitySource YarpActivitySource => _activitySource;
-
-        public static bool IsListening => _activitySource.HasListeners();
     }
 }

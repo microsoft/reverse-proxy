@@ -57,6 +57,7 @@ public static class HttpContextFeaturesExtensions
             AllDestinations = destinations.AllDestinations,
             AvailableDestinations = destinations.AvailableDestinations,
             ProxiedDestination = oldFeature.ProxiedDestination,
+            ActivityForTracing = (oldFeature as ReverseProxyFeature)?.ActivityForTracing
         };
         context.Features.Set<IReverseProxyFeature>(newFeature);
     }
@@ -77,6 +78,7 @@ public static class HttpContextFeaturesExtensions
             AllDestinations = destinations.AllDestinations,
             AvailableDestinations = destinations.AvailableDestinations,
             ProxiedDestination = oldFeature.ProxiedDestination,
+            ActivityForTracing = (oldFeature as ReverseProxyFeature)?.ActivityForTracing
         };
         context.Features.Set<IReverseProxyFeature>(newFeature);
     }

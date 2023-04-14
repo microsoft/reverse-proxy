@@ -109,6 +109,7 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
             return;
         }
 
+        // Creates an Activity to trace the active health checks
         var activity = Observability.YarpActivitySource.StartActivity("Proxy cluster active health checks", ActivityKind.Consumer);
         activity?.AddTag("ClusterId", cluster.ClusterId);
 

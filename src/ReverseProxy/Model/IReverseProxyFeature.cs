@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Yarp.ReverseProxy.Model;
 
@@ -37,5 +36,4 @@ public interface IReverseProxyFeature
     /// </summary>
     DestinationState? ProxiedDestination { get; set; }
 
-    Activity? ActivityForTracing { get; } 
 }

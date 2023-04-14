@@ -34,11 +34,8 @@ public class ReverseProxyFeature : IReverseProxyFeature
     /// <inheritdoc/>
     public DestinationState? ProxiedDestination { get; set; }
 
-    public Activity? ActivityForTracing { get; init; }
-
-    public ReverseProxyFeature()
-    {
-        if (Observability.IsListening)
-        ActivityForTracing = (Observability.IsListening) ? Observability.YarpActivitySource.StartActivity("Proxy Forwarder", ActivityKind.Server) : null;
-    }
+    /// <summary>
+    /// Diagnostics Activity for distributed tracing. Will only be created if there is a listener for "Yarp.ReverseProxy"
+    /// </summary>
+    internal Activity? ActivityForTracing { get; init; }
 }

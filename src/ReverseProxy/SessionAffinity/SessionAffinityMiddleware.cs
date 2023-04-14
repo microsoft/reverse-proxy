@@ -56,11 +56,14 @@ internal sealed class SessionAffinityMiddleware
         var policy = _sessionAffinityPolicies.GetRequiredServiceById(config.Policy, SessionAffinityConstants.Policies.HashCookie);
         var affinityResult = await policy.FindAffinitizedDestinationsAsync(context, cluster, config, destinations, context.RequestAborted);
 
+        // Used for Distributed Tracing as part of Open Telemetry, null if there are no listeners
+        var activityForTracing = (proxyFeature as ReverseProxyFeature)?.ActivityForTracing;
+
         switch (affinityResult.Status)
         {
             case AffinityStatus.OK:
                 proxyFeature.AvailableDestinations = affinityResult.Destinations!;
-                proxyFeature.ActivityForTracing?.SetTag("Session Affinity", $"Destination selected by affinity policy {policy.Name}");
+                activityForTracing?.SetTag("Session Affinity", $"Destination selected by affinity policy {policy.Name}");
                 break;
             case AffinityStatus.AffinityKeyNotSet:
                 // Nothing to do so just continue processing
@@ -76,12 +79,12 @@ internal sealed class SessionAffinityMiddleware
                     // Policy reported the failure is unrecoverable and took the full responsibility for its handling,
                     // so we simply stop processing.
                     Log.AffinityResolutionFailedForCluster(_logger, cluster.ClusterId);
-                    proxyFeature.ActivityForTracing?.SetTag("Session Affinity", $"Failure in {policy.Name}");
+                    activityForTracing?.SetTag("Session Affinity", $"Failure in {policy.Name}");
                     return;
                 }
 
                 Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, cluster.ClusterId, failurePolicy.Name);
-                proxyFeature.ActivityForTracing?.SetTag("Session Affinity", $"Failure in {policy.Name}, recovered using {failurePolicy.Name}");
+                activityForTracing?.SetTag("Session Affinity", $"Failure in {policy.Name}, recovered using {failurePolicy.Name}");
 
                 break;
             default:
