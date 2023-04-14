@@ -7,10 +7,8 @@ using System.Diagnostics;
 
 namespace Yarp.ReverseProxy.Utilities
 {
-    internal class Observability
+    internal static class Observability
     {
-        private static readonly ActivitySource _activitySource = new ActivitySource("Yarp.ReverseProxy");
-
-        public static ActivitySource YarpActivitySource => _activitySource;
+        public static readonly ActivitySource YarpActivitySource = new ActivitySource("Yarp.ReverseProxy");
     }
 }
