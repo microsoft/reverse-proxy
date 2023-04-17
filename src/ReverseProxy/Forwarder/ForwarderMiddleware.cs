@@ -42,10 +42,9 @@ internal sealed class ForwarderMiddleware
         var route = context.GetRouteModel();
         var cluster = route.Cluster!;
 
-
-        var activityForTracing = ((ReverseProxyFeature)reverseProxyFeature).ActivityForTracing;
-        activityForTracing?.AddTag("RouteId", route.Config.RouteId);
-        activityForTracing?.AddTag("ClusterId", cluster.ClusterId);
+        var activity = context.GetYarpActivity();
+        activity?.AddTag("RouteId", route.Config.RouteId);
+        activity?.AddTag("ClusterId", cluster.ClusterId);
 
 
         if (destinations.Count == 0)
@@ -53,8 +52,8 @@ internal sealed class ForwarderMiddleware
             Log.NoAvailableDestinations(_logger, cluster.ClusterId);
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
             context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.NoAvailableDestinations, ex: null));
-            activityForTracing?.SetStatus(ActivityStatusCode.Error);
-            activityForTracing?.AddTag("DestinationId", "No destinations available");
+            activity?.SetStatus(ActivityStatusCode.Error);
+            activity?.AddTag("DestinationId", "No destinations available");
             return;
         }
 
@@ -67,7 +66,7 @@ internal sealed class ForwarderMiddleware
         }
 
         reverseProxyFeature.ProxiedDestination = destination;
-        activityForTracing?.AddTag("DestinationId", destination.DestinationId);
+        activity?.AddTag("DestinationId", destination.DestinationId);
 
         var destinationModel = destination.Model;
         if (destinationModel is null)
@@ -85,7 +84,7 @@ internal sealed class ForwarderMiddleware
             var result = await _forwarder.SendAsync(context, destinationModel.Config.Address, clusterConfig.HttpClient,
                 clusterConfig.Config.HttpRequest ?? ForwarderRequestConfig.Empty, route.Transformer);
 
-            activityForTracing?.SetStatus( (result == ForwarderError.None) ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
+            activity?.SetStatus((result == ForwarderError.None) ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
         }
         finally
         {

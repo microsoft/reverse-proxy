@@ -49,14 +49,14 @@ internal sealed class ProxyPipelineInitializerMiddleware
             Cluster = cluster.Model,
             AllDestinations = destinationsState.AllDestinations,
             AvailableDestinations = destinationsState.AvailableDestinations,
-            ActivityForTracing = Observability.YarpActivitySource.StartActivity("Proxy Forwarder", ActivityKind.Server)
         });
-       
+
+        var activity = Observability.YarpActivitySource.StartActivity("Proxy Forwarder", ActivityKind.Server);
+        context.SetYarpActivity(activity);
 
         await _next(context);
 
-        // Re-fetch the feature as it could have been changed during processing 
-        (context.GetReverseProxyFeature() as ReverseProxyFeature)?.ActivityForTracing?.Stop();
+        activity?.Stop();
     }
 
     private static class Log

@@ -33,9 +33,4 @@ public class ReverseProxyFeature : IReverseProxyFeature
 
     /// <inheritdoc/>
     public DestinationState? ProxiedDestination { get; set; }
-
-    /// <summary>
-    /// Diagnostics Activity for distributed tracing. Will only be created if there is a listener for "Yarp.ReverseProxy"
-    /// </summary>
-    internal Activity? ActivityForTracing { get; init; }
 }
