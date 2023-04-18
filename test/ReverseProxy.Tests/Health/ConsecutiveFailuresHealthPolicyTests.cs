@@ -111,7 +111,7 @@ public class ConsecutiveFailuresHealthPolicyTests
         Assert.Equal(DestinationHealth.Unhealthy, cluster.Destinations.Values.First().Health.Active);
         Assert.Equal(DestinationHealth.Healthy, cluster.Destinations.Values.Skip(1).First().Health.Active);
 
-        policy.ProbingCompleted(cluster, new DestinationProbingResult[0]);
+        policy.ProbingCompleted(cluster, Array.Empty<DestinationProbingResult>());
 
         Assert.Equal(DestinationHealth.Unhealthy, cluster.Destinations.Values.First().Health.Active);
         Assert.Equal(DestinationHealth.Healthy, cluster.Destinations.Values.Skip(1).First().Health.Active);

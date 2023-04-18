@@ -44,9 +44,9 @@ public class ResponseTrailerRemoveTransformTests
         var trailerFeature = new TestTrailersFeature();
         httpContext.Features.Set<IHttpResponseTrailersFeature>(trailerFeature);
         var proxyResponse = new HttpResponseMessage();
-        foreach (var pair in TestResources.ParseNameAndValues(names, values))
+        foreach (var (name, subvalues) in TestResources.ParseNameAndValues(names, values))
         {
-            trailerFeature.Trailers.Add(pair.Name, pair.Values);
+            trailerFeature.Trailers[name] = subvalues;
         }
 
         var transform = new ResponseTrailerRemoveTransform(removedHeader, condition);

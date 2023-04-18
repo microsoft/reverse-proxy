@@ -20,7 +20,7 @@ public class ResponseTrailersTransformTests
         var httpContext = new DefaultHttpContext();
         var trailerFeature = new TestTrailersFeature();
         httpContext.Features.Set<IHttpResponseTrailersFeature>(trailerFeature);
-        trailerFeature.Trailers.Add("name", "value0");
+        trailerFeature.Trailers["name"] = "value0";
         var proxyResponse = new HttpResponseMessage();
         proxyResponse.TrailingHeaders.Add("Name", "value1");
         var result = ResponseTrailersTransform.TakeHeader(new ResponseTrailersTransformContext()
