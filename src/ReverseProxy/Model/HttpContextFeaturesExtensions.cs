@@ -56,7 +56,7 @@ public static class HttpContextFeaturesExtensions
             Cluster = cluster.Model,
             AllDestinations = destinations.AllDestinations,
             AvailableDestinations = destinations.AvailableDestinations,
-            ProxiedDestination = oldFeature.ProxiedDestination
+            ProxiedDestination = oldFeature.ProxiedDestination,
         };
         context.Features.Set<IReverseProxyFeature>(newFeature);
     }
@@ -76,7 +76,7 @@ public static class HttpContextFeaturesExtensions
             Cluster = cluster.Model,
             AllDestinations = destinations.AllDestinations,
             AvailableDestinations = destinations.AvailableDestinations,
-            ProxiedDestination = oldFeature.ProxiedDestination
+            ProxiedDestination = oldFeature.ProxiedDestination,
         };
         context.Features.Set<IReverseProxyFeature>(newFeature);
     }

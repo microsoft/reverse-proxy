@@ -63,7 +63,7 @@ internal sealed class SessionAffinityMiddleware
         {
             case AffinityStatus.OK:
                 proxyFeature.AvailableDestinations = affinityResult.Destinations!;
-                activity?.SetTag("Session Affinity", $"Destination selected by affinity policy {policy.Name}");
+                activity?.SetTag("SessionAffinitySuccess", policy.Name);
                 break;
             case AffinityStatus.AffinityKeyNotSet:
                 // Nothing to do so just continue processing
@@ -79,12 +79,12 @@ internal sealed class SessionAffinityMiddleware
                     // Policy reported the failure is unrecoverable and took the full responsibility for its handling,
                     // so we simply stop processing.
                     Log.AffinityResolutionFailedForCluster(_logger, cluster.ClusterId);
-                    activity?.SetTag("Session Affinity", $"Failure in {policy.Name}");
+                    activity?.SetTag("SessionAffinityFailure", policy.Name);
                     return;
                 }
 
                 Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, cluster.ClusterId, failurePolicy.Name);
-                activity?.SetTag("Session Affinity", $"Failure in {policy.Name}, recovered using {failurePolicy.Name}");
+                activity?.SetTag("SessionAffinityFailure", policy.Name);
 
                 break;
             default:

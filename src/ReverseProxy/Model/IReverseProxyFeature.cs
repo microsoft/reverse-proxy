@@ -35,5 +35,4 @@ public interface IReverseProxyFeature
     /// The actual destination that the request was proxied to.
     /// </summary>
     DestinationState? ProxiedDestination { get; set; }
-
 }
