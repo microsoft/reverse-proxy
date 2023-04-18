@@ -120,6 +120,14 @@ internal abstract class EventListenerService<TService, TTelemetryConsumer, TMetr
     {
         if (eventData.EventId == -1)
         {
+            if (!ReferenceEquals(eventData.EventSource, _eventSource))
+            {
+                // Workaround for https://github.com/dotnet/runtime/issues/31927
+                // EventCounters are published to all EventListeners, regardless of
+                // which EventSource providers a listener is enabled for.
+                return;
+            }
+
             // Throwing an exception here would crash the process
             if (eventData.EventName != "EventCounters" ||
                 eventData.Payload?.Count != 1 ||
