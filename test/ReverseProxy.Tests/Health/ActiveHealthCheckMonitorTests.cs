@@ -105,7 +105,7 @@ public class ActiveHealthCheckMonitorTests
 
         Assert.False(monitor.InitialProbeCompleted);
 
-        await monitor.CheckHealthAsync(new ClusterState[0]);
+        await monitor.CheckHealthAsync(Array.Empty<ClusterState>());
 
         Assert.True(monitor.InitialProbeCompleted);
 
@@ -140,7 +140,7 @@ public class ActiveHealthCheckMonitorTests
 
         Assert.False(monitor.InitialProbeCompleted);
 
-        await monitor.CheckHealthAsync(new ClusterState[0]);
+        await monitor.CheckHealthAsync(Array.Empty<ClusterState>());
 
         Assert.True(monitor.InitialProbeCompleted);
 
@@ -181,7 +181,7 @@ public class ActiveHealthCheckMonitorTests
 
         Assert.False(monitor.InitialProbeCompleted);
 
-        await monitor.CheckHealthAsync(new ClusterState[0]);
+        await monitor.CheckHealthAsync(Array.Empty<ClusterState>());
 
         Assert.True(monitor.InitialProbeCompleted);
 
@@ -226,7 +226,7 @@ public class ActiveHealthCheckMonitorTests
 
         Assert.False(monitor.InitialProbeCompleted);
 
-        await monitor.CheckHealthAsync(new ClusterState[0]);
+        await monitor.CheckHealthAsync(Array.Empty<ClusterState>());
 
         Assert.True(monitor.InitialProbeCompleted);
 
@@ -277,7 +277,7 @@ public class ActiveHealthCheckMonitorTests
 
         Assert.False(monitor.InitialProbeCompleted);
 
-        await monitor.CheckHealthAsync(new ClusterState[0]);
+        await monitor.CheckHealthAsync(Array.Empty<ClusterState>());
 
         Assert.True(monitor.InitialProbeCompleted);
 

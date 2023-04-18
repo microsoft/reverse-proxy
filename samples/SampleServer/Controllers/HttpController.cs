@@ -68,7 +68,7 @@ namespace SampleServer.Controllers
         {
             foreach (var (key, value) in headers)
             {
-                Response.Headers.Add(key, value);
+                Response.Headers[key] = value;
             }
         }
     }

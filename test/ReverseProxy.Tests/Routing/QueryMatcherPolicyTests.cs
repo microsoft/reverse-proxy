@@ -37,10 +37,10 @@ public class QueryParameterMatcherPolicyTests
             (0, CreateEndpoint("queryparam", new[] { "abc", "def" }, QueryParameterMatchMode.Prefix)),
             (0, CreateEndpoint("queryparam2", new[] { "abc", "def" }, QueryParameterMatchMode.Prefix)),
 
-            (0, CreateEndpoint("queryparam", new string[0], QueryParameterMatchMode.Exists, isCaseSensitive: true)),
-            (0, CreateEndpoint("queryparam", new string[0], QueryParameterMatchMode.Exists)),
-            (0, CreateEndpoint("queryparam", new string[0], QueryParameterMatchMode.Exists, isCaseSensitive: true)),
-            (0, CreateEndpoint("queryparam", new string[0], QueryParameterMatchMode.Exists)),
+            (0, CreateEndpoint("queryparam", Array.Empty<string>(), QueryParameterMatchMode.Exists, isCaseSensitive: true)),
+            (0, CreateEndpoint("queryparam", Array.Empty<string>(), QueryParameterMatchMode.Exists)),
+            (0, CreateEndpoint("queryparam", Array.Empty<string>(), QueryParameterMatchMode.Exists, isCaseSensitive: true)),
+            (0, CreateEndpoint("queryparam", Array.Empty<string>(), QueryParameterMatchMode.Exists)),
         };
         var sut = new QueryParameterMatcherPolicy();
 
@@ -71,7 +71,7 @@ public class QueryParameterMatcherPolicyTests
         {
             (0, CreateEndpoint(new[]
             {
-                new QueryParameterMatcher("queryparam", new string[0], QueryParameterMatchMode.Exists, isCaseSensitive: true),
+                new QueryParameterMatcher("queryparam", Array.Empty<string>(), QueryParameterMatchMode.Exists, isCaseSensitive: true),
                 new QueryParameterMatcher("queryparam", new[] { "abc" }, QueryParameterMatchMode.Prefix, isCaseSensitive: true),
                 new QueryParameterMatcher("queryparam", new[] { "abc" }, QueryParameterMatchMode.Contains, isCaseSensitive: true),
                 new QueryParameterMatcher("queryparam", new[] { "abc" }, QueryParameterMatchMode.Exact, isCaseSensitive: true)
@@ -85,7 +85,7 @@ public class QueryParameterMatcherPolicyTests
             })),
             (1, CreateEndpoint(new[]
             {
-                new QueryParameterMatcher("queryparam", new string[0], QueryParameterMatchMode.Exists, isCaseSensitive: true),
+                new QueryParameterMatcher("queryparam", Array.Empty<string>(), QueryParameterMatchMode.Exists, isCaseSensitive: true),
                 new QueryParameterMatcher("queryparam", new[] { "abc" }, QueryParameterMatchMode.Exact, isCaseSensitive: true)
             })),
 
@@ -120,15 +120,15 @@ public class QueryParameterMatcherPolicyTests
     {
         var scenarios = new[]
         {
-            CreateEndpoint("org-id", new string[0], QueryParameterMatchMode.Exists),
+            CreateEndpoint("org-id", Array.Empty<string>(), QueryParameterMatchMode.Exists),
             CreateEndpoint("org-id", new[] { "abc" }),
             CreateEndpoint("org-id", new[] { "abc", "def" }),
-            CreateEndpoint("org-id", new string[0], QueryParameterMatchMode.Exists, isDynamic: true),
+            CreateEndpoint("org-id", Array.Empty<string>(), QueryParameterMatchMode.Exists, isDynamic: true),
             CreateEndpoint("org-id", new[] { "abc" }, isDynamic: true),
             CreateEndpoint("org-id", null, QueryParameterMatchMode.Exists, isDynamic: true),
             CreateEndpoint(new[]
             {
-                new QueryParameterMatcher("queryParam", new string[0], QueryParameterMatchMode.Exists, isCaseSensitive: true),
+                new QueryParameterMatcher("queryParam", Array.Empty<string>(), QueryParameterMatchMode.Exists, isCaseSensitive: true),
                 new QueryParameterMatcher("queryParam", new[] { "abc" }, QueryParameterMatchMode.Exact, isCaseSensitive: true)
             })
         };
@@ -167,7 +167,7 @@ public class QueryParameterMatcherPolicyTests
             context.Request.QueryString = new QueryString(queryStr);
         }
 
-        var endpoint = CreateEndpoint("org-id", new string[0], QueryParameterMatchMode.Exists);
+        var endpoint = CreateEndpoint("org-id", Array.Empty<string>(), QueryParameterMatchMode.Exists);
         var candidates = new CandidateSet(new[] { endpoint }, new RouteValueDictionary[1], new int[1]);
         var sut = new QueryParameterMatcherPolicy();
 

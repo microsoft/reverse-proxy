@@ -16,7 +16,7 @@ public class ResponseTransformTests
     public void TakeHeader_RemovesAndReturnsHttpResponseHeader(bool copiedHeaders)
     {
         var httpContext = new DefaultHttpContext();
-        httpContext.Response.Headers.Add("name", "value0");
+        httpContext.Response.Headers["name"] = "value0";
         var proxyResponse = new HttpResponseMessage();
         proxyResponse.Headers.Add("Name", "value1");
         proxyResponse.Content = new StringContent("hello world");

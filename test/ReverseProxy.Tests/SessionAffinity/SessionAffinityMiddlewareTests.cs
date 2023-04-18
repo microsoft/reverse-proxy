@@ -58,7 +58,7 @@ public class SessionAffinityMiddlewareTests
                 nextInvoked = true;
                 return Task.CompletedTask;
             },
-            policies.Select(p => p.Object), new IAffinityFailurePolicy[0],
+            policies.Select(p => p.Object), Array.Empty<IAffinityFailurePolicy>(),
             new Mock<ILogger<SessionAffinityMiddleware>>().Object);
         var context = new DefaultHttpContext();
         context.SetEndpoint(endpoint);

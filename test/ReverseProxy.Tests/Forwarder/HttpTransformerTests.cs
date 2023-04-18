@@ -129,7 +129,7 @@ public class HttpTransformerTests
 
         var proxyResponse = new HttpResponseMessage(statusCode)
         {
-            Content = new ByteArrayContent(new byte[0])
+            Content = new ByteArrayContent(Array.Empty<byte>())
         };
 
         Assert.Equal(0, proxyResponse.Content.Headers.ContentLength);

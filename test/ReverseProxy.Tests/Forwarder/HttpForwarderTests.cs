@@ -66,12 +66,12 @@ public class HttpForwarderTests
         httpContext.Request.Path = "/path/base/dropped";
         httpContext.Request.Path = "/api/test";
         httpContext.Request.QueryString = new QueryString("?a=b&c=d");
-        httpContext.Request.Headers.Add(":authority", "example.com:3456");
-        httpContext.Request.Headers.Add("x-ms-request-test", "request");
-        httpContext.Request.Headers.Add("Content-Language", "requestLanguage");
+        httpContext.Request.Headers[":authority"] = "example.com:3456";
+        httpContext.Request.Headers["x-ms-request-test"] = "request";
+        httpContext.Request.Headers["Content-Language"] = "requestLanguage";
 
         var requestBody = "request content";
-        httpContext.Request.Headers.Add("Content-Length", requestBody.Length.ToString());
+        httpContext.Request.Headers["Content-Length"] = requestBody.Length.ToString();
         httpContext.Request.Body = StringToStream(requestBody);
         httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
 
@@ -141,9 +141,9 @@ public class HttpForwarderTests
         httpContext.Request.Path = "/path/base/dropped";
         httpContext.Request.Path = "/api/test";
         httpContext.Request.QueryString = new QueryString("?a=b&c=d");
-        httpContext.Request.Headers.Add(":authority", "example.com:3456");
-        httpContext.Request.Headers.Add("x-ms-request-test", "request");
-        httpContext.Request.Headers.Add("Content-Language", "requestLanguage");
+        httpContext.Request.Headers[":authority"] = "example.com:3456";
+        httpContext.Request.Headers["x-ms-request-test"] = "request";
+        httpContext.Request.Headers["Content-Language"] = "requestLanguage";
         httpContext.Request.Body = StringToStream("request content");
         httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
         httpContext.Features.Set<IHttpResponseTrailersFeature>(new TestTrailersFeature());
@@ -242,10 +242,10 @@ public class HttpForwarderTests
         httpContext.Request.PathBase = "/api";
         httpContext.Request.Path = "/test";
         httpContext.Request.QueryString = new QueryString("?a=b&c=d");
-        httpContext.Request.Headers.Add(":authority", "example.com:3456");
-        httpContext.Request.Headers.Add("x-ms-request-test", "request");
-        httpContext.Request.Headers.Add("Content-Language", "requestLanguage");
-        httpContext.Request.Headers.Add("Transfer-Encoding", "chunked");
+        httpContext.Request.Headers[":authority"] = "example.com:3456";
+        httpContext.Request.Headers["x-ms-request-test"] = "request";
+        httpContext.Request.Headers["Content-Language"] = "requestLanguage";
+        httpContext.Request.Headers["Transfer-Encoding"] = "chunked";
         httpContext.Request.Body = StringToStream("request content");
         httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
 
@@ -403,7 +403,7 @@ public class HttpForwarderTests
         Assert.Equal(StatusCodes.Status401Unauthorized, httpContext.Response.StatusCode);
 
         AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-        events.AssertContainProxyStages(new ForwarderStage[0]);
+        events.AssertContainProxyStages(Array.Empty<ForwarderStage>());
     }
 
     [Fact]
@@ -443,7 +443,7 @@ public class HttpForwarderTests
         Assert.True(httpContext.Response.HasStarted);
 
         AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-        events.AssertContainProxyStages(new ForwarderStage[0]);
+        events.AssertContainProxyStages(Array.Empty<ForwarderStage>());
     }
 
     [Fact]
@@ -485,7 +485,7 @@ public class HttpForwarderTests
         Assert.Equal("Hello World", Encoding.UTF8.GetString(resultStream.ToArray()));
 
         AssertProxyStartStop(events, destinationPrefix, httpContext.Response.StatusCode);
-        events.AssertContainProxyStages(new ForwarderStage[0]);
+        events.AssertContainProxyStages(Array.Empty<ForwarderStage>());
     }
 
     // Tests proxying an upgradeable request.
@@ -502,13 +502,13 @@ public class HttpForwarderTests
         httpContext.Request.Host = new HostString("example.com:3456");
         httpContext.Request.Path = "/api/test";
         httpContext.Request.QueryString = new QueryString("?a=b&c=d");
-        httpContext.Request.Headers.Add(":authority", "example.com:3456");
-        httpContext.Request.Headers.Add("x-ms-request-test", "request");
+        httpContext.Request.Headers[":authority"] = "example.com:3456";
+        httpContext.Request.Headers["x-ms-request-test"] = "request";
         httpContext.Connection.RemoteIpAddress = IPAddress.Loopback;
 
         // TODO: https://github.com/microsoft/reverse-proxy/issues/255
         // https://github.com/microsoft/reverse-proxy/issues/467
-        httpContext.Request.Headers.Add("Upgrade", upgradeHeader);
+        httpContext.Request.Headers["Upgrade"] = upgradeHeader;
 
         var downstreamStream = new DuplexStream(
             readStream: StringToStream("request content"),
@@ -580,11 +580,10 @@ public class HttpForwarderTests
         httpContext.Request.Host = new HostString("example.com");
         httpContext.Request.Path = "/api/test";
         httpContext.Request.QueryString = new QueryString("?a=b&c=d");
-        httpContext.Request.Headers.Add(":host", "example.com");
-        httpContext.Request.Headers.Add("x-ms-request-test", "request");
-
+        httpContext.Request.Headers[":host"] = "example.com";
+        httpContext.Request.Headers["x-ms-request-test"] = "request";
         // TODO: https://github.com/microsoft/reverse-proxy/issues/255
-        httpContext.Request.Headers.Add("Upgrade", "WebSocket");
+        httpContext.Request.Headers["Upgrade"] = "WebSocket";
 
         var proxyResponseStream = new MemoryStream();
         httpContext.Response.Body = proxyResponseStream;
@@ -648,15 +647,15 @@ public class HttpForwarderTests
 
         // TODO: https://github.com/microsoft/reverse-proxy/issues/255
         // https://github.com/microsoft/reverse-proxy/issues/467
-        httpContext.Request.Headers.Add("Upgrade", "WebSocket");
+        httpContext.Request.Headers["Upgrade"] = "WebSocket";
 
-        var _idleTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var idleTcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         var downstreamStream = new DuplexStream(
             readStream: new StallStream(ct =>
             {
-                ct.Register(() => _idleTcs.TrySetCanceled());
-                return _idleTcs.Task;
+                ct.Register(() => idleTcs.TrySetCanceled());
+                return idleTcs.Task;
             }),
             writeStream: new MemoryStream());
         DuplexStream upstreamStream = null;
@@ -682,8 +681,8 @@ public class HttpForwarderTests
                 upstreamStream = new DuplexStream(
                     readStream: new StallStream(ct =>
                     {
-                        ct.Register(() => _idleTcs.TrySetCanceled());
-                        return _idleTcs.Task;
+                        ct.Register(() => idleTcs.TrySetCanceled());
+                        return idleTcs.Task;
                     }),
                     writeStream: new MemoryStream());
                 response.Content = new RawStreamContent(upstreamStream);
@@ -762,7 +761,7 @@ public class HttpForwarderTests
                 {
                     Assert.NotNull(request.Content);
                     Assert.IsType<EmptyHttpContent>(request.Content);
-                    Assert.Empty(await request.Content.ReadAsByteArrayAsync());
+                    Assert.Empty(await request.Content.ReadAsByteArrayAsync(cancellationToken));
 
                     foreach (var (key, value) in headers)
                     {
@@ -1013,7 +1012,7 @@ public class HttpForwarderTests
         
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Method = "GET";
-        httpContext.Request.Headers.Add(HeaderNames.Cookie, cookies);
+        httpContext.Request.Headers[HeaderNames.Cookie] = cookies;
 
         var destinationPrefix = "https://localhost/";
         var sut = CreateProxy();
@@ -1052,7 +1051,7 @@ public class HttpForwarderTests
 
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Method = "GET";
-        httpContext.Request.Headers.Add(headerName, headers);
+        httpContext.Request.Headers[headerName] = headers;
 
         var destinationPrefix = "https://localhost/";
         var sut = CreateProxy();
@@ -1095,7 +1094,7 @@ public class HttpForwarderTests
 
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Method = "GET";
-        httpContext.Request.Headers.Add(headerName, headers);
+        httpContext.Request.Headers[headerName] = headers;
 
         var destinationPrefix = "https://localhost/";
         var sut = CreateProxy();
@@ -2199,7 +2198,7 @@ public class HttpForwarderTests
         httpContext.Request.Scheme = "http";
         httpContext.Request.Host = new HostString("example.com:3456");
         // TODO: https://github.com/microsoft/reverse-proxy/issues/255
-        httpContext.Request.Headers.Add("Upgrade", "WebSocket");
+        httpContext.Request.Headers["Upgrade"] = "WebSocket";
 
         var downstreamStream = new DuplexStream(
             readStream: new ThrowStream(),
@@ -2259,7 +2258,7 @@ public class HttpForwarderTests
         httpContext.Request.Scheme = "http";
         httpContext.Request.Host = new HostString("example.com:3456");
         // TODO: https://github.com/microsoft/reverse-proxy/issues/255
-        httpContext.Request.Headers.Add("Upgrade", "WebSocket");
+        httpContext.Request.Headers["Upgrade"] = "WebSocket";
 
         var downstreamStream = new DuplexStream(
             readStream: new StallStream(ct =>
@@ -2838,7 +2837,7 @@ public class HttpForwarderTests
     private static (string Name, string Values) GetHeaderNameAndValues(string fullHeader)
     {
         var headerNameEnd = fullHeader.IndexOf(": ");
-        return (fullHeader.Substring(0, headerNameEnd), fullHeader.Substring(headerNameEnd + 2));
+        return (fullHeader[..headerNameEnd], fullHeader[(headerNameEnd + 2)..]);
     }
 
     private class DuplexStream : Stream
@@ -2915,16 +2914,16 @@ public class HttpForwarderTests
     /// </summary>
     private class RawStreamContent : HttpContent
     {
-        private readonly Stream stream;
+        private readonly Stream _stream;
 
         public RawStreamContent(Stream stream)
         {
-            this.stream = stream ?? throw new ArgumentNullException(nameof(stream));
+            _stream = stream ?? throw new ArgumentNullException(nameof(stream));
         }
 
         protected override Task<Stream> CreateContentReadStreamAsync()
         {
-            return Task.FromResult(stream);
+            return Task.FromResult(_stream);
         }
 
         protected override Task SerializeToStreamAsync(Stream stream, TransportContext context)
