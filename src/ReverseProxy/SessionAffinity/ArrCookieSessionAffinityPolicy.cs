@@ -16,9 +16,9 @@ internal sealed class ArrCookieSessionAffinityPolicy : BaseHashCookieSessionAffi
     private readonly ConditionalWeakTable<DestinationState, string> _hashes = new();
 
     public ArrCookieSessionAffinityPolicy(
-        IClock clock,
+        TimeProvider timeProvider,
         ILogger<ArrCookieSessionAffinityPolicy> logger)
-        : base(clock, logger) { }
+        : base(timeProvider, logger) { }
 
     public override string Name => SessionAffinityConstants.Policies.ArrCookie;
 

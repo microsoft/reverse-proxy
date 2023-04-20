@@ -42,7 +42,7 @@ public class Limiter
 {
     private readonly object _sync = new object();
     private readonly Limit _limit;
-    private readonly ISystemClock _clock;
+    private readonly TimeProvider _timeProvider;
     private readonly int _burst;
     private double _tokens;
 
@@ -63,12 +63,12 @@ public class Limiter
     /// </summary>
     /// <param name="limit">The count per second which is allowed.</param>
     /// <param name="burst">The burst.</param>
-    /// <param name="systemClock">Accessor for the current UTC time.</param>
-    public Limiter(Limit limit, int burst, ISystemClock systemClock = default)
+    /// <param name="timeProvider">Accessor for the current UTC time.</param>
+    public Limiter(Limit limit, int burst, TimeProvider timeProvider = default)
     {
         _limit = limit;
         _burst = burst;
-        _clock = systemClock ?? new SystemClock();
+        _timeProvider = timeProvider ?? TimeProvider.System;
     }
 
     /// <summary>
@@ -77,7 +77,7 @@ public class Limiter
     /// <returns><c>true</c> if a token is available and used, <c>false</c> otherwise.</returns>
     public bool Allow()
     {
-        return AllowN(_clock.UtcNow, 1);
+        return AllowN(_timeProvider.GetUtcNow(), 1);
     }
 
     /// <summary>
@@ -98,7 +98,7 @@ public class Limiter
     /// <returns>Reservation.</returns>
     public Reservation Reserve()
     {
-        return Reserve(_clock.UtcNow, 1);
+        return Reserve(_timeProvider.GetUtcNow(), 1);
     }
 
     /// <summary>
@@ -165,7 +165,7 @@ public class Limiter
 
         while (true)
         {
-            var now = _clock.UtcNow;
+            var now = _timeProvider.GetUtcNow();
             var r = ReserveImpl(now, count, waitLimit);
             if (r.Ok)
             {
@@ -198,7 +198,7 @@ public class Limiter
             if (_limit == Limit.Max)
             {
                 return new Reservation(
-                    clock: _clock,
+                    timeProvider: _timeProvider,
                     limiter: this,
                     ok: true,
                     tokens: number,
@@ -225,7 +225,7 @@ public class Limiter
             if (ok)
             {
                 var reservation = new Reservation(
-                    clock: _clock,
+                    timeProvider: _timeProvider,
                     limiter: this,
                     ok: true,
                     tokens: number,
@@ -241,7 +241,7 @@ public class Limiter
             else
             {
                 var reservation = new Reservation(
-                    clock: _clock,
+                    timeProvider: _timeProvider,
                     limiter: this,
                     ok: false,
                     limit: _limit);

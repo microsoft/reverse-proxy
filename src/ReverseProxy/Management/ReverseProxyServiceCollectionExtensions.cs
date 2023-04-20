@@ -28,7 +28,7 @@ public static class ReverseProxyServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddHttpForwarder(this IServiceCollection services)
     {
-        services.TryAddSingleton<IClock, Clock>();
+        services.TryAddSingleton(TimeProvider.System);
         services.TryAddSingleton<IHttpForwarder, HttpForwarder>();
         services.TryAddSingleton<ITransformBuilder, TransformBuilder>();
 

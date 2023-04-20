@@ -28,7 +28,7 @@ internal sealed class TransportFailureRateHealthPolicy : IPassiveHealthCheckPoli
     private static readonly TimeSpan _defaultReactivationPeriod = TimeSpan.FromSeconds(60);
     private readonly IDestinationHealthUpdater _healthUpdater;
     private readonly TransportFailureRateHealthPolicyOptions _policyOptions;
-    private readonly IClock _clock;
+    private readonly TimeProvider _timeProvider;
     private readonly ConditionalWeakTable<ClusterState, ParsedMetadataEntry<double>> _clusterFailureRateLimits = new ConditionalWeakTable<ClusterState, ParsedMetadataEntry<double>>();
     private readonly ConditionalWeakTable<DestinationState, ProxiedRequestHistory> _requestHistories = new ConditionalWeakTable<DestinationState, ProxiedRequestHistory>();
 
@@ -36,10 +36,10 @@ internal sealed class TransportFailureRateHealthPolicy : IPassiveHealthCheckPoli
 
     public TransportFailureRateHealthPolicy(
         IOptions<TransportFailureRateHealthPolicyOptions> policyOptions,
-        IClock clock,
+        TimeProvider timeProvider,
         IDestinationHealthUpdater healthUpdater)
     {
-        _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+        _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
         _policyOptions = policyOptions?.Value ?? throw new ArgumentNullException(nameof(policyOptions));
         _healthUpdater = healthUpdater ?? throw new ArgumentNullException(nameof(healthUpdater));
     }
@@ -61,8 +61,8 @@ internal sealed class TransportFailureRateHealthPolicy : IPassiveHealthCheckPoli
         lock (history)
         {
             var failureRate = history.AddNew(
-                _clock.TickCount,
-                (long)_policyOptions.DetectionWindowSize.TotalMilliseconds,
+                _timeProvider.GetTimestamp(),
+                (long)(_policyOptions.DetectionWindowSize.TotalSeconds * _timeProvider.TimestampFrequency),
                 _policyOptions.MinimalTotalCountThreshold,
                 failed);
             return failureRate < rateLimit ? DestinationHealth.Healthy : DestinationHealth.Unhealthy;

@@ -74,7 +74,7 @@ public class WebSocketsTelemetryTests
                     SendMessagesAndCloseAsync(webSocket, written, messageSize),
                     ReceiveAllMessagesAsync(webSocket));
             },
-            new ManualClock(new TimeSpan(42)));
+            new TestTimeProvider(new TimeSpan(42)));
 
         Assert.NotNull(telemetry);
         Assert.Equal(42, telemetry!.EstablishedTime.Ticks);
@@ -110,7 +110,7 @@ public class WebSocketsTelemetryTests
                     SendMessagesAndCloseAsync(webSocket, written, messageSize),
                     ReceiveAllMessagesAsync(webSocket));
             },
-            new ManualClock(new TimeSpan(42)),
+            new TestTimeProvider(new TimeSpan(42)),
             http2Proxy: true);
 
         Assert.NotNull(telemetry);
@@ -253,7 +253,7 @@ public class WebSocketsTelemetryTests
     [InlineData(100, 100, WebSocketCloseReason.ServerGracefulClose)] // Implementation detail
     public async Task ConnectionClosed_BlameReliesOnCloseTimes(long clientCloseTime, long serverCloseTime, WebSocketCloseReason expectedCloseReason)
     {
-        var clock = new ManualClock(new TimeSpan(1));
+        var timeProvider = new TestTimeProvider(new TimeSpan(1));
 
         var telemetry = await TestAsync(
             async uri =>
@@ -262,19 +262,19 @@ public class WebSocketsTelemetryTests
                 await client.ConnectAsync(uri, CancellationToken.None);
                 var webSocket = new WebSocketAdapter(client);
 
-                await ProcessAsync(webSocket, clock, clientCloseTime, sendCloseFirst: clientCloseTime <= serverCloseTime);
+                await ProcessAsync(webSocket, timeProvider, clientCloseTime, sendCloseFirst: clientCloseTime <= serverCloseTime);
             },
             async (context, webSocket) =>
             {
-                await ProcessAsync(webSocket, clock, serverCloseTime, sendCloseFirst: serverCloseTime < clientCloseTime);
+                await ProcessAsync(webSocket, timeProvider, serverCloseTime, sendCloseFirst: serverCloseTime < clientCloseTime);
             },
-            clock);
+            timeProvider);
 
         Assert.NotNull(telemetry);
         Assert.Equal(1, telemetry!.EstablishedTime.Ticks);
         Assert.Equal(expectedCloseReason, telemetry.CloseReason);
 
-        static async Task ProcessAsync(WebSocketAdapter webSocket, ManualClock clock, long closeTime, bool sendCloseFirst)
+        static async Task ProcessAsync(WebSocketAdapter webSocket, TestTimeProvider timeProvider, long closeTime, bool sendCloseFirst)
         {
             await SendAndAcknowledgeMessageAsync(webSocket);
 
@@ -285,9 +285,9 @@ public class WebSocketsTelemetryTests
                 await receiveTask;
             }
 
-            lock (clock)
+            lock (timeProvider)
             {
-                clock.AdvanceClockTo(TimeSpan.FromTicks(closeTime));
+                timeProvider.AdvanceTo(TimeSpan.FromTicks(closeTime));
             }
 
             await webSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "Bye", CancellationToken.None);
@@ -381,7 +381,7 @@ public class WebSocketsTelemetryTests
         }
     }
 
-    private static async Task<WebSocketsTelemetry?> TestAsync(Func<Uri, Task> requestDelegate, Func<HttpContext, WebSocketAdapter, Task> destinationDelegate, IClock? clock = null, bool http2Proxy = false)
+    private static async Task<WebSocketsTelemetry?> TestAsync(Func<Uri, Task> requestDelegate, Func<HttpContext, WebSocketAdapter, Task> destinationDelegate, TimeProvider? timeProvider = null, bool http2Proxy = false)
     {
         var telemetryConsumer = new TelemetryConsumer();
 
@@ -403,9 +403,9 @@ public class WebSocketsTelemetryTests
             },
             ConfigureProxyServices = proxyServices =>
             {
-                if (clock is not null)
+                if (timeProvider is not null)
                 {
-                    proxyServices.AddSingleton(clock);
+                    proxyServices.AddSingleton(timeProvider);
                 }
             },
             ConfigureProxy = proxyBuilder =>
@@ -446,6 +446,7 @@ public class WebSocketsTelemetryTests
         }
     }
 
+#if NET7_0_OR_GREATER
     private static HttpMessageInvoker CreateInvoker()
     {
         var handler = new SocketsHttpHandler
@@ -458,4 +459,5 @@ public class WebSocketsTelemetryTests
         handler.SslOptions.RemoteCertificateValidationCallback = (_, _, _, _) => true;
         return new HttpMessageInvoker(handler);
     }
+#endif
 }

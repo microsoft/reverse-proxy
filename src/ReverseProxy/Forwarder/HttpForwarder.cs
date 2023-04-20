@@ -30,12 +30,12 @@ internal sealed class HttpForwarder : IHttpForwarder
     private static readonly Version DefaultVersion = HttpVersion.Version20;
     private static readonly HttpVersionPolicy DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
     private readonly ILogger _logger;
-    private readonly IClock _clock;
+    private readonly TimeProvider _timeProvider;
 
-    public HttpForwarder(ILogger<HttpForwarder> logger, IClock clock)
+    public HttpForwarder(ILogger<HttpForwarder> logger, TimeProvider timeProvider)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+        _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
     }
 
     /// <summary>
@@ -577,7 +577,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             return new StreamCopyHttpContent(
                 request: request,
                 autoFlushHttpClientOutgoingStream: isStreamingRequest,
-                clock: _clock,
+                timeProvider: _timeProvider,
                 activityToken);
         }
 
@@ -737,10 +737,10 @@ internal sealed class HttpForwarder : IHttpForwarder
         // :: Step 7-A-2: Copy duplex streams
         using var destinationStream = await destinationResponse.Content.ReadAsStreamAsync(activityCancellationSource.Token);
 
-        var requestTask = StreamCopier.CopyAsync(isRequest: true, clientStream, destinationStream, StreamCopier.UnknownLength, _clock, activityCancellationSource,
+        var requestTask = StreamCopier.CopyAsync(isRequest: true, clientStream, destinationStream, StreamCopier.UnknownLength, _timeProvider, activityCancellationSource,
             // HTTP/2 HttpClient request streams buffer by default.
             autoFlush: destinationResponse.Version == HttpVersion.Version20, activityCancellationSource.Token).AsTask();
-        var responseTask = StreamCopier.CopyAsync(isRequest: false, destinationStream, clientStream, StreamCopier.UnknownLength, _clock, activityCancellationSource, activityCancellationSource.Token).AsTask();
+        var responseTask = StreamCopier.CopyAsync(isRequest: false, destinationStream, clientStream, StreamCopier.UnknownLength, _timeProvider, activityCancellationSource, activityCancellationSource.Token).AsTask();
 
         // Make sure we report the first failure.
         var firstTask = await Task.WhenAny(requestTask, responseTask);
@@ -864,7 +864,7 @@ internal sealed class HttpForwarder : IHttpForwarder
         {
             using var destinationResponseStream = await destinationResponseContent.ReadAsStreamAsync(activityCancellationSource.Token);
             // The response content-length is enforced by the server.
-            return await StreamCopier.CopyAsync(isRequest: false, destinationResponseStream, clientResponseStream, StreamCopier.UnknownLength, _clock, activityCancellationSource, activityCancellationSource.Token);
+            return await StreamCopier.CopyAsync(isRequest: false, destinationResponseStream, clientResponseStream, StreamCopier.UnknownLength, _timeProvider, activityCancellationSource, activityCancellationSource.Token);
         }
 
         return (StreamCopyResult.Success, null);

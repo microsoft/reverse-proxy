@@ -15,7 +15,7 @@ namespace Yarp.Kubernetes.Controller.Rate;
 /// </summary>
 public class Reservation
 {
-    private readonly ISystemClock _clock;
+    private readonly TimeProvider _timeProvider;
     private readonly Limiter _limiter;
     private readonly Limit _limit;
     private readonly double _tokens;
@@ -23,21 +23,21 @@ public class Reservation
     /// <summary>
     /// Initializes a new instance of the <see cref="Reservation"/> class.
     /// </summary>
-    /// <param name="clock">A system clock.</param>
+    /// <param name="timeProvider">Gets the system time.</param>
     /// <param name="limiter">The limiter.</param>
     /// <param name="ok">if set to <c>true</c> [ok].</param>
     /// <param name="tokens">The tokens.</param>
     /// <param name="timeToAct">The time to act.</param>
     /// <param name="limit">The limit.</param>
     public Reservation(
-        ISystemClock clock,
+        TimeProvider timeProvider,
         Limiter limiter,
         bool ok,
         double tokens = default,
         DateTimeOffset timeToAct = default,
         Limit limit = default)
     {
-        _clock = clock;
+        _timeProvider = timeProvider;
         _limiter = limiter;
         Ok = ok;
         _tokens = tokens;
@@ -63,7 +63,7 @@ public class Reservation
     /// <returns>TimeSpanOffset.</returns>
     public TimeSpan Delay()
     {
-        return DelayFrom(_clock.UtcNow);
+        return DelayFrom(_timeProvider.GetUtcNow());
     }
 
     /// <summary>

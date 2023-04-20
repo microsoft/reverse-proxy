@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.IO.Hashing" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Bcl.TimeProvider" Version="$(MicrosoftBclTimeProviderVersion)" Condition="'$(TargetFramework)' != 'net8.0'" />
   </ItemGroup>
 
   <ItemGroup>

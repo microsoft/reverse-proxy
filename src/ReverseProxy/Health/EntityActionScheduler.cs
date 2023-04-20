@@ -28,18 +28,18 @@ internal sealed class EntityActionScheduler<T> : IDisposable where T : notnull
     private readonly WeakReference<EntityActionScheduler<T>> _weakThisRef;
     private readonly Func<T, Task> _action;
     private readonly bool _runOnce;
-    private readonly ITimerFactory _timerFactory;
+    private readonly TimeProvider _timeProvider;
 
     private const int NotStarted = 0;
     private const int Started = 1;
     private const int Disposed = 2;
     private int _status;
 
-    public EntityActionScheduler(Func<T, Task> action, bool autoStart, bool runOnce, ITimerFactory timerFactory)
+    public EntityActionScheduler(Func<T, Task> action, bool autoStart, bool runOnce, TimeProvider timeProvider)
     {
         _action = action ?? throw new ArgumentNullException(nameof(action));
         _runOnce = runOnce;
-        _timerFactory = timerFactory ?? throw new ArgumentNullException(nameof(timerFactory));
+        _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
         _status = autoStart ? Started : NotStarted;
         _weakThisRef = new WeakReference<EntityActionScheduler<T>>(this);
     }
@@ -71,7 +71,7 @@ internal sealed class EntityActionScheduler<T> : IDisposable where T : notnull
     {
         // Ensure the Timer has a weak reference to this scheduler; otherwise,
         // EntityActionScheduler can be rooted by the Timer implementation.
-        var entry = new SchedulerEntry(_weakThisRef, entity, (long)period.TotalMilliseconds, _timerFactory);
+        var entry = new SchedulerEntry(_weakThisRef, entity, period, _timeProvider);
 
         if (_entries.TryAdd(entity, entry))
         {
@@ -94,7 +94,7 @@ internal sealed class EntityActionScheduler<T> : IDisposable where T : notnull
 
         if (_entries.TryGetValue(entity, out var entry))
         {
-            entry.ChangePeriod((long)newPeriod.TotalMilliseconds);
+            entry.ChangePeriod(newPeriod);
         }
         else
         {
@@ -120,11 +120,11 @@ internal sealed class EntityActionScheduler<T> : IDisposable where T : notnull
         private readonly WeakReference<EntityActionScheduler<T>> _scheduler;
         private readonly T _entity;
         private readonly ITimer _timer;
-        private long _period;
+        private TimeSpan _period;
         private bool _timerStarted;
         private bool _runningCallback;
 
-        public SchedulerEntry(WeakReference<EntityActionScheduler<T>> scheduler, T entity, long period, ITimerFactory timerFactory)
+        public SchedulerEntry(WeakReference<EntityActionScheduler<T>> scheduler, T entity, TimeSpan period, TimeProvider timeProvider)
         {
             _scheduler = scheduler;
             _entity = entity;
@@ -140,7 +140,7 @@ internal sealed class EntityActionScheduler<T> : IDisposable where T : notnull
                     restoreFlow = true;
                 }
 
-                _timer = timerFactory.CreateTimer(static s => _ = TimerCallback(s), this, Timeout.Infinite, Timeout.Infinite);
+                _timer = timeProvider.CreateTimer(static s => _ = TimerCallback(s), this, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
             }
             finally
             {
@@ -151,7 +151,7 @@ internal sealed class EntityActionScheduler<T> : IDisposable where T : notnull
             }
         }
 
-        public void ChangePeriod(long newPeriod)
+        public void ChangePeriod(TimeSpan newPeriod)
         {
             lock (this)
             {
@@ -183,7 +183,7 @@ internal sealed class EntityActionScheduler<T> : IDisposable where T : notnull
 
             try
             {
-                _timer.Change(_period, Timeout.Infinite);
+                _timer.Change(_period, Timeout.InfiniteTimeSpan);
             }
             catch (ObjectDisposedException)
             {

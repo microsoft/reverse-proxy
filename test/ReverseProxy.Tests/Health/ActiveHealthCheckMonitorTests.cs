@@ -16,14 +16,13 @@ using Xunit;
 using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Health.Tests;
 
 public class ActiveHealthCheckMonitorTests
 {
-    private const long Interval0 = 10000;
-    private const long Interval1 = 20000;
+    private readonly TimeSpan Interval0 = TimeSpan.FromSeconds(10);
+    private readonly TimeSpan Interval1 = TimeSpan.FromSeconds(20);
 
     [Fact]
     public async Task CheckHealthAsync_ActiveHealthCheckIsEnabledForCluster_SendProbe()
@@ -34,7 +33,7 @@ public class ActiveHealthCheckMonitorTests
         policy1.SetupGet(p => p.Name).Returns("policy1");
         var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
         var clusters = new List<ClusterState>();
-        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
+        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), new Mock<TimeProvider>().Object, GetLogger());
 
         var httpClient0 = GetHttpClient();
         var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object);
@@ -75,7 +74,7 @@ public class ActiveHealthCheckMonitorTests
             });
 
         var options = Options.Create(new ActiveHealthCheckMonitorOptions());
-        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, requestFactory.Object, new Mock<ITimerFactory>().Object, GetLogger());
+        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, requestFactory.Object, new Mock<TimeProvider>().Object, GetLogger());
 
         var httpClient = GetHttpClient();
         var cluster = GetClusterInfo("cluster", "policy", true, httpClient.Object, destinationCount: 1);
@@ -93,14 +92,14 @@ public class ActiveHealthCheckMonitorTests
         var policy1 = new Mock<IActiveHealthCheckPolicy>();
         policy1.SetupGet(p => p.Name).Returns("policy1");
         var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
-        using var timerFactory = new TestTimerFactory();
-        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), timerFactory, GetLogger());
+        var timeProvider = new TestTimeProvider();
+        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), timeProvider, GetLogger());
 
         var httpClient0 = GetHttpClient();
-        var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, TimeSpan.FromMilliseconds(Interval0));
+        var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, Interval0);
         monitor.OnClusterAdded(cluster0);
         var httpClient2 = GetHttpClient();
-        var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, TimeSpan.FromMilliseconds(Interval1));
+        var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, Interval1);
         monitor.OnClusterAdded(cluster2);
 
         Assert.False(monitor.InitialProbeCompleted);
@@ -109,11 +108,11 @@ public class ActiveHealthCheckMonitorTests
 
         Assert.True(monitor.InitialProbeCompleted);
 
-        timerFactory.FireAll();
+        timeProvider.FireAllTimers();
 
-        Assert.Equal(2, timerFactory.Count);
-        timerFactory.VerifyTimer(0, Interval0);
-        timerFactory.VerifyTimer(1, Interval1);
+        Assert.Equal(2, timeProvider.TimerCount);
+        timeProvider.VerifyTimer(0, Interval0);
+        timeProvider.VerifyTimer(1, Interval1);
         VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 1), ("https://localhost:20001/cluster0/api/health/", 1) }, policyCallTimes: 1);
         VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) }, policyCallTimes: 1);
 
@@ -128,14 +127,14 @@ public class ActiveHealthCheckMonitorTests
         var policy1 = new Mock<IActiveHealthCheckPolicy>();
         policy1.SetupGet(p => p.Name).Returns("policy1");
         var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
-        using var timerFactory = new TestTimerFactory();
-        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), timerFactory, GetLogger());
+        var timeProvider = new TestTimeProvider();
+        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), timeProvider, GetLogger());
 
         var httpClient0 = GetHttpClient();
-        var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromMilliseconds(Interval0));
+        var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: Interval0);
         monitor.OnClusterAdded(cluster0);
         var httpClient2 = GetHttpClient();
-        var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromMilliseconds(Interval1));
+        var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: Interval1);
         monitor.OnClusterAdded(cluster2);
 
         Assert.False(monitor.InitialProbeCompleted);
@@ -144,19 +143,19 @@ public class ActiveHealthCheckMonitorTests
 
         Assert.True(monitor.InitialProbeCompleted);
 
-        timerFactory.FireAll();
+        timeProvider.FireAllTimers();
 
-        Assert.Equal(2, timerFactory.Count);
-        timerFactory.VerifyTimer(0, Interval0);
-        timerFactory.VerifyTimer(1, Interval1);
+        Assert.Equal(2, timeProvider.TimerCount);
+        timeProvider.VerifyTimer(0, Interval0);
+        timeProvider.VerifyTimer(1, Interval1);
         VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 1), ("https://localhost:20001/cluster0/api/health/", 1) }, policyCallTimes: 1);
         VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) }, policyCallTimes: 1);
 
         monitor.OnClusterRemoved(cluster2);
 
-        timerFactory.FireTimer(0);
+        timeProvider.FireTimer(0);
 
-        timerFactory.AssertTimerDisposed(1);
+        timeProvider.AssertTimerDisposed(1);
 
         VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 2), ("https://localhost:20001/cluster0/api/health/", 2) }, policyCallTimes: 2);
         VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) }, policyCallTimes: 1);
@@ -172,11 +171,11 @@ public class ActiveHealthCheckMonitorTests
         var policy1 = new Mock<IActiveHealthCheckPolicy>();
         policy1.SetupGet(p => p.Name).Returns("policy1");
         var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
-        var timerFactory = new TestTimerFactory();
-        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), timerFactory, GetLogger());
+        var timeProvider = new TestTimeProvider();
+        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), timeProvider, GetLogger());
 
         var httpClient0 = GetHttpClient();
-        var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromMilliseconds(Interval0));
+        var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: Interval0);
         monitor.OnClusterAdded(cluster0);
 
         Assert.False(monitor.InitialProbeCompleted);
@@ -185,21 +184,21 @@ public class ActiveHealthCheckMonitorTests
 
         Assert.True(monitor.InitialProbeCompleted);
 
-        timerFactory.FireAll();
+        timeProvider.FireAllTimers();
 
-        Assert.Equal(1, timerFactory.Count);
-        timerFactory.VerifyTimer(0, Interval0);
+        Assert.Equal(1, timeProvider.TimerCount);
+        timeProvider.VerifyTimer(0, Interval0);
         VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 1), ("https://localhost:20001/cluster0/api/health/", 1) }, policyCallTimes: 1);
 
         var httpClient2 = GetHttpClient();
-        var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromMilliseconds(Interval1));
+        var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: Interval1);
         monitor.OnClusterAdded(cluster2);
 
-        timerFactory.FireAll();
+        timeProvider.FireAllTimers();
 
-        Assert.Equal(2, timerFactory.Count);
-        timerFactory.VerifyTimer(0, Interval0);
-        timerFactory.VerifyTimer(1, Interval1);
+        Assert.Equal(2, timeProvider.TimerCount);
+        timeProvider.VerifyTimer(0, Interval0);
+        timeProvider.VerifyTimer(1, Interval1);
         VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 2), ("https://localhost:20001/cluster0/api/health/", 2) }, policyCallTimes: 2);
         VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) }, policyCallTimes: 1);
 
@@ -214,14 +213,14 @@ public class ActiveHealthCheckMonitorTests
         var policy1 = new Mock<IActiveHealthCheckPolicy>();
         policy1.SetupGet(p => p.Name).Returns("policy1");
         var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
-        var timerFactory = new TestTimerFactory();
-        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), timerFactory, GetLogger());
+        var timeProvider = new TestTimeProvider();
+        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), timeProvider, GetLogger());
 
         var httpClient0 = GetHttpClient();
-        var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromMilliseconds(Interval0));
+        var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: Interval0);
         monitor.OnClusterAdded(cluster0);
         var httpClient2 = GetHttpClient();
-        var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromMilliseconds(Interval1));
+        var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: Interval1);
         monitor.OnClusterAdded(cluster2);
 
         Assert.False(monitor.InitialProbeCompleted);
@@ -230,11 +229,11 @@ public class ActiveHealthCheckMonitorTests
 
         Assert.True(monitor.InitialProbeCompleted);
 
-        timerFactory.FireAll();
+        timeProvider.FireAllTimers();
 
-        Assert.Equal(2, timerFactory.Count);
-        timerFactory.VerifyTimer(0, Interval0);
-        timerFactory.VerifyTimer(1, Interval1);
+        Assert.Equal(2, timeProvider.TimerCount);
+        timeProvider.VerifyTimer(0, Interval0);
+        timeProvider.VerifyTimer(1, Interval1);
         VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 1), ("https://localhost:20001/cluster0/api/health/", 1) }, policyCallTimes: 1);
         VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) }, policyCallTimes: 1);
 
@@ -246,11 +245,11 @@ public class ActiveHealthCheckMonitorTests
 
         monitor.OnClusterChanged(cluster2);
 
-        timerFactory.FireAll();
+        timeProvider.FireAllTimers();
 
-        Assert.Equal(2, timerFactory.Count);
-        timerFactory.VerifyTimer(0, Interval0);
-        timerFactory.VerifyTimer(1, Interval1);
+        Assert.Equal(2, timeProvider.TimerCount);
+        timeProvider.VerifyTimer(0, Interval0);
+        timeProvider.VerifyTimer(1, Interval1);
         VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 2), ("https://localhost:20001/cluster0/api/health/", 2) }, policyCallTimes: 2);
         VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:10000/cluster2/api/health/", 1), ("https://localhost:10001/cluster2/api/health/", 1) }, policyCallTimes: 2);
 
@@ -265,14 +264,14 @@ public class ActiveHealthCheckMonitorTests
         var policy1 = new Mock<IActiveHealthCheckPolicy>();
         policy1.SetupGet(p => p.Name).Returns("policy1");
         var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
-        var timerFactory = new TestTimerFactory();
-        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), timerFactory, GetLogger());
+        var timeProvider = new TestTimeProvider();
+        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy0.Object, policy1.Object }, new DefaultProbingRequestFactory(), timeProvider, GetLogger());
 
         var httpClient0 = GetHttpClient();
-        var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: TimeSpan.FromMilliseconds(Interval0));
+        var cluster0 = GetClusterInfo("cluster0", "policy0", true, httpClient0.Object, interval: Interval0);
         monitor.OnClusterAdded(cluster0);
         var httpClient2 = GetHttpClient();
-        var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: TimeSpan.FromMilliseconds(Interval1));
+        var cluster2 = GetClusterInfo("cluster2", "policy1", true, httpClient2.Object, interval: Interval1);
         monitor.OnClusterAdded(cluster2);
 
         Assert.False(monitor.InitialProbeCompleted);
@@ -281,7 +280,7 @@ public class ActiveHealthCheckMonitorTests
 
         Assert.True(monitor.InitialProbeCompleted);
 
-        timerFactory.FireAll();
+        timeProvider.FireAllTimers();
 
         VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 1), ("https://localhost:20001/cluster0/api/health/", 1) }, policyCallTimes: 1);
         VerifySentProbeAndResult(cluster2, httpClient2, policy1, new[] { ("https://localhost:20000/cluster2/api/health/", 1), ("https://localhost:20001/cluster2/api/health/", 1) }, policyCallTimes: 1);
@@ -303,9 +302,9 @@ public class ActiveHealthCheckMonitorTests
 
         monitor.OnClusterChanged(cluster2);
 
-        timerFactory.FireTimer(0);
+        timeProvider.FireTimer(0);
 
-        timerFactory.AssertTimerDisposed(1);
+        timeProvider.AssertTimerDisposed(1);
         VerifySentProbeAndResult(cluster0, httpClient0, policy0, new[] { ("https://localhost:20000/cluster0/api/health/", 2), ("https://localhost:20001/cluster0/api/health/", 2) }, policyCallTimes: 2);
 
         GC.KeepAlive(monitor); // The timer does not keep a strong reference to the scheduler
@@ -318,7 +317,7 @@ public class ActiveHealthCheckMonitorTests
         policy.SetupGet(p => p.Name).Returns("policy0");
         var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
         var clusters = new List<ClusterState>();
-        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
+        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<TimeProvider>().Object, GetLogger());
 
         var httpClient = new Mock<HttpMessageInvoker>(() => new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object));
         httpClient.Setup(c => c.SendAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<CancellationToken>()))
@@ -374,7 +373,7 @@ public class ActiveHealthCheckMonitorTests
         policy.Setup(p => p.ProbingCompleted(It.IsAny<ClusterState>(), It.IsAny<IReadOnlyList<DestinationProbingResult>>())).Throws<InvalidOperationException>();
         var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromSeconds(5) });
         var clusters = new List<ClusterState>();
-        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
+        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<TimeProvider>().Object, GetLogger());
 
         var httpClient = GetHttpClient();
         var cluster = GetClusterInfo("cluster0", "policy0", true, httpClient.Object);
@@ -404,7 +403,7 @@ public class ActiveHealthCheckMonitorTests
         policy.SetupGet(p => p.Name).Returns("policy0");
         var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = Timeout.InfiniteTimeSpan });
         var clusters = new List<ClusterState>();
-        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
+        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<TimeProvider>().Object, GetLogger());
 
         var tcs0 = new TaskCompletionSource<HttpResponseMessage>();
         var httpClient0 = GetHttpClient(tcs0.Task);
@@ -454,7 +453,7 @@ public class ActiveHealthCheckMonitorTests
         policy.SetupGet(p => p.Name).Returns("policy0");
         var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromMilliseconds(1) });
         var clusters = new List<ClusterState>();
-        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
+        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<TimeProvider>().Object, GetLogger());
 
         var assertsCompletedMre = new ManualResetEventSlim(false);
 
@@ -503,7 +502,7 @@ public class ActiveHealthCheckMonitorTests
         policy.SetupGet(p => p.Name).Returns("policy0");
         var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = TimeSpan.FromMilliseconds(1) });
         var clusters = new List<ClusterState>();
-        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
+        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<TimeProvider>().Object, GetLogger());
 
         var tcs0 = new TaskCompletionSource<HttpResponseMessage>();
         var httpClient0 = GetHttpClient(tcs0.Task, () => tcs0.SetCanceled());
@@ -536,7 +535,7 @@ public class ActiveHealthCheckMonitorTests
         policy.SetupGet(p => p.Name).Returns("policy0");
         var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = Timeout.InfiniteTimeSpan });
         var clusters = new List<ClusterState>();
-        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
+        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<TimeProvider>().Object, GetLogger());
 
         var tcs0 = new TaskCompletionSource<HttpResponseMessage>();
         var httpClient0 = GetHttpClient(tcs0.Task);
@@ -577,7 +576,7 @@ public class ActiveHealthCheckMonitorTests
         policy.SetupGet(p => p.Name).Returns("policy0");
         var options = Options.Create(new ActiveHealthCheckMonitorOptions { DefaultInterval = TimeSpan.FromSeconds(60), DefaultTimeout = Timeout.InfiniteTimeSpan });
         var clusters = new List<ClusterState>();
-        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<ITimerFactory>().Object, GetLogger());
+        var monitor = new ActiveHealthCheckMonitor(options, new[] { policy.Object }, new DefaultProbingRequestFactory(), new Mock<TimeProvider>().Object, GetLogger());
 
         var tcs0 = new TaskCompletionSource<HttpResponseMessage>();
         var httpClient0 = GetHttpClient(tcs0.Task);

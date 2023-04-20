@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Health;
 
@@ -17,11 +16,11 @@ internal sealed class DestinationHealthUpdater : IDestinationHealthUpdater, IDis
     private readonly ILogger<DestinationHealthUpdater> _logger;
 
     public DestinationHealthUpdater(
-        ITimerFactory timerFactory,
+        TimeProvider timeProvider,
         IClusterDestinationsUpdater clusterDestinationsUpdater,
         ILogger<DestinationHealthUpdater> logger)
     {
-        _scheduler = new EntityActionScheduler<(ClusterState Cluster, DestinationState Destination)>(d => Reactivate(d.Cluster, d.Destination), autoStart: true, runOnce: true, timerFactory);
+        _scheduler = new EntityActionScheduler<(ClusterState Cluster, DestinationState Destination)>(d => Reactivate(d.Cluster, d.Destination), autoStart: true, runOnce: true, timeProvider);
         _clusterUpdater = clusterDestinationsUpdater ?? throw new ArgumentNullException(nameof(clusterDestinationsUpdater));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
