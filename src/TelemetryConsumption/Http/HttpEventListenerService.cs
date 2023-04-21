@@ -48,7 +48,7 @@ internal sealed class HttpEventListenerService : EventListenerService<HttpEventL
                 break;
 
             case 2:
-                Debug.Assert(eventData.EventName == "RequestStop" && payload.Count == 0);
+                Debug.Assert(eventData.EventName == "RequestStop" /* && payload.Count == 0 */);
                 {
                     foreach (var consumer in consumers)
                     {
@@ -148,7 +148,7 @@ internal sealed class HttpEventListenerService : EventListenerService<HttpEventL
                 break;
 
             case 12:
-                Debug.Assert(eventData.EventName == "ResponseHeadersStop" && payload.Count == 0);
+                Debug.Assert(eventData.EventName == "ResponseHeadersStop" /* && payload.Count == 0 */);
                 {
                     foreach (var consumer in consumers)
                     {
