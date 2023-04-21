@@ -191,8 +191,8 @@ internal static class StreamCopier
                     _isRequest,
                     _contentLength,
                     _iops,
-                    _timeProvider.GetElapsedTime(0, _readTime).Ticks,
-                    _timeProvider.GetElapsedTime(0, _writeTime).Ticks);
+                    _readTime,
+                    _writeTime);
 
                 // Avoid attributing the time taken by logging ContentTransferring to the next read call
                 _lastTime = _timeProvider.GetTimestamp();
@@ -206,9 +206,9 @@ internal static class StreamCopier
                 _isRequest,
                 _contentLength,
                 _iops,
-                _timeProvider.GetElapsedTime(0, _readTime).Ticks,
-                _timeProvider.GetElapsedTime(0, _writeTime).Ticks,
-                _timeProvider.GetElapsedTime(0, Math.Max(0, _firstReadTime)).Ticks);
+                _readTime,
+                _writeTime,
+                Math.Max(0, _firstReadTime));
         }
     }
 }
