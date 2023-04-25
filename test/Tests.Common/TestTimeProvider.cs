@@ -29,6 +29,8 @@ public class TestTimeProvider : TimeProvider
 
     public int TimerCount => _timers.Count;
 
+    public override long TimestampFrequency => TimeSpan.TicksPerSecond;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="TestTimeProvider" /> class.
     /// </summary>
