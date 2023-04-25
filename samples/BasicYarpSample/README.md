@@ -1,7 +1,7 @@
 # Basic YARP Sample
 
 This sample shows how to consume the YARP Library to produce a simple reverse proxy server. 
-The proxy server is implemented a plugin component for ASP.NET Core applications. ASP.NET Core servers like Kestrel provide the front end for the proxy by listening for http requests and then passing them to the proxy for paths that the proxy has registered. The proxy handles the requests by:
+The proxy server is implemented as a plugin component for ASP.NET Core applications. ASP.NET Core servers like Kestrel provide the front end for the proxy by listening for http requests and then passing them to the proxy for paths that the proxy has registered. The proxy handles the requests by:
 - Mapping the request URL path to a route in proxy configuration.
 - Routes are mapped to clusters which are a collection of destination endpoints.
 - The destinations are filtered based on health status, and session affinity (not used in this sample).
