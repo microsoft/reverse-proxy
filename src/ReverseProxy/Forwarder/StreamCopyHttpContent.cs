@@ -43,16 +43,16 @@ internal sealed class StreamCopyHttpContent : HttpContent
     // HttpClient's machinery keeps an internal buffer that doesn't get flushed to the socket on every write.
     // Some protocols (e.g. gRPC) may rely on specific bytes being sent, and HttpClient's buffering would prevent it.
     private readonly bool _autoFlushHttpClientOutgoingStream;
-    private readonly IClock _clock;
+    private readonly TimeProvider _timeProvider;
     private readonly ActivityCancellationTokenSource _activityToken;
     private readonly TaskCompletionSource<(StreamCopyResult, Exception?)> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private int _started;
 
-    public StreamCopyHttpContent(HttpRequest request, bool autoFlushHttpClientOutgoingStream, IClock clock, ActivityCancellationTokenSource activityToken)
+    public StreamCopyHttpContent(HttpRequest request, bool autoFlushHttpClientOutgoingStream, TimeProvider timeProvider, ActivityCancellationTokenSource activityToken)
     {
         _request = request ?? throw new ArgumentNullException(nameof(request));
         _autoFlushHttpClientOutgoingStream = autoFlushHttpClientOutgoingStream;
-        _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+        _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
         _activityToken = activityToken;
     }
@@ -164,7 +164,7 @@ internal sealed class StreamCopyHttpContent : HttpContent
             }
 
             // Check that the content-length matches the request body size. This can be removed in .NET 7 now that SocketsHttpHandler enforces this: https://github.com/dotnet/runtime/issues/62258.
-            var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _request.Body, stream, Headers.ContentLength ?? StreamCopier.UnknownLength, _clock, _activityToken, _autoFlushHttpClientOutgoingStream, cancellationToken);
+            var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _request.Body, stream, Headers.ContentLength ?? StreamCopier.UnknownLength, _timeProvider, _activityToken, _autoFlushHttpClientOutgoingStream, cancellationToken);
             _tcs.TrySetResult((result, error));
 
             // Check for errors that weren't the result of the destination failing.

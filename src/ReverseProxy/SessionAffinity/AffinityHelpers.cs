@@ -10,7 +10,7 @@ namespace Yarp.ReverseProxy.SessionAffinity;
 
 internal static class AffinityHelpers
 {
-    internal static CookieOptions CreateCookieOptions(SessionAffinityCookieConfig? config, bool isHttps, IClock clock)
+    internal static CookieOptions CreateCookieOptions(SessionAffinityCookieConfig? config, bool isHttps, TimeProvider timeProvider)
     {
         return new CookieOptions
         {
@@ -21,7 +21,7 @@ internal static class AffinityHelpers
             Domain = config?.Domain,
             IsEssential = config?.IsEssential ?? false,
             Secure = config?.SecurePolicy == CookieSecurePolicy.Always || (config?.SecurePolicy == CookieSecurePolicy.SameAsRequest && isHttps),
-            Expires = config?.Expiration is not null ? clock.GetUtcNow().Add(config.Expiration.Value) : default(DateTimeOffset?),
+            Expires = config?.Expiration is not null ? timeProvider.GetUtcNow().Add(config.Expiration.Value) : default(DateTimeOffset?),
         };
     }
 }

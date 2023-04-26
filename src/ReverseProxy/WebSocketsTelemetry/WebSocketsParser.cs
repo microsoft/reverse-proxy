@@ -18,19 +18,19 @@ internal unsafe struct WebSocketsParser
     private byte _leftover;
     private ulong _bytesToSkip;
     private long _closeTime;
-    private readonly IClock _clock;
+    private readonly TimeProvider _timeProvider;
 
     public long MessageCount { get; private set; }
 
     public DateTime? CloseTime => _closeTime == 0 ? null : new DateTime(_closeTime, DateTimeKind.Utc);
 
-    public WebSocketsParser(IClock clock, bool isServer)
+    public WebSocketsParser(TimeProvider timeProvider, bool isServer)
     {
         _minHeaderSize = (byte)(MinHeaderSize + (isServer ? MaskLength : 0));
         _leftover = 0;
         _bytesToSkip = 0;
         _closeTime = 0;
-        _clock = clock;
+        _timeProvider = timeProvider;
         MessageCount = 0;
     }
 
@@ -117,7 +117,7 @@ internal unsafe struct WebSocketsParser
             {
                 if (_closeTime == 0)
                 {
-                    _closeTime = _clock.GetUtcNow().Ticks;
+                    _closeTime = _timeProvider.GetUtcNow().Ticks;
                 }
             }
 

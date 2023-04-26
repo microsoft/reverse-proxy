@@ -14,7 +14,7 @@ namespace Yarp.ReverseProxy.WebSocketsTelemetry;
 
 internal sealed class HttpUpgradeFeatureWrapper : IHttpUpgradeFeature
 {
-    private readonly IClock _clock;
+    private readonly TimeProvider _timeProvider;
 
     public HttpContext HttpContext { get; private set; }
 
@@ -24,9 +24,9 @@ internal sealed class HttpUpgradeFeatureWrapper : IHttpUpgradeFeature
 
     public bool IsUpgradableRequest => InnerUpgradeFeature.IsUpgradableRequest;
 
-    public HttpUpgradeFeatureWrapper(IClock clock, HttpContext httpContext, IHttpUpgradeFeature upgradeFeature)
+    public HttpUpgradeFeatureWrapper(TimeProvider timeProvider, HttpContext httpContext, IHttpUpgradeFeature upgradeFeature)
     {
-        _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+        _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
         HttpContext = httpContext ?? throw new ArgumentNullException(nameof(httpContext));
         InnerUpgradeFeature = upgradeFeature ?? throw new ArgumentNullException(nameof(upgradeFeature));
     }
@@ -40,7 +40,7 @@ internal sealed class HttpUpgradeFeatureWrapper : IHttpUpgradeFeature
             upgradeValues.Count == 1 &&
             string.Equals("WebSocket", upgradeValues.ToString(), StringComparison.OrdinalIgnoreCase))
         {
-            TelemetryStream = new WebSocketsTelemetryStream(_clock, opaqueTransport);
+            TelemetryStream = new WebSocketsTelemetryStream(_timeProvider, opaqueTransport);
         }
 
         return TelemetryStream ?? opaqueTransport;

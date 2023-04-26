@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Kubernetes.Controller\Yarp.Kubernetes.Controller.csproj" />
+    <ProjectReference Include="..\Tests.Common\Yarp.Tests.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

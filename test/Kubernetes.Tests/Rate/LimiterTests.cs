@@ -10,17 +10,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Sdk;
-using Yarp.Kubernetes.Tests.Fakes;
+using Yarp.Tests.Common;
 
 namespace Yarp.Kubernetes.Controller.Rate.Tests;
 
 public class LimiterTests
 {
+    private readonly DateTimeOffset _startTime = new DateTimeOffset(2020, 10, 14, 12, 34, 56, TimeSpan.Zero);
+
     [Fact]
     public void FirstTokenIsAvailable()
     {
-        var clock = new FakeSystemClock();
-        var limiter = new Limiter(new Limit(10), 1, clock);
+        var timeProvider = new TestTimeProvider(_startTime);
+        var limiter = new Limiter(new Limit(10), 1, timeProvider);
 
         var allowed = limiter.Allow();
 
@@ -33,8 +35,8 @@ public class LimiterTests
     [InlineData(300)]
     public void AsManyAsBurstTokensAreAvailableRightAway(int burst)
     {
-        var clock = new FakeSystemClock();
-        var limiter = new Limiter(new Limit(10), burst, clock);
+        var timeProvider = new TestTimeProvider(_startTime);
+        var limiter = new Limiter(new Limit(10), burst, timeProvider);
 
         var allowed = new List<bool>();
         foreach (var index in Enumerable.Range(1, burst))
@@ -50,17 +52,17 @@ public class LimiterTests
     [Fact]
     public void TokensBecomeAvailableAtLimitPerSecondRate()
     {
-        var clock = new FakeSystemClock();
-        var limiter = new Limiter(new Limit(10), 50, clock);
+        var timeProvider = new TestTimeProvider(_startTime);
+        var limiter = new Limiter(new Limit(10), 50, timeProvider);
 
-        var initiallyAllowed = limiter.AllowN(clock.UtcNow, 50);
+        var initiallyAllowed = limiter.AllowN(timeProvider.GetUtcNow(), 50);
         var thenNotAllowed1 = limiter.Allow();
 
-        clock.Advance(TimeSpan.FromMilliseconds(100));
+        timeProvider.Advance(TimeSpan.FromMilliseconds(100));
         var oneTokenAvailable = limiter.Allow();
         var thenNotAllowed2 = limiter.Allow();
 
-        clock.Advance(TimeSpan.FromMilliseconds(200));
+        timeProvider.Advance(TimeSpan.FromMilliseconds(200));
         var twoTokensAvailable1 = limiter.Allow();
         var twoTokensAvailable2 = limiter.Allow();
         var thenNotAllowed3 = limiter.Allow();
@@ -77,19 +79,19 @@ public class LimiterTests
     [Fact]
     public void ReserveTellsYouHowLongToWait()
     {
-        var clock = new FakeSystemClock();
-        var limiter = new Limiter(new Limit(10), 50, clock);
+        var timeProvider = new TestTimeProvider(_startTime);
+        var limiter = new Limiter(new Limit(10), 50, timeProvider);
 
-        var initiallyAllowed = limiter.AllowN(clock.UtcNow, 50);
+        var initiallyAllowed = limiter.AllowN(timeProvider.GetUtcNow(), 50);
         var thenNotAllowed1 = limiter.Allow();
 
         var reserveOne = limiter.Reserve();
         var delayOne = reserveOne.Delay();
 
-        var reserveTwoMore = limiter.Reserve(clock.UtcNow, 2);
+        var reserveTwoMore = limiter.Reserve(timeProvider.GetUtcNow(), 2);
         var delayTwoMore = reserveTwoMore.Delay();
 
-        clock.Advance(TimeSpan.FromMilliseconds(450));
+        timeProvider.Advance(TimeSpan.FromMilliseconds(450));
 
         var reserveAlreadyAvailable = limiter.Reserve();
         var delayAlreadyAvailable = reserveAlreadyAvailable.Delay();

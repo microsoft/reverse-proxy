@@ -38,7 +38,6 @@ internal static class IReverseProxyBuilderExtensions
 
     public static IReverseProxyBuilder AddRuntimeStateManagers(this IReverseProxyBuilder builder)
     {
-        builder.Services.TryAddSingleton<ITimerFactory, TimerFactory>();
         builder.Services.TryAddSingleton<IDestinationHealthUpdater, DestinationHealthUpdater>();
 
         builder.Services.TryAddSingleton<IClusterDestinationsUpdater, ClusterDestinationsUpdater>();

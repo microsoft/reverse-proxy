@@ -18,14 +18,14 @@ namespace Yarp.ReverseProxy.Forwarder.Tests;
 
 public class StreamCopyHttpContentTests
 {
-    private static StreamCopyHttpContent CreateContent(HttpRequest request = null, bool autoFlushHttpClientOutgoingStream = false, IClock clock = null, ActivityCancellationTokenSource contentCancellation = null)
+    private static StreamCopyHttpContent CreateContent(HttpRequest request = null, bool autoFlushHttpClientOutgoingStream = false, TimeProvider timeProvider = null, ActivityCancellationTokenSource contentCancellation = null)
     {
         request ??= new DefaultHttpContext().Request;
-        clock ??= new Clock();
+        timeProvider ??= TimeProvider.System;
 
         contentCancellation ??= ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
 
-        return new StreamCopyHttpContent(request, autoFlushHttpClientOutgoingStream, clock, contentCancellation);
+        return new StreamCopyHttpContent(request, autoFlushHttpClientOutgoingStream, timeProvider, contentCancellation);
     }
 
     [Fact]

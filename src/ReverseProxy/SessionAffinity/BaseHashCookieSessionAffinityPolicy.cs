@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.SessionAffinity;
 
@@ -15,11 +14,11 @@ internal abstract class BaseHashCookieSessionAffinityPolicy : ISessionAffinityPo
 {
     private static readonly object AffinityKeyId = new();
     private readonly ILogger _logger;
-    private readonly IClock _clock;
+    private readonly TimeProvider _timeProvider;
 
-    public BaseHashCookieSessionAffinityPolicy(IClock clock, ILogger logger)
+    public BaseHashCookieSessionAffinityPolicy(TimeProvider timeProvider, ILogger logger)
     {
-        _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+        _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -36,7 +35,7 @@ internal abstract class BaseHashCookieSessionAffinityPolicy : ISessionAffinityPo
         if (!context.Items.ContainsKey(AffinityKeyId))
         {
             var affinityKey = GetDestinationHash(destination);
-            var affinityCookieOptions = AffinityHelpers.CreateCookieOptions(config.Cookie, context.Request.IsHttps, _clock);
+            var affinityCookieOptions = AffinityHelpers.CreateCookieOptions(config.Cookie, context.Request.IsHttps, _timeProvider);
             context.Response.Cookies.Append(config.AffinityKeyName, affinityKey, affinityCookieOptions);
         }
     }

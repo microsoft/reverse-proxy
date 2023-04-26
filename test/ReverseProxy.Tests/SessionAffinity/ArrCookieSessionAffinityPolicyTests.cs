@@ -39,7 +39,7 @@ public class ArrCookieSessionAffinityPolicyTests
     public void FindAffinitizedDestination_AffinityKeyIsNotSetOnRequest_ReturnKeyNotSet()
     {
         var policy = new ArrCookieSessionAffinityPolicy(
-            new ManualClock(),
+            new TestTimeProvider(),
             NullLogger<ArrCookieSessionAffinityPolicy>.Instance);
 
         Assert.Equal(SessionAffinityConstants.Policies.ArrCookie, policy.Name);
@@ -58,7 +58,7 @@ public class ArrCookieSessionAffinityPolicyTests
     public void FindAffinitizedDestination_AffinityKeyIsSetOnRequest_Success()
     {
         var policy = new ArrCookieSessionAffinityPolicy(
-            new ManualClock(),
+            new TestTimeProvider(),
             NullLogger<ArrCookieSessionAffinityPolicy>.Instance);
         var context = new DefaultHttpContext();
         var affinitizedDestination = _destinations[1];
@@ -76,7 +76,7 @@ public class ArrCookieSessionAffinityPolicyTests
     public void AffinitizedRequest_CustomConfigAffinityKeyIsNotExtracted_SetKeyOnResponse()
     {
         var policy = new ArrCookieSessionAffinityPolicy(
-            new ManualClock(),
+            new TestTimeProvider(),
             NullLogger<ArrCookieSessionAffinityPolicy>.Instance);
         var context = new DefaultHttpContext();
 
@@ -91,7 +91,7 @@ public class ArrCookieSessionAffinityPolicyTests
     public void AffinitizeRequest_CookieConfigSpecified_UseIt()
     {
         var policy = new ArrCookieSessionAffinityPolicy(
-            new ManualClock(),
+            new TestTimeProvider(),
             NullLogger<ArrCookieSessionAffinityPolicy>.Instance);
         var context = new DefaultHttpContext();
 
@@ -106,7 +106,7 @@ public class ArrCookieSessionAffinityPolicyTests
     public void AffinitizedRequest_AffinityKeyIsExtracted_DoNothing()
     {
         var policy = new ArrCookieSessionAffinityPolicy(
-            new ManualClock(),
+            new TestTimeProvider(),
             NullLogger<ArrCookieSessionAffinityPolicy>.Instance);
         var context = new DefaultHttpContext();
         var affinitizedDestination = _destinations[0];

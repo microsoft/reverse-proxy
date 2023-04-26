@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using System.Text;
 using Xunit;
-using Yarp.ReverseProxy.Utilities;
 using Yarp.Tests.Common;
 
 namespace Yarp.ReverseProxy.WebSocketsTelemetry.Tests;
@@ -16,7 +15,7 @@ public abstract class WebSocketsParserTests
 
     private int MaskSize => IsServer ? 4 : 0;
 
-    private WebSocketsParser CreateParser(IClock clock = null) => new(clock ?? new Clock(), IsServer);
+    private WebSocketsParser CreateParser(TimeProvider timeProvider = null) => new(timeProvider ?? TimeProvider.System, IsServer);
 
     private ReadOnlySpan<byte> GetHeader(int opcode, int length, bool endOfMessage = true)
     {
@@ -85,15 +84,15 @@ public abstract class WebSocketsParserTests
     [Fact]
     public void CustomClockIsUsedForCloseTime()
     {
-        var clock = new ManualClock(new TimeSpan(42));
-        var parser = CreateParser(clock);
+        var timeProvider = new TestTimeProvider(new TimeSpan(42));
+        var parser = CreateParser(timeProvider);
 
         Assert.Null(parser.CloseTime);
 
         parser.Consume(GetCloseFrame());
 
         Assert.NotNull(parser.CloseTime);
-        Assert.Equal(clock.GetUtcNow(), parser.CloseTime.Value);
+        Assert.Equal(timeProvider.GetUtcNow(), parser.CloseTime.Value);
     }
 
     [Fact]
@@ -221,8 +220,8 @@ public abstract class WebSocketsParserTests
             while (message.Length != 0)
             {
                 var fragmentLength = Math.Min(message.Length, rng.Next(0, 150));
-                parser.Consume(message.Slice(0, fragmentLength));
-                message = message.Slice(fragmentLength);
+                parser.Consume(message[..fragmentLength]);
+                message = message[fragmentLength..];
             }
         }
     }

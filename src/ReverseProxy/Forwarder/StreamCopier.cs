@@ -21,19 +21,19 @@ internal static class StreamCopier
     private const int DefaultBufferSize = 65536;
     public const long UnknownLength = -1;
 
-    public static ValueTask<(StreamCopyResult, Exception?)> CopyAsync(bool isRequest, Stream input, Stream output, long promisedContentLength, IClock clock, ActivityCancellationTokenSource activityToken, CancellationToken cancellation)
-        => CopyAsync(isRequest, input, output, promisedContentLength, clock, activityToken, autoFlush: false, cancellation);
+    public static ValueTask<(StreamCopyResult, Exception?)> CopyAsync(bool isRequest, Stream input, Stream output, long promisedContentLength, TimeProvider timeProvider, ActivityCancellationTokenSource activityToken, CancellationToken cancellation)
+        => CopyAsync(isRequest, input, output, promisedContentLength, timeProvider, activityToken, autoFlush: false, cancellation);
 
-    public static ValueTask<(StreamCopyResult, Exception?)> CopyAsync(bool isRequest, Stream input, Stream output, long promisedContentLength, IClock clock, ActivityCancellationTokenSource activityToken, bool autoFlush, CancellationToken cancellation)
+    public static ValueTask<(StreamCopyResult, Exception?)> CopyAsync(bool isRequest, Stream input, Stream output, long promisedContentLength, TimeProvider timeProvider, ActivityCancellationTokenSource activityToken, bool autoFlush, CancellationToken cancellation)
     {
         Debug.Assert(input is not null);
         Debug.Assert(output is not null);
-        Debug.Assert(clock is not null);
+        Debug.Assert(timeProvider is not null);
         Debug.Assert(activityToken is not null);
 
-        // Avoid capturing 'isRequest' and 'clock' in the state machine when telemetry is disabled
+        // Avoid capturing 'isRequest' and 'timeProvider' in the state machine when telemetry is disabled
         var telemetry = ForwarderTelemetry.Log.IsEnabled(EventLevel.Informational, EventKeywords.All)
-            ? new StreamCopierTelemetry(isRequest, clock)
+            ? new StreamCopierTelemetry(isRequest, timeProvider)
             : null;
 
         return CopyAsync(input, output, promisedContentLength, telemetry, activityToken, autoFlush, cancellation);
@@ -142,28 +142,26 @@ internal static class StreamCopier
 
     private sealed class StreamCopierTelemetry
     {
-        private static readonly TimeSpan _timeBetweenTransferringEvents = TimeSpan.FromSeconds(1);
-
         private readonly bool _isRequest;
-        private readonly IClock _clock;
+        private readonly TimeProvider _timeProvider;
         private long _contentLength;
         private long _iops;
-        private TimeSpan _readTime;
-        private TimeSpan _writeTime;
-        private TimeSpan _firstReadTime;
-        private TimeSpan _lastTime;
-        private TimeSpan _nextTransferringEvent;
+        private long _readTime;
+        private long _writeTime;
+        private long _firstReadTime;
+        private long _lastTime;
+        private long _nextTransferringEvent;
 
-        public StreamCopierTelemetry(bool isRequest, IClock clock)
+        public StreamCopierTelemetry(bool isRequest, TimeProvider timeProvider)
         {
             _isRequest = isRequest;
-            _clock = clock ?? throw new ArgumentNullException(nameof(clock));
-            _firstReadTime = new TimeSpan(-1);
+            _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+            _firstReadTime = -1;
 
             ForwarderTelemetry.Log.ForwarderStage(isRequest ? ForwarderStage.RequestContentTransferStart : ForwarderStage.ResponseContentTransferStart);
 
-            _lastTime = clock.GetStopwatchTime();
-            _nextTransferringEvent = _lastTime + _timeBetweenTransferringEvents;
+            _lastTime = timeProvider.GetTimestamp();
+            _nextTransferringEvent = _lastTime + _timeProvider.TimestampFrequency;
         }
 
         public void AfterRead(long contentLength)
@@ -171,11 +169,11 @@ internal static class StreamCopier
             _contentLength = contentLength;
             _iops++;
 
-            var readStop = _clock.GetStopwatchTime();
+            var readStop = _timeProvider.GetTimestamp();
             var currentReadTime = readStop - _lastTime;
             _lastTime = readStop;
             _readTime += currentReadTime;
-            if (_firstReadTime.Ticks < 0)
+            if (_firstReadTime < 0)
             {
                 _firstReadTime = currentReadTime;
             }
@@ -183,7 +181,7 @@ internal static class StreamCopier
 
         public void AfterWrite()
         {
-            var writeStop = _clock.GetStopwatchTime();
+            var writeStop = _timeProvider.GetTimestamp();
             _writeTime += writeStop - _lastTime;
             _lastTime = writeStop;
 
@@ -193,12 +191,12 @@ internal static class StreamCopier
                     _isRequest,
                     _contentLength,
                     _iops,
-                    _readTime.Ticks,
-                    _writeTime.Ticks);
+                    _timeProvider.GetElapsedTime(0, _readTime).Ticks,
+                    _timeProvider.GetElapsedTime(0, _writeTime).Ticks);
 
                 // Avoid attributing the time taken by logging ContentTransferring to the next read call
-                _lastTime = _clock.GetStopwatchTime();
-                _nextTransferringEvent = _lastTime + _timeBetweenTransferringEvents;
+                _lastTime = _timeProvider.GetTimestamp();
+                _nextTransferringEvent = _lastTime + _timeProvider.TimestampFrequency;
             }
         }
 
@@ -208,9 +206,9 @@ internal static class StreamCopier
                 _isRequest,
                 _contentLength,
                 _iops,
-                _readTime.Ticks,
-                _writeTime.Ticks,
-                Math.Max(0, _firstReadTime.Ticks));
+                _timeProvider.GetElapsedTime(0, _readTime).Ticks,
+                _timeProvider.GetElapsedTime(0, _writeTime).Ticks,
+                _timeProvider.GetElapsedTime(0, Math.Max(0, _firstReadTime)).Ticks);
         }
     }
 }

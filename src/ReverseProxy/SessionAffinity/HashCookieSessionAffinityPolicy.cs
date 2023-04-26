@@ -7,7 +7,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.SessionAffinity;
 
@@ -16,9 +15,9 @@ internal sealed class HashCookieSessionAffinityPolicy : BaseHashCookieSessionAff
     private readonly ConditionalWeakTable<DestinationState, string> _hashes = new();
 
     public HashCookieSessionAffinityPolicy(
-        IClock clock,
+        TimeProvider timeProvider,
         ILogger<HashCookieSessionAffinityPolicy> logger)
-        : base(clock, logger) { }
+        : base(timeProvider, logger) { }
 
     public override string Name => SessionAffinityConstants.Policies.HashCookie;
 
