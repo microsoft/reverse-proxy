@@ -29,7 +29,8 @@ public class TestTimeProvider : TimeProvider
 
     public int TimerCount => _timers.Count;
 
-    public override long TimestampFrequency => TimeSpan.TicksPerSecond;
+    // Mess with the frequency to check for bad assumptions in the code.
+    public override long TimestampFrequency => TimeSpan.TicksPerSecond * 7;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TestTimeProvider" /> class.
@@ -72,7 +73,8 @@ public class TestTimeProvider : TimeProvider
 
     public override DateTimeOffset GetUtcNow() => new DateTime(_currentTime.Ticks, DateTimeKind.Utc);
 
-    public override long GetTimestamp() => _currentTime.Ticks;
+    // Mess with the frequency to check for bad assumptions in the code.
+    public override long GetTimestamp() => _currentTime.Ticks * 7;
 
     public override ITimer CreateTimer(TimerCallback callback, object state, TimeSpan dueTime, TimeSpan period)
     {
