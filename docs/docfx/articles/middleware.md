@@ -52,7 +52,7 @@ By default this overload of `MapReverseProxy` only includes the minimal setup, p
 
 ## Custom Proxy Middleware
 
-Middlware inside the `MapReverseProxy` pipeline have access to all of the proxy data and state associated with a request (the route, cluster, destinations, etc.) through the [IReverseProxyFeature](xref:Yarp.ReverseProxy.Model.IReverseProxyFeature). This is available from `HttpContext.Features` or the extension method `HttpContext.GetReverseProxyFeature()`.
+Middleware inside the `MapReverseProxy` pipeline have access to all of the proxy data and state associated with a request (the route, cluster, destinations, etc.) through the [IReverseProxyFeature](xref:Yarp.ReverseProxy.Model.IReverseProxyFeature). This is available from `HttpContext.Features` or the extension method `HttpContext.GetReverseProxyFeature()`.
 
 The data in `IReverseProxyFeature` are snapshotted from the proxy configuration at the start of the proxy pipeline and will not be affected by proxy configuration changes that occur while the request is being processed.
 
