@@ -515,7 +515,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             // TODO: Kestrel bug, this shouldn't be true for ExtendedConnect.
 #if NET7_0_OR_GREATER
             var connectFeature = request.HttpContext.Features.Get<IHttpExtendedConnectFeature>();
-            if (connectFeature?.Protocol != null)
+            if (connectFeature?.IsExtendedConnect == true)
             {
                 hasBody = false;
             }
