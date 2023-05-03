@@ -151,8 +151,8 @@ See https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuratio
 
 ```
 yarp.ingress.kubernetes.io/route-metadata: |
-  - Custom: "orange"
-  - Tenant: "12345"
+  Custom: "orange"
+  Tenant: "12345"
 ```
 
 #### Session Affinity
