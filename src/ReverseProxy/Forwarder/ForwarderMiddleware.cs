@@ -43,8 +43,8 @@ internal sealed class ForwarderMiddleware
         var cluster = route.Cluster!;
 
         var activity = context.GetYarpActivity();
-        activity?.AddTag("RouteId", route.Config.RouteId);
-        activity?.AddTag("ClusterId", cluster.ClusterId);
+        activity?.AddTag("proxy.route_id", route.Config.RouteId);
+        activity?.AddTag("proxy.cluster_id", cluster.ClusterId);
 
 
         if (destinations.Count == 0)
@@ -53,7 +53,7 @@ internal sealed class ForwarderMiddleware
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
             context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.NoAvailableDestinations, ex: null));
             activity?.SetStatus(ActivityStatusCode.Error);
-            activity?.AddTag("DestinationId", "No destinations available");
+            activity?.AddError("Proxy forwarding failed","No available destinations to route to");
             return;
         }
 
@@ -66,7 +66,7 @@ internal sealed class ForwarderMiddleware
         }
 
         reverseProxyFeature.ProxiedDestination = destination;
-        activity?.AddTag("DestinationId", destination.DestinationId);
+        activity?.AddTag("proxy.destination_id", destination.DestinationId);
 
         var destinationModel = destination.Model;
         if (destinationModel is null)

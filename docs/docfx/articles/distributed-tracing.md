@@ -74,8 +74,6 @@ services.AddReverseProxy()
     .ConfigureHttpClient((context, handler) => handler.ActivityHeadersPropagator = null);
 ```
 
-[OpenTelemetry]: https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/docs/trace/getting-started-aspnetcore
-[Application Insights]: https://docs.microsoft.com/azure/azure-monitor/app/asp-net-core
 [B3 propagation]: https://github.com/openzipkin/b3-propagation
 [`DistributedContextPropagator`]: https://docs.microsoft.com/dotnet/api/system.diagnostics.distributedcontextpropagator
 [`DistributedContextPropagator.Fields`]: https://docs.microsoft.com/dotnet/api/system.diagnostics.distributedcontextpropagator.fields

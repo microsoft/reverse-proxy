@@ -51,7 +51,7 @@ internal sealed class ProxyPipelineInitializerMiddleware
             AvailableDestinations = destinationsState.AvailableDestinations,
         });
 
-        var activity = Observability.YarpActivitySource.StartActivity("Proxy Forwarder", ActivityKind.Server);
+        var activity = Observability.YarpActivitySource.StartActivity("proxy.forwarder", ActivityKind.Server);
         context.SetYarpActivity(activity);
 
         await _next(context);
