@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Model;
 
@@ -23,7 +25,7 @@ internal sealed class ProxyPipelineInitializerMiddleware
         _next = next ?? throw new ArgumentNullException(nameof(next));
     }
 
-    public Task Invoke(HttpContext context)
+    public async Task Invoke(HttpContext context)
     {
         var endpoint = context.GetEndpoint()
            ?? throw new InvalidOperationException($"Routing Endpoint wasn't set for the current request.");
@@ -37,7 +39,7 @@ internal sealed class ProxyPipelineInitializerMiddleware
         {
             Log.NoClusterFound(_logger, route.Config.RouteId);
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-            return Task.CompletedTask;
+            return;
         }
 
         var destinationsState = cluster.DestinationsState;
@@ -46,10 +48,14 @@ internal sealed class ProxyPipelineInitializerMiddleware
             Route = route,
             Cluster = cluster.Model,
             AllDestinations = destinationsState.AllDestinations,
-            AvailableDestinations = destinationsState.AvailableDestinations
+            AvailableDestinations = destinationsState.AvailableDestinations,
         });
 
-        return _next(context);
+        using (var activity = Observability.YarpActivitySource.StartActivity("proxy.forwarder", ActivityKind.Server))
+        {
+            context.SetYarpActivity(activity);
+            await _next(context);
+        }
     }
 
     private static class Log
