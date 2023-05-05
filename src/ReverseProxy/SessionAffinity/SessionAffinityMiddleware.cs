@@ -63,6 +63,7 @@ internal sealed class SessionAffinityMiddleware
         switch (affinityResult.Status)
         {
             case AffinityStatus.OK:
+                proxyFeature.AvailableDestinations = affinityResult.Destinations!;
                 activity?.SetTag("proxy.session_affinity.status", "success");
                 break;
             case AffinityStatus.AffinityKeyNotSet:
