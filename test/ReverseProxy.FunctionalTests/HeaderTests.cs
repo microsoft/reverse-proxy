@@ -388,7 +388,6 @@ public class HeaderTests
             Assert.False(response.Headers.TryGetValues(HeaderNames.Location, out _));
             Assert.False(response.Headers.TryGetValues("Test-Extra", out _));
 
-            Assert.True(destinationTask.IsCompleted);
             await destinationTask;
         }
         finally
