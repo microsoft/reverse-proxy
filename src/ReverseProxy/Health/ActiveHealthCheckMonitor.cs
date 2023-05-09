@@ -162,6 +162,10 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
 
     private async Task<DestinationProbingResult> ProbeDestinationAsync(ClusterState cluster, DestinationState destination, TimeSpan timeout)
     {
+        using var probeActivity = Observability.YarpActivitySource.StartActivity("proxy.destination_health_check", ActivityKind.Client);
+        probeActivity?.AddTag("proxy.cluster_id", cluster.ClusterId);
+        probeActivity?.AddTag("proxy.destination_id", destination.DestinationId);
+
         HttpRequestMessage request;
         try
         {
@@ -171,14 +175,13 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
         {
             Log.ActiveHealthProbeConstructionFailedOnCluster(_logger, destination.DestinationId, cluster.ClusterId, ex);
 
+            probeActivity?.SetStatus(ActivityStatusCode.Error);
+
             return new DestinationProbingResult(destination, null, ex);
         }
 
-        using var probeActivity = Observability.YarpActivitySource.StartActivity("proxy.destination_health_check", ActivityKind.Client);
-        probeActivity?.AddTag("proxy.cluster_id", cluster.ClusterId);
-        probeActivity?.AddTag("proxy.destination_id", destination.DestinationId);
+        using var cts = new CancellationTokenSource(timeout);
 
-        var cts = new CancellationTokenSource(timeout);
         try
         {
             Log.SendingHealthProbeToEndpointOfDestination(_logger, request.RequestUri, destination.DestinationId, cluster.ClusterId);
@@ -196,10 +199,6 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
             probeActivity?.SetStatus(ActivityStatusCode.Error);
 
             return new DestinationProbingResult(destination, null, ex);
-        }
-        finally
-        {
-            cts.Dispose();
         }
     }
 }
