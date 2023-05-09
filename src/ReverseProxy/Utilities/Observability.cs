@@ -1,13 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
 
 namespace Yarp.ReverseProxy.Utilities;
@@ -23,7 +17,7 @@ internal static class Observability
 
     public static void SetYarpActivity(this HttpContext context, Activity? activity)
     {
-        if (activity != null)
+        if (activity is not null)
         {
             context.Features[typeof(YarpActivity)] = activity;
         }
@@ -31,7 +25,8 @@ internal static class Observability
 
     public static void AddError(this Activity activity, string message, string description)
     {
-        if (activity != null) {
+        if (activity is not null)
+        {
             var tagsCollection = new ActivityTagsCollection
             {
                 { "error", message },
