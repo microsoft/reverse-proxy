@@ -45,14 +45,13 @@ internal sealed class ForwarderMiddleware
         activity?.AddTag("proxy.route_id", route.Config.RouteId);
         activity?.AddTag("proxy.cluster_id", cluster.ClusterId);
 
-
         if (destinations.Count == 0)
         {
             Log.NoAvailableDestinations(_logger, cluster.ClusterId);
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
             context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.NoAvailableDestinations, ex: null));
             activity?.SetStatus(ActivityStatusCode.Error);
-            activity?.AddError("Proxy forwarding failed","No available destinations to route to");
+            activity?.AddError("Proxy forwarding failed", "No available destinations to forward to");
             return;
         }
 

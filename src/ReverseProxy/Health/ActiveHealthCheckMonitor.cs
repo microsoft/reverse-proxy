@@ -110,7 +110,7 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
         }
 
         // Creates an Activity to trace the active health checks
-        var activity = Observability.YarpActivitySource.StartActivity("proxy.cluster_health_checks", ActivityKind.Consumer);
+        using var activity = Observability.YarpActivitySource.StartActivity("proxy.cluster_health_checks", ActivityKind.Consumer);
         activity?.AddTag("proxy.cluster_id", cluster.ClusterId);
 
         Log.StartingActiveHealthProbingOnCluster(_logger, cluster.ClusterId);
@@ -157,12 +157,15 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
             }
 
             Log.StoppedActiveHealthProbingOnCluster(_logger, cluster.ClusterId);
-            activity?.Stop();
         }
     }
 
     private async Task<DestinationProbingResult> ProbeDestinationAsync(ClusterState cluster, DestinationState destination, TimeSpan timeout)
     {
+        using var probeActivity = Observability.YarpActivitySource.StartActivity("proxy.destination_health_check", ActivityKind.Client);
+        probeActivity?.AddTag("proxy.cluster_id", cluster.ClusterId);
+        probeActivity?.AddTag("proxy.destination_id", destination.DestinationId);
+
         HttpRequestMessage request;
         try
         {
@@ -172,36 +175,30 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
         {
             Log.ActiveHealthProbeConstructionFailedOnCluster(_logger, destination.DestinationId, cluster.ClusterId, ex);
 
+            probeActivity?.SetStatus(ActivityStatusCode.Error);
+
             return new DestinationProbingResult(destination, null, ex);
         }
 
-        using (var probeActivity = Observability.YarpActivitySource.StartActivity("proxy.destination_health_check", ActivityKind.Client))
+        using var cts = new CancellationTokenSource(timeout);
+
+        try
         {
-            probeActivity?.AddTag("proxy.cluster_id", cluster.ClusterId);
-            probeActivity?.AddTag("proxy.destination_id", destination.DestinationId);
-            var cts = new CancellationTokenSource(timeout);
-            try
-            {
-                Log.SendingHealthProbeToEndpointOfDestination(_logger, request.RequestUri, destination.DestinationId, cluster.ClusterId);
-                var response = await cluster.Model.HttpClient.SendAsync(request, cts.Token);
-                Log.DestinationProbingCompleted(_logger, destination.DestinationId, cluster.ClusterId, (int)response.StatusCode);
+            Log.SendingHealthProbeToEndpointOfDestination(_logger, request.RequestUri, destination.DestinationId, cluster.ClusterId);
+            var response = await cluster.Model.HttpClient.SendAsync(request, cts.Token);
+            Log.DestinationProbingCompleted(_logger, destination.DestinationId, cluster.ClusterId, (int)response.StatusCode);
 
-                probeActivity?.SetStatus(ActivityStatusCode.Ok);
+            probeActivity?.SetStatus(ActivityStatusCode.Ok);
 
-                return new DestinationProbingResult(destination, response, null);
-            }
-            catch (Exception ex)
-            {
-                Log.DestinationProbingFailed(_logger, destination.DestinationId, cluster.ClusterId, ex);
+            return new DestinationProbingResult(destination, response, null);
+        }
+        catch (Exception ex)
+        {
+            Log.DestinationProbingFailed(_logger, destination.DestinationId, cluster.ClusterId, ex);
 
-                probeActivity?.SetStatus(ActivityStatusCode.Error);
+            probeActivity?.SetStatus(ActivityStatusCode.Error);
 
-                return new DestinationProbingResult(destination, null, ex);
-            }
-            finally
-            {
-                cts.Dispose();
-            }
+            return new DestinationProbingResult(destination, null, ex);
         }
     }
 }

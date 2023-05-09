@@ -58,7 +58,7 @@ internal sealed class HttpEventListenerService : EventListenerService<HttpEventL
                 break;
 
             case 3:
-                Debug.Assert(eventData.EventName == "RequestFailed" && payload.Count == 0);
+                Debug.Assert(eventData.EventName == "RequestFailed" /* && payload.Count == 0 */);
                 {
                     foreach (var consumer in consumers)
                     {

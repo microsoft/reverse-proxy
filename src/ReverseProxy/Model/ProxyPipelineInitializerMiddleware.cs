@@ -25,7 +25,7 @@ internal sealed class ProxyPipelineInitializerMiddleware
         _next = next ?? throw new ArgumentNullException(nameof(next));
     }
 
-    public async Task Invoke(HttpContext context)
+    public Task Invoke(HttpContext context)
     {
         var endpoint = context.GetEndpoint()
            ?? throw new InvalidOperationException($"Routing Endpoint wasn't set for the current request.");
@@ -39,7 +39,7 @@ internal sealed class ProxyPipelineInitializerMiddleware
         {
             Log.NoClusterFound(_logger, route.Config.RouteId);
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-            return;
+            return Task.CompletedTask;
         }
 
         var destinationsState = cluster.DestinationsState;
@@ -51,10 +51,25 @@ internal sealed class ProxyPipelineInitializerMiddleware
             AvailableDestinations = destinationsState.AvailableDestinations,
         });
 
-        using (var activity = Observability.YarpActivitySource.StartActivity("proxy.forwarder", ActivityKind.Server))
+        var activity = Observability.YarpActivitySource.CreateActivity("proxy.forwarder", ActivityKind.Server);
+
+        return activity is null
+            ? _next(context)
+            : AwaitWithActivity(context, activity);
+    }
+
+    private async Task AwaitWithActivity(HttpContext context, Activity activity)
+    {
+        context.SetYarpActivity(activity);
+
+        activity.Start();
+        try
         {
-            context.SetYarpActivity(activity);
             await _next(context);
+        }
+        finally
+        {
+            activity.Dispose();
         }
     }
 
