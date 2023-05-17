@@ -68,7 +68,7 @@ public partial class Reconciler : IReconciler
             _logger.LogInformation(JsonSerializer.Serialize(clusters));
 
             await _updateConfig.UpdateAsync(configContext.Routes, clusters, cancellationToken).ConfigureAwait(false);
-            await _ingressResourceStatusUpdater.UpdateStatusAsync();
+            await _ingressResourceStatusUpdater.UpdateStatusAsync(cancellationToken);
         }
         catch (Exception ex)
         {
