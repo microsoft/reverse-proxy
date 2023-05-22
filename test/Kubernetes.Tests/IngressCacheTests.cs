@@ -64,7 +64,7 @@ public class IngressCacheTests
         _cacheUnderTest.Update(WatchEventType.Added, ingress);
 
         // Assert
-        var ingresses = _cacheUnderTest.GetIngresses().Where(_cacheUnderTest.IsYarpIngress).ToArray();
+        var ingresses = _cacheUnderTest.GetIngresses().ToArray();
 
         Assert.Equal(expectedIngressCount, ingresses.Length);
     }
@@ -90,7 +90,7 @@ public class IngressCacheTests
         _cacheUnderTest.Update(WatchEventType.Added, ingress);
 
         // Assert
-        var ingresses = _cacheUnderTest.GetIngresses().Where(_cacheUnderTest.IsYarpIngress).ToArray();
+        var ingresses = _cacheUnderTest.GetIngresses().ToArray();
 
         Assert.Equal(expectedIngressCount, ingresses.Length);
     }
@@ -111,7 +111,7 @@ public class IngressCacheTests
 
         // Assert
         var ingresses = _cacheUnderTest.GetIngresses().ToArray();
-        Assert.All(ingresses, i => Assert.False(_cacheUnderTest.IsYarpIngress(i)));
+        Assert.Empty(ingresses);
     }
 
     [Fact]
@@ -149,7 +149,7 @@ public class IngressCacheTests
 
         // Assert
         var ingresses = _cacheUnderTest.GetIngresses().ToArray();
-        Assert.All(ingresses, i => Assert.False(_cacheUnderTest.IsYarpIngress(i)));
+        Assert.Empty(ingresses);
     }
 
     [Fact]
