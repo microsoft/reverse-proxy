@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Tracing;
 using System.Threading;
 
@@ -122,6 +123,8 @@ internal sealed class ForwarderTelemetry : EventSource
     }
 
 
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026:RequiresUnreferencedCode",
+        Justification = "Parameters to this method are primitive and are trimmer safe.")]
     [NonEvent]
     private unsafe void WriteEvent(int eventId, bool arg1, long arg2, long arg3, long arg4, long arg5)
     {
@@ -157,6 +160,8 @@ internal sealed class ForwarderTelemetry : EventSource
         WriteEventCore(eventId, NumEventDatas, descrs);
     }
 
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026:RequiresUnreferencedCode",
+        Justification = "Parameters to this method are primitive and are trimmer safe.")]
     [NonEvent]
     private unsafe void WriteEvent(int eventId, bool arg1, long arg2, long arg3, long arg4, long arg5, long arg6)
     {
