@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using k8s;
 using k8s.Models;
 using Microsoft.Extensions.Configuration;
@@ -122,7 +123,7 @@ public static class KubernetesReverseProxyServiceCollectionExtensions
     /// <param name="services">The services.</param>
     /// <param name="fieldSelector">A field selector to constrain the resources the informer retrieves.</param>
     /// <returns>IServiceCollection.</returns>
-    public static IServiceCollection RegisterResourceInformer<TResource, TService>(this IServiceCollection services, string fieldSelector)
+    public static IServiceCollection RegisterResourceInformer<TResource, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TService>(this IServiceCollection services, string fieldSelector)
         where TResource : class, IKubernetesObject<V1ObjectMeta>, new()
         where TService : IResourceInformer<TResource>
     {
