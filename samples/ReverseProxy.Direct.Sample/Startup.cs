@@ -82,6 +82,8 @@ namespace Yarp.Sample
                     }
                 });
 
+                endpoints.MapForwarder("/sample/{id}", "https://httpbin.org", "/anything/{id}");
+                endpoints.MapForwarder("/sample/anything/{id}", "https://httpbin.org", b => b.AddPathRemovePrefix("/sample"));
 
                 // When using extension methods for registering IHttpForwarder providing configuration, transforms, and HttpMessageInvoker is optional (defaults will be used).
                 endpoints.MapForwarder("/{**catch-all}", "https://example.com", requestOptions, transformer, httpClient);
