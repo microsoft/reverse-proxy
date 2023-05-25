@@ -45,11 +45,7 @@ public static class DirectForwardingIEndpointRouteBuilderExtensions
     /// </summary>
     public static IEndpointConventionBuilder MapForwarder(this IEndpointRouteBuilder endpoints, string pattern, string destinationPrefix, Action<TransformBuilderContext> configureTransform)
     {
-        var transformBuilder = endpoints.ServiceProvider.GetRequiredService<ITransformBuilder>();
-
-        var transformer = transformBuilder.Create(configureTransform);
-
-        return endpoints.MapForwarder(pattern, destinationPrefix, ForwarderRequestConfig.Empty, transformer);
+        return endpoints.MapForwarder(pattern, destinationPrefix, ForwarderRequestConfig.Empty, configureTransform);
     }
 
     /// <summary>
