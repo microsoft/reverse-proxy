@@ -1,9 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Hashing;
+using System;
 using System.Net.Http.Headers;
+using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Yarp.ReverseProxy.Transforms;
@@ -39,6 +43,34 @@ namespace Yarp.Sample
                 {
                     // For each route+cluster pair decide if we want to add transforms, and if so, which?
                     // This logic is re-run each time a route is rebuilt.
+
+                    if (transformBuilderContext.Cluster.SessionAffinity?.Enabled == true)
+                    {
+                        var cookieName = transformBuilderContext.Cluster.SessionAffinity?.AffinityKeyName;
+                        transformBuilderContext.AddRequestTransform(transformContext =>
+                        {
+                            // Does it already exist?
+                            var cookies = transformContext.HttpContext.Request.Headers.Cookie.ToString();
+                            if (cookies.Contains(cookieName + "="))
+                            {
+                                return default;
+                            }
+
+                            // Where are we proxying to?
+                            var proxyFeature = transformContext.HttpContext.GetReverseProxyFeature();
+                            var destinationId = proxyFeature.ProxiedDestination.DestinationId;
+
+                            // See HashCookieSessionAffinityPolicy
+                            var destinationIdBytes = Encoding.Unicode.GetBytes(destinationId.ToUpperInvariant());
+                            var hashBytes = XxHash64.Hash(destinationIdBytes);
+                            var affinity = Convert.ToHexString(hashBytes).ToLowerInvariant();
+
+                            // Append to any existing cookies.
+                            transformContext.HttpContext.Request.Headers.Cookie = $"{cookieName}={affinity}; {cookies}";
+
+                            return default;
+                        });
+                    }
 
                     transformBuilderContext.AddPathPrefix("/prefix");
 
