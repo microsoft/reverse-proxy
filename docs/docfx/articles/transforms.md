@@ -386,7 +386,7 @@ This will change PUT requests to POST.
 
 ### RequestHeadersCopy
 
-**Sets whether incomming request headers are copied to the outbound request**
+**Sets whether incoming request headers are copied to the outbound request**
 
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
