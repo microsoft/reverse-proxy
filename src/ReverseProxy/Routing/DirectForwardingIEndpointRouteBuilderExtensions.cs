@@ -84,7 +84,11 @@ public static class DirectForwardingIEndpointRouteBuilderExtensions
     /// <summary>
     /// Adds direct forwarding of HTTP requests that match the specified pattern to a specific destination using customized configuration for the outgoing request, default transforms, and default HTTP client.
     /// </summary>
-    public static IEndpointConventionBuilder MapForwarder(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string pattern, string destinationPrefix, ForwarderRequestConfig requestConfig)
+    public static IEndpointConventionBuilder MapForwarder(this IEndpointRouteBuilder endpoints,
+    #if NET7_0_OR_GREATER
+    [StringSyntax("Route")] string pattern,
+    #endif
+    string destinationPrefix, ForwarderRequestConfig requestConfig)
     {
         return endpoints.MapForwarder(pattern, destinationPrefix, requestConfig, HttpTransformer.Default);
     }
