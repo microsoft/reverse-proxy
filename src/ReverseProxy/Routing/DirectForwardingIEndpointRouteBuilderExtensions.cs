@@ -86,9 +86,9 @@ public static class DirectForwardingIEndpointRouteBuilderExtensions
     /// </summary>
     public static IEndpointConventionBuilder MapForwarder(this IEndpointRouteBuilder endpoints,
     #if NET7_0_OR_GREATER
-    [StringSyntax("Route")] string pattern,
+    [StringSyntax("Route")]
     #endif
-    string destinationPrefix, ForwarderRequestConfig requestConfig)
+     string pattern, string destinationPrefix, ForwarderRequestConfig requestConfig)
     {
         return endpoints.MapForwarder(pattern, destinationPrefix, requestConfig, HttpTransformer.Default);
     }
