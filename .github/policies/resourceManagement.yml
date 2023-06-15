@@ -1,0 +1,42 @@
+id: 
+name: GitOps.PullRequestIssueManagement
+description: GitOps.PullRequestIssueManagement primitive
+owner: 
+resource: repository
+disabled: false
+where: 
+configuration:
+  resourceManagementConfiguration:
+    scheduledSearches: []
+    eventResponderTasks:
+    - if:
+      - payloadType: Pull_Request
+      - hasLabel:
+          label: Auto-Merge
+      then:
+      - enableAutoMerge:
+          mergeMethod: Squash
+      description: 
+    - if:
+      - payloadType: Pull_Request
+      - labelRemoved:
+          label: Auto-Merge
+      then:
+      - disableAutoMerge
+      description: 
+    - if:
+      - payloadType: Pull_Request
+      - isAction:
+          action: Opened
+      - isActivitySender:
+          user: dotnet-maestro[bot]
+          issueAuthor: False
+      - titleContains:
+          pattern: Update dependencies
+          isRegex: False
+      then:
+      - approvePullRequest:
+          comment: Auto-approving dependency update.
+      description: 
+onFailure: 
+onSuccess: 
