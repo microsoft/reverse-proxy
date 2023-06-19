@@ -13,6 +13,6 @@
   <!--Package versions-->
   <PropertyGroup>
     <MicrosoftBclTimeProviderVersion>8.0.0-preview.4.23220.7</MicrosoftBclTimeProviderVersion>
-    <MicrosoftDotNetXUnitExtensionsPackageVersion>8.0.0-beta.23309.8</MicrosoftDotNetXUnitExtensionsPackageVersion>
+    <MicrosoftDotNetXUnitExtensionsPackageVersion>8.0.0-beta.23316.6</MicrosoftDotNetXUnitExtensionsPackageVersion>
   </PropertyGroup>
 </Project>
