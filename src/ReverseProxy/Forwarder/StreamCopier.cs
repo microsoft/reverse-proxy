@@ -124,9 +124,13 @@ internal static class StreamCopier
                 telemetry?.AfterWrite();
             }
 
-            var result = ex is OperationCanceledException ? StreamCopyResult.Canceled :
-                (read == 0 ? StreamCopyResult.InputError : StreamCopyResult.OutputError);
+            if (activityToken.CancelledByLinkedToken)
+            {
+                return (StreamCopyResult.Canceled, ex);
+            }
 
+            // If the activity timeout triggered while reading or writing, blame the sender or receiver.
+            var result = read == 0 ? StreamCopyResult.InputError : StreamCopyResult.OutputError;
             return (result, ex);
         }
         finally
