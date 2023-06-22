@@ -599,8 +599,8 @@ public class HttpForwarderTests
         Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
 
         // When both are idle it's a race which gets reported as canceled first.
-        Assert.True(ForwarderError.UpgradeRequestCanceled == result
-            || ForwarderError.UpgradeResponseCanceled == result);
+        Assert.True(ForwarderError.UpgradeRequestClient == result
+            || ForwarderError.UpgradeResponseDestination == result);
 
         events.AssertContainProxyStages(upgrade: true);
     }
@@ -1395,7 +1395,7 @@ public class HttpForwarderTests
     }
 
     [Fact]
-    public async Task RequestCanceled_Returns502()
+    public async Task RequestCanceled_Returns400()
     {
         var events = TestEventListener.Collect();
 
@@ -1419,7 +1419,7 @@ public class HttpForwarderTests
         var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
 
         Assert.Equal(ForwarderError.RequestCanceled, proxyError);
-        Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
+        Assert.Equal(StatusCodes.Status400BadRequest, httpContext.Response.StatusCode);
         Assert.Equal(0, proxyResponseStream.Length);
         var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
         Assert.Equal(ForwarderError.RequestCanceled, errorFeature.Error);
@@ -1530,7 +1530,7 @@ public class HttpForwarderTests
     }
 
     [Fact]
-    public async Task RequestWithBodyCanceled_Returns502()
+    public async Task RequestWithBodyCanceled_Returns400()
     {
         var events = TestEventListener.Collect();
 
@@ -1556,7 +1556,7 @@ public class HttpForwarderTests
         var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
 
         Assert.Equal(ForwarderError.RequestCanceled, proxyError);
-        Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
+        Assert.Equal(StatusCodes.Status400BadRequest, httpContext.Response.StatusCode);
         Assert.Equal(0, proxyResponseStream.Length);
         var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
         Assert.Equal(ForwarderError.RequestCanceled, errorFeature.Error);
@@ -1678,7 +1678,7 @@ public class HttpForwarderTests
         var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
 
         Assert.Equal(ForwarderError.RequestBodyCanceled, proxyError);
-        Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
+        Assert.Equal(StatusCodes.Status400BadRequest, httpContext.Response.StatusCode);
         Assert.Equal(0, proxyResponseStream.Length);
         var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
         Assert.Equal(ForwarderError.RequestBodyCanceled, errorFeature.Error);
@@ -1910,13 +1910,20 @@ public class HttpForwarderTests
         httpContext.RequestAborted = new CancellationToken(canceled: true);
 
         var destinationPrefix = "https://localhost:123/";
+        var cts = new CancellationTokenSource();
         var sut = CreateProxy();
         var client = MockHttpHandler.CreateClient(
             (HttpRequestMessage request, CancellationToken cancellationToken) =>
             {
                 var message = new HttpResponseMessage()
                 {
-                    Content = new StreamContent(new MemoryStream(new byte[1]))
+                    Content = new StreamContent(new CallbackReadStream((_, _) =>
+                    {
+                        responseBody.HasStarted = true;
+                        cts.Cancel();
+                        cts.Token.ThrowIfCancellationRequested();
+                        throw new NotImplementedException();
+                    }))
                 };
                 message.Headers.AcceptRanges.Add("bytes");
                 return Task.FromResult(message);
@@ -1930,7 +1937,7 @@ public class HttpForwarderTests
         Assert.Equal("bytes", httpContext.Response.Headers[HeaderNames.AcceptRanges]);
         var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
         Assert.Equal(ForwarderError.ResponseBodyCanceled, errorFeature.Error);
-        Assert.IsType<TaskCanceledException>(errorFeature.Exception);
+        Assert.IsType<OperationCanceledException>(errorFeature.Exception);
 
         AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
         events.AssertContainProxyStages(hasRequestContent: false);

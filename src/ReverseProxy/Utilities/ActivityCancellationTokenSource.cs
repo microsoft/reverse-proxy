@@ -17,13 +17,17 @@ internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
 
     private static readonly Action<object?> _linkedTokenCancelDelegate = static s =>
     {
-        ((ActivityCancellationTokenSource)s!).Cancel(throwOnFirstException: false);
+        var cts = (ActivityCancellationTokenSource)s!;
+        cts.CancelledByLinkedToken = true;
+        cts.Cancel(throwOnFirstException: false);
     };
 
     private int _activityTimeoutMs;
     private CancellationTokenRegistration _linkedRegistration;
 
     private ActivityCancellationTokenSource() { }
+
+    public bool CancelledByLinkedToken { get; private set; }
 
     public void ResetTimeout()
     {
