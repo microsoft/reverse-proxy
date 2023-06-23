@@ -9,6 +9,9 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
+using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Forwarder;
@@ -39,21 +42,22 @@ namespace Yarp.ReverseProxy.Forwarder;
 /// </remarks>
 internal sealed class StreamCopyHttpContent : HttpContent
 {
-    private readonly HttpRequest _request;
+    private readonly HttpContext _context;
     // HttpClient's machinery keeps an internal buffer that doesn't get flushed to the socket on every write.
     // Some protocols (e.g. gRPC) may rely on specific bytes being sent, and HttpClient's buffering would prevent it.
-    private readonly bool _autoFlushHttpClientOutgoingStream;
+    private bool _isStreamingRequest;
     private readonly TimeProvider _timeProvider;
+    private readonly ILogger _logger;
     private readonly ActivityCancellationTokenSource _activityToken;
     private readonly TaskCompletionSource<(StreamCopyResult, Exception?)> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private int _started;
 
-    public StreamCopyHttpContent(HttpRequest request, bool autoFlushHttpClientOutgoingStream, TimeProvider timeProvider, ActivityCancellationTokenSource activityToken)
+    public StreamCopyHttpContent(HttpContext context, bool isStreamingRequest, TimeProvider timeProvider, ILogger logger, ActivityCancellationTokenSource activityToken)
     {
-        _request = request ?? throw new ArgumentNullException(nameof(request));
-        _autoFlushHttpClientOutgoingStream = autoFlushHttpClientOutgoingStream;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _isStreamingRequest = isStreamingRequest;
         _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
-
+        _logger = logger;
         _activityToken = activityToken;
     }
 
@@ -137,11 +141,22 @@ internal sealed class StreamCopyHttpContent : HttpContent
         // _cancellation will be the same as cancellationToken for HTTP/1.1, so we can avoid the overhead of linking them
         CancellationTokenSource? linkedCts = null;
 
-        if (_activityToken.Token != cancellationToken)
+        if (_activityToken.Token == cancellationToken)
+        {
+            // We're talking to the destination via HTTP/1.1, so this can't be a streaming gRPC request.
+            _isStreamingRequest = false;
+            // TODO: Log if _isStreamingRequest is true? Something went wrong with protocol selection.
+        }
+        else
         {
             Debug.Assert(cancellationToken.CanBeCanceled);
             linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_activityToken.Token, cancellationToken);
             cancellationToken = linkedCts.Token;
+
+            if (_isStreamingRequest)
+            {
+                DisableMinRequestBodyDataRateAndMaxRequestBodySize(_context);
+            }
         }
 
         try
@@ -163,8 +178,20 @@ internal sealed class StreamCopyHttpContent : HttpContent
                 return;
             }
 
-            // Check that the content-length matches the request body size. This can be removed in .NET 7 now that SocketsHttpHandler enforces this: https://github.com/dotnet/runtime/issues/62258.
-            var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _request.Body, stream, Headers.ContentLength ?? StreamCopier.UnknownLength, _timeProvider, _activityToken, _autoFlushHttpClientOutgoingStream, cancellationToken);
+            // Check that the content-length matches the request body size. This can be removed in .NET 7 now that SocketsHttpHandler
+            // enforces this: https://github.com/dotnet/runtime/issues/62258.
+            //
+            // Note on `_isStreamingRequest`:
+            // The.NET Core HttpClient stack keeps its own buffers on top of the underlying outgoing connection socket.
+            // We flush those buffers down to the socket on every write when this is set,
+            // but it does NOT result in calls to flush on the underlying socket.
+            // This is necessary because we proxy http2 transparently,
+            // and we are deliberately unaware of packet structure used e.g. in gRPC duplex channels.
+            // Because the sockets aren't flushed, the perf impact of this choice is expected to be small.
+            // Future: It may be wise to set this to true for *all* http2 incoming requests,
+            // but for now, out of an abundance of caution, we only do it for requests that look like gRPC.
+            var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _context.Request.Body, stream,
+                Headers.ContentLength ?? StreamCopier.UnknownLength, _timeProvider, _activityToken, _isStreamingRequest, cancellationToken);
             _tcs.TrySetResult((result, error));
 
             // Check for errors that weren't the result of the destination failing.
@@ -198,5 +225,39 @@ internal sealed class StreamCopyHttpContent : HttpContent
         // We can't know the length of the content being pushed to the output stream.
         length = -1;
         return false;
+    }
+
+    /// <summary>
+    /// Disable some ASP .NET Core server limits so that we can handle long-running gRPC requests unconstrained.
+    /// Note that the gRPC server implementation on ASP .NET Core does the same for client-streaming and duplex methods.
+    /// Since in Gateway we have no way to determine if the current request requires client-streaming or duplex comm,
+    /// we do this for *all* incoming requests that look like they might be gRPC.
+    /// </summary>
+    /// <remarks>
+    /// Inspired on
+    /// <see href="https://github.com/grpc/grpc-dotnet/blob/3ce9b104524a4929f5014c13cd99ba9a1c2431d4/src/Grpc.AspNetCore.Server/Internal/CallHandlers/ServerCallHandlerBase.cs#L127"/>.
+    /// </remarks>
+    private void DisableMinRequestBodyDataRateAndMaxRequestBodySize(HttpContext httpContext)
+    {
+        var minRequestBodyDataRateFeature = httpContext.Features.Get<IHttpMinRequestBodyDataRateFeature>();
+        if (minRequestBodyDataRateFeature is not null)
+        {
+            minRequestBodyDataRateFeature.MinDataRate = null;
+        }
+
+        var maxRequestBodySizeFeature = httpContext.Features.Get<IHttpMaxRequestBodySizeFeature>();
+        if (maxRequestBodySizeFeature is not null)
+        {
+            if (!maxRequestBodySizeFeature.IsReadOnly)
+            {
+                maxRequestBodySizeFeature.MaxRequestBodySize = null;
+            }
+            else
+            {
+                // IsReadOnly could be true if middleware has already started reading the request body
+                // In that case we can't disable the max request body size for the request stream
+                _logger.LogWarning("Unable to disable max request body size.");
+            }
+        }
     }
 }
