@@ -34,7 +34,7 @@ public class ConfigSubstitutionFilter : IProxyConfigFilter
             if (_exp.IsMatch(origAddress))
             {
                 var lookup = _exp.Matches(origAddress)[0].Groups[1].Value;
-                var newAddress = _configuration.GetValue<string>(lookup);
+                var newAddress = _configuration[lookup];
 
                 if (string.IsNullOrWhiteSpace(newAddress))
                 {
