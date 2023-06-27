@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Yarp.ReverseProxy.Configuration;
 
-internal class ConfigurationDrivenFilter : IProxyConfigFilter
+public class ConfigSubstitutionFilter : IProxyConfigFilter
 {
     // Matches {{env_var_name}} or {{my-name}} or {{123name}} etc.
     private readonly Regex _exp = new("\\{\\{(\\w+\\-?\\w+?)\\}\\}");
