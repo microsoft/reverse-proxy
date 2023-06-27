@@ -13,7 +13,7 @@ public class ConfigSubstitutionFilter : IProxyConfigFilter
     private readonly Regex _exp = new("\\{\\{(\\w+\\-?\\w+?)\\}\\}");
     private readonly IConfiguration _configuration;
 
-    public ConfigurationDrivenFilter(IConfiguration configuration)
+    public ConfigSubstitutionFilter(IConfiguration configuration)
     {
         _configuration = configuration;
     }
@@ -54,12 +54,5 @@ public class ConfigSubstitutionFilter : IProxyConfigFilter
     }
 
     public ValueTask<RouteConfig> ConfigureRouteAsync(RouteConfig route, ClusterConfig? cluster, CancellationToken cancel)
-    {
-        if (route.Order.HasValue && route.Order.Value < 1)
-        {
-            return new ValueTask<RouteConfig>(route with { Order = 1 });
-        }
-
-        return new ValueTask<RouteConfig>(route);
-    }
+        => new ValueTask<RouteConfig>(route);
 }
