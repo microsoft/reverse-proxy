@@ -559,10 +559,10 @@ routeConfig = routeConfig.WithTransformXForwarded(
 ```
 ```C#
 transformBuilderContext.AddXForwarded(ForwardedTransformAction.Set);
-transformBuilderContext.AddXForwardedFor(headerName: "X-Forwarded-For", ForwardedTransformAction.Append);
-transformBuilderContext.AddXForwardedHost(headerName: "X-Forwarded-Host", ForwardedTransformAction.Append);
-transformBuilderContext.AddXForwardedProto(headerName: "X-Forwarded-Proto", ForwardedTransformAction.Off);
-transformBuilderContext.AddXForwardedPrefix(headerName: "X-Forwarded-Prefix", ForwardedTransformAction.Remove);
+transformBuilderContext.AddXForwardedFor(headerName: "X-Forwarded-For", ForwardedTransformActions.Append);
+transformBuilderContext.AddXForwardedHost(headerName: "X-Forwarded-Host", ForwardedTransformActions.Append);
+transformBuilderContext.AddXForwardedProto(headerName: "X-Forwarded-Proto", ForwardedTransformActions.Off);
+transformBuilderContext.AddXForwardedPrefix(headerName: "X-Forwarded-Prefix", ForwardedTransformActions.Remove);
 ```
 
 Example:
