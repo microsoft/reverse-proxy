@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Yarp.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Weighting;
 
 namespace Yarp.ReverseProxy.Model;
 
@@ -58,6 +59,9 @@ public sealed class DestinationState : IReadOnlyList<DestinationState>
     }
 
     internal AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
+
+    public IDestinationWeight? Weight { get; }
+
 
     DestinationState IReadOnlyList<DestinationState>.this[int index]
         => index == 0 ? this : throw new IndexOutOfRangeException();
