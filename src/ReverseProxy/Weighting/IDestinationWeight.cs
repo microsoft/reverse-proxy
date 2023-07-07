@@ -8,6 +8,6 @@ namespace Yarp.ReverseProxy.Weighting;
 public interface IDestinationWeight
 {
     double RelativeWeight { get; }
-
     void SetWeight(object key, double weight);
+    double? GetWeight(object key);
 }

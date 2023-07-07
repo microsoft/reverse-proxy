@@ -29,7 +29,7 @@ public class CompoundedWeightingProvider : IProxyWeightingProvider
         }
 
         var dw = destination.Weight as CompoundedDestinationWeight;
-        dw?.SetWeight(index, weight);
+        dw?.SetWeightInternal(index, weight);
 
     }
 
