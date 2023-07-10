@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -723,6 +724,45 @@ public class ConfigValidatorTests
         var errors = await validator.ValidateClusterAsync(cluster);
 
         Assert.Empty(errors);
+    }
+
+    [Fact]
+    public async Task DestinationAddress_Works()
+    {
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var cluster = new ClusterConfig {
+            ClusterId = "cluster1",
+            Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase) {
+                { "destination1", new DestinationConfig { Address = "https://localhost:1234" } }
+            }
+        };
+
+        var errors = await validator.ValidateClusterAsync(cluster);
+
+        Assert.Empty(errors);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public async Task DestinationAddressInvalid_Fails(string address)
+    {
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var cluster = new ClusterConfig {
+            ClusterId = "cluster1",
+            Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase) {
+                { "destination1", new DestinationConfig { Address = address } }
+            }
+        };
+
+        var errors = await validator.ValidateClusterAsync(cluster);
+
+        var ex = Assert.Single(errors);
+        Assert.Equal("No address found for destination 'destination1' on cluster 'cluster1'.", ex.Message);
     }
 
     [Fact]

@@ -112,6 +112,7 @@ internal sealed class ConfigValidator : IConfigValidator
         }
 
         errors.AddRange(_transformBuilder.ValidateCluster(cluster));
+        ValidateDestinations(errors, cluster);
         ValidateLoadBalancing(errors, cluster);
         ValidateSessionAffinity(errors, cluster);
         ValidateProxyHttpClient(errors, cluster);
@@ -363,6 +364,21 @@ internal sealed class ConfigValidator : IConfigValidator
         catch (Exception ex)
         {
             errors.Add(new ArgumentException($"Unable to retrieve the CORS policy '{corsPolicyName}' for route '{routeId}'.", ex));
+        }
+    }
+
+    private void ValidateDestinations(IList<Exception> errors, ClusterConfig cluster)
+    {
+        if (cluster.Destinations is null)
+        {
+            return;
+        }
+        foreach (var (name, destination) in cluster.Destinations)
+        {
+            if (string.IsNullOrEmpty(destination.Address))
+            {
+                errors.Add(new ArgumentException($"No address found for destination '{name}' on cluster '{cluster.ClusterId}'."));
+            }
         }
     }
 
