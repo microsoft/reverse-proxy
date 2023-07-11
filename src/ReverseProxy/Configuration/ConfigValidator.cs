@@ -482,7 +482,7 @@ internal sealed class ConfigValidator : IConfigValidator
         if (string.IsNullOrEmpty(availableDestinationsPolicy))
         {
             // The default.
-            availableDestinationsPolicy = HealthCheckConstants.AvailableDestinations.HealthyAndUnknown;
+            availableDestinationsPolicy = HealthCheckConstants.AvailableDestinations.HealthyOrPanic;
         }
 
         if (!_availableDestinationsPolicies.ContainsKey(availableDestinationsPolicy))

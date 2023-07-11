@@ -12,6 +12,7 @@ using Xunit;
 using Yarp.ReverseProxy.Common;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Forwarder;
+using Yarp.ReverseProxy.Health;
 
 namespace Yarp.ReverseProxy;
 
@@ -65,6 +66,7 @@ public class PassiveHealthCheckTests
                 {
                     HealthCheck = new HealthCheckConfig
                     {
+                        AvailableDestinationsPolicy = HealthCheckConstants.AvailableDestinations.HealthyAndUnknown,
                         Passive = new PassiveHealthCheckConfig
                         {
                             Enabled = true
@@ -85,6 +87,7 @@ public class PassiveHealthCheckTests
                 using var response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, uri));
 
                 Assert.Equal(i < 10 ? HttpStatusCode.BadGateway : HttpStatusCode.ServiceUnavailable, response.StatusCode);
+                await Task.Yield();
             }
         });
 
