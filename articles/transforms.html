@@ -795,10 +795,10 @@ AnotherHeader: AnotherValue
   ForwardedTransformActions? xPrefix = null);
 </code></pre>
 <pre><code class="lang-C#">transformBuilderContext.AddXForwarded(ForwardedTransformAction.Set);
-transformBuilderContext.AddXForwardedFor(headerName: &quot;X-Forwarded-For&quot;, ForwardedTransformAction.Append);
-transformBuilderContext.AddXForwardedHost(headerName: &quot;X-Forwarded-Host&quot;, ForwardedTransformAction.Append);
-transformBuilderContext.AddXForwardedProto(headerName: &quot;X-Forwarded-Proto&quot;, ForwardedTransformAction.Off);
-transformBuilderContext.AddXForwardedPrefix(headerName: &quot;X-Forwarded-Prefix&quot;, ForwardedTransformAction.Remove);
+transformBuilderContext.AddXForwardedFor(headerName: &quot;X-Forwarded-For&quot;, ForwardedTransformActions.Append);
+transformBuilderContext.AddXForwardedHost(headerName: &quot;X-Forwarded-Host&quot;, ForwardedTransformActions.Append);
+transformBuilderContext.AddXForwardedProto(headerName: &quot;X-Forwarded-Proto&quot;, ForwardedTransformActions.Off);
+transformBuilderContext.AddXForwardedPrefix(headerName: &quot;X-Forwarded-Prefix&quot;, ForwardedTransformActions.Remove);
 </code></pre>
 <p>Example:</p>
 <pre><code>X-Forwarded-For: 5.5.5.5
