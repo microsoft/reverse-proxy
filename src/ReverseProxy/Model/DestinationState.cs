@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Model;
@@ -26,6 +27,16 @@ public sealed class DestinationState : IReadOnlyList<DestinationState>
             throw new ArgumentNullException(nameof(destinationId));
         }
         DestinationId = destinationId;
+    }
+
+    /// <summary>
+    /// Constructor overload to additionally initialize the <see cref="DestinationModel"/> for tests and infrastructure,
+    /// such as updating the <see cref="ReverseProxyFeature"/> via <see cref="HttpContextFeaturesExtensions"/>
+    /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="model"/> is <see langword="null"/>.</exception>
+    public DestinationState(string destinationId, DestinationModel model) : this(destinationId)
+    {
+        Model = model ?? throw new ArgumentNullException(nameof(model));
     }
 
     /// <summary>
