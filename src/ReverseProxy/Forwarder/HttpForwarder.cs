@@ -980,7 +980,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             // Avoid computing the AbsoluteUri unless logging is enabled
             if (logger.IsEnabled(LogLevel.Information))
             {
-                var streaming = isStreamingRequest ? "streaming" : "no-streaming";
+                var streaming = isStreamingRequest ? "streaming" : string.Empty;
                 var version = HttpProtocol.GetHttpProtocol(msg.Version);
                 var versionPolicy = ProtocolHelper.GetVersionPolicy(msg.VersionPolicy);
                 _proxying(logger, msg.RequestUri!.AbsoluteUri, version, versionPolicy, streaming, null);
