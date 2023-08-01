@@ -377,6 +377,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             Address = section[nameof(DestinationConfig.Address)]!,
             Health = section[nameof(DestinationConfig.Health)],
             Metadata = section.GetSection(nameof(DestinationConfig.Metadata)).ReadStringDictionary(),
+            Host = section[nameof(DestinationConfig.Host)] 
         };
     }
 

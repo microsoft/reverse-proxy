@@ -28,6 +28,11 @@ public sealed record DestinationConfig
     /// </summary>
     public IReadOnlyDictionary<string, string>? Metadata { get; init; }
 
+    /// <summary>
+    /// Host value to pass to this destination.
+    /// </summary>
+    public string? Host { get; init; }
+
     public bool Equals(DestinationConfig? other)
     {
         if (other is null)

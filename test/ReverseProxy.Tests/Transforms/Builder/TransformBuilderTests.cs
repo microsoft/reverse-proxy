@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Yarp.ReverseProxy.Configuration;
+using Yarp.ReverseProxy.Model;
 using Yarp.Tests.Common;
 
 namespace Yarp.ReverseProxy.Transforms.Builder.Tests;
@@ -54,8 +56,6 @@ public class TransformBuilderTests
         Assert.Empty(results.ResponseTrailerTransforms);
 
         Assert.Equal(6, results.RequestTransforms.Length);
-        var hostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderOriginalHostTransform>());
-        Assert.False(hostTransform.UseOriginalHost);
         var forTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
         Assert.Equal(ForwardedHeadersDefaults.XForwardedForHeaderName, forTransform.HeaderName);
         var xHostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedHostTransform>());
@@ -97,8 +97,7 @@ public class TransformBuilderTests
         Assert.Empty(results.ResponseTrailerTransforms);
 
         Assert.Equal(6, results.RequestTransforms.Length);
-        var hostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderOriginalHostTransform>());
-        Assert.False(hostTransform.UseOriginalHost);
+        //Assert.Null(results.ShouldCopyHostHeader);
         var forTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
         Assert.Equal(ForwardedHeadersDefaults.XForwardedForHeaderName, forTransform.HeaderName);
         var xHostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedHostTransform>());
@@ -240,22 +239,31 @@ public class TransformBuilderTests
         var results = transformBuilder.BuildInternal(route, new ClusterConfig());
         Assert.NotNull(results);
         Assert.False(results.ShouldCopyRequestHeaders);
-        Assert.Empty(results.RequestTransforms);
+        Assert.Single(results.RequestTransforms);
         Assert.Empty(results.ResponseTransforms);
         Assert.Empty(results.ResponseTrailerTransforms);
     }
 
     [Theory]
-    [InlineData(null, null)]
-    [InlineData(null, true)]
-    [InlineData(null, false)]
-    [InlineData(true, null)]
-    [InlineData(false, null)]
-    [InlineData(true, true)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(false, false)]
-    public async Task UseOriginalHost(bool? useOriginalHost, bool? copyHeaders)
+    [InlineData(null, null, false)]
+    [InlineData(null, true, false)]
+    [InlineData(null, false, false)]
+    [InlineData(true, null, false)]
+    [InlineData(false, null, false)]
+    [InlineData(true, true, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(false, false, false)]
+    [InlineData(null, null, true)]
+    [InlineData(null, true, true)]
+    [InlineData(null, false, true)]
+    [InlineData(true, null, true)]
+    [InlineData(false, null, true)]
+    [InlineData(true, true, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(false, false, true)]
+    public async Task UseOriginalHost(bool? useOriginalHost, bool? copyHeaders, bool hasDestinationHost)
     {
         var transformBuilder = CreateTransformBuilder();
         var transforms = new List<Dictionary<string, string>>();
@@ -283,7 +291,20 @@ public class TransformBuilderTests
         var errors = transformBuilder.ValidateRoute(route);
         Assert.Empty(errors);
 
-        var results = transformBuilder.BuildInternal(route, new ClusterConfig());
+        var destinationHost = hasDestinationHost ? "d1-host" : null;
+        var clusterConfig = new ClusterConfig
+        {
+            ClusterId = "cluster1",
+            Destinations = new Dictionary<string, DestinationConfig>
+            {
+                ["d1"] = new DestinationConfig
+                {
+                    Address = "https://localhost",
+                    Host = destinationHost
+                }
+            }
+        };
+        var results = transformBuilder.BuildInternal(route, clusterConfig);
         Assert.NotNull(results);
         Assert.Equal(copyHeaders, results.ShouldCopyRequestHeaders);
         Assert.Empty(results.ResponseTransforms);
@@ -291,33 +312,32 @@ public class TransformBuilderTests
 
         if (useOriginalHost.HasValue)
         {
-            var transform = Assert.Single(results.RequestTransforms);
-            var hostTransform = Assert.IsType<RequestHeaderOriginalHostTransform>(transform);
-            Assert.Equal(useOriginalHost.Value, hostTransform.UseOriginalHost);
-        }
-        else if (copyHeaders.GetValueOrDefault(true))
-        {
-            var transform = Assert.Single(results.RequestTransforms);
-            var hostTransform = Assert.IsType<RequestHeaderOriginalHostTransform>(transform);
-            Assert.False(hostTransform.UseOriginalHost);
-        }
-        else
-        {
-            Assert.Empty(results.RequestTransforms);
+            //Assert.Equal(useOriginalHost.Value, results.ShouldCopyHostHeader.Value);
         }
 
         var httpContext = new DefaultHttpContext();
+        httpContext.Features.Set<IReverseProxyFeature>(new ReverseProxyFeature
+        {
+            ProxiedDestination = new DestinationState("d1") { Model = new(clusterConfig.Destinations.Single().Value) }
+        });
         httpContext.Request.Host = new HostString("StartHost");
         var proxyRequest = new HttpRequestMessage();
         var destinationPrefix = "http://destinationhost:9090/path";
         await results.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix, CancellationToken.None);
 
+        // We expect the host to be flowed as long as it is being explicitly flowed or it wasn't suppressed and headers are being copied.
         if (useOriginalHost.GetValueOrDefault(false))
         {
             Assert.Equal("StartHost", proxyRequest.Headers.Host);
         }
-        else
+        else if (destinationHost is not null)
         {
+            // Otherwise, fall back to the destination config host, which will be null if it's not set.
+            Assert.Equal(destinationHost, proxyRequest.Headers.Host);
+        }
+        else 
+        {
+            // Otherwise, the host should be null
             Assert.Null(proxyRequest.Headers.Host);
         }
     }
@@ -368,10 +388,26 @@ public class TransformBuilderTests
         var errors = transformBuilder.ValidateRoute(route);
         Assert.Empty(errors);
 
-        var results = transformBuilder.BuildInternal(route, new ClusterConfig());
+        var clusterConfig = new ClusterConfig
+        {
+            ClusterId = "cluster1",
+            Destinations = new Dictionary<string, DestinationConfig>
+            {
+                ["d1"] = new DestinationConfig
+                {
+                    Address = "https://localhost",
+                    Host = "d1-host"
+                }
+            }
+        };
+        var results = transformBuilder.BuildInternal(route, clusterConfig);
         Assert.Equal(copyHeaders, results.ShouldCopyRequestHeaders);
 
         var httpContext = new DefaultHttpContext();
+        httpContext.Features.Set<IReverseProxyFeature>(new ReverseProxyFeature
+        {
+            ProxiedDestination = new DestinationState("d1") { Model = new(clusterConfig.Destinations.Single().Value) }
+        });
         httpContext.Request.Host = new HostString("StartHost");
         var proxyRequest = new HttpRequestMessage();
         var destinationPrefix = "http://destinationhost:9090/path";
@@ -402,9 +438,9 @@ public class TransformBuilderTests
         Assert.Empty(errors);
 
         var results = transformBuilder.BuildInternal(route, new ClusterConfig());
-        Assert.Equal(5, results.RequestTransforms.Length);
+        Assert.Equal(6, results.RequestTransforms.Length);
         Assert.All(
-            results.RequestTransforms.Skip(1).Select(t => (dynamic)t),
+            results.RequestTransforms.Skip(1).SkipLast(1).Select(t => (dynamic)t),
             t =>
             {
                 Assert.StartsWith("X-Forwarded-", t.HeaderName);

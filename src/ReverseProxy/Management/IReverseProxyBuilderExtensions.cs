@@ -125,4 +125,10 @@ internal static class IReverseProxyBuilderExtensions
 
         return builder;
     }
+
+    public static IReverseProxyBuilder AddDestinationResolver(this IReverseProxyBuilder builder)
+    {
+        builder.Services.TryAddSingleton<IDestinationResolver, NoOpDestinationResolver>();
+        return builder;
+    }
 }
