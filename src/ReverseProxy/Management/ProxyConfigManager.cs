@@ -161,7 +161,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
             var clusters = new List<ClusterConfig>();
 
             // Begin resolving config providers concurrently.
-            var resolvedConfigs = new List<(int Index, IProxyConfigProvider Provider, ValueTask<IProxyConfig> Config)>();
+            var resolvedConfigs = new List<(int Index, IProxyConfigProvider Provider, ValueTask<IProxyConfig> Config)>(_providers.Length);
             for (var i = 0; i < _providers.Length; i++)
             {
                 var provider = _providers[i];
