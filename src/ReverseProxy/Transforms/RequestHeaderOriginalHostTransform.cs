@@ -45,12 +45,11 @@ public class RequestHeaderOriginalHostTransform : RequestTransform
                 context.ProxyRequest.Headers.TryAddWithoutValidation(HeaderNames.Host, originalHost ?? destinationConfigHost);
             }
         }
-        else if (((context.HeadersCopied && existingHost is not null && string.Equals(originalHost, existingHost, StringComparison.Ordinal))
-            || (!context.HeadersCopied && existingHost is null)))
+        else if (existingHost is null || string.Equals(originalHost, existingHost, StringComparison.Ordinal))
         {
-            // Either headers were copied, there is a host, and it's equal to the original host (i.e, unchanged),
-            // Or, headers weren't copied and there is no existing host.
-            // Suppress the original host, setting the host to the destination host (which may be null).
+            // Use the host from destination configuration (which may be null) if either:
+            // * there is no host header set, or
+            // * the original host header is being suppressed and has not been modified by the transform pipeline
             context.ProxyRequest.Headers.Host = destinationConfigHost;
         }
 
