@@ -82,7 +82,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         _activeHealthCheckMonitor = activeHealthCheckMonitor ?? throw new ArgumentNullException(nameof(activeHealthCheckMonitor));
         _clusterDestinationsUpdater = clusterDestinationsUpdater ?? throw new ArgumentNullException(nameof(clusterDestinationsUpdater));
-        _destinationResolver = destinationResolver;
+        _destinationResolver = destinationResolver ?? throw new ArgumentNullException(nameof(destinationResolver));
         _configChangeListeners = configChangeListeners?.ToArray() ?? Array.Empty<IConfigChangeListener>();
 
         if (_providers.Length == 0)
