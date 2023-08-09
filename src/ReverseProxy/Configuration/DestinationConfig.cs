@@ -29,7 +29,8 @@ public sealed record DestinationConfig
     public IReadOnlyDictionary<string, string>? Metadata { get; init; }
 
     /// <summary>
-    /// Host value to pass to this destination.
+    /// Host header value to pass to this destination.
+    /// Used as a fallback if a host is not already specified by request transforms.
     /// </summary>
     public string? Host { get; init; }
 
