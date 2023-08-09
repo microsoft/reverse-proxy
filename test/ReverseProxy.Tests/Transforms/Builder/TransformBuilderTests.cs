@@ -56,6 +56,8 @@ public class TransformBuilderTests
         Assert.Empty(results.ResponseTrailerTransforms);
 
         Assert.Equal(6, results.RequestTransforms.Length);
+        var hostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderOriginalHostTransform>());
+        Assert.False(hostTransform.UseOriginalHost);
         var forTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
         Assert.Equal(ForwardedHeadersDefaults.XForwardedForHeaderName, forTransform.HeaderName);
         var xHostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedHostTransform>());
@@ -97,7 +99,8 @@ public class TransformBuilderTests
         Assert.Empty(results.ResponseTrailerTransforms);
 
         Assert.Equal(6, results.RequestTransforms.Length);
-        //Assert.Null(results.ShouldCopyHostHeader);
+        var hostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderOriginalHostTransform>());
+        Assert.False(hostTransform.UseOriginalHost);
         var forTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedForTransform>());
         Assert.Equal(ForwardedHeadersDefaults.XForwardedForHeaderName, forTransform.HeaderName);
         var xHostTransform = Assert.Single(results.RequestTransforms.OfType<RequestHeaderXForwardedHostTransform>());
@@ -309,11 +312,6 @@ public class TransformBuilderTests
         Assert.Equal(copyHeaders, results.ShouldCopyRequestHeaders);
         Assert.Empty(results.ResponseTransforms);
         Assert.Empty(results.ResponseTrailerTransforms);
-
-        if (useOriginalHost.HasValue)
-        {
-            //Assert.Equal(useOriginalHost.Value, results.ShouldCopyHostHeader.Value);
-        }
 
         var httpContext = new DefaultHttpContext();
         httpContext.Features.Set<IReverseProxyFeature>(new ReverseProxyFeature

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Security.Authentication;
 using System.Text;
 using System.Threading;
@@ -20,7 +19,6 @@ using Microsoft.Extensions.Primitives;
 using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Configuration;
-using Yarp.ReverseProxy.Configuration.ConfigProvider;
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Forwarder.Tests;
 using Yarp.ReverseProxy.Health;
@@ -1350,7 +1348,7 @@ public class ProxyConfigManagerTests
     [Fact]
     public async Task LoadAsync_DestinationResolver_Initial_ThrowsSync()
     {
-        var syncThrowResolver = new FakeDestinationResolver((destinations, cancellation) => throw new InvalidOperationException("Throwing!"));
+        var throwResolver = new FakeDestinationResolver((destinations, cancellation) => throw new InvalidOperationException("Throwing!"));
 
         var cluster = new ClusterConfig()
         {
@@ -1363,7 +1361,7 @@ public class ProxyConfigManagerTests
         var services = CreateServices(
             new List<RouteConfig>(),
             new List<ClusterConfig>() { cluster },
-            destinationResolver: syncThrowResolver);
+            destinationResolver: throwResolver);
         var configManager = services.GetRequiredService<ProxyConfigManager>();
 
         var ioEx = await Assert.ThrowsAsync<InvalidOperationException>(() => configManager.InitialLoadAsync());
@@ -1376,7 +1374,7 @@ public class ProxyConfigManagerTests
     [Fact]
     public async Task LoadAsync_DestinationResolver_Initial_ThrowsAsync()
     {
-        var syncThrowResolver = new FakeDestinationResolver((destinations, cancellation) => ValueTask.FromException<ResolvedDestinationCollection>(new InvalidOperationException("Throwing!")));
+        var throwResolver = new FakeDestinationResolver((destinations, cancellation) => ValueTask.FromException<ResolvedDestinationCollection>(new InvalidOperationException("Throwing!")));
 
         var cluster = new ClusterConfig()
         {
@@ -1386,7 +1384,7 @@ public class ProxyConfigManagerTests
                 { "d1", new DestinationConfig() { Address = "http://localhost" } }
             }
         };
-        var services = CreateServices(new List<RouteConfig>(), new List<ClusterConfig>() { cluster }, destinationResolver: syncThrowResolver);
+        var services = CreateServices(new List<RouteConfig>(), new List<ClusterConfig>() { cluster }, destinationResolver: throwResolver);
         var configManager = services.GetRequiredService<ProxyConfigManager>();
 
         var ioEx = await Assert.ThrowsAsync<InvalidOperationException>(() => configManager.InitialLoadAsync());
