@@ -10,6 +10,8 @@
   href: config-filters.md
 - name: Direct Forwarding
   href: direct-forwarding.md
+- name: Destination Resolvers
+  href: destination-resolvers.md
 - name: HTTP client configuration
   href: http-client-config.md
 - name: HTTPS & TLS
