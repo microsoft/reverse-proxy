@@ -4,8 +4,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Yarp.ReverseProxy.Configuration;
 
-namespace Yarp.ReverseProxy.Configuration;
+namespace Yarp.ReverseProxy.ServiceDiscovery;
 
 /// <summary>
 /// An <see cref="IDestinationResolver"/> which performs no action.

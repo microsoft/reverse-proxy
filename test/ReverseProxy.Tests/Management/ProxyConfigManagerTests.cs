@@ -24,6 +24,7 @@ using Yarp.ReverseProxy.Forwarder.Tests;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Routing;
+using Yarp.ReverseProxy.ServiceDiscovery;
 using Yarp.Tests.Common;
 
 namespace Yarp.ReverseProxy.Management.Tests;
