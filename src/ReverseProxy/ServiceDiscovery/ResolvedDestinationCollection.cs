@@ -3,8 +3,9 @@
 
 using System.Collections.Generic;
 using Microsoft.Extensions.Primitives;
+using Yarp.ReverseProxy.Configuration;
 
-namespace Yarp.ReverseProxy.Configuration;
+namespace Yarp.ReverseProxy.ServiceDiscovery;
 
 /// <summary>
 /// Represents a collection of resolved destinations.

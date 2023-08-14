@@ -13,8 +13,8 @@ using Yarp.ReverseProxy.Configuration.ConfigProvider;
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Management;
 using Yarp.ReverseProxy.Routing;
+using Yarp.ReverseProxy.ServiceDiscovery;
 using Yarp.ReverseProxy.Transforms.Builder;
-using Yarp.ReverseProxy.Utilities;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -165,6 +165,20 @@ public static class ReverseProxyServiceCollectionExtensions
             var logger = services.GetRequiredService<ILogger<ForwarderHttpClientFactory>>();
             return new CallbackHttpClientFactory(logger, configure);
         });
+        return builder;
+    }
+
+    /// <summary>
+    /// Provides a <see cref="IDestinationResolver"/> implementation which uses <see cref="System.Net.Dns"/> to resolve destinations.
+    /// </summary>
+    public static IReverseProxyBuilder AddDnsDestinationResolver(this IReverseProxyBuilder builder, Action<DnsDestinationResolverOptions>? configureOptions = null)
+    {
+        builder.Services.TryAddSingleton<IDestinationResolver, DnsDestinationResolver>();
+        if (configureOptions is not null)
+        {
+            builder.Services.Configure(configureOptions);
+        }
+
         return builder;
     }
 }
