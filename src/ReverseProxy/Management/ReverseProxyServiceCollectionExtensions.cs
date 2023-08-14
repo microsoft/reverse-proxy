@@ -173,7 +173,7 @@ public static class ReverseProxyServiceCollectionExtensions
     /// </summary>
     public static IReverseProxyBuilder AddDnsDestinationResolver(this IReverseProxyBuilder builder, Action<DnsDestinationResolverOptions>? configureOptions = null)
     {
-        builder.Services.TryAddSingleton<IDestinationResolver, DnsDestinationResolver>();
+        builder.Services.AddSingleton<IDestinationResolver, DnsDestinationResolver>();
         if (configureOptions is not null)
         {
             builder.Services.Configure(configureOptions);

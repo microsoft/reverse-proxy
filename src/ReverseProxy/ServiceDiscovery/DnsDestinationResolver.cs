@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -78,15 +77,16 @@ public class DnsDestinationResolver : IDestinationResolver
         CancellationToken cancellationToken)
     {
         var originalUri = new Uri(originalConfig.Address);
-        var originalHost = originalUri.Host;
+        var originalHost = originalConfig.Host is { Length: > 0 } host ? host : originalUri.Authority;
         var addresses = options.AddressFamily switch
         {
             { } addressFamily => await Dns.GetHostAddressesAsync(originalUri.DnsSafeHost, addressFamily, cancellationToken).ConfigureAwait(false),
             null => await Dns.GetHostAddressesAsync(originalUri.DnsSafeHost, cancellationToken).ConfigureAwait(false)
         };
         var results = new List<(string Name, DestinationConfig Config)>(addresses.Length);
-        var uriBuilder = new UriBuilder(originalUri);
-        var healthUriBuilder = originalConfig.Health is { Length: > 0 } health ? new UriBuilder(health) : null;
+        var uriBuilder = CreateUriBuilder(originalUri);
+        var healthUri = originalConfig.Health is { Length: > 0 } health ? new Uri(health) : null;
+        var healthUriBuilder = healthUri is { } ? CreateUriBuilder(healthUri) : null;
         foreach (var address in addresses)
         {
             var addressString = address.ToString();
@@ -105,5 +105,43 @@ public class DnsDestinationResolver : IDestinationResolver
         }
 
         return results;
+    }
+
+    /// <summary>
+    /// Creates a <see cref="UriBuilder"/> from the provided address, only setting the Port property if it is not the default value.
+    /// </summary>
+    private static UriBuilder CreateUriBuilder(Uri uri)
+    {
+        var result = new UriBuilder()
+        {
+            Scheme = uri.Scheme,
+            Host = uri.Host,
+            Path = uri.AbsolutePath,
+            Query = uri.Query,
+            Fragment = uri.Fragment,
+        };
+
+        var userInfo = uri.UserInfo;
+        if (userInfo.Length > 0)
+        {
+            var index = userInfo.IndexOf(':');
+
+            if (index != -1)
+            {
+                result.Password = userInfo[(index + 1)..];
+                result.UserName = userInfo[..index];
+            }
+            else
+            {
+                result.UserName = userInfo;
+            }
+        }
+
+        if (!uri.IsDefaultPort)
+        {
+            result.Port = uri.Port;
+        }
+
+        return result;
     }
 }

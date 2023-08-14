@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Text;
 using System.Threading;
@@ -1434,6 +1435,45 @@ public class ProxyConfigManagerTests
         {
             { "d1-1", new DestinationConfig() { Address = "http://127.0.0.1:8080" } },
             { "d1-2", new DestinationConfig() { Address = "http://127.1.1.1:8080" } }
+        };
+
+        var actualDestinations = cluster.Destinations.ToDictionary(static k => k.Key, static v => v.Value.Model.Config);
+        Assert.Equal(expectedDestinations, actualDestinations);
+    }
+
+    [Fact]
+    public async Task LoadAsync_DestinationResolver_Dns()
+    {
+        var destinationsToExpand = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "d1", new DestinationConfig() { Address = "http://localhost/a/b/c", Health = "http://localhost/healthz" } },
+            { "d2", new DestinationConfig() { Address = "http://localhost:8080/a/b/c", Health = "http://localhost:8080/healthz"} },
+            { "d3", new DestinationConfig() { Address = "https://localhost/a/b/c", Health = "https://localhost/healthz" } },
+            { "d4", new DestinationConfig() { Address = "https://localhost:8443/a/b/c", Health = "https://localhost:8443/healthz", Host = "overriddenhost" } }
+        };
+
+        var cluster1 = new ClusterConfig()
+        {
+            ClusterId = "cluster1",
+            Destinations = destinationsToExpand
+        };
+
+        var services = CreateServices(
+            new List<RouteConfig>(),
+            new List<ClusterConfig>() { cluster1 },
+            configureProxy: rp => rp.AddDnsDestinationResolver(o => o.AddressFamily = AddressFamily.InterNetwork));
+        var configManager = services.GetRequiredService<ProxyConfigManager>();
+
+        await configManager.InitialLoadAsync();
+
+        Assert.True(configManager.TryGetCluster(cluster1.ClusterId, out var cluster));
+
+        var expectedDestinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "d1[0]", new DestinationConfig() { Address = "http://127.0.0.1/a/b/c", Health = "http://127.0.0.1/healthz", Host = "localhost" } },
+            { "d2[0]", new DestinationConfig() { Address = "http://127.0.0.1:8080/a/b/c", Health = "http://127.0.0.1:8080/healthz", Host = "localhost:8080" } },
+            { "d3[0]", new DestinationConfig() { Address = "https://127.0.0.1/a/b/c", Health = "https://127.0.0.1/healthz", Host = "localhost" } },
+            { "d4[0]", new DestinationConfig() { Address = "https://127.0.0.1:8443/a/b/c", Health = "https://127.0.0.1:8443/healthz", Host = "overriddenhost" } }
         };
 
         var actualDestinations = cluster.Destinations.ToDictionary(static k => k.Key, static v => v.Value.Model.Config);
