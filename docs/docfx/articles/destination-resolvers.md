@@ -31,3 +31,25 @@ When the provider wants to provide a new set of destinations to the proxy it sho
 - Invalidate the `IChangeToken` returned from the previous `ResolveDestinationsAsync` invocation.
 
 Once the new destinations have been applied, the proxy will register a callback with the new `IChangeToken`. Note if there are multiple reloads signaled in close succession, the proxy may skip some and resolve destinations as soon as it's ready.
+
+## DNS Destination Resolver
+
+YARP includes an [IDestinationResolver](xref:Yarp.ReverseProxy.ServiceDiscovery.IDestinationResolver) implementation which resolves host names via DNS. The DNS destination resolver can be added to your reverse proxy using the [IReverseProxyBuilder.AddDnsDestinationResolver(Action<DnsDestinationResolverOptions>)](xref:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddDnsDestinationResolver) method. The method accepts an optional delegate to configure the resolver's options, [DnsDestinationResolverOptions](xref:Yarp.ReverseProxy.ServiceDiscovery.DnsDestinationResolverOptions).
+
+### Example
+
+```csharp
+reverseProxyBuilder.AddDnsDestinationResolver(o => o.AddressFamily = AddressFamily.InterNetwork);
+```
+
+### Configuration
+
+The DNS destination resolver's options, [DnsDestinationResolverOptions](xref:Yarp.ReverseProxy.ServiceDiscovery.DnsDestinationResolverOptions), has the following properties:
+
+#### RefreshPeriod
+
+The period between requesting a refresh of a resolved name. This defaults to 5 minutes.
+
+#### AddressFamily
+
+Optionally, specify an `System.Net.Sockets.AddressFamily` value of `AddressFamily.InterNetwork` or `AddressFamily.InterNetworkV6` to restrict resolved resolution to IPv4 or IPv6 addresses, respectively. The default value, `null`, instructs the resolver to not restrict the address family of the results and to use accept all returned addresses.
