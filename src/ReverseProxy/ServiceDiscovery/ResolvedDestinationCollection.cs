@@ -5,11 +5,27 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Configuration;
 
-namespace Yarp.ReverseProxy.ServiceDiscovery;
+namespace Yarp.ReverseProxy.ServiceDiscovery
+{
+    /// <summary>
+    /// Represents a collection of resolved destinations.
+    /// </summary>
+    public sealed class ResolvedDestinationCollection
+    {
+        public ResolvedDestinationCollection(IReadOnlyDictionary<string, DestinationConfig> destinations, IChangeToken? changeToken)
+        {
+            Destinations = destinations;
+            ChangeToken = changeToken;
+        }
 
-/// <summary>
-/// Represents a collection of resolved destinations.
-/// </summary>
-/// <param name="Destinations">The resolved destinations.</param>
-/// <param name="ChangeToken">An optional change token which indicates when the destination collection should be refreshed.</param>
-public record class ResolvedDestinationCollection(IReadOnlyDictionary<string, DestinationConfig> Destinations, IChangeToken? ChangeToken);
+        /// <summary>
+        /// Gets the map of destination names to destination configurations.
+        /// </summary>
+        public IReadOnlyDictionary<string, DestinationConfig> Destinations { get; init; }
+
+        /// <summary>
+        /// Gets the optional change token used to signal when this collection should be refreshed.
+        /// </summary>
+        public IChangeToken? ChangeToken { get; init; }
+    }
+}

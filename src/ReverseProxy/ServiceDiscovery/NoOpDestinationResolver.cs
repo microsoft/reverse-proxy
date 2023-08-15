@@ -14,5 +14,5 @@ namespace Yarp.ReverseProxy.ServiceDiscovery;
 internal sealed class NoOpDestinationResolver : IDestinationResolver
 {
     public ValueTask<ResolvedDestinationCollection> ResolveDestinationsAsync(IReadOnlyDictionary<string, DestinationConfig> destinations, CancellationToken cancellationToken)
-        => new(new ResolvedDestinationCollection(destinations, ChangeToken: null));
+        => new(new ResolvedDestinationCollection(destinations, changeToken: null));
 }
