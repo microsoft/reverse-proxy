@@ -16,7 +16,7 @@ namespace Yarp.ReverseProxy.ServiceDiscovery;
 /// <summary>
 /// Implementation of <see cref="IDestinationResolver"/> which resolves host names to IP addresses using DNS.
 /// </summary>
-public class DnsDestinationResolver : IDestinationResolver
+internal class DnsDestinationResolver : IDestinationResolver
 {
     private readonly IOptionsMonitor<DnsDestinationResolverOptions> _options;
     private readonly ILogger<DnsDestinationResolver> _logger;
@@ -35,39 +35,31 @@ public class DnsDestinationResolver : IDestinationResolver
     /// <inheritdoc/>
     public async ValueTask<ResolvedDestinationCollection> ResolveDestinationsAsync(IReadOnlyDictionary<string, DestinationConfig> destinations, CancellationToken cancellationToken)
     {
-        try
+        var options = _options.CurrentValue;
+        Dictionary<string, DestinationConfig> results = new();
+        var tasks = new List<Task<List<(string Name, DestinationConfig Config)>>>(destinations.Count);
+        foreach (var (destinationId, destinationConfig) in destinations)
         {
-            var options = _options.CurrentValue;
-            Dictionary<string, DestinationConfig> results = new();
-            var tasks = new List<Task<List<(string Name, DestinationConfig Config)>>>(destinations.Count);
-            foreach (var (destinationId, destinationConfig) in destinations)
-            {
-                tasks.Add(ResolveHostAsync(options, destinationId, destinationConfig, cancellationToken));
-            }
-
-            await Task.WhenAll(tasks);
-            foreach (var task in tasks)
-            {
-                var configs = await task;
-                foreach (var (name, config) in configs)
-                {
-                    results[name] = config;
-                }
-            }
-
-            var changeToken = options.RefreshPeriod switch
-            {
-                { } refreshPeriod when refreshPeriod > TimeSpan.Zero => new CancellationChangeToken(new CancellationTokenSource(refreshPeriod).Token),
-                _ => null,
-            };
-
-            return new ResolvedDestinationCollection(results, changeToken);
+            tasks.Add(ResolveHostAsync(options, destinationId, destinationConfig, cancellationToken));
         }
-        catch (Exception ex)
+
+        await Task.WhenAll(tasks);
+        foreach (var task in tasks)
         {
-            _logger.LogError(ex, "Error resolving destinations");
-            throw;
+            var configs = await task;
+            foreach (var (name, config) in configs)
+            {
+                results[name] = config;
+            }
         }
+
+        var changeToken = options.RefreshPeriod switch
+        {
+            { } refreshPeriod when refreshPeriod > TimeSpan.Zero => new CancellationChangeToken(new CancellationTokenSource(refreshPeriod).Token),
+            _ => null,
+        };
+
+        return new ResolvedDestinationCollection(results, changeToken);
     }
 
     private static async Task<List<(string Name, DestinationConfig Config)>> ResolveHostAsync(
@@ -99,7 +91,7 @@ public class DnsDestinationResolver : IDestinationResolver
                 healthAddress = healthUriBuilder.ToString();
             }
 
-            var name = $"{originalName}[{results.Count}]";
+            var name = $"{originalName}[{addressString}]";
             var config = originalConfig with { Host = originalHost, Address = resolvedAddress, Health = healthAddress };
             results.Add((name, config));
         }
@@ -120,22 +112,6 @@ public class DnsDestinationResolver : IDestinationResolver
             Query = uri.Query,
             Fragment = uri.Fragment,
         };
-
-        var userInfo = uri.UserInfo;
-        if (userInfo.Length > 0)
-        {
-            var index = userInfo.IndexOf(':');
-
-            if (index != -1)
-            {
-                result.Password = userInfo[(index + 1)..];
-                result.UserName = userInfo[..index];
-            }
-            else
-            {
-                result.UserName = userInfo;
-            }
-        }
 
         if (!uri.IsDefaultPort)
         {
