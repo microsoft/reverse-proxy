@@ -39,6 +39,7 @@ YARP includes an [IDestinationResolver](xref:Yarp.ReverseProxy.ServiceDiscovery.
 ### Example
 
 ```csharp
+// Add the DNS destination resolver, restricting results to IPv4 addresses
 reverseProxyBuilder.AddDnsDestinationResolver(o => o.AddressFamily = AddressFamily.InterNetwork);
 ```
 
