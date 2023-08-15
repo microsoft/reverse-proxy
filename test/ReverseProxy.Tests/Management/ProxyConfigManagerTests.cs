@@ -1470,10 +1470,10 @@ public class ProxyConfigManagerTests
 
         var expectedDestinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
         {
-            { "d1[0]", new DestinationConfig() { Address = "http://127.0.0.1/a/b/c", Health = "http://127.0.0.1/healthz", Host = "localhost" } },
-            { "d2[0]", new DestinationConfig() { Address = "http://127.0.0.1:8080/a/b/c", Health = "http://127.0.0.1:8080/healthz", Host = "localhost:8080" } },
-            { "d3[0]", new DestinationConfig() { Address = "https://127.0.0.1/a/b/c", Health = "https://127.0.0.1/healthz", Host = "localhost" } },
-            { "d4[0]", new DestinationConfig() { Address = "https://127.0.0.1:8443/a/b/c", Health = "https://127.0.0.1:8443/healthz", Host = "overriddenhost" } }
+            { "d1[127.0.0.1]", new DestinationConfig() { Address = "http://127.0.0.1/a/b/c", Health = "http://127.0.0.1/healthz", Host = "localhost" } },
+            { "d2[127.0.0.1]", new DestinationConfig() { Address = "http://127.0.0.1:8080/a/b/c", Health = "http://127.0.0.1:8080/healthz", Host = "localhost:8080" } },
+            { "d3[127.0.0.1]", new DestinationConfig() { Address = "https://127.0.0.1/a/b/c", Health = "https://127.0.0.1/healthz", Host = "localhost" } },
+            { "d4[127.0.0.1]", new DestinationConfig() { Address = "https://127.0.0.1:8443/a/b/c", Health = "https://127.0.0.1:8443/healthz", Host = "overriddenhost" } }
         };
 
         var actualDestinations = cluster.Destinations.ToDictionary(static k => k.Key, static v => v.Value.Model.Config);
