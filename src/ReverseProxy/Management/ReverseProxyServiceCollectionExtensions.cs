@@ -53,6 +53,7 @@ public static class ReverseProxyServiceCollectionExtensions
             .AddPassiveHealthCheck()
             .AddLoadBalancingPolicies()
             .AddHttpSysDelegation()
+            .AddWeighting()
             .AddProxy();
 
         services.TryAddSingleton<ProxyEndpointFactory>();

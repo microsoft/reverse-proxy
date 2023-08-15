@@ -28,6 +28,12 @@ public sealed record DestinationConfig
     /// </summary>
     public IReadOnlyDictionary<string, string>? Metadata { get; init; }
 
+
+    /// <summary>
+    /// Collection of weight values for the destination.
+    /// </summary>
+    public Dictionary<string, double>? Weights { get; init; }
+
     public bool Equals(DestinationConfig? other)
     {
         if (other is null)

@@ -15,6 +15,7 @@ using Yarp.ReverseProxy.Routing;
 using Yarp.ReverseProxy.SessionAffinity;
 using Yarp.ReverseProxy.Transforms;
 using Yarp.ReverseProxy.Utilities;
+using Yarp.ReverseProxy.Weighting;
 
 namespace Yarp.ReverseProxy.Management;
 
@@ -125,4 +126,11 @@ internal static class IReverseProxyBuilderExtensions
 
         return builder;
     }
+
+    public static IReverseProxyBuilder AddWeighting(this IReverseProxyBuilder builder)
+    {
+        builder.Services.TryAddSingleton<IProxyWeightingProvider, CompoundedWeightingProvider>();
+        return builder;
+    }
+
 }

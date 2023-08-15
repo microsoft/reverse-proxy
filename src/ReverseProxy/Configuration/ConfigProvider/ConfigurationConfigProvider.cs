@@ -377,7 +377,25 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             Address = section[nameof(DestinationConfig.Address)]!,
             Health = section[nameof(DestinationConfig.Health)],
             Metadata = section.GetSection(nameof(DestinationConfig.Metadata)).ReadStringDictionary(),
+            Weights = CreateWeightsConfig( section.GetSection(nameof(DestinationConfig.Weights)))
         };
+    }
+
+    private static Dictionary<string,double>? CreateWeightsConfig(IConfigurationSection section)
+    {
+        if (!section.Exists())
+        {
+            return null;
+        }
+
+        var weights = new Dictionary<string,double>();
+        foreach (var child in section.GetChildren())
+        {
+            if (!double.TryParse(child.Value, out var weight)) { throw new ArgumentException($"Could not convert {child.Value} into a double for the weight setting {child.Key} at {section.Path}"); }
+            weights.Add(child.Key, weight);
+        }
+
+        return weights;
     }
 
     private static class Log

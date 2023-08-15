@@ -21,6 +21,7 @@ using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Routing;
 using Yarp.ReverseProxy.Transforms.Builder;
+using Yarp.ReverseProxy.Weighting;
 
 namespace Yarp.ReverseProxy.Management;
 
@@ -46,6 +47,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
     private readonly IForwarderHttpClientFactory _httpClientFactory;
     private readonly ProxyEndpointFactory _proxyEndpointFactory;
     private readonly ITransformBuilder _transformBuilder;
+    private readonly IProxyWeightingProvider _weightingProvider;
     private readonly List<Action<EndpointBuilder>> _conventions;
     private readonly IActiveHealthCheckMonitor _activeHealthCheckMonitor;
     private readonly IClusterDestinationsUpdater _clusterDestinationsUpdater;
@@ -64,6 +66,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         IConfigValidator configValidator,
         ProxyEndpointFactory proxyEndpointFactory,
         ITransformBuilder transformBuilder,
+        IProxyWeightingProvider weightingProvider,
         IForwarderHttpClientFactory httpClientFactory,
         IActiveHealthCheckMonitor activeHealthCheckMonitor,
         IClusterDestinationsUpdater clusterDestinationsUpdater,
@@ -77,6 +80,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         _configValidator = configValidator ?? throw new ArgumentNullException(nameof(configValidator));
         _proxyEndpointFactory = proxyEndpointFactory ?? throw new ArgumentNullException(nameof(proxyEndpointFactory));
         _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
+        _weightingProvider = weightingProvider ?? throw new ArgumentNullException(nameof(weightingProvider));
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         _activeHealthCheckMonitor = activeHealthCheckMonitor ?? throw new ArgumentNullException(nameof(activeHealthCheckMonitor));
         _clusterDestinationsUpdater = clusterDestinationsUpdater ?? throw new ArgumentNullException(nameof(clusterDestinationsUpdater));
@@ -586,6 +590,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
                     {
                         Log.DestinationChanged(_logger, incomingDestination.Key);
                         currentDestination.Model = new DestinationModel(incomingDestination.Value);
+                        _weightingProvider.UpdateDestinationState(currentDestination);
                         changed = true;
                     }
                 }
