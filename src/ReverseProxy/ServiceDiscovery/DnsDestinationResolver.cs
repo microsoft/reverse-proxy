@@ -72,19 +72,19 @@ internal class DnsDestinationResolver : IDestinationResolver
             null => await Dns.GetHostAddressesAsync(originalUri.DnsSafeHost, cancellationToken).ConfigureAwait(false)
         };
         var results = new List<(string Name, DestinationConfig Config)>(addresses.Length);
-        var uriBuilder = CreateUriBuilder(originalUri);
+        var uriBuilder = new UriBuilder(originalUri);
         var healthUri = originalConfig.Health is { Length: > 0 } health ? new Uri(health) : null;
-        var healthUriBuilder = healthUri is { } ? CreateUriBuilder(healthUri) : null;
+        var healthUriBuilder = healthUri is { } ? new UriBuilder(healthUri) : null;
         foreach (var address in addresses)
         {
             var addressString = address.ToString();
             uriBuilder.Host = addressString;
-            var resolvedAddress = uriBuilder.ToString();
+            var resolvedAddress = uriBuilder.Uri.ToString();
             var healthAddress = originalConfig.Health;
             if (healthUriBuilder is not null)
             {
                 healthUriBuilder.Host = addressString;
-                healthAddress = healthUriBuilder.ToString();
+                healthAddress = healthUriBuilder.Uri.ToString();
             }
 
             var name = $"{originalName}[{addressString}]";
@@ -93,27 +93,5 @@ internal class DnsDestinationResolver : IDestinationResolver
         }
 
         return results;
-    }
-
-    /// <summary>
-    /// Creates a <see cref="UriBuilder"/> from the provided address, only setting the Port property if it is not the default value.
-    /// </summary>
-    private static UriBuilder CreateUriBuilder(Uri uri)
-    {
-        var result = new UriBuilder()
-        {
-            Scheme = uri.Scheme,
-            Host = uri.Host,
-            Path = uri.AbsolutePath,
-            Query = uri.Query,
-            Fragment = uri.Fragment,
-        };
-
-        if (!uri.IsDefaultPort)
-        {
-            result.Port = uri.Port;
-        }
-
-        return result;
     }
 }
