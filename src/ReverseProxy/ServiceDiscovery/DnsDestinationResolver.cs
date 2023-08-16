@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Configuration;
@@ -19,17 +18,14 @@ namespace Yarp.ReverseProxy.ServiceDiscovery;
 internal class DnsDestinationResolver : IDestinationResolver
 {
     private readonly IOptionsMonitor<DnsDestinationResolverOptions> _options;
-    private readonly ILogger<DnsDestinationResolver> _logger;
 
     /// <summary>
     /// Initializes a new <see cref="DnsDestinationResolver"/> instance.
     /// </summary>
     /// <param name="options">The options.</param>
-    /// <param name="logger">The logger.</param>
-    public DnsDestinationResolver(IOptionsMonitor<DnsDestinationResolverOptions> options, ILogger<DnsDestinationResolver> logger)
+    public DnsDestinationResolver(IOptionsMonitor<DnsDestinationResolverOptions> options)
     {
         _options = options;
-        _logger = logger;
     }
 
     /// <inheritdoc/>

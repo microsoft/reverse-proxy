@@ -34,7 +34,9 @@ Once the new destinations have been applied, the proxy will register a callback 
 
 ## DNS Destination Resolver
 
-YARP includes an [IDestinationResolver](xref:Yarp.ReverseProxy.ServiceDiscovery.IDestinationResolver) implementation which resolves host names via DNS. The DNS destination resolver can be added to your reverse proxy using the `IReverseProxyBuilder.AddDnsDestinationResolver(Action<DnsDestinationResolverOptions>)` method. The method accepts an optional delegate to configure the resolver's options, [DnsDestinationResolverOptions](xref:Yarp.ReverseProxy.ServiceDiscovery.DnsDestinationResolverOptions).
+YARP includes an [IDestinationResolver](xref:Yarp.ReverseProxy.ServiceDiscovery.IDestinationResolver) implementation which expands the set of configured destinations by resolving each host name to one or more IP addresses using DNS, creating a destination for each resolved IP.
+The DNS destination resolver can be added to your reverse proxy using the `IReverseProxyBuilder.AddDnsDestinationResolver(Action<DnsDestinationResolverOptions>)` method.
+The method accepts an optional delegate to configure the resolver's options, [DnsDestinationResolverOptions](xref:Yarp.ReverseProxy.ServiceDiscovery.DnsDestinationResolverOptions).
 
 ### Example
 
