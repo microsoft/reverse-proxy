@@ -28,6 +28,11 @@ internal sealed class DefaultProbingRequestFactory : IProbingRequestFactory
             VersionPolicy = cluster.Config.HttpRequest?.VersionPolicy ?? HttpVersionPolicy.RequestVersionOrLower,
         };
 
+        if (!string.IsNullOrEmpty(destination.Config.Host))
+        {
+            request.Headers.Add(HeaderNames.Host, destination.Config.Host);
+        }
+
         request.Headers.Add(HeaderNames.UserAgent, _defaultUserAgent);
 
         return request;

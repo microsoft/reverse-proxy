@@ -28,6 +28,12 @@ public sealed record DestinationConfig
     /// </summary>
     public IReadOnlyDictionary<string, string>? Metadata { get; init; }
 
+    /// <summary>
+    /// Host header value to pass to this destination.
+    /// Used as a fallback if a host is not already specified by request transforms.
+    /// </summary>
+    public string? Host { get; init; }
+
     public bool Equals(DestinationConfig? other)
     {
         if (other is null)
@@ -37,6 +43,7 @@ public sealed record DestinationConfig
 
         return string.Equals(Address, other.Address, StringComparison.OrdinalIgnoreCase)
             && string.Equals(Health, other.Health, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(Host, other.Host, StringComparison.OrdinalIgnoreCase)
             && CaseSensitiveEqualHelper.Equals(Metadata, other.Metadata);
     }
 
@@ -45,6 +52,7 @@ public sealed record DestinationConfig
         return HashCode.Combine(
             Address?.GetHashCode(StringComparison.OrdinalIgnoreCase),
             Health?.GetHashCode(StringComparison.OrdinalIgnoreCase),
+            Host?.GetHashCode(StringComparison.OrdinalIgnoreCase),
             CaseSensitiveEqualHelper.GetHashCode(Metadata));
     }
 }

@@ -12,6 +12,7 @@ using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.LoadBalancing;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Routing;
+using Yarp.ReverseProxy.ServiceDiscovery;
 using Yarp.ReverseProxy.SessionAffinity;
 using Yarp.ReverseProxy.Transforms;
 using Yarp.ReverseProxy.Utilities;
@@ -123,6 +124,12 @@ internal static class IReverseProxyBuilderExtensions
         builder.Services.TryAddSingleton<IHttpSysDelegator>(p => p.GetRequiredService<HttpSysDelegator>());
         builder.Services.AddSingleton<IClusterChangeListener>(p => p.GetRequiredService<HttpSysDelegator>());
 
+        return builder;
+    }
+
+    public static IReverseProxyBuilder AddDestinationResolver(this IReverseProxyBuilder builder)
+    {
+        builder.Services.TryAddSingleton<IDestinationResolver, NoOpDestinationResolver>();
         return builder;
     }
 }
