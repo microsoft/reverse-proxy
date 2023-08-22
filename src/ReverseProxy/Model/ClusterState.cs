@@ -70,6 +70,14 @@ public sealed class ClusterState
     /// <summary>
     /// Keeps track of the total number of concurrent requests on this cluster.
     /// </summary>
+    public int ConcurrentRequestCount
+    {
+        get => ConcurrencyCounter.Value;
+    }
+
+    /// <summary>
+    /// Keeps track of the total number of concurrent requests on this cluster.
+    /// </summary>
     internal AtomicCounter ConcurrencyCounter { get; } = new AtomicCounter();
 
     /// <summary>
