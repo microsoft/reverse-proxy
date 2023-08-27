@@ -170,7 +170,7 @@ internal sealed class HttpForwarder : IHttpForwarder
                         Debug.Assert(false == (bool?)hre.Data["SETTINGS_ENABLE_CONNECT_PROTOCOL"]);
                         Log.RetryingWebSocketDowngradeNoConnect(_logger);
                     }
-                    // This is how SocketsHttpHandler communicates to us that we tried HTTP/2, but the server only supports 
+                    // This is how SocketsHttpHandler communicates to us that we tried HTTP/2, but the server only supports
                     // HTTP/1.x (as determined by ALPN). We'll only get this when using TLS/https. Retry on HTTP/1.1.
                     // We don't let SocketsHttpHandler downgrade automatically for us because we need to send different headers.
                     else if (hre.Data.Contains("HTTP2_ENABLED"))
@@ -577,7 +577,12 @@ internal sealed class HttpForwarder : IHttpForwarder
             // Failed while trying to copy the request body from the client. It's ambiguous if the request or response failed first.
             case StreamCopyResult.InputError:
                 requestBodyError = ForwarderError.RequestBodyClient;
-                statusCode = timedOut ? StatusCodes.Status408RequestTimeout : StatusCodes.Status400BadRequest;
+                statusCode = timedOut
+                    ? StatusCodes.Status408RequestTimeout
+                    // Attempt to capture the status code from the request exception if available.
+                    : requestBodyException is BadHttpRequestException badHttpRequestException
+                        ? badHttpRequestException.StatusCode
+                        : StatusCodes.Status400BadRequest;
                 break;
             // Failed while trying to copy the request body to the destination. It's ambiguous if the request or response failed first.
             case StreamCopyResult.OutputError:
