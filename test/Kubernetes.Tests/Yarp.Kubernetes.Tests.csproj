@@ -22,6 +22,9 @@
     <None Remove="Certificates\cert.pem" />
     <None Remove="Certificates\key.der" />
     <None Remove="Certificates\key.pem" />
+    <None Remove="testassets\external-name-ingress\clusters.json" />
+    <None Remove="testassets\external-name-ingress\ingress.yaml" />
+    <None Remove="testassets\external-name-ingress\routes.json" />
   </ItemGroup>
 
   <ItemGroup>

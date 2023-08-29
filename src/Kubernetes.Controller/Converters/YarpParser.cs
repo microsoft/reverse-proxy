@@ -11,6 +11,7 @@ namespace Yarp.Kubernetes.Controller.Converters;
 
 internal static class YarpParser
 {
+    private const string ExternalNameServiceType = "ExternalName";
     private static readonly Deserializer YamlDeserializer = new();
 
     internal static void ConvertFromKubernetesIngress(YarpIngressContext ingressContext, YarpConfigContext configContext)
@@ -42,13 +43,73 @@ internal static class YarpParser
             var service = ingressContext.Services.SingleOrDefault(s => s.Metadata.Name == path.Backend.Service.Name);
             if (service.Spec != null)
             {
-                var servicePort = service.Spec.Ports.SingleOrDefault(p => MatchesPort(p, path.Backend.Service.Port));
-                if (servicePort != null)
+                if (string.Equals(service.Spec.Type, ExternalNameServiceType, StringComparison.OrdinalIgnoreCase))
                 {
-                    HandleIngressRulePath(ingressContext, servicePort, endpoints, defaultSubsets, rule, path, configContext);
+                    HandleExternalIngressRulePath(ingressContext, service.Spec.ExternalName, rule, path, configContext);
+                }
+                else
+                {
+                    var servicePort = service.Spec.Ports.SingleOrDefault(p => MatchesPort(p, path.Backend.Service.Port));
+                    if (servicePort != null)
+                    {
+                        HandleIngressRulePath(ingressContext, servicePort, endpoints, defaultSubsets, rule, path, configContext);
+                    }
                 }
             }
         }
+    }
+
+    private static void HandleExternalIngressRulePath(YarpIngressContext ingressContext, string externalName, V1IngressRule rule, V1HTTPIngressPath path, YarpConfigContext configContext)
+    {
+        var backend = path.Backend;
+        var ingressServiceBackend = backend.Service;
+
+        var clusters = configContext.ClusterTransfers;
+        var routes = configContext.Routes;
+
+        // Each ingress rule path can only be for one service
+        var key = UpstreamName(ingressContext.Ingress.Metadata.NamespaceProperty, ingressServiceBackend);
+        if (!clusters.ContainsKey(key))
+        {
+            clusters.Add(key, new ClusterTransfer());
+        }
+
+        var cluster = clusters[key];
+        cluster.ClusterId = key;
+        cluster.LoadBalancingPolicy = ingressContext.Options.LoadBalancingPolicy;
+        cluster.SessionAffinity = ingressContext.Options.SessionAffinity;
+        cluster.HealthCheck = ingressContext.Options.HealthCheck;
+        cluster.HttpClientConfig = ingressContext.Options.HttpClientConfig;
+
+        var pathMatch = FixupPathMatch(path);
+        var host = rule.Host;
+
+        routes.Add(new RouteConfig()
+        {
+            Match = new RouteMatch()
+            {
+                Hosts = host is not null ? new[] { host } : Array.Empty<string>(),
+                Path = pathMatch,
+                Headers = ingressContext.Options.RouteHeaders
+            },
+            ClusterId = cluster.ClusterId,
+            RouteId = $"{ingressContext.Ingress.Metadata.Name}.{ingressContext.Ingress.Metadata.NamespaceProperty}:{host}{path.Path}",
+            Transforms = ingressContext.Options.Transforms,
+            AuthorizationPolicy = ingressContext.Options.AuthorizationPolicy,
+#if NET7_0_OR_GREATER
+            RateLimiterPolicy = ingressContext.Options.RateLimiterPolicy,
+#endif
+            CorsPolicy = ingressContext.Options.CorsPolicy,
+            Metadata = ingressContext.Options.RouteMetadata,
+            Order = ingressContext.Options.RouteOrder,
+        });
+
+        var protocol = ingressContext.Options.Https ? "https" : "http";
+        var uri = $"{protocol}://{externalName}:{ingressServiceBackend.Port.Number}";
+        cluster.Destinations[uri] = new DestinationConfig()
+        {
+            Address = uri
+        };
     }
 
     private static void HandleIngressRulePath(YarpIngressContext ingressContext, V1ServicePort servicePort, List<Endpoints> endpoints, IList<V1EndpointSubset> defaultSubsets, V1IngressRule rule, V1HTTPIngressPath path, YarpConfigContext configContext)
