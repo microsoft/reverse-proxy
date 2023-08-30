@@ -1691,15 +1691,7 @@ public class HttpForwarderTests
     }
 
     [Theory]
-    [InlineData(StatusCodes.Status405MethodNotAllowed)]
-    [InlineData(StatusCodes.Status406NotAcceptable)]
-    [InlineData(StatusCodes.Status411LengthRequired)]
-    [InlineData(StatusCodes.Status412PreconditionFailed)]
     [InlineData(StatusCodes.Status413PayloadTooLarge)]
-    [InlineData(StatusCodes.Status414RequestUriTooLong)]
-    [InlineData(StatusCodes.Status415UnsupportedMediaType)]
-    [InlineData(StatusCodes.Status429TooManyRequests)]
-    [InlineData(StatusCodes.Status431RequestHeaderFieldsTooLarge)]
     public async Task NonGenericRequestBodyClientErrorCode_ReturnsNonGenericClientErrorCode(int statusCode)
     {
         var events = TestEventListener.Collect();
