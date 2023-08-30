@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
@@ -1689,6 +1690,42 @@ public class HttpForwarderTests
         });
     }
 
+    [Theory]
+    [InlineData(StatusCodes.Status413PayloadTooLarge)]
+    public async Task NonGenericRequestBodyClientErrorCode_ReturnsNonGenericClientErrorCode(int statusCode)
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "POST";
+        httpContext.Request.Host = new HostString("example.com:3456");
+        httpContext.Request.ContentLength = 1;
+        httpContext.Request.Body = new ThrowBadHttpRequestExceptionStream(statusCode);
+
+        var destinationPrefix = "https://localhost/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            async (request, _) =>
+            {
+                Assert.NotNull(request.Content);
+
+                await request.Content.CopyToWithCancellationAsync(Stream.Null);
+
+                return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+            });
+
+        var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client);
+
+        Assert.Equal(ForwarderError.RequestBodyClient, proxyError);
+        Assert.Equal(statusCode, httpContext.Response.StatusCode);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.RequestBodyClient, errorFeature.Error);
+        Assert.IsType<AggregateException>(errorFeature.Exception);
+
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages(new[] { ForwarderStage.SendAsyncStart, ForwarderStage.RequestContentTransferStart });
+    }
+
     [Fact]
     public async Task RequestBodyDestinationErrorBeforeResponseError_Returns502()
     {
@@ -3160,6 +3197,29 @@ public class HttpForwarderTests
             await base.TransformResponseTrailersAsync(httpContext, proxyResponse, cancellationToken);
 
             await OnResponseTrailers(httpContext, proxyResponse);
+        }
+    }
+
+    private class ThrowBadHttpRequestExceptionStream : DelegatingStream
+    {
+        public ThrowBadHttpRequestExceptionStream(int statusCode)
+            : base(Stream.Null)
+        {
+            StatusCode = statusCode;
+        }
+
+        private int StatusCode { get; }
+
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            if (buffer.Length == 0)
+            {
+                return new ValueTask<int>(0);
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            throw new BadHttpRequestException(ReasonPhrases.GetReasonPhrase(StatusCode), StatusCode);
         }
     }
 }
