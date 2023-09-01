@@ -63,53 +63,15 @@ internal static class YarpParser
     {
         var backend = path.Backend;
         var ingressServiceBackend = backend.Service;
-
-        var clusters = configContext.ClusterTransfers;
         var routes = configContext.Routes;
 
-        // Each ingress rule path can only be for one service
-        var key = UpstreamName(ingressContext.Ingress.Metadata.NamespaceProperty, ingressServiceBackend);
-        if (!clusters.ContainsKey(key))
-        {
-            clusters.Add(key, new ClusterTransfer());
-        }
-
-        var cluster = clusters[key];
-        cluster.ClusterId = key;
-        cluster.LoadBalancingPolicy = ingressContext.Options.LoadBalancingPolicy;
-        cluster.SessionAffinity = ingressContext.Options.SessionAffinity;
-        cluster.HealthCheck = ingressContext.Options.HealthCheck;
-        cluster.HttpClientConfig = ingressContext.Options.HttpClientConfig;
+        var cluster = GetOrAddCluster(ingressContext, configContext, ingressServiceBackend);
 
         var pathMatch = FixupPathMatch(path);
         var host = rule.Host;
 
-        routes.Add(new RouteConfig()
-        {
-            Match = new RouteMatch()
-            {
-                Hosts = host is not null ? new[] { host } : Array.Empty<string>(),
-                Path = pathMatch,
-                Headers = ingressContext.Options.RouteHeaders
-            },
-            ClusterId = cluster.ClusterId,
-            RouteId = $"{ingressContext.Ingress.Metadata.Name}.{ingressContext.Ingress.Metadata.NamespaceProperty}:{host}{path.Path}",
-            Transforms = ingressContext.Options.Transforms,
-            AuthorizationPolicy = ingressContext.Options.AuthorizationPolicy,
-#if NET7_0_OR_GREATER
-            RateLimiterPolicy = ingressContext.Options.RateLimiterPolicy,
-#endif
-            CorsPolicy = ingressContext.Options.CorsPolicy,
-            Metadata = ingressContext.Options.RouteMetadata,
-            Order = ingressContext.Options.RouteOrder,
-        });
-
-        var protocol = ingressContext.Options.Https ? "https" : "http";
-        var uri = $"{protocol}://{externalName}:{ingressServiceBackend.Port.Number}";
-        cluster.Destinations[uri] = new DestinationConfig()
-        {
-            Address = uri
-        };
+        routes.Add(CreateRoute(ingressContext, path, cluster, pathMatch, host));
+        AddDestination(cluster, ingressContext, externalName, ingressServiceBackend.Port.Number);
     }
 
     private static void HandleIngressRulePath(YarpIngressContext ingressContext, V1ServicePort servicePort, List<Endpoints> endpoints, IList<V1EndpointSubset> defaultSubsets, V1IngressRule rule, V1HTTPIngressPath path, YarpConfigContext configContext)
@@ -117,8 +79,6 @@ internal static class YarpParser
         var backend = path.Backend;
         var ingressServiceBackend = backend.Service;
         var subsets = defaultSubsets;
-
-        var clusters = configContext.ClusterTransfers;
         var routes = configContext.Routes;
 
         if (!string.IsNullOrEmpty(ingressServiceBackend?.Name))
@@ -126,19 +86,7 @@ internal static class YarpParser
             subsets = endpoints.SingleOrDefault(x => x.Name == ingressServiceBackend?.Name).Subsets;
         }
 
-        // Each ingress rule path can only be for one service
-        var key = UpstreamName(ingressContext.Ingress.Metadata.NamespaceProperty, ingressServiceBackend);
-        if (!clusters.ContainsKey(key))
-        {
-            clusters.Add(key, new ClusterTransfer());
-        }
-
-        var cluster = clusters[key];
-        cluster.ClusterId = key;
-        cluster.LoadBalancingPolicy = ingressContext.Options.LoadBalancingPolicy;
-        cluster.SessionAffinity = ingressContext.Options.SessionAffinity;
-        cluster.HealthCheck = ingressContext.Options.HealthCheck;
-        cluster.HttpClientConfig = ingressContext.Options.HttpClientConfig;
+        var cluster = GetOrAddCluster(ingressContext, configContext, ingressServiceBackend);
 
         // make sure cluster is present
         foreach (var subset in subsets ?? Enumerable.Empty<V1EndpointSubset>())
@@ -153,38 +101,66 @@ internal static class YarpParser
                 var pathMatch = FixupPathMatch(path);
                 var host = rule.Host;
 
-                routes.Add(new RouteConfig()
-                {
-                    Match = new RouteMatch()
-                    {
-                        Hosts = host is not null ? new[] { host } : Array.Empty<string>(),
-                        Path = pathMatch,
-                        Headers = ingressContext.Options.RouteHeaders
-                    },
-                    ClusterId = cluster.ClusterId,
-                    RouteId = $"{ingressContext.Ingress.Metadata.Name}.{ingressContext.Ingress.Metadata.NamespaceProperty}:{host}{path.Path}",
-                    Transforms = ingressContext.Options.Transforms,
-                    AuthorizationPolicy = ingressContext.Options.AuthorizationPolicy,
-#if NET7_0_OR_GREATER
-                    RateLimiterPolicy = ingressContext.Options.RateLimiterPolicy,
-#endif
-                    CorsPolicy = ingressContext.Options.CorsPolicy,
-                    Metadata = ingressContext.Options.RouteMetadata,
-                    Order = ingressContext.Options.RouteOrder,
-                });
+                routes.Add(CreateRoute(ingressContext, path, cluster, pathMatch, host));
 
                 // Add destination for every endpoint address
                 foreach (var address in subset.Addresses ?? Enumerable.Empty<V1EndpointAddress>())
                 {
-                    var protocol = ingressContext.Options.Https ? "https" : "http";
-                    var uri = $"{protocol}://{address.Ip}:{port.Port}";
-                    cluster.Destinations[uri] = new DestinationConfig()
-                    {
-                        Address = uri
-                    };
+                    AddDestination(cluster, ingressContext, address.Ip, port.Port);
                 }
             }
         }
+    }
+
+    private static void AddDestination(ClusterTransfer cluster, YarpIngressContext ingressContext, string host, int? port)
+    {
+        var protocol = ingressContext.Options.Https ? "https" : "http";
+        var uri = $"{protocol}://{host}:{port}";
+        cluster.Destinations[uri] = new DestinationConfig()
+        {
+            Address = uri
+        };
+    }
+
+    private static RouteConfig CreateRoute(YarpIngressContext ingressContext, V1HTTPIngressPath path, ClusterTransfer cluster, string pathMatch, string host)
+    {
+        return new RouteConfig()
+        {
+            Match = new RouteMatch()
+            {
+                Hosts = host is not null ? new[] { host } : Array.Empty<string>(),
+                Path = pathMatch,
+                Headers = ingressContext.Options.RouteHeaders
+            },
+            ClusterId = cluster.ClusterId,
+            RouteId = $"{ingressContext.Ingress.Metadata.Name}.{ingressContext.Ingress.Metadata.NamespaceProperty}:{host}{path.Path}",
+            Transforms = ingressContext.Options.Transforms,
+            AuthorizationPolicy = ingressContext.Options.AuthorizationPolicy,
+#if NET7_0_OR_GREATER
+                    RateLimiterPolicy = ingressContext.Options.RateLimiterPolicy,
+#endif
+            CorsPolicy = ingressContext.Options.CorsPolicy,
+            Metadata = ingressContext.Options.RouteMetadata,
+            Order = ingressContext.Options.RouteOrder,
+        };
+    }
+
+    private static ClusterTransfer GetOrAddCluster(YarpIngressContext ingressContext, YarpConfigContext configContext, V1IngressServiceBackend ingressServiceBackend)
+    {
+        var clusters = configContext.ClusterTransfers;
+        // Each ingress rule path can only be for one service
+        var key = UpstreamName(ingressContext.Ingress.Metadata.NamespaceProperty, ingressServiceBackend);
+        if (!clusters.ContainsKey(key))
+        {
+            clusters.Add(key, new ClusterTransfer());
+        }
+        var cluster = clusters[key];
+        cluster.ClusterId = key;
+        cluster.LoadBalancingPolicy = ingressContext.Options.LoadBalancingPolicy;
+        cluster.SessionAffinity = ingressContext.Options.SessionAffinity;
+        cluster.HealthCheck = ingressContext.Options.HealthCheck;
+        cluster.HttpClientConfig = ingressContext.Options.HttpClientConfig;
+        return cluster;
     }
 
     private static string UpstreamName(string namespaceName, V1IngressServiceBackend ingressServiceBackend)
