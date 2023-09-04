@@ -115,7 +115,11 @@ internal static class YarpParser
     private static void AddDestination(ClusterTransfer cluster, YarpIngressContext ingressContext, string host, int? port)
     {
         var protocol = ingressContext.Options.Https ? "https" : "http";
-        var uri = $"{protocol}://{host}:{port}";
+        var uri = $"{protocol}://{host}";
+        if (port.HasValue)
+        {
+            uri += $":{port}";
+        }
         cluster.Destinations[uri] = new DestinationConfig()
         {
             Address = uri
