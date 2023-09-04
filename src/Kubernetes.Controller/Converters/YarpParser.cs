@@ -137,7 +137,7 @@ internal static class YarpParser
             Transforms = ingressContext.Options.Transforms,
             AuthorizationPolicy = ingressContext.Options.AuthorizationPolicy,
 #if NET7_0_OR_GREATER
-                    RateLimiterPolicy = ingressContext.Options.RateLimiterPolicy,
+            RateLimiterPolicy = ingressContext.Options.RateLimiterPolicy,
 #endif
             CorsPolicy = ingressContext.Options.CorsPolicy,
             Metadata = ingressContext.Options.RouteMetadata,
