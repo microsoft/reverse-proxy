@@ -66,11 +66,21 @@ internal class DnsDestinationResolver : IDestinationResolver
     {
         var originalUri = new Uri(originalConfig.Address);
         var originalHost = originalConfig.Host is { Length: > 0 } host ? host : originalUri.Authority;
-        var addresses = options.AddressFamily switch
+        var hostName = originalUri.DnsSafeHost;
+        IPAddress[] addresses;
+        try
         {
-            { } addressFamily => await Dns.GetHostAddressesAsync(originalUri.DnsSafeHost, addressFamily, cancellationToken).ConfigureAwait(false),
-            null => await Dns.GetHostAddressesAsync(originalUri.DnsSafeHost, cancellationToken).ConfigureAwait(false)
-        };
+            addresses = options.AddressFamily switch
+            {
+                { } addressFamily => await Dns.GetHostAddressesAsync(hostName, addressFamily, cancellationToken).ConfigureAwait(false),
+                null => await Dns.GetHostAddressesAsync(hostName, cancellationToken).ConfigureAwait(false)
+            };
+        }
+        catch (Exception exception)
+        {
+            throw new InvalidOperationException($"Failed to resolve host '{hostName}'. See {nameof(Exception.InnerException)} for details.", exception);
+        }
+
         var results = new List<(string Name, DestinationConfig Config)>(addresses.Length);
         var uriBuilder = new UriBuilder(originalUri);
         var healthUri = originalConfig.Health is { Length: > 0 } health ? new Uri(health) : null;

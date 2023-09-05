@@ -359,7 +359,17 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         {
             foreach (var (i, task) in resolverTasks)
             {
-                var resolvedDestinations = await task;
+                ResolvedDestinationCollection resolvedDestinations;
+                try
+                {
+                    resolvedDestinations = await task;
+                }
+                catch (Exception exception)
+                {
+                    var cluster = clusters[i];
+                    throw new InvalidOperationException($"Error resolving destinations for cluster {cluster.ClusterId}", exception); 
+                }
+
                 clusters[i] = clusters[i] with { Destinations = resolvedDestinations.Destinations };
                 if (resolvedDestinations.ChangeToken is { } token)
                 {
