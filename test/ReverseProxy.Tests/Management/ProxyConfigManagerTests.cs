@@ -1392,8 +1392,10 @@ public class ProxyConfigManagerTests
         var ioEx = await Assert.ThrowsAsync<InvalidOperationException>(() => configManager.InitialLoadAsync());
         Assert.Equal("Unable to load or apply the proxy configuration.", ioEx.Message);
 
-        var innerExc = Assert.IsType<InvalidOperationException>(ioEx.InnerException);
-        Assert.Equal("Throwing!", innerExc.Message);
+        var innerExc1 = Assert.IsType<InvalidOperationException>(ioEx.InnerException);
+        Assert.Equal("Error resolving destinations for cluster cluster1", innerExc1.Message);
+        var innerExc2 = Assert.IsType<InvalidOperationException>(innerExc1.InnerException);
+        Assert.Equal("Throwing!", innerExc2.Message);
     }
 
     [Fact]
@@ -1640,7 +1642,9 @@ public class ProxyConfigManagerTests
 
         // Read the failure event
         var configLoadException = Assert.IsType<TestConfigChangeListener.ConfigurationLoadingFailedEvent>(await configListener.Events.Reader.ReadAsync());
-        var ex = configLoadException.Exception;
-        Assert.Equal("Throwing!", ex.Message);
+        var innerExc1 = Assert.IsType<InvalidOperationException>(configLoadException.Exception);
+        Assert.Equal("Error resolving destinations for cluster cluster1", innerExc1.Message);
+        var innerExc2 = Assert.IsType<InvalidOperationException>(innerExc1.InnerException);
+        Assert.Equal("Throwing!", innerExc2.Message);
     }
 }
