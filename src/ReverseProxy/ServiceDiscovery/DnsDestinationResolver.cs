@@ -78,7 +78,7 @@ internal class DnsDestinationResolver : IDestinationResolver
         }
         catch (Exception exception)
         {
-            throw new InvalidOperationException($"Failed to resolve host {hostName}. See {nameof(Exception.InnerException)} for details.", exception);
+            throw new InvalidOperationException($"Failed to resolve host '{hostName}'. See {nameof(Exception.InnerException)} for details.", exception);
         }
 
         var results = new List<(string Name, DestinationConfig Config)>(addresses.Length);
