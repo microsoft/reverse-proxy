@@ -13,19 +13,22 @@ using Xunit;
 using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Utilities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using System.Xml.Linq;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Yarp.ReverseProxy.Forwarder.Tests;
 
 public class StreamCopyHttpContentTests
 {
-    private static StreamCopyHttpContent CreateContent(HttpRequest request = null, bool autoFlushHttpClientOutgoingStream = false, IClock clock = null, ActivityCancellationTokenSource contentCancellation = null)
+    private static StreamCopyHttpContent CreateContent(HttpContext context = null, bool isStreamingRequest = false, IClock clock = null, ActivityCancellationTokenSource contentCancellation = null)
     {
-        request ??= new DefaultHttpContext().Request;
+        context ??= new DefaultHttpContext();
         clock ??= new Clock();
 
         contentCancellation ??= ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
 
-        return new StreamCopyHttpContent(request, autoFlushHttpClientOutgoingStream, clock, contentCancellation);
+        return new StreamCopyHttpContent(context, isStreamingRequest, clock, NullLogger.Instance, contentCancellation);
     }
 
     [Fact]
@@ -34,11 +37,11 @@ public class StreamCopyHttpContentTests
         const int SourceSize = (128 * 1024) - 3;
 
         var sourceBytes = Enumerable.Range(0, SourceSize).Select(i => (byte)(i % 256)).ToArray();
-        var request = new DefaultHttpContext().Request;
-        request.Body = new MemoryStream(sourceBytes);
+        var context = new DefaultHttpContext();
+        context.Request.Body = new MemoryStream(sourceBytes);
         var destination = new MemoryStream();
 
-        var sut = CreateContent(request);
+        var sut = CreateContent(context);
 
         Assert.False(sut.ConsumptionTask.IsCompleted);
         Assert.False(sut.Started);
@@ -68,12 +71,12 @@ public class StreamCopyHttpContentTests
         expectedFlushes++;
 
         var sourceBytes = Enumerable.Range(0, SourceSize).Select(i => (byte)(i % 256)).ToArray();
-        var request = new DefaultHttpContext().Request;
-        request.Body = new MemoryStream(sourceBytes);
+        var context = new DefaultHttpContext();
+        context.Request.Body = new MemoryStream(sourceBytes);
         var destination = new MemoryStream();
         var flushCountingDestination = new FlushCountingStream(destination);
 
-        var sut = CreateContent(request, autoFlushHttpClientOutgoingStream: autoFlush);
+        var sut = CreateContent(context, autoFlush);
 
         Assert.False(sut.ConsumptionTask.IsCompleted);
         Assert.False(sut.Started);
@@ -91,11 +94,11 @@ public class StreamCopyHttpContentTests
         var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
         var source = new Mock<Stream>();
         source.Setup(s => s.ReadAsync(It.IsAny<Memory<byte>>(), It.IsAny<CancellationToken>())).Returns(() => new ValueTask<int>(tcs.Task));
-        var request = new DefaultHttpContext().Request;
-        request.Body = source.Object;
+        var context = new DefaultHttpContext();
+        context.Request.Body = source.Object;
         var destination = new MemoryStream();
 
-        var sut = CreateContent(request);
+        var sut = CreateContent(context);
 
         Assert.False(sut.ConsumptionTask.IsCompleted);
         Assert.False(sut.Started);
@@ -151,12 +154,12 @@ public class StreamCopyHttpContentTests
             return 0;
         });
 
-        var request = new DefaultHttpContext().Request;
-        request.Body = source;
+        var context = new DefaultHttpContext();
+        context.Request.Body = source;
 
         using var contentCts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
 
-        var sut = CreateContent(request, contentCancellation: contentCts);
+        var sut = CreateContent(context, contentCancellation: contentCts);
 
         var copyToTask = sut.CopyToWithCancellationAsync(new MemoryStream());
         contentCts.Cancel();
@@ -183,10 +186,10 @@ public class StreamCopyHttpContentTests
             return 0;
         });
 
-        var request = new DefaultHttpContext().Request;
-        request.Body = source;
+        var context = new DefaultHttpContext();
+        context.Request.Body = source;
 
-        var sut = CreateContent(request);
+        var sut = CreateContent(context);
 
         using var cts = new CancellationTokenSource();
         var copyToTask = sut.CopyToAsync(new MemoryStream(), cts.Token);

@@ -102,8 +102,9 @@ public class StreamCopierTests : TestAutoMockBase
         var source = new MemoryStream(new byte[10]);
         var destination = new MemoryStream();
 
-        using var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
-        cts.Cancel();
+        var requestCts = new CancellationTokenSource();
+        using var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), requestCts.Token);
+        requestCts.Cancel();
         var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, StreamCopier.UnknownLength, new ManualClock(), cts, cts.Token);
         Assert.Equal(StreamCopyResult.Canceled, result);
         Assert.IsAssignableFrom<OperationCanceledException>(error);
