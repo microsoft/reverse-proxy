@@ -1159,7 +1159,7 @@ public class ConfigValidatorTests
             ClusterId = "cluster1",
             HttpClient = new HttpClientConfig
             {
-                RequestHeaderEncoding = "utf-8"
+                ResponseHeaderEncoding = "utf-8"
             }
         };
 
@@ -1179,7 +1179,7 @@ public class ConfigValidatorTests
             ClusterId = "cluster1",
             HttpClient = new HttpClientConfig
             {
-                RequestHeaderEncoding = "base64"
+                ResponseHeaderEncoding = "base64"
             }
         };
 
