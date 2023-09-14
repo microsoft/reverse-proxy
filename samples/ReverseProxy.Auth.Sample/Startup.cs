@@ -106,6 +106,7 @@ namespace Yarp.Sample
             {
                 endpoints.MapControllers();
                 endpoints.MapReverseProxy();
+                endpoints.MapForwarder("{test}", "", c => c.AddPathRouteValues("{sss}"));
             });
         }
     }
