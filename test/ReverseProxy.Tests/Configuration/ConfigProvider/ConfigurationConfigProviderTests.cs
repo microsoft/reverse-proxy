@@ -309,7 +309,7 @@ public class ConfigurationConfigProviderTests
         }
     },
     ""Routes"": {
-        ""routeA"" : {   
+        ""routeA"" : {
             ""Match"": {
                 ""Methods"": [
                     ""GET"",
@@ -547,6 +547,7 @@ public class ConfigurationConfigProviderTests
         Assert.Equal(cluster1.HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClient.MaxConnectionsPerServer);
         Assert.Equal(cluster1.HttpClient.EnableMultipleHttp2Connections, abstractCluster1.HttpClient.EnableMultipleHttp2Connections);
         Assert.Equal(Encoding.UTF8.WebName, abstractCluster1.HttpClient.RequestHeaderEncoding);
+        Assert.Equal(Encoding.UTF8.WebName, abstractCluster1.HttpClient.ResponseHeaderEncoding);
         Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);
         Assert.Equal(cluster1.HttpRequest.ActivityTimeout, abstractCluster1.HttpRequest.ActivityTimeout);
         Assert.Equal(HttpVersion.Version10, abstractCluster1.HttpRequest.Version);

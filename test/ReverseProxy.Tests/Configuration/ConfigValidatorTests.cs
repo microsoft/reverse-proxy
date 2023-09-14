@@ -1108,7 +1108,7 @@ public class ConfigValidatorTests
     }
 
     [Fact]
-    public async Task HttpClient_HeaderEncoding_Valid()
+    public async Task HttpClient_RequestHeaderEncoding_Valid()
     {
         var services = CreateServices();
         var validator = services.GetRequiredService<IConfigValidator>();
@@ -1128,7 +1128,7 @@ public class ConfigValidatorTests
     }
 
     [Fact]
-    public async Task HttpClient_HeaderEncoding_Invalid()
+    public async Task HttpClient_RequestHeaderEncoding_Invalid()
     {
         var services = CreateServices();
         var validator = services.GetRequiredService<IConfigValidator>();
@@ -1145,6 +1145,47 @@ public class ConfigValidatorTests
         var errors = await validator.ValidateClusterAsync(cluster);
 
         Assert.Equal(1, errors.Count);
-        Assert.Equal("Invalid header encoding 'base64'.", errors[0].Message);
+        Assert.Equal("Invalid request header encoding 'base64'.", errors[0].Message);
+    }
+
+    [Fact]
+    public async Task HttpClient_ResponseHeaderEncoding_Valid()
+    {
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var cluster = new ClusterConfig
+        {
+            ClusterId = "cluster1",
+            HttpClient = new HttpClientConfig
+            {
+                RequestHeaderEncoding = "utf-8"
+            }
+        };
+
+        var errors = await validator.ValidateClusterAsync(cluster);
+
+        Assert.Equal(0, errors.Count);
+    }
+
+    [Fact]
+    public async Task HttpClient_ResponseHeaderEncoding_Invalid()
+    {
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var cluster = new ClusterConfig
+        {
+            ClusterId = "cluster1",
+            HttpClient = new HttpClientConfig
+            {
+                RequestHeaderEncoding = "base64"
+            }
+        };
+
+        var errors = await validator.ValidateClusterAsync(cluster);
+
+        Assert.Equal(1, errors.Count);
+        Assert.Equal("Invalid response header encoding 'base64'.", errors[0].Message);
     }
 }

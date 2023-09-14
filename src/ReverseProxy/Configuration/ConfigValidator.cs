@@ -455,16 +455,29 @@ internal sealed class ConfigValidator : IConfigValidator
             errors.Add(new ArgumentException($"Max connections per server limit set on the cluster '{cluster.ClusterId}' must be positive."));
         }
 
-        var encoding = cluster.HttpClient.RequestHeaderEncoding;
-        if (encoding is not null)
+        var requestHeaderEncoding = cluster.HttpClient.RequestHeaderEncoding;
+        if (requestHeaderEncoding is not null)
         {
             try
             {
-                Encoding.GetEncoding(encoding);
+                Encoding.GetEncoding(requestHeaderEncoding);
             }
             catch (ArgumentException aex)
             {
-                errors.Add(new ArgumentException($"Invalid header encoding '{encoding}'.", aex));
+                errors.Add(new ArgumentException($"Invalid request header encoding '{requestHeaderEncoding}'.", aex));
+            }
+        }
+
+        var responseHeaderEncoding = cluster.HttpClient.ResponseHeaderEncoding;
+        if (responseHeaderEncoding is not null)
+        {
+            try
+            {
+                Encoding.GetEncoding(responseHeaderEncoding);
+            }
+            catch (ArgumentException aex)
+            {
+                errors.Add(new ArgumentException($"Invalid response header encoding '{responseHeaderEncoding}'.", aex));
             }
         }
     }

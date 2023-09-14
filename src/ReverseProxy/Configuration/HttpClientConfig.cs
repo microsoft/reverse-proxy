@@ -33,7 +33,7 @@ public sealed record HttpClientConfig
     public int? MaxConnectionsPerServer { get; init; }
 
     /// <summary>
-    /// Optional web proxy used when communicating with the destination server. 
+    /// Optional web proxy used when communicating with the destination server.
     /// </summary>
     public WebProxyConfig? WebProxy { get; init; }
 
@@ -49,6 +49,11 @@ public sealed record HttpClientConfig
     /// </summary>
     public string? RequestHeaderEncoding { get; init; }
 
+    /// <summary>
+    /// Enables non-ASCII header encoding for incoming responses.
+    /// </summary>
+    public string? ResponseHeaderEncoding { get; init; }
+
     public bool Equals(HttpClientConfig? other)
     {
         if (other is null)
@@ -62,6 +67,7 @@ public sealed record HttpClientConfig
                && EnableMultipleHttp2Connections == other.EnableMultipleHttp2Connections
                // Comparing by reference is fine here since Encoding.GetEncoding returns the same instance for each encoding.
                && RequestHeaderEncoding == other.RequestHeaderEncoding
+               && ResponseHeaderEncoding == other.ResponseHeaderEncoding
                && WebProxy == other.WebProxy;
     }
 
@@ -72,6 +78,7 @@ public sealed record HttpClientConfig
             MaxConnectionsPerServer,
             EnableMultipleHttp2Connections,
             RequestHeaderEncoding,
+            ResponseHeaderEncoding,
             WebProxy);
     }
 }
