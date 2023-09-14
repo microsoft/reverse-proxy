@@ -23,10 +23,7 @@ public class PathRouteValuesTransform : RequestTransform
     /// <param name="pattern">The pattern used to create the new request path.</param>
     /// <param name="binderFactory">The factory used to bind route parameters to the given path pattern.</param>
     public PathRouteValuesTransform(
-    #if NET7_0_OR_GREATER
-    [StringSyntax("Route")]
-    #endif
-    string pattern, TemplateBinderFactory binderFactory)
+        [StringSyntax("Route")] string pattern, TemplateBinderFactory binderFactory)
     {
         _ = pattern ?? throw new ArgumentNullException(nameof(pattern));
         _binderFactory = binderFactory ?? throw new ArgumentNullException(nameof(binderFactory));
