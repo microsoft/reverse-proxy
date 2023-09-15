@@ -132,6 +132,24 @@ public class ForwarderHttpClientFactoryTests : TestAutoMockBase
     }
 
     [Fact]
+    public void CreateClient_ApplyResponseHeaderEncoding_Success()
+    {
+        var factory = new ForwarderHttpClientFactory(Mock<ILogger<ForwarderHttpClientFactory>>().Object);
+        var options = new HttpClientConfig
+        {
+            ResponseHeaderEncoding = Encoding.Latin1.WebName
+        };
+        var client = factory.CreateClient(new ForwarderHttpClientContext { NewConfig = options });
+
+        var handler = GetHandler(client);
+
+        Assert.NotNull(handler);
+        Assert.NotNull(handler.RequestHeaderEncodingSelector);
+        Assert.Equal(Encoding.Latin1, handler.ResponseHeaderEncodingSelector(default, default));
+        VerifyDefaultValues(handler, nameof(SocketsHttpHandler.ResponseHeaderEncodingSelector));
+    }
+
+    [Fact]
     public void CreateClient_OldClientExistsNoConfigChange_ReturnsOldInstance()
     {
         var factory = new ForwarderHttpClientFactory(Mock<ILogger<ForwarderHttpClientFactory>>().Object);
@@ -329,6 +347,41 @@ public class ForwarderHttpClientFactoryTests : TestAutoMockBase
                     DangerousAcceptAnyServerCertificate = true,
                     MaxConnectionsPerServer = 10,
                     RequestHeaderEncoding = Encoding.Latin1.WebName,
+                },
+            },
+            new object[] {
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = 10,
+                    RequestHeaderEncoding = Encoding.UTF8.WebName,
+                },
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = 10,
+                    RequestHeaderEncoding = Encoding.UTF8.WebName,
+                    ResponseHeaderEncoding = Encoding.UTF8.WebName,
+                },
+            },
+            new object[] {
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = 10,
+                    RequestHeaderEncoding = Encoding.UTF8.WebName,
+                    ResponseHeaderEncoding = Encoding.Latin1.WebName,
+                },
+                new HttpClientConfig
+                {
+                    SslProtocols = SslProtocols.Tls11,
+                    DangerousAcceptAnyServerCertificate = true,
+                    MaxConnectionsPerServer = 10,
+                    RequestHeaderEncoding = Encoding.UTF8.WebName,
+                    ResponseHeaderEncoding = Encoding.UTF8.WebName,
                 },
             }
         };
