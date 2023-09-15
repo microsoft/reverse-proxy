@@ -13,10 +13,10 @@ public Startup(IConfiguration configuration)
     Configuration = configuration;
 }
 
-public void ConfigureServices(IServiceCollection services) 
-{ 
-    services.AddReverseProxy() 
-        .LoadFromConfig(Configuration.GetSection("ReverseProxy")); 
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddReverseProxy()
+        .LoadFromConfig(Configuration.GetSection("ReverseProxy"));
 }
 
 public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -27,11 +27,11 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     }
 
     app.UseRouting();
-    app.UseEndpoints(endpoints => 
+    app.UseEndpoints(endpoints =>
     {
-        endpoints.MapReverseProxy(); 
-    }); 
-} 
+        endpoints.MapReverseProxy();
+    });
+}
 ```
 **Note**: For details about middleware ordering see [here](https://docs.microsoft.com/aspnet/core/fundamentals/middleware/#middleware-order).
 
@@ -118,7 +118,7 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
   },
   "ReverseProxy": {
     // Routes tell the proxy which requests to forward
-    "Routes": { 
+    "Routes": {
       "minimumroute" : {
         // Matches anything and routes it to www.example.com
         "ClusterId": "minimumcluster",
@@ -134,7 +134,7 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
         "Authorization Policy" : "Anonymous", // Name of the policy or "Default", "Anonymous"
         "CorsPolicy" : "Default", // Name of the CorsPolicy to apply to this route or "Default", "Disable"
         "Match": {
-          "Path": "/something/{**remainder}", // The path to match using ASP.NET syntax. 
+          "Path": "/something/{**remainder}", // The path to match using ASP.NET syntax.
           "Hosts" : [ "www.aaaaa.com", "www.bbbbb.com"], // The host names to match, unspecified is any
           "Methods" : [ "GET", "PUT" ], // The HTTP methods that match, uspecified is all
           "Headers": [ // The headers to match, unspecified is any
@@ -161,7 +161,7 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
           {
             "RequestHeader": "MyHeader",
             "Set": "MyValue",
-          } 
+          }
         ]
       }
     },
@@ -194,7 +194,7 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
           }
         },
         "HealthCheck": {
-          "Active": { // Makes API calls to validate the health. 
+          "Active": { // Makes API calls to validate the health.
             "Enabled": "true",
             "Interval": "00:00:10",
             "Timeout": "00:00:10",
@@ -212,7 +212,8 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
           "DangerousAcceptAnyServerCertificate" : false,
           "MaxConnectionsPerServer" : 1024,
           "EnableMultipleHttp2Connections" : true,
-          "RequestHeaderEncoding" : "Latin1" // How to interpret non ASCII characters in header values
+          "RequestHeaderEncoding" : "Latin1", // How to interpret non ASCII characters in request header values
+          "ResponseHeaderEncoding" : "Latin1" // How to interpret non ASCII characters in response header values
         },
         "HttpRequest" : { // Options for sending request to destination
           "ActivityTimeout" : "00:02:00",
