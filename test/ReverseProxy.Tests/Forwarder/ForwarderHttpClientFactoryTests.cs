@@ -144,7 +144,7 @@ public class ForwarderHttpClientFactoryTests : TestAutoMockBase
         var handler = GetHandler(client);
 
         Assert.NotNull(handler);
-        Assert.NotNull(handler.RequestHeaderEncodingSelector);
+        Assert.NotNull(handler.ResponseHeaderEncodingSelector);
         Assert.Equal(Encoding.Latin1, handler.ResponseHeaderEncodingSelector(default, default));
         VerifyDefaultValues(handler, nameof(SocketsHttpHandler.ResponseHeaderEncodingSelector));
     }
