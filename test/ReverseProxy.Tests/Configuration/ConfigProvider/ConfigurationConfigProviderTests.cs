@@ -248,6 +248,7 @@ public class ConfigurationConfigProviderTests
                 ""MaxConnectionsPerServer"": 10,
                 ""EnableMultipleHttp2Connections"": true,
                 ""RequestHeaderEncoding"": ""utf-8"",
+                ""ResponseHeaderEncoding"": ""utf-8"",
                 ""WebProxy"": {
                     ""Address"": ""http://localhost:8080"",
                     ""BypassOnLocal"": true,
