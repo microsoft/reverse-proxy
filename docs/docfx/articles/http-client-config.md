@@ -12,7 +12,7 @@ The configuration is represented differently if you're using the [IConfiguration
 These types are focused on defining serializable configuration. The code based configuration model is described below in the "Code Configuration" section.
 
 ### HttpClient
-HTTP client configuration is based on [HttpClientConfig](xref:Yarp.ReverseProxy.Configuration.HttpClientConfig) and represented by the following configuration schema.
+HTTP client configuration is based on [HttpClientConfig](xref:Yarp.ReverseProxy.Configuration.HttpClientConfig) and represented by the following configuration schema. If you need a more granular approach, please use a [custom implementation](https://microsoft.github.io/reverse-proxy/articles/http-client-config.html#custom-iforwarderhttpclientfactory) of `IForwarderHttpClientFactory`.
 ```JSON
 "HttpClient": {
     "SslProtocols": [ "<protocol-names>" ],
@@ -52,21 +52,6 @@ Configuration settings:
 - ResponseHeaderEncoding - enables other than ASCII encoding for incoming response headers (from requests that the proxy would forward out). Setting this value will leverage [`SocketsHttpHandler.ResponseHeaderEncodingSelector`](https://docs.microsoft.com/dotnet/api/system.net.http.socketshttphandler.responseheaderencodingselector) and use the selected encoding for all headers. The value is then parsed by [`Encoding.GetEncoding`](https://docs.microsoft.com/dotnet/api/system.text.encoding.getencoding#System_Text_Encoding_GetEncoding_System_String_), use values like: "utf-8", "iso-8859-1", etc.
 ```JSON
 "ResponseHeaderEncoding": "utf-8"
-```
-If you need more granular approach, please use custom `IForwarderHttpClientFactory`. However, if you're using an encoding other than ASCII (or UTF-8 for Kestrel) you also need to set your server to accept requests and/or send responses with such headers. For example, use [`KestrelServerOptions.RequestHeaderEncodingSelector`](https://docs.microsoft.com/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.RequestHeaderEncodingSelector) / [`.ResponseHeaderEncodingSelector`](https://docs.microsoft.com/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.ResponseHeaderEncodingSelector) to set up Kestrel to accept Latin1 ("iso-8859-1") headers:
-```C#
-private static IHostBuilder CreateHostBuilder(string[] args) =>
-    Host.CreateDefaultBuilder(args)
-        .ConfigureWebHostDefaults(webBuilder =>
-        {
-            webBuilder.UseStartup<Startup>()
-                      .ConfigureKestrel(kestrel =>
-                      {
-                          kestrel.RequestHeaderEncodingSelector = _ => Encoding.Latin1;
-                          // and/or
-                          kestrel.ResponseHeaderEncodingSelector = _ => Encoding.Latin1;
-                      });
-        });
 ```
 - EnableMultipleHttp2Connections - enables opening additional HTTP/2 connections to the same server when the maximum number of concurrent streams is reached on all existing connections. The default is `true`. See [SocketsHttpHandler.EnableMultipleHttp2Connections](https://docs.microsoft.com/dotnet/api/system.net.http.socketshttphandler.enablemultiplehttp2connections)
 ```JSON
