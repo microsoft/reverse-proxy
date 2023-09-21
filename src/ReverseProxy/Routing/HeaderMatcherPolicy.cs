@@ -70,30 +70,59 @@ internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPoli
 
             foreach (var matcher in matchers)
             {
-                if (headers.TryGetValue(matcher.Name, out var requestHeaderValues)
-                    && !StringValues.IsNullOrEmpty(requestHeaderValues))
-                {
-                    if (matcher.Mode is HeaderMatchMode.Exists)
-                    {
-                        continue;
-                    }
+                var keyExists = headers.TryGetValue(matcher.Name, out var requestHeaderValues);
+                var valueIsEmpty = StringValues.IsNullOrEmpty(requestHeaderValues);
 
-                    if (matcher.Mode is HeaderMatchMode.ExactHeader or HeaderMatchMode.HeaderPrefix)
-                    {
-                        if (TryMatchExactOrPrefix(matcher, requestHeaderValues))
+                var matched = false;
+                switch(matcher.Mode)
+                {
+                    case HeaderMatchMode.Exists:
+                        if (keyExists && !valueIsEmpty)
                         {
-                            continue;
+                            matched = true;
                         }
-                    }
-                    else if (matcher.Mode is HeaderMatchMode.Contains or HeaderMatchMode.NotContains)
-                    {
-                        if (TryMatchContainsOrNotContains(matcher, requestHeaderValues))
+                        break;
+                    case HeaderMatchMode.NotExists:
+                        if (!keyExists || valueIsEmpty)
                         {
-                            continue;
+                            matched = true;
                         }
-                    }
+                        break;
+                    case HeaderMatchMode.ExactHeader:
+                        if (keyExists && !valueIsEmpty)
+                        {
+                            matched = TryMatchExactOrPrefix(matcher, requestHeaderValues);
+                        }
+                        break;
+                    case HeaderMatchMode.HeaderPrefix:
+                        if (keyExists && !valueIsEmpty)
+                        {
+                            matched = TryMatchExactOrPrefix(matcher, requestHeaderValues);
+                        }
+                        break;
+                    case HeaderMatchMode.Contains:
+                        if (keyExists && !valueIsEmpty)
+                        {
+                            matched = TryMatchContainsOrNotContains(matcher, requestHeaderValues);
+                        }
+                        break;
+                    case HeaderMatchMode.NotContains:
+                        if (keyExists && !valueIsEmpty)
+                        {
+                            matched = TryMatchContainsOrNotContains(matcher, requestHeaderValues);
+                        }
+                        else
+                        {
+                            matched = true;
+                        }
+
+                        break;
+                    default:
+                        matched = false;
+                        break;
                 }
-                else if (matcher.Mode is HeaderMatchMode.NotExists or HeaderMatchMode.NotContains)
+
+                if (matched)
                 {
                     continue;
                 }
