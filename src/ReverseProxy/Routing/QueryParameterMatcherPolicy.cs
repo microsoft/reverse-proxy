@@ -69,8 +69,8 @@ internal sealed class QueryParameterMatcherPolicy : MatcherPolicy, IEndpointComp
 
             foreach (var matcher in matchers)
             {
-                if (query.TryGetValue(matcher.Name, out var requestQueryParameterValues) &&
-                    !StringValues.IsNullOrEmpty(requestQueryParameterValues))
+                if (query.TryGetValue(matcher.Name, out var requestQueryParameterValues)
+                    && !StringValues.IsNullOrEmpty(requestQueryParameterValues))
                 {
                     if (matcher.Mode is QueryParameterMatchMode.Exists)
                     {
@@ -81,6 +81,10 @@ internal sealed class QueryParameterMatcherPolicy : MatcherPolicy, IEndpointComp
                     {
                         continue;
                     }
+                }
+                else if (matcher.Mode is QueryParameterMatchMode.NotContains)
+                {
+                    continue;
                 }
 
                 candidates.SetValidity(i, false);
