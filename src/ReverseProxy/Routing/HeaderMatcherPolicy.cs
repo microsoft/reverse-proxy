@@ -70,28 +70,30 @@ internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPoli
 
             foreach (var matcher in matchers)
             {
-                var headerExistsInRequest = headers.TryGetValue(matcher.Name, out var requestHeaderValues);
-                if (headerExistsInRequest && !StringValues.IsNullOrEmpty(requestHeaderValues))
+                if (headers.TryGetValue(matcher.Name, out var requestHeaderValues)
+                    && !StringValues.IsNullOrEmpty(requestHeaderValues))
                 {
                     if (matcher.Mode is HeaderMatchMode.Exists)
                     {
                         continue;
                     }
 
-                    if (matcher.Mode is HeaderMatchMode.NotExists)
+                    if (matcher.Mode is HeaderMatchMode.ExactHeader or HeaderMatchMode.HeaderPrefix)
                     {
-                        candidates.SetValidity(i, false);
-                        break;
+                        if (TryMatchExactOrPrefix(matcher, requestHeaderValues))
+                        {
+                            continue;
+                        }
                     }
-
-                    if (matcher.Mode is HeaderMatchMode.ExactHeader or HeaderMatchMode.HeaderPrefix
-                        ? TryMatchExactOrPrefix(matcher, requestHeaderValues)
-                        : TryMatchContainsOrNotContains(matcher, requestHeaderValues))
+                    else if (matcher.Mode is HeaderMatchMode.Contains or HeaderMatchMode.NotContains)
                     {
-                        continue;
+                        if (TryMatchContainsOrNotContains(matcher, requestHeaderValues))
+                        {
+                            continue;
+                        }
                     }
                 }
-                else if (matcher.Mode is HeaderMatchMode.NotExists && !headerExistsInRequest)
+                else if (matcher.Mode is HeaderMatchMode.NotExists or HeaderMatchMode.NotContains)
                 {
                     continue;
                 }
