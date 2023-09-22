@@ -2,7 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Net.Http;
 using System.Security.Authentication;
+using System.Text;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.ReverseProxy.Configuration;
 
@@ -10,7 +14,7 @@ namespace Yarp.ReverseProxy.Configuration;
 /// Options used for communicating with the destination servers.
 /// </summary>
 /// <remarks>
-/// If you need a more granular approach, please use a <see href="https://microsoft.github.io/reverse-proxy/articles/http-client-config.html#custom-iforwarderhttpclientfactory">custom implementation of <c>IForwarderHttpClientFactory</c></see>.
+/// If you need a more granular approach, please use a <see href="https://microsoft.github.io/reverse-proxy/articles/http-client-config.html#custom-iforwarderhttpclientfactory">custom implementation of <see cref="IForwarderHttpClientFactory"/></see>.
 /// </remarks>
 public sealed record HttpClientConfig
 {
@@ -50,13 +54,15 @@ public sealed record HttpClientConfig
     /// <summary>
     /// Allows overriding the default (ASCII) encoding for outgoing request headers.
     /// <para>
-    /// Setting this value will in turn set <see href="https://docs.microsoft.com/dotnet/api/system.net.http.socketshttphandler.requestheaderencodingselector">SocketsHttpHandler.RequestHeaderEncodingSelector</see> and use the selected encoding for all request headers. The value is then parsed by <see href="https://learn.microsoft.com/en-us/dotnet/api/system.text.encoding.getencoding#system-text-encoding-getencoding(system-string)">Encoding.GetEncoding</see>, so use values like: "utf-8", "iso-8859-1", etc.
+    /// Setting this value will in turn set <see cref="SocketsHttpHandler.RequestHeaderEncodingSelector"/> and use the selected encoding for all request headers.
+    /// The value is then parsed by <see cref="Encoding.GetEncoding(string)"/>, so use values like: "utf-8", "iso-8859-1", etc.
     /// </para>
     /// </summary>
     /// <remarks>
     /// Note: If you're using an encoding other than UTF-8 here, then you may also need to configure your server to accept request headers with such an encoding via the corresponding options for the server.
     /// <para>
-    /// For example, when using Kestrel as the server, use <see href="https://docs.microsoft.com/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.RequestHeaderEncodingSelector">KestrelServerOptions.RequestHeaderEncodingSelector</see> to <see href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/options">configure Kestrel</see> to use the same encoding.
+    /// For example, when using Kestrel as the server, use <see cref="KestrelServerOptions.RequestHeaderEncodingSelector"/> to
+    /// <see href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/options">configure Kestrel</see> to use the same encoding.
     /// </para>
     /// </remarks>
     public string? RequestHeaderEncoding { get; init; }
@@ -64,13 +70,15 @@ public sealed record HttpClientConfig
     /// <summary>
     /// Allows overriding the default (Latin1) encoding for incoming request headers.
     /// <para>
-    /// Setting this value will in turn set <see href="https://docs.microsoft.com/dotnet/api/system.net.http.socketshttphandler.responseheaderencodingselector">SocketsHttpHandler.ResponseHeaderEncodingSelector</see> and use the selected encoding for all response headers. The value is then parsed by <see href="https://learn.microsoft.com/en-us/dotnet/api/system.text.encoding.getencoding#system-text-encoding-getencoding(system-string)">Encoding.GetEncoding</see>, so use values like: "utf-8", "iso-8859-1", etc.
+    /// Setting this value will in turn set <see cref="SocketsHttpHandler.ResponseHeaderEncodingSelector"/> and use the selected encoding for all response headers.
+    /// The value is then parsed by <see cref="Encoding.GetEncoding(string)"/>, so use values like: "utf-8", "iso-8859-1", etc.
     /// </para>
     /// </summary>
     /// <remarks>
     /// Note: If you're using an encoding other than ASCII here, then you may also need to configure your server to send response headers with such an encoding via the corresponding options for the server.
     /// <para>
-    /// For example, when using Kestrel as the server, use <see href="https://docs.microsoft.com/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.RequestHeaderEncodingSelector">KestrelServerOptions.RequestHeaderEncodingSelector</see> to <see href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/options">configure Kestrel</see> to use the same encoding.
+    /// For example, when using Kestrel as the server, use <see cref="KestrelServerOptions.ResponseHeaderEncodingSelector"/> to
+    /// <see href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/options">configure Kestrel</see> to use the same encoding.
     /// </para>
     /// </remarks>
     public string? ResponseHeaderEncoding { get; init; }
