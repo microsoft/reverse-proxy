@@ -48,7 +48,7 @@ public sealed record HttpClientConfig
     public bool? EnableMultipleHttp2Connections { get; init; }
 
     /// <summary>
-    /// Allows overriding the default encoding for outgoing request headers.
+    /// Allows overriding the default (ASCII) encoding for outgoing request headers.
     /// <para>
     /// Setting this value will in turn set <see href="https://docs.microsoft.com/dotnet/api/system.net.http.socketshttphandler.requestheaderencodingselector">SocketsHttpHandler.RequestHeaderEncodingSelector</see> and use the selected encoding for all request headers. The value is then parsed by <see href="https://learn.microsoft.com/en-us/dotnet/api/system.text.encoding.getencoding#system-text-encoding-getencoding(system-string)">Encoding.GetEncoding</see>, so use values like: "utf-8", "iso-8859-1", etc.
     /// </para>
@@ -62,7 +62,7 @@ public sealed record HttpClientConfig
     public string? RequestHeaderEncoding { get; init; }
 
     /// <summary>
-    /// Allows overriding the default encoding for incoming request headers.
+    /// Allows overriding the default (ASCII) encoding for incoming request headers.
     /// <para>
     /// Setting this value will in turn set <see href="https://docs.microsoft.com/dotnet/api/system.net.http.socketshttphandler.responseheaderencodingselector">SocketsHttpHandler.ResponseHeaderEncodingSelector</see> and use the selected encoding for all response headers. The value is then parsed by <see href="https://learn.microsoft.com/en-us/dotnet/api/system.text.encoding.getencoding#system-text-encoding-getencoding(system-string)">Encoding.GetEncoding</see>, so use values like: "utf-8", "iso-8859-1", etc.
     /// </para>

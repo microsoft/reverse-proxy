@@ -53,6 +53,21 @@ Configuration settings:
 ```JSON
 "ResponseHeaderEncoding": "utf-8"
 ```
+Note that if you're using an encoding other than ASCII, you also need to set your server to accept-requests and/or send-responses with such headers. For example, when using Kestrel as server, use [`KestrelServerOptions.RequestHeaderEncodingSelector`](https://docs.microsoft.com/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.RequestHeaderEncodingSelector) / [`.ResponseHeaderEncodingSelector`](https://docs.microsoft.com/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.ResponseHeaderEncodingSelector) to configure Kestrel to allow `Latin1` ("`iso-8859-1`") headers:
+```C#
+private static IHostBuilder CreateHostBuilder(string[] args) =>
+    Host.CreateDefaultBuilder(args)
+        .ConfigureWebHostDefaults(webBuilder =>
+        {
+            webBuilder.UseStartup<Startup>()
+                      .ConfigureKestrel(kestrel =>
+                      {
+                          kestrel.RequestHeaderEncodingSelector = _ => Encoding.Latin1;
+                          // and/or
+                          kestrel.ResponseHeaderEncodingSelector = _ => Encoding.Latin1;
+                      });
+        });
+```
 - EnableMultipleHttp2Connections - enables opening additional HTTP/2 connections to the same server when the maximum number of concurrent streams is reached on all existing connections. The default is `true`. See [SocketsHttpHandler.EnableMultipleHttp2Connections](https://docs.microsoft.com/dotnet/api/system.net.http.socketshttphandler.enablemultiplehttp2connections)
 ```JSON
 "EnableMultipleHttp2Connections": false
