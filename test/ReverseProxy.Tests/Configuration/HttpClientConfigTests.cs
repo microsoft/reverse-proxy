@@ -20,6 +20,7 @@ public class HttpClientConfigTests
             MaxConnectionsPerServer = 20,
             WebProxy = new WebProxyConfig() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true },
             RequestHeaderEncoding = Encoding.UTF8.WebName,
+            ResponseHeaderEncoding = Encoding.UTF8.WebName,
         };
 
         var options2 = new HttpClientConfig
@@ -29,6 +30,7 @@ public class HttpClientConfigTests
             MaxConnectionsPerServer = 20,
             WebProxy = new WebProxyConfig() { Address = new Uri("http://localhost:8080"), BypassOnLocal = true, UseDefaultCredentials = true },
             RequestHeaderEncoding = Encoding.UTF8.WebName,
+            ResponseHeaderEncoding = Encoding.UTF8.WebName,
         };
 
         var equals = options1.Equals(options2);

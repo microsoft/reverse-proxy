@@ -806,6 +806,7 @@ public class ProxyConfigManagerTests
                 SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                 MaxConnectionsPerServer = 10,
                 RequestHeaderEncoding = Encoding.UTF8.WebName,
+                ResponseHeaderEncoding = Encoding.UTF8.WebName,
             },
             HealthCheck = new HealthCheckConfig
             {
@@ -834,6 +835,7 @@ public class ProxyConfigManagerTests
         Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, clusterModel.Config.HttpClient.SslProtocols);
         Assert.Equal(10, clusterModel.Config.HttpClient.MaxConnectionsPerServer);
         Assert.Equal(Encoding.UTF8.WebName, clusterModel.Config.HttpClient.RequestHeaderEncoding);
+        Assert.Equal(Encoding.UTF8.WebName, clusterModel.Config.HttpClient.ResponseHeaderEncoding);
 
         var handler = ForwarderHttpClientFactoryTests.GetHandler(clusterModel.HttpClient);
         Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, handler.SslOptions.EnabledSslProtocols);
