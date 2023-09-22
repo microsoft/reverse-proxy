@@ -53,7 +53,7 @@ Configuration settings:
 ```JSON
 "ResponseHeaderEncoding": "utf-8"
 ```
-Note that if you're using an encoding other than ASCII, you also need to set your server to accept-requests and/or send-responses with such headers. For example, when using Kestrel as server, use [`KestrelServerOptions.RequestHeaderEncodingSelector`](https://docs.microsoft.com/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.RequestHeaderEncodingSelector) / [`.ResponseHeaderEncodingSelector`](https://docs.microsoft.com/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.ResponseHeaderEncodingSelector) to configure Kestrel to allow `Latin1` ("`iso-8859-1`") headers:
+Note that if you're using an encoding other than ASCII, you also need to set your server to accept requests and/or send responses with such headers. For example, when using Kestrel as the server, use [`KestrelServerOptions.RequestHeaderEncodingSelector`](https://docs.microsoft.com/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.RequestHeaderEncodingSelector) / [`.ResponseHeaderEncodingSelector`](https://docs.microsoft.com/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.ResponseHeaderEncodingSelector) to configure Kestrel to allow `Latin1` ("`iso-8859-1`") headers:
 ```C#
 private static IHostBuilder CreateHostBuilder(string[] args) =>
     Host.CreateDefaultBuilder(args)
