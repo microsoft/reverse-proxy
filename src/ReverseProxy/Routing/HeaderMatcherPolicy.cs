@@ -89,11 +89,6 @@ internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPoli
                         }
                         break;
                     case HeaderMatchMode.ExactHeader:
-                        if (keyExists && !valueIsEmpty)
-                        {
-                            matched = TryMatchExactOrPrefix(matcher, requestHeaderValues);
-                        }
-                        break;
                     case HeaderMatchMode.HeaderPrefix:
                         if (keyExists && !valueIsEmpty)
                         {

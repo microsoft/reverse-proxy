@@ -69,20 +69,42 @@ internal sealed class QueryParameterMatcherPolicy : MatcherPolicy, IEndpointComp
 
             foreach (var matcher in matchers)
             {
-                if (query.TryGetValue(matcher.Name, out var requestQueryParameterValues)
-                    && !StringValues.IsNullOrEmpty(requestQueryParameterValues))
-                {
-                    if (matcher.Mode is QueryParameterMatchMode.Exists)
-                    {
-                        continue;
-                    }
+                var keyExists = query.TryGetValue(matcher.Name, out var requestQueryParameterValues);
+                var valueIsEmpty = StringValues.IsNullOrEmpty(requestQueryParameterValues);
 
-                    if (TryMatch(matcher, requestQueryParameterValues))
-                    {
-                        continue;
-                    }
+                var matched = false;
+                switch (matcher.Mode)
+                {
+                    case QueryParameterMatchMode.Exists:
+                        if (keyExists && !valueIsEmpty)
+                        {
+                            matched = true;
+                        }
+                        break;
+                    case QueryParameterMatchMode.Exact:
+                    case QueryParameterMatchMode.Prefix:
+                    case QueryParameterMatchMode.Contains:
+                        if (keyExists && !valueIsEmpty)
+                        {
+                            matched = TryMatch(matcher, requestQueryParameterValues);
+                        }
+                        break;
+                    case QueryParameterMatchMode.NotContains:
+                        if (keyExists && !valueIsEmpty)
+                        {
+                            matched = TryMatch(matcher, requestQueryParameterValues);
+                        }
+                        else
+                        {
+                            matched = true;
+                        }
+                        break;
+                    default:
+                        matched = false;
+                        break;
                 }
-                else if (matcher.Mode is QueryParameterMatchMode.NotContains)
+
+                if (matched)
                 {
                     continue;
                 }
