@@ -394,12 +394,6 @@ public class QueryParameterMatcherPolicyTests
         Assert.Equal(shouldMatch, candidates.IsValidCandidate(0));
     }
 
-    /// <summary>
-    /// Test each match mode where the matched query param is non-existent in the request querystring.
-    /// </summary>
-    /// <param name="queryParamValueMatchMode">Match mode.</param>
-    /// <param name="isCaseSensitive">Test case sensitivity</param>
-    /// <param name="shouldMatch">Expected match result.</param>
     [Theory]
     [InlineData(QueryParameterMatchMode.NotContains, true, true)]
     [InlineData(QueryParameterMatchMode.NotContains, false, true)]

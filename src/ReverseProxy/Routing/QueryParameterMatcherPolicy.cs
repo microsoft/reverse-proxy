@@ -69,48 +69,24 @@ internal sealed class QueryParameterMatcherPolicy : MatcherPolicy, IEndpointComp
 
             foreach (var matcher in matchers)
             {
-                var keyExists = query.TryGetValue(matcher.Name, out var requestQueryParameterValues);
+                query.TryGetValue(matcher.Name, out var requestQueryParameterValues);
                 var valueIsEmpty = StringValues.IsNullOrEmpty(requestQueryParameterValues);
 
-                var matched = false;
-                switch (matcher.Mode)
+                var matched = matcher.Mode switch
                 {
-                    case QueryParameterMatchMode.Exists:
-                        if (keyExists && !valueIsEmpty)
-                        {
-                            matched = true;
-                        }
-                        break;
-                    case QueryParameterMatchMode.Exact:
-                    case QueryParameterMatchMode.Prefix:
-                    case QueryParameterMatchMode.Contains:
-                        if (keyExists && !valueIsEmpty)
-                        {
-                            matched = TryMatch(matcher, requestQueryParameterValues);
-                        }
-                        break;
-                    case QueryParameterMatchMode.NotContains:
-                        if (keyExists && !valueIsEmpty)
-                        {
-                            matched = TryMatch(matcher, requestQueryParameterValues);
-                        }
-                        else
-                        {
-                            matched = true;
-                        }
-                        break;
-                    default:
-                        matched = false;
-                        break;
-                }
+                    QueryParameterMatchMode.Exists => !valueIsEmpty,
+                    QueryParameterMatchMode.Exact => !valueIsEmpty && TryMatch(matcher, requestQueryParameterValues),
+                    QueryParameterMatchMode.Prefix => !valueIsEmpty && TryMatch(matcher, requestQueryParameterValues),
+                    QueryParameterMatchMode.Contains => !valueIsEmpty && TryMatch(matcher, requestQueryParameterValues),
+                    QueryParameterMatchMode.NotContains => valueIsEmpty || TryMatch(matcher, requestQueryParameterValues),
+                    _ => false
+                };
 
-                if (matched)
+                if (!matched)
                 {
-                    continue;
+                    candidates.SetValidity(i, false);
+                    break;
                 }
-
-                candidates.SetValidity(i, false);
-                break;
             }
         }
 
