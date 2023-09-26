@@ -83,7 +83,7 @@ internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPoli
                         }
                         break;
                     case HeaderMatchMode.NotExists:
-                        if (!keyExists || valueIsEmpty)
+                        if (!keyExists)
                         {
                             matched = true;
                         }
