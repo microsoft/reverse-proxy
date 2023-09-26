@@ -70,34 +70,25 @@ internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPoli
 
             foreach (var matcher in matchers)
             {
-                var headerExistsInRequest = headers.TryGetValue(matcher.Name, out var requestHeaderValues);
-                if (headerExistsInRequest && !StringValues.IsNullOrEmpty(requestHeaderValues))
+                var headerExists = headers.TryGetValue(matcher.Name, out var requestHeaderValues);
+                var valueIsEmpty = StringValues.IsNullOrEmpty(requestHeaderValues);
+
+                var matched = matcher.Mode switch
                 {
-                    if (matcher.Mode is HeaderMatchMode.Exists)
-                    {
-                        continue;
-                    }
+                    HeaderMatchMode.Exists => !valueIsEmpty,
+                    HeaderMatchMode.NotExists => !headerExists,
+                    HeaderMatchMode.ExactHeader => !valueIsEmpty && TryMatchExactOrPrefix(matcher, requestHeaderValues),
+                    HeaderMatchMode.HeaderPrefix => !valueIsEmpty && TryMatchExactOrPrefix(matcher, requestHeaderValues),
+                    HeaderMatchMode.Contains => !valueIsEmpty && TryMatchContainsOrNotContains(matcher, requestHeaderValues),
+                    HeaderMatchMode.NotContains => valueIsEmpty || TryMatchContainsOrNotContains(matcher, requestHeaderValues),
+                    _ => false
+                };
 
-                    if (matcher.Mode is HeaderMatchMode.NotExists)
-                    {
-                        candidates.SetValidity(i, false);
-                        break;
-                    }
-
-                    if (matcher.Mode is HeaderMatchMode.ExactHeader or HeaderMatchMode.HeaderPrefix
-                        ? TryMatchExactOrPrefix(matcher, requestHeaderValues)
-                        : TryMatchContainsOrNotContains(matcher, requestHeaderValues))
-                    {
-                        continue;
-                    }
-                }
-                else if (matcher.Mode is HeaderMatchMode.NotExists && !headerExistsInRequest)
+                if (!matched)
                 {
-                    continue;
+                    candidates.SetValidity(i, false);
+                    break;
                 }
-
-                candidates.SetValidity(i, false);
-                break;
             }
         }
 

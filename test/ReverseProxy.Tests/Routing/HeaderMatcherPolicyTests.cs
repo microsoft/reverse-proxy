@@ -276,12 +276,14 @@ public class HeaderMatcherPolicyTests
     [InlineData("abc", HeaderMatchMode.Contains, false, "abc\"", true)]
     [InlineData("abc", HeaderMatchMode.Contains, false, "\"abc\"", true)]
     [InlineData("abc", HeaderMatchMode.Contains, false, "ab\"c", false)]
-    [InlineData("abc", HeaderMatchMode.NotContains, false, "", false)]
+    [InlineData("abc", HeaderMatchMode.NotContains, false, null, true)]
+    [InlineData("abc", HeaderMatchMode.NotContains, false, "", true)]
     [InlineData("abc", HeaderMatchMode.NotContains, false, "ababc", false)]
     [InlineData("abc", HeaderMatchMode.NotContains, false, "zaBCz", false)]
     [InlineData("abc", HeaderMatchMode.NotContains, false, "dcbaabcd", false)]
     [InlineData("abc", HeaderMatchMode.NotContains, false, "ababab", true)]
-    [InlineData("abc", HeaderMatchMode.NotContains, true, "", false)]
+    [InlineData("abc", HeaderMatchMode.NotContains, true, null, true)]
+    [InlineData("abc", HeaderMatchMode.NotContains, true, "", true)]
     [InlineData("abc", HeaderMatchMode.NotContains, true, "abcc", false)]
     [InlineData("abc", HeaderMatchMode.NotContains, true, "aaaBC", true)]
     [InlineData("abc", HeaderMatchMode.NotContains, true, "bbabcdb", false)]
@@ -412,16 +414,16 @@ public class HeaderMatcherPolicyTests
     [InlineData("abc", "def", HeaderMatchMode.Contains, true, "\"abc, def\"", true)]
     [InlineData("abc", "def", HeaderMatchMode.Contains, true, "\"abc\", def\"", true)]
     [InlineData("abc", "def", HeaderMatchMode.Contains, true, "ab\"cde\"f", false)]
-    [InlineData("abc", "def", HeaderMatchMode.NotContains, false, null, false)]
-    [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "", false)]
+    [InlineData("abc", "def", HeaderMatchMode.NotContains, false, null, true)]
+    [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "", true)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "aabc", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "baBc", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "ababcd", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "dcabcD", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "def", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "ghi", true)]
-    [InlineData("abc", "def", HeaderMatchMode.NotContains, true, null, false)]
-    [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "", false)]
+    [InlineData("abc", "def", HeaderMatchMode.NotContains, true, null, true)]
+    [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "", true)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "cabca", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "aBCa", true)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "CaBCdd", true)]
@@ -453,6 +455,42 @@ public class HeaderMatcherPolicyTests
 
         var endpoint = CreateEndpoint("org-id", new[] { header1Value, header2Value }, headerValueMatchMode, isCaseSensitive);
 
+        var candidates = new CandidateSet(new[] { endpoint }, new RouteValueDictionary[1], new int[1]);
+        var sut = new HeaderMatcherPolicy();
+
+        await sut.ApplyAsync(context, candidates);
+
+        Assert.Equal(shouldMatch, candidates.IsValidCandidate(0));
+    }
+
+    [Theory]
+    [InlineData(HeaderMatchMode.Contains, true, false)]
+    [InlineData(HeaderMatchMode.Contains, false, false)]
+    [InlineData(HeaderMatchMode.NotContains, true, true)]
+    [InlineData(HeaderMatchMode.NotContains, false, true)]
+    [InlineData(HeaderMatchMode.HeaderPrefix, true, false)]
+    [InlineData(HeaderMatchMode.HeaderPrefix, false, false)]
+    [InlineData(HeaderMatchMode.ExactHeader, true, false)]
+    [InlineData(HeaderMatchMode.ExactHeader, false, false)]
+    [InlineData(HeaderMatchMode.NotExists, true, true)]
+    [InlineData(HeaderMatchMode.NotExists, false, true)]
+    [InlineData(HeaderMatchMode.Exists, true, false)]
+    [InlineData(HeaderMatchMode.Exists, false, false)]
+    public async Task ApplyAsync_MatchingScenarios_MissingHeader(
+        HeaderMatchMode headerValueMatchMode,
+        bool isCaseSensitive,
+        bool shouldMatch)
+    {
+        var context = new DefaultHttpContext();
+
+        var headerValues = new[] { "bar" };
+        if (headerValueMatchMode == HeaderMatchMode.Exists
+            || headerValueMatchMode == HeaderMatchMode.NotExists)
+        {
+            headerValues = null;
+        }
+
+        var endpoint = CreateEndpoint("foo", headerValues, headerValueMatchMode, isCaseSensitive);
         var candidates = new CandidateSet(new[] { endpoint }, new RouteValueDictionary[1], new int[1]);
         var sut = new HeaderMatcherPolicy();
 
