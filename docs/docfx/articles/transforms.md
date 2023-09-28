@@ -459,6 +459,44 @@ MyHeader: MyValue
 This sets or appends the value for the named header. Set replaces any existing header. Append adds an additional header with the given value.
 Note: setting "" as a header value is not recommended and can cause an undefined behavior.
 
+### RequestHeaderFromRoute
+
+**Adds or replaces a header with a value from the route configuration**
+
+| Key | Value | Required |
+|-----|-------|----------|
+| RequestHeader | Name of a query string parameter | yes |
+| Set/Append | The name of a route value | yes |
+
+Config:
+```JSON
+{
+  "RequestHeaderFromRoute": "foo",
+  "Set": "remainder"
+}
+```
+Code:
+```csharp
+routeConfig = routeConfig.WithTransformRequestHeaderFromRoute(headerName: "MyHeader", routeValueKey: "key", append: false);
+```
+```C#
+transformBuilderContext.AddRequestHeaderFromRoute(headerName: "MyHeader", routeValueKey: "key", append: false);
+```
+
+Example:
+
+| Step | Value               |
+|------|---------------------|
+| Route definition | `/api/{*remainder}` |
+| Request path | `/api/more/stuff`   |
+| Remainder value | `more/stuff`        |
+| RequestHeaderFromRoute | `foo`               |
+| Append | `remainder`         |
+| Result | `foo: more/stuff`   |
+
+This sets or appends the value for the named header with a value from the route configuration. Set replaces any existing header. Append adds an additional header with the given value.
+Note: setting "" as a header value is not recommended and can cause an undefined behavior.
+
 ### RequestHeaderRemove
 
 **Removes request headers**
