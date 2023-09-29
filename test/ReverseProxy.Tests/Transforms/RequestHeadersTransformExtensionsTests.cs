@@ -146,7 +146,7 @@ public class RequestHeadersTransformExtensionsTests : TransformExtentionsTestsBa
         var requestHeaderFromRouteTransform = Assert.IsType<RequestHeaderFromRouteTransform>(requestTransform);
         Assert.Equal("key", requestHeaderFromRouteTransform.HeaderName);
         Assert.Equal("value", requestHeaderFromRouteTransform.RouteValueKey);
-        var expectedMode = append ? RequestHeaderTransformMode.Append : RequestHeaderTransformMode.Set;
-        Assert.Equal(expectedMode, requestHeaderFromRouteTransform.Mode);
+        var expectedMode = append;
+        Assert.Equal(expectedMode, requestHeaderFromRouteTransform.Append);
     }
 }

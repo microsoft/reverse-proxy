@@ -4,8 +4,8 @@ namespace Yarp.ReverseProxy.Transforms;
 
 public class RequestHeaderFromRouteTransform : RequestHeaderTransform
 {
-    public RequestHeaderFromRouteTransform(RequestHeaderTransformMode mode, string headerName, string routeValueKey)
-        : base(mode, headerName)
+    public RequestHeaderFromRouteTransform(string headerName, string routeValueKey, bool append)
+        : base(headerName, append)
     {
         if (string.IsNullOrEmpty(headerName))
         {

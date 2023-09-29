@@ -96,16 +96,16 @@ internal sealed class RequestHeadersTransformFactory : ITransformFactory
                 throw new ArgumentException($"Unexpected parameters for RequestHeader: {string.Join(';', transformValues.Keys)}. Expected 'Set' or 'Append'");
             }
         }
-        else if (transformValues.TryGetValue(RequestHeaderFromRouteKey, out var requestHeaderFromRoute))
+        else if (transformValues.TryGetValue(RequestHeaderFromRouteKey, out var headerNameFromRoute))
         {
             TransformHelpers.CheckTooManyParameters(transformValues, expected: 2);
             if (transformValues.TryGetValue(AppendKey, out var routeValueKeyAppend))
             {
-                context.AddRequestHeaderFromRoute(requestHeaderFromRoute, routeValueKeyAppend, append: true);
+                context.AddRequestHeaderFromRoute(headerNameFromRoute, routeValueKeyAppend, append: true);
             }
             else if (transformValues.TryGetValue(SetKey, out var routeValueKeySet))
             {
-                context.AddRequestHeaderFromRoute(requestHeaderFromRoute, routeValueKeySet, append: false);
+                context.AddRequestHeaderFromRoute(headerNameFromRoute, routeValueKeySet, append: false);
             }
             else
             {

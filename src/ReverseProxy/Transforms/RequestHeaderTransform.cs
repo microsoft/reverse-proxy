@@ -4,26 +4,20 @@ using Microsoft.Extensions.Primitives;
 
 namespace Yarp.ReverseProxy.Transforms;
 
-public enum RequestHeaderTransformMode
-{
-    Append,
-    Set
-}
-
 public abstract class RequestHeaderTransform : RequestTransform
 {
-    protected RequestHeaderTransform(RequestHeaderTransformMode mode, string headerName)
+    protected RequestHeaderTransform(string headerName, bool append)
     {
         if (string.IsNullOrEmpty(headerName))
         {
             throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
         }
 
-        Mode = mode;
+        Append = append;
         HeaderName = headerName;
     }
 
-    internal RequestHeaderTransformMode Mode { get; }
+    internal bool Append { get; }
     internal string HeaderName { get; }
 
     public override ValueTask ApplyAsync(RequestTransformContext context)
@@ -39,19 +33,16 @@ public abstract class RequestHeaderTransform : RequestTransform
             return default;
         }
 
-        switch (Mode)
+        if (Append)
         {
-            case RequestHeaderTransformMode.Append:
-                var existingValues = TakeHeader(context, HeaderName);
-                var newValue = StringValues.Concat(existingValues, value);
-                AddHeader(context, HeaderName, newValue);
-                break;
-            case RequestHeaderTransformMode.Set:
-                RemoveHeader(context, HeaderName);
-                AddHeader(context, HeaderName, value);
-                break;
-            default:
-                throw new NotImplementedException(Mode.ToString());
+            var existingValues = TakeHeader(context, HeaderName);
+            var newValue = StringValues.Concat(existingValues, value);
+            AddHeader(context, HeaderName, newValue);
+        }
+        else
+        {
+            RemoveHeader(context, HeaderName);
+            AddHeader(context, HeaderName, value);
         }
 
         return default;

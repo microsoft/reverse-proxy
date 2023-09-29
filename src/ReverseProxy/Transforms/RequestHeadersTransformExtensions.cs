@@ -96,9 +96,7 @@ public static class RequestHeadersTransformExtensions
     /// </summary>
     public static TransformBuilderContext AddRequestHeaderFromRoute(this TransformBuilderContext context, string headerName, string routeValueKey, bool append = true)
     {
-        context.RequestTransforms.Add(new RequestHeaderFromRouteTransform(
-            append ? RequestHeaderTransformMode.Append : RequestHeaderTransformMode.Set,
-            headerName, routeValueKey));
+        context.RequestTransforms.Add(new RequestHeaderFromRouteTransform(headerName, routeValueKey, append));
         return context;
     }
 
