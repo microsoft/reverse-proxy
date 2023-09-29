@@ -19,16 +19,10 @@ public class RequestHeaderValueTransform : RequestHeaderTransform
             throw new ArgumentException($"'{nameof(headerName)}' cannot be null or empty.", nameof(headerName));
         }
 
-        HeaderName = headerName;
         Value = value ?? throw new ArgumentNullException(nameof(value));
-        Append = append;
     }
 
-    internal string HeaderName { get; }
-
     internal string Value { get; }
-
-    internal bool Append { get; }
 
     /// <inheritdoc/>
     public override ValueTask ApplyAsync(RequestTransformContext context)
