@@ -12,7 +12,7 @@ internal sealed class RequestHeadersTransformFactory : ITransformFactory
     internal static readonly string RequestHeadersCopyKey = "RequestHeadersCopy";
     internal static readonly string RequestHeaderOriginalHostKey = "RequestHeaderOriginalHost";
     internal static readonly string RequestHeaderKey = "RequestHeader";
-    internal static readonly string RequestHeaderFromRouteKey = "RequestHeaderFromRoute";
+    internal static readonly string RequestHeaderRouteValueKey = "RequestHeaderRouteValue";
     internal static readonly string RequestHeaderRemoveKey = "RequestHeaderRemove";
     internal static readonly string RequestHeadersAllowedKey = "RequestHeadersAllowed";
     internal static readonly string AppendKey = "Append";
@@ -44,7 +44,7 @@ internal sealed class RequestHeadersTransformFactory : ITransformFactory
                 context.Errors.Add(new ArgumentException($"Unexpected parameters for RequestHeader: {string.Join(';', transformValues.Keys)}. Expected 'Set' or 'Append'"));
             }
         }
-        else if (transformValues.TryGetValue(RequestHeaderFromRouteKey, out var _))
+        else if (transformValues.TryGetValue(RequestHeaderRouteValueKey, out var _))
         {
             TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 2);
             if (!transformValues.TryGetValue(AppendKey, out _) && !transformValues.TryGetValue(SetKey, out _))
@@ -96,16 +96,16 @@ internal sealed class RequestHeadersTransformFactory : ITransformFactory
                 throw new ArgumentException($"Unexpected parameters for RequestHeader: {string.Join(';', transformValues.Keys)}. Expected 'Set' or 'Append'");
             }
         }
-        else if (transformValues.TryGetValue(RequestHeaderFromRouteKey, out var headerNameFromRoute))
+        else if (transformValues.TryGetValue(RequestHeaderRouteValueKey, out var headerNameFromRoute))
         {
             TransformHelpers.CheckTooManyParameters(transformValues, expected: 2);
             if (transformValues.TryGetValue(AppendKey, out var routeValueKeyAppend))
             {
-                context.AddRequestHeaderFromRoute(headerNameFromRoute, routeValueKeyAppend, append: true);
+                context.AddRequestHeaderRouteValue(headerNameFromRoute, routeValueKeyAppend, append: true);
             }
             else if (transformValues.TryGetValue(SetKey, out var routeValueKeySet))
             {
-                context.AddRequestHeaderFromRoute(headerNameFromRoute, routeValueKeySet, append: false);
+                context.AddRequestHeaderRouteValue(headerNameFromRoute, routeValueKeySet, append: false);
             }
             else
             {

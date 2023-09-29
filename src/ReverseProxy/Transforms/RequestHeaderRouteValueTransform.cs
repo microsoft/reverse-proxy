@@ -2,9 +2,9 @@ using System;
 
 namespace Yarp.ReverseProxy.Transforms;
 
-public class RequestHeaderFromRouteTransform : RequestHeaderTransform
+public class RequestHeaderRouteValueTransform : RequestHeaderTransform
 {
-    public RequestHeaderFromRouteTransform(string headerName, string routeValueKey, bool append)
+    public RequestHeaderRouteValueTransform(string headerName, string routeValueKey, bool append)
         : base(headerName, append)
     {
         if (string.IsNullOrEmpty(headerName))

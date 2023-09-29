@@ -9,7 +9,7 @@ using Yarp.ReverseProxy.Transforms;
 
 namespace Yarp.ReverseProxy.Tests.Transforms;
 
-public class RequestHeaderFromRouteTransformTests
+public class RequestHeaderRouteValueTransformTests
 {
     [Theory]
     [InlineData("defaultHeader","value","/{a}/{b}/{c}", "a", "value;6", true)]
@@ -19,7 +19,7 @@ public class RequestHeaderFromRouteTransformTests
     [InlineData("h1","value","/{a}/{b}/{c}", "a", "6", false)]
     [InlineData("h1","value","/{a}/{b}/{c}", "b", "7", false)]
     [InlineData("h1","value","/{a}/{*remainder}", "remainder", "7/8", false)]
-    public async Task AddsRequestHeaderFromRouteValue_SetHeader(string headerName, string defaultHeaderStartValue, string pattern, string routeValueKey, string expected, bool append)
+    public async Task AddsRequestHeaderRouteValue_SetHeader(string headerName, string defaultHeaderStartValue, string pattern, string routeValueKey, string expected, bool append)
     {
         // Arrange
         const string path = "/6/7/8";
@@ -42,7 +42,7 @@ public class RequestHeaderFromRouteTransformTests
         };
 
         // Act
-        var transform = new RequestHeaderFromRouteTransform(headerName, routeValueKey, append);
+        var transform = new RequestHeaderRouteValueTransform(headerName, routeValueKey, append);
         await transform.ApplyAsync(context);
 
         // Assert

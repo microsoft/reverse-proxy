@@ -49,12 +49,12 @@ public static class RequestHeadersTransformExtensions
     /// <summary>
     /// Clones the route and adds the transform which will append or set the request header.
     /// </summary>
-    public static RouteConfig WithTransformRequestHeaderFromRoute(this RouteConfig route, string headerName, string routeValueKey, bool append = true)
+    public static RouteConfig WithTransformRequestHeaderRouteValue(this RouteConfig route, string headerName, string routeValueKey, bool append = true)
     {
         var type = append ? RequestHeadersTransformFactory.AppendKey : RequestHeadersTransformFactory.SetKey;
         return route.WithTransform(transform =>
         {
-            transform[RequestHeadersTransformFactory.RequestHeaderFromRouteKey] = headerName;
+            transform[RequestHeadersTransformFactory.RequestHeaderRouteValueKey] = headerName;
             transform[type] = routeValueKey;
         });
     }
@@ -94,9 +94,9 @@ public static class RequestHeadersTransformExtensions
     /// <summary>
     /// Adds the transform which will append or set the request header from a route value.
     /// </summary>
-    public static TransformBuilderContext AddRequestHeaderFromRoute(this TransformBuilderContext context, string headerName, string routeValueKey, bool append = true)
+    public static TransformBuilderContext AddRequestHeaderRouteValue(this TransformBuilderContext context, string headerName, string routeValueKey, bool append = true)
     {
-        context.RequestTransforms.Add(new RequestHeaderFromRouteTransform(headerName, routeValueKey, append));
+        context.RequestTransforms.Add(new RequestHeaderRouteValueTransform(headerName, routeValueKey, append));
         return context;
     }
 

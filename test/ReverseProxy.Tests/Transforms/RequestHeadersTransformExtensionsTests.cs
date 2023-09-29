@@ -57,10 +57,10 @@ public class RequestHeadersTransformExtensionsTests : TransformExtentionsTestsBa
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public void WithTransformRequestHeaderFromRoute(bool append)
+    public void WithTransformRequestHeaderRouteValue(bool append)
     {
         var routeConfig = new RouteConfig();
-        routeConfig = routeConfig.WithTransformRequestHeaderFromRoute("key", "value", append);
+        routeConfig = routeConfig.WithTransformRequestHeaderRouteValue("key", "value", append);
 
         var builderContext = ValidateAndBuild(routeConfig, _factory);
 
@@ -81,10 +81,10 @@ public class RequestHeadersTransformExtensionsTests : TransformExtentionsTestsBa
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public void AddRequestHeaderFromRouteValue(bool append)
+    public void AddRequestHeaderRouteValue(bool append)
     {
         var builderContext = CreateBuilderContext();
-        builderContext.AddRequestHeaderFromRoute("key", "value", append);
+        builderContext.AddRequestHeaderRouteValue("key", "value", append);
 
         ValidateHeaderRouteParameter(append, builderContext);
     }
@@ -143,7 +143,7 @@ public class RequestHeadersTransformExtensionsTests : TransformExtentionsTestsBa
     private static void ValidateHeaderRouteParameter(bool append, TransformBuilderContext builderContext)
     {
         var requestTransform = Assert.Single(builderContext.RequestTransforms);
-        var requestHeaderFromRouteTransform = Assert.IsType<RequestHeaderFromRouteTransform>(requestTransform);
+        var requestHeaderFromRouteTransform = Assert.IsType<RequestHeaderRouteValueTransform>(requestTransform);
         Assert.Equal("key", requestHeaderFromRouteTransform.HeaderName);
         Assert.Equal("value", requestHeaderFromRouteTransform.RouteValueKey);
         var expectedMode = append;
