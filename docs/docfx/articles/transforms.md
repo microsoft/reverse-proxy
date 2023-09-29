@@ -459,7 +459,7 @@ MyHeader: MyValue
 This sets or appends the value for the named header. Set replaces any existing header. Append adds an additional header with the given value.
 Note: setting "" as a header value is not recommended and can cause an undefined behavior.
 
-### RequestHeaderFromRoute
+### RequestHeaderRouteValue
 
 **Adds or replaces a header with a value from the route configuration**
 
@@ -471,16 +471,16 @@ Note: setting "" as a header value is not recommended and can cause an undefined
 Config:
 ```JSON
 {
-  "RequestHeaderFromRoute": "foo",
+  "RequestHeaderRouteValue": "foo",
   "Set": "remainder"
 }
 ```
 Code:
 ```csharp
-routeConfig = routeConfig.WithTransformRequestHeaderFromRoute(headerName: "MyHeader", routeValueKey: "key", append: false);
+routeConfig = routeConfig.WithTransformRequestHeaderRouteValue(headerName: "MyHeader", routeValueKey: "key", append: false);
 ```
 ```C#
-transformBuilderContext.AddRequestHeaderFromRoute(headerName: "MyHeader", routeValueKey: "key", append: false);
+transformBuilderContext.AddRequestHeaderRouteValue(headerName: "MyHeader", routeValueKey: "key", append: false);
 ```
 
 Example:
