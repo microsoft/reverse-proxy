@@ -10,9 +10,9 @@ namespace Yarp.ReverseProxy.Transforms;
 /// <summary>
 /// Sets or appends simple request header values.
 /// </summary>
-public class RequestHeaderValueTransform : RequestTransform
+public class RequestHeaderValueTransform : RequestHeaderTransform
 {
-    public RequestHeaderValueTransform(string headerName, string value, bool append)
+    public RequestHeaderValueTransform(string headerName, string value, bool append) : base(headerName, append)
     {
         if (string.IsNullOrEmpty(headerName))
         {
@@ -52,5 +52,11 @@ public class RequestHeaderValueTransform : RequestTransform
         }
 
         return default;
+    }
+
+    /// <inheritdoc/>
+    protected override string GetValue(RequestTransformContext context)
+    {
+        return Value;
     }
 }
