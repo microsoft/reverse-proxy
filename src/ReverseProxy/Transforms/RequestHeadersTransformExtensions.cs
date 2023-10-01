@@ -47,7 +47,7 @@ public static class RequestHeadersTransformExtensions
     }
 
     /// <summary>
-    /// Clones the route and adds the transform which will append or set the request header.
+    /// Clones the route and adds the transform which will append or set the request header from a route value.
     /// </summary>
     public static RouteConfig WithTransformRequestHeaderRouteValue(this RouteConfig route, string headerName, string routeValueKey, bool append = true)
     {

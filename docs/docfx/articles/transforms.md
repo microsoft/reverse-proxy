@@ -471,8 +471,8 @@ Note: setting "" as a header value is not recommended and can cause an undefined
 Config:
 ```JSON
 {
-  "RequestHeaderRouteValue": "foo",
-  "Set": "remainder"
+  "RequestHeaderRouteValue": "MyHeader",
+  "Set": "MyRouteKey"
 }
 ```
 Code:
