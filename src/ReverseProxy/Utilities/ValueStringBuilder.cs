@@ -9,11 +9,21 @@ using System.Runtime.CompilerServices;
 
 namespace Yarp.ReverseProxy.Utilities;
 
-//Copied from https://github.com/dotnet/runtime/blob/1ee59da9f6104c611b137c9d14add04becefdf14/src/libraries/Common/src/System/Text/ValueStringBuilder.cs
+// Adapted from https://github.com/dotnet/runtime/blob/82fee2692b3954ba8903fa4764f1f4e36a26341a/src/libraries/Common/src/System/Text/ValueStringBuilder.cs
 internal ref partial struct ValueStringBuilder
 {
-    private char[] _arrayToReturnToPool;
+    public const int StackallocThreshold = 512;
+
+    private char[]? _arrayToReturnToPool;
+    private Span<char> _chars;
     private int _pos;
+
+    public ValueStringBuilder(Span<char> initialBuffer)
+    {
+        _arrayToReturnToPool = null;
+        _chars = initialBuffer;
+        _pos = 0;
+    }
 
     public int Length
     {
@@ -21,28 +31,26 @@ internal ref partial struct ValueStringBuilder
         set
         {
             Debug.Assert(value >= 0);
-            Debug.Assert(value <= RawChars.Length);
+            Debug.Assert(value <= _chars.Length);
             _pos = value;
         }
     }
 
     public override string ToString()
     {
-        var s = RawChars.Slice(0, _pos).ToString();
+        var s = _chars.Slice(0, _pos).ToString();
         Dispose();
         return s;
     }
-
-    /// <summary>Returns the underlying storage of the builder.</summary>
-    public Span<char> RawChars { get; private set; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Append(char c)
     {
         var pos = _pos;
-        if ((uint)pos < (uint)RawChars.Length)
+        var chars = _chars;
+        if ((uint)pos < (uint)chars.Length)
         {
-            RawChars[pos] = c;
+            chars[pos] = c;
             _pos = pos + 1;
         }
         else
@@ -60,12 +68,12 @@ internal ref partial struct ValueStringBuilder
         }
 
         var pos = _pos;
-        if (pos > RawChars.Length - s.Length)
+        if (pos > _chars.Length - s.Length)
         {
             Grow(s.Length);
         }
 
-        s.AsSpan().CopyTo(RawChars.Slice(pos));
+        s.CopyTo(_chars.Slice(pos));
         _pos += s.Length;
     }
 
@@ -73,7 +81,7 @@ internal ref partial struct ValueStringBuilder
     public void Append(int i)
     {
         var pos = _pos;
-        if (i.TryFormat(RawChars.Slice(pos), out var charsWritten, default, null))
+        if (i.TryFormat(_chars.Slice(pos), out var charsWritten, default, null))
         {
             _pos = pos + charsWritten;
         }
@@ -102,15 +110,24 @@ internal ref partial struct ValueStringBuilder
     private void Grow(int additionalCapacityBeyondPos)
     {
         Debug.Assert(additionalCapacityBeyondPos > 0);
-        Debug.Assert(_pos > RawChars.Length - additionalCapacityBeyondPos, "Grow called incorrectly, no resize is needed.");
+        Debug.Assert(_pos > _chars.Length - additionalCapacityBeyondPos, "Grow called incorrectly, no resize is needed.");
 
-        // Make sure to let Rent throw an exception if the caller has a bug and the desired capacity is negative
-        var poolArray = ArrayPool<char>.Shared.Rent((int)Math.Max((uint)(_pos + additionalCapacityBeyondPos), (uint)RawChars.Length * 2));
+        const uint ArrayMaxLength = 0x7FFFFFC7; // same as Array.MaxLength
 
-        RawChars.Slice(0, _pos).CopyTo(poolArray);
+        // Increase to at least the required size (_pos + additionalCapacityBeyondPos), but try
+        // to double the size if possible, bounding the doubling to not go beyond the max array length.
+        var newCapacity = (int)Math.Max(
+            (uint)(_pos + additionalCapacityBeyondPos),
+            Math.Min((uint)_chars.Length * 2, ArrayMaxLength));
+
+        // Make sure to let Rent throw an exception if the caller has a bug and the desired capacity is negative.
+        // This could also go negative if the actual required length wraps around.
+        var poolArray = ArrayPool<char>.Shared.Rent(newCapacity);
+
+        _chars.Slice(0, _pos).CopyTo(poolArray);
 
         var toReturn = _arrayToReturnToPool;
-        RawChars = _arrayToReturnToPool = poolArray;
+        _chars = _arrayToReturnToPool = poolArray;
         if (toReturn is not null)
         {
             ArrayPool<char>.Shared.Return(toReturn);
