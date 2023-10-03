@@ -46,4 +46,11 @@ public sealed class SocketsMetrics
     /// Number of datagrams sent since telemetry was enabled.
     /// </summary>
     public long DatagramsSent { get; internal set; }
+
+#if NET8_0_OR_GREATER
+    /// <summary>
+    /// Number of outgoing (Connect) Socket connection attempts that are currently in progress.
+    /// </summary>
+    public long CurrentOutgoingConnectAttempts { get; internal set; }
+#endif
 }
