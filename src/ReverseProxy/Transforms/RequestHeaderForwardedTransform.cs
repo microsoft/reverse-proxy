@@ -79,13 +79,12 @@ public class RequestHeaderForwardedTransform : RequestTransform
 
     private string GetHeaderValue(HttpContext httpContext)
     {
-        var builder = new ValueStringBuilder();
+        var builder = new ValueStringBuilder(stackalloc char[ValueStringBuilder.StackallocThreshold]);
         AppendProto(httpContext, ref builder);
         AppendHost(httpContext, ref builder);
         AppendFor(httpContext, ref builder);
         AppendBy(httpContext, ref builder);
-        var value = builder.ToString();
-        return value;
+        return builder.ToString();
     }
 
     private void AppendProto(HttpContext context, ref ValueStringBuilder builder)
