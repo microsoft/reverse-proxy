@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -13,7 +14,7 @@ namespace Yarp.ReverseProxy.Health;
 internal sealed class ClusterDestinationsUpdater : IClusterDestinationsUpdater
 {
     private readonly ConditionalWeakTable<ClusterState, SemaphoreSlim> _clusterLocks = new ConditionalWeakTable<ClusterState, SemaphoreSlim>();
-    private readonly IDictionary<string, IAvailableDestinationsPolicy> _destinationPolicies;
+    private readonly FrozenDictionary<string, IAvailableDestinationsPolicy> _destinationPolicies;
 
     public ClusterDestinationsUpdater(IEnumerable<IAvailableDestinationsPolicy> destinationPolicies)
     {

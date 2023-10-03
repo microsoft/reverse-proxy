@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -12,7 +13,7 @@ namespace Yarp.ReverseProxy.Health;
 public class PassiveHealthCheckMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly IDictionary<string, IPassiveHealthCheckPolicy> _policies;
+    private readonly FrozenDictionary<string, IPassiveHealthCheckPolicy> _policies;
 
     public PassiveHealthCheckMiddleware(RequestDelegate next, IEnumerable<IPassiveHealthCheckPolicy> policies)
     {

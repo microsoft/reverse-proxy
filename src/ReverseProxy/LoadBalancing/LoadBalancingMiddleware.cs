@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -17,7 +18,7 @@ namespace Yarp.ReverseProxy.LoadBalancing;
 internal sealed class LoadBalancingMiddleware
 {
     private readonly ILogger _logger;
-    private readonly IDictionary<string, ILoadBalancingPolicy> _loadBalancingPolicies;
+    private readonly FrozenDictionary<string, ILoadBalancingPolicy> _loadBalancingPolicies;
     private readonly RequestDelegate _next;
 
     public LoadBalancingMiddleware(
