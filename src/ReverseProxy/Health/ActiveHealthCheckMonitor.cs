@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
@@ -17,7 +18,7 @@ namespace Yarp.ReverseProxy.Health;
 internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, IClusterChangeListener, IDisposable
 {
     private readonly ActiveHealthCheckMonitorOptions _monitorOptions;
-    private readonly IDictionary<string, IActiveHealthCheckPolicy> _policies;
+    private readonly FrozenDictionary<string, IActiveHealthCheckPolicy> _policies;
     private readonly IProbingRequestFactory _probingRequestFactory;
     private readonly ILogger<ActiveHealthCheckMonitor> _logger;
 

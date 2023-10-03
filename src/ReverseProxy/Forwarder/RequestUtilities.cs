@@ -3,6 +3,7 @@
 
 using System;
 using System.Buffers;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -67,7 +68,7 @@ public static class RequestUtilities
         return _headersToExclude.Contains(headerName);
     }
 
-    private static readonly HashSet<string> _headersToExclude = new(18, StringComparer.OrdinalIgnoreCase)
+    private static readonly FrozenSet<string> _headersToExclude = new HashSet<string>(18, StringComparer.OrdinalIgnoreCase)
     {
         HeaderNames.Connection,
         HeaderNames.TransferEncoding,
@@ -87,11 +88,11 @@ public static class RequestUtilities
         HeaderNames.TE,
         HeaderNames.AltSvc,
         HeaderNames.StrictTransportSecurity,
-    };
+    }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
     // Headers marked as HttpHeaderType.Content in
     // https://github.com/dotnet/runtime/blob/main/src/libraries/System.Net.Http/src/System/Net/Http/Headers/KnownHeaders.cs
-    private static readonly HashSet<string> _contentHeaders = new(11, StringComparer.OrdinalIgnoreCase)
+    private static readonly FrozenSet<string> _contentHeaders = new HashSet<string>(11, StringComparer.OrdinalIgnoreCase)
     {
         HeaderNames.Allow,
         HeaderNames.ContentDisposition,
@@ -104,7 +105,7 @@ public static class RequestUtilities
         HeaderNames.ContentType,
         HeaderNames.Expires,
         HeaderNames.LastModified
-    };
+    }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Appends the given path and query to the destination prefix while avoiding duplicate '/'.

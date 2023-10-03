@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -31,11 +32,11 @@ internal sealed class ConfigValidator : IConfigValidator
     private readonly IAuthorizationPolicyProvider _authorizationPolicyProvider;
     private readonly IYarpRateLimiterPolicyProvider _rateLimiterPolicyProvider;
     private readonly ICorsPolicyProvider _corsPolicyProvider;
-    private readonly IDictionary<string, ILoadBalancingPolicy> _loadBalancingPolicies;
-    private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
-    private readonly IDictionary<string, IAvailableDestinationsPolicy> _availableDestinationsPolicies;
-    private readonly IDictionary<string, IActiveHealthCheckPolicy> _activeHealthCheckPolicies;
-    private readonly IDictionary<string, IPassiveHealthCheckPolicy> _passiveHealthCheckPolicies;
+    private readonly FrozenDictionary<string, ILoadBalancingPolicy> _loadBalancingPolicies;
+    private readonly FrozenDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
+    private readonly FrozenDictionary<string, IAvailableDestinationsPolicy> _availableDestinationsPolicies;
+    private readonly FrozenDictionary<string, IActiveHealthCheckPolicy> _activeHealthCheckPolicies;
+    private readonly FrozenDictionary<string, IPassiveHealthCheckPolicy> _passiveHealthCheckPolicies;
     private readonly ILogger _logger;
 
 

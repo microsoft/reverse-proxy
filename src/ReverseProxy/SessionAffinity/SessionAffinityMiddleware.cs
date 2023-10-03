@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -18,8 +19,8 @@ namespace Yarp.ReverseProxy.SessionAffinity;
 internal sealed class SessionAffinityMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly IDictionary<string, ISessionAffinityPolicy> _sessionAffinityPolicies;
-    private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
+    private readonly FrozenDictionary<string, ISessionAffinityPolicy> _sessionAffinityPolicies;
+    private readonly FrozenDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
     private readonly ILogger _logger;
 
     public SessionAffinityMiddleware(
