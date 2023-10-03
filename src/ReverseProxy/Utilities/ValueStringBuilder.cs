@@ -77,6 +77,18 @@ internal ref partial struct ValueStringBuilder
         _pos += s.Length;
     }
 
+    public void Append(ReadOnlySpan<char> value)
+    {
+        var pos = _pos;
+        if (pos > _chars.Length - value.Length)
+        {
+            Grow(value.Length);
+        }
+
+        value.CopyTo(_chars.Slice(_pos));
+        _pos += value.Length;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Append(int i)
     {

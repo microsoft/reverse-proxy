@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -12,6 +13,7 @@ using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
+using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Forwarder;
 
@@ -20,6 +22,11 @@ namespace Yarp.ReverseProxy.Forwarder;
 /// </summary>
 public static class RequestUtilities
 {
+#if NET8_0_OR_GREATER
+    private static readonly SearchValues<char> s_validPathChars =
+        SearchValues.Create("!$&'()*+,-./0123456789:;=@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz~");
+#endif
+
     /// <summary>
     /// Converts the given HTTP method (usually obtained from <see cref="HttpRequest.Method"/>)
     /// into the corresponding <see cref="HttpMethod"/> static instance.
@@ -124,27 +131,37 @@ public static class RequestUtilities
     // This isn't using PathString.ToUriComponent() because it doesn't round trip some escape sequences the way we want.
     private static string EncodePath(PathString path)
     {
-        if (!path.HasValue)
+        var value = path.Value;
+
+        if (string.IsNullOrEmpty(value))
         {
             return string.Empty;
         }
 
         // Check if any escaping is required.
-        var value = path.Value!;
+#if NET8_0_OR_GREATER
+        var indexOfInvalidChar = value.AsSpan().IndexOfAnyExcept(s_validPathChars);
+#else
+        var indexOfInvalidChar = -1;
+
         for (var i = 0; i < value.Length; i++)
         {
             if (!IsValidPathChar(value[i]))
             {
-                return EncodePath(value, i);
+                indexOfInvalidChar = i;
+                break;
             }
         }
+#endif
 
-        return value;
+        return indexOfInvalidChar < 0
+            ? value
+            : EncodePath(value, indexOfInvalidChar);
     }
 
     private static string EncodePath(string value, int i)
     {
-        StringBuilder? buffer = null;
+        var builder = new ValueStringBuilder(stackalloc char[ValueStringBuilder.StackallocThreshold]);
 
         var start = 0;
         var count = i;
@@ -157,8 +174,7 @@ public static class RequestUtilities
                 if (requiresEscaping)
                 {
                     // the current segment requires escape
-                    buffer ??= new StringBuilder(value.Length * 3);
-                    buffer.Append(Uri.EscapeDataString(value.Substring(start, count)));
+                    builder.Append(Uri.EscapeDataString(value.Substring(start, count)));
 
                     requiresEscaping = false;
                     start = i;
@@ -173,8 +189,7 @@ public static class RequestUtilities
                 if (!requiresEscaping)
                 {
                     // the current segment doesn't require escape
-                    buffer ??= new StringBuilder(value.Length * 3);
-                    buffer.Append(value, start, count);
+                    builder.Append(value.AsSpan(start, count));
 
                     requiresEscaping = true;
                     start = i;
@@ -186,30 +201,24 @@ public static class RequestUtilities
             }
         }
 
-        if (count == value.Length && !requiresEscaping)
+        Debug.Assert(count > 0);
+
+        if (requiresEscaping)
         {
-            return value;
+            builder.Append(Uri.EscapeDataString(value.Substring(start, count)));
         }
         else
         {
-            if (count > 0)
-            {
-                buffer ??= new StringBuilder(value.Length * 3);
-
-                if (requiresEscaping)
-                {
-                    buffer.Append(Uri.EscapeDataString(value.Substring(start, count)));
-                }
-                else
-                {
-                    buffer.Append(value, start, count);
-                }
-            }
-
-            return buffer?.ToString() ?? string.Empty;
+            builder.Append(value.AsSpan(start, count));
         }
+
+        return builder.ToString();
     }
 
+#if NET8_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static bool IsValidPathChar(char c) => s_validPathChars.Contains(c);
+#else
     // https://datatracker.ietf.org/doc/html/rfc3986/#appendix-A
     // pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
     // pct-encoded   = "%" HEXDIG HEXDIG
@@ -244,6 +253,7 @@ public static class RequestUtilities
         return (uint)offset < (uint)validChars.Length &&
             ((validChars[offset] & significantBit) != 0);
     }
+#endif
 
     // Note: HttpClient.SendAsync will end up sending the union of
     // HttpRequestMessage.Headers and HttpRequestMessage.Content.Headers.
