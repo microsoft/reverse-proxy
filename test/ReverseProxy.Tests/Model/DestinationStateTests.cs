@@ -31,7 +31,7 @@ public class DestinationStateTests
 
         IReadOnlyList<DestinationState> list = destinationInfo;
 
-        Assert.Equal(1, list.Count);
+        Assert.Single(list);
         Assert.Same(destinationInfo, list[0]);
         Assert.Throws<IndexOutOfRangeException>(() => list[1]);
     }

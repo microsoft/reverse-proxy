@@ -94,7 +94,7 @@ public class HttpSysDelegatorMiddlewareTests : TestAutoMockBase
 
         _nextCallback = () =>
         {
-            Assert.Equal(1, _proxyFeature.AvailableDestinations.Count);
+            Assert.Single(_proxyFeature.AvailableDestinations);
             Assert.Same(destination2, _proxyFeature.AvailableDestinations[0]);
         };
 

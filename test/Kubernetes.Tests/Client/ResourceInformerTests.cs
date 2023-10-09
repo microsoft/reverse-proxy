@@ -62,10 +62,10 @@ public class ResourceInformerTests
             pods[NamespacedName.From(pod)] = pod;
         });
 
-        await clusterHost.StartAsync(cancellation.Token).ConfigureAwait(false);
-        await testHost.StartAsync(cancellation.Token).ConfigureAwait(false);
+        await clusterHost.StartAsync(cancellation.Token);
+        await testHost.StartAsync(cancellation.Token);
 
-        await registration.ReadyAsync(cancellation.Token).ConfigureAwait(false);
+        await registration.ReadyAsync(cancellation.Token);
 
         Assert.Equal(shouldBe, pods.Keys);
     }
@@ -102,10 +102,10 @@ public class ResourceInformerTests
             deployments[NamespacedName.From(deployment)] = deployment;
         });
 
-        await clusterHost.StartAsync(cancellation.Token).ConfigureAwait(false);
-        await testHost.StartAsync(cancellation.Token).ConfigureAwait(false);
+        await clusterHost.StartAsync(cancellation.Token);
+        await testHost.StartAsync(cancellation.Token);
 
-        await registration.ReadyAsync(cancellation.Token).ConfigureAwait(false);
+        await registration.ReadyAsync(cancellation.Token);
 
         Assert.Equal(shouldBe, deployments.Keys);
     }

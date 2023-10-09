@@ -933,7 +933,7 @@ public class ConfigValidatorTests
 
         var errors = await validator.ValidateClusterAsync(cluster);
 
-        Assert.Equal(1, errors.Count);
+        Assert.Single(errors);
         Assert.Equal($"Outgoing request version '{cluster.HttpRequest.Version}' is not any of supported HTTP versions (1.0, 1.1, 2 and 3).", errors[0].Message);
         Assert.IsType<ArgumentException>(errors[0]);
     }
@@ -997,7 +997,7 @@ public class ConfigValidatorTests
 
         var errors = await validator.ValidateClusterAsync(cluster);
 
-        Assert.Equal(1, errors.Count);
+        Assert.Single(errors);
         Assert.Contains(expectedError, errors[0].Message);
         Assert.IsType<ArgumentException>(errors[0]);
     }
@@ -1055,7 +1055,7 @@ public class ConfigValidatorTests
 
         var errors = await validator.ValidateClusterAsync(cluster);
 
-        Assert.Equal(1, errors.Count);
+        Assert.Single(errors);
         Assert.Contains(expectedError, errors[0].Message);
         Assert.IsType<ArgumentException>(errors[0]);
     }
@@ -1102,7 +1102,7 @@ public class ConfigValidatorTests
         var errors = await validator.ValidateClusterAsync(cluster);
 
         const string expectedError = "No matching IAvailableDestinationsPolicy found for the available destinations policy 'Unknown1' set on the cluster.";
-        Assert.Equal(1, errors.Count);
+        Assert.Single(errors);
         Assert.Contains(expectedError, errors[0].Message);
         Assert.IsType<ArgumentException>(errors[0]);
     }
@@ -1124,7 +1124,7 @@ public class ConfigValidatorTests
 
         var errors = await validator.ValidateClusterAsync(cluster);
 
-        Assert.Equal(0, errors.Count);
+        Assert.Empty(errors);
     }
 
     [Fact]
@@ -1144,7 +1144,7 @@ public class ConfigValidatorTests
 
         var errors = await validator.ValidateClusterAsync(cluster);
 
-        Assert.Equal(1, errors.Count);
+        Assert.Single(errors);
         Assert.Equal("Invalid request header encoding 'base64'.", errors[0].Message);
     }
 
@@ -1165,7 +1165,7 @@ public class ConfigValidatorTests
 
         var errors = await validator.ValidateClusterAsync(cluster);
 
-        Assert.Equal(0, errors.Count);
+        Assert.Empty(errors);
     }
 
     [Fact]
@@ -1185,7 +1185,7 @@ public class ConfigValidatorTests
 
         var errors = await validator.ValidateClusterAsync(cluster);
 
-        Assert.Equal(1, errors.Count);
+        Assert.Single(errors);
         Assert.Equal("Invalid response header encoding 'base64'.", errors[0].Message);
     }
 }

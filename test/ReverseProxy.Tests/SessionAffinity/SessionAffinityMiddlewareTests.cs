@@ -75,7 +75,7 @@ public class SessionAffinityMiddlewareTests
 
         if (foundDestinationId is not null)
         {
-            Assert.Equal(1, destinationFeature.AvailableDestinations.Count);
+            Assert.Single(destinationFeature.AvailableDestinations);
             Assert.Equal(foundDestinationId, destinationFeature.AvailableDestinations[0].DestinationId);
         }
         else

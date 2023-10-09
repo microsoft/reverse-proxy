@@ -68,7 +68,7 @@ public class HashCookieSessionAffinityPolicyTests
         var affinityResult = policy.FindAffinitizedDestinations(context, cluster, _config, _destinations);
 
         Assert.Equal(AffinityStatus.OK, affinityResult.Status);
-        Assert.Equal(1, affinityResult.Destinations.Count);
+        Assert.Single(affinityResult.Destinations);
         Assert.Same(affinitizedDestination, affinityResult.Destinations[0]);
     }
 

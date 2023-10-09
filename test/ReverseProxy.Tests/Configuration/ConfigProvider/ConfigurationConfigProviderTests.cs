@@ -163,7 +163,7 @@ public class ConfigurationConfigProviderTests
                 },
                 Transforms = new[]
                 {
-                    new Dictionary<string, string> { { "RequestHeadersCopy", "true" }, { "PathRemovePrefix", "/apis" } }, new Dictionary<string, string> { { "PathPrefix", "/apis" } }
+                    new Dictionary<string, string> { { "PathRemovePrefix", "/apis" }, { "RequestHeadersCopy", "true" } }, new Dictionary<string, string> { { "PathPrefix", "/apis" } }
                 },
                 Metadata = new Dictionary<string, string> { { "routeA-K1", "routeA-V1" }, { "routeA-K2", "routeA-V2" } }
             },
@@ -435,7 +435,7 @@ public class ConfigurationConfigProviderTests
             switch (obj)
             {
                 case null:
-                    Assert.True(false, $"Property {name} is not initialized.");
+                    Assert.Fail($"Property {name} is not initialized.");
                     break;
                 case Enum m:
                     Assert.NotEqual(0, (int)(object)m);

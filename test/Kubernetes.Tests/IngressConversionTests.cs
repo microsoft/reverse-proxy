@@ -59,7 +59,7 @@ public class IngressConversionTests
     public async Task ParsingTests(string name)
     {
         var ingressClass = KubeResourceGenerator.CreateIngressClass("yarp", "microsoft.com/ingress-yarp", true);
-        var cache = await GetKubernetesInfo(name, ingressClass).ConfigureAwait(false);
+        var cache = await GetKubernetesInfo(name, ingressClass);
         var configContext = new YarpConfigContext();
         var ingresses = cache.GetIngresses().ToArray();
 

@@ -30,7 +30,7 @@ public class ActivityCancellationTokenSourceTests
             }
         }
 
-        Assert.True(false, "CancellationTokenSources were not pooled");
+        Assert.Fail("CancellationTokenSources were not pooled");
     }
 
     [Fact]
@@ -113,6 +113,6 @@ public class ActivityCancellationTokenSourceTests
             await Task.Delay(1);
         }
 
-        Assert.True(false, "Cts was not canceled");
+        Assert.Fail("Cts was not canceled");
     }
 }

@@ -122,31 +122,31 @@ public class LimiterTests
             var task = limiter.WaitAsync(cancellation.Token);
             if (!task.IsCompleted)
             {
-                await task.ConfigureAwait(false);
+                await task;
                 break;
             }
         }
 
         var delayOne = new Stopwatch();
         delayOne.Start();
-        await limiter.WaitAsync(cancellation.Token).ConfigureAwait(false);
+        await limiter.WaitAsync(cancellation.Token);
         delayOne.Stop();
 
         var delayTwoMore = new Stopwatch();
         delayTwoMore.Start();
-        await limiter.WaitAsync(2, cancellation.Token).ConfigureAwait(false);
+        await limiter.WaitAsync(2, cancellation.Token);
         delayTwoMore.Stop();
 
-        await Task.Delay(TimeSpan.FromMilliseconds(150)).ConfigureAwait(false);
+        await Task.Delay(TimeSpan.FromMilliseconds(150));
 
         var delayAlreadyAvailable = new Stopwatch();
         delayAlreadyAvailable.Start();
-        await limiter.WaitAsync(cancellation.Token).ConfigureAwait(false);
+        await limiter.WaitAsync(cancellation.Token);
         delayAlreadyAvailable.Stop();
 
         var delayHalfAvailable = new Stopwatch();
         delayHalfAvailable.Start();
-        await limiter.WaitAsync(cancellation.Token).ConfigureAwait(false);
+        await limiter.WaitAsync(cancellation.Token);
         delayHalfAvailable.Stop();
 
         Assert.InRange(delayOne.Elapsed, TimeSpan.FromMilliseconds(75), TimeSpan.FromMilliseconds(125));
@@ -171,7 +171,7 @@ public class LimiterTests
                     var task = limiter.WaitAsync(cancellation.Token);
                     if (!task.IsCompleted)
                     {
-                        await task.ConfigureAwait(false);
+                        await task;
                         break;
                     }
                 }
@@ -192,24 +192,24 @@ public class LimiterTests
                     limiter.WaitAsync(cancellation.Token),
                 };
 
-                var taskOne = await Task.WhenAny(waits).ConfigureAwait(false);
-                await taskOne.ConfigureAwait(false);
+                var taskOne = await Task.WhenAny(waits);
+                await taskOne;
                 delayOne.Stop();
                 waits.Remove(taskOne);
 
-                var taskTwo = await Task.WhenAny(waits).ConfigureAwait(false);
-                await taskTwo.ConfigureAwait(false);
+                var taskTwo = await Task.WhenAny(waits);
+                await taskTwo;
                 delayTwo.Stop();
                 waits.Remove(taskTwo);
 
-                var taskThree = await Task.WhenAny(waits).ConfigureAwait(false);
-                await taskThree.ConfigureAwait(false);
+                var taskThree = await Task.WhenAny(waits);
+                await taskThree;
                 delayThree.Stop();
                 waits.Remove(taskThree);
 
                 Assert.InRange(delayOne.Elapsed, TimeSpan.FromMilliseconds(75), TimeSpan.FromMilliseconds(125));
                 Assert.InRange(delayTwo.Elapsed, TimeSpan.FromMilliseconds(175), TimeSpan.FromMilliseconds(225));
                 Assert.InRange(delayThree.Elapsed, TimeSpan.FromMilliseconds(275), TimeSpan.FromMilliseconds(325));
-            }).ConfigureAwait(false);
+            });
     }
 }

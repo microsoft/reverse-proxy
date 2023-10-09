@@ -53,7 +53,7 @@ public class HeaderMatcherPolicyTests
                     a.Item1 > b.Item1 ? 1 : 0;
                 if (actual != expected)
                 {
-                    Assert.True(false, $"Error comparing [{i}] to [{j}], expected {expected}, found {actual}.");
+                    Assert.Fail($"Error comparing [{i}] to [{j}], expected {expected}, found {actual}.");
                 }
             }
         }
@@ -104,7 +104,7 @@ public class HeaderMatcherPolicyTests
                     a.Item1 > b.Item1 ? 1 : 0;
                 if (actual != expected)
                 {
-                    Assert.True(false, $"Error comparing [{i}] to [{j}], expected {expected}, found {actual}.");
+                    Assert.Fail($"Error comparing [{i}] to [{j}], expected {expected}, found {actual}.");
                 }
             }
         }
