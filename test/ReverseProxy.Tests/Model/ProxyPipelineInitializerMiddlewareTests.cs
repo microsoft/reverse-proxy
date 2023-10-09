@@ -62,7 +62,7 @@ public class ProxyPipelineInitializerMiddlewareTests : TestAutoMockBase
         var proxyFeature = httpContext.GetReverseProxyFeature();
         Assert.NotNull(proxyFeature);
         Assert.NotNull(proxyFeature.AvailableDestinations);
-        Assert.Equal(1, proxyFeature.AvailableDestinations.Count);
+        Assert.Single(proxyFeature.AvailableDestinations);
         Assert.Same(destination1, proxyFeature.AvailableDestinations[0]);
         Assert.Same(cluster1.Model, proxyFeature.Cluster);
 

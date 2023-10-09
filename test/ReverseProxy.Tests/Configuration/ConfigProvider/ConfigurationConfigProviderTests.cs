@@ -435,7 +435,7 @@ public class ConfigurationConfigProviderTests
             switch (obj)
             {
                 case null:
-                    Assert.True(false, $"Property {name} is not initialized.");
+                    Assert.Fail($"Property {name} is not initialized.");
                     break;
                 case Enum m:
                     Assert.NotEqual(0, (int)(object)m);

@@ -67,7 +67,7 @@ public class LoadBalancerMiddlewareTests
         var feature = context.Features.Get<IReverseProxyFeature>();
         Assert.NotNull(feature);
         Assert.NotNull(feature.AvailableDestinations);
-        Assert.Equal(1, feature.AvailableDestinations.Count);
+        Assert.Single(feature.AvailableDestinations);
         Assert.Same("destination1", feature.AvailableDestinations[0].DestinationId);
 
         Assert.Equal(200, context.Response.StatusCode);
@@ -90,7 +90,7 @@ public class LoadBalancerMiddlewareTests
         var feature = context.Features.Get<IReverseProxyFeature>();
         Assert.NotNull(feature);
         Assert.NotNull(feature.AvailableDestinations);
-        Assert.Equal(1, feature.AvailableDestinations.Count);
+        Assert.Single(feature.AvailableDestinations);
         Assert.Same("destination1", feature.AvailableDestinations[0].DestinationId);
 
         Assert.Equal(200, context.Response.StatusCode);
@@ -112,7 +112,7 @@ public class LoadBalancerMiddlewareTests
         var feature = context.Features.Get<IReverseProxyFeature>();
         Assert.NotNull(feature);
         Assert.NotNull(feature.AvailableDestinations);
-        Assert.Equal(0, feature.AvailableDestinations.Count);
+        Assert.Empty(feature.AvailableDestinations);
 
         Assert.Equal(503, context.Response.StatusCode);
     }
@@ -148,7 +148,7 @@ public class LoadBalancerMiddlewareTests
         var feature = context.Features.Get<IReverseProxyFeature>();
         Assert.NotNull(feature);
         Assert.NotNull(feature.AvailableDestinations);
-        Assert.Equal(0, feature.AvailableDestinations.Count);
+        Assert.Empty(feature.AvailableDestinations);
 
         Assert.Equal(503, context.Response.StatusCode);
     }

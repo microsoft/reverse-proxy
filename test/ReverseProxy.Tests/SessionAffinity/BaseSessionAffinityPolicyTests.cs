@@ -63,7 +63,7 @@ public class BaseSesstionAffinityPolicyTests
 
         if (expectedDestination is not null)
         {
-            Assert.Equal(1, affinityResult.Destinations.Count);
+            Assert.Single(affinityResult.Destinations);
         }
         else
         {

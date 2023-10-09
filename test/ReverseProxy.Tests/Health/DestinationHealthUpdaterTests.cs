@@ -38,7 +38,7 @@ public class DestinationHealthUpdaterTests
 
         Assert.Equal(DestinationHealth.Healthy, destination.Health.Active);
         Assert.Equal(DestinationHealth.Unknown, destination.Health.Passive);
-        Assert.Equal(1, cluster.DestinationsState.AvailableDestinations.Count);
+        Assert.Single(cluster.DestinationsState.AvailableDestinations);
         Assert.Same(destination, cluster.DestinationsState.AvailableDestinations[0]);
         timeProvider.AssertTimerDisposed(0);
     }
@@ -58,7 +58,7 @@ public class DestinationHealthUpdaterTests
         Assert.Equal(0, timeProvider.TimerCount);
         Assert.Equal(DestinationHealth.Healthy, destination.Health.Active);
         Assert.Equal(DestinationHealth.Healthy, destination.Health.Passive);
-        Assert.Equal(1, cluster.DestinationsState.AvailableDestinations.Count);
+        Assert.Single(cluster.DestinationsState.AvailableDestinations);
         Assert.Same(destination, cluster.DestinationsState.AvailableDestinations[0]);
     }
 
