@@ -308,6 +308,13 @@ internal sealed class ConfigValidator : IConfigValidator
 
             if (policy is null)
             {
+                if (string.Equals(RateLimitingConstants.Default, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(RateLimitingConstants.Disable, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase))
+                {
+                    // We weren't expecting to find a policy with these names.
+                    return;
+                }    
+            
                 errors.Add(new ArgumentException($"RateLimiter policy '{rateLimiterPolicyName}' not found for route '{routeId}'."));
                 return;
             }
