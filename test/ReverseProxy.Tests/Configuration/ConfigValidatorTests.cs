@@ -710,6 +710,53 @@ public class ConfigValidatorTests
         Assert.Contains(result, err => err.Message.Equals($"The application has registered a CORS policy named '{corsPolicy}' that conflicts with the reserved CORS policy name used on this route. The registered policy name needs to be changed for this route to function."));
     }
 
+#if NET7_0_OR_GREATER
+    [Theory]
+    [InlineData("Default")]
+    [InlineData("Disable")]
+    public async Task Accepts_BuiltInRateLimiterPolicy(string rateLimiterPolicy)
+    {
+        var route = new RouteConfig {
+            RouteId = "route1",
+            Match = new RouteMatch
+            {
+                Hosts = new[] { "localhost" },
+            },
+            ClusterId = "cluster1",
+            RateLimiterPolicy = rateLimiterPolicy
+        };
+
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var result = await validator.ValidateRouteAsync(route);
+
+        Assert.Empty(result);
+    }
+
+    [Theory]
+    [InlineData("NotAPolicy")]
+    public async Task Rejects_InvalidRateLimiterPolicy(string rateLimiterPolicy)
+    {
+        var route = new RouteConfig {
+            RouteId = "route1",
+            Match = new RouteMatch
+            {
+                Hosts = new[] { "localhost" },
+            },
+            ClusterId = "cluster1",
+            RateLimiterPolicy = rateLimiterPolicy };
+
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var result = await validator.ValidateRouteAsync(route);
+
+        Assert.NotEmpty(result);
+        Assert.Contains(result, err => err.Message.Contains($"RateLimiter policy '{rateLimiterPolicy}' not found"));
+    }
+#endif
+
     [Fact]
     public async Task EmptyCluster_Works()
     {

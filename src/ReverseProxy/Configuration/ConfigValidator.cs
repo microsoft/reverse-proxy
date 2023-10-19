@@ -312,6 +312,7 @@ internal sealed class ConfigValidator : IConfigValidator
                 return;
             }
 
+            //TODO: this only gets invoked if a custom RateLimiter policy is named one of the following, AND it gets used. Is there a better way to check this at startup? or is it unlikely that the policy will be registered but not used?
             if (string.Equals(RateLimitingConstants.Default, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase)
                 || string.Equals(RateLimitingConstants.Disable, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase))
             {
