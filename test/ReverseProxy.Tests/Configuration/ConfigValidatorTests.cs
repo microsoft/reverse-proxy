@@ -4,7 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+#if NET7_0_OR_GREATER
+using Microsoft.AspNetCore.Builder;
+#endif
 using Microsoft.AspNetCore.Cors.Infrastructure;
+#if NET7_0_OR_GREATER
+using Microsoft.AspNetCore.RateLimiting;
+#endif
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
@@ -732,6 +738,34 @@ public class ConfigValidatorTests
         var result = await validator.ValidateRouteAsync(route);
 
         Assert.Empty(result);
+    }
+
+    [Theory]
+    [InlineData("Default")]
+    [InlineData("Disable")]
+    public async Task Reports_BuildInRateLimiterPolicyNameConflict(string rateLimiterPolicy)
+    {
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            Match = new RouteMatch
+            {
+                Hosts = new[] { "localhost" },
+            },
+            ClusterId = "cluster1",
+            RateLimiterPolicy = rateLimiterPolicy
+        };
+
+        var services = CreateServices(s =>
+        {
+            s.AddRateLimiter(o => o.AddConcurrencyLimiter(rateLimiterPolicy, c => { }));
+        });
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var result = await validator.ValidateRouteAsync(route);
+
+        Assert.NotEmpty(result);
+        Assert.Contains(result, err => err.Message.Contains($"The application has registered a RateLimiter policy named '{rateLimiterPolicy}' that conflicts with the reserved RateLimiter policy name used on this route. The registered policy name needs to be changed for this route to function."));
     }
 
     [Theory]
