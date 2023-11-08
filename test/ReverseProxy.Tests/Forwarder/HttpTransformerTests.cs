@@ -39,7 +39,6 @@ public class HttpTransformerTests
         HeaderNames.UpgradeInsecureRequests,
         HeaderNames.TE,
         HeaderNames.AltSvc,
-        HeaderNames.StrictTransportSecurity,
     };
 
     [Fact]
@@ -160,6 +159,38 @@ public class HttpTransformerTests
         foreach (var header in RestrictedHeaders)
         {
             Assert.False(httpContext.Response.Headers.ContainsKey(header));
+        }
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task TransformResponseAsync_StrictTransportSecurity_CopiedIfNotPresent(bool alreadyPresent)
+    {
+        var transformer = HttpTransformer.Default;
+        var httpContext = new DefaultHttpContext();
+        var proxyResponse = new HttpResponseMessage()
+        {
+            Content = new ByteArrayContent(Array.Empty<byte>())
+        };
+
+        if (alreadyPresent)
+        {
+            httpContext.Response.Headers.StrictTransportSecurity = "max-age=31536000; includeSubDomains";
+        }
+
+        Assert.True(proxyResponse.Headers.TryAddWithoutValidation(HeaderNames.StrictTransportSecurity, "max-age=31000; preload"));
+
+        await transformer.TransformResponseAsync(httpContext, proxyResponse, CancellationToken.None);
+
+        var result = httpContext.Response.Headers.StrictTransportSecurity;
+        if (alreadyPresent)
+        {
+            Assert.Equal("max-age=31536000; includeSubDomains", result);
+        }
+        else
+        {
+            Assert.Equal("max-age=31000; preload", result);
         }
     }
 
