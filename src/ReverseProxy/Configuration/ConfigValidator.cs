@@ -11,8 +11,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
+#if NET8_0_OR_GREATER
+using Microsoft.AspNetCore.Http.Timeouts;
+#endif
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.Extensions.Logging;
+#if NET8_0_OR_GREATER
+using Microsoft.Extensions.Options;
+#endif
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.LoadBalancing;
 using Yarp.ReverseProxy.SessionAffinity;
@@ -32,6 +38,9 @@ internal sealed class ConfigValidator : IConfigValidator
     private readonly IAuthorizationPolicyProvider _authorizationPolicyProvider;
     private readonly IYarpRateLimiterPolicyProvider _rateLimiterPolicyProvider;
     private readonly ICorsPolicyProvider _corsPolicyProvider;
+#if NET8_0_OR_GREATER
+    private readonly IOptionsMonitor<RequestTimeoutOptions> _timeoutOptions;
+#endif
     private readonly FrozenDictionary<string, ILoadBalancingPolicy> _loadBalancingPolicies;
     private readonly FrozenDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
     private readonly FrozenDictionary<string, IAvailableDestinationsPolicy> _availableDestinationsPolicies;
@@ -39,11 +48,13 @@ internal sealed class ConfigValidator : IConfigValidator
     private readonly FrozenDictionary<string, IPassiveHealthCheckPolicy> _passiveHealthCheckPolicies;
     private readonly ILogger _logger;
 
-
     public ConfigValidator(ITransformBuilder transformBuilder,
         IAuthorizationPolicyProvider authorizationPolicyProvider,
         IYarpRateLimiterPolicyProvider rateLimiterPolicyProvider,
         ICorsPolicyProvider corsPolicyProvider,
+#if NET8_0_OR_GREATER
+        IOptionsMonitor<RequestTimeoutOptions> timeoutOptions,
+#endif
         IEnumerable<ILoadBalancingPolicy> loadBalancingPolicies,
         IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
         IEnumerable<IAvailableDestinationsPolicy> availableDestinationsPolicies,
@@ -55,6 +66,9 @@ internal sealed class ConfigValidator : IConfigValidator
         _authorizationPolicyProvider = authorizationPolicyProvider ?? throw new ArgumentNullException(nameof(authorizationPolicyProvider));
         _rateLimiterPolicyProvider = rateLimiterPolicyProvider ?? throw new ArgumentNullException(nameof(rateLimiterPolicyProvider));
         _corsPolicyProvider = corsPolicyProvider ?? throw new ArgumentNullException(nameof(corsPolicyProvider));
+#if NET8_0_OR_GREATER
+        _timeoutOptions = timeoutOptions ?? throw new ArgumentNullException(nameof(timeoutOptions));
+#endif
         _loadBalancingPolicies = loadBalancingPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(loadBalancingPolicies));
         _affinityFailurePolicies = affinityFailurePolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
         _availableDestinationsPolicies = availableDestinationsPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(availableDestinationsPolicies));
@@ -294,7 +308,38 @@ internal sealed class ConfigValidator : IConfigValidator
             errors.Add(new ArgumentException($"Unable to retrieve the authorization policy '{authorizationPolicyName}' for route '{routeId}'.", ex));
         }
     }
+#if NET8_0_OR_GREATER
+    private void ValidateTimeoutPolicy(IList<Exception> errors, string? timeoutPolicyName, TimeSpan? timeout, string routeId)
+    {
+        if (!string.IsNullOrEmpty(timeoutPolicyName))
+        {
+            var policies = _timeoutOptions.CurrentValue.Policies;
 
+            if (string.Equals(TimeoutPolicyConstants.Default, timeoutPolicyName, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(TimeoutPolicyConstants.Disable, timeoutPolicyName, StringComparison.OrdinalIgnoreCase))
+            {
+                if (policies.TryGetValue(timeoutPolicyName, out var _))
+                {
+                    errors.Add(new ArgumentException($"The application has registered a timeout policy named '{timeoutPolicyName}' that conflicts with the reserved timeout policy name used on this route. The registered policy name needs to be changed for this route to function."));
+                }
+            }
+            else if (!policies.TryGetValue(timeoutPolicyName, out var _))
+            {
+                errors.Add(new ArgumentException($"Timeout policy '{timeoutPolicyName}' not found for route '{routeId}'."));
+            }
+
+            if (timeout.HasValue)
+            {
+                errors.Add(new ArgumentException($"Route '{routeId}' has both a Timeout '{timeout}' and TimeoutPolicy '{timeoutPolicyName}'."));
+            }
+        }
+
+        if (timeout.HasValue && timeout.Value.TotalMicroseconds <= 0)
+        {
+            errors.Add(new ArgumentException($"The Timeout value '{timeout.Value}' is invalid for route '{routeId}'. The Timeout must be greater than zero milliseconds."));
+        }
+    }
+#endif
     private async ValueTask ValidateRateLimiterPolicyAsync(IList<Exception> errors, string? rateLimiterPolicyName, string routeId)
     {
         if (string.IsNullOrEmpty(rateLimiterPolicyName))
