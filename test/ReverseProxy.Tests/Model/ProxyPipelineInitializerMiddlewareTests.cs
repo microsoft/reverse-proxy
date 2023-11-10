@@ -148,48 +148,7 @@ public class ProxyPipelineInitializerMiddlewareTests : TestAutoMockBase
 
         var sut = Create<ProxyPipelineInitializerMiddleware>();
 
-        await sut.Invoke(httpContext);
-
-        Assert.Equal(StatusCodes.Status503ServiceUnavailable, httpContext.Response.StatusCode);
-    }
-
-    [Fact]
-    public async Task Invoke_MissingTimeoutMiddleware_DefaultPolicyAllowed()
-    {
-        var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
-        var cluster1 = new ClusterState(clusterId: "cluster1");
-        cluster1.Model = new ClusterModel(new ClusterConfig(), httpClient);
-        var destination1 = cluster1.Destinations.GetOrAdd(
-            "destination1",
-            id => new DestinationState(id) { Model = new DestinationModel(new DestinationConfig { Address = "https://localhost:123/a/b/" }) });
-        cluster1.DestinationsState = new ClusterDestinationsState(new[] { destination1 }, new[] { destination1 });
-
-        var aspNetCoreEndpoints = new List<Endpoint>();
-        var routeConfig = new RouteModel(
-            config: new RouteConfig(),
-            cluster1,
-            HttpTransformer.Default);
-        var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig,
-            builder =>
-            {
-                builder.Metadata.Add(new RequestTimeoutAttribute(TimeoutPolicyConstants.Default));
-            });
-        aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
-        var httpContext = new DefaultHttpContext();
-        httpContext.SetEndpoint(aspNetCoreEndpoint);
-
-        var sut = Create<ProxyPipelineInitializerMiddleware>();
-
-        await sut.Invoke(httpContext);
-
-        var proxyFeature = httpContext.GetReverseProxyFeature();
-        Assert.NotNull(proxyFeature);
-        Assert.NotNull(proxyFeature.AvailableDestinations);
-        Assert.Single(proxyFeature.AvailableDestinations);
-        Assert.Same(destination1, proxyFeature.AvailableDestinations[0]);
-        Assert.Same(cluster1.Model, proxyFeature.Cluster);
-
-        Assert.Equal(StatusCodes.Status418ImATeapot, httpContext.Response.StatusCode);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.Invoke(httpContext));
     }
 #endif
 
