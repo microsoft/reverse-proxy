@@ -93,6 +93,9 @@ internal sealed class ConfigValidator : IConfigValidator
 #if NET7_0_OR_GREATER
         await ValidateRateLimiterPolicyAsync(errors, route.RateLimiterPolicy, route.RouteId);
 #endif
+#if NET8_0_OR_GREATER
+        ValidateTimeoutPolicy(errors, route.TimeoutPolicy, route.Timeout, route.RouteId);
+#endif
         await ValidateCorsPolicyAsync(errors, route.CorsPolicy, route.RouteId);
 
         if (route.Match is null)

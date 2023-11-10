@@ -107,6 +107,10 @@ public sealed record RouteConfig
 #if NET7_0_OR_GREATER
             && string.Equals(RateLimiterPolicy, other.RateLimiterPolicy, StringComparison.OrdinalIgnoreCase)
 #endif
+#if NET8_0_OR_GREATER
+            && string.Equals(TimeoutPolicy, other.TimeoutPolicy, StringComparison.OrdinalIgnoreCase)
+            && Timeout == other.Timeout
+#endif
             && string.Equals(CorsPolicy, other.CorsPolicy, StringComparison.OrdinalIgnoreCase)
             && Match == other.Match
             && CaseSensitiveEqualHelper.Equals(Metadata, other.Metadata)
@@ -123,6 +127,10 @@ public sealed record RouteConfig
         hash.Add(AuthorizationPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
 #if NET7_0_OR_GREATER
         hash.Add(RateLimiterPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
+#endif
+#if NET8_0_OR_GREATER
+        hash.Add(Timeout?.GetHashCode());
+        hash.Add(TimeoutPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
 #endif
         hash.Add(CorsPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
         hash.Add(Match);

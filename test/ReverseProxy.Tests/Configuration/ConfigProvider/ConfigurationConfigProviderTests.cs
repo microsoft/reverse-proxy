@@ -132,6 +132,10 @@ public class ConfigurationConfigProviderTests
 #if NET7_0_OR_GREATER
                 RateLimiterPolicy = "Default",
 #endif
+#if NET8_0_OR_GREATER
+                TimeoutPolicy = "Default",
+                Timeout = TimeSpan.Zero,
+#endif
                 CorsPolicy = "Default",
                 Order = -1,
                 MaxRequestBodySize = -1,
@@ -344,6 +348,8 @@ public class ConfigurationConfigProviderTests
             ""AuthorizationPolicy"": ""Default"",
             ""RateLimiterPolicy"": ""Default"",
             ""CorsPolicy"": ""Default"",
+            ""TimeoutPolicy"": ""Default"",
+            ""Timeout"": ""00:00:01"",
             ""Metadata"": {
                 ""routeA-K1"": ""routeA-V1"",
                 ""routeA-K2"": ""routeA-V2""

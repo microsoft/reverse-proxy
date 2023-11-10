@@ -138,7 +138,6 @@ internal sealed class ProxyEndpointFactory
             endpointBuilder.Metadata.Add(new EnableRateLimitingAttribute(config.RateLimiterPolicy));
         }
 #endif
-
 #if NET8_0_OR_GREATER
         if (string.Equals(TimeoutPolicyConstants.Default, config.TimeoutPolicy, StringComparison.OrdinalIgnoreCase))
         {
@@ -148,6 +147,7 @@ internal sealed class ProxyEndpointFactory
         {
             endpointBuilder.Metadata.Add(_disableRequestTimeout);
         }
+        // The config validator shouldn't allow both TimeoutPolicy and Timeout, so we don't have to consider priority.
         else if (!string.IsNullOrEmpty(config.TimeoutPolicy))
         {
             endpointBuilder.Metadata.Add(new RequestTimeoutAttribute(config.TimeoutPolicy));

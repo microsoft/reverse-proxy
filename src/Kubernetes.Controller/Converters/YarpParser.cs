@@ -143,6 +143,10 @@ internal static class YarpParser
 #if NET7_0_OR_GREATER
             RateLimiterPolicy = ingressContext.Options.RateLimiterPolicy,
 #endif
+#if NET8_0_OR_GREATER
+            Timeout = ingressContext.Options.Timeout,
+            TimeoutPolicy = ingressContext.Options.TimeoutPolicy,
+#endif
             CorsPolicy = ingressContext.Options.CorsPolicy,
             Metadata = ingressContext.Options.RouteMetadata,
             Order = ingressContext.Options.RouteOrder,
