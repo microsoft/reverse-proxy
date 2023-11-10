@@ -5,7 +5,13 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+#if NET8_0_OR_GREATER
+using Microsoft.AspNetCore.Http.Timeouts;
+#endif
 using Microsoft.Extensions.Logging;
+#if NET8_0_OR_GREATER
+using Yarp.ReverseProxy.Configuration;
+#endif
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Model;
@@ -41,7 +47,17 @@ internal sealed class ProxyPipelineInitializerMiddleware
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
             return Task.CompletedTask;
         }
-
+#if NET8_0_OR_GREATER
+        // There's no way to detect the presence of the timeout middleware before this, only the options.
+        if (endpoint.Metadata.GetMetadata<RequestTimeoutAttribute>() != null
+            && context.Features.Get<IHttpRequestTimeoutFeature>() == null)
+        {
+            Log.TimeoutNotApplied(_logger, route.Config.RouteId);
+            // Out of an abundance of caution, refuse the request rather than allowing it to proceed without the configured timeout.
+            throw new InvalidOperationException($"The timeout was not applied for route '{route.Config.RouteId}', ensure `IApplicationBuilder.UseRequestTimeouts()`"
+                + " is called between `IApplicationBuilder.UseRouting()` and `IApplicationBuilder.UseEndpoints()`.");
+        }
+#endif
         var destinationsState = cluster.DestinationsState;
         context.Features.Set<IReverseProxyFeature>(new ReverseProxyFeature
         {
@@ -80,9 +96,19 @@ internal sealed class ProxyPipelineInitializerMiddleware
             EventIds.NoClusterFound,
             "Route '{routeId}' has no cluster information.");
 
+        private static readonly Action<ILogger, string, Exception?> _timeoutNotApplied = LoggerMessage.Define<string>(
+            LogLevel.Error,
+            EventIds.TimeoutNotApplied,
+            "The timeout was not applied for route '{routeId}', ensure `IApplicationBuilder.UseRequestTimeouts()` is called between `IApplicationBuilder.UseRouting()` and `IApplicationBuilder.UseEndpoints()`.");
+
         public static void NoClusterFound(ILogger logger, string routeId)
         {
             _noClusterFound(logger, routeId, null);
+        }
+
+        public static void TimeoutNotApplied(ILogger logger, string routeId)
+        {
+            _timeoutNotApplied(logger, routeId, null);
         }
     }
 }
