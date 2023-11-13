@@ -423,29 +423,6 @@ public class ProxyEndpointFactoryTests
 #endif
 #if NET8_0_OR_GREATER
     [Fact]
-    public void AddEndpoint_DefaultTimeoutPolicy_Works()
-    {
-        var services = CreateServices();
-        var factory = services.GetRequiredService<ProxyEndpointFactory>();
-        factory.SetProxyPipeline(context => Task.CompletedTask);
-
-        var route = new RouteConfig
-        {
-            RouteId = "route1",
-            TimeoutPolicy = "defaulT",
-            Order = 12,
-            Match = new RouteMatch(),
-        };
-        var cluster = new ClusterState("cluster1");
-        var routeState = new RouteState("route1");
-
-        var (routeEndpoint, _) = CreateEndpoint(factory, routeState, route, cluster);
-
-        Assert.Null(routeEndpoint.Metadata.GetMetadata<RequestTimeoutAttribute>());
-        Assert.Null(routeEndpoint.Metadata.GetMetadata<DisableRequestTimeoutAttribute>());
-    }
-
-    [Fact]
     public void AddEndpoint_CustomTimeoutPolicy_Works()
     {
         var services = CreateServices();

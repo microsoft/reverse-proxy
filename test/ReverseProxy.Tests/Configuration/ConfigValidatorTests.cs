@@ -605,7 +605,6 @@ public class ConfigValidatorTests
     [Theory]
     [InlineData(null)]
     [InlineData("")]
-    [InlineData("defaulT")]
     [InlineData("disAble")]
     public async Task Accepts_ReservedTimeoutPolicy(string policy)
     {

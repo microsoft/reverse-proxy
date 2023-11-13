@@ -45,37 +45,26 @@ Example:
 }
 ```
 
-Timeout policies can be configured in Startup.ConfigureServices as follows:
-```
-public void ConfigureServices(IServiceCollection services)
+Timeout policies and the default policy can be configured in the service collection and the middleware can be added as follows:
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddReverseProxy()
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+
+builder.Services.AddRequestTimeouts(options =>
 {
-    services.AddRequestTimeouts(options =>
-    {
-        options.AddPolicy("customPolicy", TimeSpan.FromSeconds(20));
-    });
-}
+    options.AddPolicy("customPolicy", TimeSpan.FromSeconds(20));
+});
+
+var app = builder.Build();
+
+app.UseRequestTimeouts();
+
+app.MapReverseProxy();
+
+app.Run();
 ```
-
-In Startup.Configure add the timeout middleware between Routing and Endpoints.
-
-```
-public void Configure(IApplicationBuilder app)
-{
-    app.UseRouting();
-
-    app.UseRequestTimeouts();
-
-    app.UseEndpoints(endpoints =>
-    {
-        endpoints.MapReverseProxy();
-    });
-}
-```
-
-
-### DefaultPolicy
-
-Specifying the value `default` in a route's `TimeoutPolicy` parameter means that route will use the policy defined in [RequestTimeoutOptions.DefaultPolicy](https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.http.timeouts.requesttimeoutoptions.defaultpolicy#microsoft-aspnetcore-http-timeouts-requesttimeoutoptions-defaultpolicy).
 
 ### Disable timeouts
 

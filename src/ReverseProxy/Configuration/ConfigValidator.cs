@@ -318,8 +318,7 @@ internal sealed class ConfigValidator : IConfigValidator
         {
             var policies = _timeoutOptions.CurrentValue.Policies;
 
-            if (string.Equals(TimeoutPolicyConstants.Default, timeoutPolicyName, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(TimeoutPolicyConstants.Disable, timeoutPolicyName, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(TimeoutPolicyConstants.Disable, timeoutPolicyName, StringComparison.OrdinalIgnoreCase))
             {
                 if (policies.TryGetValue(timeoutPolicyName, out var _))
                 {
@@ -337,7 +336,7 @@ internal sealed class ConfigValidator : IConfigValidator
             }
         }
 
-        if (timeout.HasValue && timeout.Value.TotalMicroseconds <= 0)
+        if (timeout.HasValue && timeout.Value.TotalMilliseconds <= 0)
         {
             errors.Add(new ArgumentException($"The Timeout value '{timeout.Value}' is invalid for route '{routeId}'. The Timeout must be greater than zero milliseconds."));
         }

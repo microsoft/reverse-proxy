@@ -139,11 +139,7 @@ internal sealed class ProxyEndpointFactory
         }
 #endif
 #if NET8_0_OR_GREATER
-        if (string.Equals(TimeoutPolicyConstants.Default, config.TimeoutPolicy, StringComparison.OrdinalIgnoreCase))
-        {
-            // No-op (middleware applies the default)
-        }
-        else if (string.Equals(TimeoutPolicyConstants.Disable, config.TimeoutPolicy, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(TimeoutPolicyConstants.Disable, config.TimeoutPolicy, StringComparison.OrdinalIgnoreCase))
         {
             endpointBuilder.Metadata.Add(_disableRequestTimeout);
         }

@@ -50,7 +50,9 @@ internal sealed class ProxyPipelineInitializerMiddleware
 #if NET8_0_OR_GREATER
         // There's no way to detect the presence of the timeout middleware before this, only the options.
         if (endpoint.Metadata.GetMetadata<RequestTimeoutAttribute>() != null
-            && context.Features.Get<IHttpRequestTimeoutFeature>() == null)
+            && context.Features.Get<IHttpRequestTimeoutFeature>() == null
+            // The feature is skipped if the request is already canceled. We'll handle canceled requests later for consistency.
+            && !context.RequestAborted.IsCancellationRequested)
         {
             Log.TimeoutNotApplied(_logger, route.Config.RouteId);
             // Out of an abundance of caution, refuse the request rather than allowing it to proceed without the configured timeout.
