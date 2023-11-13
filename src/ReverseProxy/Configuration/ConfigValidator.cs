@@ -302,6 +302,18 @@ internal sealed class ConfigValidator : IConfigValidator
             return;
         }
 
+        if (string.Equals(RateLimitingConstants.Default, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(RateLimitingConstants.Disable, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase))
+        {
+            var policy = await _rateLimiterPolicyProvider.GetPolicyAsync(rateLimiterPolicyName);
+            if (policy is not null)
+            {
+                // We weren't expecting to find a policy with these names.
+                errors.Add(new ArgumentException($"The application has registered a RateLimiter policy named '{rateLimiterPolicyName}' that conflicts with the reserved RateLimiter policy name used on this route. The registered policy name needs to be changed for this route to function."));
+            }
+            return;
+        }
+
         try
         {
             var policy = await _rateLimiterPolicyProvider.GetPolicyAsync(rateLimiterPolicyName);
@@ -309,13 +321,6 @@ internal sealed class ConfigValidator : IConfigValidator
             if (policy is null)
             {
                 errors.Add(new ArgumentException($"RateLimiter policy '{rateLimiterPolicyName}' not found for route '{routeId}'."));
-                return;
-            }
-
-            if (string.Equals(RateLimitingConstants.Default, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(RateLimitingConstants.Disable, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase))
-            {
-                errors.Add(new ArgumentException($"The application has registered a RateLimiter policy named '{rateLimiterPolicyName}' that conflicts with the reserved RateLimiter policy name used on this route. The registered policy name needs to be changed for this route to function."));
             }
         }
         catch (Exception ex)
