@@ -153,7 +153,7 @@ public class HttpForwarderTests
         httpContext.Response.Body = proxyResponseStream;
 
         var destinationPrefix = "https://localhost:123/a/b/";
-        Uri? originalRequestUri = null;
+        Uri originalRequestUri = null;
         var transforms = new DelegateHttpTransforms()
         {
             OnRequest = (context, request, destination) =>
