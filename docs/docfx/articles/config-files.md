@@ -131,7 +131,7 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
         "ClusterId": "allclusterprops", // Name of one of the clusters
         "Order" : 100, // Lower numbers have higher precedence
         "MaxRequestBodySize" : 1000000, // In bytes. An optional override of the server's limit (30MB default). Set to -1 to disable.
-        "Authorization Policy" : "Anonymous", // Name of the policy or "Default", "Anonymous"
+        "AuthorizationPolicy" : "Anonymous", // Name of the policy or "Default", "Anonymous"
         "CorsPolicy" : "Default", // Name of the CorsPolicy to apply to this route or "Default", "Disable"
         "Match": {
           "Path": "/something/{**remainder}", // The path to match using ASP.NET syntax.
