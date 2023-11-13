@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Net.Http.Headers;
 using Xunit;
 using Yarp.ReverseProxy.Transforms;
+using Yarp.ReverseProxy.Transforms.Builder;
 using Yarp.ReverseProxy.Transforms.Builder.Tests;
 using Yarp.Tests.Common;
 
@@ -114,6 +115,28 @@ public class HttpTransformerTests
         Assert.False(proxyRequest.Content.Headers.TryGetValues(HeaderNames.ContentLength, out var _));
         // Transfer-Encoding is on the restricted list and removed. HttpClient will re-add it if required.
         Assert.False(proxyRequest.Headers.TryGetValues(HeaderNames.TransferEncoding, out var _));
+    }
+
+    [Fact]
+    public async Task TransformRequestAsync_SetDestinationPrefix()
+    {
+        const string updatedDestinationPrefix = "https://contoso.com";
+        var transformer = TransformBuilderTests.CreateTransformBuilder().CreateInternal(context =>
+        {
+            context.AddRequestTransform(transformContext =>
+            {
+                transformContext.DestinationPrefix = updatedDestinationPrefix;
+                return ValueTask.CompletedTask;
+            });
+        });
+        var httpContext = new DefaultHttpContext();
+        var proxyRequest = new HttpRequestMessage(HttpMethod.Get, requestUri: (string)null)
+        {
+            Content = new ByteArrayContent(Array.Empty<byte>()),
+        };
+
+        await transformer.TransformRequestAsync(httpContext, proxyRequest, "https://localhost", CancellationToken.None);
+        Assert.Equal(new Uri(updatedDestinationPrefix), proxyRequest.RequestUri);
     }
 
     [Theory]

@@ -153,10 +153,12 @@ public class HttpForwarderTests
         httpContext.Response.Body = proxyResponseStream;
 
         var destinationPrefix = "https://localhost:123/a/b/";
+        Uri originalRequestUri = null;
         var transforms = new DelegateHttpTransforms()
         {
             OnRequest = (context, request, destination) =>
             {
+                originalRequestUri = request.RequestUri;
                 request.RequestUri = new Uri(destination + "prefix"
                     + context.Request.Path + context.Request.QueryString);
                 request.Headers.Remove("transformHeader");
@@ -214,6 +216,7 @@ public class HttpForwarderTests
 
         var proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, ForwarderRequestConfig.Empty, transforms);
 
+        Assert.Null(originalRequestUri); // Should only be set by the transformer
         Assert.Equal(ForwarderError.None, proxyError);
         Assert.Equal(234, httpContext.Response.StatusCode);
         var reasonPhrase = httpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase;
