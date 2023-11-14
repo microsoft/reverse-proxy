@@ -745,9 +745,10 @@ internal sealed class HttpForwarder : IHttpForwarder
         ForwarderError error;
 
         var (firstResult, firstException) = await firstTask;
+        var activityTimedOut = activityCancellationSource.IsCancellationRequested && !activityCancellationSource.CancelledByLinkedToken;
         if (firstResult != StreamCopyResult.Success)
         {
-            error = ReportResult(context, requestFinishedFirst, firstResult, firstException);
+            error = ReportResult(context, requestFinishedFirst, firstResult, firstException, activityTimedOut);
             // Cancel the other direction
             activityCancellationSource.Cancel();
             // Wait for this to finish before exiting so the resources get cleaned up properly.
@@ -765,7 +766,7 @@ internal sealed class HttpForwarder : IHttpForwarder
             var (secondResult, secondException) = await secondTask;
             if (!cancelReads && secondResult != StreamCopyResult.Success)
             {
-                error = ReportResult(context, !requestFinishedFirst, secondResult, secondException!);
+                error = ReportResult(context, !requestFinishedFirst, secondResult, secondException!, activityTimedOut);
             }
             else
             {
@@ -775,7 +776,7 @@ internal sealed class HttpForwarder : IHttpForwarder
 
         return error;
 
-        ForwarderError ReportResult(HttpContext context, bool request, StreamCopyResult result, Exception exception)
+        ForwarderError ReportResult(HttpContext context, bool request, StreamCopyResult result, Exception exception, bool activityTimedOut)
         {
             var error = result switch
             {
@@ -784,6 +785,10 @@ internal sealed class HttpForwarder : IHttpForwarder
                 StreamCopyResult.Canceled => request ? ForwarderError.UpgradeRequestCanceled : ForwarderError.UpgradeResponseCanceled,
                 _ => throw new NotImplementedException(result.ToString()),
             };
+            if (activityTimedOut)
+            {
+                error = ForwarderError.UpgradeActivityTimeout;
+            }
             ReportProxyError(context, error, exception);
             return error;
         }
@@ -1039,6 +1044,7 @@ internal sealed class HttpForwarder : IHttpForwarder
                 ForwarderError.UpgradeResponseCanceled => "Copying the upgraded response body was canceled.",
                 ForwarderError.UpgradeResponseClient => "The client reported an error when copying the upgraded response body.",
                 ForwarderError.UpgradeResponseDestination => "The destination reported an error when copying the upgraded response body.",
+                ForwarderError.UpgradeActivityTimeout => "The WebSocket connection was closed after being idle longer than the Activity Timeout.",
                 ForwarderError.NoAvailableDestinations => throw new NotImplementedException(), // Not used in this class
                 _ => throw new NotImplementedException(error.ToString()),
             };
