@@ -10,12 +10,12 @@ namespace Yarp.Sample
     {
         private static readonly Counter _totalConnections = Metrics.CreateCounter(
             "yarp_kestrel_total_connections",
-            "Number of incomming connections opened"
+            "Number of incoming connections opened"
             );
 
         private static readonly Counter _totalTlsHandshakes = Metrics.CreateCounter(
             "yarp_kestrel_total_tls_Handshakes",
-            "Numer of TLS handshakes started"
+            "Number of TLS handshakes started"
             );
 
         private static readonly Gauge _currentTlsHandshakes = Metrics.CreateGauge(
@@ -30,7 +30,7 @@ namespace Yarp.Sample
 
         private static readonly Gauge _currentConnections = Metrics.CreateGauge(
             "yarp_kestrel_current_connections",
-            "Number of currently open incomming connections"
+            "Number of currently open incoming connections"
             );
 
         private static readonly Gauge _connectionQueueLength = Metrics.CreateGauge(
