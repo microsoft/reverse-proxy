@@ -12,6 +12,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+#if NET8_0_OR_GREATER
+using Microsoft.AspNetCore.Http.Timeouts;
+#endif
 using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
@@ -719,6 +722,10 @@ internal sealed class HttpForwarder : IHttpForwarder
                 Debug.Assert(upgradeFeature != null);
                 upgradeResult = await upgradeFeature.UpgradeAsync();
             }
+#if NET8_0_OR_GREATER
+            // Disable request timeout, if there is one, after the upgrade has been accepted
+            context.Features.Get<IHttpRequestTimeoutFeature>()?.DisableTimeout();
+#endif
         }
         catch (Exception ex)
         {

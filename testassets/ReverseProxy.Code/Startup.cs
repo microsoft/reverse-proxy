@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
@@ -35,7 +36,10 @@ public class Startup
                 Match = new RouteMatch
                 {
                     Path = "{**catch-all}"
-                }
+                },
+#if NET8_0_OR_GREATER
+                Timeout = TimeSpan.FromSeconds(5),
+#endif
             }
         };
         var clusters = new[]
@@ -72,7 +76,7 @@ public class Startup
                 // For each route+cluster pair decide if we want to add transforms, and if so, which?
                 // This logic is re-run each time a route is rebuilt.
 
-                transformBuilderContext.AddPathPrefix("/prefix");
+                // transformBuilderContext.AddPathPrefix("/prefix");
 
                 // Only do this for routes that require auth.
                 if (string.Equals("token", transformBuilderContext.Route.AuthorizationPolicy))
@@ -104,6 +108,16 @@ public class Startup
         services.AddSingleton<IMetricsConsumer<ForwarderMetrics>, ForwarderMetricsConsumer>();
         services.AddTelemetryConsumer<ForwarderTelemetryConsumer>();
         services.AddTelemetryListeners();
+#if NET8_0_OR_GREATER
+        services.AddRequestTimeouts(o =>
+        {
+            o.DefaultPolicy = new Microsoft.AspNetCore.Http.Timeouts.RequestTimeoutPolicy()
+            {
+                Timeout = TimeSpan.FromSeconds(1),
+                TimeoutStatusCode = StatusCodes.Status418ImATeapot,
+            };
+        });
+#endif
     }
 
     /// <summary>
@@ -113,6 +127,9 @@ public class Startup
     {
         app.UseRouting();
         app.UseAuthorization();
+#if NET8_0_OR_GREATER
+        app.UseRequestTimeouts();
+#endif
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
