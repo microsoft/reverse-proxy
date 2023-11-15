@@ -49,7 +49,7 @@ services.AddCors(options =>
 });
 ```
 
-In then add the CORS middleware.
+Then add the CORS middleware.
 
 ```
 app.UseCors();

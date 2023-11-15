@@ -1,24 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Yarp.ReverseProxy;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
+using Yarp.ReverseProxy.Sample;
 using Yarp.ReverseProxy.Transforms;
 using Yarp.Telemetry.Consumption;
-using Yarp.ReverseProxy.Sample;
-using System.Linq;
-using Yarp.ReverseProxy;
 
 var builder = WebApplication.CreateBuilder(args);
 

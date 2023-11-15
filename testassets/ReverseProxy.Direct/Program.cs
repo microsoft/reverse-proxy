@@ -59,11 +59,7 @@ var transformer = transformBuilder.Create(context =>
 
 var requestConfig = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
 
-app.UseRouting();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapForwarder("/{**catch-all}", "https://example.com", requestConfig, transformer, httpClient);
-});
+app.MapForwarder("/{**catch-all}", "https://example.com", requestConfig, transformer, httpClient);
 
 app.Run();
 
