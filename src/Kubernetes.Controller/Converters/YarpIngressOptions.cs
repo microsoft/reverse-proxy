@@ -14,6 +14,7 @@ internal sealed class YarpIngressOptions
     public string AuthorizationPolicy { get; set; }
 #if NET7_0_OR_GREATER
     public string RateLimiterPolicy { get; set; }
+    public string OutputCachePolicy { get; set; }
 #endif
     public SessionAffinityConfig SessionAffinity { get; set; }
     public HttpClientConfig HttpClientConfig { get; set; }

@@ -43,16 +43,17 @@ metadata:
   annotations:
     yarp.ingress.kubernetes.io/authorization-policy: authzpolicy
     yarp.ingress.kubernetes.io/rate-limiter-policy: ratelimiterpolicy
+    yarp.ingress.kubernetes.io/output-cache-policy: outputcachepolicy
     yarp.ingress.kubernetes.io/transforms: |
       - PathRemovePrefix: "/apis"
     yarp.ingress.kubernetes.io/route-headers: |
       - Name: the-header-key
-        Values: 
+        Values:
         - the-header-value
         Mode: Contains
         IsCaseSensitive: false
       - Name: another-header-key
-        Values: 
+        Values:
         - another-header-value
         Mode: Contains
         IsCaseSensitive: false
@@ -75,6 +76,7 @@ The table below lists the available annotations.
 |---|---|
 |yarp.ingress.kubernetes.io/authorization-policy|string|
 |yarp.ingress.kubernetes.io/rate-limiter-policy|string|
+|yarp.ingress.kubernetes.io/output-cache-policy|string|
 |yarp.ingress.kubernetes.io/backend-protocol|string|
 |yarp.ingress.kubernetes.io/cors-policy|string|
 |yarp.ingress.kubernetes.io/health-check|[ActivateHealthCheckConfig](https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuration.ActiveHealthCheckConfig.html)|
@@ -97,6 +99,10 @@ See https://microsoft.github.io/reverse-proxy/articles/authn-authz.html for a li
 See https://microsoft.github.io/reverse-proxy/articles/rate-limiting.html for a list of available policies, or how to add your own custom policies.
 
 `yarp.ingress.kubernetes.io/rate-limiter-policy: mypolicy`
+
+#### Output Cache Policy
+
+`yarp.ingress.kubernetes.io/output-cache-policy: mycachepolicy`
 
 #### Backend Protocol
 
@@ -196,12 +202,12 @@ See https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuratio
 ```
 yarp.ingress.kubernetes.io/route-headers: |
   - Name: the-header-key
-    Values: 
+    Values:
     - the-header-value
     Mode: Contains
     IsCaseSensitive: false
   - Name: another-header-key
-    Values: 
+    Values:
     - another-header-value
     Mode: Contains
     IsCaseSensitive: false
