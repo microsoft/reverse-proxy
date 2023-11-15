@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http.Timeouts;
 #endif
 #if NET7_0_OR_GREATER
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.OutputCaching;
 #endif
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
@@ -21,6 +22,7 @@ using Yarp.ReverseProxy.Model;
 using CorsConstants = Yarp.ReverseProxy.Configuration.CorsConstants;
 using AuthorizationConstants = Yarp.ReverseProxy.Configuration.AuthorizationConstants;
 using RateLimitingConstants = Yarp.ReverseProxy.Configuration.RateLimitingConstants;
+using OutputCacheConstants = Yarp.ReverseProxy.Configuration.OutputCacheConstants;
 using TimeoutPolicyConstants = Yarp.ReverseProxy.Configuration.TimeoutPolicyConstants;
 
 namespace Yarp.ReverseProxy.Routing;
@@ -136,6 +138,15 @@ internal sealed class ProxyEndpointFactory
         else if (!string.IsNullOrEmpty(config.RateLimiterPolicy))
         {
             endpointBuilder.Metadata.Add(new EnableRateLimitingAttribute(config.RateLimiterPolicy));
+        }
+
+        if (string.Equals(OutputCacheConstants.Default, config.OutputCachePolicy, StringComparison.OrdinalIgnoreCase))
+        {
+            // No-op (middleware applies the default)
+        }
+        else if (!string.IsNullOrEmpty(config.OutputCachePolicy))
+        {
+            endpointBuilder.Metadata.Add(new OutputCacheAttribute { PolicyName = config.OutputCachePolicy });
         }
 #endif
 #if NET8_0_OR_GREATER

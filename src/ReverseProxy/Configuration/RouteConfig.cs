@@ -51,6 +51,12 @@ public sealed record RouteConfig
     /// Set to "Default" or leave empty to use the global rate limits, if any.
     /// </summary>
     public string? RateLimiterPolicy { get; init; }
+
+    /// <summary>
+    /// The name of the OutputCachePolicy to apply to this route.
+    /// If not set then only the BasePolicy will apply.
+    /// </summary>
+    public string? OutputCachePolicy { get; init; }
 #endif
 #if NET8_0_OR_GREATER
     /// <summary>
