@@ -9,7 +9,7 @@ Session affinity services are registered in the DI container automatically by `A
 
 Example:
 ```C#
-endpoints.MapReverseProxy(proxyPipeline =>
+app.MapReverseProxy(proxyPipeline =>
 {
     proxyPipeline.UseSessionAffinity();
     proxyPipeline.UseLoadBalancing();

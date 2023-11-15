@@ -1,28 +1,41 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Yarp.ReverseProxy.Model;
+using Yarp.ReverseProxy.Sample;
 
-namespace Yarp.ReverseProxy.Sample;
+var builder = WebApplication.CreateBuilder(args);
 
-/// <summary>
-/// Class that contains the entrypoint for the Reverse Proxy sample app.
-/// </summary>
-public class Program
+builder.Services.AddControllers();
+builder.Services.AddReverseProxy()
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy2"))
+    .AddConfigFilter<CustomConfigFilter>();
+
+var app = builder.Build();
+
+app.MapControllers();
+app.MapReverseProxy(proxyPipeline =>
 {
-    /// <summary>
-    /// Entrypoint of the application.
-    /// </summary>
-    public static void Main(string[] args)
+    // Custom endpoint selection
+    proxyPipeline.Use((context, next) =>
     {
-        CreateHostBuilder(args).Build().Run();
-    }
+        var someCriteria = false; // MeetsCriteria(context);
+        if (someCriteria)
+        {
+            var availableDestinationsFeature = context.Features.Get<IReverseProxyFeature>();
+            var destination = availableDestinationsFeature.AvailableDestinations[0]; // PickDestination(availableDestinationsFeature.Destinations);
+                                                                                     // Load balancing will no-op if we've already reduced the list of available destinations to 1.
+            availableDestinationsFeature.AvailableDestinations = destination;
+        }
 
-    private static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
-            .ConfigureWebHostDefaults(webBuilder =>
-            {
-                webBuilder.UseStartup<Startup>();
-            });
-}
+        return next();
+    });
+    proxyPipeline.UseSessionAffinity();
+    proxyPipeline.UseLoadBalancing();
+    proxyPipeline.UsePassiveHealthChecks();
+}).ConfigureEndpoints((builder, route) => builder.WithDisplayName($"ReverseProxy {route.RouteId}-{route.ClusterId}"));
+
+app.Run();

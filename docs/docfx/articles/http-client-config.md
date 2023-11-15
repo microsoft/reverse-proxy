@@ -55,18 +55,14 @@ Configuration settings:
 ```
 Note that if you're using an encoding other than ASCII, you also need to set your server to accept requests and/or send responses with such headers. For example, when using Kestrel as the server, use [`KestrelServerOptions.RequestHeaderEncodingSelector`](https://docs.microsoft.com/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.RequestHeaderEncodingSelector) / [`.ResponseHeaderEncodingSelector`](https://docs.microsoft.com/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.ResponseHeaderEncodingSelector) to configure Kestrel to allow `Latin1` ("`iso-8859-1`") headers:
 ```C#
-private static IHostBuilder CreateHostBuilder(string[] args) =>
-    Host.CreateDefaultBuilder(args)
-        .ConfigureWebHostDefaults(webBuilder =>
-        {
-            webBuilder.UseStartup<Startup>()
-                      .ConfigureKestrel(kestrel =>
-                      {
-                          kestrel.RequestHeaderEncodingSelector = _ => Encoding.Latin1;
-                          // and/or
-                          kestrel.ResponseHeaderEncodingSelector = _ => Encoding.Latin1;
-                      });
-        });
+var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.ConfigureKestrel(kestrel =>
+{
+    kestrel.RequestHeaderEncodingSelector = _ => Encoding.Latin1;
+    // and/or
+    kestrel.ResponseHeaderEncodingSelector = _ => Encoding.Latin1;
+});
+
 ```
 - EnableMultipleHttp2Connections - enables opening additional HTTP/2 connections to the same server when the maximum number of concurrent streams is reached on all existing connections. The default is `true`. See [SocketsHttpHandler.EnableMultipleHttp2Connections](https://docs.microsoft.com/dotnet/api/system.net.http.socketshttphandler.enablemultiplehttp2connections)
 ```JSON
@@ -156,36 +152,33 @@ HTTP client configuration uses the type [HttpClientConfig](xref:Yarp.ReverseProx
 The following is an example of `HttpClientConfig` using [code based](config-providers.md) configuration. An instance of `HttpClientConfig` is assigned to the [ClusterConfig.HttpClient](xref:Yarp.ReverseProxy.Configuration.ClusterConfig) property before passing the cluster array to `LoadFromMemory` method.
 
 ```C#
-public void ConfigureServices(IServiceCollection services)
+var routes = new[]
 {
-    var routes = new[]
+    new RouteConfig()
     {
-        new RouteConfig()
+        RouteId = "route1",
+        ClusterId = "cluster1",
+        Match =
         {
-            RouteId = "route1",
-            ClusterId = "cluster1",
-            Match =
-            {
-                Path = "{**catch-all}"
-            }
+            Path = "{**catch-all}"
         }
-    };
-    var clusters = new[]
+    }
+};
+var clusters = new[]
+{
+    new ClusterConfig()
     {
-        new ClusterConfig()
+        ClusterId = "cluster1",
+        Destinations =
         {
-            ClusterId = "cluster1",
-            Destinations =
-            {
-                { "destination1", new DestinationConfig() { Address = "https://localhost:10000" } }
-            },
-            HttpClient = new HttpClientConfig { MaxConnectionsPerServer = 10, SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12 }
-        }
-    };
+            { "destination1", new DestinationConfig() { Address = "https://localhost:10000" } }
+        },
+        HttpClient = new HttpClientConfig { MaxConnectionsPerServer = 10, SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12 }
+    }
+};
 
-    services.AddReverseProxy()
-        .LoadFromMemory(routes, clusters);
-}
+services.AddReverseProxy()
+    .LoadFromMemory(routes, clusters);
 ```
 
 ## Configuring the http client
@@ -193,12 +186,12 @@ public void ConfigureServices(IServiceCollection services)
 `ConfigureHttpClient` provides a callback to customize the `SocketsHttpHandler` settings used for proxying requests. This will be called each time a cluster is added or changed. Cluster settings are applied to the handler before the callback. Custom data can be provided in the cluster metadata. This example shows adding a client certificate that will authenticate the proxy to the destination servers.
 
 ```C#
-    var clientCert = new X509Certificate2("path");
-    services.AddReverseProxy()
-        .ConfigureHttpClient((context, handler) =>
-        {
-            handler.SslOptions.ClientCertificates.Add(clientCert);
-        })
+var clientCert = new X509Certificate2("path");
+services.AddReverseProxy()
+    .ConfigureHttpClient((context, handler) =>
+    {
+        handler.SslOptions.ClientCertificates.Add(clientCert);
+    })
 ```
 
 ## Custom IForwarderHttpClientFactory

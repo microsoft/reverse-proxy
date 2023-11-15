@@ -38,34 +38,23 @@ Example:
 
 [CORS policies](https://docs.microsoft.com/aspnet/core/security/cors#cors-with-named-policy-and-middleware) are an ASP.NET Core concept that the proxy utilizes. The proxy provides the above configuration to specify a policy per route and the rest is handled by existing ASP.NET Core CORS Middleware.
 
-CORS policies can be configured in Startup.ConfigureServices as follows:
+CORS policies can be configured in the application as follows:
 ```
-public void ConfigureServices(IServiceCollection services)
+services.AddCors(options =>
 {
-    services.AddCors(options =>
+    options.AddPolicy("customPolicy", builder =>
     {
-        options.AddPolicy("customPolicy", builder =>
-        {
-            builder.AllowAnyOrigin();
-        });
+        builder.AllowAnyOrigin();
     });
-}
+});
 ```
 
-In Startup.Configure add the CORS middleware between Routing and Endpoints.
+In then add the CORS middleware.
 
 ```
-public void Configure(IApplicationBuilder app)
-{
-    app.UseRouting();
+app.UseCors();
 
-    app.UseCors();
-
-    app.UseEndpoints(endpoints =>
-    {
-        endpoints.MapReverseProxy();
-    });
-}
+app.MapReverseProxy();
 ```
 
 

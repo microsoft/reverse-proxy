@@ -1,28 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace SampleServer;
+var builder = WebApplication.CreateBuilder(args);
 
-/// <summary>
-/// Class that contains the entrypoint for the Reverse Proxy sample app.
-/// </summary>
-public class Program
-{
-    /// <summary>
-    /// Entrypoint of the application.
-    /// </summary>
-    public static void Main(string[] args)
-    {
-        CreateHostBuilder(args).Build().Run();
-    }
+builder.Services.AddControllers()
+    .AddJsonOptions(options => options.JsonSerializerOptions.WriteIndented = true);
 
-    private static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
-        .ConfigureWebHostDefaults(webBuilder =>
-        {
-            webBuilder.UseStartup<Startup>();
-        });
-}
+var app = builder.Build();
+
+app.UseWebSockets();
+app.MapControllers();
+
+app.Run();

@@ -32,47 +32,100 @@ See [ReverseProxy.Direct.Sample](https://github.com/microsoft/reverse-proxy/tree
 
 Follow the [Getting Started](xref:getting-started) guide to create a project and add the Yarp.ReverseProxy nuget dependency.
 
-### Update Startup
+### Update Program.cs
 
-In this example the IHttpForwarder is registered in DI, injected into the `Startup.Configure` method, and used to forward requests from a specific route to `https://localhost:10000/prefix/`.
+In this example the IHttpForwarder is registered in DI, injected into the endpoint method, and used to forward requests from a specific route to `https://localhost:10000/prefix/`.
 
 The optional transforms show how to copy all request headers except for the `Host`, it's common that the destination requires its own `Host` from the url.
 
 ```C#
-public void ConfigureServices(IServiceCollection services)
-{
-    services.AddHttpForwarder();
-}
+using System;
+using System.Diagnostics;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Threading;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Yarp.ReverseProxy.Forwarder;
+using Yarp.ReverseProxy.Transforms;
 
-public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
-{
-    var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
-    {
-        UseProxy = false,
-        AllowAutoRedirect = false,
-        AutomaticDecompression = DecompressionMethods.None,
-        UseCookies = false,
-        ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
-        ConnectTimeout = TimeSpan.FromSeconds(15),
-    });
-    var transformer = new CustomTransformer(); // or HttpTransformer.Default;
-    var requestConfig = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
+var builder = WebApplication.CreateBuilder(args);
 
-    app.UseRouting();
-    app.UseEndpoints(endpoints =>
+builder.Services.AddHttpForwarder();
+
+var app = builder.Build();
+
+// Configure our own HttpMessageInvoker for outbound calls for proxy operations
+var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
+{
+    UseProxy = false,
+    AllowAutoRedirect = false,
+    AutomaticDecompression = DecompressionMethods.None,
+    UseCookies = false,
+    ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
+    ConnectTimeout = TimeSpan.FromSeconds(15),
+});
+
+// Setup our own request transform class
+var transformer = new CustomTransformer(); // or HttpTransformer.Default;
+var requestOptions = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
+
+app.UseRouting();
+
+var transformer = new CustomTransformer(); // or HttpTransformer.Default;
+var requestConfig = new ForwarderRequestConfig { ActivityTimeout = TimeSpan.FromSeconds(100) };
+
+// When using IHttpForwarder for direct forwarding you are responsible for routing, destination discovery, load balancing, affinity, etc..
+// For an alternate example that includes those features see BasicYarpSample.
+app.Map("/test/{**catch-all}", async (HttpContext httpContext, IHttpForwarder forwarder) =>
+{
+    var error = await forwarder.SendAsync(httpContext, "https://localhost:10000/",
+        httpClient, requestConfig, transformer);
+    // Check if the operation was successful
+    if (error != ForwarderError.None)
     {
-        endpoints.Map("/{**catch-all}", async httpContext =>
-        {
-            var error = await forwarder.SendAsync(httpContext, "https://localhost:10000/",
-                httpClient, requestConfig, transformer);
-            // Check if the operation was successful
-            if (error != ForwarderError.None)
-            {
-                var errorFeature = httpContext.GetForwarderErrorFeature();
-                var exception = errorFeature.Exception;
-            }
-        });
-    });
+        var errorFeature = httpContext.GetForwarderErrorFeature();
+        var exception = errorFeature.Exception;
+    }
+});
+
+app.Run();
+
+/// <summary>
+/// Custom request transformation
+/// </summary>
+internal class CustomTransformer : HttpTransformer
+{
+    /// <summary>
+    /// A callback that is invoked prior to sending the proxied request. All HttpRequestMessage
+    /// fields are initialized except RequestUri, which will be initialized after the
+    /// callback if no value is provided. The string parameter represents the destination
+    /// URI prefix that should be used when constructing the RequestUri. The headers
+    /// are copied by the base implementation, excluding some protocol headers like HTTP/2
+    /// pseudo headers (":authority").
+    /// </summary>
+    /// <param name="httpContext">The incoming request.</param>
+    /// <param name="proxyRequest">The outgoing proxy request.</param>
+    /// <param name="destinationPrefix">The uri prefix for the selected destination server which can be used to create
+    /// the RequestUri.</param>
+    public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix, CancellationToken cancellationToken)
+    {
+        // Copy all request headers
+        await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix, cancellationToken);
+
+        // Customize the query string:
+        var queryContext = new QueryTransformContext(httpContext.Request);
+        queryContext.Collection.Remove("param1");
+        queryContext.Collection["area"] = "xx2";
+
+        // Assign the custom uri. Be careful about extra slashes when concatenating here. RequestUtilities.MakeDestinationAddress is a safe default.
+        proxyRequest.RequestUri = RequestUtilities.MakeDestinationAddress("https://example.com", httpContext.Request.Path, queryContext.QueryString);
+
+        // Suppress the original request header, use the one from the destination Uri.
+        proxyRequest.Headers.Host = null;
+    }
 }
 ```
 
@@ -102,18 +155,7 @@ private class CustomTransformer : HttpTransformer
 There are also [extension methods](xref:Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions) available that simplify the mapping of IHttpForwarder to endpoints.
 
 ```C#
-...
-
-public void Configure(IApplicationBuilder app, IHttpForwarder forwarder)
-{
-    ...
-
-    app.UseRouting();
-    app.UseEndpoints(endpoints =>
-    {
-        endpoints.MapForwarder("/{**catch-all}", "https://localhost:10000/", requestConfig, transformer, httpClient);
-    });
-}
+app.MapForwarder("/{**catch-all}", "https://localhost:10000/", requestConfig, transformer, httpClient);
 ```
 
 ### The HTTP Client
