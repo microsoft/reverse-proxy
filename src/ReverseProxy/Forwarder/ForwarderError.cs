@@ -103,4 +103,9 @@ public enum ForwarderError : int
     /// Failed while creating the request message.
     /// </summary>
     RequestCreation,
+
+    /// <summary>
+    /// An upgraded request was idle and canceled due to the activity timeout.
+    /// </summary>
+    UpgradeActivityTimeout,
 }
