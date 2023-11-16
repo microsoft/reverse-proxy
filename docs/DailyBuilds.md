@@ -14,6 +14,8 @@ If you want to download the latest daily build and use it in a project, then you
       <packageSources>
           <clear />
           <add key=".NET Libraries Daily" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-libraries/nuget/v3/index.json" />
+          <!-- The .NET Libraries Transport Daily feed is only needed for the Yarp.Kubernetes.Controller package -->
+          <add key=".NET Libraries Transport Daily" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-libraries-transport/nuget/v3/index.json" />
           <add key="NuGet.org" value="https://api.nuget.org/v3/index.json" />
       </packageSources>
   </configuration>

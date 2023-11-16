@@ -53,8 +53,9 @@ public class RequestTransformContext
     /// <summary>
     /// The URI prefix for the proxy request. This includes the scheme and host and can optionally include a
     /// port and path base. The 'Path' and 'Query' properties will be appended to this after the transforms have run.
+    /// Changing this value can have side effects on load balancing and health checks.
     /// </summary>
-    public string DestinationPrefix { get; init; } = default!;
+    public string DestinationPrefix { get; set; } = default!;
 
     /// <summary>
     /// A <see cref="CancellationToken"/> indicating that the request is being aborted.

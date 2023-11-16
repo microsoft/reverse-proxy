@@ -52,6 +52,23 @@ public sealed record RouteConfig
     /// </summary>
     public string? RateLimiterPolicy { get; init; }
 #endif
+#if NET8_0_OR_GREATER
+    /// <summary>
+    /// The name of the TimeoutPolicy to apply to this route.
+    /// Setting both Timeout and TimeoutPolicy is an error.
+    /// If not set then only the system default will apply.
+    /// Set to "Disable" to disable timeouts for this route.
+    /// Set to "Default" or leave empty to use the system defaults, if any.
+    /// </summary>
+    public string? TimeoutPolicy { get; init; }
+
+    /// <summary>
+    /// The Timeout to apply to this route. This overrides any system defaults.
+    /// Setting both Timeout and TimeoutPolicy is an error.
+    /// Timeout granularity is limited to milliseconds.
+    /// </summary>
+    public TimeSpan? Timeout { get; init; }
+#endif
     /// <summary>
     /// The name of the CorsPolicy to apply to this route.
     /// If not set then the route won't be automatically matched for cors preflight requests.
@@ -90,6 +107,10 @@ public sealed record RouteConfig
 #if NET7_0_OR_GREATER
             && string.Equals(RateLimiterPolicy, other.RateLimiterPolicy, StringComparison.OrdinalIgnoreCase)
 #endif
+#if NET8_0_OR_GREATER
+            && string.Equals(TimeoutPolicy, other.TimeoutPolicy, StringComparison.OrdinalIgnoreCase)
+            && Timeout == other.Timeout
+#endif
             && string.Equals(CorsPolicy, other.CorsPolicy, StringComparison.OrdinalIgnoreCase)
             && Match == other.Match
             && CaseSensitiveEqualHelper.Equals(Metadata, other.Metadata)
@@ -106,6 +127,10 @@ public sealed record RouteConfig
         hash.Add(AuthorizationPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
 #if NET7_0_OR_GREATER
         hash.Add(RateLimiterPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
+#endif
+#if NET8_0_OR_GREATER
+        hash.Add(Timeout?.GetHashCode());
+        hash.Add(TimeoutPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
 #endif
         hash.Add(CorsPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
         hash.Add(Match);

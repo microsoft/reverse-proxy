@@ -150,6 +150,10 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
 #if NET7_0_OR_GREATER
             RateLimiterPolicy = section[nameof(RouteConfig.RateLimiterPolicy)],
 #endif
+#if NET8_0_OR_GREATER
+            TimeoutPolicy = section[nameof(RouteConfig.TimeoutPolicy)],
+            Timeout = section.ReadTimeSpan(nameof(RouteConfig.Timeout)),
+#endif
             CorsPolicy = section[nameof(RouteConfig.CorsPolicy)],
             Metadata = section.GetSection(nameof(RouteConfig.Metadata)).ReadStringDictionary(),
             Transforms = CreateTransforms(section.GetSection(nameof(RouteConfig.Transforms))),

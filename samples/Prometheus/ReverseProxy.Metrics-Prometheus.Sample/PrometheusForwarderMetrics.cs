@@ -10,7 +10,7 @@ namespace Yarp.Sample
     {
         private static readonly Counter _requestsStarted = Metrics.CreateCounter(
             "yarp_proxy_requests_started",
-            "Number of requests inititated through the proxy"
+            "Number of requests initiated through the proxy"
             );
 
         private static readonly Counter _requestsFailed = Metrics.CreateCounter(

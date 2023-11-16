@@ -4,7 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+#if NET7_0_OR_GREATER
+using Microsoft.AspNetCore.Builder;
+#endif
 using Microsoft.AspNetCore.Cors.Infrastructure;
+#if NET7_0_OR_GREATER
+using Microsoft.AspNetCore.RateLimiting;
+#endif
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
@@ -601,7 +607,145 @@ public class ConfigValidatorTests
         Assert.NotEmpty(result);
         Assert.Contains(result, err => err.Message.Equals($"The application has registered an authorization policy named '{authorizationPolicy}' that conflicts with the reserved authorization policy name used on this route. The registered policy name needs to be changed for this route to function."));
     }
+#if NET8_0_OR_GREATER
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("disAble")]
+    public async Task Accepts_ReservedTimeoutPolicy(string policy)
+    {
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            TimeoutPolicy = policy,
+            Match = new RouteMatch
+            {
+                Hosts = new[] { "localhost" },
+            },
+            ClusterId = "cluster1",
+        };
 
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var result = await validator.ValidateRouteAsync(route);
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task Accepts_CustomTimeoutPolicy()
+    {
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            TimeoutPolicy = "custom",
+            Match = new RouteMatch
+            {
+                Hosts = new[] { "localhost" },
+            },
+            ClusterId = "cluster1",
+        };
+
+        var services = CreateServices(services =>
+        {
+            services.AddRequestTimeouts(options =>
+            {
+                options.AddPolicy("custom", TimeSpan.FromSeconds(1));
+            });
+        });
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var result = await validator.ValidateRouteAsync(route);
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task Accepts_CustomTimeout()
+    {
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            Timeout = TimeSpan.FromSeconds(1),
+            Match = new RouteMatch
+            {
+                Hosts = new[] { "localhost" },
+            },
+            ClusterId = "cluster1",
+        };
+
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var result = await validator.ValidateRouteAsync(route);
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task Rejects_UnknownTimeoutPolicy()
+    {
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            TimeoutPolicy = "unknown",
+            ClusterId = "cluster1",
+            Match = new RouteMatch(),
+        };
+
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var result = await validator.ValidateRouteAsync(route);
+
+        Assert.NotEmpty(result);
+        Assert.Contains(result, err => err.Message.Equals("Timeout policy 'unknown' not found for route 'route1'."));
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public async Task Rejects_InvalidTimeouts(int timeout)
+    {
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            Timeout = TimeSpan.FromMilliseconds(timeout),
+            ClusterId = "cluster1",
+            Match = new RouteMatch(),
+        };
+
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var result = await validator.ValidateRouteAsync(route);
+
+        Assert.NotEmpty(result);
+        Assert.Contains(result, err => err.Message.Equals($"The Timeout value '{TimeSpan.FromMilliseconds(timeout)}' is invalid for route 'route1'. The Timeout must be greater than zero milliseconds."));
+    }
+
+    [Fact]
+    public async Task Rejects_TimeoutWithTimeoutPolicy()
+    {
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            TimeoutPolicy = "unknown",
+            Timeout = TimeSpan.FromSeconds(1),
+            ClusterId = "cluster1",
+            Match = new RouteMatch(),
+        };
+
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var result = await validator.ValidateRouteAsync(route);
+
+        Assert.NotEmpty(result);
+        Assert.Contains(result, err => err.Message.Equals("Timeout policy 'unknown' not found for route 'route1'."));
+    }
+#endif
     [Theory]
     [InlineData(null)]
     [InlineData("")]
@@ -709,6 +853,81 @@ public class ConfigValidatorTests
         Assert.NotEmpty(result);
         Assert.Contains(result, err => err.Message.Equals($"The application has registered a CORS policy named '{corsPolicy}' that conflicts with the reserved CORS policy name used on this route. The registered policy name needs to be changed for this route to function."));
     }
+
+#if NET7_0_OR_GREATER
+    [Theory]
+    [InlineData("Default")]
+    [InlineData("Disable")]
+    public async Task Accepts_BuiltInRateLimiterPolicy(string rateLimiterPolicy)
+    {
+        var route = new RouteConfig {
+            RouteId = "route1",
+            Match = new RouteMatch
+            {
+                Hosts = new[] { "localhost" },
+            },
+            ClusterId = "cluster1",
+            RateLimiterPolicy = rateLimiterPolicy
+        };
+
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var result = await validator.ValidateRouteAsync(route);
+
+        Assert.Empty(result);
+    }
+
+    [Theory]
+    [InlineData("Default")]
+    [InlineData("Disable")]
+    public async Task Reports_BuildInRateLimiterPolicyNameConflict(string rateLimiterPolicy)
+    {
+        var route = new RouteConfig
+        {
+            RouteId = "route1",
+            Match = new RouteMatch
+            {
+                Hosts = new[] { "localhost" },
+            },
+            ClusterId = "cluster1",
+            RateLimiterPolicy = rateLimiterPolicy
+        };
+
+        var services = CreateServices(s =>
+        {
+            s.AddRateLimiter(o => o.AddConcurrencyLimiter(rateLimiterPolicy, c => { }));
+        });
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var result = await validator.ValidateRouteAsync(route);
+
+        Assert.NotEmpty(result);
+        Assert.Contains(result, err => err.Message.Contains($"The application has registered a RateLimiter policy named '{rateLimiterPolicy}' that conflicts with the reserved RateLimiter policy name used on this route. The registered policy name needs to be changed for this route to function."));
+    }
+
+    [Theory]
+    [InlineData("NotAPolicy")]
+    public async Task Rejects_InvalidRateLimiterPolicy(string rateLimiterPolicy)
+    {
+        var route = new RouteConfig {
+            RouteId = "route1",
+            Match = new RouteMatch
+            {
+                Hosts = new[] { "localhost" },
+            },
+            ClusterId = "cluster1",
+            RateLimiterPolicy = rateLimiterPolicy };
+
+        var services = CreateServices();
+        var validator = services.GetRequiredService<IConfigValidator>();
+
+        var result = await validator.ValidateRouteAsync(route);
+
+        Assert.NotEmpty(result);
+        Assert.Contains(result, err => err.Message.Contains($"RateLimiter policy '{rateLimiterPolicy}' not found"));
+    }
+#endif
 
     [Fact]
     public async Task EmptyCluster_Works()

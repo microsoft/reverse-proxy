@@ -8,21 +8,12 @@ ASP.NET Core uses a [middleware pipeline](https://docs.microsoft.com/aspnet/core
 The [getting started](getting-started.md) sample shows the following Configure method. This sets up a middleware pipeline with development tools, routing, and proxy configured endpoints (`MapReverseProxy`).
 
 ```C#
-public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-{
-    if (env.IsDevelopment())
-    {
-        app.UseDeveloperExceptionPage();
-    }
-    
-    // Enable endpoint routing, required for the reverse proxy
-    app.UseRouting();
-    // Register the reverse proxy routes
-    app.UseEndpoints(endpoints => 
-    {
-        endpoints.MapReverseProxy(); 
-    }); 
-} 
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddReverseProxy()
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+var app = builder.Build();
+app.MapReverseProxy();
+app.Run();
 ```
 
 The parmeterless `MapReverseProxy()` in [ReverseProxyIEndpointRouteBuilderExtensions](xref:Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions) overload includes all standard proxy middleware for [session affinity](session-affinity.md), [load balancing](load-balancing.md), [passive health checks](dests-health-checks.md#passive-health-checks), and the final proxying of the request. Each of these check the configuration of the matched route, cluster, and destination and perform their task accordingly.
@@ -34,7 +25,7 @@ Middleware added to your application pipeline will see the request in different 
 [ReverseProxyIEndpointRouteBuilderExtensions](xref:Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions) provides an overload of `MapReverseProxy` that lets you build a middleware pipeline that will run only for requests matched to proxy configured routes.
 
 ```
-endpoints.MapReverseProxy(proxyPipeline =>
+app.MapReverseProxy(proxyPipeline =>
 {
     proxyPipeline.Use((context, next) =>
     {
@@ -155,4 +146,3 @@ Middleware MUST check `HttpResponse.HasStarted` before modifying response fields
 Middleware should avoid interacting with the request or response bodies. Bodies are not buffered by default, so interacting with them can prevent them from reaching their destinations. While enabling buffering is possible, it's discouraged as it can add significant memory and latency overhead. Using a wrapped, streaming approach is recommended if the body must be examined or modified. See the [ResponseCompression](https://github.com/dotnet/aspnetcore/blob/24588220006bc164b63293129cc94ac6292250e4/src/Middleware/ResponseCompression/src/ResponseCompressionMiddleware.cs#L55-L73) middleware for an example.
 
 Middleware MUST NOT do any multi-threaded work on an individual request, `HttpContext` and its associated members are not thread safe.
-

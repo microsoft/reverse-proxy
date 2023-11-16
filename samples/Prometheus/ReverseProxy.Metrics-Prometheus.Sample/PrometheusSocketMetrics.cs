@@ -15,12 +15,12 @@ namespace Yarp.Sample
 
 
         private static readonly Counter _incomingConnectionsEstablished = Metrics.CreateCounter(
-            "yarp_sockets_incomming_connections_established",
+            "yarp_sockets_incoming_connections_established",
             "Number of incoming (Accept) Socket connections established"
             );
 
         private static readonly Counter _bytesReceived = Metrics.CreateCounter(
-            "yarp_sockets_bytes_recieved",
+            "yarp_sockets_bytes_received",
             "Number of bytes received"
             );
 
