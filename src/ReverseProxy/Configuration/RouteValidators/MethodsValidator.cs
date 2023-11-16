@@ -11,15 +11,14 @@ internal sealed class MethodsValidator : IRouteValidator
         "HEAD", "OPTIONS", "GET", "PUT", "POST", "PATCH", "DELETE", "TRACE",
     };
 
-    public IList<Exception> Validate(RouteMatch route, string routeId)
+    public void AddValidationErrors(RouteMatch route, string routeId, IList<Exception> errors)
     {
-        // Methods are optional
         if (route.Methods is null)
         {
-            return Array.Empty<Exception>();
+            // Methods are optional
+            return;
         }
 
-        var errors = new List<Exception>();
         var seenMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var method in route.Methods)
         {
@@ -34,7 +33,5 @@ internal sealed class MethodsValidator : IRouteValidator
                 errors.Add(new ArgumentException($"Unsupported HTTP method '{method}' has been set for route '{routeId}'."));
             }
         }
-
-        return errors;
     }
 }

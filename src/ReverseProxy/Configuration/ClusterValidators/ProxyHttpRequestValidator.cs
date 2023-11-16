@@ -14,15 +14,13 @@ internal sealed class ProxyHttpRequestValidator : IClusterValidator
         _logger = logger;
     }
 
-    public IList<Exception> Validate(ClusterConfig cluster)
+    public void AddValidationErrors(ClusterConfig cluster, IList<Exception> errors)
     {
         if (cluster.HttpRequest is null)
         {
             // Proxy http request options are not set.
-            return Array.Empty<Exception>();
+            return;
         }
-
-        var errors = new List<Exception>();
 
         if (cluster.HttpRequest.Version is not null &&
             cluster.HttpRequest.Version != HttpVersion.Version10 &&
@@ -37,8 +35,6 @@ internal sealed class ProxyHttpRequestValidator : IClusterValidator
         {
             Log.Http10Version(_logger);
         }
-
-        return errors;
     }
 
     private static class Log

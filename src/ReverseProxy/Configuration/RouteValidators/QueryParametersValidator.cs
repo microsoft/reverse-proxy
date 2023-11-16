@@ -5,15 +5,14 @@ namespace Yarp.ReverseProxy.Configuration.RouteValidators;
 
 internal sealed class QueryParametersValidator : IRouteValidator
 {
-    public IList<Exception> Validate(RouteMatch route, string routeId)
+    public void AddValidationErrors(RouteMatch route, string routeId, IList<Exception> errors)
     {
-        // Query Parameters are optional
         if (route.QueryParameters is null)
         {
-            return Array.Empty<Exception>();
+            // Query Parameters are optional
+            return;
         }
 
-        var errors = new List<Exception>();
         foreach (var queryParameter in route.QueryParameters)
         {
             if (queryParameter is null)
@@ -38,7 +37,5 @@ internal sealed class QueryParametersValidator : IRouteValidator
                 errors.Add(new ArgumentException($"Query parameter values where set when using mode '{nameof(QueryParameterMatchMode.Exists)}' on route query parameter '{queryParameter.Name}' for route '{routeId}'."));
             }
         }
-
-        return errors;
     }
 }

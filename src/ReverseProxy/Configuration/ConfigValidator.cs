@@ -69,10 +69,7 @@ internal sealed class ConfigValidator : IConfigValidator
 
         foreach (var routeValidator in _routeValidators)
         {
-            if (!routeValidator.IsValid(route.Match, route.RouteId, out var validationErrors))
-            {
-                errors.AddRange(validationErrors);
-            }
+            routeValidator.AddValidationErrors(route.Match, route.RouteId, errors);
         }
 
         return errors;
@@ -93,10 +90,7 @@ internal sealed class ConfigValidator : IConfigValidator
 
         foreach (var clusterValidator in _clusterValidators)
         {
-            if (!clusterValidator.IsValid(cluster, out var validationErrors))
-            {
-                errors.AddRange(validationErrors);
-            }
+            clusterValidator.AddValidationErrors(cluster, errors);
         }
 
         return new ValueTask<IList<Exception>>(errors);

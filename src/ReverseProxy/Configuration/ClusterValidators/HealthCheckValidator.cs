@@ -20,7 +20,7 @@ internal sealed class HealthCheckValidator : IClusterValidator
         _passiveHealthCheckPolicies = passiveHealthCheckPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(availableDestinationsPolicies));
     }
 
-    public IList<Exception> Validate(ClusterConfig cluster)
+    public void AddValidationErrors(ClusterConfig cluster, IList<Exception> errors)
     {
         var availableDestinationsPolicy = cluster.HealthCheck?.AvailableDestinationsPolicy;
         if (string.IsNullOrEmpty(availableDestinationsPolicy))
@@ -29,19 +29,16 @@ internal sealed class HealthCheckValidator : IClusterValidator
             availableDestinationsPolicy = HealthCheckConstants.AvailableDestinations.HealthyOrPanic;
         }
 
-        var errors = new List<Exception>();
         if (!_availableDestinationsPolicies.ContainsKey(availableDestinationsPolicy))
         {
             errors.Add(new ArgumentException($"No matching {nameof(IAvailableDestinationsPolicy)} found for the available destinations policy '{availableDestinationsPolicy}' set on the cluster.'{cluster.ClusterId}'."));
         }
 
-        ValidateActiveHealthCheck(errors, cluster);
-        ValidatePassiveHealthCheck(errors, cluster);
-
-        return errors;
+        ValidateActiveHealthCheck(cluster, errors);
+        ValidatePassiveHealthCheck(cluster, errors);
     }
 
-    private void ValidateActiveHealthCheck(IList<Exception> errors, ClusterConfig cluster)
+    private void ValidateActiveHealthCheck(ClusterConfig cluster, IList<Exception> errors)
     {
         if (!(cluster.HealthCheck?.Active?.Enabled ?? false))
         {
@@ -72,7 +69,7 @@ internal sealed class HealthCheckValidator : IClusterValidator
         }
     }
 
-    private void ValidatePassiveHealthCheck(IList<Exception> errors, ClusterConfig cluster)
+    private void ValidatePassiveHealthCheck(ClusterConfig cluster, IList<Exception> errors)
     {
         if (!(cluster.HealthCheck?.Passive?.Enabled ?? false))
         {

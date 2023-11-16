@@ -14,7 +14,7 @@ internal sealed class LoadBalancingValidator : IClusterValidator
         _loadBalancingPolicies = loadBalancingPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(loadBalancingPolicies));
     }
 
-    public IList<Exception> Validate(ClusterConfig cluster)
+    public void AddValidationErrors(ClusterConfig cluster, IList<Exception> errors)
     {
         var loadBalancingPolicy = cluster.LoadBalancingPolicy;
         if (string.IsNullOrEmpty(loadBalancingPolicy))
@@ -23,12 +23,9 @@ internal sealed class LoadBalancingValidator : IClusterValidator
             loadBalancingPolicy = LoadBalancingPolicies.PowerOfTwoChoices;
         }
 
-        var errors = new List<Exception>();
         if (!_loadBalancingPolicies.ContainsKey(loadBalancingPolicy))
         {
             errors.Add(new ArgumentException($"No matching {nameof(ILoadBalancingPolicy)} found for the load balancing policy '{loadBalancingPolicy}' set on the cluster '{cluster.ClusterId}'."));
         }
-
-        return errors;
     }
 }

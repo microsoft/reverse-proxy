@@ -15,12 +15,12 @@ internal sealed class SessionAffinityValidator : IClusterValidator
         _affinityFailurePolicies = affinityFailurePolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
     }
 
-    public IList<Exception> Validate(ClusterConfig cluster)
+    public void AddValidationErrors(ClusterConfig cluster, IList<Exception> errors)
     {
         if (!(cluster.SessionAffinity?.Enabled ?? false))
         {
             // Session affinity is disabled
-            return Array.Empty<Exception>();
+            return;
         }
 
         // Note some affinity validation takes place in AffinitizeTransformProvider.ValidateCluster.
@@ -32,7 +32,6 @@ internal sealed class SessionAffinityValidator : IClusterValidator
             affinityFailurePolicy = SessionAffinityConstants.FailurePolicies.Redistribute;
         }
 
-        var errors = new List<Exception>();
         if (!_affinityFailurePolicies.ContainsKey(affinityFailurePolicy))
         {
             errors.Add(new ArgumentException($"No matching {nameof(IAffinityFailurePolicy)} found for the affinity failure policy name '{affinityFailurePolicy}' set on the cluster '{cluster.ClusterId}'."));
@@ -47,7 +46,7 @@ internal sealed class SessionAffinityValidator : IClusterValidator
 
         if (cookieConfig is null)
         {
-            return errors;
+            return;
         }
 
         if (cookieConfig.Expiration is not null && cookieConfig.Expiration <= TimeSpan.Zero)
@@ -59,7 +58,5 @@ internal sealed class SessionAffinityValidator : IClusterValidator
         {
             errors.Add(new ArgumentException($"Session affinity cookie max-age must be positive or null."));
         }
-
-        return errors;
     }
 }

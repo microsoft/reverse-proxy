@@ -6,15 +6,14 @@ namespace Yarp.ReverseProxy.Configuration.ClusterValidators;
 
 internal sealed class ProxyHttpClientValidator : IClusterValidator
 {
-    public IList<Exception> Validate(ClusterConfig cluster)
+    public void AddValidationErrors(ClusterConfig cluster, IList<Exception> errors)
     {
         if (cluster.HttpClient is null)
         {
             // Proxy http client options are not set.
-            return Array.Empty<Exception>();
+            return;
         }
 
-        var errors = new List<Exception>();
         if (cluster.HttpClient.MaxConnectionsPerServer is not null && cluster.HttpClient.MaxConnectionsPerServer <= 0)
         {
             errors.Add(new ArgumentException($"Max connections per server limit set on the cluster '{cluster.ClusterId}' must be positive."));
@@ -34,18 +33,18 @@ internal sealed class ProxyHttpClientValidator : IClusterValidator
         }
 
         var responseHeaderEncoding = cluster.HttpClient.ResponseHeaderEncoding;
-        if (responseHeaderEncoding is not null)
+        if (responseHeaderEncoding is null)
         {
-            try
-            {
-                Encoding.GetEncoding(responseHeaderEncoding);
-            }
-            catch (ArgumentException aex)
-            {
-                errors.Add(new ArgumentException($"Invalid response header encoding '{responseHeaderEncoding}'.", aex));
-            }
+            return;
         }
 
-        return errors;
+        try
+        {
+            Encoding.GetEncoding(responseHeaderEncoding);
+        }
+        catch (ArgumentException aex)
+        {
+            errors.Add(new ArgumentException($"Invalid response header encoding '{responseHeaderEncoding}'.", aex));
+        }
     }
 }

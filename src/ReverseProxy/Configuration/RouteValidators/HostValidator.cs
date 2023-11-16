@@ -6,15 +6,14 @@ namespace Yarp.ReverseProxy.Configuration.RouteValidators;
 
 internal sealed class HostValidator : IRouteValidator
 {
-    public IList<Exception> Validate(RouteMatch route, string routeId)
+    public void AddValidationErrors(RouteMatch route, string routeId, IList<Exception> errors)
     {
-        // Host is optional when Path is specified
         if (route.Hosts is null || route.Hosts.Count == 0)
         {
-            return Array.Empty<Exception>();
+            // Host is optional when Path is specified
+            return;
         }
 
-        var errors = new List<Exception>();
         foreach (var host in route.Hosts)
         {
             if (string.IsNullOrEmpty(host))
@@ -26,7 +25,5 @@ internal sealed class HostValidator : IRouteValidator
                 errors.Add(new ArgumentException($"Punycode host name '{host}' has been set for route '{routeId}'. Use the unicode host name instead."));
             }
         }
-
-        return errors;
     }
 }

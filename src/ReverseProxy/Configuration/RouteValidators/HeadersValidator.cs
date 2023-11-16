@@ -6,15 +6,14 @@ namespace Yarp.ReverseProxy.Configuration.RouteValidators;
 
 internal sealed class HeadersValidator : IRouteValidator
 {
-    public IList<Exception> Validate(RouteMatch route, string routeId)
+    public void AddValidationErrors(RouteMatch route, string routeId, IList<Exception> errors)
     {
-        // Headers are optional
         if (route.Headers is null)
         {
-            return Array.Empty<Exception>();
+            // Headers are optional
+            return;
         }
 
-        var errors = new List<Exception>();
         foreach (var header in route.Headers)
         {
             if (header is null)
@@ -39,7 +38,5 @@ internal sealed class HeadersValidator : IRouteValidator
                 errors.Add(new ArgumentException($"Header values were set when using mode '{header.Mode}' on route header '{header.Name}' for route '{routeId}'."));
             }
         }
-
-        return errors;
     }
 }

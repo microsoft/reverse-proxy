@@ -3,13 +3,7 @@ using System.Collections.Generic;
 
 namespace Yarp.ReverseProxy.Configuration.ClusterValidators;
 
-internal interface IClusterValidator
+public interface IClusterValidator
 {
-    protected IList<Exception> Validate(ClusterConfig cluster);
-
-    public bool IsValid(ClusterConfig cluster, out IList<Exception> errors)
-    {
-        errors = Validate(cluster);
-        return errors.Count == 0;
-    }
+    public void AddValidationErrors(ClusterConfig cluster, IList<Exception> errors);
 }

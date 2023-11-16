@@ -5,14 +5,13 @@ namespace Yarp.ReverseProxy.Configuration.ClusterValidators;
 
 internal sealed class DestinationValidator : IClusterValidator
 {
-    public IList<Exception> Validate(ClusterConfig cluster)
+    public void AddValidationErrors(ClusterConfig cluster, IList<Exception> errors)
     {
         if (cluster.Destinations is null)
         {
-            return Array.Empty<Exception>();
+            return;
         }
 
-        var errors = new List<Exception>();
         foreach (var (name, destination) in cluster.Destinations)
         {
             if (string.IsNullOrEmpty(destination.Address))
@@ -20,7 +19,5 @@ internal sealed class DestinationValidator : IClusterValidator
                 errors.Add(new ArgumentException($"No address found for destination '{name}' on cluster '{cluster.ClusterId}'."));
             }
         }
-
-        return errors;
     }
 }

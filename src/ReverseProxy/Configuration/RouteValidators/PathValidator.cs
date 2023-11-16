@@ -7,15 +7,14 @@ namespace Yarp.ReverseProxy.Configuration.RouteValidators;
 
 internal sealed class PathValidator : IRouteValidator
 {
-    public IList<Exception> Validate(RouteMatch route, string routeId)
+    public void AddValidationErrors(RouteMatch route, string routeId, IList<Exception> errors)
     {
-        // Path is optional when Host is specified
         if (string.IsNullOrEmpty(route.Path))
         {
-            return ImmutableList<Exception>.Empty;
+            // Path is optional when Host is specified
+            return;
         }
 
-        var errors = new List<Exception>();
         try
         {
             RoutePatternFactory.Parse(route.Path);
@@ -24,7 +23,5 @@ internal sealed class PathValidator : IRouteValidator
         {
             errors.Add(new ArgumentException($"Invalid path '{route.Path}' for route '{routeId}'.", ex));
         }
-
-        return errors;
     }
 }
