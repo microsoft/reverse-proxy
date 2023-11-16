@@ -78,7 +78,6 @@ As of 1.1, YARP supports loading the proxy configuration from multiple sources. 
 ```
 or
 ```
-
     services.AddReverseProxy()
         .LoadFromMemory(routes, clusters)
         .LoadFromConfig(Configuration.GetSection("ReverseProxy"));

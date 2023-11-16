@@ -7,34 +7,28 @@ A/B testing and rolling upgrades require procedures for dynamically assigning in
 ## Example
 
 ```
-    public void Configure(IApplicationBuilder app, IProxyStateLookup lookup)
+app.MapReverseProxy(proxyPipeline =>
+{
+    // Custom cluster selection
+    proxyPipeline.Use((context, next) =>
     {
-        app.UseRouting();
-        app.UseEndpoints(endpoints =>
+        context.RequestServices.GetRequiredService<IProxyStateLookup>();
+        if (lookup.TryGetCluster(ChooseCluster(context), out var cluster))
         {
-            endpoints.MapReverseProxy(proxyPipeline =>
-            {
-                // Custom cluster selection
-                proxyPipeline.Use((context, next) =>
-                {
-                    if (lookup.TryGetCluster(ChooseCluster(context), out var cluster))
-                    {
-                        context.ReassignProxyRequest(cluster);
-                    }
+            context.ReassignProxyRequest(cluster);
+        }
 
-                    return next();
-                });
-                proxyPipeline.UseSessionAffinity();
-                proxyPipeline.UseLoadBalancing();
-            });
-        });
-    }
+        return next();
+    });
+    proxyPipeline.UseSessionAffinity();
+    proxyPipeline.UseLoadBalancing();
+});
 
-    private string ChooseCluster(HttpContext context)
-    {
-        // Decide which cluster to use. This could be random, weighted, based on headers, etc.
-        return Random.Shared.Next(2) == 1 ? "cluster1" : "cluster2";
-    }
+private string ChooseCluster(HttpContext context)
+{
+    // Decide which cluster to use. This could be random, weighted, based on headers, etc.
+    return Random.Shared.Next(2) == 1 ? "cluster1" : "cluster2";
+}
 ```
 
 ## Usage

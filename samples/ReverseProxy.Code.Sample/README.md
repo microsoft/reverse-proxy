@@ -30,11 +30,8 @@ This sample shows two common customizations via code of the YARP reverse proxy:
 
 The following files are key to implementing the features described above:
 
-- ### [Startup.cs](Startup.cs)
-  Provides the initialization routines for ASP.NET and the reverse proxy.
-
-  ```ConfigureServices``` is called once and sets up the proxy passing in the InMemoryConfigProvider instance. The sample routes and clusters definitions are created as part of this initialization. The config provider instance is used for the lifetime of the proxy.
-
-  ```Configure``` is called once at startup to setup the request pipeline. As an additional step is added, the proxy pipeline is configured here. 
-  
-  ```MyCustomProxyStep``` is the implementation of the additional step. It finds the proxy functionality via features added to the HttpContext, and then filters the destinations based on the presence of a "Debug" header in the request.
+- ### [Program.cs](Program.cs)
+  Provides the initialization routines for ASP.NET and the reverse proxy. It:
+  - sets up the proxy passing in the InMemoryConfigProvider instance. The sample routes and clusters definitions are created as part of this initialization. The config provider instance is used for the lifetime of the proxy.
+  - sets up the request pipeline. As an additional step is added, the proxy pipeline is configured here.
+  - ```MyCustomProxyStep``` is the implementation of the additional step. It finds the proxy functionality via features added to the HttpContext, and then filters the destinations based on the presence of a "Debug" header in the request.

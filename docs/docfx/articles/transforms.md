@@ -111,7 +111,7 @@ Developers that want to integrate their custom transforms with the `Transforms` 
 
 Transforms can be added to routes programmatically by calling the [AddTransforms](xref:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddTransforms*) method.
 
-`AddTransforms` can be called from `Startup.ConfigureServices` to provide a callback for configuring transforms. This callback is invoked each time a route is built or rebuilt and allows the developer to inspect the [RouteConfig](xref:Yarp.ReverseProxy.Configuration.RouteConfig) information and conditionally add transforms for it.
+`AddTransforms` can be called after `AddReverseProxy` to provide a callback for configuring transforms. This callback is invoked each time a route is built or rebuilt and allows the developer to inspect the [RouteConfig](xref:Yarp.ReverseProxy.Configuration.RouteConfig) information and conditionally add transforms for it.
 
 The `AddTransforms` callback provides a [TransformBuilderContext](xref:Yarp.ReverseProxy.Transforms.Builder.TransformBuilderContext) where transforms can be added or configured. Most transforms provide `TransformBuilderContext` extension methods to make them easier to add. These are extensions documented below with the individual transform descriptions.
 

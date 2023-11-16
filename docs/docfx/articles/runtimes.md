@@ -5,7 +5,7 @@ title: Supported Runtimes
 
 # YARP Supported Runtimes
 
-YARP 2.0 supports ASP.NET Core 6.0 and newer. You can download the .NET SDK from https://dotnet.microsoft.com/download/dotnet/. See [Releases](https://github.com/microsoft/reverse-proxy/releases) for specific version support.
+YARP 2.0+ supports ASP.NET Core 6.0 and newer. You can download the .NET SDK from https://dotnet.microsoft.com/download/dotnet/. See [Releases](https://github.com/microsoft/reverse-proxy/releases) for specific version support.
 
 YARP is taking advantage of new .NET features and optimizations as they become available. This does mean that some features may not be available if you're running on the previous versions of ASP.NET.
 
@@ -25,4 +25,3 @@ YARP is taking advantage of new .NET features and optimizations as they become a
 - [Zero-byte reads on HttpClient's response streams](https://github.com/dotnet/runtime/pull/61913) - reduces memory usage.
 - [Header allocation reductions](https://github.com/dotnet/runtime/pull/62981) - reduces memory usage.
 - [Kestrel Http/2 perf improvements](https://github.com/dotnet/aspnetcore/pull/40925) - Improve contention and throughput for multiple requests on one connection.
-

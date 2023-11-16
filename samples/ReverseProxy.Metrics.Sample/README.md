@@ -54,7 +54,7 @@ The subsystems are:
 
 The following files are key to implementing the features described above:
 
-### Startup.cs
+### Program.cs
 
 Performs registrtion of the proxy, the listener classes and a custom ASP.NET middleware step that starts per-request telemetry and reports the results when complete
 
