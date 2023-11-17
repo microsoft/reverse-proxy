@@ -134,6 +134,7 @@ public sealed record RouteConfig
         hash.Add(AuthorizationPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
 #if NET7_0_OR_GREATER
         hash.Add(RateLimiterPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
+        hash.Add(OutputCachePolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
 #endif
 #if NET8_0_OR_GREATER
         hash.Add(Timeout?.GetHashCode());
