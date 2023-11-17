@@ -240,6 +240,16 @@ internal static class YarpParser
             options.OutputCachePolicy = outputCachePolicy;
         }
 #endif
+#if NET8_0_OR_GREATER
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/timeout", out var timeout))
+        {
+            options.Timeout = TimeSpan.Parse(timeout, CultureInfo.InvariantCulture);
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/timeout-policy", out var timeoutPolicy))
+        {
+            options.TimeoutPolicy = timeoutPolicy;
+        }
+#endif
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/cors-policy", out var corsPolicy))
         {
             options.CorsPolicy = corsPolicy;

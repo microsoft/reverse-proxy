@@ -22,7 +22,6 @@ using Yarp.ReverseProxy.Model;
 using CorsConstants = Yarp.ReverseProxy.Configuration.CorsConstants;
 using AuthorizationConstants = Yarp.ReverseProxy.Configuration.AuthorizationConstants;
 using RateLimitingConstants = Yarp.ReverseProxy.Configuration.RateLimitingConstants;
-using OutputCacheConstants = Yarp.ReverseProxy.Configuration.OutputCacheConstants;
 using TimeoutPolicyConstants = Yarp.ReverseProxy.Configuration.TimeoutPolicyConstants;
 
 namespace Yarp.ReverseProxy.Routing;
@@ -140,11 +139,7 @@ internal sealed class ProxyEndpointFactory
             endpointBuilder.Metadata.Add(new EnableRateLimitingAttribute(config.RateLimiterPolicy));
         }
 
-        if (string.Equals(OutputCacheConstants.Default, config.OutputCachePolicy, StringComparison.OrdinalIgnoreCase))
-        {
-            // No-op (middleware applies the default)
-        }
-        else if (!string.IsNullOrEmpty(config.OutputCachePolicy))
+        if (!string.IsNullOrEmpty(config.OutputCachePolicy))
         {
             endpointBuilder.Metadata.Add(new OutputCacheAttribute { PolicyName = config.OutputCachePolicy });
         }

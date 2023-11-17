@@ -112,6 +112,7 @@ public sealed record RouteConfig
             && string.Equals(AuthorizationPolicy, other.AuthorizationPolicy, StringComparison.OrdinalIgnoreCase)
 #if NET7_0_OR_GREATER
             && string.Equals(RateLimiterPolicy, other.RateLimiterPolicy, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(OutputCachePolicy, other.OutputCachePolicy, StringComparison.OrdinalIgnoreCase)
 #endif
 #if NET8_0_OR_GREATER
             && string.Equals(TimeoutPolicy, other.TimeoutPolicy, StringComparison.OrdinalIgnoreCase)
