@@ -40,31 +40,28 @@ Example:
 
 [Output cache policies](https://learn.microsoft.com/aspnet/core/performance/caching/output) are an ASP.NET Core concept that the proxy utilizes. The proxy provides the above configuration to specify a policy per route and the rest is handled by existing ASP.NET Core output caching middleware.
 
-Output cache policies can be configured in Startup.ConfigureServices as follows:
+Output cache policies can be configured in Program.cs as follows:
 ```c#
-public void ConfigureServices(IServiceCollection services)
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddOutputCache(options =>
 {
-    services.AddOutputCache(options =>
-    {
-        options.AddPolicy("customPolicy", builder => builder.Expire(TimeSpan.FromSeconds(20)));
-    });
-}
+    options.AddPolicy("customPolicy", builder => builder.Expire(TimeSpan.FromSeconds(20)));
+});
 ```
 
-In Startup.Configure add the output caching middleware between Routing and Endpoints.
+In Program.cs add the output caching middleware between Routing and Endpoints.
 
 ```c#
-public void Configure(IApplicationBuilder app)
+var app = builder.Build();
+app.UseRouting();
+
+app.UseOutputCache();
+
+app.UseEndpoints(endpoints =>
 {
-    app.UseRouting();
-
-    app.UseOutputCache();
-
-    app.UseEndpoints(endpoints =>
-    {
-        endpoints.MapReverseProxy();
-    });
-}
+    endpoints.MapReverseProxy();
+});
 ```
 
 See the [Output Caching](https://learn.microsoft.com/aspnet/core/performance/caching/output) docs for setting up your preferred kind of output caching.
