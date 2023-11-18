@@ -7,7 +7,7 @@ The reverse proxy can be used to cache proxied responses and serve requests befo
 
 ## Defaults
 
-No output cache is performed on requests unless enabled in the route or application configuration.
+No output caching is performed unless enabled in the route or application configuration.
 
 ## Configuration
 Output Cache policies can be specified per route via [RouteConfig.OutputCachePolicy](xref:Yarp.ReverseProxy.Configuration.RouteConfig) and can be bound from the `Routes` sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.
