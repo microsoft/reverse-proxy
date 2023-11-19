@@ -23,7 +23,6 @@ namespace Yarp.ReverseProxy.Configuration;
 internal sealed class ConfigValidator : IConfigValidator
 {
     private readonly ITransformBuilder _transformBuilder;
-    private readonly IAuthorizationPolicyProvider _authorizationPolicyProvider;
     private readonly IYarpRateLimiterPolicyProvider _rateLimiterPolicyProvider;
     private readonly ICorsPolicyProvider _corsPolicyProvider;
 #if NET8_0_OR_GREATER
@@ -32,7 +31,6 @@ internal sealed class ConfigValidator : IConfigValidator
     private readonly IEnumerable<IRouteValidator> _routeValidators;
     private readonly IEnumerable<IClusterValidator> _clusterValidators;
     public ConfigValidator(ITransformBuilder transformBuilder,
-        IAuthorizationPolicyProvider authorizationPolicyProvider,
         IYarpRateLimiterPolicyProvider rateLimiterPolicyProvider,
         ICorsPolicyProvider corsPolicyProvider,
 #if NET8_0_OR_GREATER
@@ -42,8 +40,7 @@ internal sealed class ConfigValidator : IConfigValidator
         IEnumerable<IClusterValidator> clusterValidators)
     {
         _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
-        _authorizationPolicyProvider = authorizationPolicyProvider ?? throw new ArgumentNullException(nameof(authorizationPolicyProvider));
-        _rateLimiterPolicyProvider = rateLimiterPolicyProvider ?? throw new ArgumentNullException(nameof(rateLimiterPolicyProvider));
+         _rateLimiterPolicyProvider = rateLimiterPolicyProvider ?? throw new ArgumentNullException(nameof(rateLimiterPolicyProvider));
         _corsPolicyProvider = corsPolicyProvider ?? throw new ArgumentNullException(nameof(corsPolicyProvider));
 #if NET8_0_OR_GREATER
         _timeoutOptions = timeoutOptions ?? throw new ArgumentNullException(nameof(timeoutOptions));
@@ -64,8 +61,7 @@ internal sealed class ConfigValidator : IConfigValidator
         }
 
         errors.AddRange(_transformBuilder.ValidateRoute(route));
-        await ValidateAuthorizationPolicyAsync(errors, route.AuthorizationPolicy, route.RouteId);
-#if NET7_0_OR_GREATER
+   #if NET7_0_OR_GREATER
         await ValidateRateLimiterPolicyAsync(errors, route.RateLimiterPolicy, route.RouteId);
 #endif
 #if NET8_0_OR_GREATER
@@ -86,7 +82,7 @@ internal sealed class ConfigValidator : IConfigValidator
 
         foreach (var routeValidator in _routeValidators)
         {
-           await routeValidator.ValidateAsync(route.Match, route.RouteId, errors);
+           await routeValidator.ValidateAsync(route, errors);
         }
 
         return errors;
@@ -113,46 +109,6 @@ internal sealed class ConfigValidator : IConfigValidator
         return errors;
     }
 
-    private async ValueTask ValidateAuthorizationPolicyAsync(IList<Exception> errors, string? authorizationPolicyName, string routeId)
-    {
-        if (string.IsNullOrEmpty(authorizationPolicyName))
-        {
-            return;
-        }
-
-        if (string.Equals(AuthorizationConstants.Default, authorizationPolicyName, StringComparison.OrdinalIgnoreCase))
-        {
-            var policy = await _authorizationPolicyProvider.GetPolicyAsync(authorizationPolicyName);
-            if (policy is not null)
-            {
-                errors.Add(new ArgumentException($"The application has registered an authorization policy named '{authorizationPolicyName}' that conflicts with the reserved authorization policy name used on this route. The registered policy name needs to be changed for this route to function."));
-            }
-            return;
-        }
-
-        if (string.Equals(AuthorizationConstants.Anonymous, authorizationPolicyName, StringComparison.OrdinalIgnoreCase))
-        {
-            var policy = await _authorizationPolicyProvider.GetPolicyAsync(authorizationPolicyName);
-            if (policy is not null)
-            {
-                errors.Add(new ArgumentException($"The application has registered an authorization policy named '{authorizationPolicyName}' that conflicts with the reserved authorization policy name used on this route. The registered policy name needs to be changed for this route to function."));
-            }
-            return;
-        }
-
-        try
-        {
-            var policy = await _authorizationPolicyProvider.GetPolicyAsync(authorizationPolicyName);
-            if (policy is null)
-            {
-                errors.Add(new ArgumentException($"Authorization policy '{authorizationPolicyName}' not found for route '{routeId}'."));
-            }
-        }
-        catch (Exception ex)
-        {
-            errors.Add(new ArgumentException($"Unable to retrieve the authorization policy '{authorizationPolicyName}' for route '{routeId}'.", ex));
-        }
-    }
 #if NET8_0_OR_GREATER
     private void ValidateTimeoutPolicy(IList<Exception> errors, string? timeoutPolicyName, TimeSpan? timeout, string routeId)
     {
