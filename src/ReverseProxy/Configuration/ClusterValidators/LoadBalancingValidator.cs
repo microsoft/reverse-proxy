@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Yarp.ReverseProxy.LoadBalancing;
 using Yarp.ReverseProxy.Utilities;
 
@@ -14,7 +15,7 @@ internal sealed class LoadBalancingValidator : IClusterValidator
         _loadBalancingPolicies = loadBalancingPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(loadBalancingPolicies));
     }
 
-    public void AddValidationErrors(ClusterConfig cluster, IList<Exception> errors)
+    public ValueTask ValidateAsync(ClusterConfig cluster, IList<Exception> errors)
     {
         var loadBalancingPolicy = cluster.LoadBalancingPolicy;
         if (string.IsNullOrEmpty(loadBalancingPolicy))
@@ -27,5 +28,7 @@ internal sealed class LoadBalancingValidator : IClusterValidator
         {
             errors.Add(new ArgumentException($"No matching {nameof(ILoadBalancingPolicy)} found for the load balancing policy '{loadBalancingPolicy}' set on the cluster '{cluster.ClusterId}'."));
         }
+
+        return ValueTask.CompletedTask;
     }
 }

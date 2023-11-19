@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace Yarp.ReverseProxy.Configuration.ClusterValidators;
@@ -14,12 +15,12 @@ internal sealed class ProxyHttpRequestValidator : IClusterValidator
         _logger = logger;
     }
 
-    public void AddValidationErrors(ClusterConfig cluster, IList<Exception> errors)
+    public ValueTask ValidateAsync(ClusterConfig cluster, IList<Exception> errors)
     {
         if (cluster.HttpRequest is null)
         {
             // Proxy http request options are not set.
-            return;
+            return ValueTask.CompletedTask;
         }
 
         if (cluster.HttpRequest.Version is not null &&
@@ -35,6 +36,8 @@ internal sealed class ProxyHttpRequestValidator : IClusterValidator
         {
             Log.Http10Version(_logger);
         }
+
+        return ValueTask.CompletedTask;
     }
 
     private static class Log

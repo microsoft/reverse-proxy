@@ -31,7 +31,7 @@ internal sealed class ConfigValidator : IConfigValidator
 #endif
     private readonly List<IRouteValidator> _routeValidators;
     private readonly List<IClusterValidator> _clusterValidators;
-    
+
     public ConfigValidator(ITransformBuilder transformBuilder,
         IAuthorizationPolicyProvider authorizationPolicyProvider,
         IYarpRateLimiterPolicyProvider rateLimiterPolicyProvider,
@@ -39,8 +39,8 @@ internal sealed class ConfigValidator : IConfigValidator
 #if NET8_0_OR_GREATER
         IOptionsMonitor<RequestTimeoutOptions> timeoutOptions,
 #endif
-        IEnumerable<IRouteValidator> routeValidators,
-        IEnumerable<IClusterValidator> clusterValidators)
+        List<IRouteValidator> routeValidators,
+        List<IClusterValidator> clusterValidators)
     {
         _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
         _authorizationPolicyProvider = authorizationPolicyProvider ?? throw new ArgumentNullException(nameof(authorizationPolicyProvider));
@@ -87,14 +87,14 @@ internal sealed class ConfigValidator : IConfigValidator
 
         foreach (var routeValidator in _routeValidators)
         {
-            routeValidator.AddValidationErrors(route.Match, route.RouteId, errors);
+           await routeValidator.ValidateAsync(route.Match, route.RouteId, errors);
         }
 
         return errors;
     }
 
     // Note this performs all validation steps without short circuiting in order to report all possible errors.
-    public ValueTask<IList<Exception>> ValidateClusterAsync(ClusterConfig cluster)
+    public async ValueTask<IList<Exception>> ValidateClusterAsync(ClusterConfig cluster)
     {
         _ = cluster ?? throw new ArgumentNullException(nameof(cluster));
         var errors = new List<Exception>();
@@ -108,10 +108,10 @@ internal sealed class ConfigValidator : IConfigValidator
 
         foreach (var clusterValidator in _clusterValidators)
         {
-            clusterValidator.AddValidationErrors(cluster, errors);
+           await clusterValidator.ValidateAsync(cluster, errors);
         }
 
-        return new ValueTask<IList<Exception>>(errors);
+        return errors;
     }
 
     private async ValueTask ValidateAuthorizationPolicyAsync(IList<Exception> errors, string? authorizationPolicyName, string routeId)

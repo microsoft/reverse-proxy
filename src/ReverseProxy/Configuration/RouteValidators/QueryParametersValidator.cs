@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Yarp.ReverseProxy.Configuration.RouteValidators;
 
 internal sealed class QueryParametersValidator : IRouteValidator
 {
-    public void AddValidationErrors(RouteMatch route, string routeId, IList<Exception> errors)
+    public ValueTask ValidateAsync(RouteMatch route, string routeId, IList<Exception> errors)
     {
         if (route.QueryParameters is null)
         {
             // Query Parameters are optional
-            return;
+            return ValueTask.CompletedTask;
         }
 
         foreach (var queryParameter in route.QueryParameters)
@@ -37,5 +38,7 @@ internal sealed class QueryParametersValidator : IRouteValidator
                 errors.Add(new ArgumentException($"Query parameter values where set when using mode '{nameof(QueryParameterMatchMode.Exists)}' on route query parameter '{queryParameter.Name}' for route '{routeId}'."));
             }
         }
+
+        return ValueTask.CompletedTask;
     }
 }

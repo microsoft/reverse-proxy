@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Yarp.ReverseProxy.Configuration.ClusterValidators;
 
 internal sealed class DestinationValidator : IClusterValidator
 {
-    public void AddValidationErrors(ClusterConfig cluster, IList<Exception> errors)
+    public ValueTask ValidateAsync(ClusterConfig cluster, IList<Exception> errors)
     {
         if (cluster.Destinations is null)
         {
-            return;
+            return ValueTask.CompletedTask;
         }
 
         foreach (var (name, destination) in cluster.Destinations)
@@ -19,5 +20,7 @@ internal sealed class DestinationValidator : IClusterValidator
                 errors.Add(new ArgumentException($"No address found for destination '{name}' on cluster '{cluster.ClusterId}'."));
             }
         }
+
+        return ValueTask.CompletedTask;
     }
 }

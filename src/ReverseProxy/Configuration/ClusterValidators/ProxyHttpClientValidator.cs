@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Yarp.ReverseProxy.Configuration.ClusterValidators;
 
 internal sealed class ProxyHttpClientValidator : IClusterValidator
 {
-    public void AddValidationErrors(ClusterConfig cluster, IList<Exception> errors)
+    public ValueTask ValidateAsync(ClusterConfig cluster, IList<Exception> errors)
     {
         if (cluster.HttpClient is null)
         {
             // Proxy http client options are not set.
-            return;
+            return ValueTask.CompletedTask;
         }
 
         if (cluster.HttpClient.MaxConnectionsPerServer is not null && cluster.HttpClient.MaxConnectionsPerServer <= 0)
@@ -35,7 +36,7 @@ internal sealed class ProxyHttpClientValidator : IClusterValidator
         var responseHeaderEncoding = cluster.HttpClient.ResponseHeaderEncoding;
         if (responseHeaderEncoding is null)
         {
-            return;
+            return ValueTask.CompletedTask;
         }
 
         try
@@ -46,5 +47,7 @@ internal sealed class ProxyHttpClientValidator : IClusterValidator
         {
             errors.Add(new ArgumentException($"Invalid response header encoding '{responseHeaderEncoding}'.", aex));
         }
+
+        return ValueTask.CompletedTask;
     }
 }

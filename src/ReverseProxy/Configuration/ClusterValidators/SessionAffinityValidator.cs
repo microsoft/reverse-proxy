@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Yarp.ReverseProxy.SessionAffinity;
 using Yarp.ReverseProxy.Utilities;
 
@@ -15,16 +16,15 @@ internal sealed class SessionAffinityValidator : IClusterValidator
         _affinityFailurePolicies = affinityFailurePolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
     }
 
-    public void AddValidationErrors(ClusterConfig cluster, IList<Exception> errors)
+    public ValueTask ValidateAsync(ClusterConfig cluster, IList<Exception> errors)
     {
         if (!(cluster.SessionAffinity?.Enabled ?? false))
         {
             // Session affinity is disabled
-            return;
+            return ValueTask.CompletedTask;
         }
 
         // Note some affinity validation takes place in AffinitizeTransformProvider.ValidateCluster.
-
         var affinityFailurePolicy = cluster.SessionAffinity.FailurePolicy;
         if (string.IsNullOrEmpty(affinityFailurePolicy))
         {
@@ -46,7 +46,7 @@ internal sealed class SessionAffinityValidator : IClusterValidator
 
         if (cookieConfig is null)
         {
-            return;
+            return ValueTask.CompletedTask;
         }
 
         if (cookieConfig.Expiration is not null && cookieConfig.Expiration <= TimeSpan.Zero)
@@ -58,5 +58,7 @@ internal sealed class SessionAffinityValidator : IClusterValidator
         {
             errors.Add(new ArgumentException($"Session affinity cookie max-age must be positive or null."));
         }
+
+        return ValueTask.CompletedTask;
     }
 }

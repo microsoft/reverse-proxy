@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.Utilities;
 
@@ -20,7 +21,7 @@ internal sealed class HealthCheckValidator : IClusterValidator
         _passiveHealthCheckPolicies = passiveHealthCheckPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(availableDestinationsPolicies));
     }
 
-    public void AddValidationErrors(ClusterConfig cluster, IList<Exception> errors)
+    public ValueTask ValidateAsync(ClusterConfig cluster, IList<Exception> errors)
     {
         var availableDestinationsPolicy = cluster.HealthCheck?.AvailableDestinationsPolicy;
         if (string.IsNullOrEmpty(availableDestinationsPolicy))
@@ -36,6 +37,8 @@ internal sealed class HealthCheckValidator : IClusterValidator
 
         ValidateActiveHealthCheck(cluster, errors);
         ValidatePassiveHealthCheck(cluster, errors);
+
+        return ValueTask.CompletedTask;
     }
 
     private void ValidateActiveHealthCheck(ClusterConfig cluster, IList<Exception> errors)

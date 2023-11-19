@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 
 namespace Yarp.ReverseProxy.Configuration.RouteValidators;
 
 internal sealed class HeadersValidator : IRouteValidator
 {
-    public void AddValidationErrors(RouteMatch route, string routeId, IList<Exception> errors)
+    public ValueTask ValidateAsync(RouteMatch route, string routeId, IList<Exception> errors)
     {
         if (route.Headers is null)
         {
             // Headers are optional
-            return;
+            return ValueTask.CompletedTask;
         }
 
         foreach (var header in route.Headers)
@@ -38,5 +39,7 @@ internal sealed class HeadersValidator : IRouteValidator
                 errors.Add(new ArgumentException($"Header values were set when using mode '{header.Mode}' on route header '{header.Name}' for route '{routeId}'."));
             }
         }
+
+        return ValueTask.CompletedTask;
     }
 }

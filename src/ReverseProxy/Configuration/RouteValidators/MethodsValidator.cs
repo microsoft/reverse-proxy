@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 
 namespace Yarp.ReverseProxy.Configuration.RouteValidators;
 
@@ -11,12 +12,12 @@ internal sealed class MethodsValidator : IRouteValidator
         "HEAD", "OPTIONS", "GET", "PUT", "POST", "PATCH", "DELETE", "TRACE",
     };
 
-    public void AddValidationErrors(RouteMatch route, string routeId, IList<Exception> errors)
+    public ValueTask ValidateAsync(RouteMatch route, string routeId, IList<Exception> errors)
     {
         if (route.Methods is null)
         {
             // Methods are optional
-            return;
+            return ValueTask.CompletedTask;
         }
 
         var seenMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -33,5 +34,7 @@ internal sealed class MethodsValidator : IRouteValidator
                 errors.Add(new ArgumentException($"Unsupported HTTP method '{method}' has been set for route '{routeId}'."));
             }
         }
+
+        return ValueTask.CompletedTask;
     }
 }
