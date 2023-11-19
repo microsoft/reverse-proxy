@@ -6,5 +6,5 @@ namespace Yarp.ReverseProxy.Configuration.RouteValidators;
 
 public interface IRouteValidator
 {
-    public ValueTask ValidateAsync(RouteMatch route, string routeId, IList<Exception> errors);
+    public ValueTask ValidateAsync(RouteConfig routeConfig, IList<Exception> errors);
 }

@@ -27,6 +27,7 @@ internal static class IReverseProxyBuilderExtensions
     {
         builder.Services.TryAddSingleton<IYarpRateLimiterPolicyProvider, YarpRateLimiterPolicyProvider>();
         builder.Services.TryAddSingleton<IConfigValidator, ConfigValidator>();
+        builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IRouteValidator, AuthorizationPolicyValidator>());
         builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IRouteValidator, HeadersValidator>());
         builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IRouteValidator, HostValidator>());
         builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IRouteValidator, MethodsValidator>());

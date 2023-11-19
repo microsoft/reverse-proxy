@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Threading.Tasks;
 
 namespace Yarp.ReverseProxy.Configuration.RouteValidators;
@@ -12,8 +11,9 @@ internal sealed class MethodsValidator : IRouteValidator
         "HEAD", "OPTIONS", "GET", "PUT", "POST", "PATCH", "DELETE", "TRACE",
     };
 
-    public ValueTask ValidateAsync(RouteMatch route, string routeId, IList<Exception> errors)
+    public ValueTask ValidateAsync(RouteConfig routeConfig, IList<Exception> errors)
     {
+        var route = routeConfig.Match;
         if (route.Methods is null)
         {
             // Methods are optional
@@ -25,13 +25,13 @@ internal sealed class MethodsValidator : IRouteValidator
         {
             if (!seenMethods.Add(method))
             {
-                errors.Add(new ArgumentException($"Duplicate HTTP method '{method}' for route '{routeId}'."));
+                errors.Add(new ArgumentException($"Duplicate HTTP method '{method}' for route '{routeConfig.RouteId}'."));
                 continue;
             }
 
             if (!_validMethods.Contains(method))
             {
-                errors.Add(new ArgumentException($"Unsupported HTTP method '{method}' has been set for route '{routeId}'."));
+                errors.Add(new ArgumentException($"Unsupported HTTP method '{method}' has been set for route '{routeConfig.RouteId}'."));
             }
         }
 
