@@ -29,9 +29,8 @@ internal sealed class ConfigValidator : IConfigValidator
 #if NET8_0_OR_GREATER
     private readonly IOptionsMonitor<RequestTimeoutOptions> _timeoutOptions;
 #endif
-    private readonly List<IRouteValidator> _routeValidators;
-    private readonly List<IClusterValidator> _clusterValidators;
-
+    private readonly IEnumerable<IRouteValidator> _routeValidators;
+    private readonly IEnumerable<IClusterValidator> _clusterValidators;
     public ConfigValidator(ITransformBuilder transformBuilder,
         IAuthorizationPolicyProvider authorizationPolicyProvider,
         IYarpRateLimiterPolicyProvider rateLimiterPolicyProvider,
@@ -39,8 +38,8 @@ internal sealed class ConfigValidator : IConfigValidator
 #if NET8_0_OR_GREATER
         IOptionsMonitor<RequestTimeoutOptions> timeoutOptions,
 #endif
-        List<IRouteValidator> routeValidators,
-        List<IClusterValidator> clusterValidators)
+        IEnumerable<IRouteValidator> routeValidators,
+        IEnumerable<IClusterValidator> clusterValidators)
     {
         _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
         _authorizationPolicyProvider = authorizationPolicyProvider ?? throw new ArgumentNullException(nameof(authorizationPolicyProvider));
