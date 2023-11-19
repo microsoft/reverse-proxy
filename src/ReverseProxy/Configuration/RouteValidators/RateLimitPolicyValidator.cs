@@ -4,10 +4,15 @@ using System.Threading.Tasks;
 
 namespace Yarp.ReverseProxy.Configuration.RouteValidators;
 
-internal sealed class RateLimitPolicyValidator
-    (IYarpRateLimiterPolicyProvider rateLimiterPolicyProvider) : IRouteValidator
+internal sealed class RateLimitPolicyValidator : IRouteValidator
 {
 #if NET7_0_OR_GREATER
+    private readonly IYarpRateLimiterPolicyProvider _rateLimiterPolicyProvider;
+    public RateLimitPolicyValidator(IYarpRateLimiterPolicyProvider rateLimiterPolicyProvider)
+    {
+        _rateLimiterPolicyProvider = rateLimiterPolicyProvider;
+    }
+
     public async ValueTask ValidateAsync(RouteConfig routeConfig, IList<Exception> errors)
     {
         var rateLimiterPolicyName = routeConfig.RateLimiterPolicy;
@@ -20,7 +25,7 @@ internal sealed class RateLimitPolicyValidator
         if (string.Equals(RateLimitingConstants.Default, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase)
             || string.Equals(RateLimitingConstants.Disable, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase))
         {
-            var policy = await rateLimiterPolicyProvider.GetPolicyAsync(rateLimiterPolicyName);
+            var policy = await _rateLimiterPolicyProvider.GetPolicyAsync(rateLimiterPolicyName);
             if (policy is not null)
             {
                 // We weren't expecting to find a policy with these names.
@@ -33,7 +38,7 @@ internal sealed class RateLimitPolicyValidator
 
         try
         {
-            var policy = await rateLimiterPolicyProvider.GetPolicyAsync(rateLimiterPolicyName);
+            var policy = await _rateLimiterPolicyProvider.GetPolicyAsync(rateLimiterPolicyName);
 
             if (policy is null)
             {
