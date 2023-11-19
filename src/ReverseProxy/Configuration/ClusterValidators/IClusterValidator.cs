@@ -5,5 +5,5 @@ namespace Yarp.ReverseProxy.Configuration.ClusterValidators;
 
 public interface IClusterValidator
 {
-    public void AddValidationErrors(ClusterConfig cluster, IList<Exception> errors);
+    public ValueTask ValidateAsync(ClusterConfig cluster, IList<Exception> errors);
 }

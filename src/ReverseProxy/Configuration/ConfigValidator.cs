@@ -29,8 +29,9 @@ internal sealed class ConfigValidator : IConfigValidator
 #if NET8_0_OR_GREATER
     private readonly IOptionsMonitor<RequestTimeoutOptions> _timeoutOptions;
 #endif
-    private readonly IEnumerable<IRouteValidator> _routeValidators;
-    private readonly IEnumerable<IClusterValidator> _clusterValidators;
+    private readonly List<IRouteValidator> _routeValidators;
+    private readonly List<IClusterValidator> _clusterValidators;
+    
     public ConfigValidator(ITransformBuilder transformBuilder,
         IAuthorizationPolicyProvider authorizationPolicyProvider,
         IYarpRateLimiterPolicyProvider rateLimiterPolicyProvider,
