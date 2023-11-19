@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Yarp.ReverseProxy.Configuration.RouteValidators;
 
-internal sealed class AuthorizationPolicyValidator(IAuthorizationPolicyProvider authorizationPolicyProvider)
-    : IRouteValidator
+internal sealed class AuthorizationPolicyValidator
+    (IAuthorizationPolicyProvider authorizationPolicyProvider) : IRouteValidator
 {
     public async ValueTask ValidateAsync(RouteConfig routeConfig, IList<Exception> errors)
     {
