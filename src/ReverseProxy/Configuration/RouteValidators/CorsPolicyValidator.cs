@@ -6,15 +6,8 @@ using Microsoft.AspNetCore.Http;
 
 namespace Yarp.ReverseProxy.Configuration.RouteValidators;
 
-internal sealed class CorsPolicyValidator : IRouteValidator
+internal sealed class CorsPolicyValidator(ICorsPolicyProvider corsPolicyProvider) : IRouteValidator
 {
-    private readonly ICorsPolicyProvider _corsPolicyProvider;
-
-    public CorsPolicyValidator(ICorsPolicyProvider corsPolicyProvider)
-    {
-        _corsPolicyProvider = corsPolicyProvider;
-    }
-
     public async ValueTask ValidateAsync(RouteConfig routeConfig, IList<Exception> errors)
     {
         var corsPolicyName = routeConfig.CorsPolicy;
@@ -26,7 +19,7 @@ internal sealed class CorsPolicyValidator : IRouteValidator
         if (string.Equals(CorsConstants.Default, corsPolicyName, StringComparison.OrdinalIgnoreCase))
         {
             var dummyHttpContext = new DefaultHttpContext();
-            var policy = await _corsPolicyProvider.GetPolicyAsync(dummyHttpContext, corsPolicyName);
+            var policy = await corsPolicyProvider.GetPolicyAsync(dummyHttpContext, corsPolicyName);
             if (policy is not null)
             {
                 errors.Add(new ArgumentException(
@@ -39,7 +32,7 @@ internal sealed class CorsPolicyValidator : IRouteValidator
         if (string.Equals(CorsConstants.Disable, corsPolicyName, StringComparison.OrdinalIgnoreCase))
         {
             var dummyHttpContext = new DefaultHttpContext();
-            var policy = await _corsPolicyProvider.GetPolicyAsync(dummyHttpContext, corsPolicyName);
+            var policy = await corsPolicyProvider.GetPolicyAsync(dummyHttpContext, corsPolicyName);
             if (policy is not null)
             {
                 errors.Add(new ArgumentException(
@@ -52,7 +45,7 @@ internal sealed class CorsPolicyValidator : IRouteValidator
         try
         {
             var dummyHttpContext = new DefaultHttpContext();
-            var policy = await _corsPolicyProvider.GetPolicyAsync(dummyHttpContext, corsPolicyName);
+            var policy = await corsPolicyProvider.GetPolicyAsync(dummyHttpContext, corsPolicyName);
             if (policy is null)
             {
                 errors.Add(new ArgumentException(

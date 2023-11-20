@@ -12,9 +12,10 @@ internal sealed class HealthCheckValidator : IClusterValidator
     private readonly FrozenDictionary<string, IAvailableDestinationsPolicy> _availableDestinationsPolicies;
     private readonly FrozenDictionary<string, IActiveHealthCheckPolicy> _activeHealthCheckPolicies;
     private readonly FrozenDictionary<string, IPassiveHealthCheckPolicy> _passiveHealthCheckPolicies;
+
     public HealthCheckValidator(IEnumerable<IAvailableDestinationsPolicy> availableDestinationsPolicies,
-    IEnumerable<IActiveHealthCheckPolicy> activeHealthCheckPolicies,
-    IEnumerable<IPassiveHealthCheckPolicy> passiveHealthCheckPolicies)
+        IEnumerable<IActiveHealthCheckPolicy> activeHealthCheckPolicies,
+        IEnumerable<IPassiveHealthCheckPolicy> passiveHealthCheckPolicies)
     {
         _availableDestinationsPolicies = availableDestinationsPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(availableDestinationsPolicies));
         _activeHealthCheckPolicies = activeHealthCheckPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(availableDestinationsPolicies));

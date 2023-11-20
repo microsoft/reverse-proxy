@@ -6,15 +6,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Yarp.ReverseProxy.Configuration.ClusterValidators;
 
-internal sealed class ProxyHttpRequestValidator : IClusterValidator
+internal sealed class ProxyHttpRequestValidator(ILogger<ConfigValidator> logger) : IClusterValidator
 {
-    private readonly ILogger<ProxyHttpRequestValidator> _logger;
-
-    public ProxyHttpRequestValidator(ILogger<ProxyHttpRequestValidator> logger)
-    {
-        _logger = logger;
-    }
-
     public ValueTask ValidateAsync(ClusterConfig cluster, IList<Exception> errors)
     {
         if (cluster.HttpRequest is null)
@@ -34,7 +27,7 @@ internal sealed class ProxyHttpRequestValidator : IClusterValidator
 
         if (cluster.HttpRequest.Version == HttpVersion.Version10)
         {
-            Log.Http10Version(_logger);
+            Log.Http10Version(logger);
         }
 
         return ValueTask.CompletedTask;

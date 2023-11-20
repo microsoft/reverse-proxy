@@ -16,6 +16,7 @@ internal sealed class ConfigValidator : IConfigValidator
     private readonly ITransformBuilder _transformBuilder;
     private readonly IRouteValidator[] _routeValidators;
     private readonly IClusterValidator[] _clusterValidators;
+
     public ConfigValidator(ITransformBuilder transformBuilder,
         IEnumerable<IRouteValidator> routeValidators,
         IEnumerable<IClusterValidator> clusterValidators)
