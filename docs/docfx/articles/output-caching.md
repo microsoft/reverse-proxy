@@ -50,7 +50,7 @@ builder.Services.AddOutputCache(options =>
 });
 ```
 
-In Program.cs add the output caching middleware.
+Then add the output caching middleware:
 
 ```c#
 var app = builder.Build();
@@ -58,5 +58,6 @@ var app = builder.Build();
 app.UseOutputCache();
 
 app.MapReverseProxy();
+```
 
 See the [Output Caching](https://learn.microsoft.com/aspnet/core/performance/caching/output) docs for setting up your preferred kind of output caching.
