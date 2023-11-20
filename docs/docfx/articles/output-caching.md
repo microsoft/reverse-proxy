@@ -50,18 +50,13 @@ builder.Services.AddOutputCache(options =>
 });
 ```
 
-In Program.cs add the output caching middleware between Routing and Endpoints.
+In Program.cs add the output caching middleware.
 
 ```c#
 var app = builder.Build();
-app.UseRouting();
 
 app.UseOutputCache();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapReverseProxy();
-});
-```
+app.MapReverseProxy();
 
 See the [Output Caching](https://learn.microsoft.com/aspnet/core/performance/caching/output) docs for setting up your preferred kind of output caching.
