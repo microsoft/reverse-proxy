@@ -14,15 +14,15 @@ namespace Yarp.ReverseProxy.Configuration;
 internal sealed class ConfigValidator : IConfigValidator
 {
     private readonly ITransformBuilder _transformBuilder;
-    private readonly IEnumerable<IRouteValidator> _routeValidators;
-    private readonly IEnumerable<IClusterValidator> _clusterValidators;
+    private readonly IRouteValidator[] _routeValidators;
+    private readonly IClusterValidator[] _clusterValidators;
     public ConfigValidator(ITransformBuilder transformBuilder,
         IEnumerable<IRouteValidator> routeValidators,
         IEnumerable<IClusterValidator> clusterValidators)
     {
         _transformBuilder = transformBuilder ?? throw new ArgumentNullException(nameof(transformBuilder));
-        _routeValidators = routeValidators;
-        _clusterValidators = clusterValidators;
+        _routeValidators = routeValidators?.ToArray() ?? throw new ArgumentNullException(nameof(routeValidators));
+        _clusterValidators = clusterValidators?.ToArray() ?? throw new ArgumentNullException(nameof(clusterValidators));
     }
 
     // Note this performs all validation steps without short circuiting in order to report all possible errors.
