@@ -41,4 +41,4 @@ To enable control over mapping request and response fields and headers between t
 
 ## Files
 
-The key functionality for this sample is all included in [Startup.cs](Startup.cs).
+The key functionality for this sample is all included in [Program.cs](Program.cs).

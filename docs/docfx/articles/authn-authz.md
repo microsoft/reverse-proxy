@@ -38,33 +38,22 @@ Example:
 
 [Authorization policies](https://docs.microsoft.com/aspnet/core/security/authorization/policies) are an ASP.NET Core concept that the proxy utilizes. The proxy provides the above configuration to specify a policy per route and the rest is handled by existing ASP.NET Core authentication and authorization components.
 
-Authorization policies can be configured in Startup.ConfigureServices as follows:
+Authorization policies can be configured in the application as follows:
 ```
-public void ConfigureServices(IServiceCollection services)
+services.AddAuthorization(options =>
 {
-    services.AddAuthorization(options =>
-    {
-        options.AddPolicy("customPolicy", policy =>
-            policy.RequireAuthenticatedUser());
-    });
-}
+    options.AddPolicy("customPolicy", policy =>
+        policy.RequireAuthenticatedUser());
+});
 ```
 
-In Startup.Configure add the Authorization and Authentication middleware between Routing and Endpoints.
+In Program.cs add the Authorization and Authentication middleware.
 
 ```
-public void Configure(IApplicationBuilder app)
-{
-    app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 
-    app.UseAuthentication();
-    app.UseAuthorization();
-
-    app.UseEndpoints(endpoints =>
-    {
-        endpoints.MapReverseProxy();
-    });
-}
+app.MapReverseProxy();
 ```
 
 See the [Authentication](https://docs.microsoft.com/aspnet/core/security/authentication/) docs for setting up your preferred kind of authentication.

@@ -701,9 +701,7 @@ public class HttpForwarderTests
 
         Assert.Equal(StatusCodes.Status101SwitchingProtocols, httpContext.Response.StatusCode);
 
-        // When both are idle it's a race which gets reported as canceled first.
-        Assert.True(ForwarderError.UpgradeRequestClient == result
-            || ForwarderError.UpgradeResponseDestination == result);
+        Assert.Equal(ForwarderError.UpgradeActivityTimeout, result);
 
         events.AssertContainProxyStages(upgrade: true);
     }

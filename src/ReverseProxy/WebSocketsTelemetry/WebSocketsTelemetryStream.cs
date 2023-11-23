@@ -59,6 +59,9 @@ internal sealed class WebSocketsTelemetryStream : DelegatingStream
             ForwarderError.UpgradeRequestDestination => WebSocketCloseReason.ServerDisconnect,
             ForwarderError.UpgradeResponseDestination => WebSocketCloseReason.ServerDisconnect,
 
+            // Activity Timeout
+            ForwarderError.UpgradeActivityTimeout => WebSocketCloseReason.ActivityTimeout,
+
             // Both sides gracefully closed the underlying connection without sending a WebSocket close,
             // or the server closed the connection and we canceled the client and suppressed the errors.
             null => WebSocketCloseReason.ServerDisconnect,

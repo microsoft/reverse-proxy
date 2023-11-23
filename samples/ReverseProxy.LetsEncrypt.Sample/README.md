@@ -4,7 +4,7 @@
 
 The sample includes the following parts:
 
-- ### [Startup.cs](Startup.cs)
+- ### [Program.cs](Program.cs)
   It calls `IServiceCollection.AddLettuceEncrypt` in the `ConfigureServices` method.
 
 - ### [appsettings.json](appsettings.json)

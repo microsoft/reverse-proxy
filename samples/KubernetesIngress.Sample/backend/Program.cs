@@ -1,26 +1,34 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System.Diagnostics;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
+using System.Net;
+using System.Text.Json;
+using Microsoft.AspNetCore.Builder;
 
-namespace Backend
+Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+
+var builder = WebApplication.CreateBuilder(args);
+
+var app = builder.Build();
+
+app.MapGet("/", async context =>
 {
-    public class Program
+    var backendInfo = new BackendInfo()
     {
-        public static void Main(string[] args)
-        {
-            Activity.DefaultIdFormat = ActivityIdFormat.W3C;
-            CreateHostBuilder(args).Build().Run();
-        }
+        IP = context.Connection.LocalIpAddress.ToString(),
+        Hostname = Dns.GetHostName(),
+    };
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
-    }
+    context.Response.ContentType = "application/json; charset=utf-8";
+    await JsonSerializer.SerializeAsync(context.Response.Body, backendInfo);
+});
+
+app.Run();
+
+internal class BackendInfo
+{
+    public string IP { get; set; } = default!;
+
+    public string Hostname { get; set; } = default!;
 }

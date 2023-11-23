@@ -4,34 +4,24 @@
 The reverse proxy can load configuration for routes and clusters from files using the IConfiguration abstraction from Microsoft.Extensions. The examples given here use JSON, but any IConfiguration source should work. The configuration will also be updated without restarting the proxy if the source file changes.
 
 ## Loading Configuration
-To load the proxy configuration from IConfiguration add the following code in Startup:
+To load the proxy configuration from IConfiguration add the following code in Program.cs:
 ```c#
-public IConfiguration Configuration { get; }
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 
-public Startup(IConfiguration configuration)
-{
-    Configuration = configuration;
-}
+var builder = WebApplication.CreateBuilder(args);
 
-public void ConfigureServices(IServiceCollection services)
-{
-    services.AddReverseProxy()
-        .LoadFromConfig(Configuration.GetSection("ReverseProxy"));
-}
+// Add the reverse proxy capability to the server
+builder.Services.AddReverseProxy()
+    // Initialize the reverse proxy from the "ReverseProxy" section of configuration
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
-public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-{
-    if (env.IsDevelopment())
-    {
-        app.UseDeveloperExceptionPage();
-    }
+var app = builder.Build();
 
-    app.UseRouting();
-    app.UseEndpoints(endpoints =>
-    {
-        endpoints.MapReverseProxy();
-    });
-}
+// Register the reverse proxy routes
+app.MapReverseProxy();
+
+app.Run();
 ```
 **Note**: For details about middleware ordering see [here](https://docs.microsoft.com/aspnet/core/fundamentals/middleware/#middleware-order).
 

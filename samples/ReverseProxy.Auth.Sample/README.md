@@ -4,7 +4,7 @@ This sample shows how the YARP proxy can be integrated with the ASP.NET [authent
 
 The sample includes the following parts:
 
-- ### [Startup.cs](Startup.cs)
+- ### [Program.cs](Program.cs)
   Sets up the ASP.NET server to have the proxy together with the other middleware for authentication, authorization and Razor pages.
   It sets up a custom authorization policy "myPolicy" with a custom claim.
 
