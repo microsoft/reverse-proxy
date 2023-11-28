@@ -76,12 +76,13 @@
 <h2 id="iconfiguration">IConfiguration</h2>
 <p>These types are focused on defining serializable configuration. The code based configuration model is described below in the &quot;Code Configuration&quot; section.</p>
 <h3 id="httpclient">HttpClient</h3>
-<p>HTTP client configuration is based on <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.HttpClientConfig.html">HttpClientConfig</a> and represented by the following configuration schema.</p>
+<p>HTTP client configuration is based on <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.HttpClientConfig.html">HttpClientConfig</a> and represented by the following configuration schema. If you need a more granular approach, please use a <a href="https://microsoft.github.io/reverse-proxy/articles/http-client-config.html#custom-iforwarderhttpclientfactory">custom implementation</a> of <code>IForwarderHttpClientFactory</code>.</p>
 <pre><code class="lang-JSON">&quot;HttpClient&quot;: {
     &quot;SslProtocols&quot;: [ &quot;&lt;protocol-names&gt;&quot; ],
     &quot;MaxConnectionsPerServer&quot;: &quot;&lt;int&gt;&quot;,
     &quot;DangerousAcceptAnyServerCertificate&quot;: &quot;&lt;bool&gt;&quot;,
     &quot;RequestHeaderEncoding&quot;: &quot;&lt;encoding-name&gt;&quot;,
+    &quot;ResponseHeaderEncoding&quot;: &quot;&lt;encoding-name&gt;&quot;,
     &quot;EnableMultipleHttp2Connections&quot;: &quot;&lt;bool&gt;&quot;
     &quot;WebProxy&quot;: {
         &quot;Address&quot;: &quot;&lt;url&gt;&quot;,
@@ -110,21 +111,23 @@
 <pre><code class="lang-JSON">&quot;DangerousAcceptAnyServerCertificate&quot;: &quot;true&quot;
 </code></pre>
 <ul>
-<li>RequestHeaderEncoding - enables other than ASCII encoding for outgoing request headers. Setting this value will leverage <a href="https://docs.microsoft.com/dotnet/api/system.net.http.socketshttphandler.requestheaderencodingselector"><code>SocketsHttpHandler.RequestHeaderEncodingSelector</code></a> and use the selected encoding for all headers. If you need more granular approach, please use custom <code>IProxyHttpClientFactory</code>. The value is then parsed by <a href="https://docs.microsoft.com/dotnet/api/system.text.encoding.getencoding#System_Text_Encoding_GetEncoding_System_String_"><code>Encoding.GetEncoding</code></a>, use values like: &quot;utf-8&quot;, &quot;iso-8859-1&quot;, etc.</li>
+<li>RequestHeaderEncoding - enables other than ASCII encoding for outgoing request headers. Setting this value will leverage <a href="https://docs.microsoft.com/dotnet/api/system.net.http.socketshttphandler.requestheaderencodingselector"><code>SocketsHttpHandler.RequestHeaderEncodingSelector</code></a> and use the selected encoding for all headers. The value is then parsed by <a href="https://docs.microsoft.com/dotnet/api/system.text.encoding.getencoding#System_Text_Encoding_GetEncoding_System_String_"><code>Encoding.GetEncoding</code></a>, use values like: &quot;utf-8&quot;, &quot;iso-8859-1&quot;, etc.</li>
 </ul>
 <pre><code class="lang-JSON">&quot;RequestHeaderEncoding&quot;: &quot;utf-8&quot;
 </code></pre>
-<p>If you're using an encoding other than ASCII (or UTF-8 for Kestrel) you also need to set your server to accept requests with such headers. For example, use <a href="https://docs.microsoft.com/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.RequestHeaderEncodingSelector"><code>KestrelServerOptions.RequestHeaderEncodingSelector</code></a> to set up Kestrel to accept Latin1 (&quot;iso-8859-1&quot;) headers:</p>
-<pre><code class="lang-C#">private static IHostBuilder CreateHostBuilder(string[] args) =&gt;
-    Host.CreateDefaultBuilder(args)
-        .ConfigureWebHostDefaults(webBuilder =&gt;
-        {
-            webBuilder.UseStartup&lt;Startup&gt;()
-                      .ConfigureKestrel(kestrel =&gt;
-                      {
-                          kestrel.RequestHeaderEncodingSelector = _ =&gt; Encoding.Latin1;
-                      });
-        });
+<ul>
+<li>ResponseHeaderEncoding - enables other than ASCII encoding for incoming response headers (from requests that the proxy would forward out). Setting this value will leverage <a href="https://docs.microsoft.com/dotnet/api/system.net.http.socketshttphandler.responseheaderencodingselector"><code>SocketsHttpHandler.ResponseHeaderEncodingSelector</code></a> and use the selected encoding for all headers. The value is then parsed by <a href="https://docs.microsoft.com/dotnet/api/system.text.encoding.getencoding#System_Text_Encoding_GetEncoding_System_String_"><code>Encoding.GetEncoding</code></a>, use values like: &quot;utf-8&quot;, &quot;iso-8859-1&quot;, etc.</li>
+</ul>
+<pre><code class="lang-JSON">&quot;ResponseHeaderEncoding&quot;: &quot;utf-8&quot;
+</code></pre>
+<p>Note that if you're using an encoding other than ASCII, you also need to set your server to accept requests and/or send responses with such headers. For example, when using Kestrel as the server, use <a href="https://docs.microsoft.com/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.RequestHeaderEncodingSelector"><code>KestrelServerOptions.RequestHeaderEncodingSelector</code></a> / <a href="https://docs.microsoft.com/dotnet/api/Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions.ResponseHeaderEncodingSelector"><code>.ResponseHeaderEncodingSelector</code></a> to configure Kestrel to allow <code>Latin1</code> (&quot;<code>iso-8859-1</code>&quot;) headers:</p>
+<pre><code class="lang-C#">var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.ConfigureKestrel(kestrel =&gt;
+{
+    kestrel.RequestHeaderEncodingSelector = _ =&gt; Encoding.Latin1;
+    // and/or
+    kestrel.ResponseHeaderEncodingSelector = _ =&gt; Encoding.Latin1;
+});
 </code></pre>
 <ul>
 <li>EnableMultipleHttp2Connections - enables opening additional HTTP/2 connections to the same server when the maximum number of concurrent streams is reached on all existing connections. The default is <code>true</code>. See <a href="https://docs.microsoft.com/dotnet/api/system.net.http.socketshttphandler.enablemultiplehttp2connections">SocketsHttpHandler.EnableMultipleHttp2Connections</a></li>
@@ -146,7 +149,6 @@
     &quot;UseDefaultCredentials&quot;: &quot;false&quot;
 }
 </code></pre>
-<p>At the moment, there is no solution for changing encoding for response headers in Kestrel (see <a href="https://github.com/dotnet/aspnetcore/issues/26334">aspnetcore#26334</a>), only ASCII is accepted.</p>
 <h3 id="httprequest">HttpRequest</h3>
 <p>HTTP request configuration is based on <a class="xref" href="../api/Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.html">ForwarderRequestConfig</a> and represented by the following configuration schema.</p>
 <pre><code class="lang-JSON">&quot;HttpRequest&quot;: {
@@ -211,45 +213,42 @@
 <h2 id="code-configuration">Code Configuration</h2>
 <p>HTTP client configuration uses the type <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.HttpClientConfig.html">HttpClientConfig</a>.</p>
 <p>The following is an example of <code>HttpClientConfig</code> using <a href="config-providers.html">code based</a> configuration. An instance of <code>HttpClientConfig</code> is assigned to the <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.ClusterConfig.html">ClusterConfig.HttpClient</a> property before passing the cluster array to <code>LoadFromMemory</code> method.</p>
-<pre><code class="lang-C#">public void ConfigureServices(IServiceCollection services)
+<pre><code class="lang-C#">var routes = new[]
 {
-    var routes = new[]
+    new RouteConfig()
     {
-        new RouteConfig()
+        RouteId = &quot;route1&quot;,
+        ClusterId = &quot;cluster1&quot;,
+        Match =
         {
-            RouteId = &quot;route1&quot;,
-            ClusterId = &quot;cluster1&quot;,
-            Match =
-            {
-                Path = &quot;{**catch-all}&quot;
-            }
+            Path = &quot;{**catch-all}&quot;
         }
-    };
-    var clusters = new[]
+    }
+};
+var clusters = new[]
+{
+    new ClusterConfig()
     {
-        new ClusterConfig()
+        ClusterId = &quot;cluster1&quot;,
+        Destinations =
         {
-            ClusterId = &quot;cluster1&quot;,
-            Destinations =
-            {
-                { &quot;destination1&quot;, new DestinationConfig() { Address = &quot;https://localhost:10000&quot; } }
-            },
-            HttpClient = new HttpClientConfig { MaxConnectionsPerServer = 10, SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12 }
-        }
-    };
+            { &quot;destination1&quot;, new DestinationConfig() { Address = &quot;https://localhost:10000&quot; } }
+        },
+        HttpClient = new HttpClientConfig { MaxConnectionsPerServer = 10, SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12 }
+    }
+};
 
-    services.AddReverseProxy()
-        .LoadFromMemory(routes, clusters);
-}
+services.AddReverseProxy()
+    .LoadFromMemory(routes, clusters);
 </code></pre>
 <h2 id="configuring-the-http-client">Configuring the http client</h2>
 <p><code>ConfigureHttpClient</code> provides a callback to customize the <code>SocketsHttpHandler</code> settings used for proxying requests. This will be called each time a cluster is added or changed. Cluster settings are applied to the handler before the callback. Custom data can be provided in the cluster metadata. This example shows adding a client certificate that will authenticate the proxy to the destination servers.</p>
-<pre><code class="lang-C#">    var clientCert = new X509Certificate2(&quot;path&quot;);
-    services.AddReverseProxy()
-        .ConfigureHttpClient((context, handler) =&gt;
-        {
-            handler.SslOptions.ClientCertificates.Add(clientCert);
-        })
+<pre><code class="lang-C#">var clientCert = new X509Certificate2(&quot;path&quot;);
+services.AddReverseProxy()
+    .ConfigureHttpClient((context, handler) =&gt;
+    {
+        handler.SslOptions.ClientCertificates.Add(clientCert);
+    })
 </code></pre>
 <h2 id="custom-iforwarderhttpclientfactory">Custom IForwarderHttpClientFactory</h2>
 <p>If direct control of HTTP client construction is necessary, the default <a class="xref" href="../api/Yarp.ReverseProxy.Forwarder.IForwarderHttpClientFactory.html">IForwarderHttpClientFactory</a> can be replaced with a custom one. For some customizations you can derive from the default <a class="xref" href="../api/Yarp.ReverseProxy.Forwarder.ForwarderHttpClientFactory.html">ForwarderHttpClientFactory</a> and override the methods that configure the client.</p>

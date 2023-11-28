@@ -5,9 +5,9 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>A/B Testing and Rolling Upgrades </title>
+    <title>Request Timeouts </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="A/B Testing and Rolling Upgrades ">
+    <meta name="title" content="Request Timeouts ">
     <meta name="generator" content="docfx 2.59.4.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
@@ -67,40 +67,69 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="ab-testing-and-rolling-upgrades">A/B Testing and Rolling Upgrades</h1>
+<h1 id="request-timeouts">Request Timeouts</h1>
 
 <h2 id="introduction">Introduction</h2>
-<p>A/B testing and rolling upgrades require procedures for dynamically assigning incoming traffic to evaluate changes in the destination application. YARP does not have a built-in model for this, but it does expose some infrastructure useful for building such a system. See <a href="https://github.com/microsoft/reverse-proxy/issues/126">issue #126</a> for additional details about this scenario.</p>
-<h2 id="example">Example</h2>
-<pre><code>app.MapReverseProxy(proxyPipeline =&gt;
-{
-    // Custom cluster selection
-    proxyPipeline.Use((context, next) =&gt;
-    {
-        context.RequestServices.GetRequiredService&lt;IProxyStateLookup&gt;();
-        if (lookup.TryGetCluster(ChooseCluster(context), out var cluster))
-        {
-            context.ReassignProxyRequest(cluster);
+<p>.NET 8 introduced the <a href="https://learn.microsoft.com/aspnet/core/performance/timeouts">Request Timeouts Middleware</a> to enable configuring request timeouts globally as well as per endpoint. This functionality is also available in YARP 2.1 when running on .NET 8.</p>
+<h2 id="defaults">Defaults</h2>
+<p>Requests do not have any timeouts by default, other than the <a href="http-client-config.html#HttpRequest">Activity Timeout</a> used to clean up idle requests. A default policy specified in <a href="https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.http.timeouts.requesttimeoutoptions">RequestTimeoutOptions</a> will apply to proxied requests as well.</p>
+<h2 id="configuration">Configuration</h2>
+<p>Timeouts and Timeout Policies can be specified per route via <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.RouteConfig.html">RouteConfig</a> and can be bound from the <code>Routes</code> sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.</p>
+<p>Timeouts are specified in a TimeSpan HH:MM:SS format. Specifying both Timeout and TimeoutPolicy on the same route is invalid and will cause the configuration to be rejected.</p>
+<p>Example:</p>
+<pre><code class="lang-JSON">{
+  &quot;ReverseProxy&quot;: {
+    &quot;Routes&quot;: {
+      &quot;route1&quot; : {
+        &quot;ClusterId&quot;: &quot;cluster1&quot;,
+        &quot;TimeoutPolicy&quot;: &quot;customPolicy&quot;,
+        &quot;Match&quot;: {
+          &quot;Hosts&quot;: [ &quot;localhost&quot; ]
+        },
+      }
+      &quot;route2&quot; : {
+        &quot;ClusterId&quot;: &quot;cluster1&quot;,
+        &quot;Timeout&quot;: &quot;00:01:00&quot;,
+        &quot;Match&quot;: {
+          &quot;Hosts&quot;: [ &quot;localhost2&quot; ]
+        },
+      }
+    },
+    &quot;Clusters&quot;: {
+      &quot;cluster1&quot;: {
+        &quot;Destinations&quot;: {
+          &quot;cluster1/destination1&quot;: {
+            &quot;Address&quot;: &quot;https://localhost:10001/&quot;
+          }
         }
-
-        return next();
-    });
-    proxyPipeline.UseSessionAffinity();
-    proxyPipeline.UseLoadBalancing();
-});
-
-private string ChooseCluster(HttpContext context)
-{
-    // Decide which cluster to use. This could be random, weighted, based on headers, etc.
-    return Random.Shared.Next(2) == 1 ? &quot;cluster1&quot; : &quot;cluster2&quot;;
+      }
+    }
+  }
 }
 </code></pre>
-<h2 id="usage">Usage</h2>
-<p>This scenario makes use of two APIs, <a class="xref" href="../api/Yarp.ReverseProxy.IProxyStateLookup.html">IProxyStateLookup</a> and <a href="xref:Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.ReassignProxyRequest(Microsoft.AspNetCore.Http.HttpContext,Yarp.ReverseProxy.Model.ClusterState)">ReassignProxyRequest</a>, called from a custom proxy middleware as shown in the sample above.</p>
-<p><code>IProxyStateLookup</code> is a service available in the Dependency Injection container that can be used to look up or enumerate the current routes and clusters. Note this data may change if the configuration changes. An A/B orchestration algorithm can examine the request, decide which cluster to send it to, and then retrieve that cluster from <code>IProxyStateLookup.TryGetCluster</code>.</p>
-<p>Once the cluster is selected, <code>ReassignProxyRequest</code> can be called to assign the request to that cluster. This updates the <a class="xref" href="../api/Yarp.ReverseProxy.Model.IReverseProxyFeature.html">IReverseProxyFeature</a> with the new cluster and destination information needed for the rest of the proxy middleware pipeline to handle the request.</p>
-<h2 id="session-affinity">Session affinity</h2>
-<p>Note that session affinity functionality is split between middleware, which reads it settings from the current cluster, and transforms, which are part of the original route. Clusters used for A/B testing should use the same session affinity configuration to avoid conflicts.</p>
+<p>Timeout policies and the default policy can be configured in the service collection and the middleware can be added as follows:</p>
+<pre><code class="lang-csharp">var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddReverseProxy()
+    .LoadFromConfig(builder.Configuration.GetSection(&quot;ReverseProxy&quot;));
+
+builder.Services.AddRequestTimeouts(options =&gt;
+{
+    options.AddPolicy(&quot;customPolicy&quot;, TimeSpan.FromSeconds(20));
+});
+
+var app = builder.Build();
+
+app.UseRequestTimeouts();
+
+app.MapReverseProxy();
+
+app.Run();
+</code></pre>
+<h3 id="disable-timeouts">Disable timeouts</h3>
+<p>Specifying the value <code>disable</code> in a route's <code>TimeoutPolicy</code> parameter means the request timeout middleware will not apply timeouts to this route.</p>
+<h3 id="websockets">WebSockets</h3>
+<p>Request timeouts are disabled after the initial WebSocket handshake.</p>
 </article>
           </div>
           
@@ -109,7 +138,7 @@ private string ChooseCluster(HttpContext context)
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/docs/docfx/articles/ab-testing.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/docs/docfx/articles/timeouts.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>

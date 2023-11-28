@@ -75,7 +75,7 @@
 <h3 id="services-and-middleware-registration">Services and middleware registration</h3>
 <p>Session affinity services are registered in the DI container automatically by <code>AddReverseProxy()</code>. The middleware <code>UseSessionAffinity()</code> is included by default in the parameterless MapReverseProxy method. If you are customizing the proxy pipeline, place the first middleware <strong>before</strong> adding <code>UseLoadBalancing()</code>.</p>
 <p>Example:</p>
-<pre><code class="lang-C#">endpoints.MapReverseProxy(proxyPipeline =&gt;
+<pre><code class="lang-C#">app.MapReverseProxy(proxyPipeline =&gt;
 {
     proxyPipeline.UseSessionAffinity();
     proxyPipeline.UseLoadBalancing();

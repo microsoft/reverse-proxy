@@ -80,6 +80,8 @@
 <p>The incoming and outgoing protocol versions do not need to match. The incoming WebSocket request can be HTTP/1.1 or 2. There is no configuration specific to WebSockets for outgoing requests, YARP will use the <a class="xref" href="../api/Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.html">ForwarderRequestConfig</a>'s Version and VersionPolicy to determine the outbound version to use. These default to HTTP/2 and RequestVersionOrLower.</p>
 <p>WebSockets require different HTTP headers for HTTP/2 so YARP will add and remove these headers as needed when adapting between the different versions.</p>
 <p>After the initial handshake WebSockets function the same way over both HTTP versions.</p>
+<h2 id="timeout">Timeout</h2>
+<p><a href="https://learn.microsoft.com/aspnet/core/performance/timeouts">Http Request Timeouts</a> (.NET 8+) can apply timeouts to all requests by default or by policy. These timeouts will be disabled after a WebSocket handshake. They will still apply to gRPC requests. For additional configuration see <a href="timeouts.html">Timeouts</a>.</p>
 </article>
           </div>
           

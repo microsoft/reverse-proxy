@@ -100,30 +100,19 @@
 }
 </code></pre>
 <p><a href="https://docs.microsoft.com/aspnet/core/security/cors#cors-with-named-policy-and-middleware">CORS policies</a> are an ASP.NET Core concept that the proxy utilizes. The proxy provides the above configuration to specify a policy per route and the rest is handled by existing ASP.NET Core CORS Middleware.</p>
-<p>CORS policies can be configured in Startup.ConfigureServices as follows:</p>
-<pre><code>public void ConfigureServices(IServiceCollection services)
+<p>CORS policies can be configured in the application as follows:</p>
+<pre><code>services.AddCors(options =&gt;
 {
-    services.AddCors(options =&gt;
+    options.AddPolicy(&quot;customPolicy&quot;, builder =&gt;
     {
-        options.AddPolicy(&quot;customPolicy&quot;, builder =&gt;
-        {
-            builder.AllowAnyOrigin();
-        });
+        builder.AllowAnyOrigin();
     });
-}
+});
 </code></pre>
-<p>In Startup.Configure add the CORS middleware between Routing and Endpoints.</p>
-<pre><code>public void Configure(IApplicationBuilder app)
-{
-    app.UseRouting();
+<p>Then add the CORS middleware.</p>
+<pre><code>app.UseCors();
 
-    app.UseCors();
-
-    app.UseEndpoints(endpoints =&gt;
-    {
-        endpoints.MapReverseProxy();
-    });
-}
+app.MapReverseProxy();
 </code></pre>
 <h3 id="defaultpolicy">DefaultPolicy</h3>
 <p>Specifying the value <code>default</code> in a route's <code>CorsPolicy</code> parameter means that route will use the policy defined in <a href="https://docs.microsoft.com/dotnet/api/microsoft.aspnetcore.cors.infrastructure.corsoptions.defaultpolicyname">CorsOptions.DefaultPolicy</a>.</p>

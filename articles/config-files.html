@@ -72,33 +72,23 @@
 <h2 id="introduction">Introduction</h2>
 <p>The reverse proxy can load configuration for routes and clusters from files using the IConfiguration abstraction from Microsoft.Extensions. The examples given here use JSON, but any IConfiguration source should work. The configuration will also be updated without restarting the proxy if the source file changes.</p>
 <h2 id="loading-configuration">Loading Configuration</h2>
-<p>To load the proxy configuration from IConfiguration add the following code in Startup:</p>
-<pre><code class="lang-c#">public IConfiguration Configuration { get; }
+<p>To load the proxy configuration from IConfiguration add the following code in Program.cs:</p>
+<pre><code class="lang-c#">using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 
-public Startup(IConfiguration configuration)
-{
-    Configuration = configuration;
-}
+var builder = WebApplication.CreateBuilder(args);
 
-public void ConfigureServices(IServiceCollection services) 
-{ 
-    services.AddReverseProxy() 
-        .LoadFromConfig(Configuration.GetSection(&quot;ReverseProxy&quot;)); 
-}
+// Add the reverse proxy capability to the server
+builder.Services.AddReverseProxy()
+    // Initialize the reverse proxy from the &quot;ReverseProxy&quot; section of configuration
+    .LoadFromConfig(builder.Configuration.GetSection(&quot;ReverseProxy&quot;));
 
-public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-{
-    if (env.IsDevelopment())
-    {
-        app.UseDeveloperExceptionPage();
-    }
+var app = builder.Build();
 
-    app.UseRouting();
-    app.UseEndpoints(endpoints =&gt; 
-    {
-        endpoints.MapReverseProxy(); 
-    }); 
-} 
+// Register the reverse proxy routes
+app.MapReverseProxy();
+
+app.Run();
 </code></pre>
 <p><strong>Note</strong>: For details about middleware ordering see <a href="https://docs.microsoft.com/aspnet/core/fundamentals/middleware/#middleware-order">here</a>.</p>
 <p>Configuration can be modified during the load sequence using <a href="config-filters.html">Configuration Filters</a>.</p>
@@ -170,7 +160,7 @@ Route matching is based on the most specific routes having highest precedence as
   },
   &quot;ReverseProxy&quot;: {
     // Routes tell the proxy which requests to forward
-    &quot;Routes&quot;: { 
+    &quot;Routes&quot;: {
       &quot;minimumroute&quot; : {
         // Matches anything and routes it to www.example.com
         &quot;ClusterId&quot;: &quot;minimumcluster&quot;,
@@ -183,17 +173,17 @@ Route matching is based on the most specific routes having highest precedence as
         &quot;ClusterId&quot;: &quot;allclusterprops&quot;, // Name of one of the clusters
         &quot;Order&quot; : 100, // Lower numbers have higher precedence
         &quot;MaxRequestBodySize&quot; : 1000000, // In bytes. An optional override of the server's limit (30MB default). Set to -1 to disable.
-        &quot;Authorization Policy&quot; : &quot;Anonymous&quot;, // Name of the policy or &quot;Default&quot;, &quot;Anonymous&quot;
+        &quot;AuthorizationPolicy&quot; : &quot;Anonymous&quot;, // Name of the policy or &quot;Default&quot;, &quot;Anonymous&quot;
         &quot;CorsPolicy&quot; : &quot;Default&quot;, // Name of the CorsPolicy to apply to this route or &quot;Default&quot;, &quot;Disable&quot;
         &quot;Match&quot;: {
-          &quot;Path&quot;: &quot;/something/{**remainder}&quot;, // The path to match using ASP.NET syntax. 
+          &quot;Path&quot;: &quot;/something/{**remainder}&quot;, // The path to match using ASP.NET syntax.
           &quot;Hosts&quot; : [ &quot;www.aaaaa.com&quot;, &quot;www.bbbbb.com&quot;], // The host names to match, unspecified is any
           &quot;Methods&quot; : [ &quot;GET&quot;, &quot;PUT&quot; ], // The HTTP methods that match, uspecified is all
           &quot;Headers&quot;: [ // The headers to match, unspecified is any
             {
               &quot;Name&quot;: &quot;MyCustomHeader&quot;, // Name of the header
               &quot;Values&quot;: [ &quot;value1&quot;, &quot;value2&quot;, &quot;another value&quot; ], // Matches are against any of these values
-              &quot;Mode&quot;: &quot;ExactHeader&quot;, // or &quot;HeaderPrefix&quot;, &quot;Exists&quot; , &quot;Contains&quot;, &quot;NotContains&quot;
+              &quot;Mode&quot;: &quot;ExactHeader&quot;, // or &quot;HeaderPrefix&quot;, &quot;Exists&quot; , &quot;Contains&quot;, &quot;NotContains&quot;, &quot;NotExists&quot;
               &quot;IsCaseSensitive&quot;: true
             }
           ],
@@ -213,7 +203,7 @@ Route matching is based on the most specific routes having highest precedence as
           {
             &quot;RequestHeader&quot;: &quot;MyHeader&quot;,
             &quot;Set&quot;: &quot;MyValue&quot;,
-          } 
+          }
         ]
       }
     },
@@ -246,7 +236,7 @@ Route matching is based on the most specific routes having highest precedence as
           }
         },
         &quot;HealthCheck&quot;: {
-          &quot;Active&quot;: { // Makes API calls to validate the health. 
+          &quot;Active&quot;: { // Makes API calls to validate the health.
             &quot;Enabled&quot;: &quot;true&quot;,
             &quot;Interval&quot;: &quot;00:00:10&quot;,
             &quot;Timeout&quot;: &quot;00:00:10&quot;,
@@ -264,7 +254,8 @@ Route matching is based on the most specific routes having highest precedence as
           &quot;DangerousAcceptAnyServerCertificate&quot; : false,
           &quot;MaxConnectionsPerServer&quot; : 1024,
           &quot;EnableMultipleHttp2Connections&quot; : true,
-          &quot;RequestHeaderEncoding&quot; : &quot;Latin1&quot; // How to interpret non ASCII characters in header values
+          &quot;RequestHeaderEncoding&quot; : &quot;Latin1&quot;, // How to interpret non ASCII characters in request header values
+          &quot;ResponseHeaderEncoding&quot; : &quot;Latin1&quot; // How to interpret non ASCII characters in response header values
         },
         &quot;HttpRequest&quot; : { // Options for sending request to destination
           &quot;ActivityTimeout&quot; : &quot;00:02:00&quot;,

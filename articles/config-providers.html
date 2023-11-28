@@ -131,8 +131,7 @@
         .LoadFromConfig(Configuration.GetSection(&quot;ReverseProxy2&quot;));
 </code></pre>
 <p>or</p>
-<pre><code>
-    services.AddReverseProxy()
+<pre><code>    services.AddReverseProxy()
         .LoadFromMemory(routes, clusters)
         .LoadFromConfig(Configuration.GetSection(&quot;ReverseProxy&quot;));
 </code></pre>

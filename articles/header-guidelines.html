@@ -71,7 +71,7 @@
 
 <p>Headers are a very important part of processing HTTP requests and each have their own semantics and considerations. Most headers are proxied by default, though some used to control how the request is delivered are automatically adjusted or removed by the proxy. The connections between the client and the proxy and the proxy and destination are independent, and so headers that affect the connection and transport need to be filtered. Many headers contain information like domain names, paths, or other details that may be affected when a reverse proxy is included in the application architecture. Below is a collection of guidelines about how specific headers might be impacted and what to do about them.</p>
 <h2 id="yarp-header-filtering">YARP header filtering</h2>
-<p>YARP automatically removes request and response headers that could impact its ability to forward a request correctly, or that may be used maliciously to bypass features of the proxy. A complete list can be found <a href="https://github.com/microsoft/reverse-proxy/blob/main/src/ReverseProxy/Forwarder/RequestUtilities.cs#L63">here</a>, with some highlights described below.</p>
+<p>YARP automatically removes request and response headers that could impact its ability to forward a request correctly, or that may be used maliciously to bypass features of the proxy. A complete list can be found <a href="https://github.com/microsoft/reverse-proxy/blob/main/src/ReverseProxy/Forwarder/RequestUtilities.cs#L71">here</a>, with some highlights described below.</p>
 <h3 id="connection-keepalive-close">Connection, KeepAlive, Close</h3>
 <p>These headers control how the TCP connection is managed and are removed to avoid impacting the connection on the other side of the proxy.</p>
 <h3 id="transfer-encoding">Transfer-Encoding</h3>
@@ -91,6 +91,8 @@ You can opt out of modifying these headers by setting <code>SocketsHttpHandler.A
 <pre><code class="lang-C#">services.AddReverseProxy()
     .ConfigureHttpClient((_, handler) =&gt; handler.ActivityHeadersPropagator = null);
 </code></pre>
+<h3 id="strict-transport-security">Strict-Transport-Security</h3>
+<p>This header instructs clients to always use HTTPS, but there may be a conflict between values provided by the proxy and destination. To avoid confusion, the destination's value is not copied to the response if one was already added to the response by the proxy application.</p>
 <h2 id="other-header-guidelines">Other Header Guidelines</h2>
 <h3 id="host">Host</h3>
 <p>The Host header indicates which site on the server the request is intended for. This header is removed by default since the host name used publicly by the proxy is likely to differ from the one used by the service behind the proxy. This is configurable using the <a href="transforms.html#requestheaderoriginalhost">RequestHeaderOriginalHost</a> transform.</p>

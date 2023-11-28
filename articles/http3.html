@@ -70,41 +70,25 @@
 <h1 id="http3">HTTP/3</h1>
 
 <h2 id="introduction">Introduction</h2>
-<p>YARP 1.1 supports HTTP/3 for inbound and outbound connections using the HTTP/3 preview support in .NET 6. To enable the HTTP/3 protocol in YARP you need to:</p>
+<p>YARP 1.1 supports HTTP/3 for inbound and outbound connections using the HTTP/3 support in .NET 7. To enable the HTTP/3 protocol in YARP you need to:</p>
 <ul>
 <li>Configure inbound connections in Kestrel</li>
 <li>Configure outbound connections in HttpClient</li>
-<li>Enable preview features</li>
 </ul>
 <h2 id="set-up-http3-on-kestrel">Set up HTTP/3 on Kestrel</h2>
 <p>Protocols are required in the listener options:</p>
-<pre><code class="lang-C#">var myHostBuilder = Host.CreateDefaultBuilder(args);
-myHostBuilder.ConfigureWebHostDefaults(webHostBuilder =&gt;
+<pre><code class="lang-C#">var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.ConfigureKestrel(kestrel =&gt;
+{
+    kestrel.ListenAnyIP(443, portOptions =&gt;
     {
-        webHostBuilder.ConfigureKestrel(kestrel =&gt;
-        {
-            kestrel.ListenAnyIP(443, portOptions =&gt;
-            {
-                portOptions.Protocols = HttpProtocols.Http1AndHttp2AndHttp3;
-                portOptions.UseHttps();
-            });
-        });
-    webHostBuilder.UseStartup&lt;Startup&gt;();
+        portOptions.Protocols = HttpProtocols.Http1AndHttp2AndHttp3;
+        portOptions.UseHttps();
     });
-</code></pre>
-<p>To use HTTP/3 with .NET 6, preview features need to be enabled via a setting in the project file:</p>
-<pre><code class="lang-csproj">&lt;PropertyGroup&gt;
-  &lt;EnablePreviewFeatures&gt;True&lt;/EnablePreviewFeatures&gt;
-&lt;/PropertyGroup&gt;
+});
 </code></pre>
 <h2 id="httpclient">HttpClient</h2>
-<p>There is the switch which enables HTTP/3 either programmatically:</p>
-<pre><code class="lang-C#">AppContext.SetSwitch(&quot;System.Net.SocketsHttpHandler.Http3Support&quot;, true);
-</code></pre>
-<p>or in project file:</p>
-<pre><code class="lang-csproj">&lt;RuntimeHostConfigurationOption Include=&quot;System.Net.SocketsHttpHandler.Http3Support&quot; Value=&quot;true&quot; /&gt;
-</code></pre>
-<p>In addition to this, the default version of HttpRequest should be replaced by &quot;3&quot;, find more details about <a href="http-client-config.html#httprequest">HttpRequest configuration</a>.</p>
+<p>The default version of HttpRequest should be replaced by &quot;3&quot;, find more details about <a href="http-client-config.html#httprequest">HttpRequest configuration</a>.</p>
 </article>
           </div>
           

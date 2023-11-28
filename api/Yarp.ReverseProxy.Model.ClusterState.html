@@ -94,7 +94,7 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Model_ClusterState__ctor_System_String_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Model.ClusterState.%23ctor(System.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/ClusterState.cs/#L22">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/ClusterState.cs/#L24">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Model_ClusterState__ctor_" data-uid="Yarp.ReverseProxy.Model.ClusterState.#ctor*"></a>
   <h4 id="Yarp_ReverseProxy_Model_ClusterState__ctor_System_String_" data-uid="Yarp.ReverseProxy.Model.ClusterState.#ctor(System.String)">ClusterState(String)</h4>
@@ -123,6 +123,45 @@ loading infrastructure.</p>
       </tr>
     </tbody>
   </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Model_ClusterState__ctor_System_String_Yarp_ReverseProxy_Model_ClusterModel_.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Model.ClusterState.%23ctor(System.String%2CYarp.ReverseProxy.Model.ClusterModel)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/ClusterState.cs/#L34">View Source</a>
+  </span>
+  <a id="Yarp_ReverseProxy_Model_ClusterState__ctor_" data-uid="Yarp.ReverseProxy.Model.ClusterState.#ctor*"></a>
+  <h4 id="Yarp_ReverseProxy_Model_ClusterState__ctor_System_String_Yarp_ReverseProxy_Model_ClusterModel_" data-uid="Yarp.ReverseProxy.Model.ClusterState.#ctor(System.String,Yarp.ReverseProxy.Model.ClusterModel)">ClusterState(String, ClusterModel)</h4>
+  <div class="markdown level1 summary"><p>Constructor overload to additionally initialize the <a class="xref" href="Yarp.ReverseProxy.Model.ClusterModel.html">ClusterModel</a> for tests and infrastructure,
+such as updating the <a class="xref" href="Yarp.ReverseProxy.Model.ReverseProxyFeature.html">ReverseProxyFeature</a> via <a class="xref" href="Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.html">HttpContextFeaturesExtensions</a></p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ClusterState(string clusterId, ClusterModel model)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">clusterId</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Yarp.ReverseProxy.Model.ClusterModel.html">ClusterModel</a></td>
+        <td><span class="parametername">model</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
   <h3 id="properties">Properties
   </h3>
   <span class="small pull-right mobile-hide">
@@ -130,7 +169,7 @@ loading infrastructure.</p>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Model_ClusterState_ClusterId.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Model.ClusterState.ClusterId%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/ClusterState.cs/#L30">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/ClusterState.cs/#L42">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Model_ClusterState_ClusterId_" data-uid="Yarp.ReverseProxy.Model.ClusterState.ClusterId*"></a>
   <h4 id="Yarp_ReverseProxy_Model_ClusterState_ClusterId" data-uid="Yarp.ReverseProxy.Model.ClusterState.ClusterId">ClusterId</h4>
@@ -161,7 +200,7 @@ loading infrastructure.</p>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Model_ClusterState_Destinations.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Model.ClusterState.Destinations%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/ClusterState.cs/#L46">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/ClusterState.cs/#L58">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Model_ClusterState_Destinations_" data-uid="Yarp.ReverseProxy.Model.ClusterState.Destinations*"></a>
   <h4 id="Yarp_ReverseProxy_Model_ClusterState_Destinations" data-uid="Yarp.ReverseProxy.Model.ClusterState.Destinations">Destinations</h4>
@@ -194,7 +233,7 @@ Call <a class="xref" href="Yarp.ReverseProxy.Health.IClusterDestinationsUpdater.
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Model_ClusterState_DestinationsState.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Model.ClusterState.DestinationsState%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/ClusterState.cs/#L52">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/ClusterState.cs/#L64">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Model_ClusterState_DestinationsState_" data-uid="Yarp.ReverseProxy.Model.ClusterState.DestinationsState*"></a>
   <h4 id="Yarp_ReverseProxy_Model_ClusterState_DestinationsState" data-uid="Yarp.ReverseProxy.Model.ClusterState.DestinationsState">DestinationsState</h4>
@@ -226,7 +265,7 @@ in reaction to runtime state changes (e.g. changes of destinations' health).</p>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Model_ClusterState_Model.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Model.ClusterState.Model%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/ClusterState.cs/#L35">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/ClusterState.cs/#L47">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Model_ClusterState_Model_" data-uid="Yarp.ReverseProxy.Model.ClusterState.Model*"></a>
   <h4 id="Yarp_ReverseProxy_Model_ClusterState_Model" data-uid="Yarp.ReverseProxy.Model.ClusterState.Model">Model</h4>
@@ -263,7 +302,7 @@ in reaction to runtime state changes (e.g. changes of destinations' health).</p>
                     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Model_ClusterState.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Model.ClusterState%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/ClusterState.cs/#L13" class="contribution-link">View Source</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Model/ClusterState.cs/#L15" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>

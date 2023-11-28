@@ -69,13 +69,51 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="distributed-tracing">Distributed tracing</h1>
 
-<p>As an ASP.NET Core component, YARP can easily integrate into different tracing systems the same as any other web application.
-See detailed guides for setting up your application with:</p>
-<ul>
-<li><a href="https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/docs/trace/getting-started-aspnetcore/README.md">OpenTelemetry</a> or</li>
-<li><a href="https://docs.microsoft.com/azure/azure-monitor/app/asp-net-core">Application Insights</a></li>
-</ul>
+<p>As an ASP.NET Core component, YARP can easily integrate into different tracing systems the same as any other ASP.NET Core application.</p>
 <p>.NET has built-in configurable support for distributed tracing that YARP takes advantage of to enable such scenarios out-of-the-box.</p>
+<h2 id="using-open-telemetry">Using Open Telemetry</h2>
+<p>YARP supports distributed tracing using Open Telemetry (OTEL). When a request comes in, and there is a listener for Activities, then ASP.NET Core will propagate the <a href="https://www.w3.org/TR/trace-context">Trace Context</a> trace-id, or create one if necessary, and create new spans/activities for the work performed.
+In addition YARP can create activities for:</p>
+<ul>
+<li>Forwarding Requests</li>
+<li>Active health checks for clusters</li>
+</ul>
+<p>These will only be created if there is a listener for the <a href="https://learn.microsoft.com/dotnet/core/diagnostics/distributed-tracing-instrumentation-walkthroughs#activitysource"><code>ActivitySource</code></a> named <code>Yarp.ReverseProxy</code>.</p>
+<p>For example, to monitor the traces with Application Insights, the proxy application needs to use the <a href="https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry/README.md">Open Telemetry</a> and <a href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/monitor/Azure.Monitor.OpenTelemetry.AspNetCore/README.md">Azure Monitor</a> SDKs.</p>
+<p><code>application.csproj</code>:</p>
+<pre><code class="lang-xml">&lt;ItemGroup&gt;
+  &lt;PackageReference Include=&quot;Azure.Monitor.OpenTelemetry.AspNetCore&quot; Version=&quot;1.0.0-beta.3&quot; /&gt;
+&lt;/ItemGroup&gt;
+</code></pre>
+<p><code>Program.cs</code>:</p>
+<pre><code class="lang-c#">using Azure.Monitor.OpenTelemetry.AspNetCore;
+using OpenTelemetry.Trace;
+using System.Diagnostics;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection(&quot;ReverseProxy&quot;));
+
+builder.Services.AddOpenTelemetry()
+    // Use helper to configure Azure Monitor defaults
+    .UseAzureMonitor(o =&gt;
+    {
+        o.ConnectionString = builder.Configuration[&quot;APPLICATIONINSIGHTS_CONNECTION_STRING&quot;];
+    })
+    .WithTracing(t =&gt;
+    {
+        // Listen to the YARP tracing activities
+        t.AddSource(&quot;Yarp.ReverseProxy&quot;);
+    });
+
+var app = builder.Build();
+
+app.MapReverseProxy();
+
+app.Run();
+
+</code></pre>
+<p>Provided that the traces are being logged to the same store for the proxy and destination servers, then the tracing analysis tools can correlate the requests and provide gant charts etc covering the end-to-end processing of the requests as they transition across the servers.</p>
+<p>The same pattern can be used with the built-in OTEL exporters for Jaeger and Zipkin, or with many of the <a href="https://opentelemetry.io/ecosystem/vendors/">APM vendors</a> who are adopting OTEL.</p>
 <h2 id="using-custom-tracing-headers">Using custom tracing headers</h2>
 <p>When using a propagation mechanism that is not built into .NET (e.g. <a href="https://github.com/openzipkin/b3-propagation">B3 propagation</a>), you should implement a custom <a href="https://docs.microsoft.com/dotnet/api/system.diagnostics.distributedcontextpropagator"><code>DistributedContextPropagator</code></a> for that scheme.</p>
 <p>YARP will remove any header in <a href="https://docs.microsoft.com/dotnet/api/system.diagnostics.distributedcontextpropagator.fields"><code>DistributedContextPropagator.Fields</code></a> so that the propagator may re-add them to the request during the <code>Inject</code> call.</p>

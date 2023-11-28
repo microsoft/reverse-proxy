@@ -94,7 +94,7 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder%2CSystem.String%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Routing/DirectForwardingIEndpointRouteBuilderExtensions.cs/#L20">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Routing/DirectForwardingIEndpointRouteBuilderExtensions.cs/#L23">View Source</a>
   </span>
   <a id="Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_" data-uid="Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder*"></a>
   <h4 id="Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_" data-uid="Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder,System.String,System.String)">MapForwarder(IEndpointRouteBuilder, String, String)</h4>
@@ -149,10 +149,136 @@
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_Action_Yarp_ReverseProxy_Transforms_Builder_TransformBuilderContext__.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder%2CSystem.String%2CSystem.String%2CAction%7BYarp.ReverseProxy.Transforms.Builder.TransformBuilderContext%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Routing/DirectForwardingIEndpointRouteBuilderExtensions.cs/#L50">View Source</a>
+  </span>
+  <a id="Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_" data-uid="Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder*"></a>
+  <h4 id="Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_Action_Yarp_ReverseProxy_Transforms_Builder_TransformBuilderContext__" data-uid="Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder,System.String,System.String,Action{Yarp.ReverseProxy.Transforms.Builder.TransformBuilderContext})">MapForwarder(IEndpointRouteBuilder, String, String, Action&lt;TransformBuilderContext&gt;)</h4>
+  <div class="markdown level1 summary"><p>Adds direct forwarding of HTTP requests that match the specified pattern to a specific destination using default configuration for the outgoing request, customized transforms, and default HTTP client.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEndpointConventionBuilder MapForwarder(this IEndpointRouteBuilder endpoints, string pattern, string destinationPrefix, Action&lt;TransformBuilderContext&gt; configureTransform)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEndpointRouteBuilder</span></td>
+        <td><span class="parametername">endpoints</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">pattern</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">destinationPrefix</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">Action</span>&lt;<a class="xref" href="Yarp.ReverseProxy.Transforms.Builder.TransformBuilderContext.html">TransformBuilderContext</a>&gt;</td>
+        <td><span class="parametername">configureTransform</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEndpointConventionBuilder</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_System_String_.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder%2CSystem.String%2CSystem.String%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Routing/DirectForwardingIEndpointRouteBuilderExtensions.cs/#L32">View Source</a>
+  </span>
+  <a id="Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_" data-uid="Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder*"></a>
+  <h4 id="Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_System_String_" data-uid="Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder,System.String,System.String,System.String)">MapForwarder(IEndpointRouteBuilder, String, String, String)</h4>
+  <div class="markdown level1 summary"><p>Adds direct forwarding of HTTP requests that match the specified pattern to a specific destination and target path applying route values from the pattern using default configuration for the outgoing request, and default HTTP client.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEndpointConventionBuilder MapForwarder(this IEndpointRouteBuilder endpoints, string pattern, string destinationPrefix, string targetPath)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEndpointRouteBuilder</span></td>
+        <td><span class="parametername">endpoints</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">pattern</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">destinationPrefix</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">targetPath</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEndpointConventionBuilder</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder%2CSystem.String%2CSystem.String%2CYarp.ReverseProxy.Forwarder.ForwarderRequestConfig)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Routing/DirectForwardingIEndpointRouteBuilderExtensions.cs/#L28">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Routing/DirectForwardingIEndpointRouteBuilderExtensions.cs/#L72">View Source</a>
   </span>
   <a id="Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_" data-uid="Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder*"></a>
   <h4 id="Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_" data-uid="Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder,System.String,System.String,Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig)">MapForwarder(IEndpointRouteBuilder, String, String, ForwarderRequestConfig)</h4>
@@ -212,10 +338,146 @@
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Action_Yarp_ReverseProxy_Transforms_Builder_TransformBuilderContext__.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder%2CSystem.String%2CSystem.String%2CYarp.ReverseProxy.Forwarder.ForwarderRequestConfig%2CAction%7BYarp.ReverseProxy.Transforms.Builder.TransformBuilderContext%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Routing/DirectForwardingIEndpointRouteBuilderExtensions.cs/#L59">View Source</a>
+  </span>
+  <a id="Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_" data-uid="Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder*"></a>
+  <h4 id="Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Action_Yarp_ReverseProxy_Transforms_Builder_TransformBuilderContext__" data-uid="Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder,System.String,System.String,Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig,Action{Yarp.ReverseProxy.Transforms.Builder.TransformBuilderContext})">MapForwarder(IEndpointRouteBuilder, String, String, ForwarderRequestConfig, Action&lt;TransformBuilderContext&gt;)</h4>
+  <div class="markdown level1 summary"><p>Adds direct forwarding of HTTP requests that match the specified pattern to a specific destination using customized configuration for the outgoing request, customized transforms, and default HTTP client.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEndpointConventionBuilder MapForwarder(this IEndpointRouteBuilder endpoints, string pattern, string destinationPrefix, ForwarderRequestConfig requestConfig, Action&lt;TransformBuilderContext&gt; configureTransform)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEndpointRouteBuilder</span></td>
+        <td><span class="parametername">endpoints</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">pattern</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">destinationPrefix</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.html">ForwarderRequestConfig</a></td>
+        <td><span class="parametername">requestConfig</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">Action</span>&lt;<a class="xref" href="Yarp.ReverseProxy.Transforms.Builder.TransformBuilderContext.html">TransformBuilderContext</a>&gt;</td>
+        <td><span class="parametername">configureTransform</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEndpointConventionBuilder</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_System_String_.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder%2CSystem.String%2CSystem.String%2CYarp.ReverseProxy.Forwarder.ForwarderRequestConfig%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Routing/DirectForwardingIEndpointRouteBuilderExtensions.cs/#L41">View Source</a>
+  </span>
+  <a id="Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_" data-uid="Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder*"></a>
+  <h4 id="Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_System_String_" data-uid="Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder,System.String,System.String,Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig,System.String)">MapForwarder(IEndpointRouteBuilder, String, String, ForwarderRequestConfig, String)</h4>
+  <div class="markdown level1 summary"><p>Adds direct forwarding of HTTP requests that match the specified pattern to a specific destination and target path applying route values from the pattern using customized configuration for the outgoing request, and default HTTP client.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEndpointConventionBuilder MapForwarder(this IEndpointRouteBuilder endpoints, string pattern, string destinationPrefix, ForwarderRequestConfig requestConfig, string targetPath)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEndpointRouteBuilder</span></td>
+        <td><span class="parametername">endpoints</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">pattern</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">destinationPrefix</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.html">ForwarderRequestConfig</a></td>
+        <td><span class="parametername">requestConfig</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="https://learn.microsoft.com/dotnet/api/system.string">String</a></td>
+        <td><span class="parametername">targetPath</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IEndpointConventionBuilder</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Yarp_ReverseProxy_Forwarder_HttpTransformer_.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder%2CSystem.String%2CSystem.String%2CYarp.ReverseProxy.Forwarder.ForwarderRequestConfig%2CYarp.ReverseProxy.Forwarder.HttpTransformer)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Routing/DirectForwardingIEndpointRouteBuilderExtensions.cs/#L36">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Routing/DirectForwardingIEndpointRouteBuilderExtensions.cs/#L81">View Source</a>
   </span>
   <a id="Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_" data-uid="Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder*"></a>
   <h4 id="Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Yarp_ReverseProxy_Forwarder_HttpTransformer_" data-uid="Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder,System.String,System.String,Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig,Yarp.ReverseProxy.Forwarder.HttpTransformer)">MapForwarder(IEndpointRouteBuilder, String, String, ForwarderRequestConfig, HttpTransformer)</h4>
@@ -283,7 +545,7 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Yarp_ReverseProxy_Forwarder_HttpTransformer_HttpMessageInvoker_.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder%2CSystem.String%2CSystem.String%2CYarp.ReverseProxy.Forwarder.ForwarderRequestConfig%2CYarp.ReverseProxy.Forwarder.HttpTransformer%2CHttpMessageInvoker)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Routing/DirectForwardingIEndpointRouteBuilderExtensions.cs/#L46">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Routing/DirectForwardingIEndpointRouteBuilderExtensions.cs/#L92">View Source</a>
   </span>
   <a id="Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_" data-uid="Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder*"></a>
   <h4 id="Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions_MapForwarder_IEndpointRouteBuilder_System_String_System_String_Yarp_ReverseProxy_Forwarder_ForwarderRequestConfig_Yarp_ReverseProxy_Forwarder_HttpTransformer_HttpMessageInvoker_" data-uid="Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions.MapForwarder(IEndpointRouteBuilder,System.String,System.String,Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig,Yarp.ReverseProxy.Forwarder.HttpTransformer,HttpMessageInvoker)">MapForwarder(IEndpointRouteBuilder, String, String, ForwarderRequestConfig, HttpTransformer, HttpMessageInvoker)</h4>
@@ -362,7 +624,7 @@
                     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Microsoft_AspNetCore_Builder_DirectForwardingIEndpointRouteBuilderExtensions.md&amp;value=---%0Auid%3A%20Microsoft.AspNetCore.Builder.DirectForwardingIEndpointRouteBuilderExtensions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Routing/DirectForwardingIEndpointRouteBuilderExtensions.cs/#L15" class="contribution-link">View Source</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Routing/DirectForwardingIEndpointRouteBuilderExtensions.cs/#L18" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>

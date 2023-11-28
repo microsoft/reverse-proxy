@@ -157,7 +157,7 @@
       ]
     }
   },
-   &quot;route6&quot; : {
+  &quot;route6&quot; : {
     &quot;ClusterId&quot;: &quot;cluster1&quot;,
     &quot;Match&quot;: {
       &quot;Path&quot;: &quot;{**catch-all}&quot;,
@@ -170,6 +170,18 @@
         {
           &quot;Name&quot;: &quot;header7&quot;,
           &quot;Mode&quot;: &quot;Exists&quot;
+        }
+      ]
+    }
+  },
+  &quot;route7&quot; : {
+    &quot;ClusterId&quot;: &quot;cluster1&quot;,
+    &quot;Match&quot;: {
+      &quot;Path&quot;: &quot;{**catch-all}&quot;,
+      &quot;Headers&quot;: [
+        {
+          &quot;Name&quot;: &quot;header7&quot;,
+          &quot;Mode&quot;: &quot;NotExists&quot;
         }
       ]
     }
@@ -290,6 +302,23 @@
                 }
             }
         }
+    },
+    new RouteConfig()
+    {
+        RouteId = &quot;route7&quot;,
+        ClusterId = &quot;cluster1&quot;,
+        Match = new RouteMatch
+        {
+            Path = &quot;{**catch-all}&quot;,
+            Headers = new[]
+            {
+                new RouteHeader()
+                {
+                    Name = &quot;Header7&quot;,
+                    Mode = HeaderMatchMode.NotExists
+                }
+            }
+        }
     }
 };
 </code></pre>
@@ -298,7 +327,7 @@
 <h3 id="name">Name</h3>
 <p>The header name to check for on the request. A non-empty value is required. This field is case-insensitive per the HTTP RFCs.</p>
 <h3 id="values">Values</h3>
-<p>A list of possible values to search for. The header must match at least one of these values according to the specified <code>Mode</code> except for the 'NotContains'. At least one value is required unless <code>Mode</code> is set to <code>Exists</code>.</p>
+<p>A list of possible values to search for. The header must match at least one of these values according to the specified <code>Mode</code> except for the 'NotContains'. At least one value is required unless <code>Mode</code> is set to <code>Exists</code> or <code>NotExists</code>.</p>
 <h3 id="mode">Mode</h3>
 <p><a class="xref" href="../api/Yarp.ReverseProxy.Configuration.HeaderMatchMode.html">HeaderMatchMode</a> specifies how to match the value(s) against the request header. The default is <code>ExactHeader</code>.</p>
 <ul>
@@ -382,6 +411,16 @@ Header5: AnyValue
 <pre><code>Header4: value2
 </code></pre>
 <pre><code>Header5: AnyValue
+</code></pre>
+<h3 id="scenario-5---notexists">Scenario 5 - NotExists</h3>
+<p>Route7 requires that the header &quot;Header7&quot; must not exists</p>
+<p>The following headers will match route7:</p>
+<pre><code>NotHeader7: AnyValue
+</code></pre>
+<p>The following headers will <em>not</em> match route7 because the header &quot;Header7&quot; exists.</p>
+<pre><code>Header7: AnyValue
+</code></pre>
+<pre><code>Header7:
 </code></pre>
 </article>
           </div>

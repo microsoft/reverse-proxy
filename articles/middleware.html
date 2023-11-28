@@ -73,27 +73,18 @@
 <p>ASP.NET Core uses a <a href="https://docs.microsoft.com/aspnet/core/fundamentals/middleware/">middleware pipeline</a> to divide request processing into discrete steps. The app developer can add and order middleware as needed. ASP.NET Core middleware is also used to implement and customize reverse proxy functionality.</p>
 <h2 id="defaults">Defaults</h2>
 <p>The <a href="getting-started.html">getting started</a> sample shows the following Configure method. This sets up a middleware pipeline with development tools, routing, and proxy configured endpoints (<code>MapReverseProxy</code>).</p>
-<pre><code class="lang-C#">public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-{
-    if (env.IsDevelopment())
-    {
-        app.UseDeveloperExceptionPage();
-    }
-    
-    // Enable endpoint routing, required for the reverse proxy
-    app.UseRouting();
-    // Register the reverse proxy routes
-    app.UseEndpoints(endpoints =&gt; 
-    {
-        endpoints.MapReverseProxy(); 
-    }); 
-} 
+<pre><code class="lang-C#">var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddReverseProxy()
+    .LoadFromConfig(builder.Configuration.GetSection(&quot;ReverseProxy&quot;));
+var app = builder.Build();
+app.MapReverseProxy();
+app.Run();
 </code></pre>
 <p>The parmeterless <code>MapReverseProxy()</code> in <a class="xref" href="../api/Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions.html">ReverseProxyIEndpointRouteBuilderExtensions</a> overload includes all standard proxy middleware for <a href="session-affinity.html">session affinity</a>, <a href="load-balancing.html">load balancing</a>, <a href="dests-health-checks.html#passive-health-checks">passive health checks</a>, and the final proxying of the request. Each of these check the configuration of the matched route, cluster, and destination and perform their task accordingly.</p>
 <h2 id="adding-middleware">Adding Middleware</h2>
 <p>Middleware added to your application pipeline will see the request in different states of processing depending on where the middleware is added. Middleware added before <code>UseRouting</code> will see all requests and can manipulate them before any routing takes place. Middleware added between <code>UseRouting</code> and <code>UseEndpoints</code> can call <code>HttpContext.GetEndpoint()</code> to check which endpoint routing matched the request to (if any), and use any metadata that was associated with that endpoint. This is how <a href="authn-authz.html">Authentication, Authorization</a> and <a href="cors.html">CORS</a> are handled.</p>
 <p><a class="xref" href="../api/Microsoft.AspNetCore.Builder.ReverseProxyIEndpointRouteBuilderExtensions.html">ReverseProxyIEndpointRouteBuilderExtensions</a> provides an overload of <code>MapReverseProxy</code> that lets you build a middleware pipeline that will run only for requests matched to proxy configured routes.</p>
-<pre><code>endpoints.MapReverseProxy(proxyPipeline =&gt;
+<pre><code>app.MapReverseProxy(proxyPipeline =&gt;
 {
     proxyPipeline.Use((context, next) =&gt;
     {
@@ -108,7 +99,7 @@
 </code></pre>
 <p>By default this overload of <code>MapReverseProxy</code> only includes the minimal setup, proxying logic, and limit enforcement at the start and end of its pipeline. Middleware for session affinity, load balancing, and passive health checks are not included by default so that you can exclude, replace, or control their ordering with any additional middleware.</p>
 <h2 id="custom-proxy-middleware">Custom Proxy Middleware</h2>
-<p>Middlware inside the <code>MapReverseProxy</code> pipeline have access to all of the proxy data and state associated with a request (the route, cluster, destinations, etc.) through the <a class="xref" href="../api/Yarp.ReverseProxy.Model.IReverseProxyFeature.html">IReverseProxyFeature</a>. This is available from <code>HttpContext.Features</code> or the extension method <code>HttpContext.GetReverseProxyFeature()</code>.</p>
+<p>Middleware inside the <code>MapReverseProxy</code> pipeline have access to all of the proxy data and state associated with a request (the route, cluster, destinations, etc.) through the <a class="xref" href="../api/Yarp.ReverseProxy.Model.IReverseProxyFeature.html">IReverseProxyFeature</a>. This is available from <code>HttpContext.Features</code> or the extension method <code>HttpContext.GetReverseProxyFeature()</code>.</p>
 <p>The data in <code>IReverseProxyFeature</code> are snapshotted from the proxy configuration at the start of the proxy pipeline and will not be affected by proxy configuration changes that occur while the request is being processed.</p>
 <pre><code class="lang-C#">proxyPipeline.Use((context, next) =&gt;
 {

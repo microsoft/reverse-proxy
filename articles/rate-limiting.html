@@ -77,7 +77,7 @@
 <h2 id="defaults">Defaults</h2>
 <p>No rate limiting is performed on requests unless enabled in the route or application configuration. However, the Rate Limiting middleware (<code>app.UseRateLimiter()</code>) can apply a default limiter applied to all routes, and this doesn't require any opt-in from the config.</p>
 <p>Example:</p>
-<pre><code class="lang-c#">builder.Services.AddRateLimiter(options =&gt; options.GlobalLimiter = globalLimiter);
+<pre><code class="lang-c#">services.AddRateLimiter(options =&gt; options.GlobalLimiter = globalLimiter);
 </code></pre>
 <h2 id="configuration">Configuration</h2>
 <p>Rate Limiter policies can be specified per route via <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.RouteConfig.html">RouteConfig.RateLimiterPolicy</a> and can be bound from the <code>Routes</code> sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.</p>
@@ -106,33 +106,22 @@
 }
 </code></pre>
 <p><a href="https://learn.microsoft.com/aspnet/core/performance/rate-limit">RateLimiter policies</a> are an ASP.NET Core concept that the proxy utilizes. The proxy provides the above configuration to specify a policy per route and the rest is handled by existing ASP.NET Core rate limiting middleware.</p>
-<p>RateLimiter policies can be configured in Startup.ConfigureServices as follows:</p>
-<pre><code class="lang-c#">public void ConfigureServices(IServiceCollection services)
+<p>RateLimiter policies can be configured in services as follows:</p>
+<pre><code class="lang-c#">services.AddRateLimiter(options =&gt;
 {
-    services.AddRateLimiter(options =&gt;
+    options.AddFixedWindowLimiter(&quot;customPolicy&quot;, opt =&gt;
     {
-        options.AddFixedWindowLimiter(&quot;customPolicy&quot;, opt =&gt;
-        {
-            opt.PermitLimit = 4;
-            opt.Window = TimeSpan.FromSeconds(12);
-            opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-            opt.QueueLimit = 2;
-        });
+        opt.PermitLimit = 4;
+        opt.Window = TimeSpan.FromSeconds(12);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 2;
     });
-}
+});
 </code></pre>
-<p>In Startup.Configure add the RateLimiter middleware between Routing and Endpoints.</p>
-<pre><code class="lang-c#">public void Configure(IApplicationBuilder app)
-{
-    app.UseRouting();
+<p>Then add the RateLimiter middleware.</p>
+<pre><code class="lang-c#">app.UseRateLimiter();
 
-    app.UseRateLimiter();
-
-    app.UseEndpoints(endpoints =&gt;
-    {
-        endpoints.MapReverseProxy();
-    });
-}
+app.MapReverseProxy();
 </code></pre>
 <p>See the <a href="https://learn.microsoft.com/aspnet/core/performance/rate-limit">Rate Limiting</a> docs for setting up your preferred kind of rate limiting.</p>
 <h3 id="disable-rate-limiting">Disable Rate Limiting</h3>

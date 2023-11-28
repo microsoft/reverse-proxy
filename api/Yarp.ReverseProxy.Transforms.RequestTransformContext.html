@@ -94,7 +94,7 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Transforms_RequestTransformContext_CancellationToken.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Transforms.RequestTransformContext.CancellationToken%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Transforms/RequestTransformContext.cs/#L62">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Transforms/RequestTransformContext.cs/#L63">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Transforms_RequestTransformContext_CancellationToken_" data-uid="Yarp.ReverseProxy.Transforms.RequestTransformContext.CancellationToken*"></a>
   <h4 id="Yarp_ReverseProxy_Transforms_RequestTransformContext_CancellationToken" data-uid="Yarp.ReverseProxy.Transforms.RequestTransformContext.CancellationToken">CancellationToken</h4>
@@ -125,12 +125,13 @@
     <a href="https://github.com/microsoft/reverse-proxy/new/release/latest/apiSpec/new?filename=Yarp_ReverseProxy_Transforms_RequestTransformContext_DestinationPrefix.md&amp;value=---%0Auid%3A%20Yarp.ReverseProxy.Transforms.RequestTransformContext.DestinationPrefix%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Transforms/RequestTransformContext.cs/#L57">View Source</a>
+    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/src/ReverseProxy/Transforms/RequestTransformContext.cs/#L58">View Source</a>
   </span>
   <a id="Yarp_ReverseProxy_Transforms_RequestTransformContext_DestinationPrefix_" data-uid="Yarp.ReverseProxy.Transforms.RequestTransformContext.DestinationPrefix*"></a>
   <h4 id="Yarp_ReverseProxy_Transforms_RequestTransformContext_DestinationPrefix" data-uid="Yarp.ReverseProxy.Transforms.RequestTransformContext.DestinationPrefix">DestinationPrefix</h4>
   <div class="markdown level1 summary"><p>The URI prefix for the proxy request. This includes the scheme and host and can optionally include a
-port and path base. The 'Path' and 'Query' properties will be appended to this after the transforms have run.</p>
+port and path base. The 'Path' and 'Query' properties will be appended to this after the transforms have run.
+Changing this value can have side effects on load balancing and health checks.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>

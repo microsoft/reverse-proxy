@@ -100,35 +100,23 @@
   }
 }
 </code></pre>
-<h2 id="update-startup">Update Startup</h2>
-<pre><code class="lang-C#">using Microsoft.Extensions.DependencyInjection;
-
-public class Startup
-{
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services.AddLettuceEncrypt();
-    }
-}
+<h2 id="update-services">Update Services</h2>
+<pre><code class="lang-C#">services.AddLettuceEncrypt();
 </code></pre>
 <p>For more options (i.e. saving certificates) see examples in <a href="https://github.com/natemcmaster/LettuceEncrypt">LettuceEncrypt doc</a>.</p>
 <h2 id="kestrel-endpoints">Kestrel Endpoints</h2>
 <p>If your project is explicitly using kestrel options to configure IP addresses, ports, or HTTPS settings, you will also need to call <code>UseLettuceEncrypt</code>.</p>
 <p>Example:</p>
-<pre><code class="lang-C#">var myHostBuilder = Host.CreateDefaultBuilder(args);
-myHostBuilder.ConfigureWebHostDefaults(webHostBuilder =&gt;
+<pre><code class="lang-C#">var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.ConfigureKestrel(kestrel =&gt;
 {
-    webHostBuilder.ConfigureKestrel(kestrel =&gt;
+    kestrel.ListenAnyIP(443, portOptions =&gt;
     {
-        kestrel.ListenAnyIP(443, portOptions =&gt;
+        portOptions.UseHttps(h =&gt;
         {
-            portOptions.UseHttps(h =&gt;
-            {
-                h.UseLettuceEncrypt(kestrel.ApplicationServices);
-            });
+            h.UseLettuceEncrypt(kestrel.ApplicationServices);
         });
     });
-    webHostBuilder.UseStartup&lt;Startup&gt;();
 });
 </code></pre>
 </article>

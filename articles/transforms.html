@@ -163,7 +163,7 @@ X-Forwarded-Host: IncomingHost:5000
 <p>Developers that want to integrate their custom transforms with the <code>Transforms</code> section of configuration can do so using <a href="#itransformfactory">ITransformFactory</a> described below.</p>
 <h3 id="from-code">From Code</h3>
 <p>Transforms can be added to routes programmatically by calling the <a class="xref" href="../api/Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.html#Microsoft_Extensions_DependencyInjection_ReverseProxyServiceCollectionExtensions_AddTransforms_">AddTransforms</a> method.</p>
-<p><code>AddTransforms</code> can be called from <code>Startup.ConfigureServices</code> to provide a callback for configuring transforms. This callback is invoked each time a route is built or rebuilt and allows the developer to inspect the <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.RouteConfig.html">RouteConfig</a> information and conditionally add transforms for it.</p>
+<p><code>AddTransforms</code> can be called after <code>AddReverseProxy</code> to provide a callback for configuring transforms. This callback is invoked each time a route is built or rebuilt and allows the developer to inspect the <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.RouteConfig.html">RouteConfig</a> information and conditionally add transforms for it.</p>
 <p>The <code>AddTransforms</code> callback provides a <a class="xref" href="../api/Yarp.ReverseProxy.Transforms.Builder.TransformBuilderContext.html">TransformBuilderContext</a> where transforms can be added or configured. Most transforms provide <code>TransformBuilderContext</code> extension methods to make them easier to add. These are extensions documented below with the individual transform descriptions.</p>
 <p>The <code>TransformBuilderContext</code> also includes an <code>IServiceProvider</code> for access to any needed services.</p>
 <pre><code class="lang-C#">services.AddReverseProxy()
@@ -562,7 +562,7 @@ X-Forwarded-Host: IncomingHost:5000
 </code></pre>
 <p>This will change PUT requests to POST.</p>
 <h3 id="requestheaderscopy">RequestHeadersCopy</h3>
-<p><strong>Sets whether incomming request headers are copied to the outbound request</strong></p>
+<p><strong>Sets whether incoming request headers are copied to the outbound request</strong></p>
 <table>
 <thead>
 <tr>
@@ -656,6 +656,77 @@ X-Forwarded-Host: IncomingHost:5000
 <pre><code>MyHeader: MyValue
 </code></pre>
 <p>This sets or appends the value for the named header. Set replaces any existing header. Append adds an additional header with the given value.
+Note: setting &quot;&quot; as a header value is not recommended and can cause an undefined behavior.</p>
+<h3 id="requestheaderroutevalue">RequestHeaderRouteValue</h3>
+<p><strong>Adds or replaces a header with a value from the route configuration</strong></p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RequestHeader</td>
+<td>Name of a query string parameter</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Set/Append</td>
+<td>The name of a route value</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<p>Config:</p>
+<pre><code class="lang-JSON">{
+  &quot;RequestHeaderRouteValue&quot;: &quot;MyHeader&quot;,
+  &quot;Set&quot;: &quot;MyRouteKey&quot;
+}
+</code></pre>
+<p>Code:</p>
+<pre><code class="lang-csharp">routeConfig = routeConfig.WithTransformRequestHeaderRouteValue(headerName: &quot;MyHeader&quot;, routeValueKey: &quot;key&quot;, append: false);
+</code></pre>
+<pre><code class="lang-C#">transformBuilderContext.AddRequestHeaderRouteValue(headerName: &quot;MyHeader&quot;, routeValueKey: &quot;key&quot;, append: false);
+</code></pre>
+<p>Example:</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Route definition</td>
+<td><code>/api/{*remainder}</code></td>
+</tr>
+<tr>
+<td>Request path</td>
+<td><code>/api/more/stuff</code></td>
+</tr>
+<tr>
+<td>Remainder value</td>
+<td><code>more/stuff</code></td>
+</tr>
+<tr>
+<td>RequestHeaderFromRoute</td>
+<td><code>foo</code></td>
+</tr>
+<tr>
+<td>Append</td>
+<td><code>remainder</code></td>
+</tr>
+<tr>
+<td>Result</td>
+<td><code>foo: more/stuff</code></td>
+</tr>
+</tbody>
+</table>
+<p>This sets or appends the value for the named header with a value from the route configuration. Set replaces any existing header. Append adds an additional header with the given value.
 Note: setting &quot;&quot; as a header value is not recommended and can cause an undefined behavior.</p>
 <h3 id="requestheaderremove">RequestHeaderRemove</h3>
 <p><strong>Removes request headers</strong></p>
@@ -794,7 +865,7 @@ AnotherHeader: AnotherValue
   ForwardedTransformActions? xProto = null,
   ForwardedTransformActions? xPrefix = null);
 </code></pre>
-<pre><code class="lang-C#">transformBuilderContext.AddXForwarded(ForwardedTransformAction.Set);
+<pre><code class="lang-C#">transformBuilderContext.AddXForwarded(ForwardedTransformActions.Set);
 transformBuilderContext.AddXForwardedFor(headerName: &quot;X-Forwarded-For&quot;, ForwardedTransformActions.Append);
 transformBuilderContext.AddXForwardedHost(headerName: &quot;X-Forwarded-Host&quot;, ForwardedTransformActions.Append);
 transformBuilderContext.AddXForwardedProto(headerName: &quot;X-Forwarded-Proto&quot;, ForwardedTransformActions.Off);
