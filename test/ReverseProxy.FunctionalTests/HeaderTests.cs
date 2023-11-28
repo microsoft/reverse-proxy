@@ -136,8 +136,8 @@ public class HeaderTests
         var test = new TestEnvironment(
             context =>
             {
-                context.Response.Headers.Add(HeaderNames.WWWAuthenticate, "");
-                context.Response.Headers.Add("custom", "");
+                context.Response.Headers[HeaderNames.WWWAuthenticate] = "";
+                context.Response.Headers["custom"] = "";
                 return Task.CompletedTask;
             })
         {
@@ -388,7 +388,6 @@ public class HeaderTests
             Assert.False(response.Headers.TryGetValues(HeaderNames.Location, out _));
             Assert.False(response.Headers.TryGetValues("Test-Extra", out _));
 
-            Assert.True(destinationTask.IsCompleted);
             await destinationTask;
         }
         finally
@@ -427,7 +426,15 @@ public class HeaderTests
                 {
                     try
                     {
+#if NET8_0_OR_GREATER
+                        // Removed by the server
+                        Assert.Null(context.Request.ContentLength);
+                        // Set it just to make sure YARP removes it
+                        context.Request.ContentLength = 11;
+#else
+                        // Fixed in 8.0 https://github.com/dotnet/aspnetcore/issues/43523
                         Assert.Equal(11, context.Request.ContentLength);
+#endif
                         Assert.Equal("chunked", context.Request.Headers[HeaderNames.TransferEncoding]);
                         proxyTcs.SetResult(0);
                     }

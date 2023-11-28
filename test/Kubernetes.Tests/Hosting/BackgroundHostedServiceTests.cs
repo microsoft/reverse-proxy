@@ -29,11 +29,11 @@ public class BackgroundHostedServiceTests
             .Build();
 
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-        await host.StartAsync(cts.Token).ConfigureAwait(false);
-        await latches.RunEnter.WhenSignalAsync(cts.Token).ConfigureAwait(false);
+        await host.StartAsync(cts.Token);
+        await latches.RunEnter.WhenSignalAsync(cts.Token);
         latches.RunResult.Signal();
-        await latches.RunExit.WhenSignalAsync(cts.Token).ConfigureAwait(false);
-        await host.StopAsync(cts.Token).ConfigureAwait(false);
+        await latches.RunExit.WhenSignalAsync(cts.Token);
+        await host.StopAsync(cts.Token);
     }
 
     [Fact]
@@ -57,11 +57,11 @@ public class BackgroundHostedServiceTests
 
         var runTask = host.RunAsync(cts.Token);
 
-        await latches.RunEnter.WhenSignalAsync(cts.Token).ConfigureAwait(false);
+        await latches.RunEnter.WhenSignalAsync(cts.Token);
         latches.RunResult.Signal();
-        await latches.RunExit.WhenSignalAsync(cts.Token).ConfigureAwait(false);
+        await latches.RunExit.WhenSignalAsync(cts.Token);
 
-        await runTask.ConfigureAwait(false);
+        await runTask;
     }
 
 
@@ -88,7 +88,7 @@ public class BackgroundHostedServiceTests
         context.RunResult.Throw(new ApplicationException("Unwind"));
 #pragma warning restore CA1303 // Do not pass literals as localized parameters
 
-        var ex = await Assert.ThrowsAsync<AggregateException>(() => runTask).ConfigureAwait(false);
+        var ex = await Assert.ThrowsAsync<AggregateException>(() => runTask);
 
         Assert.Equal("Unwind", Assert.Single(ex.Flatten().InnerExceptions).Message);
     }

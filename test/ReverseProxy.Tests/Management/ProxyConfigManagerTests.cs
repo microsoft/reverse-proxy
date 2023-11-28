@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Text;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
@@ -18,12 +20,12 @@ using Microsoft.Extensions.Primitives;
 using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Configuration;
-using Yarp.ReverseProxy.Configuration.ConfigProvider;
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Forwarder.Tests;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Routing;
+using Yarp.ReverseProxy.ServiceDiscovery;
 using Yarp.Tests.Common;
 
 namespace Yarp.ReverseProxy.Management.Tests;
@@ -34,7 +36,8 @@ public class ProxyConfigManagerTests
         List<RouteConfig> routes,
         List<ClusterConfig> clusters,
         Action<IReverseProxyBuilder> configureProxy = null,
-        IEnumerable<IConfigChangeListener> configListeners = null)
+        IEnumerable<IConfigChangeListener> configListeners = null,
+        IDestinationResolver destinationResolver = null)
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddLogging();
@@ -53,6 +56,12 @@ public class ProxyConfigManagerTests
                 serviceCollection.AddSingleton(configListener);
             }
         }
+
+        if (destinationResolver is not null)
+        {
+            serviceCollection.AddSingleton(destinationResolver);
+        }
+
         var services = serviceCollection.BuildServiceProvider();
         var routeBuilder = services.GetRequiredService<ProxyEndpointFactory>();
         routeBuilder.SetProxyPipeline(context => Task.CompletedTask);
@@ -797,6 +806,7 @@ public class ProxyConfigManagerTests
                 SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                 MaxConnectionsPerServer = 10,
                 RequestHeaderEncoding = Encoding.UTF8.WebName,
+                ResponseHeaderEncoding = Encoding.UTF8.WebName,
             },
             HealthCheck = new HealthCheckConfig
             {
@@ -825,6 +835,7 @@ public class ProxyConfigManagerTests
         Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, clusterModel.Config.HttpClient.SslProtocols);
         Assert.Equal(10, clusterModel.Config.HttpClient.MaxConnectionsPerServer);
         Assert.Equal(Encoding.UTF8.WebName, clusterModel.Config.HttpClient.RequestHeaderEncoding);
+        Assert.Equal(Encoding.UTF8.WebName, clusterModel.Config.HttpClient.ResponseHeaderEncoding);
 
         var handler = ForwarderHttpClientFactoryTests.GetHandler(clusterModel.HttpClient);
         Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, handler.SslOptions.EnabledSslProtocols);
@@ -1243,7 +1254,6 @@ public class ProxyConfigManagerTests
         Assert.IsType<NotFiniteNumberException>(agex.InnerExceptions.First().InnerException);
     }
 
-
     [Fact]
     public async Task LoadAsync_ConfigFilterRouteActionThrows_Throws()
     {
@@ -1263,5 +1273,380 @@ public class ProxyConfigManagerTests
         Assert.Equal(2, agex.InnerExceptions.Count);
         Assert.IsType<NotFiniteNumberException>(agex.InnerExceptions.First().InnerException);
         Assert.IsType<NotFiniteNumberException>(agex.InnerExceptions.Skip(1).First().InnerException);
+    }
+
+    private class FakeDestinationResolver : IDestinationResolver
+    {
+        private readonly Func<IReadOnlyDictionary<string, DestinationConfig>, CancellationToken, ValueTask<ResolvedDestinationCollection>> _delegate;
+
+        public FakeDestinationResolver(
+            Func<IReadOnlyDictionary<string, DestinationConfig>, CancellationToken, ValueTask<ResolvedDestinationCollection>> @delegate)
+        {
+            _delegate = @delegate;
+        }
+
+        public ValueTask<ResolvedDestinationCollection> ResolveDestinationsAsync(IReadOnlyDictionary<string, DestinationConfig> destinations, CancellationToken cancellationToken)
+            => _delegate(destinations, cancellationToken);
+    }
+
+    private class TestConfigChangeListener : IConfigChangeListener
+    {
+        private readonly bool _includeLoad;
+        private readonly bool _includeApply;
+
+        public Channel<ConfigChangeListenerEvent> Events { get; } = Channel.CreateUnbounded<ConfigChangeListenerEvent>();
+
+        public TestConfigChangeListener(bool includeLoad = true, bool includeApply = true)
+        {
+            _includeLoad = includeLoad;
+            _includeApply = includeApply;
+        }
+
+        public void ConfigurationApplied(IReadOnlyList<IProxyConfig> proxyConfigs)
+        {
+            if (!_includeApply)
+            {
+                return;
+            }
+
+            Assert.True(Events.Writer.TryWrite(new ConfigurationAppliedEvent(proxyConfigs)));
+        }
+
+        public void ConfigurationApplyingFailed(IReadOnlyList<IProxyConfig> proxyConfigs, Exception exception)
+        {
+            if (!_includeApply)
+            {
+                return;
+            }
+
+            Assert.True(Events.Writer.TryWrite(new ConfigurationApplyingFailedEvent(proxyConfigs, exception)));
+        }
+
+        public void ConfigurationLoaded(IReadOnlyList<IProxyConfig> proxyConfigs)
+        {
+            if (!_includeLoad)
+            {
+                return;
+            }
+
+            Assert.True(Events.Writer.TryWrite(new ConfigurationLoadedEvent(proxyConfigs)));
+        }
+
+        public void ConfigurationLoadingFailed(IProxyConfigProvider configProvider, Exception exception)
+        {
+            if (!_includeLoad)
+            {
+                return;
+            }
+
+            Assert.True(Events.Writer.TryWrite(new ConfigurationLoadingFailedEvent(configProvider, exception)));
+        }
+
+        public record ConfigChangeListenerEvent { };
+        public record ConfigurationAppliedEvent(IReadOnlyList<IProxyConfig> ProxyConfigs) : ConfigChangeListenerEvent;
+        public record ConfigurationApplyingFailedEvent(IReadOnlyList<IProxyConfig> ProxyConfigs, Exception exception) : ConfigChangeListenerEvent;
+        public record ConfigurationLoadedEvent(IReadOnlyList<IProxyConfig> ProxyConfigs) : ConfigChangeListenerEvent;
+        public record ConfigurationLoadingFailedEvent(IProxyConfigProvider ConfigProvider, Exception Exception) : ConfigChangeListenerEvent;
+    }
+
+    [Fact]
+    public async Task LoadAsync_DestinationResolver_Initial_ThrowsSync()
+    {
+        var throwResolver = new FakeDestinationResolver((destinations, cancellation) => throw new InvalidOperationException("Throwing!"));
+
+        var cluster = new ClusterConfig()
+        {
+            ClusterId = "cluster1",
+            Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "d1", new DestinationConfig() { Address = "http://localhost" } }
+            }
+        };
+        var services = CreateServices(
+            new List<RouteConfig>(),
+            new List<ClusterConfig>() { cluster },
+            destinationResolver: throwResolver);
+        var configManager = services.GetRequiredService<ProxyConfigManager>();
+
+        var ioEx = await Assert.ThrowsAsync<InvalidOperationException>(() => configManager.InitialLoadAsync());
+        Assert.Equal("Unable to load or apply the proxy configuration.", ioEx.Message);
+
+        var innerExc = Assert.IsType<InvalidOperationException>(ioEx.InnerException);
+        Assert.Equal("Throwing!", innerExc.Message);
+    }
+
+    [Fact]
+    public async Task LoadAsync_DestinationResolver_Initial_ThrowsAsync()
+    {
+        var throwResolver = new FakeDestinationResolver((destinations, cancellation) => ValueTask.FromException<ResolvedDestinationCollection>(new InvalidOperationException("Throwing!")));
+
+        var cluster = new ClusterConfig()
+        {
+            ClusterId = "cluster1",
+            Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "d1", new DestinationConfig() { Address = "http://localhost" } }
+            }
+        };
+        var services = CreateServices(new List<RouteConfig>(), new List<ClusterConfig>() { cluster }, destinationResolver: throwResolver);
+        var configManager = services.GetRequiredService<ProxyConfigManager>();
+
+        var ioEx = await Assert.ThrowsAsync<InvalidOperationException>(() => configManager.InitialLoadAsync());
+        Assert.Equal("Unable to load or apply the proxy configuration.", ioEx.Message);
+
+        var innerExc1 = Assert.IsType<InvalidOperationException>(ioEx.InnerException);
+        Assert.Equal("Error resolving destinations for cluster cluster1", innerExc1.Message);
+        var innerExc2 = Assert.IsType<InvalidOperationException>(innerExc1.InnerException);
+        Assert.Equal("Throwing!", innerExc2.Message);
+    }
+
+    [Fact]
+    public async Task LoadAsync_DestinationResolver_Successful()
+    {
+        var destinationsToExpand = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "d1", new DestinationConfig() { Address = "http://localhost" } }
+        };
+
+        var syncExpandResolver = new FakeDestinationResolver((destinations, cancellation) =>
+        {
+            var expandedDestinations = new Dictionary<string, DestinationConfig>();
+
+            foreach (var destKvp in destinations)
+            {
+                expandedDestinations[$"{destKvp.Key}-1"] = new DestinationConfig { Address = "http://127.0.0.1:8080" };
+                expandedDestinations[$"{destKvp.Key}-2"] = new DestinationConfig { Address = "http://127.1.1.1:8080" };
+            }
+
+            var result = new ResolvedDestinationCollection(expandedDestinations, null);
+            return new(result);
+        });
+
+        var cluster1 = new ClusterConfig()
+        {
+            ClusterId = "cluster1",
+            Destinations = destinationsToExpand
+        };
+
+        var services = CreateServices(new List<RouteConfig>(), new List<ClusterConfig>() { cluster1 }, destinationResolver: syncExpandResolver);
+        var configManager = services.GetRequiredService<ProxyConfigManager>();
+
+        await configManager.InitialLoadAsync();
+
+        Assert.True(configManager.TryGetCluster(cluster1.ClusterId, out var cluster));
+
+        var expectedDestinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "d1-1", new DestinationConfig() { Address = "http://127.0.0.1:8080" } },
+            { "d1-2", new DestinationConfig() { Address = "http://127.1.1.1:8080" } }
+        };
+
+        var actualDestinations = cluster.Destinations.ToDictionary(static k => k.Key, static v => v.Value.Model.Config);
+        Assert.Equal(expectedDestinations, actualDestinations);
+    }
+
+    [Fact]
+    public async Task LoadAsync_DestinationResolver_Dns()
+    {
+        var destinationsToExpand = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "d1", new DestinationConfig() { Address = "http://localhost/a/b/c", Health = "http://localhost/healthz" } },
+            { "d2", new DestinationConfig() { Address = "http://localhost:8080/a/b/c", Health = "http://localhost:8080/healthz"} },
+            { "d3", new DestinationConfig() { Address = "https://localhost/a/b/c", Health = "https://localhost/healthz" } },
+            { "d4", new DestinationConfig() { Address = "https://localhost:8443/a/b/c", Health = "https://localhost:8443/healthz", Host = "overriddenhost" } }
+        };
+
+        var cluster1 = new ClusterConfig()
+        {
+            ClusterId = "cluster1",
+            Destinations = destinationsToExpand
+        };
+
+        var services = CreateServices(
+            new List<RouteConfig>(),
+            new List<ClusterConfig>() { cluster1 },
+            configureProxy: rp => rp.AddDnsDestinationResolver(o => o.AddressFamily = AddressFamily.InterNetwork));
+        var configManager = services.GetRequiredService<ProxyConfigManager>();
+
+        await configManager.InitialLoadAsync();
+
+        Assert.True(configManager.TryGetCluster(cluster1.ClusterId, out var cluster));
+
+        var expectedDestinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "d1[127.0.0.1]", new DestinationConfig() { Address = "http://127.0.0.1/a/b/c", Health = "http://127.0.0.1/healthz", Host = "localhost" } },
+            { "d2[127.0.0.1]", new DestinationConfig() { Address = "http://127.0.0.1:8080/a/b/c", Health = "http://127.0.0.1:8080/healthz", Host = "localhost:8080" } },
+            { "d3[127.0.0.1]", new DestinationConfig() { Address = "https://127.0.0.1/a/b/c", Health = "https://127.0.0.1/healthz", Host = "localhost" } },
+            { "d4[127.0.0.1]", new DestinationConfig() { Address = "https://127.0.0.1:8443/a/b/c", Health = "https://127.0.0.1:8443/healthz", Host = "overriddenhost" } }
+        };
+
+        var actualDestinations = cluster.Destinations.ToDictionary(static k => k.Key, static v => v.Value.Model.Config);
+        Assert.Equal(expectedDestinations, actualDestinations);
+    }
+
+    [Fact]
+    public async Task LoadAsync_DestinationResolver_ReloadResolution()
+    {
+        var configListener = new TestConfigChangeListener(includeApply: false);
+        var destinationsToExpand = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "d1", new DestinationConfig() { Address = "http://localhost" } }
+        };
+
+        var cts = new[] { new CancellationTokenSource() };
+        var signaled = new[] { 0 };
+        var syncExpandResolver = new FakeDestinationResolver((destinations, cancellation) =>
+        {
+            signaled[0]++;
+            var expandedDestinations = new Dictionary<string, DestinationConfig>();
+
+            foreach (var destKvp in destinations)
+            {
+                expandedDestinations[$"{destKvp.Key}-1"] = new DestinationConfig { Address = $"http://127.0.0.1:8080/{signaled[0]}" };
+                expandedDestinations[$"{destKvp.Key}-2"] = new DestinationConfig { Address = $"http://127.1.1.1:8080/{signaled[0]}" };
+            }
+
+            var result = new ResolvedDestinationCollection(expandedDestinations, new CancellationChangeToken(cts[0].Token));
+            return new(result);
+        });
+
+        var cluster1 = new ClusterConfig()
+        {
+            ClusterId = "cluster1",
+            Destinations = destinationsToExpand
+        };
+
+        var services = CreateServices(
+            new List<RouteConfig>(),
+            new List<ClusterConfig>() { cluster1 },
+            configListeners: new[] { configListener },
+            destinationResolver: syncExpandResolver);
+        var configManager = services.GetRequiredService<ProxyConfigManager>();
+
+        await configManager.InitialLoadAsync();
+        var configEvent = await configListener.Events.Reader.ReadAsync();
+        var configLoadEvent = Assert.IsType<TestConfigChangeListener.ConfigurationLoadedEvent>(configEvent);
+
+        Assert.True(configManager.TryGetCluster(cluster1.ClusterId, out var cluster));
+
+        var expectedDestinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "d1-1", new DestinationConfig() { Address = "http://127.0.0.1:8080/1" } },
+            { "d1-2", new DestinationConfig() { Address = "http://127.1.1.1:8080/1" } }
+        };
+
+        var actualDestinations = cluster.Destinations.ToDictionary(static k => k.Key, static v => v.Value.Model.Config);
+        Assert.Equal(expectedDestinations, actualDestinations);
+
+        // Trigger the change token and wait for a subsequent load
+        var initialCts = cts[0];
+        cts[0] = new();
+        initialCts.Cancel();
+
+        configEvent = await configListener.Events.Reader.ReadAsync();
+        configLoadEvent = Assert.IsType<TestConfigChangeListener.ConfigurationLoadedEvent>(configEvent);
+
+        Assert.True(configManager.TryGetCluster(cluster1.ClusterId, out cluster));
+
+        expectedDestinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "d1-1", new DestinationConfig() { Address = "http://127.0.0.1:8080/2" } },
+            { "d1-2", new DestinationConfig() { Address = "http://127.1.1.1:8080/2" } }
+        };
+
+        actualDestinations = cluster.Destinations.ToDictionary(static k => k.Key, static v => v.Value.Model.Config);
+        Assert.Equal(expectedDestinations, actualDestinations);
+    }
+
+    [Fact]
+    public async Task LoadAsync_DestinationResolver_Reload_ThrowsSync()
+    {
+        var configListener = new TestConfigChangeListener(includeApply: false);
+        var cts = new CancellationTokenSource();
+        var syncThrowResolver = new FakeDestinationResolver((destinations, cancellation) =>
+        {
+            if (cts.IsCancellationRequested)
+            {
+                throw new InvalidOperationException("Throwing!");
+            }
+            else
+            {
+                return new(new ResolvedDestinationCollection(destinations, new CancellationChangeToken(cts.Token)));
+            }
+        });
+        var cluster = new ClusterConfig()
+        {
+            ClusterId = "cluster1",
+            Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "d1", new DestinationConfig() { Address = "http://localhost" } }
+            }
+        };
+        var services = CreateServices(
+            new List<RouteConfig>(),
+            new List<ClusterConfig>() { cluster },
+            configListeners: new[] { configListener },
+            destinationResolver: syncThrowResolver);
+        var configManager = services.GetRequiredService<ProxyConfigManager>();
+        await configManager.InitialLoadAsync();
+
+        // Read the successful load event
+        Assert.IsType<TestConfigChangeListener.ConfigurationLoadedEvent>(await configListener.Events.Reader.ReadAsync());
+
+        // Trigger invalidation
+        cts.Cancel();
+
+        // Read the failure event
+        var configLoadException = Assert.IsType<TestConfigChangeListener.ConfigurationLoadingFailedEvent>(await configListener.Events.Reader.ReadAsync());
+        var ex = configLoadException.Exception;
+        Assert.Equal("Throwing!", ex.Message);
+    }
+
+    [Fact]
+    public async Task LoadAsync_DestinationResolver_Reload_ThrowsAsync()
+    {
+        var configListener = new TestConfigChangeListener(includeApply: false);
+        var cts = new CancellationTokenSource();
+        var syncThrowResolver = new FakeDestinationResolver(async (destinations, cancellation) =>
+        {
+            await Task.Yield();
+
+            if (cts.IsCancellationRequested)
+            {
+                throw new InvalidOperationException("Throwing!");
+            }
+            else
+            {
+                return new ResolvedDestinationCollection(destinations, new CancellationChangeToken(cts.Token));
+            }
+        });
+        var cluster = new ClusterConfig()
+        {
+            ClusterId = "cluster1",
+            Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "d1", new DestinationConfig() { Address = "http://localhost" } }
+            }
+        };
+        var services = CreateServices(
+            new List<RouteConfig>(),
+            new List<ClusterConfig>() { cluster },
+            configListeners: new[] { configListener },
+            destinationResolver: syncThrowResolver);
+        var configManager = services.GetRequiredService<ProxyConfigManager>();
+        await configManager.InitialLoadAsync();
+
+        // Read the successful load event
+        Assert.IsType<TestConfigChangeListener.ConfigurationLoadedEvent>(await configListener.Events.Reader.ReadAsync());
+
+        // Trigger invalidation
+        cts.Cancel();
+
+        // Read the failure event
+        var configLoadException = Assert.IsType<TestConfigChangeListener.ConfigurationLoadingFailedEvent>(await configListener.Events.Reader.ReadAsync());
+        var innerExc1 = Assert.IsType<InvalidOperationException>(configLoadException.Exception);
+        Assert.Equal("Error resolving destinations for cluster cluster1", innerExc1.Message);
+        var innerExc2 = Assert.IsType<InvalidOperationException>(innerExc1.InnerException);
+        Assert.Equal("Throwing!", innerExc2.Message);
     }
 }

@@ -1,28 +1,30 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Yarp.Kubernetes.Tests.Fakes;
 using System;
 using Xunit;
+using Yarp.Tests.Common;
 
 namespace Yarp.Kubernetes.Controller.Rate.Tests;
 
 public class ReservationTests
 {
+    private readonly DateTimeOffset _startTime = new DateTimeOffset(2020, 10, 14, 12, 34, 56, TimeSpan.Zero);
+
     [Fact]
     public void NotOkayAlwaysReturnsMaxValueDelay()
     {
-        var clock = new FakeSystemClock();
+        var timeProvider = new TestTimeProvider(_startTime);
         var reservation = new Reservation(
-            clock: clock,
+            timeProvider: timeProvider,
             limiter: default,
             ok: false);
 
         var delay1 = reservation.Delay();
-        var delayFrom1 = reservation.DelayFrom(clock.UtcNow);
-        clock.Advance(TimeSpan.FromMinutes(3));
+        var delayFrom1 = reservation.DelayFrom(timeProvider.GetUtcNow());
+        timeProvider.Advance(TimeSpan.FromMinutes(3));
         var delay2 = reservation.Delay();
-        var delayFrom2 = reservation.DelayFrom(clock.UtcNow);
+        var delayFrom2 = reservation.DelayFrom(timeProvider.GetUtcNow());
 
         Assert.Equal(TimeSpan.MaxValue, delay1);
         Assert.Equal(TimeSpan.MaxValue, delayFrom1);
@@ -33,19 +35,19 @@ public class ReservationTests
     [Fact]
     public void DelayIsZeroWhenTimeToActIsNowOrEarlier()
     {
-        var clock = new FakeSystemClock();
+        var timeProvider = new TestTimeProvider(_startTime);
         var reservation = new Reservation(
-            clock: clock,
+            timeProvider: timeProvider,
             limiter: default,
             ok: true,
-            timeToAct: clock.UtcNow,
+            timeToAct: timeProvider.GetUtcNow(),
             limit: default);
 
         var delay1 = reservation.Delay();
-        var delayFrom1 = reservation.DelayFrom(clock.UtcNow);
-        clock.Advance(TimeSpan.FromMinutes(3));
+        var delayFrom1 = reservation.DelayFrom(timeProvider.GetUtcNow());
+        timeProvider.Advance(TimeSpan.FromMinutes(3));
         var delay2 = reservation.Delay();
-        var delayFrom2 = reservation.DelayFrom(clock.UtcNow);
+        var delayFrom2 = reservation.DelayFrom(timeProvider.GetUtcNow());
 
         Assert.Equal(TimeSpan.Zero, delay1);
         Assert.Equal(TimeSpan.Zero, delayFrom1);
@@ -56,18 +58,18 @@ public class ReservationTests
     [Fact]
     public void DelayGetsSmallerAsTimePasses()
     {
-        var clock = new FakeSystemClock();
+        var timeProvider = new TestTimeProvider(_startTime);
         var reservation = new Reservation(
-            clock: clock,
+            timeProvider: timeProvider,
             limiter: default,
             ok: true,
-            timeToAct: clock.UtcNow.Add(TimeSpan.FromMinutes(5)),
+            timeToAct: timeProvider.GetUtcNow().Add(TimeSpan.FromMinutes(5)),
             limit: default);
 
         var delay1 = reservation.Delay();
-        clock.Advance(TimeSpan.FromMinutes(3));
+        timeProvider.Advance(TimeSpan.FromMinutes(3));
         var delay2 = reservation.Delay();
-        clock.Advance(TimeSpan.FromMinutes(3));
+        timeProvider.Advance(TimeSpan.FromMinutes(3));
         var delay3 = reservation.Delay();
 
         Assert.Equal(TimeSpan.FromMinutes(5), delay1);
@@ -78,22 +80,22 @@ public class ReservationTests
     [Fact]
     public void DelayFromNotChangedByTimePassing()
     {
-        var clock = new FakeSystemClock();
+        var timeProvider = new TestTimeProvider(_startTime);
         var reservation = new Reservation(
-            clock: clock,
+            timeProvider: timeProvider,
             limiter: default,
             ok: true,
-            timeToAct: clock.UtcNow.Add(TimeSpan.FromMinutes(5)),
+            timeToAct: timeProvider.GetUtcNow().Add(TimeSpan.FromMinutes(5)),
             limit: default);
 
-        var twoMinutesPast = clock.UtcNow.Subtract(TimeSpan.FromMinutes(2));
-        var twoMinutesFuture = clock.UtcNow.Add(TimeSpan.FromMinutes(2));
+        var twoMinutesPast = timeProvider.GetUtcNow().Subtract(TimeSpan.FromMinutes(2));
+        var twoMinutesFuture = timeProvider.GetUtcNow().Add(TimeSpan.FromMinutes(2));
 
-        var delay1 = reservation.DelayFrom(clock.UtcNow);
+        var delay1 = reservation.DelayFrom(timeProvider.GetUtcNow());
         var delayPast1 = reservation.DelayFrom(twoMinutesPast);
         var delayFuture1 = reservation.DelayFrom(twoMinutesFuture);
-        clock.Advance(TimeSpan.FromMinutes(3));
-        var delay2 = reservation.DelayFrom(clock.UtcNow);
+        timeProvider.Advance(TimeSpan.FromMinutes(3));
+        var delay2 = reservation.DelayFrom(timeProvider.GetUtcNow());
         var delayPast2 = reservation.DelayFrom(twoMinutesPast);
         var delayFuture2 = reservation.DelayFrom(twoMinutesFuture);
 

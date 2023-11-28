@@ -37,7 +37,7 @@ public class CookieSessionAffinityPolicyTests
     {
         var policy = new CookieSessionAffinityPolicy(
             AffinityTestHelper.GetDataProtector().Object,
-            new ManualClock(),
+            new TestTimeProvider(),
             AffinityTestHelper.GetLogger<CookieSessionAffinityPolicy>().Object);
 
         Assert.Equal(SessionAffinityConstants.Policies.Cookie, policy.Name);
@@ -57,7 +57,7 @@ public class CookieSessionAffinityPolicyTests
     {
         var policy = new CookieSessionAffinityPolicy(
             AffinityTestHelper.GetDataProtector().Object,
-            new ManualClock(),
+            new TestTimeProvider(),
             AffinityTestHelper.GetLogger<CookieSessionAffinityPolicy>().Object);
         var context = new DefaultHttpContext();
         var affinitizedDestination = _destinations[1];
@@ -67,7 +67,7 @@ public class CookieSessionAffinityPolicyTests
         var affinityResult = policy.FindAffinitizedDestinations(context, cluster, _config, _destinations);
 
         Assert.Equal(AffinityStatus.OK, affinityResult.Status);
-        Assert.Equal(1, affinityResult.Destinations.Count);
+        Assert.Single(affinityResult.Destinations);
         Assert.Same(affinitizedDestination, affinityResult.Destinations[0]);
     }
 
@@ -76,7 +76,7 @@ public class CookieSessionAffinityPolicyTests
     {
         var policy = new CookieSessionAffinityPolicy(
             AffinityTestHelper.GetDataProtector().Object,
-            new ManualClock(),
+            new TestTimeProvider(),
             AffinityTestHelper.GetLogger<CookieSessionAffinityPolicy>().Object);
         var context = new DefaultHttpContext();
 
@@ -91,7 +91,7 @@ public class CookieSessionAffinityPolicyTests
     {
         var policy = new CookieSessionAffinityPolicy(
             AffinityTestHelper.GetDataProtector().Object,
-            new ManualClock(),
+            new TestTimeProvider(),
             AffinityTestHelper.GetLogger<CookieSessionAffinityPolicy>().Object);
         var context = new DefaultHttpContext();
 
@@ -106,7 +106,7 @@ public class CookieSessionAffinityPolicyTests
     {
         var policy = new CookieSessionAffinityPolicy(
             AffinityTestHelper.GetDataProtector().Object,
-            new ManualClock(),
+            new TestTimeProvider(),
             AffinityTestHelper.GetLogger<CookieSessionAffinityPolicy>().Object);
         var context = new DefaultHttpContext();
         var affinitizedDestination = _destinations[0];

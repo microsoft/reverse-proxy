@@ -7,6 +7,9 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+#if NET8_0_OR_GREATER
+using Microsoft.AspNetCore.Http.Timeouts;
+#endif
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Moq;
@@ -62,7 +65,7 @@ public class ProxyPipelineInitializerMiddlewareTests : TestAutoMockBase
         var proxyFeature = httpContext.GetReverseProxyFeature();
         Assert.NotNull(proxyFeature);
         Assert.NotNull(proxyFeature.AvailableDestinations);
-        Assert.Equal(1, proxyFeature.AvailableDestinations.Count);
+        Assert.Single(proxyFeature.AvailableDestinations);
         Assert.Same(destination1, proxyFeature.AvailableDestinations[0]);
         Assert.Same(cluster1.Model, proxyFeature.Cluster);
 
@@ -119,14 +122,44 @@ public class ProxyPipelineInitializerMiddlewareTests : TestAutoMockBase
 
         Assert.Equal(StatusCodes.Status418ImATeapot, httpContext.Response.StatusCode);
     }
+#if NET8_0_OR_GREATER
+    [Fact]
+    public async Task Invoke_MissingTimeoutMiddleware_RefuseRequest()
+    {
+        var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
+        var cluster1 = new ClusterState(clusterId: "cluster1")
+        {
+            Model = new ClusterModel(new ClusterConfig(), httpClient)
+        };
 
-    private static Endpoint CreateAspNetCoreEndpoint(RouteModel routeConfig)
+        var aspNetCoreEndpoints = new List<Endpoint>();
+        var routeConfig = new RouteModel(
+            config: new RouteConfig(),
+            cluster: cluster1,
+            transformer: HttpTransformer.Default);
+        var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig,
+            builder =>
+            {
+                builder.Metadata.Add(new RequestTimeoutAttribute(1));
+            });
+        aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
+        var httpContext = new DefaultHttpContext();
+        httpContext.SetEndpoint(aspNetCoreEndpoint);
+
+        var sut = Create<ProxyPipelineInitializerMiddleware>();
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.Invoke(httpContext));
+    }
+#endif
+
+    private static Endpoint CreateAspNetCoreEndpoint(RouteModel routeConfig, Action<RouteEndpointBuilder> configure = null)
     {
         var endpointBuilder = new RouteEndpointBuilder(
             requestDelegate: httpContext => Task.CompletedTask,
             routePattern: RoutePatternFactory.Parse("/"),
             order: 0);
         endpointBuilder.Metadata.Add(routeConfig);
+        configure?.Invoke(endpointBuilder);
         return endpointBuilder.Build();
     }
 }

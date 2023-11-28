@@ -19,7 +19,7 @@ public class RequestTransformTests
     public void TakeHeader_RemovesAndReturnsProxyRequestHeader(bool copiedHeaders)
     {
         var httpContext = new DefaultHttpContext();
-        httpContext.Request.Headers.Add("name", "value0");
+        httpContext.Request.Headers["name"] = "value0";
         var proxyRequest = new HttpRequestMessage();
         proxyRequest.Headers.Add("Name", "value1");
         proxyRequest.Content = new StringContent("hello world");
@@ -58,7 +58,7 @@ public class RequestTransformTests
     public void TakeHeader_HeadersNotCopied_ReturnsHttpRequestHeader()
     {
         var httpContext = new DefaultHttpContext();
-        httpContext.Request.Headers.Add("name", "value0");
+        httpContext.Request.Headers["name"] = "value0";
         var proxyRequest = new HttpRequestMessage();
         var result = RequestTransform.TakeHeader(new RequestTransformContext()
         {
@@ -73,7 +73,7 @@ public class RequestTransformTests
     public void TakeHeader_HeadersCopied_ReturnsNothing()
     {
         var httpContext = new DefaultHttpContext();
-        httpContext.Request.Headers.Add("name", "value0");
+        httpContext.Request.Headers["name"] = "value0";
         var proxyRequest = new HttpRequestMessage();
         var result = RequestTransform.TakeHeader(new RequestTransformContext()
         {
@@ -107,7 +107,7 @@ public class RequestTransformTests
 
         foreach (var name in names.Split("; "))
         {
-            httpContext.Request.Headers.Add(name, "value0");
+            httpContext.Request.Headers[name] = "value0";
             RequestUtilities.AddHeader(proxyRequest, name, "value1");
         }
 

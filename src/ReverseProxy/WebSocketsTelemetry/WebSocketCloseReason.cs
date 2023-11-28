@@ -10,4 +10,5 @@ internal enum WebSocketCloseReason : int
     ServerGracefulClose,
     ClientDisconnect,
     ServerDisconnect,
+    ActivityTimeout,
 }

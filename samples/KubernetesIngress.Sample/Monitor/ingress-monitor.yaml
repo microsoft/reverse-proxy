@@ -12,7 +12,9 @@ data:
   yarp.json: |
     {
       "Yarp": {
-        "ControllerClass": "microsoft.com/ingress-yarp"
+        "ControllerClass": "microsoft.com/ingress-yarp",
+        "ControllerServiceName": "yarp-controller",
+        "ControllerServiceNamespace": "yarp"
       }
     }
 ---
@@ -54,6 +56,12 @@ rules:
   - list
   - watch
 - apiGroups:
+  - ""
+  resources:
+  - services/status
+  verbs:
+  - get
+- apiGroups:
   - networking.k8s.io
   - extensions
   - networking.internal.knative.dev
@@ -78,6 +86,7 @@ rules:
   resources:
   - ingresses/status
   verbs:
+  - get
   - update
 ---
 apiVersion: rbac.authorization.k8s.io/v1

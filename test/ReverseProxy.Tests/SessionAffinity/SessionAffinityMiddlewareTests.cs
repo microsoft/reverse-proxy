@@ -58,7 +58,7 @@ public class SessionAffinityMiddlewareTests
                 nextInvoked = true;
                 return Task.CompletedTask;
             },
-            policies.Select(p => p.Object), new IAffinityFailurePolicy[0],
+            policies.Select(p => p.Object), Array.Empty<IAffinityFailurePolicy>(),
             new Mock<ILogger<SessionAffinityMiddleware>>().Object);
         var context = new DefaultHttpContext();
         context.SetEndpoint(endpoint);
@@ -75,7 +75,7 @@ public class SessionAffinityMiddlewareTests
 
         if (foundDestinationId is not null)
         {
-            Assert.Equal(1, destinationFeature.AvailableDestinations.Count);
+            Assert.Single(destinationFeature.AvailableDestinations);
             Assert.Equal(foundDestinationId, destinationFeature.AvailableDestinations[0].DestinationId);
         }
         else

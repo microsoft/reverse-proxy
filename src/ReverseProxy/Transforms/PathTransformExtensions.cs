@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.DependencyInjection;
@@ -93,7 +94,7 @@ public static class PathTransformExtensions
     /// <summary>
     /// Clones the route and adds the transform which will set the request path with the given value.
     /// </summary>
-    public static RouteConfig WithTransformPathRouteValues(this RouteConfig route, PathString pattern)
+    public static RouteConfig WithTransformPathRouteValues(this RouteConfig route, [StringSyntax("Route")] PathString pattern)
     {
         if (pattern.Value is null)
         {
@@ -109,7 +110,7 @@ public static class PathTransformExtensions
     /// <summary>
     /// Clones the route and adds the transform which will set the request path with the given value.
     /// </summary>
-    public static TransformBuilderContext AddPathRouteValues(this TransformBuilderContext context, PathString pattern)
+    public static TransformBuilderContext AddPathRouteValues(this TransformBuilderContext context, [StringSyntax("Route")] PathString pattern)
     {
         if (pattern.Value is null)
         {

@@ -23,5 +23,4 @@ public interface ICache
     bool TryGetReconcileData(NamespacedName key, out ReconcileData data);
     void GetKeys(List<NamespacedName> keys);
     IEnumerable<IngressData> GetIngresses();
-    bool IsYarpIngress(IngressData ingress);
 }

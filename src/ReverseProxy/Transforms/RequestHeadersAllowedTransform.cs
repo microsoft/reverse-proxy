@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -22,12 +23,12 @@ public class RequestHeadersAllowedTransform : RequestTransform
         }
 
         AllowedHeaders = allowedHeaders;
-        AllowedHeadersSet = new HashSet<string>(allowedHeaders, StringComparer.OrdinalIgnoreCase);
+        AllowedHeadersSet = new HashSet<string>(allowedHeaders, StringComparer.OrdinalIgnoreCase).ToFrozenSet(StringComparer.OrdinalIgnoreCase);
     }
 
     internal string[] AllowedHeaders { get; }
 
-    private HashSet<string> AllowedHeadersSet { get; }
+    private FrozenSet<string> AllowedHeadersSet { get; }
 
     /// <inheritdoc/>
     public override ValueTask ApplyAsync(RequestTransformContext context)

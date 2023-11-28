@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -40,11 +41,17 @@ internal sealed class ForwarderMiddleware
         var route = context.GetRouteModel();
         var cluster = route.Cluster!;
 
+        var activity = context.GetYarpActivity();
+        activity?.AddTag("proxy.route_id", route.Config.RouteId);
+        activity?.AddTag("proxy.cluster_id", cluster.ClusterId);
+
         if (destinations.Count == 0)
         {
             Log.NoAvailableDestinations(_logger, cluster.ClusterId);
             context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
             context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.NoAvailableDestinations, ex: null));
+            activity?.SetStatus(ActivityStatusCode.Error);
+            activity?.AddError("Proxy forwarding failed", "No available destinations to forward to");
             return;
         }
 
@@ -57,6 +64,7 @@ internal sealed class ForwarderMiddleware
         }
 
         reverseProxyFeature.ProxiedDestination = destination;
+        activity?.AddTag("proxy.destination_id", destination.DestinationId);
 
         var destinationModel = destination.Model;
         if (destinationModel is null)
@@ -68,12 +76,13 @@ internal sealed class ForwarderMiddleware
         {
             cluster.ConcurrencyCounter.Increment();
             destination.ConcurrencyCounter.Increment();
-
             ForwarderTelemetry.Log.ForwarderInvoke(cluster.ClusterId, route.Config.RouteId, destination.DestinationId);
 
             var clusterConfig = reverseProxyFeature.Cluster;
-            await _forwarder.SendAsync(context, destinationModel.Config.Address, clusterConfig.HttpClient,
+            var result = await _forwarder.SendAsync(context, destinationModel.Config.Address, clusterConfig.HttpClient,
                 clusterConfig.Config.HttpRequest ?? ForwarderRequestConfig.Empty, route.Transformer);
+
+            activity?.SetStatus((result == ForwarderError.None) ? ActivityStatusCode.Ok : ActivityStatusCode.Error);
         }
         finally
         {

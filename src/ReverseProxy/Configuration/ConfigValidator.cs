@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -10,8 +11,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
+#if NET8_0_OR_GREATER
+using Microsoft.AspNetCore.Http.Timeouts;
+#endif
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.Extensions.Logging;
+#if NET8_0_OR_GREATER
+using Microsoft.Extensions.Options;
+#endif
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.LoadBalancing;
 using Yarp.ReverseProxy.SessionAffinity;
@@ -31,18 +38,23 @@ internal sealed class ConfigValidator : IConfigValidator
     private readonly IAuthorizationPolicyProvider _authorizationPolicyProvider;
     private readonly IYarpRateLimiterPolicyProvider _rateLimiterPolicyProvider;
     private readonly ICorsPolicyProvider _corsPolicyProvider;
-    private readonly IDictionary<string, ILoadBalancingPolicy> _loadBalancingPolicies;
-    private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
-    private readonly IDictionary<string, IAvailableDestinationsPolicy> _availableDestinationsPolicies;
-    private readonly IDictionary<string, IActiveHealthCheckPolicy> _activeHealthCheckPolicies;
-    private readonly IDictionary<string, IPassiveHealthCheckPolicy> _passiveHealthCheckPolicies;
+#if NET8_0_OR_GREATER
+    private readonly IOptionsMonitor<RequestTimeoutOptions> _timeoutOptions;
+#endif
+    private readonly FrozenDictionary<string, ILoadBalancingPolicy> _loadBalancingPolicies;
+    private readonly FrozenDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
+    private readonly FrozenDictionary<string, IAvailableDestinationsPolicy> _availableDestinationsPolicies;
+    private readonly FrozenDictionary<string, IActiveHealthCheckPolicy> _activeHealthCheckPolicies;
+    private readonly FrozenDictionary<string, IPassiveHealthCheckPolicy> _passiveHealthCheckPolicies;
     private readonly ILogger _logger;
-
 
     public ConfigValidator(ITransformBuilder transformBuilder,
         IAuthorizationPolicyProvider authorizationPolicyProvider,
         IYarpRateLimiterPolicyProvider rateLimiterPolicyProvider,
         ICorsPolicyProvider corsPolicyProvider,
+#if NET8_0_OR_GREATER
+        IOptionsMonitor<RequestTimeoutOptions> timeoutOptions,
+#endif
         IEnumerable<ILoadBalancingPolicy> loadBalancingPolicies,
         IEnumerable<IAffinityFailurePolicy> affinityFailurePolicies,
         IEnumerable<IAvailableDestinationsPolicy> availableDestinationsPolicies,
@@ -54,6 +66,9 @@ internal sealed class ConfigValidator : IConfigValidator
         _authorizationPolicyProvider = authorizationPolicyProvider ?? throw new ArgumentNullException(nameof(authorizationPolicyProvider));
         _rateLimiterPolicyProvider = rateLimiterPolicyProvider ?? throw new ArgumentNullException(nameof(rateLimiterPolicyProvider));
         _corsPolicyProvider = corsPolicyProvider ?? throw new ArgumentNullException(nameof(corsPolicyProvider));
+#if NET8_0_OR_GREATER
+        _timeoutOptions = timeoutOptions ?? throw new ArgumentNullException(nameof(timeoutOptions));
+#endif
         _loadBalancingPolicies = loadBalancingPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(loadBalancingPolicies));
         _affinityFailurePolicies = affinityFailurePolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(affinityFailurePolicies));
         _availableDestinationsPolicies = availableDestinationsPolicies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(availableDestinationsPolicies));
@@ -77,6 +92,9 @@ internal sealed class ConfigValidator : IConfigValidator
         await ValidateAuthorizationPolicyAsync(errors, route.AuthorizationPolicy, route.RouteId);
 #if NET7_0_OR_GREATER
         await ValidateRateLimiterPolicyAsync(errors, route.RateLimiterPolicy, route.RouteId);
+#endif
+#if NET8_0_OR_GREATER
+        ValidateTimeoutPolicy(errors, route.TimeoutPolicy, route.Timeout, route.RouteId);
 #endif
         await ValidateCorsPolicyAsync(errors, route.CorsPolicy, route.RouteId);
 
@@ -112,6 +130,7 @@ internal sealed class ConfigValidator : IConfigValidator
         }
 
         errors.AddRange(_transformBuilder.ValidateCluster(cluster));
+        ValidateDestinations(errors, cluster);
         ValidateLoadBalancing(errors, cluster);
         ValidateSessionAffinity(errors, cluster);
         ValidateProxyHttpClient(errors, cluster);
@@ -292,11 +311,53 @@ internal sealed class ConfigValidator : IConfigValidator
             errors.Add(new ArgumentException($"Unable to retrieve the authorization policy '{authorizationPolicyName}' for route '{routeId}'.", ex));
         }
     }
+#if NET8_0_OR_GREATER
+    private void ValidateTimeoutPolicy(IList<Exception> errors, string? timeoutPolicyName, TimeSpan? timeout, string routeId)
+    {
+        if (!string.IsNullOrEmpty(timeoutPolicyName))
+        {
+            var policies = _timeoutOptions.CurrentValue.Policies;
 
+            if (string.Equals(TimeoutPolicyConstants.Disable, timeoutPolicyName, StringComparison.OrdinalIgnoreCase))
+            {
+                if (policies.TryGetValue(timeoutPolicyName, out var _))
+                {
+                    errors.Add(new ArgumentException($"The application has registered a timeout policy named '{timeoutPolicyName}' that conflicts with the reserved timeout policy name used on this route. The registered policy name needs to be changed for this route to function."));
+                }
+            }
+            else if (!policies.TryGetValue(timeoutPolicyName, out var _))
+            {
+                errors.Add(new ArgumentException($"Timeout policy '{timeoutPolicyName}' not found for route '{routeId}'."));
+            }
+
+            if (timeout.HasValue)
+            {
+                errors.Add(new ArgumentException($"Route '{routeId}' has both a Timeout '{timeout}' and TimeoutPolicy '{timeoutPolicyName}'."));
+            }
+        }
+
+        if (timeout.HasValue && timeout.Value.TotalMilliseconds <= 0)
+        {
+            errors.Add(new ArgumentException($"The Timeout value '{timeout.Value}' is invalid for route '{routeId}'. The Timeout must be greater than zero milliseconds."));
+        }
+    }
+#endif
     private async ValueTask ValidateRateLimiterPolicyAsync(IList<Exception> errors, string? rateLimiterPolicyName, string routeId)
     {
         if (string.IsNullOrEmpty(rateLimiterPolicyName))
         {
+            return;
+        }
+
+        if (string.Equals(RateLimitingConstants.Default, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(RateLimitingConstants.Disable, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase))
+        {
+            var policy = await _rateLimiterPolicyProvider.GetPolicyAsync(rateLimiterPolicyName);
+            if (policy is not null)
+            {
+                // We weren't expecting to find a policy with these names.
+                errors.Add(new ArgumentException($"The application has registered a RateLimiter policy named '{rateLimiterPolicyName}' that conflicts with the reserved RateLimiter policy name used on this route. The registered policy name needs to be changed for this route to function."));
+            }
             return;
         }
 
@@ -307,13 +368,6 @@ internal sealed class ConfigValidator : IConfigValidator
             if (policy is null)
             {
                 errors.Add(new ArgumentException($"RateLimiter policy '{rateLimiterPolicyName}' not found for route '{routeId}'."));
-                return;
-            }
-
-            if (string.Equals(RateLimitingConstants.Default, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(RateLimitingConstants.Disable, rateLimiterPolicyName, StringComparison.OrdinalIgnoreCase))
-            {
-                errors.Add(new ArgumentException($"The application has registered a RateLimiter policy named '{rateLimiterPolicyName}' that conflicts with the reserved RateLimiter policy name used on this route. The registered policy name needs to be changed for this route to function."));
             }
         }
         catch (Exception ex)
@@ -363,6 +417,21 @@ internal sealed class ConfigValidator : IConfigValidator
         catch (Exception ex)
         {
             errors.Add(new ArgumentException($"Unable to retrieve the CORS policy '{corsPolicyName}' for route '{routeId}'.", ex));
+        }
+    }
+
+    private void ValidateDestinations(IList<Exception> errors, ClusterConfig cluster)
+    {
+        if (cluster.Destinations is null)
+        {
+            return;
+        }
+        foreach (var (name, destination) in cluster.Destinations)
+        {
+            if (string.IsNullOrEmpty(destination.Address))
+            {
+                errors.Add(new ArgumentException($"No address found for destination '{name}' on cluster '{cluster.ClusterId}'."));
+            }
         }
     }
 
@@ -439,16 +508,29 @@ internal sealed class ConfigValidator : IConfigValidator
             errors.Add(new ArgumentException($"Max connections per server limit set on the cluster '{cluster.ClusterId}' must be positive."));
         }
 
-        var encoding = cluster.HttpClient.RequestHeaderEncoding;
-        if (encoding is not null)
+        var requestHeaderEncoding = cluster.HttpClient.RequestHeaderEncoding;
+        if (requestHeaderEncoding is not null)
         {
             try
             {
-                Encoding.GetEncoding(encoding);
+                Encoding.GetEncoding(requestHeaderEncoding);
             }
             catch (ArgumentException aex)
             {
-                errors.Add(new ArgumentException($"Invalid header encoding '{encoding}'.", aex));
+                errors.Add(new ArgumentException($"Invalid request header encoding '{requestHeaderEncoding}'.", aex));
+            }
+        }
+
+        var responseHeaderEncoding = cluster.HttpClient.ResponseHeaderEncoding;
+        if (responseHeaderEncoding is not null)
+        {
+            try
+            {
+                Encoding.GetEncoding(responseHeaderEncoding);
+            }
+            catch (ArgumentException aex)
+            {
+                errors.Add(new ArgumentException($"Invalid response header encoding '{responseHeaderEncoding}'.", aex));
             }
         }
     }
@@ -482,7 +564,7 @@ internal sealed class ConfigValidator : IConfigValidator
         if (string.IsNullOrEmpty(availableDestinationsPolicy))
         {
             // The default.
-            availableDestinationsPolicy = HealthCheckConstants.AvailableDestinations.HealthyAndUnknown;
+            availableDestinationsPolicy = HealthCheckConstants.AvailableDestinations.HealthyOrPanic;
         }
 
         if (!_availableDestinationsPolicies.ContainsKey(availableDestinationsPolicy))

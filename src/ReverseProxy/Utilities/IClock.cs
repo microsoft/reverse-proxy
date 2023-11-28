@@ -11,6 +11,7 @@ namespace Yarp.ReverseProxy.Utilities;
 /// Abstraction over monotonic time providers
 /// (Environment.TickCount64, Stopwatch.GetTimestamp, as opposed to DateTime).
 /// </summary>
+[Obsolete("For testing only. Use TimeProvider instead.")]
 public interface IClock
 {
     /// <summary>

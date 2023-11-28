@@ -69,22 +69,24 @@ internal sealed class QueryParameterMatcherPolicy : MatcherPolicy, IEndpointComp
 
             foreach (var matcher in matchers)
             {
-                if (query.TryGetValue(matcher.Name, out var requestQueryParameterValues) &&
-                    !StringValues.IsNullOrEmpty(requestQueryParameterValues))
+                query.TryGetValue(matcher.Name, out var requestQueryParameterValues);
+                var valueIsEmpty = StringValues.IsNullOrEmpty(requestQueryParameterValues);
+
+                var matched = matcher.Mode switch
                 {
-                    if (matcher.Mode is QueryParameterMatchMode.Exists)
-                    {
-                        continue;
-                    }
+                    QueryParameterMatchMode.Exists => !valueIsEmpty,
+                    QueryParameterMatchMode.Exact => !valueIsEmpty && TryMatch(matcher, requestQueryParameterValues),
+                    QueryParameterMatchMode.Prefix => !valueIsEmpty && TryMatch(matcher, requestQueryParameterValues),
+                    QueryParameterMatchMode.Contains => !valueIsEmpty && TryMatch(matcher, requestQueryParameterValues),
+                    QueryParameterMatchMode.NotContains => valueIsEmpty || TryMatch(matcher, requestQueryParameterValues),
+                    _ => false
+                };
 
-                    if (TryMatch(matcher, requestQueryParameterValues))
-                    {
-                        continue;
-                    }
+                if (!matched)
+                {
+                    candidates.SetValidity(i, false);
+                    break;
                 }
-
-                candidates.SetValidity(i, false);
-                break;
             }
         }
 

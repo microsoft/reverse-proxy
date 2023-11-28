@@ -23,7 +23,7 @@ Serilog.Extensions.Logging |  Apache-2.0
 Serilog.Formatting.Compact |  Apache-2.0
 Serilog.Sinks.Console |  Apache-2.0
 
-## ReverseProxy.Metrics.Promethius.Sample
+## ReverseProxy.Metrics.Prometheus.Sample
 | Package | License |
 | :--- | :--- |
 prometheus-net |  MIT

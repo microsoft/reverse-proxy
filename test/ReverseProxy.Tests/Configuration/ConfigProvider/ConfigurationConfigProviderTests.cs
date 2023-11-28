@@ -40,7 +40,8 @@ public class ConfigurationConfigProviderTests
                             {
                                 Address = "https://localhost:10000/destA",
                                 Health = "https://localhost:20000/destA",
-                                Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } }
+                                Metadata = new Dictionary<string, string> { { "destA-K1", "destA-V1" }, { "destA-K2", "destA-V2" } },
+                                Host = "localhost"
                             }
                         },
                         {
@@ -49,7 +50,8 @@ public class ConfigurationConfigProviderTests
                             {
                                 Address = "https://localhost:10000/destB",
                                 Health = "https://localhost:20000/destB",
-                                Metadata = new Dictionary<string, string> { { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" } }
+                                Metadata = new Dictionary<string, string> { { "destB-K1", "destB-V1" }, { "destB-K2", "destB-V2" } },
+                                Host = "localhost"
                             }
                         }
                     },
@@ -113,8 +115,8 @@ public class ConfigurationConfigProviderTests
                     ClusterId = "cluster2",
                     Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
                     {
-                        { "destinationC", new DestinationConfig { Address = "https://localhost:10001/destC" } },
-                        { "destinationD", new DestinationConfig { Address = "https://localhost:10000/destB" } }
+                        { "destinationC", new DestinationConfig { Address = "https://localhost:10001/destC", Host = "localhost" } },
+                        { "destinationD", new DestinationConfig { Address = "https://localhost:10000/destB", Host = "remotehost" } }
                     },
                     LoadBalancingPolicy = LoadBalancingPolicies.RoundRobin
                 }
@@ -129,6 +131,10 @@ public class ConfigurationConfigProviderTests
                 AuthorizationPolicy = "Default",
 #if NET7_0_OR_GREATER
                 RateLimiterPolicy = "Default",
+#endif
+#if NET8_0_OR_GREATER
+                TimeoutPolicy = "Default",
+                Timeout = TimeSpan.Zero,
 #endif
                 CorsPolicy = "Default",
                 Order = -1,
@@ -161,7 +167,7 @@ public class ConfigurationConfigProviderTests
                 },
                 Transforms = new[]
                 {
-                    new Dictionary<string, string> { { "RequestHeadersCopy", "true" }, { "PathRemovePrefix", "/apis" } }, new Dictionary<string, string> { { "PathPrefix", "/apis" } }
+                    new Dictionary<string, string> { { "PathRemovePrefix", "/apis" }, { "RequestHeadersCopy", "true" } }, new Dictionary<string, string> { { "PathPrefix", "/apis" } }
                 },
                 Metadata = new Dictionary<string, string> { { "routeA-K1", "routeA-V1" }, { "routeA-K2", "routeA-V2" } }
             },
@@ -246,6 +252,7 @@ public class ConfigurationConfigProviderTests
                 ""MaxConnectionsPerServer"": 10,
                 ""EnableMultipleHttp2Connections"": true,
                 ""RequestHeaderEncoding"": ""utf-8"",
+                ""ResponseHeaderEncoding"": ""utf-8"",
                 ""WebProxy"": {
                     ""Address"": ""http://localhost:8080"",
                     ""BypassOnLocal"": true,
@@ -262,6 +269,7 @@ public class ConfigurationConfigProviderTests
                 ""destinationA"": {
                     ""Address"": ""https://localhost:10000/destA"",
                     ""Health"": ""https://localhost:20000/destA"",
+                    ""Host"": ""localhost"",
                     ""Metadata"": {
                         ""destA-K1"": ""destA-V1"",
                         ""destA-K2"": ""destA-V2""
@@ -270,6 +278,7 @@ public class ConfigurationConfigProviderTests
                 ""destinationB"": {
                     ""Address"": ""https://localhost:10000/destB"",
                     ""Health"": ""https://localhost:20000/destB"",
+                    ""Host"": ""localhost"",
                     ""Metadata"": {
                         ""destB-K1"": ""destB-V1"",
                         ""destB-K2"": ""destB-V2""
@@ -292,10 +301,12 @@ public class ConfigurationConfigProviderTests
             ""Destinations"": {
                 ""destinationC"": {
                     ""Address"": ""https://localhost:10001/destC"",
+                    ""Host"": ""localhost"",
                     ""Metadata"": null
                 },
                 ""destinationD"": {
                     ""Address"": ""https://localhost:10000/destB"",
+                    ""Host"": ""remotehost"",
                     ""Metadata"": null
                 }
             },
@@ -303,7 +314,7 @@ public class ConfigurationConfigProviderTests
         }
     },
     ""Routes"": {
-        ""routeA"" : {   
+        ""routeA"" : {
             ""Match"": {
                 ""Methods"": [
                     ""GET"",
@@ -337,6 +348,8 @@ public class ConfigurationConfigProviderTests
             ""AuthorizationPolicy"": ""Default"",
             ""RateLimiterPolicy"": ""Default"",
             ""CorsPolicy"": ""Default"",
+            ""TimeoutPolicy"": ""Default"",
+            ""Timeout"": ""00:00:01"",
             ""Metadata"": {
                 ""routeA-K1"": ""routeA-V1"",
                 ""routeA-K2"": ""routeA-V2""
@@ -428,7 +441,7 @@ public class ConfigurationConfigProviderTests
             switch (obj)
             {
                 case null:
-                    Assert.True(false, $"Property {name} is not initialized.");
+                    Assert.Fail($"Property {name} is not initialized.");
                     break;
                 case Enum m:
                     Assert.NotEqual(0, (int)(object)m);
@@ -511,9 +524,11 @@ public class ConfigurationConfigProviderTests
         Assert.Equal(cluster1.Destinations["destinationA"].Address, abstractCluster1.Destinations["destinationA"].Address);
         Assert.Equal(cluster1.Destinations["destinationA"].Health, abstractCluster1.Destinations["destinationA"].Health);
         Assert.Equal(cluster1.Destinations["destinationA"].Metadata, abstractCluster1.Destinations["destinationA"].Metadata);
+        Assert.Equal(cluster1.Destinations["destinationA"].Host, abstractCluster1.Destinations["destinationA"].Host);
         Assert.Equal(cluster1.Destinations["destinationB"].Address, abstractCluster1.Destinations["destinationB"].Address);
         Assert.Equal(cluster1.Destinations["destinationB"].Health, abstractCluster1.Destinations["destinationB"].Health);
         Assert.Equal(cluster1.Destinations["destinationB"].Metadata, abstractCluster1.Destinations["destinationB"].Metadata);
+        Assert.Equal(cluster1.Destinations["destinationB"].Host, abstractCluster1.Destinations["destinationB"].Host);
         Assert.Equal(cluster1.HealthCheck.AvailableDestinationsPolicy, abstractCluster1.HealthCheck.AvailableDestinationsPolicy);
         Assert.Equal(cluster1.HealthCheck.Passive.Enabled, abstractCluster1.HealthCheck.Passive.Enabled);
         Assert.Equal(cluster1.HealthCheck.Passive.Policy, abstractCluster1.HealthCheck.Passive.Policy);
@@ -539,6 +554,7 @@ public class ConfigurationConfigProviderTests
         Assert.Equal(cluster1.HttpClient.MaxConnectionsPerServer, abstractCluster1.HttpClient.MaxConnectionsPerServer);
         Assert.Equal(cluster1.HttpClient.EnableMultipleHttp2Connections, abstractCluster1.HttpClient.EnableMultipleHttp2Connections);
         Assert.Equal(Encoding.UTF8.WebName, abstractCluster1.HttpClient.RequestHeaderEncoding);
+        Assert.Equal(Encoding.UTF8.WebName, abstractCluster1.HttpClient.ResponseHeaderEncoding);
         Assert.Equal(SslProtocols.Tls11 | SslProtocols.Tls12, abstractCluster1.HttpClient.SslProtocols);
         Assert.Equal(cluster1.HttpRequest.ActivityTimeout, abstractCluster1.HttpRequest.ActivityTimeout);
         Assert.Equal(HttpVersion.Version10, abstractCluster1.HttpRequest.Version);
@@ -552,8 +568,10 @@ public class ConfigurationConfigProviderTests
         var abstractCluster2 = abstractConfig.Clusters.Single(c => c.ClusterId == "cluster2");
         Assert.Equal(cluster2.Destinations["destinationC"].Address, abstractCluster2.Destinations["destinationC"].Address);
         Assert.Equal(cluster2.Destinations["destinationC"].Metadata, abstractCluster2.Destinations["destinationC"].Metadata);
+        Assert.Equal(cluster2.Destinations["destinationC"].Host, abstractCluster2.Destinations["destinationC"].Host);
         Assert.Equal(cluster2.Destinations["destinationD"].Address, abstractCluster2.Destinations["destinationD"].Address);
         Assert.Equal(cluster2.Destinations["destinationD"].Metadata, abstractCluster2.Destinations["destinationD"].Metadata);
+        Assert.Equal(cluster2.Destinations["destinationD"].Host, abstractCluster2.Destinations["destinationD"].Host);
         Assert.Equal(LoadBalancingPolicies.RoundRobin, abstractCluster2.LoadBalancingPolicy);
 
         Assert.Equal(2, abstractConfig.Routes.Count);

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
@@ -12,8 +13,8 @@ using Yarp.ReverseProxy.Configuration.ConfigProvider;
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Management;
 using Yarp.ReverseProxy.Routing;
+using Yarp.ReverseProxy.ServiceDiscovery;
 using Yarp.ReverseProxy.Transforms.Builder;
-using Yarp.ReverseProxy.Utilities;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -28,7 +29,7 @@ public static class ReverseProxyServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddHttpForwarder(this IServiceCollection services)
     {
-        services.TryAddSingleton<IClock, Clock>();
+        services.TryAddSingleton(TimeProvider.System);
         services.TryAddSingleton<IHttpForwarder, HttpForwarder>();
         services.TryAddSingleton<ITransformBuilder, TransformBuilder>();
 
@@ -52,6 +53,7 @@ public static class ReverseProxyServiceCollectionExtensions
             .AddPassiveHealthCheck()
             .AddLoadBalancingPolicies()
             .AddHttpSysDelegation()
+            .AddDestinationResolver()
             .AddProxy();
 
         services.TryAddSingleton<ProxyEndpointFactory>();
@@ -87,7 +89,7 @@ public static class ReverseProxyServiceCollectionExtensions
     /// Registers a singleton IProxyConfigFilter service. Multiple filters are allowed and they will be run in registration order.
     /// </summary>
     /// <typeparam name="TService">A class that implements IProxyConfigFilter.</typeparam>
-    public static IReverseProxyBuilder AddConfigFilter<TService>(this IReverseProxyBuilder builder) where TService : class, IProxyConfigFilter
+    public static IReverseProxyBuilder AddConfigFilter<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TService>(this IReverseProxyBuilder builder) where TService : class, IProxyConfigFilter
     {
         if (builder is null)
         {
@@ -118,7 +120,7 @@ public static class ReverseProxyServiceCollectionExtensions
     /// Provides a <see cref="ITransformProvider"/> implementation that will be run for each route to conditionally add transforms.
     /// <see cref="AddTransforms{T}(IReverseProxyBuilder)"/> can be called multiple times to provide multiple distinct types.
     /// </summary>
-    public static IReverseProxyBuilder AddTransforms<T>(this IReverseProxyBuilder builder) where T : class, ITransformProvider
+    public static IReverseProxyBuilder AddTransforms<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T>(this IReverseProxyBuilder builder) where T : class, ITransformProvider
     {
         builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ITransformProvider, T>());
         return builder;
@@ -129,7 +131,7 @@ public static class ReverseProxyServiceCollectionExtensions
     /// the associated transform actions. <see cref="AddTransformFactory{T}(IReverseProxyBuilder)"/> can be called multiple
     /// times to provide multiple distinct types.
     /// </summary>
-    public static IReverseProxyBuilder AddTransformFactory<T>(this IReverseProxyBuilder builder) where T : class, ITransformFactory
+    public static IReverseProxyBuilder AddTransformFactory<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T>(this IReverseProxyBuilder builder) where T : class, ITransformFactory
     {
         builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ITransformFactory, T>());
         return builder;
@@ -163,6 +165,20 @@ public static class ReverseProxyServiceCollectionExtensions
             var logger = services.GetRequiredService<ILogger<ForwarderHttpClientFactory>>();
             return new CallbackHttpClientFactory(logger, configure);
         });
+        return builder;
+    }
+
+    /// <summary>
+    /// Provides a <see cref="IDestinationResolver"/> implementation which uses <see cref="System.Net.Dns"/> to resolve destinations.
+    /// </summary>
+    public static IReverseProxyBuilder AddDnsDestinationResolver(this IReverseProxyBuilder builder, Action<DnsDestinationResolverOptions>? configureOptions = null)
+    {
+        builder.Services.AddSingleton<IDestinationResolver, DnsDestinationResolver>();
+        if (configureOptions is not null)
+        {
+            builder.Services.Configure(configureOptions);
+        }
+
         return builder;
     }
 }

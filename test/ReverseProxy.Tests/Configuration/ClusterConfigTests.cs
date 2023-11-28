@@ -85,7 +85,8 @@ public class ClusterConfigTests
                 SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                 MaxConnectionsPerServer = 10,
                 DangerousAcceptAnyServerCertificate = true,
-                RequestHeaderEncoding = Encoding.UTF8.WebName
+                RequestHeaderEncoding = Encoding.UTF8.WebName,
+                ResponseHeaderEncoding = Encoding.UTF8.WebName
             },
             HttpRequest = new ForwarderRequestConfig
             {
@@ -161,7 +162,8 @@ public class ClusterConfigTests
                 SslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12,
                 MaxConnectionsPerServer = 10,
                 DangerousAcceptAnyServerCertificate = true,
-                RequestHeaderEncoding = Encoding.UTF8.WebName
+                RequestHeaderEncoding = Encoding.UTF8.WebName,
+                ResponseHeaderEncoding = Encoding.UTF8.WebName
             },
             HttpRequest = new ForwarderRequestConfig
             {

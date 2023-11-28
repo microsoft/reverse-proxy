@@ -21,3 +21,7 @@ The incoming and outgoing protocol versions do not need to match. The incoming W
 WebSockets require different HTTP headers for HTTP/2 so YARP will add and remove these headers as needed when adapting between the different versions.
 
 After the initial handshake WebSockets function the same way over both HTTP versions.
+
+## Timeout
+
+[Http Request Timeouts](https://learn.microsoft.com/aspnet/core/performance/timeouts) (.NET 8+) can apply timeouts to all requests by default or by policy. These timeouts will be disabled after a WebSocket handshake. They will still apply to gRPC requests. For additional configuration see [Timeouts](timeouts.md).

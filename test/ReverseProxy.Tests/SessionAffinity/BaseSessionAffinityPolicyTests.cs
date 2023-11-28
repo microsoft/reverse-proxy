@@ -63,7 +63,7 @@ public class BaseSesstionAffinityPolicyTests
 
         if (expectedDestination is not null)
         {
-            Assert.Equal(1, affinityResult.Destinations.Count);
+            Assert.Single(affinityResult.Destinations);
         }
         else
         {
@@ -133,7 +133,7 @@ public class BaseSesstionAffinityPolicyTests
         yield return new object[] { GetHttpContext(new[] { ("SomeKey", "SomeValue") }), destinations, AffinityStatus.AffinityKeyNotSet, null, null, false, null, null };
         yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-B") }), destinations, AffinityStatus.OK, destinations[1], Encoding.UTF8.GetBytes("dest-B"), true, null, null };
         yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-Z") }), destinations, AffinityStatus.DestinationNotFound, null, Encoding.UTF8.GetBytes("dest-Z"), true, LogLevel.Warning, EventIds.DestinationMatchingToAffinityKeyNotFound };
-        yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-B") }), new DestinationState[0], AffinityStatus.DestinationNotFound, null, Encoding.UTF8.GetBytes("dest-B"), true, LogLevel.Warning, EventIds.AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnCluster };
+        yield return new object[] { GetHttpContext(new[] { (KeyName, "dest-B") }), Array.Empty<DestinationState>(), AffinityStatus.DestinationNotFound, null, Encoding.UTF8.GetBytes("dest-B"), true, LogLevel.Warning, EventIds.AffinityCannotBeEstablishedBecauseNoDestinationsFoundOnCluster };
         yield return new object[] { GetHttpContext(new[] { (KeyName, "/////") }, false), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyNull), false, LogLevel.Error, EventIds.RequestAffinityKeyDecryptionFailed };
         yield return new object[] { GetHttpContext(new[] { (KeyName, InvalidKeyNull) }), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyNull), true, LogLevel.Error, EventIds.RequestAffinityKeyDecryptionFailed };
         yield return new object[] { GetHttpContext(new[] { (KeyName, InvalidKeyThrow) }), destinations, AffinityStatus.AffinityKeyExtractionFailed, null, Encoding.UTF8.GetBytes(InvalidKeyThrow), true, LogLevel.Error, EventIds.RequestAffinityKeyDecryptionFailed };

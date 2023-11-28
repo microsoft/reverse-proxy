@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,7 +18,7 @@ namespace Yarp.ReverseProxy.Health;
 internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, IClusterChangeListener, IDisposable
 {
     private readonly ActiveHealthCheckMonitorOptions _monitorOptions;
-    private readonly IDictionary<string, IActiveHealthCheckPolicy> _policies;
+    private readonly FrozenDictionary<string, IActiveHealthCheckPolicy> _policies;
     private readonly IProbingRequestFactory _probingRequestFactory;
     private readonly ILogger<ActiveHealthCheckMonitor> _logger;
 
@@ -24,14 +26,14 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
         IOptions<ActiveHealthCheckMonitorOptions> monitorOptions,
         IEnumerable<IActiveHealthCheckPolicy> policies,
         IProbingRequestFactory probingRequestFactory,
-        ITimerFactory timerFactory,
+        TimeProvider timeProvider,
         ILogger<ActiveHealthCheckMonitor> logger)
     {
         _monitorOptions = monitorOptions?.Value ?? throw new ArgumentNullException(nameof(monitorOptions));
         _policies = policies?.ToDictionaryByUniqueId(p => p.Name) ?? throw new ArgumentNullException(nameof(policies));
         _probingRequestFactory = probingRequestFactory ?? throw new ArgumentNullException(nameof(probingRequestFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        Scheduler = new EntityActionScheduler<ClusterState>(cluster => ProbeCluster(cluster), autoStart: false, runOnce: false, timerFactory);
+        Scheduler = new EntityActionScheduler<ClusterState>(cluster => ProbeCluster(cluster), autoStart: false, runOnce: false, timeProvider);
     }
 
     public bool InitialProbeCompleted { get; private set; }
@@ -108,6 +110,10 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
             return;
         }
 
+        // Creates an Activity to trace the active health checks
+        using var activity = Observability.YarpActivitySource.StartActivity("proxy.cluster_health_checks", ActivityKind.Consumer);
+        activity?.AddTag("proxy.cluster_id", cluster.ClusterId);
+
         Log.StartingActiveHealthProbingOnCluster(_logger, cluster.ClusterId);
 
         var allDestinations = cluster.DestinationsState.AllDestinations;
@@ -130,10 +136,12 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
         {
             var policy = _policies.GetRequiredServiceById(config.Policy, HealthCheckConstants.ActivePolicy.ConsecutiveFailures);
             policy.ProbingCompleted(cluster, probeResults);
+            activity?.SetStatus(ActivityStatusCode.Ok);
         }
         catch (Exception ex)
         {
             Log.ActiveHealthProbingFailedOnCluster(_logger, cluster.ClusterId, ex);
+            activity?.SetStatus(ActivityStatusCode.Error);
         }
         finally
         {
@@ -155,6 +163,10 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
 
     private async Task<DestinationProbingResult> ProbeDestinationAsync(ClusterState cluster, DestinationState destination, TimeSpan timeout)
     {
+        using var probeActivity = Observability.YarpActivitySource.StartActivity("proxy.destination_health_check", ActivityKind.Client);
+        probeActivity?.AddTag("proxy.cluster_id", cluster.ClusterId);
+        probeActivity?.AddTag("proxy.destination_id", destination.DestinationId);
+
         HttpRequestMessage request;
         try
         {
@@ -164,15 +176,20 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
         {
             Log.ActiveHealthProbeConstructionFailedOnCluster(_logger, destination.DestinationId, cluster.ClusterId, ex);
 
+            probeActivity?.SetStatus(ActivityStatusCode.Error);
+
             return new DestinationProbingResult(destination, null, ex);
         }
 
-        var cts = new CancellationTokenSource(timeout);
+        using var cts = new CancellationTokenSource(timeout);
+
         try
         {
             Log.SendingHealthProbeToEndpointOfDestination(_logger, request.RequestUri, destination.DestinationId, cluster.ClusterId);
             var response = await cluster.Model.HttpClient.SendAsync(request, cts.Token);
             Log.DestinationProbingCompleted(_logger, destination.DestinationId, cluster.ClusterId, (int)response.StatusCode);
+
+            probeActivity?.SetStatus(ActivityStatusCode.Ok);
 
             return new DestinationProbingResult(destination, response, null);
         }
@@ -180,11 +197,9 @@ internal partial class ActiveHealthCheckMonitor : IActiveHealthCheckMonitor, ICl
         {
             Log.DestinationProbingFailed(_logger, destination.DestinationId, cluster.ClusterId, ex);
 
+            probeActivity?.SetStatus(ActivityStatusCode.Error);
+
             return new DestinationProbingResult(destination, null, ex);
-        }
-        finally
-        {
-            cts.Dispose();
         }
     }
 }

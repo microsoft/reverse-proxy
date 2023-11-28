@@ -41,9 +41,9 @@ public class ResponseHeaderRemoveTransformTests
         var httpContext = new DefaultHttpContext();
         httpContext.Response.StatusCode = status;
         var proxyResponse = new HttpResponseMessage();
-        foreach (var pair in TestResources.ParseNameAndValues(names, values))
+        foreach (var (name, subvalues) in TestResources.ParseNameAndValues(names, values))
         {
-            httpContext.Response.Headers.Add(pair.Name, pair.Values);
+            httpContext.Response.Headers[name] = subvalues;
         }
 
         var transform = new ResponseHeaderRemoveTransform(removedHeader, condition);

@@ -21,17 +21,28 @@ internal sealed class PowerOfTwoChoicesLoadBalancingPolicy : ILoadBalancingPolic
 
     public DestinationState? PickDestination(HttpContext context, ClusterState cluster, IReadOnlyList<DestinationState> availableDestinations)
     {
-        if (availableDestinations.Count == 0)
+        var destinationCount = availableDestinations.Count;
+        if (destinationCount == 0)
         {
             return null;
+        }
+        
+        if (destinationCount == 1)
+        {
+            return availableDestinations[0];
         }
 
         // Pick two, and then return the least busy. This avoids the effort of searching the whole list, but
         // still avoids overloading a single destination.
-        var destinationCount = availableDestinations.Count;
         var random = _randomFactory.CreateRandomInstance();
-        var first = availableDestinations[random.Next(destinationCount)];
-        var second = availableDestinations[random.Next(destinationCount)];
+        var firstIndex = random.Next(destinationCount);
+        int secondIndex;
+        do
+        {
+            secondIndex = random.Next(destinationCount);
+        } while (firstIndex == secondIndex);
+        var first = availableDestinations[firstIndex];
+        var second = availableDestinations[secondIndex];
         return (first.ConcurrentRequestCount <= second.ConcurrentRequestCount) ? first : second;
     }
 }

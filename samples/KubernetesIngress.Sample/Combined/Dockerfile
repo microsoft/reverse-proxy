@@ -18,6 +18,7 @@ COPY ["src/Kubernetes.Controller/Yarp.Kubernetes.Controller.csproj", "src/Kubern
 COPY ["src/Directory.Build.props", "src/"]
 COPY ["Directory.Build.*", "./"]
 COPY ["NuGet.config", ""]
+COPY ["eng/Versions.props", "eng/"]
 
 # Build a cache layer with all of the nuget packages
 RUN /root/.dotnet/dotnet restore samples/KubernetesIngress.Sample/Combined/Yarp.Kubernetes.IngressController.csproj

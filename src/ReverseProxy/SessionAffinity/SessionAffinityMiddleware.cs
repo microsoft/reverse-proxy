@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -18,8 +19,8 @@ namespace Yarp.ReverseProxy.SessionAffinity;
 internal sealed class SessionAffinityMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly IDictionary<string, ISessionAffinityPolicy> _sessionAffinityPolicies;
-    private readonly IDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
+    private readonly FrozenDictionary<string, ISessionAffinityPolicy> _sessionAffinityPolicies;
+    private readonly FrozenDictionary<string, IAffinityFailurePolicy> _affinityFailurePolicies;
     private readonly ILogger _logger;
 
     public SessionAffinityMiddleware(
@@ -56,10 +57,15 @@ internal sealed class SessionAffinityMiddleware
         var policy = _sessionAffinityPolicies.GetRequiredServiceById(config.Policy, SessionAffinityConstants.Policies.HashCookie);
         var affinityResult = await policy.FindAffinitizedDestinationsAsync(context, cluster, config, destinations, context.RequestAborted);
 
+        // Used for Distributed Tracing as part of Open Telemetry, null if there are no listeners
+        var activity = context.GetYarpActivity();
+        activity?.SetTag("proxy.session_affinity.policy", policy.Name);
+
         switch (affinityResult.Status)
         {
             case AffinityStatus.OK:
                 proxyFeature.AvailableDestinations = affinityResult.Destinations!;
+                activity?.SetTag("proxy.session_affinity.status", "success");
                 break;
             case AffinityStatus.AffinityKeyNotSet:
                 // Nothing to do so just continue processing
@@ -75,10 +81,12 @@ internal sealed class SessionAffinityMiddleware
                     // Policy reported the failure is unrecoverable and took the full responsibility for its handling,
                     // so we simply stop processing.
                     Log.AffinityResolutionFailedForCluster(_logger, cluster.ClusterId);
+                    activity?.SetTag("proxy.session_affinity.status", "failed");
                     return;
                 }
 
                 Log.AffinityResolutionFailureWasHandledProcessingWillBeContinued(_logger, cluster.ClusterId, failurePolicy.Name);
+                activity?.SetTag("proxy.session_affinity.status", "recovered");
 
                 break;
             default:

@@ -15,7 +15,7 @@ namespace Yarp.ReverseProxy.WebSocketsTelemetry;
 
 internal sealed class HttpConnectFeatureWrapper : IHttpExtendedConnectFeature
 {
-    private readonly IClock _clock;
+    private readonly TimeProvider _timeProvider;
 
     public HttpContext HttpContext { get; private set; }
 
@@ -27,9 +27,9 @@ internal sealed class HttpConnectFeatureWrapper : IHttpExtendedConnectFeature
 
     public string? Protocol => InnerConnectFeature.Protocol;
 
-    public HttpConnectFeatureWrapper(IClock clock, HttpContext httpContext, IHttpExtendedConnectFeature connectFeature)
+    public HttpConnectFeatureWrapper(TimeProvider timeProvider, HttpContext httpContext, IHttpExtendedConnectFeature connectFeature)
     {
-        _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+        _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
         HttpContext = httpContext ?? throw new ArgumentNullException(nameof(httpContext));
         InnerConnectFeature = connectFeature ?? throw new ArgumentNullException(nameof(connectFeature));
     }
@@ -38,7 +38,7 @@ internal sealed class HttpConnectFeatureWrapper : IHttpExtendedConnectFeature
     {
         Debug.Assert(TelemetryStream is null);
         var opaqueTransport = await InnerConnectFeature.AcceptAsync();
-        TelemetryStream = new WebSocketsTelemetryStream(_clock, opaqueTransport);
+        TelemetryStream = new WebSocketsTelemetryStream(_timeProvider, opaqueTransport);
         return TelemetryStream;
     }
 }

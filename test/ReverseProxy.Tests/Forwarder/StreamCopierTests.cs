@@ -29,7 +29,7 @@ public class StreamCopierTests : TestAutoMockBase
         var destination = new MemoryStream();
 
         using var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
-        await StreamCopier.CopyAsync(isRequest, source, destination, SourceSize, new Clock(), cts, cts.Token);
+        await StreamCopier.CopyAsync(isRequest, source, destination, SourceSize, TimeProvider.System, cts, cts.Token);
 
         Assert.False(cts.Token.IsCancellationRequested);
 
@@ -45,13 +45,13 @@ public class StreamCopierTests : TestAutoMockBase
     {
         var events = TestEventListener.Collect();
 
-        var clock = new ManualClock();
+        var timeProvider = new TestTimeProvider();
         var sourceWaitTime = TimeSpan.FromMilliseconds(12345);
-        var source = new SlowStream(new ThrowStream(), clock, sourceWaitTime);
+        var source = new SlowStream(new ThrowStream(), timeProvider, sourceWaitTime);
         var destination = new MemoryStream();
 
         using var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
-        var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, StreamCopier.UnknownLength, clock, cts, cts.Token);
+        var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, StreamCopier.UnknownLength, timeProvider, cts, cts.Token);
         Assert.Equal(StreamCopyResult.InputError, result);
         Assert.IsAssignableFrom<IOException>(error);
 
@@ -73,14 +73,14 @@ public class StreamCopierTests : TestAutoMockBase
         const int SourceSize = 10;
         const int BytesPerRead = 3;
 
-        var clock = new ManualClock();
+        var timeProvider = new TestTimeProvider();
         var sourceWaitTime = TimeSpan.FromMilliseconds(12345);
         var destinationWaitTime = TimeSpan.FromMilliseconds(42);
-        var source = new SlowStream(new MemoryStream(new byte[SourceSize]), clock, sourceWaitTime) { MaxBytesPerRead = BytesPerRead };
-        var destination = new SlowStream(new ThrowStream(), clock, destinationWaitTime);
+        var source = new SlowStream(new MemoryStream(new byte[SourceSize]), timeProvider, sourceWaitTime) { MaxBytesPerRead = BytesPerRead };
+        var destination = new SlowStream(new ThrowStream(), timeProvider, destinationWaitTime);
 
         using var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
-        var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, SourceSize, clock, cts, cts.Token);
+        var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, SourceSize, timeProvider, cts, cts.Token);
         Assert.Equal(StreamCopyResult.OutputError, result);
         Assert.IsAssignableFrom<IOException>(error);
 
@@ -105,7 +105,7 @@ public class StreamCopierTests : TestAutoMockBase
         var requestCts = new CancellationTokenSource();
         using var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), requestCts.Token);
         requestCts.Cancel();
-        var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, StreamCopier.UnknownLength, new ManualClock(), cts, cts.Token);
+        var (result, error) = await StreamCopier.CopyAsync(isRequest, source, destination, StreamCopier.UnknownLength, new TestTimeProvider(), cts, cts.Token);
         Assert.Equal(StreamCopyResult.Canceled, result);
         Assert.IsAssignableFrom<OperationCanceledException>(error);
 
@@ -129,17 +129,17 @@ public class StreamCopierTests : TestAutoMockBase
         var source = new MemoryStream(sourceBytes);
         var destination = new MemoryStream();
 
-        var clock = new ManualClock();
+        var timeProvider = new TestTimeProvider();
         var sourceWaitTime = TimeSpan.FromMilliseconds(12345);
         var destinationWaitTime = TimeSpan.FromMilliseconds(42);
 
         using var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
         await StreamCopier.CopyAsync(
             isRequest,
-            new SlowStream(source, clock, sourceWaitTime),
-            new SlowStream(destination, clock, destinationWaitTime),
+            new SlowStream(source, timeProvider, sourceWaitTime),
+            new SlowStream(destination, timeProvider, destinationWaitTime),
             SourceSize,
-            clock,
+            timeProvider,
             cts,
             cts.Token);
 
@@ -164,7 +164,7 @@ public class StreamCopierTests : TestAutoMockBase
         var source = new MemoryStream(sourceBytes);
         var destination = new MemoryStream();
 
-        var clock = new ManualClock();
+        var timeProvider = new TestTimeProvider();
         var sourceWaitTime = TimeSpan.FromMilliseconds(789); // Every second read triggers ContentTransferring
         var destinationWaitTime = TimeSpan.FromMilliseconds(42);
 
@@ -174,10 +174,10 @@ public class StreamCopierTests : TestAutoMockBase
         using var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
         await StreamCopier.CopyAsync(
             isRequest,
-            new SlowStream(source, clock, sourceWaitTime) { MaxBytesPerRead = BytesPerRead },
-            new SlowStream(destination, clock, destinationWaitTime),
+            new SlowStream(source, timeProvider, sourceWaitTime) { MaxBytesPerRead = BytesPerRead },
+            new SlowStream(destination, timeProvider, destinationWaitTime),
             SourceSize,
-            clock,
+            timeProvider,
             cts,
             cts.Token);
 
@@ -296,14 +296,14 @@ public class StreamCopierTests : TestAutoMockBase
     private class SlowStream : DelegatingStream
     {
         private readonly TimeSpan _waitTime;
-        private readonly ManualClock _clock;
+        private readonly TestTimeProvider _timeProvider;
 
         public int MaxBytesPerRead { get; set; } = 1;
 
-        public SlowStream(Stream innerStream, ManualClock clock, TimeSpan waitTime)
+        public SlowStream(Stream innerStream, TestTimeProvider timeProvider, TimeSpan waitTime)
             : base(innerStream)
         {
-            _clock = clock;
+            _timeProvider = timeProvider;
             _waitTime = waitTime;
         }
 
@@ -314,13 +314,13 @@ public class StreamCopierTests : TestAutoMockBase
                 return new ValueTask<int>(0);
             }
 
-            _clock.AdvanceClockBy(_waitTime);
+            _timeProvider.Advance(_waitTime);
             return base.ReadAsync(buffer.Slice(0, Math.Min(buffer.Length, MaxBytesPerRead)), cancellationToken);
         }
 
         public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            _clock.AdvanceClockBy(_waitTime);
+            _timeProvider.Advance(_waitTime);
             return base.WriteAsync(buffer, cancellationToken);
         }
     }

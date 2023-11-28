@@ -45,11 +45,6 @@ public partial class Reconciler : IReconciler
             {
                 try
                 {
-                    if (!_cache.IsYarpIngress(ingress))
-                    {
-                        continue;
-                    }
-
                     if (_cache.TryGetReconcileData(new NamespacedName(ingress.Metadata.NamespaceProperty, ingress.Metadata.Name), out var data))
                     {
                         var ingressContext = new YarpIngressContext(ingress, data.ServiceList, data.EndpointsList);
@@ -68,7 +63,7 @@ public partial class Reconciler : IReconciler
             _logger.LogInformation(JsonSerializer.Serialize(clusters));
 
             await _updateConfig.UpdateAsync(configContext.Routes, clusters, cancellationToken).ConfigureAwait(false);
-            await _ingressResourceStatusUpdater.UpdateStatusAsync();
+            await _ingressResourceStatusUpdater.UpdateStatusAsync(cancellationToken);
         }
         catch (Exception ex)
         {

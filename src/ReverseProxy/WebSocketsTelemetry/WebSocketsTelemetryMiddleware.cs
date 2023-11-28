@@ -5,19 +5,18 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.WebSocketsTelemetry;
 
 internal sealed class WebSocketsTelemetryMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly IClock _clock;
+    private readonly TimeProvider _timeProvider;
 
-    public WebSocketsTelemetryMiddleware(RequestDelegate next, IClock clock)
+    public WebSocketsTelemetryMiddleware(RequestDelegate next, TimeProvider timeProvider)
     {
         _next = next ?? throw new ArgumentNullException(nameof(next));
-        _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+        _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
     }
 
     public Task InvokeAsync(HttpContext context)
@@ -26,14 +25,14 @@ internal sealed class WebSocketsTelemetryMiddleware
         {
             if (context.Features.Get<IHttpUpgradeFeature>() is { IsUpgradableRequest: true } upgradeFeature)
             {
-                var upgradeWrapper = new HttpUpgradeFeatureWrapper(_clock, context, upgradeFeature);
+                var upgradeWrapper = new HttpUpgradeFeatureWrapper(_timeProvider, context, upgradeFeature);
                 return InvokeAsyncCore(upgradeWrapper, _next);
             }
 #if NET7_0_OR_GREATER
             else if (context.Features.Get<IHttpExtendedConnectFeature>() is { IsExtendedConnect: true } connectFeature
                 && string.Equals("websocket", connectFeature.Protocol, StringComparison.OrdinalIgnoreCase))
             {
-                var connectWrapper = new HttpConnectFeatureWrapper(_clock, context, connectFeature);
+                var connectWrapper = new HttpConnectFeatureWrapper(_timeProvider, context, connectFeature);
                 return InvokeAsyncCore(connectWrapper, _next);
             }
 #endif

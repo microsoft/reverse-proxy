@@ -9,7 +9,7 @@ Headers are a very important part of processing HTTP requests and each have thei
 
 ## YARP header filtering
 
-YARP automatically removes request and response headers that could impact its ability to forward a request correctly, or that may be used maliciously to bypass features of the proxy. A complete list can be found [here](https://github.com/microsoft/reverse-proxy/blob/main/src/ReverseProxy/Forwarder/RequestUtilities.cs#L63), with some highlights described below.
+YARP automatically removes request and response headers that could impact its ability to forward a request correctly, or that may be used maliciously to bypass features of the proxy. A complete list can be found [here](https://github.com/microsoft/reverse-proxy/blob/main/src/ReverseProxy/Forwarder/RequestUtilities.cs#L71), with some highlights described below.
 
 ### Connection, KeepAlive, Close
 
@@ -45,6 +45,10 @@ services.AddReverseProxy()
     .ConfigureHttpClient((_, handler) => handler.ActivityHeadersPropagator = null);
 ```
 
+### Strict-Transport-Security
+
+This header instructs clients to always use HTTPS, but there may be a conflict between values provided by the proxy and destination. To avoid confusion, the destination's value is not copied to the response if one was already added to the response by the proxy application.
+
 ## Other Header Guidelines
 
 ### Host
@@ -74,4 +78,3 @@ This response header indicates what server technology was used to generate the r
 ### X-Powered-By
 
 This response header indicates what web framework was used to generate the response (ASP.NET, etc.). ASP.NET Core does not generate this header but IIS can. This header is proxied from the destination by default. Applications that want to remove it can use the [ResponseHeaderRemove](transforms.md#responseheaderremove) transform.
-

@@ -33,10 +33,10 @@ public class HeaderMatcherPolicyTests
             (0, CreateEndpoint("header", new[] { "abc", "def" }, HeaderMatchMode.HeaderPrefix)),
             (0, CreateEndpoint("header2", new[] { "abc", "def" }, HeaderMatchMode.HeaderPrefix)),
 
-            (0, CreateEndpoint("header", new string[0], HeaderMatchMode.Exists, isCaseSensitive: true)),
-            (0, CreateEndpoint("header", new string[0], HeaderMatchMode.Exists)),
-            (0, CreateEndpoint("header", new string[0], HeaderMatchMode.Exists, isCaseSensitive: true)),
-            (0, CreateEndpoint("header", new string[0], HeaderMatchMode.Exists)),
+            (0, CreateEndpoint("header", Array.Empty<string>(), HeaderMatchMode.Exists, isCaseSensitive: true)),
+            (0, CreateEndpoint("header", Array.Empty<string>(), HeaderMatchMode.Exists)),
+            (0, CreateEndpoint("header", Array.Empty<string>(), HeaderMatchMode.Exists, isCaseSensitive: true)),
+            (0, CreateEndpoint("header", Array.Empty<string>(), HeaderMatchMode.Exists)),
         };
         var sut = new HeaderMatcherPolicy();
 
@@ -53,7 +53,7 @@ public class HeaderMatcherPolicyTests
                     a.Item1 > b.Item1 ? 1 : 0;
                 if (actual != expected)
                 {
-                    Assert.True(false, $"Error comparing [{i}] to [{j}], expected {expected}, found {actual}.");
+                    Assert.Fail($"Error comparing [{i}] to [{j}], expected {expected}, found {actual}.");
                 }
             }
         }
@@ -67,7 +67,7 @@ public class HeaderMatcherPolicyTests
         {
             (0, CreateEndpoint(new[]
             {
-                new HeaderMatcher("header", new string[0], HeaderMatchMode.Exists, isCaseSensitive: true),
+                new HeaderMatcher("header", Array.Empty<string>(), HeaderMatchMode.Exists, isCaseSensitive: true),
                 new HeaderMatcher("header", new[] { "abc" }, HeaderMatchMode.HeaderPrefix, isCaseSensitive: true),
                 new HeaderMatcher("header", new[] { "cbcabc" }, HeaderMatchMode.Contains, isCaseSensitive: true),
                 new HeaderMatcher("header", new[] { "abc" }, HeaderMatchMode.ExactHeader, isCaseSensitive: true)
@@ -80,7 +80,7 @@ public class HeaderMatcherPolicyTests
             })),
             (1, CreateEndpoint(new[]
             {
-                new HeaderMatcher("header", new string[0], HeaderMatchMode.Exists, isCaseSensitive: true),
+                new HeaderMatcher("header", Array.Empty<string>(), HeaderMatchMode.Exists, isCaseSensitive: true),
                 new HeaderMatcher("header", new[] { "abc" }, HeaderMatchMode.ExactHeader, isCaseSensitive: true)
             })),
 
@@ -104,7 +104,7 @@ public class HeaderMatcherPolicyTests
                     a.Item1 > b.Item1 ? 1 : 0;
                 if (actual != expected)
                 {
-                    Assert.True(false, $"Error comparing [{i}] to [{j}], expected {expected}, found {actual}.");
+                    Assert.Fail($"Error comparing [{i}] to [{j}], expected {expected}, found {actual}.");
                 }
             }
         }
@@ -115,15 +115,15 @@ public class HeaderMatcherPolicyTests
     {
         var scenarios = new[]
         {
-            CreateEndpoint("org-id", new string[0], HeaderMatchMode.Exists),
+            CreateEndpoint("org-id", Array.Empty<string>(), HeaderMatchMode.Exists),
             CreateEndpoint("org-id", new[] { "abc" }),
             CreateEndpoint("org-id", new[] { "abc", "def" }),
-            CreateEndpoint("org-id", new string[0], HeaderMatchMode.Exists, isDynamic: true),
+            CreateEndpoint("org-id", Array.Empty<string>(), HeaderMatchMode.Exists, isDynamic: true),
             CreateEndpoint("org-id", new[] { "abc" }, isDynamic: true),
             CreateEndpoint("org-id", null, HeaderMatchMode.Exists, isDynamic: true),
             CreateEndpoint(new[]
             {
-                new HeaderMatcher("header", new string[0], HeaderMatchMode.Exists, isCaseSensitive: true),
+                new HeaderMatcher("header", Array.Empty<string>(), HeaderMatchMode.Exists, isCaseSensitive: true),
                 new HeaderMatcher("header", new[] { "abc" }, HeaderMatchMode.ExactHeader, isCaseSensitive: true)
             })
         };
@@ -161,10 +161,10 @@ public class HeaderMatcherPolicyTests
         var context = new DefaultHttpContext();
         if (incomingHeaderValue is not null)
         {
-            context.Request.Headers.Add("org-id", incomingHeaderValue);
+            context.Request.Headers["org-id"] = incomingHeaderValue;
         }
 
-        var endpoint = CreateEndpoint("org-id", new string[0], mode);
+        var endpoint = CreateEndpoint("org-id", Array.Empty<string>(), mode);
         var candidates = new CandidateSet(new[] { endpoint }, new RouteValueDictionary[1], new int[1]);
         var sut = new HeaderMatcherPolicy();
 
@@ -276,12 +276,14 @@ public class HeaderMatcherPolicyTests
     [InlineData("abc", HeaderMatchMode.Contains, false, "abc\"", true)]
     [InlineData("abc", HeaderMatchMode.Contains, false, "\"abc\"", true)]
     [InlineData("abc", HeaderMatchMode.Contains, false, "ab\"c", false)]
-    [InlineData("abc", HeaderMatchMode.NotContains, false, "", false)]
+    [InlineData("abc", HeaderMatchMode.NotContains, false, null, true)]
+    [InlineData("abc", HeaderMatchMode.NotContains, false, "", true)]
     [InlineData("abc", HeaderMatchMode.NotContains, false, "ababc", false)]
     [InlineData("abc", HeaderMatchMode.NotContains, false, "zaBCz", false)]
     [InlineData("abc", HeaderMatchMode.NotContains, false, "dcbaabcd", false)]
     [InlineData("abc", HeaderMatchMode.NotContains, false, "ababab", true)]
-    [InlineData("abc", HeaderMatchMode.NotContains, true, "", false)]
+    [InlineData("abc", HeaderMatchMode.NotContains, true, null, true)]
+    [InlineData("abc", HeaderMatchMode.NotContains, true, "", true)]
     [InlineData("abc", HeaderMatchMode.NotContains, true, "abcc", false)]
     [InlineData("abc", HeaderMatchMode.NotContains, true, "aaaBC", true)]
     [InlineData("abc", HeaderMatchMode.NotContains, true, "bbabcdb", false)]
@@ -304,7 +306,7 @@ public class HeaderMatcherPolicyTests
         var context = new DefaultHttpContext();
         if (incomingHeaderValues is not null)
         {
-            context.Request.Headers.Add("org-id", incomingHeaderValues.Split(';'));
+            context.Request.Headers["org-id"] = incomingHeaderValues.Split(';');
         }
 
         var endpoint = CreateEndpoint("org-id", new[] { headerValue }, headerValueMatchMode, isCaseSensitive);
@@ -412,16 +414,16 @@ public class HeaderMatcherPolicyTests
     [InlineData("abc", "def", HeaderMatchMode.Contains, true, "\"abc, def\"", true)]
     [InlineData("abc", "def", HeaderMatchMode.Contains, true, "\"abc\", def\"", true)]
     [InlineData("abc", "def", HeaderMatchMode.Contains, true, "ab\"cde\"f", false)]
-    [InlineData("abc", "def", HeaderMatchMode.NotContains, false, null, false)]
-    [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "", false)]
+    [InlineData("abc", "def", HeaderMatchMode.NotContains, false, null, true)]
+    [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "", true)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "aabc", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "baBc", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "ababcd", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "dcabcD", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "def", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, false, "ghi", true)]
-    [InlineData("abc", "def", HeaderMatchMode.NotContains, true, null, false)]
-    [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "", false)]
+    [InlineData("abc", "def", HeaderMatchMode.NotContains, true, null, true)]
+    [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "", true)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "cabca", false)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "aBCa", true)]
     [InlineData("abc", "def", HeaderMatchMode.NotContains, true, "CaBCdd", true)]
@@ -448,11 +450,47 @@ public class HeaderMatcherPolicyTests
         var context = new DefaultHttpContext();
         if (incomingHeaderValues is not null)
         {
-            context.Request.Headers.Add("org-id", incomingHeaderValues.Split(';'));
+            context.Request.Headers["org-id"] = incomingHeaderValues.Split(';');
         }
 
         var endpoint = CreateEndpoint("org-id", new[] { header1Value, header2Value }, headerValueMatchMode, isCaseSensitive);
 
+        var candidates = new CandidateSet(new[] { endpoint }, new RouteValueDictionary[1], new int[1]);
+        var sut = new HeaderMatcherPolicy();
+
+        await sut.ApplyAsync(context, candidates);
+
+        Assert.Equal(shouldMatch, candidates.IsValidCandidate(0));
+    }
+
+    [Theory]
+    [InlineData(HeaderMatchMode.Contains, true, false)]
+    [InlineData(HeaderMatchMode.Contains, false, false)]
+    [InlineData(HeaderMatchMode.NotContains, true, true)]
+    [InlineData(HeaderMatchMode.NotContains, false, true)]
+    [InlineData(HeaderMatchMode.HeaderPrefix, true, false)]
+    [InlineData(HeaderMatchMode.HeaderPrefix, false, false)]
+    [InlineData(HeaderMatchMode.ExactHeader, true, false)]
+    [InlineData(HeaderMatchMode.ExactHeader, false, false)]
+    [InlineData(HeaderMatchMode.NotExists, true, true)]
+    [InlineData(HeaderMatchMode.NotExists, false, true)]
+    [InlineData(HeaderMatchMode.Exists, true, false)]
+    [InlineData(HeaderMatchMode.Exists, false, false)]
+    public async Task ApplyAsync_MatchingScenarios_MissingHeader(
+        HeaderMatchMode headerValueMatchMode,
+        bool isCaseSensitive,
+        bool shouldMatch)
+    {
+        var context = new DefaultHttpContext();
+
+        var headerValues = new[] { "bar" };
+        if (headerValueMatchMode == HeaderMatchMode.Exists
+            || headerValueMatchMode == HeaderMatchMode.NotExists)
+        {
+            headerValues = null;
+        }
+
+        var endpoint = CreateEndpoint("foo", headerValues, headerValueMatchMode, isCaseSensitive);
         var candidates = new CandidateSet(new[] { endpoint }, new RouteValueDictionary[1], new int[1]);
         var sut = new HeaderMatcherPolicy();
 
@@ -484,7 +522,7 @@ public class HeaderMatcherPolicyTests
         bool shouldMatch)
     {
         var context = new DefaultHttpContext();
-        context.Request.Headers.Add(headerName, incomingHeaderValue);
+        context.Request.Headers[headerName] = incomingHeaderValue;
 
         var endpoint = CreateEndpoint(headerName, new[] { headerValue }, headerValueMatchMode, true);
         var candidates = new CandidateSet(new[] { endpoint }, new RouteValueDictionary[1], new int[1]);
@@ -511,11 +549,11 @@ public class HeaderMatcherPolicyTests
         var context = new DefaultHttpContext();
         if (sendHeader1)
         {
-            context.Request.Headers.Add("header1", "value1");
+            context.Request.Headers["header1"] = "value1";
         }
         if (sendHeader2)
         {
-            context.Request.Headers.Add("header2", "value2");
+            context.Request.Headers["header2"] = "value2";
         }
 
         var candidates = new CandidateSet(new[] { endpoint }, new RouteValueDictionary[1], new int[1]);

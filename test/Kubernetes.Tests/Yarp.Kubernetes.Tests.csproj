@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
     <OutputType>Library</OutputType>
     <NoWarn>$(NoWarn);CS8002</NoWarn>
     <RootNamespace>Yarp.Kubernetes</RootNamespace>
@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Kubernetes.Controller\Yarp.Kubernetes.Controller.csproj" />
+    <ProjectReference Include="..\Tests.Common\Yarp.Tests.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

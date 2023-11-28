@@ -111,7 +111,7 @@ Developers that want to integrate their custom transforms with the `Transforms` 
 
 Transforms can be added to routes programmatically by calling the [AddTransforms](xref:Microsoft.Extensions.DependencyInjection.ReverseProxyServiceCollectionExtensions.AddTransforms*) method.
 
-`AddTransforms` can be called from `Startup.ConfigureServices` to provide a callback for configuring transforms. This callback is invoked each time a route is built or rebuilt and allows the developer to inspect the [RouteConfig](xref:Yarp.ReverseProxy.Configuration.RouteConfig) information and conditionally add transforms for it.
+`AddTransforms` can be called after `AddReverseProxy` to provide a callback for configuring transforms. This callback is invoked each time a route is built or rebuilt and allows the developer to inspect the [RouteConfig](xref:Yarp.ReverseProxy.Configuration.RouteConfig) information and conditionally add transforms for it.
 
 The `AddTransforms` callback provides a [TransformBuilderContext](xref:Yarp.ReverseProxy.Transforms.Builder.TransformBuilderContext) where transforms can be added or configured. Most transforms provide `TransformBuilderContext` extension methods to make them easier to add. These are extensions documented below with the individual transform descriptions.
 
@@ -386,7 +386,7 @@ This will change PUT requests to POST.
 
 ### RequestHeadersCopy
 
-**Sets whether incomming request headers are copied to the outbound request**
+**Sets whether incoming request headers are copied to the outbound request**
 
 | Key | Value | Default | Required |
 |-----|-------|---------|----------|
@@ -457,6 +457,44 @@ MyHeader: MyValue
 ```
 
 This sets or appends the value for the named header. Set replaces any existing header. Append adds an additional header with the given value.
+Note: setting "" as a header value is not recommended and can cause an undefined behavior.
+
+### RequestHeaderRouteValue
+
+**Adds or replaces a header with a value from the route configuration**
+
+| Key | Value | Required |
+|-----|-------|----------|
+| RequestHeader | Name of a query string parameter | yes |
+| Set/Append | The name of a route value | yes |
+
+Config:
+```JSON
+{
+  "RequestHeaderRouteValue": "MyHeader",
+  "Set": "MyRouteKey"
+}
+```
+Code:
+```csharp
+routeConfig = routeConfig.WithTransformRequestHeaderRouteValue(headerName: "MyHeader", routeValueKey: "key", append: false);
+```
+```C#
+transformBuilderContext.AddRequestHeaderRouteValue(headerName: "MyHeader", routeValueKey: "key", append: false);
+```
+
+Example:
+
+| Step | Value               |
+|------|---------------------|
+| Route definition | `/api/{*remainder}` |
+| Request path | `/api/more/stuff`   |
+| Remainder value | `more/stuff`        |
+| RequestHeaderFromRoute | `foo`               |
+| Append | `remainder`         |
+| Result | `foo: more/stuff`   |
+
+This sets or appends the value for the named header with a value from the route configuration. Set replaces any existing header. Append adds an additional header with the given value.
 Note: setting "" as a header value is not recommended and can cause an undefined behavior.
 
 ### RequestHeaderRemove
@@ -558,7 +596,7 @@ routeConfig = routeConfig.WithTransformXForwarded(
   ForwardedTransformActions? xPrefix = null);
 ```
 ```C#
-transformBuilderContext.AddXForwarded(ForwardedTransformAction.Set);
+transformBuilderContext.AddXForwarded(ForwardedTransformActions.Set);
 transformBuilderContext.AddXForwardedFor(headerName: "X-Forwarded-For", ForwardedTransformActions.Append);
 transformBuilderContext.AddXForwardedHost(headerName: "X-Forwarded-Host", ForwardedTransformActions.Append);
 transformBuilderContext.AddXForwardedProto(headerName: "X-Forwarded-Proto", ForwardedTransformActions.Off);

@@ -38,6 +38,18 @@ public class HttpController : ControllerBase
     }
 
     /// <summary>
+    /// Returns a 409 response without consuming the request body.
+    /// This is used to exercise <c>Expect:100-continue</c> behavior.
+    /// </summary>
+    [HttpGet]
+    [Route("/api/slow")]
+    public async Task<IActionResult> Slow()
+    {
+        await Task.Delay(TimeSpan.FromSeconds(3));
+        return StatusCode(StatusCodes.Status200OK);
+    }
+
+    /// <summary>
     /// Returns a 200 response dumping all info from the incoming request.
     /// </summary>
     [HttpGet, HttpPost]

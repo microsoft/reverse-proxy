@@ -1,0 +1,18 @@
+[
+  {
+    "ClusterId": "external-service.default:443",
+    "LoadBalancingPolicy": null,
+    "SessionAffinity": null,
+    "HealthCheck": null,
+    "HttpClient": null,
+    "HttpRequest": null,
+    "Destinations": {
+      "http://external-service.example.com:443": {
+        "Address": "http://external-service.example.com:443",
+        "Health": null,
+        "Metadata": null
+      }
+    },
+    "Metadata": null
+  }
+]

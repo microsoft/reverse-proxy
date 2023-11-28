@@ -22,11 +22,11 @@ public class WorkQueueTests
         Assert.Equal(1, queue.Len());
         queue.Add("two");
         Assert.Equal(2, queue.Len());
-        var (item1, shutdown1) = await queue.GetAsync(Cancellation.Token).ConfigureAwait(false);
+        var (item1, shutdown1) = await queue.GetAsync(Cancellation.Token);
         Assert.Equal(1, queue.Len());
         queue.Done(item1);
         Assert.Equal(1, queue.Len());
-        var (item2, shutdown2) = await queue.GetAsync(Cancellation.Token).ConfigureAwait(false);
+        var (item2, shutdown2) = await queue.GetAsync(Cancellation.Token);
         Assert.Equal(0, queue.Len());
         queue.Done(item2);
         Assert.Equal(0, queue.Len());
@@ -61,7 +61,7 @@ public class WorkQueueTests
         var lenOriginal = queue.Len();
         queue.Add("one");
         var lenAfterAdd = queue.Len();
-        var (item1, _) = await queue.GetAsync(Cancellation.Token).ConfigureAwait(false);
+        var (item1, _) = await queue.GetAsync(Cancellation.Token);
         var lenAfterGet = queue.Len();
         queue.Add("one");
         var lenAfterAddAgain = queue.Len();
@@ -83,7 +83,7 @@ public class WorkQueueTests
         var lenOriginal = queue.Len();
         queue.Add("one");
         var lenAfterAdd = queue.Len();
-        var (item1, _) = await queue.GetAsync(Cancellation.Token).ConfigureAwait(false);
+        var (item1, _) = await queue.GetAsync(Cancellation.Token);
         var lenAfterGet = queue.Len();
         queue.Done(item1);
         var lenAfterDone = queue.Len();
@@ -108,13 +108,13 @@ public class WorkQueueTests
         var lenOriginal = queue.Len();
         queue.Add("one");
         var lenAfterAdd = queue.Len();
-        var (item1, _) = await queue.GetAsync(Cancellation.Token).ConfigureAwait(false);
+        var (item1, _) = await queue.GetAsync(Cancellation.Token);
         var lenAfterGet = queue.Len();
         queue.Add("one");
         var lenAfterAddAgain = queue.Len();
         queue.Done(item1);
         var lenAfterDone = queue.Len();
-        var (item2, _) = await queue.GetAsync(Cancellation.Token).ConfigureAwait(false);
+        var (item2, _) = await queue.GetAsync(Cancellation.Token);
         var lenAfterGetAgain = queue.Len();
 
         Assert.Equal("one", item1);
@@ -140,7 +140,7 @@ public class WorkQueueTests
         Assert.False(getTask.IsCompleted);
 
         queue.Add("one");
-        var (item1, _) = await getTask.ConfigureAwait(false);
+        var (item1, _) = await getTask;
         Assert.Equal(0, queue.Len());
         Assert.True(getTask.IsCompleted);
 
@@ -158,7 +158,7 @@ public class WorkQueueTests
         Assert.False(getTask.IsCompleted);
 
         queue.ShutDown();
-        var (item1, shutdown1) = await getTask.ConfigureAwait(false);
+        var (item1, shutdown1) = await getTask;
         Assert.Equal(0, queue.Len());
         Assert.True(getTask.IsCompleted);
 

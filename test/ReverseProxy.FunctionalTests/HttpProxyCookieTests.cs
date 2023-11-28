@@ -100,7 +100,7 @@ public abstract class HttpProxyCookieTests
             }
             else
             {
-                Assert.True(false, $"Unexpected HTTP protocol '{context.Request.Protocol}'");
+                Assert.Fail($"Unexpected HTTP protocol '{context.Request.Protocol}'");
             }
 
             await _next.Invoke(context);

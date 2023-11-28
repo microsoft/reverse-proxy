@@ -19,12 +19,12 @@ internal sealed class WebSocketsTelemetryStream : DelegatingStream
     public long MessagesRead => _readParser.MessageCount;
     public long MessagesWritten => _writeParser.MessageCount;
 
-    public WebSocketsTelemetryStream(IClock clock, Stream innerStream)
+    public WebSocketsTelemetryStream(TimeProvider timeProvider, Stream innerStream)
         : base(innerStream)
     {
-        EstablishedTime = clock.GetUtcNow().UtcDateTime;
-        _readParser = new WebSocketsParser(clock, isServer: true);
-        _writeParser = new WebSocketsParser(clock, isServer: false);
+        EstablishedTime = timeProvider.GetUtcNow().UtcDateTime;
+        _readParser = new WebSocketsParser(timeProvider, isServer: true);
+        _writeParser = new WebSocketsParser(timeProvider, isServer: false);
     }
 
     public WebSocketCloseReason GetCloseReason(HttpContext context)
@@ -58,6 +58,9 @@ internal sealed class WebSocketsTelemetryStream : DelegatingStream
             ForwarderError.UpgradeResponseCanceled => WebSocketCloseReason.ClientDisconnect,
             ForwarderError.UpgradeRequestDestination => WebSocketCloseReason.ServerDisconnect,
             ForwarderError.UpgradeResponseDestination => WebSocketCloseReason.ServerDisconnect,
+
+            // Activity Timeout
+            ForwarderError.UpgradeActivityTimeout => WebSocketCloseReason.ActivityTimeout,
 
             // Both sides gracefully closed the underlying connection without sending a WebSocket close,
             // or the server closed the connection and we canceled the client and suppressed the errors.

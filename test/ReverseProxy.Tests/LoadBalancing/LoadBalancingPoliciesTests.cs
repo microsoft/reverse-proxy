@@ -72,7 +72,7 @@ public class LoadBalancingPoliciesTests : TestAutoMockBase
     }
 
     [Fact]
-    public void PickDestination_PowerOfTwoChoices_Works()
+    public void PickDestination_PowerOfTwoChoices_SkipBusiestConnection()
     {
         var destinations = new[]
         {
@@ -82,9 +82,9 @@ public class LoadBalancingPoliciesTests : TestAutoMockBase
         };
         destinations[0].ConcurrentRequestCount++;
 
-        const int Iterations = 10;
+        const int Iterations = 100;
         var random = new Random(42);
-        RandomInstance.Sequence = Enumerable.Range(0, Iterations * 2).Select(_ => random.Next(destinations.Length)).ToArray();
+        RandomInstance.Sequence = Enumerable.Range(0, Iterations * Iterations).Select(_ => random.Next(destinations.Length)).ToArray();
 
         var context = new DefaultHttpContext();
         var loadBalancer = Create<PowerOfTwoChoicesLoadBalancingPolicy>();
@@ -92,11 +92,38 @@ public class LoadBalancingPoliciesTests : TestAutoMockBase
         for (var i = 0; i < Iterations; i++)
         {
             var result = loadBalancer.PickDestination(context, cluster: null, availableDestinations: destinations);
-            var first = destinations[RandomInstance.Sequence[i * 2]];
-            var second = destinations[RandomInstance.Sequence[i * 2 + 1]];
-            var expected = first.ConcurrentRequestCount <= second.ConcurrentRequestCount ? first : second;
-            Assert.Same(expected, result);
+
+            var groupByLoad = destinations.GroupBy(d => d.ConcurrentRequestCount);
+            var busiestGroup = groupByLoad.OrderByDescending(g => g.Key).First();
+            if (busiestGroup.Count() == 1)
+            {
+                Assert.True(result.ConcurrentRequestCount < busiestGroup.Key);
+            }
+
             result.ConcurrentRequestCount++;
+        }
+    }
+
+    [Fact]
+    public void PickDestination_PowerOfTwoChoices_LeastLoaded()
+    {
+        var destinations = new[]
+        {
+            new DestinationState("d1") {ConcurrentRequestCount = 1000},
+            new DestinationState("d2")
+        };
+
+        const int Iterations = 100;
+        var random = new Random(42);
+        RandomInstance.Sequence = Enumerable.Range(0, Iterations * Iterations).Select(_ => random.Next(destinations.Length)).ToArray();
+
+        var context = new DefaultHttpContext();
+        var loadBalancer = Create<PowerOfTwoChoicesLoadBalancingPolicy>();
+
+        for (var i = 0; i < Iterations; i++)
+        {
+            var result = loadBalancer.PickDestination(context, cluster: null, availableDestinations: destinations);
+            Assert.Same(destinations[1], result);
         }
     }
 

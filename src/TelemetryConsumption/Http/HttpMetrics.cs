@@ -61,4 +61,16 @@ public sealed class HttpMetrics
     /// Average time spent on queue for HTTP 2.0 requests that hit the MAX_CONCURRENT_STREAMS limit on the connection in the last metrics interval.
     /// </summary>
     public TimeSpan Http20RequestsQueueDuration { get; internal set; }
+
+#if NET8_0_OR_GREATER
+    /// <summary>
+    /// Number of currently open HTTP 3.0 connections.
+    /// </summary>
+    public long CurrentHttp30Connections { get; internal set; }
+
+    /// <summary>
+    /// Average time spent on queue for HTTP 3.0 requests in the last metrics interval.
+    /// </summary>
+    public TimeSpan Http30RequestsQueueDuration { get; internal set; }
+#endif
 }

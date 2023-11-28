@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using Yarp.ReverseProxy.Configuration;
 
@@ -18,6 +19,8 @@ internal sealed class YarpIngressOptions
     public HttpClientConfig HttpClientConfig { get; set; }
     public string LoadBalancingPolicy { get; set; }
     public string CorsPolicy { get; set; }
+    public string TimeoutPolicy { get; set; }
+    public TimeSpan? Timeout { get; set; }
     public HealthCheckConfig HealthCheck { get; set; }
     public Dictionary<string, string> RouteMetadata { get; set; }
     public List<RouteHeader> RouteHeaders { get; set; }

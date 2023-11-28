@@ -10,17 +10,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Sdk;
-using Yarp.Kubernetes.Tests.Fakes;
+using Yarp.Tests.Common;
 
 namespace Yarp.Kubernetes.Controller.Rate.Tests;
 
 public class LimiterTests
 {
+    private readonly DateTimeOffset _startTime = new DateTimeOffset(2020, 10, 14, 12, 34, 56, TimeSpan.Zero);
+
     [Fact]
     public void FirstTokenIsAvailable()
     {
-        var clock = new FakeSystemClock();
-        var limiter = new Limiter(new Limit(10), 1, clock);
+        var timeProvider = new TestTimeProvider(_startTime);
+        var limiter = new Limiter(new Limit(10), 1, timeProvider);
 
         var allowed = limiter.Allow();
 
@@ -33,8 +35,8 @@ public class LimiterTests
     [InlineData(300)]
     public void AsManyAsBurstTokensAreAvailableRightAway(int burst)
     {
-        var clock = new FakeSystemClock();
-        var limiter = new Limiter(new Limit(10), burst, clock);
+        var timeProvider = new TestTimeProvider(_startTime);
+        var limiter = new Limiter(new Limit(10), burst, timeProvider);
 
         var allowed = new List<bool>();
         foreach (var index in Enumerable.Range(1, burst))
@@ -50,17 +52,17 @@ public class LimiterTests
     [Fact]
     public void TokensBecomeAvailableAtLimitPerSecondRate()
     {
-        var clock = new FakeSystemClock();
-        var limiter = new Limiter(new Limit(10), 50, clock);
+        var timeProvider = new TestTimeProvider(_startTime);
+        var limiter = new Limiter(new Limit(10), 50, timeProvider);
 
-        var initiallyAllowed = limiter.AllowN(clock.UtcNow, 50);
+        var initiallyAllowed = limiter.AllowN(timeProvider.GetUtcNow(), 50);
         var thenNotAllowed1 = limiter.Allow();
 
-        clock.Advance(TimeSpan.FromMilliseconds(100));
+        timeProvider.Advance(TimeSpan.FromMilliseconds(100));
         var oneTokenAvailable = limiter.Allow();
         var thenNotAllowed2 = limiter.Allow();
 
-        clock.Advance(TimeSpan.FromMilliseconds(200));
+        timeProvider.Advance(TimeSpan.FromMilliseconds(200));
         var twoTokensAvailable1 = limiter.Allow();
         var twoTokensAvailable2 = limiter.Allow();
         var thenNotAllowed3 = limiter.Allow();
@@ -77,19 +79,19 @@ public class LimiterTests
     [Fact]
     public void ReserveTellsYouHowLongToWait()
     {
-        var clock = new FakeSystemClock();
-        var limiter = new Limiter(new Limit(10), 50, clock);
+        var timeProvider = new TestTimeProvider(_startTime);
+        var limiter = new Limiter(new Limit(10), 50, timeProvider);
 
-        var initiallyAllowed = limiter.AllowN(clock.UtcNow, 50);
+        var initiallyAllowed = limiter.AllowN(timeProvider.GetUtcNow(), 50);
         var thenNotAllowed1 = limiter.Allow();
 
         var reserveOne = limiter.Reserve();
         var delayOne = reserveOne.Delay();
 
-        var reserveTwoMore = limiter.Reserve(clock.UtcNow, 2);
+        var reserveTwoMore = limiter.Reserve(timeProvider.GetUtcNow(), 2);
         var delayTwoMore = reserveTwoMore.Delay();
 
-        clock.Advance(TimeSpan.FromMilliseconds(450));
+        timeProvider.Advance(TimeSpan.FromMilliseconds(450));
 
         var reserveAlreadyAvailable = limiter.Reserve();
         var delayAlreadyAvailable = reserveAlreadyAvailable.Delay();
@@ -120,31 +122,31 @@ public class LimiterTests
             var task = limiter.WaitAsync(cancellation.Token);
             if (!task.IsCompleted)
             {
-                await task.ConfigureAwait(false);
+                await task;
                 break;
             }
         }
 
         var delayOne = new Stopwatch();
         delayOne.Start();
-        await limiter.WaitAsync(cancellation.Token).ConfigureAwait(false);
+        await limiter.WaitAsync(cancellation.Token);
         delayOne.Stop();
 
         var delayTwoMore = new Stopwatch();
         delayTwoMore.Start();
-        await limiter.WaitAsync(2, cancellation.Token).ConfigureAwait(false);
+        await limiter.WaitAsync(2, cancellation.Token);
         delayTwoMore.Stop();
 
-        await Task.Delay(TimeSpan.FromMilliseconds(150)).ConfigureAwait(false);
+        await Task.Delay(TimeSpan.FromMilliseconds(150));
 
         var delayAlreadyAvailable = new Stopwatch();
         delayAlreadyAvailable.Start();
-        await limiter.WaitAsync(cancellation.Token).ConfigureAwait(false);
+        await limiter.WaitAsync(cancellation.Token);
         delayAlreadyAvailable.Stop();
 
         var delayHalfAvailable = new Stopwatch();
         delayHalfAvailable.Start();
-        await limiter.WaitAsync(cancellation.Token).ConfigureAwait(false);
+        await limiter.WaitAsync(cancellation.Token);
         delayHalfAvailable.Stop();
 
         Assert.InRange(delayOne.Elapsed, TimeSpan.FromMilliseconds(75), TimeSpan.FromMilliseconds(125));
@@ -169,7 +171,7 @@ public class LimiterTests
                     var task = limiter.WaitAsync(cancellation.Token);
                     if (!task.IsCompleted)
                     {
-                        await task.ConfigureAwait(false);
+                        await task;
                         break;
                     }
                 }
@@ -190,24 +192,24 @@ public class LimiterTests
                     limiter.WaitAsync(cancellation.Token),
                 };
 
-                var taskOne = await Task.WhenAny(waits).ConfigureAwait(false);
-                await taskOne.ConfigureAwait(false);
+                var taskOne = await Task.WhenAny(waits);
+                await taskOne;
                 delayOne.Stop();
                 waits.Remove(taskOne);
 
-                var taskTwo = await Task.WhenAny(waits).ConfigureAwait(false);
-                await taskTwo.ConfigureAwait(false);
+                var taskTwo = await Task.WhenAny(waits);
+                await taskTwo;
                 delayTwo.Stop();
                 waits.Remove(taskTwo);
 
-                var taskThree = await Task.WhenAny(waits).ConfigureAwait(false);
-                await taskThree.ConfigureAwait(false);
+                var taskThree = await Task.WhenAny(waits);
+                await taskThree;
                 delayThree.Stop();
                 waits.Remove(taskThree);
 
                 Assert.InRange(delayOne.Elapsed, TimeSpan.FromMilliseconds(75), TimeSpan.FromMilliseconds(125));
                 Assert.InRange(delayTwo.Elapsed, TimeSpan.FromMilliseconds(175), TimeSpan.FromMilliseconds(225));
                 Assert.InRange(delayThree.Elapsed, TimeSpan.FromMilliseconds(275), TimeSpan.FromMilliseconds(325));
-            }).ConfigureAwait(false);
+            });
     }
 }

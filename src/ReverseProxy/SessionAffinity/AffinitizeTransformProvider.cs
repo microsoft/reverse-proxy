@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using Yarp.ReverseProxy.Transforms.Builder;
 using Yarp.ReverseProxy.Utilities;
@@ -10,7 +11,7 @@ namespace Yarp.ReverseProxy.SessionAffinity;
 
 internal sealed class AffinitizeTransformProvider : ITransformProvider
 {
-    private readonly IDictionary<string, ISessionAffinityPolicy> _sessionAffinityPolicies;
+    private readonly FrozenDictionary<string, ISessionAffinityPolicy> _sessionAffinityPolicies;
 
     public AffinitizeTransformProvider(IEnumerable<ISessionAffinityPolicy> sessionAffinityPolicies)
     {

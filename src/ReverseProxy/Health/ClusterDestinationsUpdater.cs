@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -13,7 +14,7 @@ namespace Yarp.ReverseProxy.Health;
 internal sealed class ClusterDestinationsUpdater : IClusterDestinationsUpdater
 {
     private readonly ConditionalWeakTable<ClusterState, SemaphoreSlim> _clusterLocks = new ConditionalWeakTable<ClusterState, SemaphoreSlim>();
-    private readonly IDictionary<string, IAvailableDestinationsPolicy> _destinationPolicies;
+    private readonly FrozenDictionary<string, IAvailableDestinationsPolicy> _destinationPolicies;
 
     public ClusterDestinationsUpdater(IEnumerable<IAvailableDestinationsPolicy> destinationPolicies)
     {
@@ -73,7 +74,7 @@ internal sealed class ClusterDestinationsUpdater : IClusterDestinationsUpdater
                 var config = cluster.Model.Config;
                 var destinationPolicy = _destinationPolicies.GetRequiredServiceById(
                     config.HealthCheck?.AvailableDestinationsPolicy,
-                    HealthCheckConstants.AvailableDestinations.HealthyAndUnknown);
+                    HealthCheckConstants.AvailableDestinations.HealthyOrPanic);
 
                 var availableDestinations = destinationPolicy.GetAvailalableDestinations(config, allDestinations);
 
@@ -85,7 +86,7 @@ internal sealed class ClusterDestinationsUpdater : IClusterDestinationsUpdater
                 // The first thread (T1) finished a rebuild and left the lock while still holding the semaphore. The second thread (T2)
                 // waiting on the lock gets awaken, proceeds under the lock and begins the next rebuild. If at this exact moment
                 // the third thread (T3) enters this method and tries to acquire the semaphore, it will be debounced because
-                // the semaphore's count is still 0. However, T2 could have already made some progress and didnt' observe updates made
+                // the semaphore's count is still 0. However, T2 could have already made some progress and didn't observe updates made
                 // by T3.
                 // By releasing the semaphore under the lock, we make sure that in the above situation T3 will proceed till the lock and
                 // its updates will be observed anyways.

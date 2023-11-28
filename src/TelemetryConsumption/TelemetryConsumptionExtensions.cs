@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Yarp.Telemetry.Consumption;
 
@@ -86,7 +87,7 @@ public static class TelemetryConsumptionExtensions
     /// <summary>
     /// Registers a <typeparamref name="TConsumer"/> singleton for every I*TelemetryConsumer interface it implements.
     /// </summary>
-    public static IServiceCollection AddTelemetryConsumer<TConsumer>(this IServiceCollection services)
+    public static IServiceCollection AddTelemetryConsumer<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TConsumer>(this IServiceCollection services)
         where TConsumer : class
     {
         var implementsAny = false;
@@ -201,7 +202,7 @@ public static class TelemetryConsumptionExtensions
     /// <summary>
     /// Registers a consumer singleton for every IMetricsConsumer interface it implements.
     /// </summary>
-    public static IServiceCollection AddMetricsConsumer<TConsumer>(this IServiceCollection services)
+    public static IServiceCollection AddMetricsConsumer<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TConsumer>(this IServiceCollection services)
         where TConsumer : class
     {
         var implementsAny = false;

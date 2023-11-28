@@ -102,6 +102,12 @@ public class ForwarderHttpClientFactory : IForwarderHttpClientFactory
             handler.RequestHeaderEncodingSelector = (_, _) => encoding;
         }
 
+        if (newConfig.ResponseHeaderEncoding is not null)
+        {
+            var encoding = Encoding.GetEncoding(newConfig.ResponseHeaderEncoding);
+            handler.ResponseHeaderEncodingSelector = (_, _) => encoding;
+        }
+
         var webProxy = TryCreateWebProxy(newConfig.WebProxy);
         if (webProxy is not null)
         {

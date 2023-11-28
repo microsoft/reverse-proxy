@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
@@ -21,7 +22,8 @@ public class PathRouteValuesTransform : RequestTransform
     /// </summary>
     /// <param name="pattern">The pattern used to create the new request path.</param>
     /// <param name="binderFactory">The factory used to bind route parameters to the given path pattern.</param>
-    public PathRouteValuesTransform(string pattern, TemplateBinderFactory binderFactory)
+    public PathRouteValuesTransform(
+        [StringSyntax("Route")] string pattern, TemplateBinderFactory binderFactory)
     {
         _ = pattern ?? throw new ArgumentNullException(nameof(pattern));
         _binderFactory = binderFactory ?? throw new ArgumentNullException(nameof(binderFactory));

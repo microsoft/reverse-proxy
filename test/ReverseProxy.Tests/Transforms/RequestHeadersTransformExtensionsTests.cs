@@ -55,6 +55,19 @@ public class RequestHeadersTransformExtensionsTests : TransformExtentionsTestsBa
     }
 
     [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void WithTransformRequestHeaderRouteValue(bool append)
+    {
+        var routeConfig = new RouteConfig();
+        routeConfig = routeConfig.WithTransformRequestHeaderRouteValue("key", "value", append);
+
+        var builderContext = ValidateAndBuild(routeConfig, _factory);
+
+        ValidateHeaderRouteParameter(append, builderContext);
+    }
+
+    [Theory]
     [InlineData(true)]
     [InlineData(false)]
     public void AddRequestHeader(bool append)
@@ -63,6 +76,17 @@ public class RequestHeadersTransformExtensionsTests : TransformExtentionsTestsBa
         builderContext.AddRequestHeader("name", "value", append);
 
         ValidateRequestHeader(append, builderContext);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void AddRequestHeaderRouteValue(bool append)
+    {
+        var builderContext = CreateBuilderContext();
+        builderContext.AddRequestHeaderRouteValue("key", "value", append);
+
+        ValidateHeaderRouteParameter(append, builderContext);
     }
 
     [Fact]
@@ -114,5 +138,15 @@ public class RequestHeadersTransformExtensionsTests : TransformExtentionsTestsBa
         var requestHeaderValueTransform = Assert.Single(builderContext.RequestTransforms.OfType<RequestHeaderValueTransform>().Where(x => x.HeaderName == "name"));
         Assert.Equal("value", requestHeaderValueTransform.Value);
         Assert.Equal(append, requestHeaderValueTransform.Append);
+    }
+
+    private static void ValidateHeaderRouteParameter(bool append, TransformBuilderContext builderContext)
+    {
+        var requestTransform = Assert.Single(builderContext.RequestTransforms);
+        var requestHeaderFromRouteTransform = Assert.IsType<RequestHeaderRouteValueTransform>(requestTransform);
+        Assert.Equal("key", requestHeaderFromRouteTransform.HeaderName);
+        Assert.Equal("value", requestHeaderFromRouteTransform.RouteValueKey);
+        var expectedMode = append;
+        Assert.Equal(expectedMode, requestHeaderFromRouteTransform.Append);
     }
 }

@@ -150,6 +150,10 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
 #if NET7_0_OR_GREATER
             RateLimiterPolicy = section[nameof(RouteConfig.RateLimiterPolicy)],
 #endif
+#if NET8_0_OR_GREATER
+            TimeoutPolicy = section[nameof(RouteConfig.TimeoutPolicy)],
+            Timeout = section.ReadTimeSpan(nameof(RouteConfig.Timeout)),
+#endif
             CorsPolicy = section[nameof(RouteConfig.CorsPolicy)],
             Metadata = section.GetSection(nameof(RouteConfig.Metadata)).ReadStringDictionary(),
             Transforms = CreateTransforms(section.GetSection(nameof(RouteConfig.Transforms))),
@@ -350,6 +354,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             MaxConnectionsPerServer = section.ReadInt32(nameof(HttpClientConfig.MaxConnectionsPerServer)),
             EnableMultipleHttp2Connections = section.ReadBool(nameof(HttpClientConfig.EnableMultipleHttp2Connections)),
             RequestHeaderEncoding = section[nameof(HttpClientConfig.RequestHeaderEncoding)],
+            ResponseHeaderEncoding = section[nameof(HttpClientConfig.ResponseHeaderEncoding)],
             WebProxy = webProxy
         };
     }
@@ -377,6 +382,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             Address = section[nameof(DestinationConfig.Address)]!,
             Health = section[nameof(DestinationConfig.Health)],
             Metadata = section.GetSection(nameof(DestinationConfig.Metadata)).ReadStringDictionary(),
+            Host = section[nameof(DestinationConfig.Host)]
         };
     }
 

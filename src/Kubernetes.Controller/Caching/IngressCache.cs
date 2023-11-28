@@ -151,14 +151,14 @@ public class IngressCache : ICache
         {
             foreach (var ns in _namespaceCaches)
             {
-                ingresses.AddRange(ns.Value.GetIngresses());
+                ingresses.AddRange(ns.Value.GetIngresses().Where(IsYarpIngress));
             }
         }
 
         return ingresses;
     }
 
-    public bool IsYarpIngress(IngressData ingress)
+    private bool IsYarpIngress(IngressData ingress)
     {
         if (ingress.Spec.IngressClassName is null)
         {

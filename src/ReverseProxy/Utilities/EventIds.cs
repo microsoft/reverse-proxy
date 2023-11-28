@@ -67,4 +67,5 @@ internal static class EventIds
     public static readonly EventId RetryingWebSocketDowngradeNoConnect = new EventId(61, "RetryingWebSocketDowngradeNoConnect");
     public static readonly EventId RetryingWebSocketDowngradeNoHttp2 = new EventId(62, "RetryingWebSocketDowngradeNoHttp2");
     public static readonly EventId InvalidSecWebSocketKeyHeader = new EventId(63, "InvalidSecWebSocketKeyHeader");
+    public static readonly EventId TimeoutNotApplied = new(64, nameof(TimeoutNotApplied));
 }

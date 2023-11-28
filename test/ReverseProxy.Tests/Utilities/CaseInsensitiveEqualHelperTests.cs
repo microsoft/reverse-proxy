@@ -20,9 +20,9 @@ public class CaseInsensitiveEqualHelperTests
     [Fact]
     public void Equals_Empty_List_Returns_True()
     {
-        var list1 = new string[] { };
+        var list1 = System.Array.Empty<string>();
 
-        var list2 = new string[] { };
+        var list2 = System.Array.Empty<string>();
 
         var equals = CaseInsensitiveEqualHelper.Equals(list1, list2);
 

@@ -8,27 +8,23 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
-using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Utilities;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System.Xml.Linq;
-using Microsoft.Extensions.Logging.Abstractions;
+using Yarp.Tests.Common;
 
 namespace Yarp.ReverseProxy.Forwarder.Tests;
 
 public class StreamCopyHttpContentTests
 {
-    private static StreamCopyHttpContent CreateContent(HttpContext context = null, bool isStreamingRequest = false, IClock clock = null, ActivityCancellationTokenSource contentCancellation = null)
+    private static StreamCopyHttpContent CreateContent(HttpContext context = null, bool isStreamingRequest = false, TimeProvider timeProvider = null, ActivityCancellationTokenSource contentCancellation = null)
     {
         context ??= new DefaultHttpContext();
-        clock ??= new Clock();
-
+        timeProvider ??= TimeProvider.System;
         contentCancellation ??= ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
-
-        return new StreamCopyHttpContent(context, isStreamingRequest, clock, NullLogger.Instance, contentCancellation);
+        return new StreamCopyHttpContent(context, isStreamingRequest, timeProvider, NullLogger.Instance, contentCancellation);
     }
 
     [Fact]

@@ -11,7 +11,6 @@ using Xunit;
 using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Health.Tests;
 
@@ -24,24 +23,24 @@ public class DestinationHealthUpdaterTests
         destination.Health.Active = DestinationHealth.Healthy;
         destination.Health.Passive = DestinationHealth.Healthy;
         var cluster = CreateCluster(passive: true, active: false, destination);
-        using var timerFactory = new TestTimerFactory();
-        var updater = new DestinationHealthUpdater(timerFactory, GetClusterUpdater(), new Mock<ILogger<DestinationHealthUpdater>>().Object);
+        var timeProvider = new TestTimeProvider();
+        var updater = new DestinationHealthUpdater(timeProvider, GetClusterUpdater(), new Mock<ILogger<DestinationHealthUpdater>>().Object);
 
         await updater.SetPassiveAsync(cluster, destination, DestinationHealth.Unhealthy, TimeSpan.FromSeconds(2));
 
-        timerFactory.VerifyTimer(0, 2000);
+        timeProvider.VerifyTimer(0, TimeSpan.FromSeconds(2));
         Assert.Empty(cluster.DestinationsState.AvailableDestinations);
         Assert.Equal(DestinationHealth.Healthy, destination.Health.Active);
         Assert.Equal(DestinationHealth.Unhealthy, destination.Health.Passive);
 
-        timerFactory.FireAll();
+        timeProvider.FireAllTimers();
         GC.KeepAlive(updater); // The timer does not keep a strong reference to the scheduler
 
         Assert.Equal(DestinationHealth.Healthy, destination.Health.Active);
         Assert.Equal(DestinationHealth.Unknown, destination.Health.Passive);
-        Assert.Equal(1, cluster.DestinationsState.AvailableDestinations.Count);
+        Assert.Single(cluster.DestinationsState.AvailableDestinations);
         Assert.Same(destination, cluster.DestinationsState.AvailableDestinations[0]);
-        timerFactory.AssertTimerDisposed(0);
+        timeProvider.AssertTimerDisposed(0);
     }
 
     [Fact]
@@ -51,15 +50,15 @@ public class DestinationHealthUpdaterTests
         destination.Health.Active = DestinationHealth.Healthy;
         destination.Health.Passive = DestinationHealth.Unhealthy;
         var cluster = CreateCluster(passive: true, active: false, destination);
-        using var timerFactory = new TestTimerFactory();
-        var updater = new DestinationHealthUpdater(timerFactory, GetClusterUpdater(), new Mock<ILogger<DestinationHealthUpdater>>().Object);
+        var timeProvider = new TestTimeProvider();
+        var updater = new DestinationHealthUpdater(timeProvider, GetClusterUpdater(), new Mock<ILogger<DestinationHealthUpdater>>().Object);
 
         await updater.SetPassiveAsync(cluster, destination, DestinationHealth.Healthy, TimeSpan.FromSeconds(2));
 
-        Assert.Equal(0, timerFactory.Count);
+        Assert.Equal(0, timeProvider.TimerCount);
         Assert.Equal(DestinationHealth.Healthy, destination.Health.Active);
         Assert.Equal(DestinationHealth.Healthy, destination.Health.Passive);
-        Assert.Equal(1, cluster.DestinationsState.AvailableDestinations.Count);
+        Assert.Single(cluster.DestinationsState.AvailableDestinations);
         Assert.Same(destination, cluster.DestinationsState.AvailableDestinations[0]);
     }
 
@@ -73,12 +72,12 @@ public class DestinationHealthUpdaterTests
         destination.Health.Active = DestinationHealth.Healthy;
         destination.Health.Passive = health;
         var cluster = CreateCluster(passive: true, active: false, destination);
-        using var timerFactory = new TestTimerFactory();
-        var updater = new DestinationHealthUpdater(timerFactory, GetClusterUpdater(), new Mock<ILogger<DestinationHealthUpdater>>().Object);
+        var timeProvider = new TestTimeProvider();
+        var updater = new DestinationHealthUpdater(timeProvider, GetClusterUpdater(), new Mock<ILogger<DestinationHealthUpdater>>().Object);
 
         await updater.SetPassiveAsync(cluster, destination, health, TimeSpan.FromSeconds(2));
 
-        Assert.Equal(0, timerFactory.Count);
+        Assert.Equal(0, timeProvider.TimerCount);
         Assert.Equal(DestinationHealth.Healthy, destination.Health.Active);
         Assert.Equal(health, destination.Health.Passive);
     }
@@ -99,7 +98,7 @@ public class DestinationHealthUpdaterTests
         destination3.Health.Active = DestinationHealth.Unhealthy;
         destination3.Health.Passive = DestinationHealth.Healthy;
         var cluster = CreateCluster(passive: false, active: true, destination0, destination1, destination2, destination3);
-        var updater = new DestinationHealthUpdater(new Mock<ITimerFactory>().Object, GetClusterUpdater(), new Mock<ILogger<DestinationHealthUpdater>>().Object);
+        var updater = new DestinationHealthUpdater(new Mock<TimeProvider>().Object, GetClusterUpdater(), new Mock<ILogger<DestinationHealthUpdater>>().Object);
 
         var newHealthStates = new[] {
             new NewActiveDestinationHealth(destination0, DestinationHealth.Unhealthy), new NewActiveDestinationHealth(destination1, DestinationHealth.Healthy),

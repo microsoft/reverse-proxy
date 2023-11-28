@@ -46,17 +46,17 @@ internal sealed class StreamCopyHttpContent : HttpContent
     // HttpClient's machinery keeps an internal buffer that doesn't get flushed to the socket on every write.
     // Some protocols (e.g. gRPC) may rely on specific bytes being sent, and HttpClient's buffering would prevent it.
     private bool _isStreamingRequest;
-    private readonly IClock _clock;
+    private readonly TimeProvider _timeProvider;
     private readonly ILogger _logger;
     private readonly ActivityCancellationTokenSource _activityToken;
     private readonly TaskCompletionSource<(StreamCopyResult, Exception?)> _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private int _started;
 
-    public StreamCopyHttpContent(HttpContext context, bool isStreamingRequest, IClock clock, ILogger logger, ActivityCancellationTokenSource activityToken)
+    public StreamCopyHttpContent(HttpContext context, bool isStreamingRequest, TimeProvider timeProvider, ILogger logger, ActivityCancellationTokenSource activityToken)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _isStreamingRequest = isStreamingRequest;
-        _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+        _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
         _logger = logger;
         _activityToken = activityToken;
     }
@@ -191,7 +191,7 @@ internal sealed class StreamCopyHttpContent : HttpContent
             // Future: It may be wise to set this to true for *all* http2 incoming requests,
             // but for now, out of an abundance of caution, we only do it for requests that look like gRPC.
             var (result, error) = await StreamCopier.CopyAsync(isRequest: true, _context.Request.Body, stream,
-                Headers.ContentLength ?? StreamCopier.UnknownLength, _clock, _activityToken, _isStreamingRequest, cancellationToken);
+                Headers.ContentLength ?? StreamCopier.UnknownLength, _timeProvider, _activityToken, _isStreamingRequest, cancellationToken);
             _tcs.TrySetResult((result, error));
 
             // Check for errors that weren't the result of the destination failing.

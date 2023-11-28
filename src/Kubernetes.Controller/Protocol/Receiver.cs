@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -13,6 +15,7 @@ using Microsoft.Extensions.Options;
 using Yarp.Kubernetes.Controller.Configuration;
 using Yarp.Kubernetes.Controller.Hosting;
 using Yarp.Kubernetes.Controller.Rate;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Yarp.Kubernetes.Protocol;
 
@@ -35,6 +38,11 @@ public class Receiver : BackgroundHostedService
 
         _options = options.Value;
 
+        _options.Client ??= new HttpMessageInvoker(new SocketsHttpHandler
+        {
+            ConnectTimeout = TimeSpan.FromSeconds(15),
+        });
+
         // two requests per second after third failure
         _limiter = new Limiter(new Limit(2), 3);
         _proxyConfigProvider = proxyConfigProvider;
@@ -42,8 +50,6 @@ public class Receiver : BackgroundHostedService
 
     public override async Task RunAsync(CancellationToken cancellationToken)
     {
-        using var client = new HttpClient();
-
         while (!cancellationToken.IsCancellationRequested)
         {
             await _limiter.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -53,7 +59,9 @@ public class Receiver : BackgroundHostedService
 
             try
             {
-                using var stream = await client.GetStreamAsync(_options.ControllerUrl, cancellationToken).ConfigureAwait(false);
+                var requestMessage = new HttpRequestMessage(HttpMethod.Get, _options.ControllerUrl);
+                var responseMessage = await _options.Client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
+                using var stream = await responseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
                 using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
                 using var cancellation = cancellationToken.Register(stream.Close);
                 while (true)

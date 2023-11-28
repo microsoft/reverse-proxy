@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Net.Http.Headers;
 using Xunit;
 using Yarp.ReverseProxy.Transforms;
+using Yarp.ReverseProxy.Transforms.Builder;
 using Yarp.ReverseProxy.Transforms.Builder.Tests;
 using Yarp.Tests.Common;
 
@@ -39,7 +40,6 @@ public class HttpTransformerTests
         HeaderNames.UpgradeInsecureRequests,
         HeaderNames.TE,
         HeaderNames.AltSvc,
-        HeaderNames.StrictTransportSecurity,
     };
 
     [Fact]
@@ -117,6 +117,28 @@ public class HttpTransformerTests
         Assert.False(proxyRequest.Headers.TryGetValues(HeaderNames.TransferEncoding, out var _));
     }
 
+    [Fact]
+    public async Task TransformRequestAsync_SetDestinationPrefix()
+    {
+        const string updatedDestinationPrefix = "https://contoso.com";
+        var transformer = TransformBuilderTests.CreateTransformBuilder().CreateInternal(context =>
+        {
+            context.AddRequestTransform(transformContext =>
+            {
+                transformContext.DestinationPrefix = updatedDestinationPrefix;
+                return ValueTask.CompletedTask;
+            });
+        });
+        var httpContext = new DefaultHttpContext();
+        var proxyRequest = new HttpRequestMessage(HttpMethod.Get, requestUri: (string)null)
+        {
+            Content = new ByteArrayContent(Array.Empty<byte>()),
+        };
+
+        await transformer.TransformRequestAsync(httpContext, proxyRequest, "https://localhost", CancellationToken.None);
+        Assert.Equal(new Uri(updatedDestinationPrefix), proxyRequest.RequestUri);
+    }
+
     [Theory]
     [InlineData(HttpStatusCode.Continue)]
     [InlineData(HttpStatusCode.SwitchingProtocols)]
@@ -129,7 +151,7 @@ public class HttpTransformerTests
 
         var proxyResponse = new HttpResponseMessage(statusCode)
         {
-            Content = new ByteArrayContent(new byte[0])
+            Content = new ByteArrayContent(Array.Empty<byte>())
         };
 
         Assert.Equal(0, proxyResponse.Content.Headers.ContentLength);
@@ -160,6 +182,38 @@ public class HttpTransformerTests
         foreach (var header in RestrictedHeaders)
         {
             Assert.False(httpContext.Response.Headers.ContainsKey(header));
+        }
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task TransformResponseAsync_StrictTransportSecurity_CopiedIfNotPresent(bool alreadyPresent)
+    {
+        var transformer = HttpTransformer.Default;
+        var httpContext = new DefaultHttpContext();
+        var proxyResponse = new HttpResponseMessage()
+        {
+            Content = new ByteArrayContent(Array.Empty<byte>())
+        };
+
+        if (alreadyPresent)
+        {
+            httpContext.Response.Headers.StrictTransportSecurity = "max-age=31536000; includeSubDomains";
+        }
+
+        Assert.True(proxyResponse.Headers.TryAddWithoutValidation(HeaderNames.StrictTransportSecurity, "max-age=31000; preload"));
+
+        await transformer.TransformResponseAsync(httpContext, proxyResponse, CancellationToken.None);
+
+        var result = httpContext.Response.Headers.StrictTransportSecurity;
+        if (alreadyPresent)
+        {
+            Assert.Equal("max-age=31536000; includeSubDomains", result);
+        }
+        else
+        {
+            Assert.Equal("max-age=31000; preload", result);
         }
     }
 

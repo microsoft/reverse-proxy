@@ -20,6 +20,7 @@ using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Health;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Routing;
+using Yarp.ReverseProxy.ServiceDiscovery;
 using Yarp.ReverseProxy.Transforms.Builder;
 
 namespace Yarp.ReverseProxy.Management;
@@ -49,6 +50,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
     private readonly List<Action<EndpointBuilder>> _conventions;
     private readonly IActiveHealthCheckMonitor _activeHealthCheckMonitor;
     private readonly IClusterDestinationsUpdater _clusterDestinationsUpdater;
+    private readonly IDestinationResolver _destinationResolver;
     private readonly IConfigChangeListener[] _configChangeListeners;
     private List<Endpoint>? _endpoints;
     private CancellationTokenSource _endpointsChangeSource = new();
@@ -67,7 +69,8 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         IForwarderHttpClientFactory httpClientFactory,
         IActiveHealthCheckMonitor activeHealthCheckMonitor,
         IClusterDestinationsUpdater clusterDestinationsUpdater,
-        IEnumerable<IConfigChangeListener> configChangeListeners)
+        IEnumerable<IConfigChangeListener> configChangeListeners,
+        IDestinationResolver destinationResolver)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _providers = providers?.ToArray() ?? throw new ArgumentNullException(nameof(providers));
@@ -80,7 +83,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         _activeHealthCheckMonitor = activeHealthCheckMonitor ?? throw new ArgumentNullException(nameof(activeHealthCheckMonitor));
         _clusterDestinationsUpdater = clusterDestinationsUpdater ?? throw new ArgumentNullException(nameof(clusterDestinationsUpdater));
-
+        _destinationResolver = destinationResolver ?? throw new ArgumentNullException(nameof(destinationResolver));
         _configChangeListeners = configChangeListeners?.ToArray() ?? Array.Empty<IConfigChangeListener>();
 
         if (_providers.Length == 0)
@@ -158,11 +161,19 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
             var routes = new List<RouteConfig>();
             var clusters = new List<ClusterConfig>();
 
+            // Begin resolving config providers concurrently.
+            var resolvedConfigs = new List<(int Index, IProxyConfigProvider Provider, ValueTask<IProxyConfig> Config)>(_providers.Length);
             for (var i = 0; i < _providers.Length; i++)
             {
                 var provider = _providers[i];
-                var config = provider.GetConfig();
-                ValidateConfigProperties(config);
+                var configLoadTask = LoadConfigAsync(provider, cancellationToken: default);
+                resolvedConfigs.Add((i, provider, configLoadTask));
+            }
+
+            // Wait for all configs to be resolved.
+            foreach (var (i, provider, configLoadTask) in resolvedConfigs)
+            {
+                var config = await configLoadTask;
                 _configs[i] = new ConfigState(provider, config);
                 routes.AddRange(config.Routes ?? Array.Empty<RouteConfig>());
                 clusters.AddRange(config.Clusters ?? Array.Empty<ClusterConfig>());
@@ -202,33 +213,52 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         var sourcesChanged = false;
         var routes = new List<RouteConfig>();
         var clusters = new List<ClusterConfig>();
+        var reloadedConfigs = new List<(ConfigState Config, ValueTask<IProxyConfig> ResolveTask)>();
+
+        // Start reloading changed configurations.
         foreach (var instance in _configs)
+        {
+            if (instance.LatestConfig.ChangeToken.HasChanged)
+            {
+                try
+                {
+                    var reloadTask = LoadConfigAsync(instance.Provider, cancellationToken: default);
+                    reloadedConfigs.Add((instance, reloadTask));
+                }
+                catch (Exception ex)
+                {
+                    OnConfigLoadError(instance, ex);
+                }
+            }
+        }
+
+        // Wait for all changed config providers to be reloaded.
+        foreach (var (instance, loadTask) in reloadedConfigs)
         {
             try
             {
-                if (instance.LatestConfig.ChangeToken.HasChanged)
-                {
-                    var config = instance.Provider.GetConfig();
-                    ValidateConfigProperties(config);
-                    instance.LatestConfig = config;
-                    instance.LoadFailed = false;
-                    sourcesChanged = true;
-                }
+                instance.LatestConfig = await loadTask.ConfigureAwait(false);
+                instance.LoadFailed = false;
+                sourcesChanged = true;
             }
             catch (Exception ex)
             {
-                instance.LoadFailed = true;
-                Log.ErrorReloadingConfig(_logger, ex);
+                OnConfigLoadError(instance, ex);
+            }
+        }
 
-                foreach (var configChangeListener in _configChangeListeners)
-                {
-                    configChangeListener.ConfigurationLoadingFailed(instance.Provider, ex);
-                }
+        // Extract the routes and clusters from the configs, regardless of whether they were reloaded.
+        foreach (var instance in _configs)
+        {
+            if (instance.LatestConfig.Routes is { Count: > 0 } updatedRoutes)
+            {
+                routes.AddRange(updatedRoutes);
             }
 
-            // If we didn't/couldn't get a new config then re-use the last one.
-            routes.AddRange(instance.LatestConfig.Routes ?? Array.Empty<RouteConfig>());
-            clusters.AddRange(instance.LatestConfig.Clusters ?? Array.Empty<ClusterConfig>());
+            if (instance.LatestConfig.Clusters is { Count: > 0 } updatedClusters)
+            {
+                clusters.AddRange(updatedClusters);
+            }
         }
 
         var proxyConfigs = ExtractListOfProxyConfigs(_configs);
@@ -270,6 +300,17 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         }
 
         ListenForConfigChanges();
+
+        void OnConfigLoadError(ConfigState instance, Exception ex)
+        {
+            instance.LoadFailed = true;
+            Log.ErrorReloadingConfig(_logger, ex);
+
+            foreach (var configChangeListener in _configChangeListeners)
+            {
+                configChangeListener.ConfigurationLoadingFailed(instance.Provider, ex);
+            }
+        }
     }
 
     private static void ValidateConfigProperties(IProxyConfig config)
@@ -278,10 +319,98 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         {
             throw new InvalidOperationException($"{nameof(IProxyConfigProvider.GetConfig)} returned a null value.");
         }
+
         if (config.ChangeToken is null)
         {
             throw new InvalidOperationException($"{nameof(IProxyConfig.ChangeToken)} has a null value.");
         }
+    }
+
+    private ValueTask<IProxyConfig> LoadConfigAsync(IProxyConfigProvider provider, CancellationToken cancellationToken)
+    {
+        var config = provider.GetConfig();
+        ValidateConfigProperties(config);
+
+        if (_destinationResolver.GetType() == typeof(NoOpDestinationResolver))
+        {
+            return new(config);
+        }
+
+        return LoadConfigAsyncCore(config, cancellationToken);
+    }
+
+    private async ValueTask<IProxyConfig> LoadConfigAsyncCore(IProxyConfig config, CancellationToken cancellationToken)
+    {
+        List<(int Index, ValueTask<ResolvedDestinationCollection> Task)> resolverTasks = new();
+        List<ClusterConfig> clusters = new(config.Clusters);
+        List<IChangeToken>? changeTokens = null;
+        for (var i = 0; i < clusters.Count; i++)
+        {
+            var cluster = clusters[i];
+            if (cluster.Destinations is { Count: > 0 } destinations)
+            {
+                // Resolve destinations if there are any.
+                var task = _destinationResolver.ResolveDestinationsAsync(destinations, cancellationToken);
+                resolverTasks.Add((i, task));
+            }
+        }
+
+        if (resolverTasks.Count > 0)
+        {
+            foreach (var (i, task) in resolverTasks)
+            {
+                ResolvedDestinationCollection resolvedDestinations;
+                try
+                {
+                    resolvedDestinations = await task;
+                }
+                catch (Exception exception)
+                {
+                    var cluster = clusters[i];
+                    throw new InvalidOperationException($"Error resolving destinations for cluster {cluster.ClusterId}", exception); 
+                }
+
+                clusters[i] = clusters[i] with { Destinations = resolvedDestinations.Destinations };
+                if (resolvedDestinations.ChangeToken is { } token)
+                {
+                    changeTokens ??= new();
+                    changeTokens.Add(token);
+                }
+            }
+
+            IChangeToken changeToken;
+            if (changeTokens is not null)
+            {
+                // Combine change tokens from the resolver with the configuration's existing change token.
+                changeTokens.Add(config.ChangeToken);
+                changeToken = new CompositeChangeToken(changeTokens);
+            }
+            else
+            {
+                changeToken = config.ChangeToken;
+            }
+
+            // Return updated config
+            return new ResolvedProxyConfig(config, clusters, changeToken);
+        }
+
+        return config;
+    }
+
+    private sealed class ResolvedProxyConfig : IProxyConfig
+    {
+        private readonly IProxyConfig _innerConfig;
+
+        public ResolvedProxyConfig(IProxyConfig innerConfig, IReadOnlyList<ClusterConfig> clusters, IChangeToken changeToken)
+        {
+            _innerConfig = innerConfig;
+            Clusters = clusters;
+            ChangeToken = changeToken;
+        }
+
+        public IReadOnlyList<RouteConfig> Routes => _innerConfig.Routes;
+        public IReadOnlyList<ClusterConfig> Clusters { get; }
+        public IChangeToken ChangeToken { get; }
     }
 
     private void ListenForConfigChanges()

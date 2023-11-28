@@ -55,10 +55,11 @@ public class IngressConversionTests
     [InlineData("route-order")]
     [InlineData("missing-svc")]
     [InlineData("port-diff-name")]
+    [InlineData("external-name-ingress")]
     public async Task ParsingTests(string name)
     {
         var ingressClass = KubeResourceGenerator.CreateIngressClass("yarp", "microsoft.com/ingress-yarp", true);
-        var cache = await GetKubernetesInfo(name, ingressClass).ConfigureAwait(false);
+        var cache = await GetKubernetesInfo(name, ingressClass);
         var configContext = new YarpConfigContext();
         var ingresses = cache.GetIngresses().ToArray();
 

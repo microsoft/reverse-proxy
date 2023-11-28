@@ -10,6 +10,8 @@
   href: config-filters.md
 - name: Direct Forwarding
   href: direct-forwarding.md
+- name: Destination Resolvers
+  href: destination-resolvers.md
 - name: HTTP client configuration
   href: http-client-config.md
 - name: HTTPS & TLS
@@ -40,6 +42,8 @@
   href: grpc.md
 - name: WebSockets and SPDY
   href: websockets.md
+- name: Timeouts
+  href: timeouts.md
 - name: Service Fabric Integration
   href: service-fabric-int.md
 - name: Http.sys Delegation

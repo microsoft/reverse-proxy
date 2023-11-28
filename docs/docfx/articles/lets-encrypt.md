@@ -38,18 +38,10 @@ There are required options for LettuceEncrypt that should be set, see the exampl
 }
 ```
 
-## Update Startup
+## Update Services
 
 ```C#
-using Microsoft.Extensions.DependencyInjection;
-
-public class Startup
-{
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services.AddLettuceEncrypt();
-    }
-}
+services.AddLettuceEncrypt();
 ```
 
 For more options (i.e. saving certificates) see examples in [LettuceEncrypt doc](https://github.com/natemcmaster/LettuceEncrypt).
@@ -61,20 +53,16 @@ If your project is explicitly using kestrel options to configure IP addresses, p
 Example:
 
 ```C#
-var myHostBuilder = Host.CreateDefaultBuilder(args);
-myHostBuilder.ConfigureWebHostDefaults(webHostBuilder =>
+var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.ConfigureKestrel(kestrel =>
 {
-    webHostBuilder.ConfigureKestrel(kestrel =>
+    kestrel.ListenAnyIP(443, portOptions =>
     {
-        kestrel.ListenAnyIP(443, portOptions =>
+        portOptions.UseHttps(h =>
         {
-            portOptions.UseHttps(h =>
-            {
-                h.UseLettuceEncrypt(kestrel.ApplicationServices);
-            });
+            h.UseLettuceEncrypt(kestrel.ApplicationServices);
         });
     });
-    webHostBuilder.UseStartup<Startup>();
 });
 ```
 

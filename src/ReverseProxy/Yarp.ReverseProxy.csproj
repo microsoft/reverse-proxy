@@ -2,16 +2,19 @@
 
   <PropertyGroup>
     <Description>Reverse proxy toolkit for building fast proxy servers in .NET using the infrastructure from ASP.NET and .NET</Description>
-    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
     <OutputType>Library</OutputType>
     <RootNamespace>Yarp.ReverseProxy</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Nullable>enable</Nullable>
+    <IsAotCompatible>true</IsAotCompatible>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.IO.Hashing" Version="7.0.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="$(SystemCollectionsImmutableVersion)" Condition="'$(TargetFramework)' != 'net8.0'" />
+    <PackageReference Include="Microsoft.Bcl.TimeProvider" Version="$(MicrosoftBclTimeProviderVersion)" Condition="'$(TargetFramework)' != 'net8.0'" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="README.md" Pack="true" PackagePath="\"/>
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
