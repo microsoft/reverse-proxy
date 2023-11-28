@@ -24,6 +24,8 @@
   href: authn-authz.md
 - name: Rate Limiting
   href: rate-limiting.md
+- name: Output Caching
+  href: output-caching.md
 - name: Cross-Origin Requests (CORS)
   href: cors.md
 - name: Session Affinity

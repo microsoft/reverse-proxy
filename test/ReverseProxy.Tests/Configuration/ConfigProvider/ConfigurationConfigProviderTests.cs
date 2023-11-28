@@ -347,6 +347,7 @@ public class ConfigurationConfigProviderTests
             ""ClusterId"": ""cluster1"",
             ""AuthorizationPolicy"": ""Default"",
             ""RateLimiterPolicy"": ""Default"",
+            ""OutputCachePolicy"": ""Default"",
             ""CorsPolicy"": ""Default"",
             ""TimeoutPolicy"": ""Default"",
             ""Timeout"": ""00:00:01"",
@@ -393,6 +394,7 @@ public class ConfigurationConfigProviderTests
             ""ClusterId"": ""cluster2"",
             ""AuthorizationPolicy"": null,
             ""RateLimiterPolicy"": null,
+            ""OutputCachePolicy"": null,
             ""CorsPolicy"": null,
             ""Metadata"": null,
             ""Transforms"": null

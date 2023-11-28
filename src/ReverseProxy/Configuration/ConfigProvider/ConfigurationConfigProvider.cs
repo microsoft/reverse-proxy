@@ -149,6 +149,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             AuthorizationPolicy = section[nameof(RouteConfig.AuthorizationPolicy)],
 #if NET7_0_OR_GREATER
             RateLimiterPolicy = section[nameof(RouteConfig.RateLimiterPolicy)],
+            OutputCachePolicy = section[nameof(RouteConfig.OutputCachePolicy)],
 #endif
 #if NET8_0_OR_GREATER
             TimeoutPolicy = section[nameof(RouteConfig.TimeoutPolicy)],

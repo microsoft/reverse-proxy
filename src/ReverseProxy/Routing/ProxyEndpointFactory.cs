@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http.Timeouts;
 #endif
 #if NET7_0_OR_GREATER
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.OutputCaching;
 #endif
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
@@ -136,6 +137,11 @@ internal sealed class ProxyEndpointFactory
         else if (!string.IsNullOrEmpty(config.RateLimiterPolicy))
         {
             endpointBuilder.Metadata.Add(new EnableRateLimitingAttribute(config.RateLimiterPolicy));
+        }
+
+        if (!string.IsNullOrEmpty(config.OutputCachePolicy))
+        {
+            endpointBuilder.Metadata.Add(new OutputCacheAttribute { PolicyName = config.OutputCachePolicy });
         }
 #endif
 #if NET8_0_OR_GREATER

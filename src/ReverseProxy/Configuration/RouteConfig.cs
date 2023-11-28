@@ -51,6 +51,12 @@ public sealed record RouteConfig
     /// Set to "Default" or leave empty to use the global rate limits, if any.
     /// </summary>
     public string? RateLimiterPolicy { get; init; }
+
+    /// <summary>
+    /// The name of the OutputCachePolicy to apply to this route.
+    /// If not set then only the BasePolicy will apply.
+    /// </summary>
+    public string? OutputCachePolicy { get; init; }
 #endif
 #if NET8_0_OR_GREATER
     /// <summary>
@@ -106,6 +112,7 @@ public sealed record RouteConfig
             && string.Equals(AuthorizationPolicy, other.AuthorizationPolicy, StringComparison.OrdinalIgnoreCase)
 #if NET7_0_OR_GREATER
             && string.Equals(RateLimiterPolicy, other.RateLimiterPolicy, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(OutputCachePolicy, other.OutputCachePolicy, StringComparison.OrdinalIgnoreCase)
 #endif
 #if NET8_0_OR_GREATER
             && string.Equals(TimeoutPolicy, other.TimeoutPolicy, StringComparison.OrdinalIgnoreCase)
@@ -127,6 +134,7 @@ public sealed record RouteConfig
         hash.Add(AuthorizationPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
 #if NET7_0_OR_GREATER
         hash.Add(RateLimiterPolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
+        hash.Add(OutputCachePolicy?.GetHashCode(StringComparison.OrdinalIgnoreCase));
 #endif
 #if NET8_0_OR_GREATER
         hash.Add(Timeout?.GetHashCode());

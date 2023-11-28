@@ -142,6 +142,7 @@ internal static class YarpParser
             AuthorizationPolicy = ingressContext.Options.AuthorizationPolicy,
 #if NET7_0_OR_GREATER
             RateLimiterPolicy = ingressContext.Options.RateLimiterPolicy,
+            OutputCachePolicy = ingressContext.Options.OutputCachePolicy,
 #endif
 #if NET8_0_OR_GREATER
             Timeout = ingressContext.Options.Timeout,
@@ -233,6 +234,20 @@ internal static class YarpParser
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/rate-limiter-policy", out var rateLimiterPolicy))
         {
             options.RateLimiterPolicy = rateLimiterPolicy;
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/output-cache-policy", out var outputCachePolicy))
+        {
+            options.OutputCachePolicy = outputCachePolicy;
+        }
+#endif
+#if NET8_0_OR_GREATER
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/timeout", out var timeout))
+        {
+            options.Timeout = TimeSpan.Parse(timeout, CultureInfo.InvariantCulture);
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/timeout-policy", out var timeoutPolicy))
+        {
+            options.TimeoutPolicy = timeoutPolicy;
         }
 #endif
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/cors-policy", out var corsPolicy))
