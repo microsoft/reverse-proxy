@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Yarp.ReverseProxy.Configuration;
 
-// TODO: update or remove this once AspNetCore provides a mechanism to validate the OutputCache policies
+// TODO: update or remove this once AspNetCore provides a mechanism to validate the OutputCache policies https://github.com/dotnet/aspnetcore/issues/52419
 
 internal interface IYarpOutputCachePolicyProvider
 {
