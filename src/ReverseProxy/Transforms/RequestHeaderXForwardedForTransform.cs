@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 
@@ -78,8 +79,8 @@ public class RequestHeaderXForwardedForTransform : RequestTransform
         }
         else
         {
-            var values = StringValues.Concat(existingValues, remoteIp);
-            AddHeader(context, HeaderName, values);
+            var values = StringValues.Concat(existingValues, remoteIp).ToList();
+            AddHeader(context, HeaderName, string.Join(", ", values));
         }
     }
 }
