@@ -86,7 +86,7 @@ These authentication types already pass their values in the request headers and 
 
 These protocols are commonly used with remote identity providers. The authentication process can be configured in the proxy application and will result in an authentication cookie. That cookie will flow to the destination server as a normal request header.
 
-### Windows, Negotiate, NTLM, Kerbereos
+### Windows, Negotiate, NTLM, Kerberos
 
 These authentication types are often bound to a specific connection. They are not supported as means of authenticating a user in a destination server behind the YARP proxy (see [#166](https://github.com/microsoft/reverse-proxy/issues/166). They can be used to authenticate an incoming request to the proxy, but that identity information will have to be communicated to the destination server in another form. They can also be used to authenticate the proxy to the destination servers, but only as the proxy's own user, impersonating the client is not supported.
 
