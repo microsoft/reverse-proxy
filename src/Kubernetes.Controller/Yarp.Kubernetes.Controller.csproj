@@ -14,8 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="KubernetesClient" Version="9.0.28" />
-    <PackageReference Include="YamlDotNet" Version="12.0.1" />
+    <PackageReference Include="KubernetesClient" Version="10.1.19" />
+    <PackageReference Include="YamlDotNet" Version="13.7.1" />
   </ItemGroup>
 
 </Project>
