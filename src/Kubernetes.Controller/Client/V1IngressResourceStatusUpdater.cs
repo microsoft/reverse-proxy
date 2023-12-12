@@ -37,17 +37,13 @@ internal sealed class V1IngressResourceStatusUpdater : IIngressResourceStatusUpd
         var service = await _client.CoreV1.ReadNamespacedServiceStatusAsync(_options.ControllerServiceName, _options.ControllerServiceNamespace, cancellationToken: cancellationToken);
         if (service.Status?.LoadBalancer?.Ingress is { } loadBalancerIngresses)
         {
-            var status = new V1IngressStatus(new V1IngressLoadBalancerStatus(loadBalancerIngresses?.Select(x => new V1IngressLoadBalancerIngress
+            var status = new V1IngressStatus(new V1IngressLoadBalancerStatus(loadBalancerIngresses?.Select(ingress => new V1IngressLoadBalancerIngress
             {
-                Hostname = x.Hostname,
-                Ip = x.Ip,
-                Ports = x.Ports?.Select(y => new V1IngressPortStatus
-                {
-                    Error = y.Error,
-                    Protocol = y.Protocol,
-                    Port = y.Port
-                }).ToArray()
+                Hostname = ingress.Hostname,
+                Ip = ingress.Ip,
+                Ports = ingress.Ports?.Select(port => new V1IngressPortStatus(port.Port, port.Protocol, port.Error)).ToArray()
             }).ToArray()));
+
             var ingresses = _cache.GetIngresses().ToArray();
             foreach (var ingress in ingresses)
             {
