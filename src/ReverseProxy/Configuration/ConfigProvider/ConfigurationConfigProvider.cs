@@ -159,6 +159,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             Metadata = section.GetSection(nameof(RouteConfig.Metadata)).ReadStringDictionary(),
             Transforms = CreateTransforms(section.GetSection(nameof(RouteConfig.Transforms))),
             Match = CreateRouteMatch(section.GetSection(nameof(RouteConfig.Match))),
+            WeightClusters =CreateWeightClusters(section.GetSection(nameof(RouteConfig.WeightClusters)))
         };
     }
 
@@ -208,6 +209,22 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             Values = section.GetSection(nameof(RouteHeader.Values)).ReadStringArray(),
             Mode = section.ReadEnum<HeaderMatchMode>(nameof(RouteHeader.Mode)) ?? HeaderMatchMode.ExactHeader,
             IsCaseSensitive = section.ReadBool(nameof(RouteHeader.IsCaseSensitive)) ?? false,
+        };
+    }
+    private static IReadOnlyList<WeightCluster>? CreateWeightClusters(IConfigurationSection section)
+    {
+        if (!section.Exists())
+        {
+            return null;
+        }
+
+        return section.GetChildren().Select(CreateWeightCluster).ToArray();
+    }
+    private static WeightCluster CreateWeightCluster(IConfigurationSection section)
+    {
+        return new WeightCluster {
+            ClusterId = section[nameof(WeightCluster.ClusterId)]!,
+            Weight = section.ReadInt32(nameof(WeightCluster.Weight))
         };
     }
 

@@ -37,6 +37,12 @@ public sealed record RouteConfig
     public string? ClusterId { get; init; }
 
     /// <summary>
+    /// Gets or sets the weight clusters that requests matching this route
+    /// If set ClusterId there is no need to set this
+    /// </summary>
+    public IReadOnlyList<WeightCluster>? WeightClusters { get; init; }
+
+    /// <summary>
     /// The name of the AuthorizationPolicy to apply to this route.
     /// If not set then only the FallbackPolicy will apply.
     /// Set to "Default" to enable authorization with the applications default policy.

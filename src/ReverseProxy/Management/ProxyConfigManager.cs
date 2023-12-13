@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -367,7 +368,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
                 catch (Exception exception)
                 {
                     var cluster = clusters[i];
-                    throw new InvalidOperationException($"Error resolving destinations for cluster {cluster.ClusterId}", exception); 
+                    throw new InvalidOperationException($"Error resolving destinations for cluster {cluster.ClusterId}", exception);
                 }
 
                 clusters[i] = clusters[i] with { Destinations = resolvedDestinations.Destinations };
@@ -767,12 +768,21 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
             // since no valid cluster was specified.
             _clusters.TryGetValue(incomingRoute.ClusterId ?? string.Empty, out var cluster);
 
+            var clusters = new WeightedList<ClusterState>();
+
+            foreach (var weightCluster in incomingRoute.WeightClusters ?? ImmutableList<WeightCluster>.Empty)
+            {
+                _clusters.TryGetValue(weightCluster.ClusterId ?? string.Empty, out var clusterState);
+                clusters.Add(clusterState, weightCluster.Weight ?? -1);
+            }
+
+
             if (_routes.TryGetValue(incomingRoute.RouteId, out var currentRoute))
             {
                 if (currentRoute.Model.HasConfigChanged(incomingRoute, cluster, currentRoute.ClusterRevision))
                 {
                     currentRoute.CachedEndpoint = null; // Recreate endpoint
-                    var newModel = BuildRouteModel(incomingRoute, cluster);
+                    var newModel = BuildRouteModel(incomingRoute, cluster,clusters);
                     currentRoute.Model = newModel;
                     currentRoute.ClusterRevision = cluster?.Revision;
                     changed = true;
@@ -781,7 +791,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
             }
             else
             {
-                var newModel = BuildRouteModel(incomingRoute, cluster);
+                var newModel = BuildRouteModel(incomingRoute, cluster,clusters);
                 var newState = new RouteState(incomingRoute.RouteId)
                 {
                     Model = newModel,
@@ -846,13 +856,12 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         }
     }
 
-    private RouteModel BuildRouteModel(RouteConfig source, ClusterState? cluster)
+    private RouteModel BuildRouteModel(RouteConfig source, ClusterState? cluster, WeightedList<ClusterState> weightClusters)
     {
         var transforms = _transformBuilder.Build(source, cluster?.Model?.Config);
 
-        return new RouteModel(source, cluster, transforms);
+        return new RouteModel(source, cluster, transforms,weightClusters);
     }
-
     public bool TryGetRoute(string id, [NotNullWhen(true)] out RouteModel? route)
     {
         if (_routes.TryGetValue(id, out var routeState))

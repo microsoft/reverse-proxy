@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 #if NET8_0_OR_GREATER
@@ -39,6 +40,12 @@ internal sealed class ProxyPipelineInitializerMiddleware
         var route = endpoint.Metadata.GetMetadata<RouteModel>()
             ?? throw new InvalidOperationException($"Routing Endpoint is missing {typeof(RouteModel).FullName} metadata.");
 
+        var weightClusters = route.WeightClusters;
+
+        if (weightClusters.Any())
+        {
+            route.SetCluster(PickCluster(weightClusters));
+        }
         var cluster = route.Cluster;
         // TODO: Validate on load https://github.com/microsoft/reverse-proxy/issues/797
         if (cluster is null)
@@ -89,6 +96,11 @@ internal sealed class ProxyPipelineInitializerMiddleware
         {
             activity.Dispose();
         }
+    }
+
+    private ClusterState PickCluster(WeightedList<ClusterState> clusters)
+    {
+        return clusters.Next();
     }
 
     private static class Log
