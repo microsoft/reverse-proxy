@@ -123,6 +123,7 @@ public class TelemetryConsumptionTests
 
         var expected = new[]
         {
+            "OnConnectionStart-Kestrel",
             "OnRequestStart-Kestrel",
             "OnForwarderInvoke",
             "OnForwarderStart",
@@ -144,6 +145,7 @@ public class TelemetryConsumptionTests
             "OnContentTransferred",
             "OnForwarderStop",
             "OnRequestStop-Kestrel",
+            "OnConnectionStop-Kestrel",
         };
 
         if (!useHttpsOnDestination)
@@ -283,8 +285,10 @@ public class TelemetryConsumptionTests
         public void OnConnectStart(DateTime timestamp, string address) => AddStage(nameof(OnConnectStart), timestamp);
         public void OnConnectStop(DateTime timestamp) => AddStage(nameof(OnConnectStop), timestamp);
         public void OnConnectFailed(DateTime timestamp, SocketError error, string exceptionMessage) => AddStage(nameof(OnConnectFailed), timestamp);
+        public void OnConnectionStart(DateTime timestamp, string connectionId, string localEndPoint, string remoteEndPoint) => AddStage($"{nameof(OnConnectionStart)}-Kestrel", timestamp);
         public void OnRequestStart(DateTime timestamp, string connectionId, string requestId, string httpVersion, string path, string method) => AddStage($"{nameof(OnRequestStart)}-Kestrel", timestamp);
         public void OnRequestStop(DateTime timestamp, string connectionId, string requestId, string httpVersion, string path, string method) => AddStage($"{nameof(OnRequestStop)}-Kestrel", timestamp);
+        public void OnConnectionStop(DateTime timestamp, string connectionId) => AddStage($"{nameof(OnConnectionStop)}-Kestrel", timestamp);
         public void OnRedirect(DateTime timestamp, string redirectUri) => AddStage(nameof(OnRedirect), timestamp);
     }
 

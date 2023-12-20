@@ -28,6 +28,30 @@ internal sealed class KestrelEventListenerService : EventListenerService<Kestrel
 
         switch (eventData.EventId)
         {
+            case 1:
+                Debug.Assert(eventData.EventName == "ConnectionStart" && payload.Count == 3);
+                {
+                    var connectionId = (string)payload[0];
+                    var localEndPoint = (string?)payload[1];
+                    var remoteEndPoint = (string?)payload[2];
+                    foreach (var consumer in consumers)
+                    {
+                        consumer.OnConnectionStart(eventData.TimeStamp, connectionId, localEndPoint, remoteEndPoint);
+                    }
+                }
+                break;
+
+            case 2:
+                Debug.Assert(eventData.EventName == "ConnectionStop" && payload.Count == 1);
+                {
+                    var connectionId = (string)payload[0];
+                    foreach (var consumer in consumers)
+                    {
+                        consumer.OnConnectionStop(eventData.TimeStamp, connectionId);
+                    }
+                }
+                break;
+
             case 3:
                 Debug.Assert(eventData.EventName == "RequestStart" && payload.Count == 5);
                 {
