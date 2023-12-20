@@ -32,11 +32,11 @@ internal sealed class KestrelEventListenerService : EventListenerService<Kestrel
                 Debug.Assert(eventData.EventName == "ConnectionStart" && payload.Count == 3);
                 {
                     var connectionId = (string)payload[0];
-                    var LocalEndPoint = (string)payload[1];
-                    var remoteEndPoint = (string)payload[2];
+                    var localEndPoint = (string?)payload[1];
+                    var remoteEndPoint = (string?)payload[2];
                     foreach (var consumer in consumers)
                     {
-                        consumer.OnConnectionStart(eventData.TimeStamp, connectionId, LocalEndPoint, remoteEndPoint);
+                        consumer.OnConnectionStart(eventData.TimeStamp, connectionId, localEndPoint, remoteEndPoint);
                     }
                 }
                 break;

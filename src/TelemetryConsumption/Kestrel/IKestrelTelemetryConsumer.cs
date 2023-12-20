@@ -17,7 +17,7 @@ public interface IKestrelTelemetryConsumer
     /// <param name="connectionId">ID of the connection.</param>
     /// <param name="localEndPoint">Local endpoint for the connection.</param>
     /// <param name="remoteEndPoint">Remote endpoint for the connection.</param>
-    void OnConnectionStart(DateTime timestamp, string connectionId, string localEndPoint, string remoteEndPoint) { }
+    void OnConnectionStart(DateTime timestamp, string connectionId, string? localEndPoint, string? remoteEndPoint) { }
 
     /// <summary>
     /// Called at the end of a connection.
