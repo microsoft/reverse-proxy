@@ -12,7 +12,7 @@ app.MapReverseProxy(proxyPipeline =>
     // Custom cluster selection
     proxyPipeline.Use((context, next) =>
     {
-        context.RequestServices.GetRequiredService<IProxyStateLookup>();
+        var lookup = context.RequestServices.GetRequiredService<IProxyStateLookup>();
         if (lookup.TryGetCluster(ChooseCluster(context), out var cluster))
         {
             context.ReassignProxyRequest(cluster);
@@ -24,7 +24,7 @@ app.MapReverseProxy(proxyPipeline =>
     proxyPipeline.UseLoadBalancing();
 });
 
-private string ChooseCluster(HttpContext context)
+string ChooseCluster(HttpContext context)
 {
     // Decide which cluster to use. This could be random, weighted, based on headers, etc.
     return Random.Shared.Next(2) == 1 ? "cluster1" : "cluster2";
