@@ -19,8 +19,7 @@ Visual Studio support for .NET 6 is included in Visual Studio 2022.
 
 ### Create a new project
 
-A complete version of the project built using the steps below can be found at [Minimal YARP Sample](https://github.com/microsoft/reverse-proxy/tree/release/latest/samples/ReverseProxy.Minimal.Sample).
-For a version that does not use [top-level statements](https://docs.microsoft.com/dotnet/csharp/fundamentals/program-structure/top-level-statements), see the [Basic YARP Sample](https://github.com/microsoft/reverse-proxy/tree/release/latest/samples/BasicYarpSample).
+A complete version of the project built using the steps below can be found at [Basic YARP Sample](https://github.com/microsoft/reverse-proxy/tree/release/latest/samples/BasicYarpSample).
 
 Start by creating an "Empty" ASP.NET Core application using the command line:
 
