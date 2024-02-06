@@ -68,9 +68,8 @@ Here is an example of common transforms:
           { "RequestHeadersCopy": "true" },
           { "RequestHeaderOriginalHost": "true" },
           {
-            "X-Forwarded": "proto,host,for,prefix",
-            "Append": "true",
-            "Prefix": "X-Forwarded-"
+            "X-Forwarded": "Append",
+            "HeaderPrefix": "X-Forwarded-"
           }
         ]
       },
