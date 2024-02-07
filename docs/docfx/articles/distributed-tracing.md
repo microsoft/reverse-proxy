@@ -15,6 +15,8 @@ In addition YARP can create activities for:
 
 These will only be created if there is a listener for the [`ActivitySource`](https://learn.microsoft.com/dotnet/core/diagnostics/distributed-tracing-instrumentation-walkthroughs#activitysource) named `Yarp.ReverseProxy`.
 
+### Example: Application Insights
+
 For example, to monitor the traces with Application Insights, the proxy application needs to use the [Open Telemetry](https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry/README.md) and [Azure Monitor](https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/monitor/Azure.Monitor.OpenTelemetry.AspNetCore/README.md) SDKs.
 
 `application.csproj`:
@@ -54,6 +56,60 @@ app.MapReverseProxy();
 app.Run();
 
 ```
+
+### Example: OpenTelemetry hosting
+
+``` xml
+  <ItemGroup>
+    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.7.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.7.0" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.7.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.7.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.7.0" />
+  </ItemGroup>
+```
+
+``` csharp
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+
+// configure OTel and OTLP
+const string serviceName = "yarpProxy";
+
+builder.Logging.AddOpenTelemetry(options =>
+{
+    options
+        .SetResourceBuilder(
+            ResourceBuilder.CreateDefault()
+                .AddService(serviceName))
+        .AddOtlpExporter();
+});
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService(serviceName))
+    .WithTracing(tracing => tracing
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddSource("Yarp.ReverseProxy") 
+        .AddOtlpExporter()
+    );
+
+// build and start app
+var app = builder.Build();
+app.MapReverseProxy();
+app.Run();
+```
+
+Note that the `AddHttpClientInstrumentation()` call is required along with the `AddSource("Yarp.ReverseProxy")` call to make the request spans emit.
+
+See [ASP.NET Documentation on Observability with OpenTelemetry](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/observability-with-otel).
+
 
 Provided that the traces are being logged to the same store for the proxy and destination servers, then the tracing analysis tools can correlate the requests and provide gant charts etc covering the end-to-end processing of the requests as they transition across the servers.
 
