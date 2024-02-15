@@ -43,11 +43,12 @@ public class RequestHeaderXForwardedForTransform : RequestTransform
         }
 
         string? remoteIp = null;
-        if (context.HttpContext.Connection.RemoteIpAddress != null)
+        var remoteIpAddress = context.HttpContext.Connection.RemoteIpAddress;
+        if (remoteIpAddress is not null)
         {
-            remoteIp = context.HttpContext.Connection.RemoteIpAddress.IsIPv4MappedToIPv6 ?
-                context.HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString() :
-                context.HttpContext.Connection.RemoteIpAddress.ToString();
+            remoteIp = remoteIpAddress.IsIPv4MappedToIPv6 ?
+                remoteIpAddress.MapToIPv4().ToString() :
+                remoteIpAddress.ToString();
         }
 
         switch (TransformAction)
