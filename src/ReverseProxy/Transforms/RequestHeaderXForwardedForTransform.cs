@@ -42,7 +42,14 @@ public class RequestHeaderXForwardedForTransform : RequestTransform
             throw new ArgumentNullException(nameof(context));
         }
 
-        var remoteIp = context.HttpContext.Connection.RemoteIpAddress?.ToString();
+        string? remoteIp = null;
+        var remoteIpAddress = context.HttpContext.Connection.RemoteIpAddress;
+        if (remoteIpAddress is not null)
+        {
+            remoteIp = remoteIpAddress.IsIPv4MappedToIPv6 ?
+                remoteIpAddress.MapToIPv4().ToString() :
+                remoteIpAddress.ToString();
+        }
 
         switch (TransformAction)
         {
