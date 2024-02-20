@@ -76,7 +76,7 @@ internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPoli
                 var matched = matcher.Mode switch
                 {
                     HeaderMatchMode.Exists => !valueIsEmpty,
-                    HeaderMatchMode.NotExists => !headerExists,
+                    HeaderMatchMode.NotExists => !headerExists || valueIsEmpty,
                     HeaderMatchMode.ExactHeader => !valueIsEmpty && TryMatchExactOrPrefix(matcher, requestHeaderValues),
                     HeaderMatchMode.HeaderPrefix => !valueIsEmpty && TryMatchExactOrPrefix(matcher, requestHeaderValues),
                     HeaderMatchMode.Contains => !valueIsEmpty && TryMatchContainsOrNotContains(matcher, requestHeaderValues),
