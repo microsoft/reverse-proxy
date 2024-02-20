@@ -7,6 +7,8 @@ jobs:
   build:
     name: Build
     runs-on: windows-latest
+    permissions:
+      contents: write # for push access to the gh-pages branch
     steps:
       # Check out the branch that triggered this workflow to the 'source' subdirectory
       - name: Checkout Code
