@@ -14,13 +14,19 @@ namespace Yarp.ReverseProxy.Health.Tests;
 public class DefaultProbingRequestFactoryTests
 {
     [Theory]
-    [InlineData("https://localhost:10000/", null, null, "https://localhost:10000/")]
-    [InlineData("https://localhost:10000/", "https://localhost:20000/", null, "https://localhost:20000/")]
-    [InlineData("https://localhost:10000/", null, "/api/health/", "https://localhost:10000/api/health/")]
-    [InlineData("https://localhost:10000/", "https://localhost:20000/", "/api/health/", "https://localhost:20000/api/health/")]
-    [InlineData("https://localhost:10000/api", "https://localhost:20000/", "/health/", "https://localhost:20000/health/")]
-    [InlineData("https://localhost:10000/", "https://localhost:20000/api", "/health/", "https://localhost:20000/api/health/")]
-    public void CreateRequest_HealthEndpointIsNotDefined_UseDestinationAddress(string address, string health, string healthPath, string expectedRequestUri)
+    [InlineData("https://localhost:10000/", null, null, null, "https://localhost:10000/")]
+    [InlineData("https://localhost:10000/", "https://localhost:20000/", null, null, "https://localhost:20000/")]
+    [InlineData("https://localhost:10000/", null, "/api/health/", null, "https://localhost:10000/api/health/")]
+    [InlineData("https://localhost:10000/", "https://localhost:20000/", "/api/health/", null, "https://localhost:20000/api/health/")]
+    [InlineData("https://localhost:10000/api", "https://localhost:20000/", "/health/", null, "https://localhost:20000/health/")]
+    [InlineData("https://localhost:10000/", "https://localhost:20000/api", "/health/", null, "https://localhost:20000/api/health/")]
+    [InlineData("https://localhost:10000/", null, null, "?key=value", "https://localhost:10000/?key=value")]
+    [InlineData("https://localhost:10000/", "https://localhost:20000/", null, "?key=value", "https://localhost:20000/?key=value")]
+    [InlineData("https://localhost:10000/", null, "/api/health/", "?key=value", "https://localhost:10000/api/health/?key=value")]
+    [InlineData("https://localhost:10000/", "https://localhost:20000/", "/api/health/", "?key=value", "https://localhost:20000/api/health/?key=value")]
+    [InlineData("https://localhost:10000/api", "https://localhost:20000/", "/health/", "?key=value", "https://localhost:20000/health/?key=value")]
+    [InlineData("https://localhost:10000/", "https://localhost:20000/api", "/health/", "?key=value", "https://localhost:20000/api/health/?key=value")]
+    public void CreateRequest_HealthEndpointIsNotDefined_UseDestinationAddress(string address, string health, string healthPath, string query, string expectedRequestUri)
     {
         var clusterModel = GetClusterConfig("cluster0",
             new ActiveHealthCheckConfig()
@@ -28,6 +34,7 @@ public class DefaultProbingRequestFactoryTests
                 Enabled = true,
                 Policy = "policy",
                 Path = healthPath,
+                Query = query,
             }, HttpVersion.Version20);
         var destinationModel = new DestinationModel(new DestinationConfig { Address = address, Health = health });
         var factory = new DefaultProbingRequestFactory();

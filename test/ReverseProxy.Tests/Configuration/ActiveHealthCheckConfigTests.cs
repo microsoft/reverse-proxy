@@ -62,6 +62,24 @@ public class ActiveHealthCheckConfigTests
     }
 
     [Fact]
+    public void Equals_DifferingQueries_Returns_False()
+    {
+        var options1 = new ActiveHealthCheckConfig
+        {
+            Query = "?key=value1"
+        };
+
+        var options2 = new ActiveHealthCheckConfig
+        {
+            Query = "?key=value2"
+        };
+
+        var equals = options1.Equals(options2);
+
+        Assert.False(equals);
+    }
+
+    [Fact]
     public void Equals_Second_Null_Returns_False()
     {
         var options1 = new ActiveHealthCheckConfig();
