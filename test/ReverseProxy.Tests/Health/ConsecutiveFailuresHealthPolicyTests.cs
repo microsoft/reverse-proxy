@@ -21,7 +21,7 @@ public class ConsecutiveFailuresHealthPolicyTests
         var options = Options.Create(new ConsecutiveFailuresHealthPolicyOptions { DefaultThreshold = 2 });
         var policy = new ConsecutiveFailuresHealthPolicy(options, new DestinationHealthUpdaterStub());
         var cluster0 = GetClusterInfo("cluster0", destinationCount: 2);
-        var cluster1 = GetClusterInfo("cluster0", destinationCount: 2, failureThreshold: 3);
+        var cluster1 = GetClusterInfo("cluster1", destinationCount: 2, failureThreshold: 3);
 
         var probingResults0 = new[] {
             new DestinationProbingResult(cluster0.Destinations.Values.First(), new HttpResponseMessage(HttpStatusCode.InternalServerError), null),
@@ -40,16 +40,19 @@ public class ConsecutiveFailuresHealthPolicyTests
 
         // First probing attempt
         policy.ProbingCompleted(cluster0, probingResults0);
-        Assert.All(cluster0.Destinations.Values, d => Assert.Equal(DestinationHealth.Healthy, d.Health.Active));
+        Assert.Equal(DestinationHealth.Unknown, cluster0.Destinations.Values.First().Health.Active);
+        Assert.Equal(DestinationHealth.Healthy, cluster0.Destinations.Values.Skip(1).First().Health.Active);
         policy.ProbingCompleted(cluster1, probingResults1);
-        Assert.All(cluster1.Destinations.Values, d => Assert.Equal(DestinationHealth.Healthy, d.Health.Active));
+        Assert.Equal(DestinationHealth.Healthy, cluster1.Destinations.Values.First().Health.Active);
+        Assert.Equal(DestinationHealth.Unknown, cluster1.Destinations.Values.Skip(1).First().Health.Active);
 
         // Second probing attempt
         policy.ProbingCompleted(cluster0, probingResults0);
         Assert.Equal(DestinationHealth.Unhealthy, cluster0.Destinations.Values.First().Health.Active);
         Assert.Equal(DestinationHealth.Healthy, cluster0.Destinations.Values.Skip(1).First().Health.Active);
         policy.ProbingCompleted(cluster1, probingResults1);
-        Assert.All(cluster1.Destinations.Values, d => Assert.Equal(DestinationHealth.Healthy, d.Health.Active));
+        Assert.Equal(DestinationHealth.Healthy, cluster1.Destinations.Values.First().Health.Active);
+        Assert.Equal(DestinationHealth.Unknown, cluster1.Destinations.Values.Skip(1).First().Health.Active);
 
         // Third probing attempt
         policy.ProbingCompleted(cluster0, probingResults0);
