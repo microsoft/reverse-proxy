@@ -70,13 +70,13 @@ internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPoli
 
             foreach (var matcher in matchers)
             {
-                var headerExists = headers.TryGetValue(matcher.Name, out var requestHeaderValues);
+                headers.TryGetValue(matcher.Name, out var requestHeaderValues);
                 var valueIsEmpty = StringValues.IsNullOrEmpty(requestHeaderValues);
 
                 var matched = matcher.Mode switch
                 {
                     HeaderMatchMode.Exists => !valueIsEmpty,
-                    HeaderMatchMode.NotExists => !headerExists || valueIsEmpty,
+                    HeaderMatchMode.NotExists => valueIsEmpty,
                     HeaderMatchMode.ExactHeader => !valueIsEmpty && TryMatchExactOrPrefix(matcher, requestHeaderValues),
                     HeaderMatchMode.HeaderPrefix => !valueIsEmpty && TryMatchExactOrPrefix(matcher, requestHeaderValues),
                     HeaderMatchMode.Contains => !valueIsEmpty && TryMatchContainsOrNotContains(matcher, requestHeaderValues),
