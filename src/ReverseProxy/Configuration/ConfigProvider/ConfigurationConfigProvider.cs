@@ -312,7 +312,8 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             Interval = section.ReadTimeSpan(nameof(ActiveHealthCheckConfig.Interval)),
             Timeout = section.ReadTimeSpan(nameof(ActiveHealthCheckConfig.Timeout)),
             Policy = section[nameof(ActiveHealthCheckConfig.Policy)],
-            Path = section[nameof(ActiveHealthCheckConfig.Path)]
+            Path = section[nameof(ActiveHealthCheckConfig.Path)],
+            Query = section[nameof(ActiveHealthCheckConfig.Query)]
         };
     }
 
