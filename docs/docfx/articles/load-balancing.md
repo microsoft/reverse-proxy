@@ -48,7 +48,7 @@ var clusters = new[]
     {
         ClusterId = "cluster1",
         LoadBalancingPolicy = LoadBalancingPolicies.RoundRobin,
-        Destinations = new Dictionary<string, Destination>(StringComparer.OrdinalIgnoreCase)
+        Destinations = new Dictionary<string, DestinationConfig>(StringComparer.OrdinalIgnoreCase)
         {
             { "destination1", new DestinationConfig() { Address = "https://localhost:10000" } },
             { "destination2", new DestinationConfig() { Address = "https://localhost:10010" } }
