@@ -18,6 +18,8 @@ namespace Yarp.ReverseProxy.Delegation;
 
 internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListener
 {
+    private const int ERROR_OBJECT_NO_LONGER_EXISTS = 0x1A97;
+
     private readonly IServerDelegationFeature? _serverDelegationFeature;
     private readonly ILogger<HttpSysDelegator> _logger;
     private readonly ConcurrentDictionary<QueueKey, WeakReference<DelegationQueue>> _queues;
@@ -44,7 +46,7 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
             var key = new QueueKey(queueName, urlPrefix);
             if (_queues.TryGetValue(key, out var queueWeakRef) && queueWeakRef.TryGetTarget(out var queue))
             {
-                queue.Detatch();
+                queue.Detach();
                 Log.QueueReset(_logger, queueName, urlPrefix);
             }
         }
@@ -72,28 +74,50 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
             return;
         }
 
-        // Opportunistically retry initialization if it failed previously.
-        // This helps when the target queue wasn't yet created because
-        // the target process hadn't yet started up.
-        var queueState = queue.Initialize(_serverDelegationFeature);
-        if (!queueState.IsInitialized)
-        {
-            Log.QueueNotInitialized(_logger, destination, queueState.InitializationException);
-            context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-            context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.NoAvailableDestinations, queueState.InitializationException));
-            return;
-        }
+        Delegate(context, destination, _serverDelegationFeature, requestDelegationFeature, queue, _logger, reattachIfNeeded: true);
 
-        try
+        static void Delegate(
+            HttpContext context,
+            DestinationState destination,
+            IServerDelegationFeature serverDelegationFeature,
+            IHttpSysRequestDelegationFeature requestDelegationFeature,
+            DelegationQueue queue,
+            ILogger logger,
+            bool reattachIfNeeded)
         {
-            Log.DelegatingRequest(_logger, destination);
-            requestDelegationFeature.DelegateRequest(queueState.Rule);
-        }
-        catch (Exception ex)
-        {
-            Log.DelegationFailed(_logger, destination, ex);
-            context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-            context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.Request, ex));
+            // Opportunistically retry initialization if it failed previously.
+            // This helps when the target queue wasn't yet created because
+            // the target process hadn't yet started up.
+            var queueState = queue.Initialize(serverDelegationFeature);
+            if (!queueState.IsInitialized)
+            {
+                Log.QueueNotInitialized(logger, destination, queueState.InitializationException);
+                context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+                context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.NoAvailableDestinations, queueState.InitializationException));
+                return;
+            }
+
+            try
+            {
+                Log.DelegatingRequest(logger, destination);
+                requestDelegationFeature.DelegateRequest(queueState.Rule);
+            }
+            catch (HttpSysException ex) when (reattachIfNeeded && ex.ErrorCode == ERROR_OBJECT_NO_LONGER_EXISTS)
+            {
+                Log.QueueNoLongerExists(logger, destination.GetHttpSysDelegationQueue(), destination.Model?.Config?.Address, ex);
+
+                // The target queue is gone, detach from it so we can try to re-attach
+                queue.Detach(queueState);
+
+                // Attempt to delegate one more time which will try re-initialize the queue
+                Delegate(context, destination, serverDelegationFeature, requestDelegationFeature, queue, logger, reattachIfNeeded: false);
+            }
+            catch (Exception ex)
+            {
+                Log.DelegationFailed(logger, destination, ex);
+                context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+                context.Features.Set<IForwarderErrorFeature>(new ForwarderErrorFeature(ForwarderError.Request, ex));
+            }
         }
     }
 
@@ -245,12 +269,18 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
             return state;
         }
 
-        public void Detatch()
+        public void Detach(DelegationQueueState? state = null)
         {
-            lock (_syncRoot)
+            if (state == null || state == _currentState)
             {
-                _currentState.Rule?.Dispose();
-                _currentState = new DelegationQueueState();
+                lock (_syncRoot)
+                {
+                    if (state == null || state == _currentState)
+                    {
+                        _currentState.Rule?.Dispose();
+                        _currentState = new DelegationQueueState();
+                    }
+                }
             }
         }
 
@@ -352,6 +382,11 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
             EventIds.DelegationQueueReset,
             "Detached from queue with name '{queueName}' and url prefix '{urlPrefix}'");
 
+        private static readonly Action<ILogger, string?, string?, Exception?> _queueNoLongerExists = LoggerMessage.Define<string?, string?>(
+            LogLevel.Information,
+            EventIds.DelegationQueueNoLongerExists,
+            "Destination queue with name '{queueName}' and url prefix '{urlPrefix}' no longer exists. Detaching and attempting to re-initialize.");
+
         private static readonly Action<ILogger, string, string?, string?, Exception?> _delegatingRequest = LoggerMessage.Define<string, string?, string?>(
             LogLevel.Information,
             EventIds.DelegatingRequest,
@@ -380,6 +415,11 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
         public static void QueueReset(ILogger logger, string queueName, string urlPrefix)
         {
             _queueReset(logger, queueName, urlPrefix, null);
+        }
+
+        public static void QueueNoLongerExists(ILogger logger, string? queueName, string? urlPrefix, Exception? ex)
+        {
+            _queueNoLongerExists(logger, queueName, urlPrefix, ex);
         }
 
         public static void DelegatingRequest(ILogger logger, DestinationState destination)
