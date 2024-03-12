@@ -26,6 +26,7 @@ public class DefaultProbingRequestFactoryTests
     [InlineData("https://localhost:10000/", "https://localhost:20000/", "/api/health/", "?key=value", "https://localhost:20000/api/health/?key=value")]
     [InlineData("https://localhost:10000/api", "https://localhost:20000/", "/health/", "?key=value", "https://localhost:20000/health/?key=value")]
     [InlineData("https://localhost:10000/", "https://localhost:20000/api", "/health/", "?key=value", "https://localhost:20000/api/health/?key=value")]
+    [InlineData("https://localhost:10000/", "https://localhost:20000/api", "/health?foo=bar", "?key=value", "https://localhost:20000/api/health%3Ffoo=bar?key=value")]
     public void CreateRequest_HealthEndpointIsNotDefined_UseDestinationAddress(string address, string health, string healthPath, string query, string expectedRequestUri)
     {
         var clusterModel = GetClusterConfig("cluster0",
