@@ -189,7 +189,8 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
             "Interval": "00:00:10",
             "Timeout": "00:00:10",
             "Policy": "ConsecutiveFailures",
-            "Path": "/api/health" // API endpoint to query for health state
+            "Path": "/api/health", // API endpoint to query for health state
+            "Query": "?foo=bar"
           },
           "Passive": { // Disables destinations based on HTTP response codes
             "Enabled": true, // Defaults to false

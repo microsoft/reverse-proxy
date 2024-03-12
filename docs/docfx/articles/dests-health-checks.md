@@ -16,7 +16,8 @@ There are several cluster-wide configuration settings controlling active health 
             "Interval": "00:00:10",
             "Timeout": "00:00:10",
             "Policy": "ConsecutiveFailures",
-            "Path": "/api/health"
+            "Path": "/api/health",
+            "Query": "?foo=bar",
           }
         },
         "Metadata": {
@@ -49,7 +50,8 @@ var clusters = new[]
                 Interval = TimeSpan.FromSeconds(10),
                 Timeout = TimeSpan.FromSeconds(10),
                 Policy = HealthCheckConstants.ActivePolicy.ConsecutiveFailures,
-                Path = "/api/health"
+                Path = "/api/health",
+                Query = "?foo=bar",
             }
         },
         Metadata = new Dictionary<string, string> { { ConsecutiveFailuresHealthPolicyOptions.ThresholdMetadataName, "5" } },
@@ -74,6 +76,7 @@ Active health check settings can also be defined in code via the corresponding t
 - `Timeout` - probing request timeout. Default `00:00:10`
 - `Policy` - name of a policy evaluating destinations' active health states. Mandatory parameter
 - `Path` -  health check path on all cluster's destinations. Default `null`.
+- `Query` -  health check query on all cluster's destinations. Default `null`.
 
 `Destination` section and [DestinationConfig](xref:Yarp.ReverseProxy.Configuration.DestinationConfig).
 
