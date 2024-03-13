@@ -25,10 +25,11 @@ internal sealed class YarpIngressOptions
     public HealthCheckConfig HealthCheck { get; set; }
     public Dictionary<string, string> RouteMetadata { get; set; }
     public List<RouteHeader> RouteHeaders { get; set; }
+    public List<RouteQueryParameter> RouteQueryParameters { get; set; }
     public int? RouteOrder { get; set; }
 }
 
-internal sealed class RouteHeaderWapper
+internal sealed class RouteHeaderWrapper
 {
     public string Name { get; init; }
     public List<string> Values { get; init; }
@@ -38,6 +39,25 @@ internal sealed class RouteHeaderWapper
     public RouteHeader ToRouteHeader()
     {
         return new RouteHeader
+        {
+            Name = Name,
+            Values = Values,
+            Mode = Mode,
+            IsCaseSensitive = IsCaseSensitive
+        };
+    }
+}
+
+internal sealed class RouteQueryParameterWrapper
+{
+    public string Name { get; init; }
+    public List<string> Values { get; init; }
+    public QueryParameterMatchMode Mode { get; init; }
+    public bool IsCaseSensitive { get; init; }
+
+    public RouteQueryParameter ToRouteQueryParameter()
+    {
+        return new RouteQueryParameter
         {
             Name = Name,
             Values = Values,
