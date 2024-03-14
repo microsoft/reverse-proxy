@@ -51,6 +51,7 @@ public class IngressConversionTests
     [InlineData("multiple-ingresses-one-svc")]
     [InlineData("multiple-namespaces")]
     [InlineData("route-metadata")]
+    [InlineData("route-queryparameters")]
     [InlineData("route-headers")]
     [InlineData("route-order")]
     [InlineData("missing-svc")]

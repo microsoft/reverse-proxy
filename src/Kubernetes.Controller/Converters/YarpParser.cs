@@ -134,7 +134,8 @@ internal static class YarpParser
             {
                 Hosts = host is not null ? new[] { host } : Array.Empty<string>(),
                 Path = pathMatch,
-                Headers = ingressContext.Options.RouteHeaders
+                Headers = ingressContext.Options.RouteHeaders,
+                QueryParameters = ingressContext.Options.RouteQueryParameters
             },
             ClusterId = cluster.ClusterId,
             RouteId = $"{ingressContext.Ingress.Metadata.Name}.{ingressContext.Ingress.Metadata.NamespaceProperty}:{host}{path.Path}",
@@ -276,8 +277,13 @@ internal static class YarpParser
         }
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/route-headers", out var routeHeaders))
         {
-            // YamlDeserializer does not support IReadOnlyList<string> in RouteHeader for now, so we use RouteHeaderWapper to solve this problem.
-            options.RouteHeaders = YamlDeserializer.Deserialize<List<RouteHeaderWapper>>(routeHeaders).Select(p => p.ToRouteHeader()).ToList();
+            // YamlDeserializer does not support IReadOnlyList<string> in RouteHeader for now, so we use RouteHeaderWrapper to solve this problem.
+            options.RouteHeaders = YamlDeserializer.Deserialize<List<RouteHeaderWrapper>>(routeHeaders).Select(p => p.ToRouteHeader()).ToList();
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/route-queryparameters", out var routeQueryParameters))
+        {
+            // YamlDeserializer does not support IReadOnlyList<string> in RouteParameters for now, so we use RouterQueryParameterWrapper to solve this problem.
+            options.RouteQueryParameters = YamlDeserializer.Deserialize<List<RouteQueryParameterWrapper>>(routeQueryParameters).Select(p => p.ToRouteQueryParameter()).ToList();
         }
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/route-order", out var routeOrder))
         {
