@@ -5,6 +5,7 @@
       "Methods": null,
       "Hosts": [],
       "Path": "/foo/{**catch-all}",
+      "Headers": null,
       "QueryParameters": [
         {
           "Name": "the-queryparameter-key",
@@ -12,8 +13,7 @@
           "Mode": "Contains",
           "IsCaseSensitive": false
         }
-      ],
-      "QueryParameters": null
+      ]
     },
     "Order": null,
     "ClusterId": "frontend.default:80",
