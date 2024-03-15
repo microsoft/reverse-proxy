@@ -9,7 +9,6 @@
     <Nullable>enable</Nullable>
     <IsAotCompatible>true</IsAotCompatible>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageIcon>icon.png</PackageIcon>
     <PackageTags>yarp;dotnet;reverse-proxy;aspnetcore</PackageTags>
   </PropertyGroup>
 
@@ -27,7 +26,6 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
-    <None Include="..\..\assets\icon.png" PackagePath="icon.png" Pack="true" />
   </ItemGroup>
 
   <ItemGroup>
