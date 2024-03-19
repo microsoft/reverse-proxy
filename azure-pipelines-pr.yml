@@ -1,0 +1,121 @@
+#
+# See https://docs.microsoft.com/azure/devops/pipelines/yaml-schema for details
+#
+
+
+variables:
+  - name: _TeamName
+    value: AspNetCore
+  - name: DOTNET_SKIP_FIRST_TIME_EXPERIENCE
+    value: true
+  - name: _PublishUsingPipelines
+    value: true
+  - name: _BuildConfig
+    value: Release
+  - template: /eng/common/templates/variables/pool-providers.yml
+  # Rely on task Arcade injects, not auto-injected build step.
+  - name: skipComponentGovernanceDetection
+    value: true
+  # Rely on explicit tasks, not auto-injected build steps. CodeQL3000 not enabled by default in any case.
+  - name: Codeql.SkipTaskAutoInjection
+    value: true
+
+pr:
+  autoCancel: false
+  branches:
+    include:
+    - '*'
+
+stages:
+- stage: build
+  displayName: Build
+  jobs:
+  - template: /eng/common/templates/jobs/jobs.yml
+    parameters:
+      enableMicrobuild: true
+      enablePublishBuildArtifacts: true
+      enablePublishTestResults: true
+      enablePublishBuildAssets: true
+      enablePublishUsingPipelines: true
+      enableTelemetry: true
+      mergeTestResults: true
+      jobs:
+      - job: Windows
+        pool:
+          name: $(DncEngPublicBuildPool)
+          demands: ImageOverride -equals windows.vs2019.amd64.open
+        variables:
+          - name: _OfficialBuildArgs
+            value: ''
+          - name: _SignType
+            value: test
+
+        steps:
+        - checkout: self
+          clean: true
+        - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_OfficialBuildArgs)
+          displayName: Build and Publish
+        - task: PublishBuildArtifacts@1
+          displayName: Upload TestResults
+          condition: always()
+          continueOnError: true
+          inputs:
+            pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
+            artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
+            artifactType: Container
+            parallel: true
+        - task: PublishBuildArtifacts@1
+          displayName: Upload package artifacts
+          condition: and(succeeded(), eq(variables['system.pullrequest.isfork'], false), eq(variables['_BuildConfig'], 'Release'))
+          inputs:
+            pathtoPublish: artifacts/packages/
+            artifactName: artifacts
+            artifactType: Container
+            parallel: true
+
+      - job: Ubuntu
+        pool:
+          vmImage: ubuntu-latest
+        variables:
+        - name: _SignType
+          value: none
+        steps:
+        - checkout: self
+          clean: true
+        - script: eng/common/cibuild.sh
+            --configuration $(_BuildConfig)
+            --prepareMachine
+          displayName: Build
+        - task: PublishBuildArtifacts@1
+          displayName: Upload TestResults
+          condition: always()
+          continueOnError: true
+          inputs:
+            pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
+            artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
+            artifactType: Container
+            parallel: true
+
+      - job: macOS_latest
+        displayName: 'macOS latest'
+        pool:
+          vmImage: macOS-latest
+        variables:
+        - name: _SignType
+          value: none
+        steps:
+        - checkout: self
+          clean: true
+        - script: eng/common/cibuild.sh
+            --configuration $(_BuildConfig)
+            --prepareMachine
+          displayName: Build
+        - task: PublishBuildArtifacts@1
+          displayName: Upload TestResults
+          condition: always()
+          continueOnError: true
+          inputs:
+            pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
+            artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
+            artifactType: Container
+            parallel: true
