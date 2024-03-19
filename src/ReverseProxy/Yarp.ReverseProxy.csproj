@@ -9,6 +9,7 @@
     <Nullable>enable</Nullable>
     <IsAotCompatible>true</IsAotCompatible>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>yarp;dotnet;reverse-proxy;aspnetcore</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

@@ -7,5 +7,10 @@
     <IsShipping>true</IsShipping>
     <IsPackable>true</IsPackable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\assets\icon.png" PackagePath="icon.png" Pack="true" />
+  </ItemGroup>
 </Project>
