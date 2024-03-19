@@ -14,6 +14,6 @@
   <PropertyGroup>
     <SystemCollectionsImmutableVersion>8.0.0</SystemCollectionsImmutableVersion>
     <MicrosoftBclTimeProviderVersion>8.0.0</MicrosoftBclTimeProviderVersion>
-    <MicrosoftDotNetXUnitExtensionsPackageVersion>9.0.0-beta.24159.1</MicrosoftDotNetXUnitExtensionsPackageVersion>
+    <MicrosoftDotNetXUnitExtensionsPackageVersion>9.0.0-beta.24165.6</MicrosoftDotNetXUnitExtensionsPackageVersion>
   </PropertyGroup>
 </Project>
