@@ -1,6 +1,3 @@
-# This Yaml Document has been converted by ESAI Yaml Pipeline Conversion Tool.
-# Please make sure to check all the converted content, it is your team's responsibility to make sure that the pipeline is still valid and functions as expected.
-# This pipeline will be extended to the MicroBuild template
 schedules:
 - cron: 0 9 * * 1
   displayName: "Run CodeQL3000 weekly, Monday at 2:00 AM PDT"
@@ -9,6 +6,7 @@ schedules:
     - release/*
     - main
   always: true
+
 parameters:
 - name: runCodeQL3000
   default: false
@@ -36,6 +34,7 @@ variables:
   value: true
 - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest'), ne(variables.runCodeQL3000, 'true')) }}:
   - group: YARP-SDLValidation-Params
+
 trigger:
   batch: true
   branches:
@@ -43,17 +42,20 @@ trigger:
     - main
     - release/*
     - internal/release/*
+
 pr:
   autoCancel: false
   branches:
     include:
     - '*'
+    
 resources:
   repositories:
   - repository: MicroBuildTemplate
     type: git
     name: 1ESPipelineTemplates/MicroBuildTemplate
     ref: refs/tags/release
+
 extends:
   template: azure-pipelines/MicroBuild.1ES.Official.yml@MicroBuildTemplate
   parameters:
@@ -80,14 +82,9 @@ extends:
           jobs:
           - job: Windows
             pool:
-              ${{ if eq(variables['System.TeamProject'], 'public') }}:
-                name: $(DncEngPublicBuildPool)
-                image: 1es-windows-2022-pt
-                os: windows
-              ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                name: $(DncEngInternalBuildPool)
-                image: 1es-windows-2022-pt
-                os: windows
+              name: $(DncEngInternalBuildPool)
+              image: 1es-windows-2022-pt
+              os: windows
             ${{ if eq(variables.runCodeQL3000, 'true') }}:
               disableComponentGovernance: true
               enableSbom: false
@@ -101,17 +98,15 @@ extends:
               - Codeql.SourceRoot: src
               - Codeql.TSAEnabled: ${{ eq(variables['Build.Reason'], 'Schedule') }}
               - Codeql.TSAOptionsPath: '$(Build.SourcesDirectory)/.config/tsaoptions.json'
-            - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest'), ne(variables.runCodeQL3000, 'true')) }}:
+            - ${{ if ne(variables.runCodeQL3000, 'true') }}:
               - group: Publish-Build-Assets
               - name: _OfficialBuildArgs
-                value: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+                value: /p:DotNetSignType=$(_SignType) 
+                       /p:TeamName=$(_TeamName) 
+                       /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) 
+                       /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
               - name: _SignType
                 value: real
-            - ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
-              - name: _OfficialBuildArgs
-                value: ''
-              - name: _SignType
-                value: test
             steps:
             - checkout: self
               clean: true
@@ -142,47 +137,7 @@ extends:
                   PathtoPublish: artifacts/packages/
                   ArtifactName: artifacts
                   PublishLocation: Container
-          - ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
-            - job: Ubuntu
-              pool:
-                vmImage: ubuntu-latest
-              variables:
-              - name: _SignType
-                value: none
-              steps:
-              - checkout: self
-                clean: true
-              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
-                displayName: Build
-              - task: 1ES.PublishBuildArtifacts@1
-                displayName: Upload TestResults
-                condition: always()
-                continueOnError: true
-                inputs:
-                  PathtoPublish: artifacts/TestResults/$(_BuildConfig)/
-                  ArtifactName: $(Agent.Os)_$(Agent.JobName) TestResults
-                  PublishLocation: Container
-            - job: macOS_latest
-              displayName: 'macOS latest'
-              pool:
-                vmImage: macOS-latest
-              variables:
-              - name: _SignType
-                value: none
-              steps:
-              - checkout: self
-                clean: true
-              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
-                displayName: Build
-              - task: 1ES.PublishBuildArtifacts@1
-                displayName: Upload TestResults
-                condition: always()
-                continueOnError: true
-                inputs:
-                  PathtoPublish: artifacts/TestResults/$(_BuildConfig)/
-                  ArtifactName: $(Agent.Os)_$(Agent.JobName) TestResults
-                  PublishLocation: Container
-    - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest'), ne(variables.runCodeQL3000, 'true')) }}:
+    - ${{ if ne(variables.runCodeQL3000, 'true') }}:
       - template: /eng/common/templates-official/post-build/post-build.yml@self
         parameters:
           publishingInfraVersion: 3
@@ -193,4 +148,13 @@ extends:
           SDLValidationParameters:
             enable: true
             continueOnError: false
-            params: ' -SourceToolsList @("policheck","credscan") -TsaInstanceURL $(_TsaInstanceURL) -TsaProjectName $(_TsaProjectName) -TsaNotificationEmail $(_TsaNotificationEmail) -TsaCodebaseAdmin $(_TsaCodebaseAdmin) -TsaBugAreaPath $(_TsaBugAreaPath) -TsaIterationPath $(_TsaIterationPath) -TsaRepositoryName "ReverseProxy" -TsaCodebaseName "ReverseProxy" -TsaPublish $True -PoliCheckAdditionalRunConfigParams @("UserExclusionPath < $(Build.SourcesDirectory)/eng/PoliCheckExclusions.xml")'
+            params: ' -SourceToolsList @("policheck","credscan") 
+            -TsaInstanceURL $(_TsaInstanceURL) 
+            -TsaProjectName $(_TsaProjectName) 
+            -TsaNotificationEmail $(_TsaNotificationEmail) 
+            -TsaCodebaseAdmin $(_TsaCodebaseAdmin) 
+            -TsaBugAreaPath $(_TsaBugAreaPath) 
+            -TsaIterationPath $(_TsaIterationPath) 
+            -TsaRepositoryName "ReverseProxy" 
+            -TsaCodebaseName "ReverseProxy" 
+            -TsaPublish $True -PoliCheckAdditionalRunConfigParams @("UserExclusionPath < $(Build.SourcesDirectory)/eng/PoliCheckExclusions.xml")'
