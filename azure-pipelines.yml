@@ -5,6 +5,8 @@ schedules:
     include:
     - release/*
     - main
+    exclude:
+    - release/1.*
   always: true
 
 parameters:
