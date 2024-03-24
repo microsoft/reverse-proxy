@@ -15,7 +15,7 @@ namespace Yarp.ReverseProxy.Forwarder;
 public sealed class ReverseProxyPropagator : DistributedContextPropagator
 {
     private readonly DistributedContextPropagator _innerPropagator;
-    private readonly string[] _headersToRemove;
+    private readonly IReadOnlyCollection<string> _headersToRemove;
 
     /// <summary>
     /// ReverseProxyPropagator removes headers pointed out in innerPropagator.
@@ -23,7 +23,7 @@ public sealed class ReverseProxyPropagator : DistributedContextPropagator
     public ReverseProxyPropagator(DistributedContextPropagator innerPropagator)
     {
         _innerPropagator = innerPropagator ?? throw new ArgumentNullException(nameof(innerPropagator));
-        _headersToRemove = _innerPropagator.Fields.ToArray();
+        _headersToRemove = _innerPropagator.Fields;
     }
 
     public override void Inject(Activity? activity, object? carrier, PropagatorSetterCallback? setter)

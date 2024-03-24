@@ -37,7 +37,7 @@ public partial class Reconciler : IReconciler
     {
         try
         {
-            var ingresses = _cache.GetIngresses().ToArray();
+            var ingresses = _cache.GetIngresses();
 
             var configContext = new YarpConfigContext();
 

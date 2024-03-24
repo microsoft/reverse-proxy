@@ -363,7 +363,7 @@ public static class RequestUtilities
             Debug.Assert(values.Count > 1);
 
             var count = existing.Count;
-            var newArray = new string[count + values.Count];
+            var newArray = new string?[count + values.Count];
 
             if (count == 1)
             {
@@ -371,7 +371,10 @@ public static class RequestUtilities
             }
             else
             {
-                existing.ToArray().CopyTo(newArray, 0);
+                for(var i = 0; i < count; i++)
+                {
+                    newArray[i] = existing[i];
+                }
             }
 
             foreach (var value in values)

@@ -145,8 +145,7 @@ internal static class CollectionEqualityHelper
         valueComparer ??= EqualityComparer<T>.Default;
 
         // Dictionaries are unordered collections and HashCode uses an order-sensitive algorithm (xxHash), so we have to sort the elements
-        var keys = dictionary.Keys.ToArray();
-        Array.Sort(keys, keyComparer);
+        var keys = dictionary.Keys.OrderBy(k => k, keyComparer);
 
         var hashCode = new HashCode();
         foreach (var key in keys)

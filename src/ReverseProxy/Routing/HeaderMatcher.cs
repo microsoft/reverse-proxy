@@ -38,7 +38,7 @@ internal sealed class HeaderMatcher
         }
 
         Name = name;
-        Values = values?.ToArray() ?? Array.Empty<string>();
+        Values = values ?? Array.Empty<string>();
         Mode = mode;
         Comparison = isCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
         Separator = name.Equals(HeaderNames.Cookie, StringComparison.OrdinalIgnoreCase) ? ';' : ',';
@@ -54,7 +54,7 @@ internal sealed class HeaderMatcher
     /// At least one value is required unless <see cref="Mode"/> is set to <see cref="HeaderMatchMode.Exists"/>
     /// or <see cref="HeaderMatchMode.NotExists"/>.
     /// </summary>
-    public string[] Values { get; }
+    public IReadOnlyCollection<string> Values { get; }
 
     /// <summary>
     /// Specifies how header values should be compared (e.g. exact matches Vs. by prefix).

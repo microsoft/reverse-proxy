@@ -37,7 +37,7 @@ internal sealed class QueryParameterMatcher
         }
 
         Name = name;
-        Values = values?.ToArray() ?? Array.Empty<string>();
+        Values = values ?? Array.Empty<string>();
         Mode = mode;
         Comparison = isCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
     }
@@ -51,7 +51,7 @@ internal sealed class QueryParameterMatcher
     /// Returns a read-only collection of acceptable query parameter values used during routing.
     /// At least one value is required unless <see cref="Mode"/> is set to <see cref="QueryParameterMatchMode.Exists"/>.
     /// </summary>
-    public string[] Values { get; }
+    public IReadOnlyCollection<string> Values { get; }
 
     /// <summary>
     /// Specifies how query parameter values should be compared (e.g. exact matches Vs. contains).
