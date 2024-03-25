@@ -205,6 +205,7 @@ new SocketsHttpHandler
     AllowAutoRedirect = false,
     AutomaticDecompression = DecompressionMethods.None,
     UseCookies = false,
+    EnableMultipleHttp2Connections = true,
     ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
     ConnectTimeout = TimeSpan.FromSeconds(15),
 };
@@ -227,7 +228,9 @@ public class CustomForwarderHttpClientFactory : IForwarderHttpClientFactory
             AllowAutoRedirect = false,
             AutomaticDecompression = DecompressionMethods.None,
             UseCookies = false,
-            ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current)
+            EnableMultipleHttp2Connections = true,
+            ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
+            ConnectTimeout = TimeSpan.FromSeconds(15),
         };
 
         return new HttpMessageInvoker(handler, disposeHandler: true);
