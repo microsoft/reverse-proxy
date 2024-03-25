@@ -2696,6 +2696,77 @@ public class HttpForwarderTests
         events.AssertContainProxyStages(failureInRequestTransform ? Array.Empty<ForwarderStage>() : new [] { ForwarderStage.SendAsyncStart });
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task RequestFailure_CancellationExceptionInResponseTransformIsIgnored(bool throwOce)
+    {
+        var events = TestEventListener.Collect();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Method = "GET";
+        httpContext.Request.Host = new HostString("example.com:3456");
+
+        var destinationPrefix = "https://localhost:123/";
+        var sut = CreateProxy();
+        var client = MockHttpHandler.CreateClient(
+            (HttpRequestMessage request, CancellationToken cancellationToken) =>
+            {
+                throw new Exception();
+            });
+
+        var responseTransformWithNullResponseCalled = false;
+
+        var transformer = new DelegateHttpTransforms
+        {
+            OnResponse = (context, response) =>
+            {
+                if (response is null)
+                {
+                    responseTransformWithNullResponseCalled = true;
+
+                    throw throwOce
+                        ? new OperationCanceledException("Foo")
+                        : new InvalidOperationException("Bar");
+                }
+
+                return new ValueTask<bool>(true);
+            }
+        };
+
+        var proxyError = ForwarderError.None;
+        Exception exceptionThrownBySendAsync = null;
+
+        try
+        {
+            proxyError = await sut.SendAsync(httpContext, destinationPrefix, client, ForwarderRequestConfig.Empty, transformer);
+        }
+        catch (Exception ex)
+        {
+            exceptionThrownBySendAsync = ex;
+        }
+
+        Assert.True(responseTransformWithNullResponseCalled);
+
+        if (throwOce)
+        {
+            Assert.Null(exceptionThrownBySendAsync);
+            Assert.Equal(ForwarderError.Request, proxyError);
+        }
+        else
+        {
+            Assert.NotNull(exceptionThrownBySendAsync);
+        }
+
+        Assert.Equal(StatusCodes.Status502BadGateway, httpContext.Response.StatusCode);
+        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+        Assert.Equal(ForwarderError.Request, errorFeature.Error);
+        Assert.IsType<Exception>(errorFeature.Exception);
+
+        AssertProxyStartFailedStop(events, destinationPrefix, httpContext.Response.StatusCode, errorFeature.Error);
+        events.AssertContainProxyStages([ForwarderStage.SendAsyncStart]);
+    }
+
     public enum CancellationScenario
     {
         RequestAborted,
