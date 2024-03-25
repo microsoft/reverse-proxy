@@ -47,6 +47,7 @@ public class ForwarderHttpClientFactory : IForwarderHttpClientFactory
             AllowAutoRedirect = false,
             AutomaticDecompression = DecompressionMethods.None,
             UseCookies = false,
+            EnableMultipleHttp2Connections = true,
             ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
             ConnectTimeout = TimeSpan.FromSeconds(15),
 
