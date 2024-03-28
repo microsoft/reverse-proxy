@@ -26,11 +26,17 @@ internal abstract class BaseEncryptedSessionAffinityPolicy<T> : ISessionAffinity
 
     public abstract string Name { get; }
 
-    public virtual void AffinitizeResponse(HttpContext context, ClusterState cluster, SessionAffinityConfig config, DestinationState destination)
+    public void AffinitizeResponse(HttpContext context, ClusterState cluster, SessionAffinityConfig config, DestinationState destination)
     {
         if (!config.Enabled.GetValueOrDefault())
         {
             throw new InvalidOperationException($"Session affinity is disabled for cluster.");
+        }
+
+        if (context.RequestAborted.IsCancellationRequested)
+        {
+            // Avoid wasting time if the client is already gone.
+            return;
         }
 
         // Affinity key is set on the response only if it's a new affinity.

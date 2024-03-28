@@ -31,6 +31,12 @@ internal abstract class BaseHashCookieSessionAffinityPolicy : ISessionAffinityPo
             throw new InvalidOperationException("Session affinity is disabled for cluster.");
         }
 
+        if (context.RequestAborted.IsCancellationRequested)
+        {
+            // Avoid wasting time if the client is already gone.
+            return;
+        }
+
         // Affinity key is set on the response only if it's a new affinity.
         if (!context.Items.ContainsKey(AffinityKeyId))
         {
