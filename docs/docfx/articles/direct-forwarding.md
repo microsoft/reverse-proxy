@@ -58,12 +58,13 @@ builder.Services.AddHttpForwarder();
 var app = builder.Build();
 
 // Configure our own HttpMessageInvoker for outbound calls for proxy operations
-var httpClient = new HttpMessageInvoker(new SocketsHttpHandler()
+var httpClient = new HttpMessageInvoker(new SocketsHttpHandler
 {
     UseProxy = false,
     AllowAutoRedirect = false,
     AutomaticDecompression = DecompressionMethods.None,
     UseCookies = false,
+    EnableMultipleHttp2Connections = true,
     ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
     ConnectTimeout = TimeSpan.FromSeconds(15),
 });
