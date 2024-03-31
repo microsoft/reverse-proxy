@@ -58,8 +58,8 @@ Example:
         "ClusterId": "cluster1",
         "Match": {
           "Path": "{**catch-all}",
-          "Hosts" : [ "www.aaaaa.com", "www.bbbbb.com"],
-        },
+          "Hosts" : [ "www.aaaaa.com", "www.bbbbb.com"]
+        }
       }
     },
     "Clusters": {
@@ -150,7 +150,7 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
         "Transforms" : [ // List of transforms. See the Transforms article for more details
           {
             "RequestHeader": "MyHeader",
-            "Set": "MyValue",
+            "Set": "MyValue"
           }
         ]
       }
