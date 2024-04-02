@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -15,7 +14,6 @@ using Microsoft.AspNetCore.Http.Features;
 #if NET8_0_OR_GREATER
 using Microsoft.AspNetCore.Http.Timeouts;
 #endif
-using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
@@ -643,7 +641,16 @@ internal sealed class HttpForwarder : IHttpForwarder
             {
                 var error = HandleRequestBodyFailure(context, requestBodyCopyResult, requestBodyException!, requestException,
                     timedOut: requestCancellationSource.IsCancellationRequested);
-                await transformer.TransformResponseAsync(context, proxyResponse: null, requestCancellationSource.Token);
+
+                try
+                {
+                    await transformer.TransformResponseAsync(context, proxyResponse: null, requestCancellationSource.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    // We're about to report a more specific error, so ignore OCEs that occur here.
+                }
+
                 return error;
             }
         }
@@ -669,7 +676,16 @@ internal sealed class HttpForwarder : IHttpForwarder
                 await requestContent.ConsumptionTask;
             }
 
-            await transformer.TransformResponseAsync(context, null, requestCancellationSource.Token);
+            try
+            {
+                await transformer.TransformResponseAsync(context, proxyResponse: null, requestCancellationSource.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                // We may have manually cancelled the request CTS as part of error handling.
+                // We're about to report a more specific error, so ignore OCEs that occur here.
+            }
+
             return error;
         }
     }
