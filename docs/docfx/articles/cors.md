@@ -20,7 +20,7 @@ Example:
         "CorsPolicy": "customPolicy",
         "Match": {
           "Hosts": [ "localhost" ]
-        },
+        }
       }
     },
     "Clusters": {

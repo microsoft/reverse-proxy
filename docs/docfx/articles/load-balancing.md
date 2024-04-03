@@ -23,19 +23,19 @@ If no policy is specified, `PowerOfTwoChoices` will be used.
 
 ```JSON
 "ReverseProxy": {
-    "Clusters": {
-        "cluster1": {
-            "LoadBalancingPolicy": "RoundRobin",
-            "Destinations": {
-                "cluster1/destination1": {
-                    "Address": "https://localhost:10000/"
-                },
-                "cluster1/destination2": {
-                    "Address": "https://localhost:10010/"
-                }
-            }
+  "Clusters": {
+    "cluster1": {
+      "LoadBalancingPolicy": "RoundRobin",
+      "Destinations": {
+        "cluster1/destination1": {
+          "Address": "https://localhost:10000/"
+        },
+        "cluster1/destination2": {
+          "Address": "https://localhost:10010/"
         }
+      }
     }
+  }
 }
 ```
 

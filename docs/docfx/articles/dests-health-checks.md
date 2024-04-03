@@ -9,30 +9,31 @@ There are several cluster-wide configuration settings controlling active health 
 #### File example
 ```JSON
 "Clusters": {
-      "cluster1": {
-        "HealthCheck": {
-          "Active": {
-            "Enabled": "true",
-            "Interval": "00:00:10",
-            "Timeout": "00:00:10",
-            "Policy": "ConsecutiveFailures",
-            "Path": "/api/health",
-            "Query": "?foo=bar",
-          }
-        },
-        "Metadata": {
-          "ConsecutiveFailuresHealthPolicy.Threshold": "3"
-        },
-        "Destinations": {
-          "cluster1/destination1": {
-            "Address": "https://localhost:10000/"
-          },
-          "cluster1/destination2": {
-            "Address": "http://localhost:10010/",
-            "Health": "http://localhost:10020/"
-          }
-        }
+  "cluster1": {
+    "HealthCheck": {
+      "Active": {
+        "Enabled": "true",
+        "Interval": "00:00:10",
+        "Timeout": "00:00:10",
+        "Policy": "ConsecutiveFailures",
+        "Path": "/api/health",
+        "Query": "?foo=bar"
       }
+    },
+    "Metadata": {
+      "ConsecutiveFailuresHealthPolicy.Threshold": "3"
+    },
+    "Destinations": {
+      "cluster1/destination1": {
+        "Address": "https://localhost:10000/"
+      },
+      "cluster1/destination2": {
+        "Address": "http://localhost:10010/",
+        "Health": "http://localhost:10020/"
+      }
+    }
+  }
+}
 ```
 
 #### Code example
@@ -185,26 +186,27 @@ There are several cluster-wide configuration settings controlling passive health
 #### File example
 ```JSON
 "Clusters": {
-      "cluster1": {
-        "HealthCheck": {
-          "Passive": {
-            "Enabled": "true",
-            "Policy": "TransportFailureRate",
-            "ReactivationPeriod": "00:02:00"
-          }
-        },
-        "Metadata": {
-          "TransportFailureRateHealthPolicy.RateLimit": "0.5"
-        },
-        "Destinations": {
-          "cluster1/destination1": {
-            "Address": "https://localhost:10000/"
-          },
-          "cluster1/destination2": {
-            "Address": "http://localhost:10010/"
-          }
-        }
+  "cluster1": {
+    "HealthCheck": {
+      "Passive": {
+        "Enabled": "true",
+        "Policy": "TransportFailureRate",
+        "ReactivationPeriod": "00:02:00"
       }
+    },
+    "Metadata": {
+      "TransportFailureRateHealthPolicy.RateLimit": "0.5"
+    },
+    "Destinations": {
+      "cluster1/destination1": {
+        "Address": "https://localhost:10000/"
+      },
+      "cluster1/destination2": {
+        "Address": "http://localhost:10010/"
+      }
+    }
+  }
+}
 ```
 
 #### Code example
@@ -343,22 +345,23 @@ Destinations health state is used to determine which of them are eligible for re
 #### File example
 ```JSON
 "Clusters": {
-      "cluster1": {
-        "AvailableDestinationsPolicy": "HealthyOrPanic",
-        "HealthCheck": {
-          "Passive": {
-            "Enabled": "true"
-          }
-        },
-        "Destinations": {
-          "cluster1/destination1": {
-            "Address": "https://localhost:10000/"
-          },
-          "cluster1/destination2": {
-            "Address": "http://localhost:10010/"
-          }
-        }
+  "cluster1": {
+    "AvailableDestinationsPolicy": "HealthyOrPanic",
+    "HealthCheck": {
+      "Passive": {
+        "Enabled": "true"
       }
+    },
+    "Destinations": {
+      "cluster1/destination1": {
+        "Address": "https://localhost:10000/"
+      },
+      "cluster1/destination2": {
+        "Address": "http://localhost:10010/"
+      }
+    }
+  }
+}
 ```
 
 #### Code example
