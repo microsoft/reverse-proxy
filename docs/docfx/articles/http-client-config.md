@@ -15,17 +15,17 @@ These types are focused on defining serializable configuration. The code based c
 HTTP client configuration is based on [HttpClientConfig](xref:Yarp.ReverseProxy.Configuration.HttpClientConfig) and represented by the following configuration schema. If you need a more granular approach, please use a [custom implementation](https://microsoft.github.io/reverse-proxy/articles/http-client-config.html#custom-iforwarderhttpclientfactory) of `IForwarderHttpClientFactory`.
 ```JSON
 "HttpClient": {
-    "SslProtocols": [ "<protocol-names>" ],
-    "MaxConnectionsPerServer": "<int>",
-    "DangerousAcceptAnyServerCertificate": "<bool>",
-    "RequestHeaderEncoding": "<encoding-name>",
-    "ResponseHeaderEncoding": "<encoding-name>",
-    "EnableMultipleHttp2Connections": "<bool>"
-    "WebProxy": {
-        "Address": "<url>",
-        "BypassOnLocal": "<bool>",
-        "UseDefaultCredentials": "<bool>"
-    }
+  "SslProtocols": [ "<protocol-names>" ],
+  "MaxConnectionsPerServer": "<int>",
+  "DangerousAcceptAnyServerCertificate": "<bool>",
+  "RequestHeaderEncoding": "<encoding-name>",
+  "ResponseHeaderEncoding": "<encoding-name>",
+  "EnableMultipleHttp2Connections": "<bool>",
+  "WebProxy": {
+    "Address": "<url>",
+    "BypassOnLocal": "<bool>",
+    "UseDefaultCredentials": "<bool>"
+  }
 }
 ```
 
@@ -33,8 +33,8 @@ Configuration settings:
 - SslProtocols - [SSL protocols](https://docs.microsoft.com/dotnet/api/system.security.authentication.sslprotocols) enabled on the given HTTP client. Protocol names are specified as array of strings. Default value is [None](https://docs.microsoft.com/dotnet/api/system.security.authentication.sslprotocols#System_Security_Authentication_SslProtocols_None).
 ```JSON
 "SslProtocols": [
-    "Tls11",
-    "Tls12"
+  "Tls11",
+  "Tls12"
 ]
 ```
 - MaxConnectionsPerServer - maximal number of HTTP 1.1 connections open concurrently to the same server. Default value is [int32.MaxValue](https://docs.microsoft.com/dotnet/api/system.int32.maxvalue).
@@ -73,9 +73,9 @@ builder.WebHost.ConfigureKestrel(kestrel =>
   - UseDefaultCredentials - A bool indicating if the current application credentials should be use to authenticate to the outbound proxy. ASP.NET Core does not impersonate authenticated users for outbound requests.
 ```JSON
 "WebProxy": {
-    "Address": "http://myproxy:8080",
-    "BypassOnLocal": "true",
-    "UseDefaultCredentials": "false"
+  "Address": "http://myproxy:8080",
+  "BypassOnLocal": "true",
+  "UseDefaultCredentials": "false"
 }
 ```
 
@@ -83,10 +83,10 @@ builder.WebHost.ConfigureKestrel(kestrel =>
 HTTP request configuration is based on [ForwarderRequestConfig](xref:Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig) and represented by the following configuration schema.
 ```JSON
 "HttpRequest": {
-    "ActivityTimeout": "<timespan>",
-    "Version": "<string>",
-    "VersionPolicy": ["RequestVersionOrLower", "RequestVersionOrHigher", "RequestVersionExact"],
-    "AllowResponseBuffering": "<bool>"
+  "ActivityTimeout": "<timespan>",
+  "Version": "<string>",
+  "VersionPolicy": ["RequestVersionOrLower", "RequestVersionOrHigher", "RequestVersionExact"],
+  "AllowResponseBuffering": "<bool>"
 }
 ```
 
@@ -102,46 +102,46 @@ The below example shows 2 samples of HTTP client and request configurations for 
 
 ```JSON
 {
-    "Clusters": {
-        "cluster1": {
-            "LoadBalancingPolicy": "Random",
-            "HttpClient": {
-                "SslProtocols": [
-                    "Tls11",
-                    "Tls12"
-                ],
-                "MaxConnectionsPerServer": "10",
-                "DangerousAcceptAnyServerCertificate": "true"
-            },
-            "HttpRequest": {
-                "ActivityTimeout": "00:00:30"
-            },
-            "Destinations": {
-                "cluster1/destination1": {
-                    "Address": "https://localhost:10000/"
-                },
-                "cluster1/destination2": {
-                    "Address": "http://localhost:10010/"
-                }
-            }
+  "Clusters": {
+    "cluster1": {
+      "LoadBalancingPolicy": "Random",
+      "HttpClient": {
+        "SslProtocols": [
+          "Tls11",
+          "Tls12"
+        ],
+        "MaxConnectionsPerServer": "10",
+        "DangerousAcceptAnyServerCertificate": "true"
+      },
+      "HttpRequest": {
+        "ActivityTimeout": "00:00:30"
+      },
+      "Destinations": {
+        "cluster1/destination1": {
+          "Address": "https://localhost:10000/"
         },
-        "cluster2": {
-            "HttpClient": {
-                "SslProtocols": [
-                    "Tls12"
-                ]
-            },
-            "HttpRequest": {
-                "Version": "1.1",
-                "VersionPolicy": "RequestVersionExact"
-            },
-            "Destinations": {
-                "cluster2/destination1": {
-                    "Address": "https://localhost:10001/"
-                }
-            }
+        "cluster1/destination2": {
+          "Address": "http://localhost:10010/"
         }
+      }
+    },
+    "cluster2": {
+      "HttpClient": {
+        "SslProtocols": [
+          "Tls12"
+        ]
+      },
+      "HttpRequest": {
+        "Version": "1.1",
+        "VersionPolicy": "RequestVersionExact"
+      },
+      "Destinations": {
+        "cluster2/destination1": {
+          "Address": "https://localhost:10001/"
+        }
+      }
     }
+  }
 }
 ```
 

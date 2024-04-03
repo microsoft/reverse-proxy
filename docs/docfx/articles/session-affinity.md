@@ -22,25 +22,26 @@ app.MapReverseProxy(proxyPipeline =>
 Session affinity is configured per cluster according to the following configuration scheme.
 ```JSON
 "ReverseProxy": {
-    "Clusters": {
-        "<cluster-name>": {
-            "SessionAffinity": {
-                "Enabled": "(true|false)", // defaults to 'false'
-                "Policy": "(HashCookie|ArrCookie|Cookie|CustomHeader)", // defaults to 'HashCookie'
-                "FailurePolicy": "(Redistribute|Return503Error)", // defaults to 'Redistribute'
-                "AffinityKeyName": "Key1",
-                "Cookie": {
-                    "Domain": "localhost",
-                    "Expiration": "03:00:00",
-                    "HttpOnly": true,
-                    "IsEssential": true,
-                    "MaxAge": "1.00:00:00",
-                    "Path": "mypath",
-                    "SameSite": "Strict",
-                    "SecurePolicy": "Always"
-            }
+  "Clusters": {
+    "<cluster-name>": {
+      "SessionAffinity": {
+        "Enabled": "(true|false)", // defaults to 'false'
+        "Policy": "(HashCookie|ArrCookie|Cookie|CustomHeader)", // defaults to 'HashCookie'
+        "FailurePolicy": "(Redistribute|Return503Error)", // defaults to 'Redistribute'
+        "AffinityKeyName": "Key1",
+        "Cookie": {
+          "Domain": "localhost",
+          "Expiration": "03:00:00",
+          "HttpOnly": true,
+          "IsEssential": true,
+          "MaxAge": "1.00:00:00",
+          "Path": "mypath",
+          "SameSite": "Strict",
+          "SecurePolicy": "Always"
         }
+      }
     }
+  }
 }
 ```
 

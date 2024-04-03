@@ -22,7 +22,7 @@ Http.sys delegation can be enabled per destination by adding the `HttpSysDelegat
         "ClusterId": "cluster1",
         "Match": {
           "Path": "{**catch-all}"
-        },
+        }
       }
     },
     "Clusters": {

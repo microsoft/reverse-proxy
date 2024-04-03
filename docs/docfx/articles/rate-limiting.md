@@ -27,7 +27,7 @@ Example:
         "RateLimiterPolicy": "customPolicy",
         "Match": {
           "Hosts": [ "localhost" ]
-        },
+        }
       }
     },
     "Clusters": {

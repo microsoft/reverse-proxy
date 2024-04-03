@@ -22,14 +22,14 @@ Example:
         "TimeoutPolicy": "customPolicy",
         "Match": {
           "Hosts": [ "localhost" ]
-        },
+        }
       }
       "route2" : {
         "ClusterId": "cluster1",
         "Timeout": "00:01:00",
         "Match": {
           "Hosts": [ "localhost2" ]
-        },
+        }
       }
     },
     "Clusters": {

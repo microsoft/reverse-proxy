@@ -371,7 +371,7 @@ Config:
 ```JSON
 {
   "HttpMethodChange": "PUT",
-  "Set": "POST",
+  "Set": "POST"
 }
 ```
 Code:
@@ -440,7 +440,7 @@ Config:
 ```JSON
 {
   "RequestHeader": "MyHeader",
-  "Set": "MyValue",
+  "Set": "MyValue"
 }
 ```
 Code:
