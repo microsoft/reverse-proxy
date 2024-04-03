@@ -20,7 +20,7 @@ Example:
         "AuthorizationPolicy": "customPolicy",
         "Match": {
           "Hosts": [ "localhost" ]
-        },
+        }
       }
     },
     "Clusters": {
