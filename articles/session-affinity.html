@@ -85,25 +85,26 @@
 <h3 id="cluster-configuration">Cluster configuration</h3>
 <p>Session affinity is configured per cluster according to the following configuration scheme.</p>
 <pre><code class="lang-JSON">&quot;ReverseProxy&quot;: {
-    &quot;Clusters&quot;: {
-        &quot;&lt;cluster-name&gt;&quot;: {
-            &quot;SessionAffinity&quot;: {
-                &quot;Enabled&quot;: &quot;(true|false)&quot;, // defaults to 'false'
-                &quot;Policy&quot;: &quot;(HashCookie|ArrCookie|Cookie|CustomHeader)&quot;, // defaults to 'HashCookie'
-                &quot;FailurePolicy&quot;: &quot;(Redistribute|Return503Error)&quot;, // defaults to 'Redistribute'
-                &quot;AffinityKeyName&quot;: &quot;Key1&quot;,
-                &quot;Cookie&quot;: {
-                    &quot;Domain&quot;: &quot;localhost&quot;,
-                    &quot;Expiration&quot;: &quot;03:00:00&quot;,
-                    &quot;HttpOnly&quot;: true,
-                    &quot;IsEssential&quot;: true,
-                    &quot;MaxAge&quot;: &quot;1.00:00:00&quot;,
-                    &quot;Path&quot;: &quot;mypath&quot;,
-                    &quot;SameSite&quot;: &quot;Strict&quot;,
-                    &quot;SecurePolicy&quot;: &quot;Always&quot;
-            }
+  &quot;Clusters&quot;: {
+    &quot;&lt;cluster-name&gt;&quot;: {
+      &quot;SessionAffinity&quot;: {
+        &quot;Enabled&quot;: &quot;(true|false)&quot;, // defaults to 'false'
+        &quot;Policy&quot;: &quot;(HashCookie|ArrCookie|Cookie|CustomHeader)&quot;, // defaults to 'HashCookie'
+        &quot;FailurePolicy&quot;: &quot;(Redistribute|Return503Error)&quot;, // defaults to 'Redistribute'
+        &quot;AffinityKeyName&quot;: &quot;Key1&quot;,
+        &quot;Cookie&quot;: {
+          &quot;Domain&quot;: &quot;localhost&quot;,
+          &quot;Expiration&quot;: &quot;03:00:00&quot;,
+          &quot;HttpOnly&quot;: true,
+          &quot;IsEssential&quot;: true,
+          &quot;MaxAge&quot;: &quot;1.00:00:00&quot;,
+          &quot;Path&quot;: &quot;mypath&quot;,
+          &quot;SameSite&quot;: &quot;Strict&quot;,
+          &quot;SecurePolicy&quot;: &quot;Always&quot;
         }
+      }
     }
+  }
 }
 </code></pre>
 <h3 id="cookie-configuration">Cookie configuration</h3>

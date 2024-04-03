@@ -78,17 +78,17 @@
 <h3 id="httpclient">HttpClient</h3>
 <p>HTTP client configuration is based on <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.HttpClientConfig.html">HttpClientConfig</a> and represented by the following configuration schema. If you need a more granular approach, please use a <a href="https://microsoft.github.io/reverse-proxy/articles/http-client-config.html#custom-iforwarderhttpclientfactory">custom implementation</a> of <code>IForwarderHttpClientFactory</code>.</p>
 <pre><code class="lang-JSON">&quot;HttpClient&quot;: {
-    &quot;SslProtocols&quot;: [ &quot;&lt;protocol-names&gt;&quot; ],
-    &quot;MaxConnectionsPerServer&quot;: &quot;&lt;int&gt;&quot;,
-    &quot;DangerousAcceptAnyServerCertificate&quot;: &quot;&lt;bool&gt;&quot;,
-    &quot;RequestHeaderEncoding&quot;: &quot;&lt;encoding-name&gt;&quot;,
-    &quot;ResponseHeaderEncoding&quot;: &quot;&lt;encoding-name&gt;&quot;,
-    &quot;EnableMultipleHttp2Connections&quot;: &quot;&lt;bool&gt;&quot;
-    &quot;WebProxy&quot;: {
-        &quot;Address&quot;: &quot;&lt;url&gt;&quot;,
-        &quot;BypassOnLocal&quot;: &quot;&lt;bool&gt;&quot;,
-        &quot;UseDefaultCredentials&quot;: &quot;&lt;bool&gt;&quot;
-    }
+  &quot;SslProtocols&quot;: [ &quot;&lt;protocol-names&gt;&quot; ],
+  &quot;MaxConnectionsPerServer&quot;: &quot;&lt;int&gt;&quot;,
+  &quot;DangerousAcceptAnyServerCertificate&quot;: &quot;&lt;bool&gt;&quot;,
+  &quot;RequestHeaderEncoding&quot;: &quot;&lt;encoding-name&gt;&quot;,
+  &quot;ResponseHeaderEncoding&quot;: &quot;&lt;encoding-name&gt;&quot;,
+  &quot;EnableMultipleHttp2Connections&quot;: &quot;&lt;bool&gt;&quot;,
+  &quot;WebProxy&quot;: {
+    &quot;Address&quot;: &quot;&lt;url&gt;&quot;,
+    &quot;BypassOnLocal&quot;: &quot;&lt;bool&gt;&quot;,
+    &quot;UseDefaultCredentials&quot;: &quot;&lt;bool&gt;&quot;
+  }
 }
 </code></pre>
 <p>Configuration settings:</p>
@@ -96,8 +96,8 @@
 <li>SslProtocols - <a href="https://docs.microsoft.com/dotnet/api/system.security.authentication.sslprotocols">SSL protocols</a> enabled on the given HTTP client. Protocol names are specified as array of strings. Default value is <a href="https://docs.microsoft.com/dotnet/api/system.security.authentication.sslprotocols#System_Security_Authentication_SslProtocols_None">None</a>.</li>
 </ul>
 <pre><code class="lang-JSON">&quot;SslProtocols&quot;: [
-    &quot;Tls11&quot;,
-    &quot;Tls12&quot;
+  &quot;Tls11&quot;,
+  &quot;Tls12&quot;
 ]
 </code></pre>
 <ul>
@@ -144,18 +144,18 @@ builder.WebHost.ConfigureKestrel(kestrel =&gt;
 </li>
 </ul>
 <pre><code class="lang-JSON">&quot;WebProxy&quot;: {
-    &quot;Address&quot;: &quot;http://myproxy:8080&quot;,
-    &quot;BypassOnLocal&quot;: &quot;true&quot;,
-    &quot;UseDefaultCredentials&quot;: &quot;false&quot;
+  &quot;Address&quot;: &quot;http://myproxy:8080&quot;,
+  &quot;BypassOnLocal&quot;: &quot;true&quot;,
+  &quot;UseDefaultCredentials&quot;: &quot;false&quot;
 }
 </code></pre>
 <h3 id="httprequest">HttpRequest</h3>
 <p>HTTP request configuration is based on <a class="xref" href="../api/Yarp.ReverseProxy.Forwarder.ForwarderRequestConfig.html">ForwarderRequestConfig</a> and represented by the following configuration schema.</p>
 <pre><code class="lang-JSON">&quot;HttpRequest&quot;: {
-    &quot;ActivityTimeout&quot;: &quot;&lt;timespan&gt;&quot;,
-    &quot;Version&quot;: &quot;&lt;string&gt;&quot;,
-    &quot;VersionPolicy&quot;: [&quot;RequestVersionOrLower&quot;, &quot;RequestVersionOrHigher&quot;, &quot;RequestVersionExact&quot;],
-    &quot;AllowResponseBuffering&quot;: &quot;&lt;bool&gt;&quot;
+  &quot;ActivityTimeout&quot;: &quot;&lt;timespan&gt;&quot;,
+  &quot;Version&quot;: &quot;&lt;string&gt;&quot;,
+  &quot;VersionPolicy&quot;: [&quot;RequestVersionOrLower&quot;, &quot;RequestVersionOrHigher&quot;, &quot;RequestVersionExact&quot;],
+  &quot;AllowResponseBuffering&quot;: &quot;&lt;bool&gt;&quot;
 }
 </code></pre>
 <p>Configuration settings:</p>
@@ -168,46 +168,46 @@ builder.WebHost.ConfigureKestrel(kestrel =&gt;
 <h2 id="configuration-example">Configuration example</h2>
 <p>The below example shows 2 samples of HTTP client and request configurations for <code>cluster1</code> and <code>cluster2</code>.</p>
 <pre><code class="lang-JSON">{
-    &quot;Clusters&quot;: {
-        &quot;cluster1&quot;: {
-            &quot;LoadBalancingPolicy&quot;: &quot;Random&quot;,
-            &quot;HttpClient&quot;: {
-                &quot;SslProtocols&quot;: [
-                    &quot;Tls11&quot;,
-                    &quot;Tls12&quot;
-                ],
-                &quot;MaxConnectionsPerServer&quot;: &quot;10&quot;,
-                &quot;DangerousAcceptAnyServerCertificate&quot;: &quot;true&quot;
-            },
-            &quot;HttpRequest&quot;: {
-                &quot;ActivityTimeout&quot;: &quot;00:00:30&quot;
-            },
-            &quot;Destinations&quot;: {
-                &quot;cluster1/destination1&quot;: {
-                    &quot;Address&quot;: &quot;https://localhost:10000/&quot;
-                },
-                &quot;cluster1/destination2&quot;: {
-                    &quot;Address&quot;: &quot;http://localhost:10010/&quot;
-                }
-            }
+  &quot;Clusters&quot;: {
+    &quot;cluster1&quot;: {
+      &quot;LoadBalancingPolicy&quot;: &quot;Random&quot;,
+      &quot;HttpClient&quot;: {
+        &quot;SslProtocols&quot;: [
+          &quot;Tls11&quot;,
+          &quot;Tls12&quot;
+        ],
+        &quot;MaxConnectionsPerServer&quot;: &quot;10&quot;,
+        &quot;DangerousAcceptAnyServerCertificate&quot;: &quot;true&quot;
+      },
+      &quot;HttpRequest&quot;: {
+        &quot;ActivityTimeout&quot;: &quot;00:00:30&quot;
+      },
+      &quot;Destinations&quot;: {
+        &quot;cluster1/destination1&quot;: {
+          &quot;Address&quot;: &quot;https://localhost:10000/&quot;
         },
-        &quot;cluster2&quot;: {
-            &quot;HttpClient&quot;: {
-                &quot;SslProtocols&quot;: [
-                    &quot;Tls12&quot;
-                ]
-            },
-            &quot;HttpRequest&quot;: {
-                &quot;Version&quot;: &quot;1.1&quot;,
-                &quot;VersionPolicy&quot;: &quot;RequestVersionExact&quot;
-            },
-            &quot;Destinations&quot;: {
-                &quot;cluster2/destination1&quot;: {
-                    &quot;Address&quot;: &quot;https://localhost:10001/&quot;
-                }
-            }
+        &quot;cluster1/destination2&quot;: {
+          &quot;Address&quot;: &quot;http://localhost:10010/&quot;
         }
+      }
+    },
+    &quot;cluster2&quot;: {
+      &quot;HttpClient&quot;: {
+        &quot;SslProtocols&quot;: [
+          &quot;Tls12&quot;
+        ]
+      },
+      &quot;HttpRequest&quot;: {
+        &quot;Version&quot;: &quot;1.1&quot;,
+        &quot;VersionPolicy&quot;: &quot;RequestVersionExact&quot;
+      },
+      &quot;Destinations&quot;: {
+        &quot;cluster2/destination1&quot;: {
+          &quot;Address&quot;: &quot;https://localhost:10001/&quot;
+        }
+      }
     }
+  }
 }
 </code></pre>
 <h2 id="code-configuration">Code Configuration</h2>

@@ -75,29 +75,30 @@
 <p>There are several cluster-wide configuration settings controlling active health checks that can be set either in the config file or in code. A dedicated health endpoint can also be specified per destination.</p>
 <h4 id="file-example">File example</h4>
 <pre><code class="lang-JSON">&quot;Clusters&quot;: {
-      &quot;cluster1&quot;: {
-        &quot;HealthCheck&quot;: {
-          &quot;Active&quot;: {
-            &quot;Enabled&quot;: &quot;true&quot;,
-            &quot;Interval&quot;: &quot;00:00:10&quot;,
-            &quot;Timeout&quot;: &quot;00:00:10&quot;,
-            &quot;Policy&quot;: &quot;ConsecutiveFailures&quot;,
-            &quot;Path&quot;: &quot;/api/health&quot;
-          }
-        },
-        &quot;Metadata&quot;: {
-          &quot;ConsecutiveFailuresHealthPolicy.Threshold&quot;: &quot;3&quot;
-        },
-        &quot;Destinations&quot;: {
-          &quot;cluster1/destination1&quot;: {
-            &quot;Address&quot;: &quot;https://localhost:10000/&quot;
-          },
-          &quot;cluster1/destination2&quot;: {
-            &quot;Address&quot;: &quot;http://localhost:10010/&quot;,
-            &quot;Health&quot;: &quot;http://localhost:10020/&quot;
-          }
-        }
+  &quot;cluster1&quot;: {
+    &quot;HealthCheck&quot;: {
+      &quot;Active&quot;: {
+        &quot;Enabled&quot;: &quot;true&quot;,
+        &quot;Interval&quot;: &quot;00:00:10&quot;,
+        &quot;Timeout&quot;: &quot;00:00:10&quot;,
+        &quot;Policy&quot;: &quot;ConsecutiveFailures&quot;,
+        &quot;Path&quot;: &quot;/api/health&quot;
       }
+    },
+    &quot;Metadata&quot;: {
+      &quot;ConsecutiveFailuresHealthPolicy.Threshold&quot;: &quot;3&quot;
+    },
+    &quot;Destinations&quot;: {
+      &quot;cluster1/destination1&quot;: {
+        &quot;Address&quot;: &quot;https://localhost:10000/&quot;
+      },
+      &quot;cluster1/destination2&quot;: {
+        &quot;Address&quot;: &quot;http://localhost:10010/&quot;,
+        &quot;Health&quot;: &quot;http://localhost:10020/&quot;
+      }
+    }
+  }
+}
 </code></pre>
 <h4 id="code-example">Code example</h4>
 <pre><code class="lang-C#">var clusters = new[]
@@ -221,26 +222,27 @@ IActiveHealthCheckPolicy --(New active health states)--&gt; IDestinationHealthUp
 <p>There are several cluster-wide configuration settings controlling passive health checks that can be set either in the config file or in code.</p>
 <h4 id="file-example-1">File example</h4>
 <pre><code class="lang-JSON">&quot;Clusters&quot;: {
-      &quot;cluster1&quot;: {
-        &quot;HealthCheck&quot;: {
-          &quot;Passive&quot;: {
-            &quot;Enabled&quot;: &quot;true&quot;,
-            &quot;Policy&quot;: &quot;TransportFailureRate&quot;,
-            &quot;ReactivationPeriod&quot;: &quot;00:02:00&quot;
-          }
-        },
-        &quot;Metadata&quot;: {
-          &quot;TransportFailureRateHealthPolicy.RateLimit&quot;: &quot;0.5&quot;
-        },
-        &quot;Destinations&quot;: {
-          &quot;cluster1/destination1&quot;: {
-            &quot;Address&quot;: &quot;https://localhost:10000/&quot;
-          },
-          &quot;cluster1/destination2&quot;: {
-            &quot;Address&quot;: &quot;http://localhost:10010/&quot;
-          }
-        }
+  &quot;cluster1&quot;: {
+    &quot;HealthCheck&quot;: {
+      &quot;Passive&quot;: {
+        &quot;Enabled&quot;: &quot;true&quot;,
+        &quot;Policy&quot;: &quot;TransportFailureRate&quot;,
+        &quot;ReactivationPeriod&quot;: &quot;00:02:00&quot;
       }
+    },
+    &quot;Metadata&quot;: {
+      &quot;TransportFailureRateHealthPolicy.RateLimit&quot;: &quot;0.5&quot;
+    },
+    &quot;Destinations&quot;: {
+      &quot;cluster1/destination1&quot;: {
+        &quot;Address&quot;: &quot;https://localhost:10000/&quot;
+      },
+      &quot;cluster1/destination2&quot;: {
+        &quot;Address&quot;: &quot;http://localhost:10010/&quot;
+      }
+    }
+  }
+}
 </code></pre>
 <h4 id="code-example-1">Code example</h4>
 <pre><code class="lang-C#">var clusters = new[]
@@ -361,22 +363,23 @@ There are two sets of policy parameters defined globally and on per cluster leve
 <h3 id="configuration-2">Configuration</h3>
 <h4 id="file-example-2">File example</h4>
 <pre><code class="lang-JSON">&quot;Clusters&quot;: {
-      &quot;cluster1&quot;: {
-        &quot;AvailableDestinationsPolicy&quot;: &quot;HealthyOrPanic&quot;,
-        &quot;HealthCheck&quot;: {
-          &quot;Passive&quot;: {
-            &quot;Enabled&quot;: &quot;true&quot;
-          }
-        },
-        &quot;Destinations&quot;: {
-          &quot;cluster1/destination1&quot;: {
-            &quot;Address&quot;: &quot;https://localhost:10000/&quot;
-          },
-          &quot;cluster1/destination2&quot;: {
-            &quot;Address&quot;: &quot;http://localhost:10010/&quot;
-          }
-        }
+  &quot;cluster1&quot;: {
+    &quot;AvailableDestinationsPolicy&quot;: &quot;HealthyOrPanic&quot;,
+    &quot;HealthCheck&quot;: {
+      &quot;Passive&quot;: {
+        &quot;Enabled&quot;: &quot;true&quot;
       }
+    },
+    &quot;Destinations&quot;: {
+      &quot;cluster1/destination1&quot;: {
+        &quot;Address&quot;: &quot;https://localhost:10000/&quot;
+      },
+      &quot;cluster1/destination2&quot;: {
+        &quot;Address&quot;: &quot;http://localhost:10010/&quot;
+      }
+    }
+  }
+}
 </code></pre>
 <h4 id="code-example-2">Code example</h4>
 <pre><code class="lang-C#">var clusters = new[]

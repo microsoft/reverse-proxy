@@ -116,8 +116,8 @@ services.AddReverseProxy()
         &quot;ClusterId&quot;: &quot;cluster1&quot;,
         &quot;Match&quot;: {
           &quot;Path&quot;: &quot;{**catch-all}&quot;,
-          &quot;Hosts&quot; : [ &quot;www.aaaaa.com&quot;, &quot;www.bbbbb.com&quot;],
-        },
+          &quot;Hosts&quot; : [ &quot;www.aaaaa.com&quot;, &quot;www.bbbbb.com&quot;]
+        }
       }
     },
     &quot;Clusters&quot;: {
@@ -202,7 +202,7 @@ Route matching is based on the most specific routes having highest precedence as
         &quot;Transforms&quot; : [ // List of transforms. See the Transforms article for more details
           {
             &quot;RequestHeader&quot;: &quot;MyHeader&quot;,
-            &quot;Set&quot;: &quot;MyValue&quot;,
+            &quot;Set&quot;: &quot;MyValue&quot;
           }
         ]
       }

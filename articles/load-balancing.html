@@ -81,19 +81,19 @@ YARP ships with built-in load-balancing algorithms, but also offers extensibilit
 <p>If no policy is specified, <code>PowerOfTwoChoices</code> will be used.</p>
 <h4 id="file-example">File example</h4>
 <pre><code class="lang-JSON">&quot;ReverseProxy&quot;: {
-    &quot;Clusters&quot;: {
-        &quot;cluster1&quot;: {
-            &quot;LoadBalancingPolicy&quot;: &quot;RoundRobin&quot;,
-            &quot;Destinations&quot;: {
-                &quot;cluster1/destination1&quot;: {
-                    &quot;Address&quot;: &quot;https://localhost:10000/&quot;
-                },
-                &quot;cluster1/destination2&quot;: {
-                    &quot;Address&quot;: &quot;https://localhost:10010/&quot;
-                }
-            }
+  &quot;Clusters&quot;: {
+    &quot;cluster1&quot;: {
+      &quot;LoadBalancingPolicy&quot;: &quot;RoundRobin&quot;,
+      &quot;Destinations&quot;: {
+        &quot;cluster1/destination1&quot;: {
+          &quot;Address&quot;: &quot;https://localhost:10000/&quot;
+        },
+        &quot;cluster1/destination2&quot;: {
+          &quot;Address&quot;: &quot;https://localhost:10010/&quot;
         }
+      }
     }
+  }
 }
 </code></pre>
 <h4 id="code-example">Code example</h4>
