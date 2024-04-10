@@ -52,8 +52,8 @@ public class PassiveHealthCheckTests
     public async Task PassiveHealthChecksEnabled_MultipleDestinationFailures_ProxyReturnsServiceUnavailable()
     {
         var destinationReached = false;
-        IProxyStateLookup? lookup = null;
-        string? clusterId = null;
+        IProxyStateLookup lookup = null;
+        string clusterId = null;
 
         var test = new TestEnvironment(
             context =>
