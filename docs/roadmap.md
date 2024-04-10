@@ -1,8 +1,22 @@
 # YARP Roadmap
 
-## Current status
+### Supported YARP versions
 
-YARP 2.0 has [released](https://github.com/microsoft/reverse-proxy/releases/tag/v2.0.0).
+[Latest releases](https://github.com/microsoft/reverse-proxy/releases)
+
+| Version | Release Date | Latest Patch Version | End of Support |
+| -- | -- | -- | -- |
+| [YARP 2.1](https://github.com/microsoft/reverse-proxy/releases/tag/v2.1.0) | 2023/11/17 | [2.1.0](https://github.com/microsoft/reverse-proxy/releases/tag/v2.1.0) |  |
+| [YARP 2.0](https://github.com/microsoft/reverse-proxy/releases/tag/v2.0.0) | 2023/2/14 | [2.0.1](https://github.com/microsoft/reverse-proxy/releases/tag/v2.0.1) | 2024/5/17 |
+
+### End-of-life YARP versions
+
+| Version | Released date | Final Patch Version | End of support |
+| -- | -- | -- | -- |
+| [YARP 1.1](https://github.com/microsoft/reverse-proxy/releases/tag/v1.1.0) | 2022/5/2 | [1.1.2](https://github.com/microsoft/reverse-proxy/releases/tag/v1.1.2) | 2023/8/14 |
+| [YARP 1.0](https://github.com/microsoft/reverse-proxy/releases/tag/v1.0.0) | 2021/11/9 | [1.0.1](https://github.com/microsoft/reverse-proxy/releases/tag/v1.0.1) | 2022/11/2 |
+
+## Current status
 
 We are planning our next steps, we think the outline will probably look something like:
 
