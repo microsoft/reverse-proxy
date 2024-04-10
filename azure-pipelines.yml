@@ -28,7 +28,7 @@ pr:
   branches:
     include:
     - '*'
-    
+
 resources:
   repositories:
   - repository: MicroBuildTemplate
@@ -68,9 +68,9 @@ extends:
             variables:
             - group: Publish-Build-Assets
             - name: _OfficialBuildArgs
-              value: /p:DotNetSignType=$(_SignType) 
-                     /p:TeamName=$(_TeamName) 
-                     /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) 
+              value: /p:DotNetSignType=$(_SignType)
+                     /p:TeamName=$(_TeamName)
+                     /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines)
                      /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
             - name: _SignType
               value: real
@@ -104,13 +104,13 @@ extends:
         SDLValidationParameters:
           enable: true
           continueOnError: false
-          params: ' -SourceToolsList @("policheck","credscan") 
-          -TsaInstanceURL $(_TsaInstanceURL) 
-          -TsaProjectName $(_TsaProjectName) 
-          -TsaNotificationEmail $(_TsaNotificationEmail) 
-          -TsaCodebaseAdmin $(_TsaCodebaseAdmin) 
-          -TsaBugAreaPath $(_TsaBugAreaPath) 
-          -TsaIterationPath $(_TsaIterationPath) 
-          -TsaRepositoryName "ReverseProxy" 
-          -TsaCodebaseName "ReverseProxy" 
+          params: ' -SourceToolsList @("policheck","credscan")
+          -TsaInstanceURL $(_TsaInstanceURL)
+          -TsaProjectName $(_TsaProjectName)
+          -TsaNotificationEmail $(_TsaNotificationEmail)
+          -TsaCodebaseAdmin $(_TsaCodebaseAdmin)
+          -TsaBugAreaPath $(_TsaBugAreaPath)
+          -TsaIterationPath $(_TsaIterationPath)
+          -TsaRepositoryName "ReverseProxy"
+          -TsaCodebaseName "ReverseProxy"
           -TsaPublish $True -PoliCheckAdditionalRunConfigParams @("UserExclusionPath < $(Build.SourcesDirectory)/eng/PoliCheckExclusions.xml")'
