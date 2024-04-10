@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Forwarder;
+using Yarp.ReverseProxy.Transforms.Builder;
 
 BenchmarksEventSource.MeasureAspNetVersion();
 BenchmarksEventSource.MeasureNetCoreAppVersion();
@@ -53,10 +54,11 @@ builder.Configure(app =>
     var forwarder = app.ApplicationServices.GetRequiredService<IHttpForwarder>();
     var clusterUrl = GetClusterUrl();
     var httpClient = new HttpMessageInvoker(CreateHandler());
+    var transformer = CreateHttpTransformer(app);
 
     app.Run(async context =>
     {
-        await forwarder.SendAsync(context, clusterUrl, httpClient, ForwarderRequestConfig.Empty, HttpTransformer.Default);
+        await forwarder.SendAsync(context, clusterUrl, httpClient, ForwarderRequestConfig.Empty, transformer);
     });
 });
 
@@ -94,4 +96,14 @@ static SocketsHttpHandler CreateHandler()
     handler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
 
     return handler;
+}
+
+static HttpTransformer CreateHttpTransformer(IApplicationBuilder app)
+{
+    var transformBuilder = app.ApplicationServices.GetRequiredService<ITransformBuilder>();
+
+    return transformBuilder.Create(context =>
+    {
+        context.UseDefaultForwarders = false;
+    });
 }
