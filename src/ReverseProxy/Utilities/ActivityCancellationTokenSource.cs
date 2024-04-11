@@ -10,6 +10,11 @@ namespace Yarp.ReverseProxy.Utilities;
 
 internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
 {
+    // Avoid paying the cost of updating the timeout timer if doing so won't meaningfully affect
+    // the overall timeout duration (default is 100s). This is a trade-off between precision and performance.
+    // The exact value is somewhat arbitrary, but should be large enough to avoid most timer updates.
+    private const int TimeoutResolutionMs = 20;
+
     private const int MaxQueueSize = 1024;
     private static readonly ConcurrentQueue<ActivityCancellationTokenSource> _sharedSources = new();
     private static int _count;
@@ -22,6 +27,7 @@ internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
     };
 
     private int _activityTimeoutMs;
+    private uint _lastTimeoutTicks;
     private CancellationTokenRegistration _linkedRegistration1;
     private CancellationTokenRegistration _linkedRegistration2;
 
@@ -29,9 +35,22 @@ internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
 
     public bool CancelledByLinkedToken { get; private set; }
 
+    private void StartTimeout()
+    {
+        _lastTimeoutTicks = (uint)Environment.TickCount;
+        CancelAfter(_activityTimeoutMs);
+    }
+
     public void ResetTimeout()
     {
-        CancelAfter(_activityTimeoutMs);
+        var currentMs = (uint)Environment.TickCount;
+        var elapsedMs = currentMs - _lastTimeoutTicks;
+
+        if (elapsedMs > TimeoutResolutionMs)
+        {
+            _lastTimeoutTicks = currentMs;
+            CancelAfter(_activityTimeoutMs);
+        }
     }
 
     public static ActivityCancellationTokenSource Rent(TimeSpan activityTimeout, CancellationToken linkedToken1 = default, CancellationToken linkedToken2 = default)
@@ -48,7 +67,7 @@ internal sealed class ActivityCancellationTokenSource : CancellationTokenSource
         cts._activityTimeoutMs = (int)activityTimeout.TotalMilliseconds;
         cts._linkedRegistration1 = linkedToken1.UnsafeRegister(_linkedTokenCancelDelegate, cts);
         cts._linkedRegistration2 = linkedToken2.UnsafeRegister(_linkedTokenCancelDelegate, cts);
-        cts.ResetTimeout();
+        cts.StartTimeout();
 
         return cts;
     }
