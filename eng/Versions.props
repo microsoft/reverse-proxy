@@ -13,6 +13,7 @@
   <!--Package versions-->
   <PropertyGroup>
     <SystemCollectionsImmutableVersion>8.0.0</SystemCollectionsImmutableVersion>
+    <SystemIOHashingVersion>8.0.0</SystemIOHashingVersion>
     <MicrosoftBclTimeProviderVersion>8.0.0</MicrosoftBclTimeProviderVersion>
     <MicrosoftDotNetXUnitExtensionsPackageVersion>9.0.0-beta.24212.4</MicrosoftDotNetXUnitExtensionsPackageVersion>
   </PropertyGroup>
