@@ -164,48 +164,32 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
                 var queueKey = new QueueKey(queueName, urlPrefix);
                 if (!_queuesPerDestination.TryGetValue(destination, out var queue) || !queue.Equals(queueKey))
                 {
-                    if (!_queues.TryGetValue(queueKey, out var queueWeakRef) || !queueWeakRef.TryGetTarget(out queue))
+                    var queueWeakRef = _queues.GetOrAdd(queueKey, key => new WeakReference<DelegationQueue>(new DelegationQueue(key.QueueName, key.UrlPrefix)));
+                    if (!queueWeakRef.TryGetTarget(out queue))
                     {
-                        // Either the queue hasn't been created or it has been cleaned up.
-                        // Create a new one, and try to add it if someone else didn't beat us to it.
-                        queue = new DelegationQueue(queueName, urlPrefix);
-                        queueWeakRef = new WeakReference<DelegationQueue>(queue);
-                        queueWeakRef = _queues.AddOrUpdate(
-                            queueKey,
-                            (key, newValue) => newValue,
-                            (key, value, newValue) => value.TryGetTarget(out _) ? value : newValue,
-                            queueWeakRef);
-                        queueWeakRef.TryGetTarget(out queue);
-                    }
-
-                    if (queue is not null)
-                    {
-                        // We call this outside of the above if bock so that if previous
-                        // initialization failed, we will retry it for every new destination added.
-                        var queueState = queue.Initialize(_serverDelegationFeature);
-                        if (!queueState.IsInitialized)
+                        // The queue was GC'd since it was originally created
+                        lock (queueWeakRef)
                         {
-                            Log.QueueInitFailed(
-                                    _logger,
-                                    destination.DestinationId,
-                                    queueName,
-                                    urlPrefix,
-                                    queueState.InitializationException);
+                            if (!queueWeakRef.TryGetTarget(out queue))
+                            {
+                                queue = new DelegationQueue(queueName, urlPrefix);
+                                queueWeakRef.SetTarget(queue);
+                            }
                         }
+                    }
 
-                        _queuesPerDestination.AddOrUpdate(destination, queue);
-                    }
-                    else
+                    var queueState = queue.Initialize(_serverDelegationFeature);
+                    if (!queueState.IsInitialized)
                     {
-                        // This should never happen because we always create a new one above
-                        _queuesPerDestination.Remove(destination);
                         Log.QueueInitFailed(
-                            _logger,
-                            destination.DestinationId,
-                            queueName,
-                            urlPrefix,
-                            new Exception("Delegation queue is null after adding a new one. This shouldn't happen."));
+                                _logger,
+                                destination.DestinationId,
+                                queueName,
+                                urlPrefix,
+                                queueState.InitializationException);
                     }
+
+                    _queuesPerDestination.AddOrUpdate(destination, queue);
                 }
             }
             else
