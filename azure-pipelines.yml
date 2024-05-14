@@ -42,7 +42,7 @@ extends:
     sdl:
       sourceAnalysisPool:
         name: $(DncEngInternalBuildPool)
-        image: 1es-windows-2022-pt
+        image: 1es-windows-2022
         os: windows
     customBuildTags:
     - ES365AIMigrationTooling
@@ -63,7 +63,7 @@ extends:
           - job: Windows
             pool:
               name: $(DncEngInternalBuildPool)
-              image: 1es-windows-2022-pt
+              image: 1es-windows-2022
               os: windows
             variables:
             - group: Publish-Build-Assets
