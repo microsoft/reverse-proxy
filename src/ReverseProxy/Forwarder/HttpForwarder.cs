@@ -513,16 +513,6 @@ internal sealed class HttpForwarder : IHttpForwarder
         {
             // 5.0 servers provide a definitive answer for us.
             hasBody = canHaveBodyFeature.CanHaveBody;
-
-#if NET7_0
-            // TODO: Kestrel 7.0 bug only, hasBody shouldn't be true for ExtendedConnect.
-            // https://github.com/dotnet/aspnetcore/issues/46002 Fixed in 8.0
-            var connectFeature = request.HttpContext.Features.Get<IHttpExtendedConnectFeature>();
-            if (connectFeature?.IsExtendedConnect == true)
-            {
-                hasBody = false;
-            }
-#endif
         }
         // https://tools.ietf.org/html/rfc7230#section-3.3.3
         // All HTTP/1.1 requests should have Transfer-Encoding or Content-Length.
