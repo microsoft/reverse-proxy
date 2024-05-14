@@ -9,7 +9,6 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0  AS publish
 WORKDIR /src
 # We need to install the SDK manually because we might target an unreleased SDK
 COPY ["global.json", ""]
-COPY ["TFMs.props", "Directory.Build.props"]
 RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --jsonfile global.json
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT 1
 
@@ -19,6 +18,7 @@ COPY ["src/ReverseProxy/Yarp.ReverseProxy.csproj", "src/ReverseProxy/"]
 COPY ["src/Kubernetes.Controller/Yarp.Kubernetes.Controller.csproj", "src/Kubernetes.Controller/"]
 COPY ["src/Directory.Build.props", "src/"]
 COPY ["Directory.Build.*", "./"]
+COPY ["TFMs.props", ""]
 COPY ["NuGet.config", ""]
 COPY ["eng/Versions.props", "eng/"]
 
