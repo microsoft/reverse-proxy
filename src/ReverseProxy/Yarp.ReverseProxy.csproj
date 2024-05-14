@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <Description>Reverse proxy toolkit for building fast proxy servers in .NET using the infrastructure from ASP.NET and .NET</Description>
-    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>$(ReleaseTFMs)</TargetFrameworks>
     <OutputType>Library</OutputType>
     <RootNamespace>Yarp.ReverseProxy</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Nullable>enable</Nullable>
-    <IsAotCompatible>true</IsAotCompatible>
+    <IsAotCompatible Condition="'$(TargetFramework)' != 'net6.0'">true</IsAotCompatible>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>yarp;dotnet;reverse-proxy;aspnetcore</PackageTags>
   </PropertyGroup>
