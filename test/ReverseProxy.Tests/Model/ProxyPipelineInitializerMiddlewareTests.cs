@@ -17,6 +17,7 @@ using Xunit;
 using Yarp.Tests.Common;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Forwarder;
+using System.Diagnostics;
 
 namespace Yarp.ReverseProxy.Model.Tests;
 
@@ -122,9 +123,12 @@ public class ProxyPipelineInitializerMiddlewareTests : TestAutoMockBase
 
         Assert.Equal(StatusCodes.Status418ImATeapot, httpContext.Response.StatusCode);
     }
+
 #if NET8_0_OR_GREATER
-    [Fact]
-    public async Task Invoke_MissingTimeoutMiddleware_RefuseRequest()
+    [Theory]
+    [InlineData(1)]
+    [InlineData(Timeout.Infinite)]
+    public async Task Invoke_MissingTimeoutMiddleware_RefuseRequest(int timeoutMs)
     {
         var httpClient = new HttpMessageInvoker(new Mock<HttpMessageHandler>().Object);
         var cluster1 = new ClusterState(clusterId: "cluster1")
@@ -140,7 +144,7 @@ public class ProxyPipelineInitializerMiddlewareTests : TestAutoMockBase
         var aspNetCoreEndpoint = CreateAspNetCoreEndpoint(routeConfig,
             builder =>
             {
-                builder.Metadata.Add(new RequestTimeoutAttribute(1));
+                builder.Metadata.Add(new RequestTimeoutAttribute(timeoutMs));
             });
         aspNetCoreEndpoints.Add(aspNetCoreEndpoint);
         var httpContext = new DefaultHttpContext();
@@ -148,7 +152,15 @@ public class ProxyPipelineInitializerMiddlewareTests : TestAutoMockBase
 
         var sut = Create<ProxyPipelineInitializerMiddleware>();
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.Invoke(httpContext));
+        if (timeoutMs == Timeout.Infinite || Debugger.IsAttached)
+        {
+            // If the timeout was infinite or the debugger is attached, we shouldn't refuse the request.
+            await sut.Invoke(httpContext);
+        }
+        else
+        {
+            await Assert.ThrowsAsync<InvalidOperationException>(() => sut.Invoke(httpContext));
+        }
     }
 #endif
 
