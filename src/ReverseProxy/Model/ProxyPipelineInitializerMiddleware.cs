@@ -106,10 +106,10 @@ internal sealed class ProxyPipelineInitializerMiddleware
         {
             // A timeout should have been set.
             // Out of an abundance of caution, refuse the request rather than allowing it to proceed without the configured timeout.
-            Throw(route);
+            ThrowIfDebuggerNotAttached(route);
         }
 
-        void Throw(RouteModel route)
+        void ThrowIfDebuggerNotAttached(RouteModel route)
         {
             // The feature is skipped if the debugger is attached.
             if (!Debugger.IsAttached)
