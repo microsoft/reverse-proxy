@@ -982,6 +982,11 @@ internal sealed class HttpForwarder : IHttpForwarder
             EventIds.ForwardingError,
             "{error}: {message}");
 
+        private static readonly Action<ILogger, ForwarderError, string, Exception> _proxyRequestCancelled = LoggerMessage.Define<ForwarderError, string>(
+            LogLevel.Debug,
+            EventIds.ForwardingRequestCancelled,
+            "{error}: {message}");
+
         private static readonly Action<ILogger, int, Exception?> _notProxying = LoggerMessage.Define<int>(
             LogLevel.Information,
             EventIds.NotForwarding,
@@ -1031,7 +1036,21 @@ internal sealed class HttpForwarder : IHttpForwarder
 
         public static void ErrorProxying(ILogger logger, ForwarderError error, Exception ex)
         {
-            _proxyError(logger, error, GetMessage(error), ex);
+            var message = GetMessage(error);
+
+            if (error is
+                ForwarderError.RequestCanceled or
+                ForwarderError.RequestBodyCanceled or
+                ForwarderError.UpgradeRequestCanceled)
+            {
+                // These error conditions are triggered by the client and are not generally indicative of a problem with the proxy.
+                // It's unlikely that they will be useful in most cases, so we log them at Debug level to reduce noise.
+                _proxyRequestCancelled(logger, error, message, ex);
+            }
+            else
+            {
+                _proxyError(logger, error, message, ex);
+            }
         }
 
         public static void RetryingWebSocketDowngradeNoConnect(ILogger logger)

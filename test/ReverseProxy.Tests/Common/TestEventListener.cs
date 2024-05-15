@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Threading;
@@ -10,13 +9,12 @@ namespace Yarp.Tests.Common;
 
 internal static class TestEventListener
 {
-    private static readonly AsyncLocal<List<EventWrittenEventArgs>> _eventsAsyncLocal = new AsyncLocal<List<EventWrittenEventArgs>>();
-    private static readonly InternalEventListener _listener = new InternalEventListener();
+    private static readonly AsyncLocal<List<EventWrittenEventArgs>> _eventsAsyncLocal = new();
+#pragma warning disable IDE0052 // Remove unread private members
+    private static readonly InternalEventListener _listener = new();
+#pragma warning restore IDE0052
 
-    public static List<EventWrittenEventArgs> Collect()
-    {
-        return _eventsAsyncLocal.Value = new List<EventWrittenEventArgs>();
-    }
+    public static List<EventWrittenEventArgs> Collect() => _eventsAsyncLocal.Value ??= [];
 
     private sealed class InternalEventListener : EventListener
     {
@@ -28,14 +26,7 @@ internal static class TestEventListener
             }
         }
 
-        protected override void OnEventWritten(EventWrittenEventArgs eventData)
-        {
-            if (eventData.EventId == 0)
-            {
-                throw new Exception($"EventSource error received: {eventData.Payload[0]}");
-            }
-
+        protected override void OnEventWritten(EventWrittenEventArgs eventData) =>
             _eventsAsyncLocal.Value?.Add(eventData);
-        }
     }
 }
