@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>$(ReleaseTFMs)</TargetFrameworks>
     <RootNamespace>Backend</RootNamespace>
     <UserSecretsId>aaa98da6-d0d4-4ad6-9821-f66057413c3a</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>

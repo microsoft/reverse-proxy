@@ -18,6 +18,7 @@ COPY ["src/ReverseProxy/Yarp.ReverseProxy.csproj", "src/ReverseProxy/"]
 COPY ["src/Kubernetes.Controller/Yarp.Kubernetes.Controller.csproj", "src/Kubernetes.Controller/"]
 COPY ["src/Directory.Build.props", "src/"]
 COPY ["Directory.Build.*", "./"]
+COPY ["TFMs.props", ""]
 COPY ["NuGet.config", ""]
 COPY ["eng/Versions.props", "eng/"]
 

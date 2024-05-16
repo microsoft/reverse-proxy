@@ -12,20 +12,19 @@ We plan on providing a project template and pre-built exe in the future.
 YARP is implemented on top of .NET Core infrastructure and is usable on Windows, Linux or MacOS.
 Development can be done with the SDK and your favorite editor, [Microsoft Visual Studio](https://visualstudio.microsoft.com/vs/) or [Visual Studio Code](https://code.visualstudio.com/).
 
-YARP 2.0.0 supports ASP.NET Core 6.0 and newer.
+YARP 2.1.0 supports ASP.NET Core 6.0 and newer, including ASP.NET Core 8.0.
 You can download the .NET SDK from https://dotnet.microsoft.com/download/dotnet/.
 
-Visual Studio support for .NET 6 is included in Visual Studio 2022.
+Visual Studio support for .NET 8 is included in Visual Studio 2022 17.8.
 
 ### Create a new project
 
-A complete version of the project built using the steps below can be found at [Minimal YARP Sample](https://github.com/microsoft/reverse-proxy/tree/release/latest/samples/ReverseProxy.Minimal.Sample).
-For a version that does not use [top-level statements](https://docs.microsoft.com/dotnet/csharp/fundamentals/program-structure/top-level-statements), see the [Basic YARP Sample](https://github.com/microsoft/reverse-proxy/tree/release/latest/samples/BasicYarpSample).
+A complete version of the project built using the steps below can be found at [Basic YARP Sample](https://github.com/microsoft/reverse-proxy/tree/release/latest/samples/BasicYarpSample).
 
 Start by creating an "Empty" ASP.NET Core application using the command line:
 
 ```Console
-dotnet new web -n MyProxy -f net6.0
+dotnet new web -n MyProxy -f net8.0
 ```
 
 Or create a new ASP.NET Core web application in Visual Studio 2022, and choose "Empty" for the project template. 
@@ -34,7 +33,7 @@ Or create a new ASP.NET Core web application in Visual Studio 2022, and choose "
 
  ```XML
 <ItemGroup> 
-  <PackageReference Include="Yarp.ReverseProxy" Version="1.1.0-rc.2.22152.2" />
+  <PackageReference Include="Yarp.ReverseProxy" Version="2.1.0" />
 </ItemGroup> 
 ```
 
