@@ -121,7 +121,16 @@ public class RequestHeaderForwardedTransform : RequestTransform
                 builder.Append(';');
             }
             builder.Append("for=");
-            AppendNode(context.Connection.RemoteIpAddress, context.Connection.RemotePort, ForFormat, ref builder);
+
+            IPAddress? remoteIp = null;
+            var remoteIpAddress = context.Connection.RemoteIpAddress;
+            if (remoteIpAddress is not null)
+            {
+                remoteIp = remoteIpAddress.IsIPv4MappedToIPv6 ?
+                    remoteIpAddress.MapToIPv4() :
+                    remoteIpAddress;
+            }
+            AppendNode(remoteIp, context.Connection.RemotePort, ForFormat, ref builder);
         }
     }
 
