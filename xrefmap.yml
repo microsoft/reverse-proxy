@@ -693,6 +693,19 @@ references:
   isSpec: "True"
   fullName: Yarp.ReverseProxy.Configuration.ActiveHealthCheckConfig.Policy
   nameWithType: ActiveHealthCheckConfig.Policy
+- uid: Yarp.ReverseProxy.Configuration.ActiveHealthCheckConfig.Query
+  name: Query
+  href: api/Yarp.ReverseProxy.Configuration.ActiveHealthCheckConfig.html#Yarp_ReverseProxy_Configuration_ActiveHealthCheckConfig_Query
+  commentId: P:Yarp.ReverseProxy.Configuration.ActiveHealthCheckConfig.Query
+  fullName: Yarp.ReverseProxy.Configuration.ActiveHealthCheckConfig.Query
+  nameWithType: ActiveHealthCheckConfig.Query
+- uid: Yarp.ReverseProxy.Configuration.ActiveHealthCheckConfig.Query*
+  name: Query
+  href: api/Yarp.ReverseProxy.Configuration.ActiveHealthCheckConfig.html#Yarp_ReverseProxy_Configuration_ActiveHealthCheckConfig_Query_
+  commentId: Overload:Yarp.ReverseProxy.Configuration.ActiveHealthCheckConfig.Query
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.Configuration.ActiveHealthCheckConfig.Query
+  nameWithType: ActiveHealthCheckConfig.Query
 - uid: Yarp.ReverseProxy.Configuration.ActiveHealthCheckConfig.Timeout
   name: Timeout
   href: api/Yarp.ReverseProxy.Configuration.ActiveHealthCheckConfig.html#Yarp_ReverseProxy_Configuration_ActiveHealthCheckConfig_Timeout
@@ -842,6 +855,34 @@ references:
   isSpec: "True"
   fullName: Yarp.ReverseProxy.Configuration.ClusterConfig.SessionAffinity
   nameWithType: ClusterConfig.SessionAffinity
+- uid: Yarp.ReverseProxy.Configuration.ClusterValidators
+  name: Yarp.ReverseProxy.Configuration.ClusterValidators
+  href: api/Yarp.ReverseProxy.Configuration.ClusterValidators.html
+  commentId: N:Yarp.ReverseProxy.Configuration.ClusterValidators
+  fullName: Yarp.ReverseProxy.Configuration.ClusterValidators
+  nameWithType: Yarp.ReverseProxy.Configuration.ClusterValidators
+- uid: Yarp.ReverseProxy.Configuration.ClusterValidators.IClusterValidator
+  name: IClusterValidator
+  href: api/Yarp.ReverseProxy.Configuration.ClusterValidators.IClusterValidator.html
+  commentId: T:Yarp.ReverseProxy.Configuration.ClusterValidators.IClusterValidator
+  fullName: Yarp.ReverseProxy.Configuration.ClusterValidators.IClusterValidator
+  nameWithType: IClusterValidator
+- uid: Yarp.ReverseProxy.Configuration.ClusterValidators.IClusterValidator.ValidateAsync(Yarp.ReverseProxy.Configuration.ClusterConfig,IList{Exception})
+  name: ValidateAsync(ClusterConfig, IList<Exception>)
+  href: api/Yarp.ReverseProxy.Configuration.ClusterValidators.IClusterValidator.html#Yarp_ReverseProxy_Configuration_ClusterValidators_IClusterValidator_ValidateAsync_Yarp_ReverseProxy_Configuration_ClusterConfig_IList_Exception__
+  commentId: M:Yarp.ReverseProxy.Configuration.ClusterValidators.IClusterValidator.ValidateAsync(Yarp.ReverseProxy.Configuration.ClusterConfig,IList{Exception})
+  name.vb: ValidateAsync(ClusterConfig, IList(Of Exception))
+  fullName: Yarp.ReverseProxy.Configuration.ClusterValidators.IClusterValidator.ValidateAsync(Yarp.ReverseProxy.Configuration.ClusterConfig, IList<Exception>)
+  fullName.vb: Yarp.ReverseProxy.Configuration.ClusterValidators.IClusterValidator.ValidateAsync(Yarp.ReverseProxy.Configuration.ClusterConfig, IList(Of Exception))
+  nameWithType: IClusterValidator.ValidateAsync(ClusterConfig, IList<Exception>)
+  nameWithType.vb: IClusterValidator.ValidateAsync(ClusterConfig, IList(Of Exception))
+- uid: Yarp.ReverseProxy.Configuration.ClusterValidators.IClusterValidator.ValidateAsync*
+  name: ValidateAsync
+  href: api/Yarp.ReverseProxy.Configuration.ClusterValidators.IClusterValidator.html#Yarp_ReverseProxy_Configuration_ClusterValidators_IClusterValidator_ValidateAsync_
+  commentId: Overload:Yarp.ReverseProxy.Configuration.ClusterValidators.IClusterValidator.ValidateAsync
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.Configuration.ClusterValidators.IClusterValidator.ValidateAsync
+  nameWithType: IClusterValidator.ValidateAsync
 - uid: Yarp.ReverseProxy.Configuration.DestinationConfig
   name: DestinationConfig
   href: api/Yarp.ReverseProxy.Configuration.DestinationConfig.html
@@ -1966,6 +2007,34 @@ references:
   isSpec: "True"
   fullName: Yarp.ReverseProxy.Configuration.RouteQueryParameter.Values
   nameWithType: RouteQueryParameter.Values
+- uid: Yarp.ReverseProxy.Configuration.RouteValidators
+  name: Yarp.ReverseProxy.Configuration.RouteValidators
+  href: api/Yarp.ReverseProxy.Configuration.RouteValidators.html
+  commentId: N:Yarp.ReverseProxy.Configuration.RouteValidators
+  fullName: Yarp.ReverseProxy.Configuration.RouteValidators
+  nameWithType: Yarp.ReverseProxy.Configuration.RouteValidators
+- uid: Yarp.ReverseProxy.Configuration.RouteValidators.IRouteValidator
+  name: IRouteValidator
+  href: api/Yarp.ReverseProxy.Configuration.RouteValidators.IRouteValidator.html
+  commentId: T:Yarp.ReverseProxy.Configuration.RouteValidators.IRouteValidator
+  fullName: Yarp.ReverseProxy.Configuration.RouteValidators.IRouteValidator
+  nameWithType: IRouteValidator
+- uid: Yarp.ReverseProxy.Configuration.RouteValidators.IRouteValidator.ValidateAsync(Yarp.ReverseProxy.Configuration.RouteConfig,IList{Exception})
+  name: ValidateAsync(RouteConfig, IList<Exception>)
+  href: api/Yarp.ReverseProxy.Configuration.RouteValidators.IRouteValidator.html#Yarp_ReverseProxy_Configuration_RouteValidators_IRouteValidator_ValidateAsync_Yarp_ReverseProxy_Configuration_RouteConfig_IList_Exception__
+  commentId: M:Yarp.ReverseProxy.Configuration.RouteValidators.IRouteValidator.ValidateAsync(Yarp.ReverseProxy.Configuration.RouteConfig,IList{Exception})
+  name.vb: ValidateAsync(RouteConfig, IList(Of Exception))
+  fullName: Yarp.ReverseProxy.Configuration.RouteValidators.IRouteValidator.ValidateAsync(Yarp.ReverseProxy.Configuration.RouteConfig, IList<Exception>)
+  fullName.vb: Yarp.ReverseProxy.Configuration.RouteValidators.IRouteValidator.ValidateAsync(Yarp.ReverseProxy.Configuration.RouteConfig, IList(Of Exception))
+  nameWithType: IRouteValidator.ValidateAsync(RouteConfig, IList<Exception>)
+  nameWithType.vb: IRouteValidator.ValidateAsync(RouteConfig, IList(Of Exception))
+- uid: Yarp.ReverseProxy.Configuration.RouteValidators.IRouteValidator.ValidateAsync*
+  name: ValidateAsync
+  href: api/Yarp.ReverseProxy.Configuration.RouteValidators.IRouteValidator.html#Yarp_ReverseProxy_Configuration_RouteValidators_IRouteValidator_ValidateAsync_
+  commentId: Overload:Yarp.ReverseProxy.Configuration.RouteValidators.IRouteValidator.ValidateAsync
+  isSpec: "True"
+  fullName: Yarp.ReverseProxy.Configuration.RouteValidators.IRouteValidator.ValidateAsync
+  nameWithType: IRouteValidator.ValidateAsync
 - uid: Yarp.ReverseProxy.Configuration.SessionAffinityConfig
   name: SessionAffinityConfig
   href: api/Yarp.ReverseProxy.Configuration.SessionAffinityConfig.html
@@ -8825,6 +8894,35 @@ references:
   commentId: T:Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer
   fullName: Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer
   nameWithType: IKestrelTelemetryConsumer
+- uid: Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.OnConnectionStart(DateTime,System.String,System.Nullable{System.String},System.Nullable{System.String})
+  name: OnConnectionStart(DateTime, String, Nullable<String>, Nullable<String>)
+  href: api/Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.html#Yarp_Telemetry_Consumption_IKestrelTelemetryConsumer_OnConnectionStart_DateTime_System_String_System_Nullable_System_String__System_Nullable_System_String__
+  commentId: M:Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.OnConnectionStart(DateTime,System.String,System.Nullable{System.String},System.Nullable{System.String})
+  name.vb: OnConnectionStart(DateTime, String, Nullable(Of String), Nullable(Of String))
+  fullName: Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.OnConnectionStart(DateTime, System.String, System.Nullable<System.String>, System.Nullable<System.String>)
+  fullName.vb: Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.OnConnectionStart(DateTime, System.String, System.Nullable(Of System.String), System.Nullable(Of System.String))
+  nameWithType: IKestrelTelemetryConsumer.OnConnectionStart(DateTime, String, Nullable<String>, Nullable<String>)
+  nameWithType.vb: IKestrelTelemetryConsumer.OnConnectionStart(DateTime, String, Nullable(Of String), Nullable(Of String))
+- uid: Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.OnConnectionStart*
+  name: OnConnectionStart
+  href: api/Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.html#Yarp_Telemetry_Consumption_IKestrelTelemetryConsumer_OnConnectionStart_
+  commentId: Overload:Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.OnConnectionStart
+  isSpec: "True"
+  fullName: Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.OnConnectionStart
+  nameWithType: IKestrelTelemetryConsumer.OnConnectionStart
+- uid: Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.OnConnectionStop(DateTime,System.String)
+  name: OnConnectionStop(DateTime, String)
+  href: api/Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.html#Yarp_Telemetry_Consumption_IKestrelTelemetryConsumer_OnConnectionStop_DateTime_System_String_
+  commentId: M:Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.OnConnectionStop(DateTime,System.String)
+  fullName: Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.OnConnectionStop(DateTime, System.String)
+  nameWithType: IKestrelTelemetryConsumer.OnConnectionStop(DateTime, String)
+- uid: Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.OnConnectionStop*
+  name: OnConnectionStop
+  href: api/Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.html#Yarp_Telemetry_Consumption_IKestrelTelemetryConsumer_OnConnectionStop_
+  commentId: Overload:Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.OnConnectionStop
+  isSpec: "True"
+  fullName: Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.OnConnectionStop
+  nameWithType: IKestrelTelemetryConsumer.OnConnectionStop
 - uid: Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.OnRequestStart(DateTime,System.String,System.String,System.String,System.String,System.String)
   name: OnRequestStart(DateTime, String, String, String, String, String)
   href: api/Yarp.Telemetry.Consumption.IKestrelTelemetryConsumer.html#Yarp_Telemetry_Consumption_IKestrelTelemetryConsumer_OnRequestStart_DateTime_System_String_System_String_System_String_System_String_System_String_

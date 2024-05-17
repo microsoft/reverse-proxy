@@ -241,7 +241,8 @@ Route matching is based on the most specific routes having highest precedence as
             &quot;Interval&quot;: &quot;00:00:10&quot;,
             &quot;Timeout&quot;: &quot;00:00:10&quot;,
             &quot;Policy&quot;: &quot;ConsecutiveFailures&quot;,
-            &quot;Path&quot;: &quot;/api/health&quot; // API endpoint to query for health state
+            &quot;Path&quot;: &quot;/api/health&quot;, // API endpoint to query for health state
+            &quot;Query&quot;: &quot;?foo=bar&quot;
           },
           &quot;Passive&quot;: { // Disables destinations based on HTTP response codes
             &quot;Enabled&quot;: true, // Defaults to false

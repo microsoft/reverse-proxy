@@ -82,7 +82,8 @@
         &quot;Interval&quot;: &quot;00:00:10&quot;,
         &quot;Timeout&quot;: &quot;00:00:10&quot;,
         &quot;Policy&quot;: &quot;ConsecutiveFailures&quot;,
-        &quot;Path&quot;: &quot;/api/health&quot;
+        &quot;Path&quot;: &quot;/api/health&quot;,
+        &quot;Query&quot;: &quot;?foo=bar&quot;
       }
     },
     &quot;Metadata&quot;: {
@@ -114,7 +115,8 @@
                 Interval = TimeSpan.FromSeconds(10),
                 Timeout = TimeSpan.FromSeconds(10),
                 Policy = HealthCheckConstants.ActivePolicy.ConsecutiveFailures,
-                Path = &quot;/api/health&quot;
+                Path = &quot;/api/health&quot;,
+                Query = &quot;?foo=bar&quot;,
             }
         },
         Metadata = new Dictionary&lt;string, string&gt; { { ConsecutiveFailuresHealthPolicyOptions.ThresholdMetadataName, &quot;5&quot; } },
@@ -136,6 +138,7 @@
 <li><code>Timeout</code> - probing request timeout. Default <code>00:00:10</code></li>
 <li><code>Policy</code> - name of a policy evaluating destinations' active health states. Mandatory parameter</li>
 <li><code>Path</code> -  health check path on all cluster's destinations. Default <code>null</code>.</li>
+<li><code>Query</code> -  health check query on all cluster's destinations. Default <code>null</code>.</li>
 </ul>
 <p><code>Destination</code> section and <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.DestinationConfig.html">DestinationConfig</a>.</p>
 <ul>

@@ -128,7 +128,7 @@ app.MapReverseProxy();
 <p>These authentication types already pass their values in the request headers and these will flow to the destination server by default. That server will still need to verify and interpret those values, causing some double work.</p>
 <h3 id="oauth2-openidconnect-wsfederation">OAuth2, OpenIdConnect, WsFederation</h3>
 <p>These protocols are commonly used with remote identity providers. The authentication process can be configured in the proxy application and will result in an authentication cookie. That cookie will flow to the destination server as a normal request header.</p>
-<h3 id="windows-negotiate-ntlm-kerbereos">Windows, Negotiate, NTLM, Kerbereos</h3>
+<h3 id="windows-negotiate-ntlm-kerberos">Windows, Negotiate, NTLM, Kerberos</h3>
 <p>These authentication types are often bound to a specific connection. They are not supported as means of authenticating a user in a destination server behind the YARP proxy (see <a href="https://github.com/microsoft/reverse-proxy/issues/166">#166</a>. They can be used to authenticate an incoming request to the proxy, but that identity information will have to be communicated to the destination server in another form. They can also be used to authenticate the proxy to the destination servers, but only as the proxy's own user, impersonating the client is not supported.</p>
 <h3 id="client-certificates">Client Certificates</h3>
 <p>Client certificates are a TLS feature and are negotiated as part of a connection. See <a href="https://docs.microsoft.com/aspnet/core/security/authentication/certauth">these docs</a> for additional information. The certificate can be forwarded to the destination server as an HTTP header using the <a href="transforms.html#clientcert">ClientCert</a> transform.</p>

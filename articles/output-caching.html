@@ -5,9 +5,9 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>A/B Testing and Rolling Upgrades </title>
+    <title>Output Caching </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="A/B Testing and Rolling Upgrades ">
+    <meta name="title" content="Output Caching ">
     <meta name="generator" content="docfx 2.59.4.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
@@ -67,40 +67,58 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="ab-testing-and-rolling-upgrades">A/B Testing and Rolling Upgrades</h1>
+<h1 id="output-caching">Output Caching</h1>
 
 <h2 id="introduction">Introduction</h2>
-<p>A/B testing and rolling upgrades require procedures for dynamically assigning incoming traffic to evaluate changes in the destination application. YARP does not have a built-in model for this, but it does expose some infrastructure useful for building such a system. See <a href="https://github.com/microsoft/reverse-proxy/issues/126">issue #126</a> for additional details about this scenario.</p>
-<h2 id="example">Example</h2>
-<pre><code>app.MapReverseProxy(proxyPipeline =&gt;
-{
-    // Custom cluster selection
-    proxyPipeline.Use((context, next) =&gt;
-    {
-        var lookup = context.RequestServices.GetRequiredService&lt;IProxyStateLookup&gt;();
-        if (lookup.TryGetCluster(ChooseCluster(context), out var cluster))
-        {
-            context.ReassignProxyRequest(cluster);
+<p>The reverse proxy can be used to cache proxied responses and serve requests before they are proxied to the destination servers. This can reduce load on the destination servers, add a layer of protection, and ensure consistent policies are implemented across your applications.</p>
+<blockquote>
+<p>This feature is only available when using .NET 7.0 or later</p>
+</blockquote>
+<h2 id="defaults">Defaults</h2>
+<p>No output caching is performed unless enabled in the route or application configuration.</p>
+<h2 id="configuration">Configuration</h2>
+<p>Output Cache policies can be specified per route via <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.RouteConfig.html">RouteConfig.OutputCachePolicy</a> and can be bound from the <code>Routes</code> sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.</p>
+<p>Example:</p>
+<pre><code class="lang-JSON">{
+  &quot;ReverseProxy&quot;: {
+    &quot;Routes&quot;: {
+      &quot;route1&quot; : {
+        &quot;ClusterId&quot;: &quot;cluster1&quot;,
+        &quot;OutputCachePolicy&quot;: &quot;customPolicy&quot;,
+        &quot;Match&quot;: {
+          &quot;Hosts&quot;: [ &quot;localhost&quot; ]
         }
-
-        return next();
-    });
-    proxyPipeline.UseSessionAffinity();
-    proxyPipeline.UseLoadBalancing();
-});
-
-string ChooseCluster(HttpContext context)
-{
-    // Decide which cluster to use. This could be random, weighted, based on headers, etc.
-    return Random.Shared.Next(2) == 1 ? &quot;cluster1&quot; : &quot;cluster2&quot;;
+      }
+    },
+    &quot;Clusters&quot;: {
+      &quot;cluster1&quot;: {
+        &quot;Destinations&quot;: {
+          &quot;cluster1/destination1&quot;: {
+            &quot;Address&quot;: &quot;https://localhost:10001/&quot;
+          }
+        }
+      }
+    }
+  }
 }
 </code></pre>
-<h2 id="usage">Usage</h2>
-<p>This scenario makes use of two APIs, <a class="xref" href="../api/Yarp.ReverseProxy.IProxyStateLookup.html">IProxyStateLookup</a> and <a href="xref:Microsoft.AspNetCore.Http.HttpContextFeaturesExtensions.ReassignProxyRequest(Microsoft.AspNetCore.Http.HttpContext,Yarp.ReverseProxy.Model.ClusterState)">ReassignProxyRequest</a>, called from a custom proxy middleware as shown in the sample above.</p>
-<p><code>IProxyStateLookup</code> is a service available in the Dependency Injection container that can be used to look up or enumerate the current routes and clusters. Note this data may change if the configuration changes. An A/B orchestration algorithm can examine the request, decide which cluster to send it to, and then retrieve that cluster from <code>IProxyStateLookup.TryGetCluster</code>.</p>
-<p>Once the cluster is selected, <code>ReassignProxyRequest</code> can be called to assign the request to that cluster. This updates the <a class="xref" href="../api/Yarp.ReverseProxy.Model.IReverseProxyFeature.html">IReverseProxyFeature</a> with the new cluster and destination information needed for the rest of the proxy middleware pipeline to handle the request.</p>
-<h2 id="session-affinity">Session affinity</h2>
-<p>Note that session affinity functionality is split between middleware, which reads it settings from the current cluster, and transforms, which are part of the original route. Clusters used for A/B testing should use the same session affinity configuration to avoid conflicts.</p>
+<p><a href="https://learn.microsoft.com/aspnet/core/performance/caching/output">Output cache policies</a> are an ASP.NET Core concept that the proxy utilizes. The proxy provides the above configuration to specify a policy per route and the rest is handled by existing ASP.NET Core output caching middleware.</p>
+<p>Output cache policies can be configured in Program.cs as follows:</p>
+<pre><code class="lang-c#">var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddOutputCache(options =&gt;
+{
+    options.AddPolicy(&quot;customPolicy&quot;, builder =&gt; builder.Expire(TimeSpan.FromSeconds(20)));
+});
+</code></pre>
+<p>Then add the output caching middleware:</p>
+<pre><code class="lang-c#">var app = builder.Build();
+
+app.UseOutputCache();
+
+app.MapReverseProxy();
+</code></pre>
+<p>See the <a href="https://learn.microsoft.com/aspnet/core/performance/caching/output">Output Caching</a> docs for setting up your preferred kind of output caching.</p>
 </article>
           </div>
           
@@ -109,7 +127,7 @@ string ChooseCluster(HttpContext context)
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/docs/docfx/articles/ab-testing.md/#L1" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/microsoft/reverse-proxy/blob/release/latest/docs/docfx/articles/output-caching.md/#L1" class="contribution-link">Improve this Doc</a>
                   </li>
                 </ul>
               </div>
