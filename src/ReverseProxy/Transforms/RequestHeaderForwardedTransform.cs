@@ -121,7 +121,6 @@ public class RequestHeaderForwardedTransform : RequestTransform
                 builder.Append(';');
             }
             builder.Append("for=");
-
             AppendNode(context.Connection.RemoteIpAddress, context.Connection.RemotePort, ForFormat, ref builder);
         }
     }
