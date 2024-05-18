@@ -122,15 +122,7 @@ public class RequestHeaderForwardedTransform : RequestTransform
             }
             builder.Append("for=");
 
-            IPAddress? remoteIp = null;
-            var remoteIpAddress = context.Connection.RemoteIpAddress;
-            if (remoteIpAddress is not null)
-            {
-                remoteIp = remoteIpAddress.IsIPv4MappedToIPv6 ?
-                    remoteIpAddress.MapToIPv4() :
-                    remoteIpAddress;
-            }
-            AppendNode(remoteIp, context.Connection.RemotePort, ForFormat, ref builder);
+            AppendNode(context.Connection.RemoteIpAddress, context.Connection.RemotePort, ForFormat, ref builder);
         }
     }
 
@@ -150,6 +142,12 @@ public class RequestHeaderForwardedTransform : RequestTransform
     // https://tools.ietf.org/html/rfc7239#section-6
     private void AppendNode(IPAddress? ipAddress, int port, NodeFormat format, ref ValueStringBuilder builder)
     {
+        // Prefer IPv4 formatting
+        if (ipAddress is {IsIPv4MappedToIPv6:true})
+        {
+            ipAddress = ipAddress.MapToIPv4();
+        }
+
         // "It is important to note that an IPv6 address and any nodename with
         // node-port specified MUST be quoted, since ":" is not an allowed
         // character in "token"."
