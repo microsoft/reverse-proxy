@@ -142,7 +142,7 @@ public class RequestHeaderForwardedTransform : RequestTransform
     private void AppendNode(IPAddress? ipAddress, int port, NodeFormat format, ref ValueStringBuilder builder)
     {
         // Prefer IPv4 formatting
-        if (ipAddress is {IsIPv4MappedToIPv6:true})
+        if (ipAddress is { IsIPv4MappedToIPv6: true })
         {
             ipAddress = ipAddress.MapToIPv4();
         }
