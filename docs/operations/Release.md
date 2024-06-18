@@ -118,8 +118,8 @@ This is to avoid accidental pushes to/deletions of the preview branch.
 There should only be one [preview branch on the repo](https://github.com/microsoft/reverse-proxy/branches) after this point.
 
 ## Request source code archival
-1. Go to the internal https://aka.ms/dpsrequestforms portal
-2. Switch to "Source Code Archival Request Page"
+1. Go to the internal https://dpsopsrequestforms.azurewebsites.net portal
+2. Select "Source Code Archival"
 3. Proceed through steps 1,2 till the step 3 (all prerequisites are already fulfilled)
 4. Fill in the required fields on the steps 3, 4, 5. Please, see the recommended values below.
 5. At the last step, check all the info and and submit the request
