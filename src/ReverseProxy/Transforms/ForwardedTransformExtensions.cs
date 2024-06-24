@@ -113,6 +113,9 @@ public static class ForwardedTransformExtensions
     /// <summary>
     /// Adds the transform which will add X-Forwarded-* request headers.
     /// </summary>
+    /// <remarks>
+    /// Removes the Forwarded header when an X-Forwarded transform is enabled
+    /// </remarks>
     public static TransformBuilderContext AddXForwarded(this TransformBuilderContext context, ForwardedTransformActions action = ForwardedTransformActions.Set)
     {
         context.AddXForwardedFor(action: action);
@@ -173,6 +176,9 @@ public static class ForwardedTransformExtensions
     /// <summary>
     /// Adds the transform which will add the Forwarded header as defined by [RFC 7239](https://tools.ietf.org/html/rfc7239).
     /// </summary>
+    /// <remarks>
+    /// Removes the X-Forwarded headers when an Forwarded transform is enabled
+    /// </remarks>
     public static TransformBuilderContext AddForwarded(this TransformBuilderContext context,
         bool useHost = true, bool useProto = true, NodeFormat forFormat = NodeFormat.Random,
         NodeFormat byFormat = NodeFormat.Random, ForwardedTransformActions action = ForwardedTransformActions.Set)
