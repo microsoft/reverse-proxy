@@ -345,9 +345,9 @@ Destinations health state is used to determine which of them are eligible for re
 #### File example
 ```JSON
 "Clusters": {
-  "cluster1": {
-    "AvailableDestinationsPolicy": "HealthyOrPanic",
+  "cluster1": {    
     "HealthCheck": {
+      "AvailableDestinationsPolicy": "HealthyOrPanic",
       "Passive": {
         "Enabled": "true"
       }
