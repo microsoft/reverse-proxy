@@ -1,0 +1,36 @@
+[
+  {
+    "RouteId": "first-ingress.default:/foo",
+    "Match": {
+      "Methods": ["GET"],
+      "Hosts": [],
+      "Path": "/foo/{**catch-all}",
+      "Headers": null,
+      "QueryParameters": null
+    },
+    "Order": 10,
+    "ClusterId": "frontend.default:80",
+    "AuthorizationPolicy": null,
+    "RateLimiterPolicy": null,
+    "CorsPolicy": null,
+    "Metadata": null,
+    "Transforms": null
+  },
+  {
+    "RouteId": "second-ingress.default:/foo",
+    "Match": {
+      "Methods": ["POST", "PUT"],
+      "Hosts": [],
+      "Path": "/foo/{**catch-all}",
+      "Headers": null,
+      "QueryParameters": null
+    },
+    "Order": 10,
+    "ClusterId": "frontend.default:80",
+    "AuthorizationPolicy": null,
+    "RateLimiterPolicy": null,
+    "CorsPolicy": null,
+    "Metadata": null,
+    "Transforms": null
+  }
+]

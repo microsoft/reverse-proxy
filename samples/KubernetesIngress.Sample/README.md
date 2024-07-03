@@ -68,6 +68,9 @@ metadata:
         - another-queryparameters-value
         Mode: Contains
         IsCaseSensitive: false
+    yarp.ingress.kubernetes.io/route-methods:
+      - GET
+      - POST
 spec:
   rules:
     - http:
@@ -99,6 +102,7 @@ The table below lists the available annotations.
 |yarp.ingress.kubernetes.io/route-headers|List<[RouteHeader](https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuration.RouteHeader.html)>|
 |yarp.ingress.kubernetes.io/route-queryparameters|List<[RouteQueryParameter](https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuration.RouteQueryParameter.html)>|
 |yarp.ingress.kubernetes.io/route-order|int|
+|yarp.ingress.kubernetes.io/route-methods|List<string>|
 
 #### Authorization Policy
 
@@ -251,4 +255,14 @@ See https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuratio
 
 ```
 yarp.ingress.kubernetes.io/route-order: '10'
+```
+
+#### Route Methods
+
+See https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuration.RouteConfig.html#methods.
+
+```
+yarp.ingress.kubernetes.io/route-methods:
+  - GET
+  - POST
 ```
