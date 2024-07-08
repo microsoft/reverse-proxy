@@ -4,7 +4,7 @@ metadata:
   name: first-ingress
   namespace: default
   annotations:
-    yarp.ingress.kubernetes.io/route-methods:
+    yarp.ingress.kubernetes.io/route-methods: |
       - GET
 spec:
   rules:
@@ -24,7 +24,7 @@ metadata:
   name: second-ingress
   namespace: default
   annotations:
-    yarp.ingress.kubernetes.io/route-methods:
+    yarp.ingress.kubernetes.io/route-methods: |
       - POST
       - PUT
 spec:

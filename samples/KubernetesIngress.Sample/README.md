@@ -68,7 +68,7 @@ metadata:
         - another-queryparameters-value
         Mode: Contains
         IsCaseSensitive: false
-    yarp.ingress.kubernetes.io/route-methods:
+    yarp.ingress.kubernetes.io/route-methods: |
       - GET
       - POST
 spec:
@@ -262,7 +262,7 @@ yarp.ingress.kubernetes.io/route-order: '10'
 See https://microsoft.github.io/reverse-proxy/api/Yarp.ReverseProxy.Configuration.RouteConfig.html#methods.
 
 ```
-yarp.ingress.kubernetes.io/route-methods:
+yarp.ingress.kubernetes.io/route-methods: |
   - GET
   - POST
 ```
