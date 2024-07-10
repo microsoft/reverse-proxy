@@ -3,6 +3,7 @@
 
 using System.Linq;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Yarp.ReverseProxy.Configuration;
@@ -144,6 +145,7 @@ internal static class IReverseProxyBuilderExtensions
         builder.Services.AddSingleton<HttpSysDelegator>();
         builder.Services.TryAddSingleton<IHttpSysDelegator>(p => p.GetRequiredService<HttpSysDelegator>());
         builder.Services.AddSingleton<IClusterChangeListener>(p => p.GetRequiredService<HttpSysDelegator>());
+        builder.Services.AddSingleton<ILazyServiceResolver<IServerDelegationFeature>, LazyResolveIServerDelegationFeature>();
 
         return builder;
     }

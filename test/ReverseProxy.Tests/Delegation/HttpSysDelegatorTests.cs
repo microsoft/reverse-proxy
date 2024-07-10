@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.HttpSys;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Model;
+using Yarp.ReverseProxy.Utilities;
 using Yarp.Tests.Common;
 
 namespace Yarp.ReverseProxy.Delegation;
@@ -26,6 +28,9 @@ public class HttpSysDelegatorTests : TestAutoMockBase
 
     public HttpSysDelegatorTests()
     {
+        Mock<ILazyServiceResolver<IServerDelegationFeature>>()
+            .Setup(m => m.GetService())
+            .Returns(Mock<IServerDelegationFeature>().Object);
         Mock<IFeatureCollection>()
             .Setup(m => m.Get<IServerDelegationFeature>())
             .Returns(Mock<IServerDelegationFeature>().Object);
