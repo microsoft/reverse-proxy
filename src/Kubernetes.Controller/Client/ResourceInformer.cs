@@ -85,7 +85,7 @@ public abstract class ResourceInformer<TResource, TListResource> : BackgroundHos
             }
             catch (ObjectDisposedException)
             {
-                // ignore redundant exception to allow shutdown sequence to progress uninterupted
+                // ignore redundant exception to allow shutdown sequence to progress uninterrupted
             }
         }
         base.Dispose(disposing);

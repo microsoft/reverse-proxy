@@ -22,7 +22,7 @@ public sealed record SessionAffinityConfig
     public string? Policy { get; init; }
 
     /// <summary>
-    /// Strategy handling missing destination for an affinitized request.
+    /// Strategy handling missing destination for a request by affinity.
     /// </summary>
     public string? FailurePolicy { get; init; }
 

@@ -109,7 +109,7 @@ public class WorkQueue<TItem> : IWorkQueue<TItem>
     }
 
     /// <summary>
-    /// Dones the specified item.
+    /// Done the specified item.
     /// </summary>
     /// <param name="item">The item.</param>
     public void Done(TItem item)
@@ -150,7 +150,7 @@ public class WorkQueue<TItem> : IWorkQueue<TItem>
     }
 
     /// <summary>
-    /// Shuttings down.
+    /// Shutting down.
     /// </summary>
     /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
     public bool ShuttingDown()

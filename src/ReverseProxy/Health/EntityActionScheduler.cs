@@ -241,7 +241,7 @@ internal sealed class EntityActionScheduler<T> : IDisposable where T : notnull
             }
             catch (Exception ex)
             {
-                // We are running on the ThreadPool, don't propagate excetions
+                // We are running on the ThreadPool, don't propagate exceptions
                 Debug.Fail(ex.ToString()); // TODO: Log
                 if (scheduler._entries.TryRemove(pair))
                 {

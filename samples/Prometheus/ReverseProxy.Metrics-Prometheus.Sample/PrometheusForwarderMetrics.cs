@@ -15,7 +15,7 @@ namespace Yarp.Sample
 
         private static readonly Counter _requestsFailed = Metrics.CreateCounter(
             "yarp_proxy_requests_failed",
-            "Number of proxy requests that failed"
+            "Number of proxy requests that have failed"
             );
 
         private static readonly Gauge _CurrentRequests = Metrics.CreateGauge(

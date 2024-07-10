@@ -29,7 +29,7 @@ public class TransportFailureRateHealthPolicyOptions
     public int MinimalTotalCountThreshold { get; set; } = 10;
 
     /// <summary>
-    /// Default failure rate limit for a destination to be marked as unhealhty that is applied if it's not set on a cluster's metadata.
+    /// Default failure rate limit for a destination to be marked as unhealthy that is applied if it's not set on a cluster's metadata.
     /// It's calculated as a percentage of failed requests out of all requests proxied to the same destination in the <see cref="DetectionWindowSize"/> period.
     /// The value is in range (0,1). The default is 0.3 (30%).
     /// </summary>

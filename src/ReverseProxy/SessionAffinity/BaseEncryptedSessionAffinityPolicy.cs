@@ -69,7 +69,7 @@ internal abstract class BaseEncryptedSessionAffinityPolicy<T> : ISessionAffinity
                 // TODO: Add fast destination lookup by ID
                 if (requestAffinityKey.Key.Equals(GetDestinationAffinityKey(destinations[i])))
                 {
-                    // It's allowed to affinitize a request to a pool of destinations so as to enable load-balancing among them.
+                    // It's allowed to affinitize a request to a pool of destinations to enable load-balancing among them.
                     // However, we currently stop after the first match found to avoid performance degradation.
                     matchingDestinations = destinations[i];
                     break;

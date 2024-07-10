@@ -251,7 +251,7 @@ internal sealed class ForwardedTransformFactory : ITransformFactory
                 // Not using the extension to avoid resolving the random factory each time.
                 context.RequestTransforms.Add(new RequestHeaderForwardedTransform(_randomFactory, forFormat, byFormat, useHost, useProto, headerAction));
 
-                // Remove the X-Forwarded headers when an Forwarded transform is enabled
+                // Remove the X-Forwarded headers when a Forwarded transform is enabled
                 TransformHelpers.RemoveAllXForwardedHeaders(context, DefaultXForwardedPrefix);
             }
         }

@@ -30,7 +30,7 @@ services.AddTelemetryConsumer<WebSocketsTelemetryConsumer>();
 var app = builder.Build();
 
 // Custom middleware that collects and reports the proxy metrics
-// Placed at the beginning so it is the first and last thing run for each request
+// Placed at the beginning, so it is the first and last thing run for each request
 app.UsePerRequestMetricCollection();
 
 // Middleware used to intercept the WebSocket connection and collect telemetry exposed to WebSocketsTelemetryConsumer

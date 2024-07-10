@@ -72,7 +72,7 @@ public class Limiter
     }
 
     /// <summary>
-    /// Check to allow one token effective immediately.
+    /// Checks to allow one token effective immediately.
     /// </summary>
     /// <returns><c>true</c> if a token is available and used, <c>false</c> otherwise.</returns>
     public bool Allow()
@@ -183,7 +183,7 @@ public class Limiter
     }
 
     /// <summary>
-    ///  reserveN is a helper method for AllowN, ReserveN, and WaitN.
+    /// reserveN is a helper method for AllowN, ReserveN, and WaitN.
     /// maxFutureReserve specifies the maximum reservation wait duration allowed.
     /// reserveN returns Reservation, not *Reservation, to avoid allocation in AllowN and WaitN.
     /// </summary>

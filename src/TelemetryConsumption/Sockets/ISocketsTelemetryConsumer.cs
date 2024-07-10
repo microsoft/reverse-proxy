@@ -25,7 +25,7 @@ public interface ISocketsTelemetryConsumer
     void OnConnectStop(DateTime timestamp) { }
 
     /// <summary>
-    /// Called before <see cref="OnConnectStop(DateTime)"/> if the connect failed.
+    /// Called before <see cref="OnConnectStop(DateTime)"/> if connect failed.
     /// </summary>
     /// <param name="timestamp">Timestamp when the event was fired.</param>
     /// <param name="error"><see cref="SocketError"/> information for the connect failure.</param>

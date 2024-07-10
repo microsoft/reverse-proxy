@@ -38,7 +38,7 @@ namespace Yarp.Sample
             }
             else
             {
-                // We don't get a content stop from http as its returning a stream that is up to the consumer to
+                // We don't get a content stop from http as it is returning a stream that is up to the consumer to
                 // read, but we know its ended here.
                 metrics.HttpResponseContentStopOffset = metrics.CalcOffset(timestamp);
                 metrics.ResponseBodyLength = contentLength;

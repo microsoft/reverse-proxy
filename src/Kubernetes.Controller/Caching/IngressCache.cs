@@ -15,7 +15,7 @@ using Yarp.Kubernetes.Controller.Services;
 namespace Yarp.Kubernetes.Controller.Caching;
 
 /// <summary>
-/// ICache service interface holds onto least amount of data necessary
+/// ICache service interface holds onto the least amount of data necessary
 /// for <see cref="IReconciler"/> to process work.
 /// </summary>
 public class IngressCache : ICache
