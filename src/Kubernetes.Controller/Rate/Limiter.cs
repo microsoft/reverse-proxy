@@ -72,7 +72,7 @@ public class Limiter
     }
 
     /// <summary>
-    /// Checks to allow one token effective immediately.
+    /// Checks if a token is available effective immediately. If so, it is consumed.
     /// </summary>
     /// <returns><c>true</c> if a token is available and used, <c>false</c> otherwise.</returns>
     public bool Allow()
