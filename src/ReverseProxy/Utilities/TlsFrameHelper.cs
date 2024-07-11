@@ -329,7 +329,7 @@ public static class TlsFrameHelper
         return info.TargetName;
     }
 
-    // This function will parse TLS Alert message, and it will return alert level and description.
+    // This function will parse the TLS Alert message, and return the alert level and description.
     public static bool TryGetAlertInfo(ReadOnlySpan<byte> frame, ref TlsAlertLevel level, ref TlsAlertDescription description)
     {
         if (frame.Length < 7 || frame[0] != (byte)TlsContentType.Alert)
