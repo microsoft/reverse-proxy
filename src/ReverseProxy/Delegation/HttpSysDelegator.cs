@@ -29,7 +29,6 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
 
     public HttpSysDelegator(
             ILazyServiceResolver<IServerDelegationFeature> lazyResolveIServerDelegationFeature,
-            //LazyResolveIServerDelegationFeature lazyResolveIServerDelegationFeature,
             ILogger<HttpSysDelegator> logger)
     {
         _lazyResolveIServerDelegationFeature = lazyResolveIServerDelegationFeature;
@@ -185,7 +184,6 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
                         }
                     }
 
-                    var queueState = queue.Initialize(serverDelegationFeature);
                     var queueState = queue.Initialize(serverDelegationFeature);
                     if (!queueState.IsInitialized)
                     {
