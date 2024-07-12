@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Model;
@@ -184,6 +185,7 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
                         }
                     }
 
+                    var queueState = queue.Initialize(serverDelegationFeature);
                     var queueState = queue.Initialize(serverDelegationFeature);
                     if (!queueState.IsInitialized)
                     {
