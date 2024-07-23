@@ -49,7 +49,7 @@ public interface IWorkQueue<TItem> : IDisposable
     void ShutDown();
 
     /// <summary>
-    /// Shuttings down.
+    /// Shutting down.
     /// </summary>
     /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
     bool ShuttingDown();

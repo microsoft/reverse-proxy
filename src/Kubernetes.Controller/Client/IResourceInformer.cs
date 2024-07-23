@@ -50,8 +50,8 @@ public interface IResourceInformer
 
     /// <summary>
     /// Returns a task that can be awaited to know when the initial listing of resources is complete.
-    /// Once an await on this method it is safe to assume that all of the knowledge of this resource
-    /// type has been made available, and everything going forward will be updatres.
+    /// Once an await on this method is completed it is safe to assume that all the knowledge of this resource
+    /// type has been made available. Any new changes will be a result of receiving new updates.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
     /// <returns>Task.</returns>

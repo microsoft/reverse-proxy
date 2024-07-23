@@ -41,7 +41,7 @@ namespace Yarp.Sample
         public float HttpRequestStopOffset { get; set; }
         public float ProxyStopOffset { get; set; }
 
-        //Info about the request
+        // Info about the request
         public ForwarderError Error { get; set; }
         public long RequestBodyLength { get; set; }
         public long ResponseBodyLength { get; set; }

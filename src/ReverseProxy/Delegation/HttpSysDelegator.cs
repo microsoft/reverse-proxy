@@ -106,7 +106,7 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
             {
                 Log.QueueNoLongerExists(logger, destination.GetHttpSysDelegationQueue(), destination.Model?.Config?.Address, ex);
 
-                // The target queue is gone, detach from it so we can try to re-attach
+                // The target queue is gone. Detach from it so that we can try to re-attach.
                 queue.Detach(queueState);
 
                 // Attempt to delegate one more time which will try re-initialize the queue

@@ -21,7 +21,7 @@ public sealed record ForwarderRequestConfig
     /// <summary>
     /// How long a request is allowed to remain idle between any operation completing, after which it will be canceled.
     /// The default is 100 seconds. The timeout will reset when response headers are received or after successfully reading or
-    /// writing any request, response, or streaming data like gRPC or WebSockets. TCP keep-alives and HTTP/2 protocol pings will
+    /// writing any request, response, or streaming data like gRPC or WebSockets. TCP keep-alive packets and HTTP/2 protocol pings will
     /// not reset the timeout, but WebSocket pings will.
     /// </summary>
     public TimeSpan? ActivityTimeout { get; init; }

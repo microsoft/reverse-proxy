@@ -51,7 +51,7 @@ public sealed class ClusterState
     }
 
     /// <summary>
-    /// All of the destinations associated with this cluster. This collection is populated by the configuration system
+    /// All the destinations associated with this cluster. This collection is populated by the configuration system
     /// and should only be directly modified in a test environment.
     /// Call <see cref="Health.IClusterDestinationsUpdater"/> after modifying this collection.
     /// </summary>

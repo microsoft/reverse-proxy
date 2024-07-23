@@ -44,7 +44,7 @@ public class TransformBuilderContext
     public bool? CopyResponseTrailers { get; set; }
 
     /// <summary>
-    /// Indicates if default x-fowarded-* transforms should be added to this route. Disable this if you do not want
+    /// Indicates if default x-forwarded-* transforms should be added to this route. Disable this if you do not want
     /// x-forwarded-* headers or have configured your own.
     /// </summary>
     public bool? UseDefaultForwarders { get; set; }

@@ -249,7 +249,7 @@ public static class TlsFrameHelper
 
     // This function will try to parse TLS hello frame and fill details in provided info structure.
     // If frame was fully processed without any error, function returns true.
-    // Otherwise it returns false and info may have partial data.
+    // Otherwise, it returns false and info may have partial data.
     // It is OK to call it again if more data becomes available.
     // It is also possible to limit what information is processed.
     // If callback delegate is provided, it will be called on ALL extensions.
@@ -316,7 +316,7 @@ public static class TlsFrameHelper
         return isComplete;
     }
 
-    // This is similar to TryGetFrameInfo but it will only process SNI.
+    // This is similar to TryGetFrameInfo, but it will only process SNI.
     // It returns TargetName as string or NULL if SNI is missing or parsing error happened.
     public static string? GetServerName(ReadOnlySpan<byte> frame)
     {
@@ -329,7 +329,7 @@ public static class TlsFrameHelper
         return info.TargetName;
     }
 
-    // This function will parse TLS Alert message and it will return alert level and description.
+    // This function will parse the TLS Alert message, and return the alert level and description.
     public static bool TryGetAlertInfo(ReadOnlySpan<byte> frame, ref TlsAlertLevel level, ref TlsAlertDescription description)
     {
         if (frame.Length < 7 || frame[0] != (byte)TlsContentType.Alert)

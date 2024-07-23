@@ -26,7 +26,7 @@ public abstract class BackgroundHostedService : IHostedService, IDisposable
     private bool _disposedValue;
 #pragma warning disable CA2213 // Disposable fields should be disposed
     private Task _runTask;
-#pragma warning restore CA2213 // Disposable fields should be disposed        
+#pragma warning restore CA2213 // Disposable fields should be disposed
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BackgroundHostedService"/> class.
@@ -169,7 +169,7 @@ public abstract class BackgroundHostedService : IHostedService, IDisposable
                 }
                 catch (ObjectDisposedException)
                 {
-                    // ignore redundant exception to allow shutdown sequence to progress uninterupted
+                    // ignore redundant exception to allow shutdown sequence to progress uninterrupted
                 }
 
                 try
@@ -178,7 +178,7 @@ public abstract class BackgroundHostedService : IHostedService, IDisposable
                 }
                 catch (ObjectDisposedException)
                 {
-                    // ignore redundant exception to allow shutdown sequence to progress uninterupted
+                    // ignore redundant exception to allow shutdown sequence to progress uninterrupted
                 }
             }
 

@@ -86,7 +86,7 @@ public static class ReverseProxyServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registers a singleton IProxyConfigFilter service. Multiple filters are allowed and they will be run in registration order.
+    /// Registers a singleton IProxyConfigFilter service. Multiple filters are allowed, and they will be run in registration order.
     /// </summary>
     /// <typeparam name="TService">A class that implements IProxyConfigFilter.</typeparam>
     public static IReverseProxyBuilder AddConfigFilter<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TService>(this IReverseProxyBuilder builder) where TService : class, IProxyConfigFilter

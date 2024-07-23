@@ -12,7 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
-//Enable metric collection for all the underlying event counters used by YARP
+// Enable metric collection for all the underlying event counters used by YARP
 builder.Services.AddAllPrometheusMetrics();
 
 var app = builder.Build();

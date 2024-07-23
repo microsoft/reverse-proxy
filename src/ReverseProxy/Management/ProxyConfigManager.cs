@@ -155,7 +155,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
     internal async Task<EndpointDataSource> InitialLoadAsync()
     {
         // Trigger the first load immediately and throw if it fails.
-        // We intend this to crash the app so we don't try listening for further changes.
+        // We intend this to crash the app, so we don't try listening for further changes.
         try
         {
             var routes = new List<RouteConfig>();
@@ -367,7 +367,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
                 catch (Exception exception)
                 {
                     var cluster = clusters[i];
-                    throw new InvalidOperationException($"Error resolving destinations for cluster {cluster.ClusterId}", exception); 
+                    throw new InvalidOperationException($"Error resolving destinations for cluster {cluster.ClusterId}", exception);
                 }
 
                 clusters[i] = clusters[i] with { Destinations = resolvedDestinations.Destinations };
