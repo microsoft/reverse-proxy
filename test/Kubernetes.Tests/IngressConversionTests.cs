@@ -54,6 +54,7 @@ public class IngressConversionTests
     [InlineData("route-queryparameters")]
     [InlineData("route-headers")]
     [InlineData("route-order")]
+    [InlineData("route-methods")]
     [InlineData("missing-svc")]
     [InlineData("port-diff-name")]
     [InlineData("external-name-ingress")]

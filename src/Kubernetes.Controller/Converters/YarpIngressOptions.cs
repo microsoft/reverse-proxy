@@ -27,6 +27,7 @@ internal sealed class YarpIngressOptions
     public List<RouteHeader> RouteHeaders { get; set; }
     public List<RouteQueryParameter> RouteQueryParameters { get; set; }
     public int? RouteOrder { get; set; }
+    public List<string> RouteMethods { get; set; }
 }
 
 internal sealed class RouteHeaderWrapper

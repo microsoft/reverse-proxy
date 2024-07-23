@@ -132,6 +132,7 @@ internal static class YarpParser
         {
             Match = new RouteMatch()
             {
+                Methods = ingressContext.Options.RouteMethods,
                 Hosts = host is not null ? new[] { host } : Array.Empty<string>(),
                 Path = pathMatch,
                 Headers = ingressContext.Options.RouteHeaders,
@@ -288,6 +289,10 @@ internal static class YarpParser
         if (annotations.TryGetValue("yarp.ingress.kubernetes.io/route-order", out var routeOrder))
         {
             options.RouteOrder = int.Parse(routeOrder, CultureInfo.InvariantCulture);
+        }
+        if (annotations.TryGetValue("yarp.ingress.kubernetes.io/route-methods", out var routeMethods))
+        {
+            options.RouteMethods = YamlDeserializer.Deserialize<List<string>>(routeMethods);
         }
         // metadata to support:
         // rewrite target
