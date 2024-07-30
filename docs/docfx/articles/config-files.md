@@ -144,7 +144,7 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
             }
           ]
         },
-        "MetaData" : { // List of key value pairs that can be used by custom extensions
+        "Metadata" : { // List of key value pairs that can be used by custom extensions
           "MyName" : "MyValue"
         },
         "Transforms" : [ // List of transforms. See the Transforms article for more details
@@ -212,7 +212,7 @@ For additional fields see [ClusterConfig](xref:Yarp.ReverseProxy.Configuration.C
           "VersionPolicy" : "RequestVersionOrLower",
           "AllowResponseBuffering" : "false"
         },
-        "MetaData" : { // Custom Key value pairs
+        "Metadata" : { // Custom Key value pairs
           "TransportFailureRateHealthPolicy.RateLimit": "0.5", // Used by Passive health policy
           "MyKey" : "MyValue"
         }
