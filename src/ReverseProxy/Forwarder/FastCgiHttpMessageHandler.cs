@@ -1068,27 +1068,13 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
     }
 
 
-    //TODO: maybe switch to plain static strings - found this pattern in kestrel not sure that here is needed
-    private static partial class FastCgiCoreExpStrings
+    private static class FastCgiCoreExpStrings
     {
-        private static global::System.Resources.ResourceManager? s_resourceManager;
-        internal static global::System.Resources.ResourceManager ResourceManager => s_resourceManager ?? (s_resourceManager = new global::System.Resources.ResourceManager(typeof(FastCgiCoreExpStrings)));
-        internal static global::System.Globalization.CultureInfo? Culture { get; set; }
-#if !NET20
-        [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-#endif
-        internal static string GetResourceString(string resourceKey)
-        {
-#pragma warning disable CS8603 // Possible null reference return.
-            return ResourceManager.GetString(resourceKey, Culture);
-#pragma warning restore CS8603 // Possible null reference return.
-        }
-
-        internal static string @BadRequest => GetResourceString("BadRequest");
-        internal static string BadResponse_UnrecognizedFastCgiVersion => GetResourceString("BadRequest_UnrecognizedFastCgiVersion");
-        internal static string BadResponse_UnrecognizedRequestType => GetResourceString("BadRequest_UnrecognizedRequestType");
-        internal static string BadResponse_InvalidContentLength => GetResourceString("BadRequest_InvalidContentLength");
-        internal static string @BadRequest_InvalidPaddingLength => GetResourceString("BadRequest_InvalidPaddingLength");
+        internal static string BadRequest = "BadRequest";
+        internal static string BadResponse_UnrecognizedFastCgiVersion = "BadRequest_UnrecognizedFastCgiVersion";
+        internal static string BadResponse_UnrecognizedRequestType = "BadRequest_UnrecognizedRequestType";
+        internal static string BadResponse_InvalidContentLength = "BadRequest_InvalidContentLength";
+        internal static string BadRequest_InvalidPaddingLength = "BadRequest_InvalidPaddingLength";
     }
 
     // COPIED FROM https://github.com/dotnet/Nerdbank.Streams/blob/main/src/Nerdbank.Streams/ReadOnlySequenceStream.cs
