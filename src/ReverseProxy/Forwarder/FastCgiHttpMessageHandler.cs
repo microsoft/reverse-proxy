@@ -103,7 +103,8 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                 {
                     var consumed = 0;
                     var read = 0;
-                    while ((read = await contentStream.ReadAsync(partMemory[consumed..], cancellationToken)) > 0)
+
+                    while ((consumed < partMemory.Length) && (read = await contentStream.ReadAsync(partMemory[consumed..], cancellationToken)) > 0)
                     {
                         consumed += read;
                     }
