@@ -2,7 +2,6 @@ using System;
 using System.Buffers;
 using System.Buffers.Binary;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipelines;
@@ -48,40 +47,58 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         //TODO: implement connection pooling
         await using var connection = await ConnectAsync(endPoint, noDelay: true, cancellationToken);
 
-        var flushResult = await SendAsync(
+        await SendAsync(
             new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.BeginRequest, ContentLength: FastCgiRecordBeginRequestBody.ByteCount),
             new FastCgiRecordBeginRequestBody(Role: FastCgiRecordBeginRequestBody.RoleType.Responder, KeepConn: false),
             connection, cancellationToken);
 
-        flushResult.ThrowIfCanceled();
+        using var paramBuffer = new RentedArrayBufferWriter<byte>(FastCgiRecordHeader.MAX_CONTENT_SIZE);
+        {
+            foreach (var fcgiParam in BuildFastCgiParams(connection.RemoteEndPoint, request))
+            {
+                if (fcgiParam.ByteCount > paramBuffer.Capacity)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(fcgiParam));
+                }
 
-        var fastCgiParams = BuildParams(connection.RemoteEndPoint, request);
+                if (paramBuffer.WrittenCount + fcgiParam.ByteCount > paramBuffer.Capacity)
+                {
 
-        var paramsBody = new FastCgiRecordParamsBody(fastCgiParams);
+                    await SendAsync(
+                        new FastCgiRecord(
+                            Header: new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.Params, ContentLength: (ushort)paramBuffer.WrittenCount),
+                            ContentData: new RentedReadOnlyMemory<byte>(paramBuffer.GetWrittenMemory())),
+                        connection, cancellationToken: cancellationToken);
 
-        flushResult = await SendAsync(
-            new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.Params, ContentLength: (ushort)paramsBody.ByteCount()),
-            paramsBody,
-            connection, cancellationToken: cancellationToken);
+                    paramBuffer.Clear();
+                }
 
-        flushResult.ThrowIfCanceled();
+                fcgiParam.WriteTo(paramBuffer);
+            }
 
-        flushResult = await SendAsync(
+            await SendAsync(
+                new FastCgiRecord(
+                    Header: new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.Params, ContentLength: (ushort)paramBuffer.WrittenCount),
+                    ContentData: new RentedReadOnlyMemory<byte>(paramBuffer.GetWrittenMemory())),
+                connection, cancellationToken: cancellationToken);
+        }
+
+
+        await SendAsync(
             new FastCgiRecord(
                 Header: new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.Params),
                 ContentData: RentedReadOnlyMemory<byte>.Empty),
             connection, cancellationToken);
 
-        flushResult.ThrowIfCanceled();
 
         if (request.Content != null)
         {
             var contentStream = await request.Content.ReadAsStreamAsync(cancellationToken);
-            var partBuffer = ArrayPool<byte>.Shared.Rent(FastCgiRecordHeader.MAX_CONTENT_SIZE);
-            var partMemory = partBuffer.AsMemory(0, FastCgiRecordHeader.MAX_CONTENT_SIZE);
 
-            try
+            using var contentBuffer = new RentedArrayBufferWriter<byte>(FastCgiRecordHeader.MAX_CONTENT_SIZE);
             {
+                var partMemory = contentBuffer.GetMemory(paramBuffer.Capacity);
+
                 while (true)
                 {
                     var consumed = 0;
@@ -92,28 +109,21 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
                     if (consumed == 0) { break; }
 
-                    flushResult = await SendAsync(
+                    await SendAsync(
                             new FastCgiRecord(
                                 Header: new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.Stdin, ContentLength: (ushort)consumed),
                                 ContentData: new RentedReadOnlyMemory<byte>(partMemory[..consumed])),
                             connection, cancellationToken);
 
-                    flushResult.ThrowIfCanceled();
                 }
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(partBuffer);
             }
         }
 
-        flushResult = await SendAsync(
-        new FastCgiRecord(
-            Header: new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.Stdin),
-            ContentData: RentedReadOnlyMemory<byte>.Empty),
-        connection, cancellationToken);
-
-        flushResult.ThrowIfCanceled();
+        await SendAsync(
+            new FastCgiRecord(
+                Header: new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.Stdin),
+                ContentData: RentedReadOnlyMemory<byte>.Empty),
+            connection, cancellationToken);
 
         var response = new HttpResponseMessage() { RequestMessage = request, StatusCode = HttpStatusCode.OK };
         var httpResponseReader = new HttpResponseReaderFastcgiRecordHandler(response, logger);
@@ -162,25 +172,27 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         return _connectionFactory.Create(socket);
     }
 
-    private static async ValueTask<FlushResult> SendAsync(FastCgiRecord fastcgiRecord, ConnectionContext connectionContext, CancellationToken cancellationToken)
+    private static async ValueTask SendAsync(FastCgiRecord fastcgiRecord, ConnectionContext connectionContext, CancellationToken cancellationToken)
     {
         fastcgiRecord.Header.WriteTo(connectionContext.Transport.Output);
 
         var result = await connectionContext.Transport.Output.WriteAsync(fastcgiRecord.ContentData.Memory, cancellationToken);
         result.ThrowIfCanceled();
         //TODO: probably flush is not needed but it does not hurt either
-        return await connectionContext.Transport.Output.FlushAsync(cancellationToken);
+        result = await connectionContext.Transport.Output.FlushAsync(cancellationToken);
+        result.ThrowIfCanceled();
     }
 
-    private static ValueTask<FlushResult> SendAsync(FastCgiRecordHeader header, IFastCgiContentDataWriter contentData, ConnectionContext connectionContext, CancellationToken cancellationToken)
+    private static async ValueTask SendAsync(FastCgiRecordHeader header, IFastCgiContentDataWriter contentData, ConnectionContext connectionContext, CancellationToken cancellationToken)
     {
         header.WriteTo(connectionContext.Transport.Output);
         contentData.WriteTo(connectionContext.Transport.Output);
 
-        return connectionContext.Transport.Output.FlushAsync(cancellationToken);
+        var result = await connectionContext.Transport.Output.FlushAsync(cancellationToken);
+        result.ThrowIfCanceled();
     }
 
-    private static ReadOnlyCollection<(string, string)> BuildParams(System.Net.EndPoint? connRemoteEndpoint, HttpRequestMessage request)
+    private static IEnumerable<FastCgiParam> BuildFastCgiParams(System.Net.EndPoint? connRemoteEndpoint, HttpRequestMessage request)
     {
         string remoteEndpoint;
         string remotePort;
@@ -232,69 +244,56 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
             isHttps = true;
         }
 
+        yield return new(FastCgiCoreParams.CONTENT_LENGTH, request.Content?.Headers.ContentLength?.ToString() ?? string.Empty);
+        // based on caddy implementation https://github.com/caddyserver/caddy/blob/9ddb78fadcdbec89a609127918604174121dcf42/modules/caddyhttp/reverseproxy/fastcgi/client.go#L289
+        yield return new(FastCgiCoreParams.CONTENT_TYPE, request.Content?.Headers.ContentType?.ToString() ?? (request.Method == System.Net.Http.HttpMethod.Post ? "application/x-www-form-urlencoded" : string.Empty));
 
-        //TODO: is list a good data structer here? maybe used some data structer from *pool,
-        var fastCgiParams = new List<(string, string)>
-        {
-            (FastCgiCoreParams.CONTENT_LENGTH, request.Content?.Headers.ContentLength?.ToString() ?? string.Empty),
-            // based on caddy implementation https://github.com/caddyserver/caddy/blob/9ddb78fadcdbec89a609127918604174121dcf42/modules/caddyhttp/reverseproxy/fastcgi/client.go#L289
-            (FastCgiCoreParams.CONTENT_TYPE, request.Content?.Headers.ContentType?.ToString() ?? (request.Method == System.Net.Http.HttpMethod.Post ? "application/x-www-form-urlencoded" : string.Empty) ),
+        yield return new(FastCgiCoreParams.DOCUMENT_ROOT, documentRoot);
+        yield return new(FastCgiCoreParams.DOCUMENT_URI, documentURI);
 
-            (FastCgiCoreParams.GATEWAY_INTERFACE, FastCgiCoreParams.GATEWAY_INTERFACE_CGI11),
+        yield return new(FastCgiCoreParams.GATEWAY_INTERFACE, FastCgiCoreParamValues.GATEWAY_INTERFACE_CGI11);
 
-            (FastCgiCoreParams.DOCUMENT_ROOT, documentRoot),
-            (FastCgiCoreParams.DOCUMENT_URI, documentURI),
+        yield return new(FastCgiCoreParams.HTTPS, isHttps ? FastCgiCoreParamValues.HTTPS_ON : FastCgiCoreParamValues.HTTPS_OFF);
+        //new(FastCgiCoreParams.HTTP_HOST, request.Headers.Host ?? string.Empty), // will be added later
 
-            //(FastCgiCoreParams.HTTP_HOST, request.Headers.Host ?? string.Empty), // will be added later
+        yield return new(FastCgiCoreParams.PATH_INFO, pathInfo);
+        yield return new(FastCgiCoreParams.PATH_TRANSLATED, pathInfo.Length > 0 ? SanitizedPathJoin(documentRoot, pathInfo) : string.Empty);
 
-            (FastCgiCoreParams.HTTPS, isHttps ? FastCgiCoreParams.HTTPS_ON : FastCgiCoreParams.HTTPS_OFF),
+        yield return new(FastCgiCoreParams.QUERY_STRING, request.RequestUri?.Query?.ToString() ?? string.Empty);
 
-            (FastCgiCoreParams.PATH_INFO, pathInfo),
+        yield return new(FastCgiCoreParams.REMOTE_ADDR, remoteEndpoint);
+        yield return new(FastCgiCoreParams.REMOTE_HOST, remoteEndpoint); // For performance, remote host lookup is disable;
+        yield return new(FastCgiCoreParams.REMOTE_PORT, remotePort);
 
-            (FastCgiCoreParams.QUERY_STRING, request.RequestUri?.Query?.ToString() ?? string.Empty),
+        yield return new(FastCgiCoreParams.REQUEST_METHOD, request.Method.Method);
+        yield return new(FastCgiCoreParams.REQUEST_SCHEME, request.RequestUri?.Scheme ?? FastCgiCoreParamValues.REQUEST_SCHEME_HTTP);
+        yield return new(FastCgiCoreParams.REQUEST_URI, request.RequestUri?.ToString() ?? string.Empty);
 
-            (FastCgiCoreParams.REMOTE_ADDR, remoteEndpoint),
-            (FastCgiCoreParams.REMOTE_HOST, remoteEndpoint), // For performance, remote host lookup is disabled
-            (FastCgiCoreParams.REMOTE_PORT, remotePort),
+        yield return new(FastCgiCoreParams.SCRIPT_FILENAME, scriptFilename);
+        yield return new(FastCgiCoreParams.SCRIPT_NAME, scriptName);
 
-            //TODO: User after basic auth was performed by loadbalancer
-            //(FastCgiCoreParams.REMOTE_USER, string.Empty),
-
-            (FastCgiCoreParams.REQUEST_URI, request.RequestUri?.ToString() ?? string.Empty),
-            (FastCgiCoreParams.REQUEST_METHOD, request.Method.Method),
-            (FastCgiCoreParams.REQUEST_SCHEME, request.RequestUri?.Scheme ?? FastCgiCoreParams.REQUEST_SCHEME_HTTP),
-
-            (FastCgiCoreParams.SERVER_NAME, serverName),
-            (FastCgiCoreParams.SERVER_PORT, isHttps? FastCgiCoreParams.SERVER_PORT_443 : FastCgiCoreParams.SERVER_PORT_80),
-            (FastCgiCoreParams.SERVER_PROTOCOL, HttpProtocol.GetHttpProtocol(request.Version)),
-            (FastCgiCoreParams.SERVER_SOFTWARE, FastCgiCoreParams.SERVER_SOFTWARE_YARP_2),
-
-            (FastCgiCoreParams.SCRIPT_FILENAME, scriptFilename),
-            (FastCgiCoreParams.SCRIPT_NAME, scriptName),
-
-            //TODO: would require to have orignal url connection info - but probably they are not needed in most cases
-            //(FastCgiCoreParams.SSL_CIPHER, string.Empty), 
-            //FastCgiCoreParams.SSL_PROTOCOL, string.Empty),
-        };
+        yield return new(FastCgiCoreParams.SERVER_NAME, serverName);
+        yield return new(FastCgiCoreParams.SERVER_PORT, isHttps ? FastCgiCoreParamValues.SERVER_PORT_443 : FastCgiCoreParamValues.SERVER_PORT_80);
+        yield return new(FastCgiCoreParams.SERVER_PROTOCOL, HttpProtocol.GetHttpProtocol(request.Version));
+        yield return new(FastCgiCoreParams.SERVER_SOFTWARE, FastCgiCoreParamValues.SERVER_SOFTWARE_YARP_2);
 
         if (pathInfo.Length > 0)
         {
-            fastCgiParams.Add((FastCgiCoreParams.PATH_TRANSLATED, SanitizedPathJoin(documentRoot, pathInfo)));
+            yield return new(FastCgiCoreParams.PATH_TRANSLATED, SanitizedPathJoin(documentRoot, pathInfo));
         }
 
         foreach (var header in request.Headers)
         {
-            fastCgiParams.Add((header.Key.AddPrefixReplaceToUpper("HTTP_", '-', '_'), string.Join(", ", header.Value)));
+            yield return new(header.Key.ReplaceToUpperAscii('-', '_'), string.Join(", ", header.Value), FastCgiCoreParams.PREFIX);
         }
 
         if (request.Content != null)
         {
             foreach (var header in request.Content.Headers)
             {
-                fastCgiParams.Add((header.Key.AddPrefixReplaceToUpper("HTTP_", '-', '_'), string.Join(", ", header.Value)));
+                yield return new(header.Key.ReplaceToUpperAscii('-', '_'), string.Join(", ", header.Value, FastCgiCoreParams.PREFIX));
             }
         }
-        return fastCgiParams.AsReadOnly();
     }
 
     private static string SanitizedPathJoin(string root, string reqPath)
@@ -768,6 +767,61 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         }
     }
 
+    private sealed class RentedArrayBufferWriter<T>(int maxCapacity) : IBufferWriter<T>, IDisposable
+    {
+        private T[]? _rented = ArrayPool<T>.Shared.Rent(maxCapacity);
+
+        public readonly int Capacity = maxCapacity;
+        public int WrittenCount { get; private set; }
+
+        public ReadOnlyMemory<T> GetWrittenMemory() { return _rented.AsMemory(0, WrittenCount); }
+
+        public void Advance(int count)
+        {
+            if (count < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
+
+            ThrowIfNotEnoughSpace(count);
+            WrittenCount += count;
+        }
+
+        public void Clear()
+        {
+            WrittenCount = 0;
+        }
+
+        public void Dispose()
+        {
+            if (_rented != null)
+            {
+                ArrayPool<T>.Shared.Return(_rented);
+                _rented = default;
+            }
+        }
+
+        public Memory<T> GetMemory(int sizeHint = 0)
+        {
+            ThrowIfNotEnoughSpace(sizeHint);
+            return _rented.AsMemory(WrittenCount);
+        }
+
+        public Span<T> GetSpan(int sizeHint = 0)
+        {
+            ThrowIfNotEnoughSpace(sizeHint);
+            return _rented.AsSpan(WrittenCount);
+        }
+
+        private void ThrowIfNotEnoughSpace(int count)
+        {
+            if (WrittenCount + count > Capacity)
+            {
+                throw new OutOfMemoryException(nameof(count));
+            }
+        }
+    }
+
     private sealed class RentedMemorySegment<T> : ReadOnlySequenceSegment<T>, IDisposable
     {
         private RentedReadOnlyMemory<T>? _rented;
@@ -902,36 +956,36 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
             buffer.Advance(ByteCount);
         }
     }
-    private readonly record struct FastCgiRecordParamsBody(ReadOnlyCollection<(string, string)> FastCgiParams) : IFastCgiContentDataWriter
-    {
-        public readonly ReadOnlyCollection<(string, string)> FastCgiParams = FastCgiParams;
 
-        public readonly uint ByteCount()
+    private record struct FastCgiParam(byte[] Key, string Value, byte[]? KeyPrefix = default) : IFastCgiContentDataWriter
+    {
+        public readonly int ByteCount =
+            CalculateParamByteCount((KeyPrefix?.Length ?? 0) + Key.Length)
+            + CalculateParamByteCount(Value.Length)
+            + (KeyPrefix?.Length ?? 0) + Key.Length + Value.Length;
+
+        private static int CalculateParamByteCount(int size)
         {
-            var count = 0;
-            foreach (var (key, value) in FastCgiParams)
+            if (size > 127)
             {
-                count += CalculateParamByteCount((uint)key.Length);
-                count += CalculateParamByteCount((uint)value.Length);
-                count += key.Length;
-                count += value.Length;
+                return 4;
             }
-            return (uint)count;
+            return 1;
         }
 
-        public void WriteTo(IBufferWriter<byte> buffer)
+        public readonly void WriteTo(IBufferWriter<byte> buffer)
         {
-            foreach (var (key, value) in FastCgiParams)
+            var written = WriteSize((uint)Key.Length + (uint)(KeyPrefix?.Length ?? 0), buffer);
+            buffer.Advance(written);
+            written = WriteSize((uint)Value.Length, buffer);
+            buffer.Advance(written);
+            if (KeyPrefix != null)
             {
-                var written = WriteSize((uint)key.Length, buffer);
-                buffer.Advance(written);
-                written = WriteSize((uint)value.Length, buffer);
-                buffer.Advance(written);
-                written = buffer.WriteAsciiString(key);
-                buffer.Advance(written);
-                written = buffer.WriteAsciiString(value);
-                buffer.Advance(written);
+                buffer.Write(new(KeyPrefix));
             }
+            buffer.Write(new(Key));
+            written = buffer.WriteAsciiString(Value);
+            buffer.Advance(written);
         }
 
         private static int WriteSize(uint size, IBufferWriter<byte> buffer)
@@ -944,65 +998,57 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
             buffer.GetSpan(1)[0] = (byte)size;
             return 1;
         }
-
-        private static int CalculateParamByteCount(uint size)
-        {
-            if (size > 127)
-            {
-                return 4;
-            }
-            return 1;
-        }
-    }
+    };
 
     private static class FastCgiCoreParams
     {
-        internal static string CONTENT_LENGTH = "CONTENT_LENGTH";
-        internal static string CONTENT_TYPE = "CONTENT_TYPE";
+        internal static byte[] CONTENT_LENGTH = "CONTENT_LENGTH"u8.ToArray();
+        internal static byte[] CONTENT_TYPE = "CONTENT_TYPE"u8.ToArray();
 
-        internal static string DOCUMENT_ROOT = "DOCUMENT_ROOT";
-        internal static string DOCUMENT_URI = "DOCUMENT_URI";
+        internal static byte[] DOCUMENT_ROOT = "DOCUMENT_ROOT"u8.ToArray();
+        internal static byte[] DOCUMENT_URI = "DOCUMENT_URI"u8.ToArray();
 
-        internal static string GATEWAY_INTERFACE = "GATEWAY_INTERFACE";
+        internal static byte[] GATEWAY_INTERFACE = "GATEWAY_INTERFACE"u8.ToArray();
+
+        internal static byte[] HTTPS = "HTTPS"u8.ToArray();
+
+        internal static byte[] PATH_INFO = "PATH_INFO"u8.ToArray();
+        internal static byte[] PATH_TRANSLATED = "PATH_TRANSLATED"u8.ToArray();
+
+        internal static byte[] QUERY_STRING = "QUERY_STRING"u8.ToArray();
+
+        internal static byte[] REMOTE_ADDR = "REMOTE_ADDR"u8.ToArray();
+        internal static byte[] REMOTE_HOST = "REMOTE_HOST"u8.ToArray();
+        internal static byte[] REMOTE_PORT = "REMOTE_PORT"u8.ToArray();
+
+        internal static byte[] REQUEST_METHOD = "REQUEST_METHOD"u8.ToArray();
+        internal static byte[] REQUEST_SCHEME = "REQUEST_SCHEME"u8.ToArray();
+        internal static byte[] REQUEST_URI = "REQUEST_URI"u8.ToArray();
+
+        internal static byte[] SCRIPT_FILENAME = "SCRIPT_FILENAME"u8.ToArray();
+        internal static byte[] SCRIPT_NAME = "SCRIPT_NAME"u8.ToArray();
+
+        internal static byte[] SERVER_NAME = "SERVER_NAME"u8.ToArray();
+        internal static byte[] SERVER_PORT = "SERVER_PORT"u8.ToArray();
+        internal static byte[] SERVER_PROTOCOL = "SERVER_PROTOCOL"u8.ToArray();
+        internal static byte[] SERVER_SOFTWARE = "SERVER_SOFTWARE"u8.ToArray();
+
+        internal static byte[] PREFIX = "HTTP_"u8.ToArray();
+    }
+
+    private static class FastCgiCoreParamValues
+    {
         internal static string GATEWAY_INTERFACE_CGI11 = "CGI/1.1";
 
-        internal static string HTTPS = "HTTPS";
         internal static string HTTPS_ON = "ON";
         internal static string HTTPS_OFF = "OFF";
 
-        internal static string PATH_INFO = "PATH_INFO";
-        internal static string PATH_TRANSLATED = "PATH_TRANSLATED";
-
-        internal static string QUERY_STRING = "QUERY_STRING";
-
-        internal static string REMOTE_ADDR = "REMOTE_ADDR";
-        internal static string REMOTE_HOST = "REMOTE_HOST";
-        internal static string REMOTE_PORT = "REMOTE_PORT";
-        internal static string REMOTE_USER = "REMOTE_USER";
-
-        internal static string REQUEST_METHOD = "REQUEST_METHOD";
-
-        internal static string REQUEST_SCHEME = "REQUEST_SCHEME";
         internal static string REQUEST_SCHEME_HTTP = "HTTP";
 
-        internal static string REQUEST_URI = "REQUEST_URI";
-
-        internal static string SERVER_NAME = "SERVER_NAME";
-
-        internal static string SCRIPT_FILENAME = "SCRIPT_FILENAME";
-        internal static string SCRIPT_NAME = "SCRIPT_NAME";
-
-        internal static string SERVER_PORT = "SERVER_PORT";
         internal static string SERVER_PORT_80 = "80";
         internal static string SERVER_PORT_443 = "443";
 
-        internal static string SERVER_PROTOCOL = "SERVER_PROTOCOL";
-
-        internal static string SERVER_SOFTWARE = "SERVER_SOFTWARE";
         internal static string SERVER_SOFTWARE_YARP_2 = "YARP2";
-
-        internal static string SSL_PROTOCOL = "SSL_PROTOCOL";
-        internal static string SSL_CIPHER = "SSL_CIPHER";
     }
 
     public static class FastCgiHttpOptions
@@ -1034,10 +1080,10 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                     ex = new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse_InvalidContentLength, reason);
                     break;
                 case FastCgiResponseRejectionReason.InvalidPaddingLength:
-                    ex = new BadFastCgiResponseException(FastCgiCoreExpStrings.BadRequest_InvalidPaddingLength, reason);
+                    ex = new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse_InvalidPaddingLength, reason);
                     break;
                 default:
-                    ex = new BadFastCgiResponseException(FastCgiCoreExpStrings.BadRequest);
+                    ex = new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse);
                     break;
             }
             return ex;
@@ -1070,11 +1116,11 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
     private static class FastCgiCoreExpStrings
     {
-        internal static string BadRequest = "BadRequest";
-        internal static string BadResponse_UnrecognizedFastCgiVersion = "BadRequest_UnrecognizedFastCgiVersion";
-        internal static string BadResponse_UnrecognizedRequestType = "BadRequest_UnrecognizedRequestType";
-        internal static string BadResponse_InvalidContentLength = "BadRequest_InvalidContentLength";
-        internal static string BadRequest_InvalidPaddingLength = "BadRequest_InvalidPaddingLength";
+        internal static string BadResponse = "BadResponse";
+        internal static string BadResponse_UnrecognizedFastCgiVersion = "BadResponse_UnrecognizedFastCgiVersion";
+        internal static string BadResponse_UnrecognizedRequestType = "BadResponse_UnrecognizedRequestType";
+        internal static string BadResponse_InvalidContentLength = "BadResponse_InvalidContentLength";
+        internal static string BadResponse_InvalidPaddingLength = "BadResponse_InvalidPaddingLength";
     }
 
     // COPIED FROM https://github.com/dotnet/Nerdbank.Streams/blob/main/src/Nerdbank.Streams/ReadOnlySequenceStream.cs
@@ -1422,32 +1468,25 @@ internal static class FastCgiExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string AddPrefixReplaceToUpper(this string s, string prefix, char oldChar, char newChar)
+    public static byte[] ReplaceToUpperAscii(this string s, char oldChar, char newChar)
     {
-        var chars = ArrayPool<char>.Shared.Rent(s.Length + prefix.Length);
-        try
-        {
-            prefix.CopyTo(0, chars, 0, prefix.Length);
+        var chars = Encoding.ASCII.GetBytes(s);
+        Debug.Assert(s.Length == chars.Length);
 
-            var i = prefix.Length;
-            foreach (var c in s)
-            {
-                if (c == oldChar)
-                {
-                    chars[i] = newChar;
-                }
-                else
-                {
-                    chars[i] = char.ToUpper(c);
-                }
-                i++;
-            }
-            return new string(chars, 0, s.Length + prefix.Length);
-        }
-        finally
+        var i = 0;
+        foreach (var c in s)
         {
-            ArrayPool<char>.Shared.Return(chars);
+            if (c == oldChar)
+            {
+                chars[i] = (byte)newChar;
+            }
+            else
+            {
+                chars[i] = (byte)char.ToUpper(c);
+            }
+            i++;
         }
+        return chars;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
