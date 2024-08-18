@@ -102,9 +102,10 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                 while (true)
                 {
                     var consumed = 0;
-                    while ((consumed += await contentStream.ReadAsync(partMemory[consumed..], cancellationToken)) > 0 && consumed < partMemory.Length)
+                    var read = 0;
+                    while ((read = await contentStream.ReadAsync(partMemory[consumed..], cancellationToken)) > 0)
                     {
-
+                        consumed += read;
                     }
 
                     if (consumed == 0) { break; }
@@ -115,6 +116,8 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                                 ContentData: new RentedReadOnlyMemory<byte>(partMemory[..consumed])),
                             connection, cancellationToken);
 
+                    // stream has no more data
+                    if (consumed < partMemory.Length) { break; }
                 }
             }
         }
