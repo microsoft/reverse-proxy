@@ -105,7 +105,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                 while (true)
                 {
                     var consumed = 0;
-                    var read = 0;
+                    int read;
 
                     while ((consumed < partMemory.Length) && (read = await contentStream.ReadAsync(partMemory[consumed..], cancellationToken)) > 0)
                     {
@@ -199,7 +199,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         result.ThrowIfCanceled();
     }
 
-    private static IEnumerable<FastCgiParam> BuildFastCgiParams(System.Net.EndPoint? connRemoteEndpoint, HttpRequestMessage request)
+    private static IEnumerable<FastCgiParam> BuildFastCgiParams(EndPoint? connRemoteEndpoint, HttpRequestMessage request)
     {
         string remoteEndpoint;
         string remotePort;
@@ -245,11 +245,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         }
 
         //TODO: probably better https detection will be needed at some point
-        var isHttps = false;
-        if (request.RequestUri?.Scheme == "https")
-        {
-            isHttps = true;
-        }
+        var isHttps = request.RequestUri?.Scheme == "https";
 
         yield return new(FastCgiCoreParams.CONTENT_LENGTH, request.Content?.Headers.ContentLength?.ToString() ?? string.Empty);
         // based on caddy implementation https://github.com/caddyserver/caddy/blob/9ddb78fadcdbec89a609127918604174121dcf42/modules/caddyhttp/reverseproxy/fastcgi/client.go#L289
@@ -266,10 +262,10 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         yield return new(FastCgiCoreParams.PATH_INFO, pathInfo);
         yield return new(FastCgiCoreParams.PATH_TRANSLATED, pathInfo.Length > 0 ? SanitizedPathJoin(documentRoot, pathInfo) : string.Empty);
 
-        yield return new(FastCgiCoreParams.QUERY_STRING, request.RequestUri?.Query?.ToString() ?? string.Empty);
+        yield return new(FastCgiCoreParams.QUERY_STRING, request.RequestUri?.Query ?? string.Empty);
 
         yield return new(FastCgiCoreParams.REMOTE_ADDR, remoteEndpoint);
-        yield return new(FastCgiCoreParams.REMOTE_HOST, remoteEndpoint); // For performance, remote host lookup is disable;
+        yield return new(FastCgiCoreParams.REMOTE_HOST, remoteEndpoint); // For performance, remote host lookup is disabled;
         yield return new(FastCgiCoreParams.REMOTE_PORT, remotePort);
 
         yield return new(FastCgiCoreParams.REQUEST_METHOD, request.Method.Method);
@@ -504,23 +500,12 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
             if (header.Version != FastCgiRecordHeader.RecordVersion.Version1)
             {
-                FastCgiBadResponseException.Throw(FastCgiResponseRejectionReason.UnrecognizedFastCgiVersion);
+                throw new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse_UnrecognizedFastCgiVersion, FastCgiResponseRejectionReason.UnrecognizedFastCgiVersion);
             }
 
             if (header.Type < FastCgiRecordHeader.RecordType.BeginRequest || header.Type > FastCgiRecordHeader.RecordType.UnknownType)
             {
-                FastCgiBadResponseException.Throw(FastCgiResponseRejectionReason.UnrecognizedRequestType);
-            }
-
-            if (header.ContentLength > FastCgiRecordHeader.MAX_CONTENT_SIZE)
-            {
-                FastCgiBadResponseException.Throw(FastCgiResponseRejectionReason.InvalidContentLength);
-
-            }
-
-            if (header.PaddingLength > FastCgiRecordHeader.MAX_PADDING_SIZE)
-            {
-                FastCgiBadResponseException.Throw(FastCgiResponseRejectionReason.InvalidPaddingLength);
+                throw new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse_UnrecognizedRequestType, FastCgiResponseRejectionReason.UnrecognizedRequestType);
             }
 
             var recordByteCount = FastCgiRecordHeader.FCGI_HEADER_LEN + header.ContentLength + header.PaddingLength;
@@ -583,7 +568,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         public T[]? Rented { get; private set; } = rented;
         public ReadOnlyMemory<T> Memory { get; private set; } = memory;
 
-        public static RentedReadOnlyMemory<T> Empty = new(ReadOnlyMemory<T>.Empty);
+        public static readonly RentedReadOnlyMemory<T> Empty = new(ReadOnlyMemory<T>.Empty);
 
         public void Dispose()
         {
@@ -612,7 +597,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
     private sealed class HttpResponseReaderFastcgiRecordHandler(HttpResponseMessage result, ILogger logger) : FastCgiRecordHandler
     {
         private readonly HttpResponseReader _reader = new(result);
-        private bool _headersDone = false;
+        private bool _headersDone;
         private RentedMemorySegment<byte>? _start;
         private RentedMemorySegment<byte>? _end;
         public bool TryOnFastcgiRecord(ref FastCgiRecord fastcgiRecord)
@@ -665,7 +650,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                         return true;
                     }
                 // TODO: how to treat errors - caddy & nginx are just logging them
-                // stderr can interleve with stdout records so they do not interrupt connection
+                // stderr can interleave with stdout records so they do not interrupt connection
                 case FastCgiRecordHeader.RecordType.Stderr:
                     {
                         logger.LogError(message: "stdErr {contentData}", Encoding.ASCII.GetString(fastcgiRecord.ContentData.Memory.Span));
@@ -877,8 +862,6 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
     {
         public const uint FCGI_HEADER_LEN = 8;
         public const ushort MAX_CONTENT_SIZE = 65535;
-        public const byte MAX_PADDING_SIZE = 255;
-
         public enum RecordVersion : byte
         {
             Version1 = 1,
@@ -927,7 +910,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         RentedReadOnlyMemory<byte> ContentData) : IDisposable
     {
         public FastCgiRecordHeader Header { get; } = Header;
-        public readonly RentedReadOnlyMemory<byte> ContentData = ContentData;
+        public RentedReadOnlyMemory<byte> ContentData { get; } = ContentData ;
 
         public void Dispose()
         {
@@ -964,7 +947,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         }
     }
 
-    private record struct FastCgiParam(byte[] Key, string Value, byte[]? KeyPrefix = default) : IFastCgiContentDataWriter
+    private readonly record struct FastCgiParam(byte[] Key, string Value, byte[]? KeyPrefix = default) : IFastCgiContentDataWriter
     {
         public readonly int ByteCount =
             CalculateParamByteCount((KeyPrefix?.Length ?? 0) + Key.Length)
@@ -1009,53 +992,53 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
     private static class FastCgiCoreParams
     {
-        internal static byte[] CONTENT_LENGTH = "CONTENT_LENGTH"u8.ToArray();
-        internal static byte[] CONTENT_TYPE = "CONTENT_TYPE"u8.ToArray();
+        internal static readonly byte[] CONTENT_LENGTH = "CONTENT_LENGTH"u8.ToArray();
+        internal static readonly byte[] CONTENT_TYPE = "CONTENT_TYPE"u8.ToArray();
 
-        internal static byte[] DOCUMENT_ROOT = "DOCUMENT_ROOT"u8.ToArray();
-        internal static byte[] DOCUMENT_URI = "DOCUMENT_URI"u8.ToArray();
+        internal static readonly byte[] DOCUMENT_ROOT = "DOCUMENT_ROOT"u8.ToArray();
+        internal static readonly byte[] DOCUMENT_URI = "DOCUMENT_URI"u8.ToArray();
 
-        internal static byte[] GATEWAY_INTERFACE = "GATEWAY_INTERFACE"u8.ToArray();
+        internal static readonly byte[] GATEWAY_INTERFACE = "GATEWAY_INTERFACE"u8.ToArray();
 
-        internal static byte[] HTTPS = "HTTPS"u8.ToArray();
+        internal static readonly byte[] HTTPS = "HTTPS"u8.ToArray();
 
-        internal static byte[] PATH_INFO = "PATH_INFO"u8.ToArray();
-        internal static byte[] PATH_TRANSLATED = "PATH_TRANSLATED"u8.ToArray();
+        internal static readonly byte[] PATH_INFO = "PATH_INFO"u8.ToArray();
+        internal static readonly byte[] PATH_TRANSLATED = "PATH_TRANSLATED"u8.ToArray();
 
-        internal static byte[] QUERY_STRING = "QUERY_STRING"u8.ToArray();
+        internal static readonly byte[] QUERY_STRING = "QUERY_STRING"u8.ToArray();
 
-        internal static byte[] REMOTE_ADDR = "REMOTE_ADDR"u8.ToArray();
-        internal static byte[] REMOTE_HOST = "REMOTE_HOST"u8.ToArray();
-        internal static byte[] REMOTE_PORT = "REMOTE_PORT"u8.ToArray();
+        internal static readonly byte[] REMOTE_ADDR = "REMOTE_ADDR"u8.ToArray();
+        internal static readonly byte[] REMOTE_HOST = "REMOTE_HOST"u8.ToArray();
+        internal static readonly byte[] REMOTE_PORT = "REMOTE_PORT"u8.ToArray();
 
-        internal static byte[] REQUEST_METHOD = "REQUEST_METHOD"u8.ToArray();
-        internal static byte[] REQUEST_SCHEME = "REQUEST_SCHEME"u8.ToArray();
-        internal static byte[] REQUEST_URI = "REQUEST_URI"u8.ToArray();
+        internal static readonly byte[] REQUEST_METHOD = "REQUEST_METHOD"u8.ToArray();
+        internal static readonly byte[] REQUEST_SCHEME = "REQUEST_SCHEME"u8.ToArray();
+        internal static readonly byte[] REQUEST_URI = "REQUEST_URI"u8.ToArray();
 
-        internal static byte[] SCRIPT_FILENAME = "SCRIPT_FILENAME"u8.ToArray();
-        internal static byte[] SCRIPT_NAME = "SCRIPT_NAME"u8.ToArray();
+        internal static readonly byte[] SCRIPT_FILENAME = "SCRIPT_FILENAME"u8.ToArray();
+        internal static readonly byte[] SCRIPT_NAME = "SCRIPT_NAME"u8.ToArray();
 
-        internal static byte[] SERVER_NAME = "SERVER_NAME"u8.ToArray();
-        internal static byte[] SERVER_PORT = "SERVER_PORT"u8.ToArray();
-        internal static byte[] SERVER_PROTOCOL = "SERVER_PROTOCOL"u8.ToArray();
-        internal static byte[] SERVER_SOFTWARE = "SERVER_SOFTWARE"u8.ToArray();
+        internal static readonly byte[] SERVER_NAME = "SERVER_NAME"u8.ToArray();
+        internal static readonly byte[] SERVER_PORT = "SERVER_PORT"u8.ToArray();
+        internal static readonly byte[] SERVER_PROTOCOL = "SERVER_PROTOCOL"u8.ToArray();
+        internal static readonly byte[] SERVER_SOFTWARE = "SERVER_SOFTWARE"u8.ToArray();
 
-        internal static byte[] PREFIX = "HTTP_"u8.ToArray();
+        internal static readonly byte[] PREFIX = "HTTP_"u8.ToArray();
     }
 
     private static class FastCgiCoreParamValues
     {
-        internal static string GATEWAY_INTERFACE_CGI11 = "CGI/1.1";
+        internal static readonly string GATEWAY_INTERFACE_CGI11 = "CGI/1.1";
 
-        internal static string HTTPS_ON = "ON";
-        internal static string HTTPS_OFF = "OFF";
+        internal static readonly string HTTPS_ON = "ON";
+        internal static readonly string HTTPS_OFF = "OFF";
 
-        internal static string REQUEST_SCHEME_HTTP = "HTTP";
+        internal static readonly string REQUEST_SCHEME_HTTP = "HTTP";
 
-        internal static string SERVER_PORT_80 = "80";
-        internal static string SERVER_PORT_443 = "443";
+        internal static readonly string SERVER_PORT_80 = "80";
+        internal static readonly string SERVER_PORT_443 = "443";
 
-        internal static string SERVER_SOFTWARE_YARP_2 = "YARP2";
+        internal static readonly string SERVER_SOFTWARE_YARP_2 = "YARP2";
     }
 
     public static class FastCgiHttpOptions
@@ -1063,54 +1046,14 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         public static readonly HttpRequestOptionsKey<string> DOCUMENT_ROOT = new("DOCUMENT_ROOT");
     }
 
-    private static class FastCgiBadResponseException
-    {
-        [StackTraceHidden]
-        internal static void Throw(FastCgiResponseRejectionReason reason)
-        {
-            throw GetException(reason);
-        }
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static BadFastCgiResponseException GetException(FastCgiResponseRejectionReason reason)
-        {
-            BadFastCgiResponseException ex;
-            switch (reason)
-            {
-                case FastCgiResponseRejectionReason.UnrecognizedFastCgiVersion:
-                    ex = new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse_UnrecognizedFastCgiVersion, reason);
-                    break;
-                case FastCgiResponseRejectionReason.UnrecognizedRequestType:
-                    ex = new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse_UnrecognizedRequestType, reason);
-                    break;
-                case FastCgiResponseRejectionReason.InvalidContentLength:
-                    ex = new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse_InvalidContentLength, reason);
-                    break;
-                case FastCgiResponseRejectionReason.InvalidPaddingLength:
-                    ex = new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse_InvalidPaddingLength, reason);
-                    break;
-                default:
-                    ex = new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse);
-                    break;
-            }
-            return ex;
-        }
-    }
-
     private enum FastCgiResponseRejectionReason
     {
         UnrecognizedFastCgiVersion,
         UnrecognizedRequestType,
-        InvalidContentLength,
-        InvalidPaddingLength,
     }
 
     private sealed class BadFastCgiResponseException : IOException
     {
-        public BadFastCgiResponseException(string? message) : base(message)
-        {
-        }
-
         internal BadFastCgiResponseException(string message, FastCgiResponseRejectionReason reason)
                     : base(message)
         {
@@ -1123,11 +1066,8 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
     private static class FastCgiCoreExpStrings
     {
-        internal static string BadResponse = "BadResponse";
-        internal static string BadResponse_UnrecognizedFastCgiVersion = "BadResponse_UnrecognizedFastCgiVersion";
-        internal static string BadResponse_UnrecognizedRequestType = "BadResponse_UnrecognizedRequestType";
-        internal static string BadResponse_InvalidContentLength = "BadResponse_InvalidContentLength";
-        internal static string BadResponse_InvalidPaddingLength = "BadResponse_InvalidPaddingLength";
+        internal static readonly string BadResponse_UnrecognizedFastCgiVersion = "BadResponse_UnrecognizedFastCgiVersion";
+        internal static readonly string BadResponse_UnrecognizedRequestType = "BadResponse_UnrecognizedRequestType";
     }
 
     // COPIED FROM https://github.com/dotnet/Nerdbank.Streams/blob/main/src/Nerdbank.Streams/ReadOnlySequenceStream.cs
@@ -1149,15 +1089,9 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
         internal RentedMemorySegmentStream(RentedMemorySegment<byte> start, RentedMemorySegment<byte>? end = default)
         {
-            if (end is not null)
-            {
-                _readOnlySequence = new ReadOnlySequence<byte>(start, 0, end, end.Memory.Length);
-
-            }
-            else
-            {
-                _readOnlySequence = new ReadOnlySequence<byte>(start.Memory);
-            }
+            _readOnlySequence = end is not null ?
+                new ReadOnlySequence<byte>(start, 0, end, end.Memory.Length):
+                new ReadOnlySequence<byte>(start.Memory);
             _position = _readOnlySequence.Start;
             _start = start;
         }
@@ -1198,7 +1132,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
             }
         }
 
-        public bool IsDisposed { get; private set; }
+        private bool IsDisposed { get; set; }
 
         public override void Flush() => throw new NotSupportedException();
 
@@ -1326,8 +1260,9 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
     private static class HttpResponseHeaders
     {
-        public static readonly string Status = "Status";
-        public static unsafe bool TryGetStatusHeader(ReadOnlySpan<byte> name, out string? header)
+        private const string Status = "Status";
+
+        public static bool TryGetStatusHeader(ReadOnlySpan<byte> name, out string? header)
         {
             ref var nameStart = ref MemoryMarshal.GetReference(name);
 
@@ -1341,7 +1276,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-        public static unsafe bool TryGetContentHeader(ReadOnlySpan<byte> name, out string? header)
+        public static bool TryGetContentHeader(ReadOnlySpan<byte> name, out string? header)
         {
             ref var nameStart = ref MemoryMarshal.GetReference(name);
 
@@ -1429,7 +1364,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static unsafe uint ReadUnalignedLittleEndian_uint(ref byte source)
+        private static uint ReadUnalignedLittleEndian_uint(ref byte source)
         {
             var result = Unsafe.ReadUnaligned<uint>(ref source);
             if (!BitConverter.IsLittleEndian)
@@ -1440,7 +1375,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static unsafe ushort ReadUnalignedLittleEndian_ushort(ref byte source)
+        private static ushort ReadUnalignedLittleEndian_ushort(ref byte source)
         {
             var result = Unsafe.ReadUnaligned<ushort>(ref source);
             if (!BitConverter.IsLittleEndian)
@@ -1451,7 +1386,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static unsafe ulong ReadUnalignedLittleEndian_ulong(ref byte source)
+        private static ulong ReadUnalignedLittleEndian_ulong(ref byte source)
         {
             var result = Unsafe.ReadUnaligned<ulong>(ref source);
             if (!BitConverter.IsLittleEndian)
@@ -1505,7 +1440,7 @@ internal static class FastCgiExtensions
         // Debug.Assert(status == OperationStatus.Done);
         var span = buffer.GetSpan(s.Length);
 
-        // TODO: kestrel has implemented better conversions compatibile with 6,7
+        // TODO: kestrel has implemented better conversions compatible with 6,7
         var bytesWritten = Encoding.ASCII.GetBytes(s, span);
 
         Debug.Assert(bytesWritten == s.Length);
