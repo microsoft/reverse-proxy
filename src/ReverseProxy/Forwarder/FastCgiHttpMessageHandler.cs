@@ -199,94 +199,14 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         result.ThrowIfCanceled();
     }
 
-    private static IEnumerable<FastCgiParam> BuildFastCgiParams(EndPoint? connRemoteEndpoint, HttpRequestMessage request)
+    private interface FastCgiRecordHandler
     {
-        string remoteEndpoint;
-        string remotePort;
+        bool TryOnFastCgiRecord(ref FastCgiRecord fastCgiRecord);
+    }
 
-        if (connRemoteEndpoint is IPEndPoint re)
-        {
-            remoteEndpoint = re.Address.ToString();
-            remotePort = re.Port.ToString();
-        }
-        else
-        {
-            remotePort = remoteEndpoint = string.Empty;
-        }
-
-        if (!request.Options.TryGetValue(FastCgiHttpOptions.DOCUMENT_ROOT, out var documentRoot))
-        {
-            documentRoot = string.Empty;
-        }
-
-        if (!request.Options.TryGetValue(FastCgiHttpOptions.SCRIPT_FILENAME, out var scriptFilename))
-        {
-            scriptFilename = string.Empty;
-        }
-
-        var fpath = request.RequestUri?.LocalPath ?? string.Empty;
-
-        var scriptName = fpath;
-        // Ensure the SCRIPT_NAME has a leading slash for compliance with RFC3875
-        // Info: https://tools.ietf.org/html/rfc3875#section-4.1.13
-        if (scriptName.Length > 0 && !scriptName.StartsWith('/'))
-        {
-            scriptName = $"/{scriptName}";
-        }
-
-        var serverName = request.Headers.Host ?? string.Empty;
-        if (serverName.Length > 0)
-        {
-            //TODO: write better splitting of host / port
-            if (Uri.TryCreate($"tcp://{serverName}", default, out var u))
-            {
-                serverName = u.Host;
-            }
-        }
-
-        //TODO: probably better https detection will be needed at some point
-        var isHttps = request.RequestUri?.Scheme == "https";
-
-        yield return new(FastCgiCoreParams.CONTENT_LENGTH, request.Content?.Headers.ContentLength?.ToString() ?? string.Empty);
-        // based on caddy implementation https://github.com/caddyserver/caddy/blob/9ddb78fadcdbec89a609127918604174121dcf42/modules/caddyhttp/reverseproxy/fastcgi/client.go#L289
-        yield return new(FastCgiCoreParams.CONTENT_TYPE, request.Content?.Headers.ContentType?.ToString() ?? (request.Method == System.Net.Http.HttpMethod.Post ? "application/x-www-form-urlencoded" : string.Empty));
-
-        yield return new(FastCgiCoreParams.DOCUMENT_ROOT, documentRoot);
-        yield return new(FastCgiCoreParams.DOCUMENT_URI, fpath);
-
-        yield return new(FastCgiCoreParams.GATEWAY_INTERFACE, FastCgiCoreParamValues.GATEWAY_INTERFACE_CGI11);
-
-        yield return new(FastCgiCoreParams.HTTPS, isHttps ? FastCgiCoreParamValues.HTTPS_ON : FastCgiCoreParamValues.HTTPS_OFF);
-
-        yield return new(FastCgiCoreParams.QUERY_STRING, request.RequestUri?.Query ?? string.Empty);
-
-        yield return new(FastCgiCoreParams.REMOTE_ADDR, remoteEndpoint);
-        yield return new(FastCgiCoreParams.REMOTE_PORT, remotePort);
-
-        yield return new(FastCgiCoreParams.REQUEST_METHOD, request.Method.Method);
-        yield return new(FastCgiCoreParams.REQUEST_SCHEME, request.RequestUri?.Scheme ?? FastCgiCoreParamValues.REQUEST_SCHEME_HTTP);
-        yield return new(FastCgiCoreParams.REQUEST_URI, request.RequestUri?.ToString() ?? string.Empty);
-
-        yield return new(FastCgiCoreParams.SCRIPT_FILENAME, scriptFilename);
-        yield return new(FastCgiCoreParams.SCRIPT_NAME, scriptName);
-
-        yield return new(FastCgiCoreParams.SERVER_NAME, serverName);
-        yield return new(FastCgiCoreParams.SERVER_PORT, isHttps ? FastCgiCoreParamValues.SERVER_PORT_443 : FastCgiCoreParamValues.SERVER_PORT_80);
-        yield return new(FastCgiCoreParams.SERVER_PROTOCOL, HttpProtocol.GetHttpProtocol(request.Version));
-        yield return new(FastCgiCoreParams.SERVER_SOFTWARE, FastCgiCoreParamValues.SERVER_SOFTWARE_YARP_2);
-
-        foreach (var header in request.Headers)
-        {
-            yield return new(header.Key.ReplaceToUpperAscii('-', '_'), string.Join(", ", header.Value), FastCgiCoreParams.PREFIX);
-        }
-
-        if (request.Content != null)
-        {
-            foreach (var header in request.Content.Headers)
-            {
-                yield return new(header.Key.ReplaceToUpperAscii('-', '_'), string.Join(", ", header.Value, FastCgiCoreParams.PREFIX));
-            }
-        }
+    private interface IFastCgiContentDataWriter
+    {
+        void WriteTo(IBufferWriter<byte> buffer);
     }
 
     private static class FastCgiRecordReader
@@ -401,37 +321,6 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
             return true;
         }
-    }
-
-    private struct RentedReadOnlyMemory<T>(ReadOnlyMemory<T> memory, T[]? rented = default) : IDisposable
-    {
-        public T[]? Rented { get; private set; } = rented;
-        public ReadOnlyMemory<T> Memory { get; private set; } = memory;
-
-        public static readonly RentedReadOnlyMemory<T> Empty = new(ReadOnlyMemory<T>.Empty);
-
-        public void Dispose()
-        {
-            if (Rented is null)
-            {
-                return;
-            }
-
-            ArrayPool<T>.Shared.Return(Rented);
-
-            Rented = default;
-            Memory = default;
-        }
-    }
-
-    private interface FastCgiRecordHandler
-    {
-        bool TryOnFastCgiRecord(ref FastCgiRecord fastCgiRecord);
-    }
-
-    private interface IFastCgiContentDataWriter
-    {
-        void WriteTo(IBufferWriter<byte> buffer);
     }
 
     private sealed class HttpResponseReaderFastCgiRecordHandler(HttpResponseMessage result, ILogger logger) : FastCgiRecordHandler
@@ -599,100 +488,98 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         }
     }
 
-    private sealed class RentedArrayBufferWriter<T>(int maxCapacity) : IBufferWriter<T>, IDisposable
+
+    private static IEnumerable<FastCgiParam> BuildFastCgiParams(EndPoint? connRemoteEndpoint, HttpRequestMessage request)
     {
-        private T[]? _rented = ArrayPool<T>.Shared.Rent(maxCapacity);
+        string remoteEndpoint;
+        string remotePort;
 
-        public readonly int Capacity = maxCapacity;
-        public int WrittenCount { get; private set; }
-
-        public ReadOnlyMemory<T> GetWrittenMemory() { return _rented.AsMemory(0, WrittenCount); }
-
-        public void Advance(int count)
+        if (connRemoteEndpoint is IPEndPoint re)
         {
-            if (count < 0)
+            remoteEndpoint = re.Address.ToString();
+            remotePort = re.Port.ToString();
+        }
+        else
+        {
+            remotePort = remoteEndpoint = string.Empty;
+        }
+
+        if (!request.Options.TryGetValue(FastCgiHttpOptions.DOCUMENT_ROOT, out var documentRoot))
+        {
+            documentRoot = string.Empty;
+        }
+
+        if (!request.Options.TryGetValue(FastCgiHttpOptions.SCRIPT_FILENAME, out var scriptFilename))
+        {
+            scriptFilename = string.Empty;
+        }
+
+        var fpath = request.RequestUri?.LocalPath ?? string.Empty;
+
+        var scriptName = fpath;
+        // Ensure the SCRIPT_NAME has a leading slash for compliance with RFC3875
+        // Info: https://tools.ietf.org/html/rfc3875#section-4.1.13
+        if (scriptName.Length > 0 && !scriptName.StartsWith('/'))
+        {
+            scriptName = $"/{scriptName}";
+        }
+
+        var serverName = request.Headers.Host ?? string.Empty;
+        if (serverName.Length > 0)
+        {
+            //TODO: write better splitting of host / port
+            if (Uri.TryCreate($"tcp://{serverName}", default, out var u))
             {
-                throw new ArgumentOutOfRangeException(nameof(count));
+                serverName = u.Host;
             }
-
-            ThrowIfNotEnoughSpace(count);
-            WrittenCount += count;
         }
 
-        public void Clear()
+        //TODO: probably better https detection will be needed at some point
+        var isHttps = request.RequestUri?.Scheme == "https";
+
+        yield return new(FastCgiCoreParams.CONTENT_LENGTH, request.Content?.Headers.ContentLength?.ToString() ?? string.Empty);
+        // based on caddy implementation https://github.com/caddyserver/caddy/blob/9ddb78fadcdbec89a609127918604174121dcf42/modules/caddyhttp/reverseproxy/fastcgi/client.go#L289
+        yield return new(FastCgiCoreParams.CONTENT_TYPE, request.Content?.Headers.ContentType?.ToString() ?? (request.Method == System.Net.Http.HttpMethod.Post ? "application/x-www-form-urlencoded" : string.Empty));
+
+        yield return new(FastCgiCoreParams.DOCUMENT_ROOT, documentRoot);
+        yield return new(FastCgiCoreParams.DOCUMENT_URI, fpath);
+
+        yield return new(FastCgiCoreParams.GATEWAY_INTERFACE, FastCgiCoreParamValues.GATEWAY_INTERFACE_CGI11);
+
+        yield return new(FastCgiCoreParams.HTTPS, isHttps ? FastCgiCoreParamValues.HTTPS_ON : FastCgiCoreParamValues.HTTPS_OFF);
+
+        yield return new(FastCgiCoreParams.QUERY_STRING, request.RequestUri?.Query ?? string.Empty);
+
+        yield return new(FastCgiCoreParams.REMOTE_ADDR, remoteEndpoint);
+        yield return new(FastCgiCoreParams.REMOTE_PORT, remotePort);
+
+        yield return new(FastCgiCoreParams.REQUEST_METHOD, request.Method.Method);
+        yield return new(FastCgiCoreParams.REQUEST_SCHEME, request.RequestUri?.Scheme ?? FastCgiCoreParamValues.REQUEST_SCHEME_HTTP);
+        yield return new(FastCgiCoreParams.REQUEST_URI, request.RequestUri?.ToString() ?? string.Empty);
+
+        yield return new(FastCgiCoreParams.SCRIPT_FILENAME, scriptFilename);
+        yield return new(FastCgiCoreParams.SCRIPT_NAME, scriptName);
+
+        yield return new(FastCgiCoreParams.SERVER_NAME, serverName);
+        yield return new(FastCgiCoreParams.SERVER_PORT, isHttps ? FastCgiCoreParamValues.SERVER_PORT_443 : FastCgiCoreParamValues.SERVER_PORT_80);
+        yield return new(FastCgiCoreParams.SERVER_PROTOCOL, HttpProtocol.GetHttpProtocol(request.Version));
+        yield return new(FastCgiCoreParams.SERVER_SOFTWARE, FastCgiCoreParamValues.SERVER_SOFTWARE_YARP_2);
+
+        foreach (var header in request.Headers)
         {
-            WrittenCount = 0;
+            yield return new(header.Key.ReplaceToUpperAscii('-', '_'), string.Join(", ", header.Value), FastCgiCoreParams.PREFIX);
         }
 
-        public void Dispose()
+        if (request.Content != null)
         {
-            if (_rented != null)
+            foreach (var header in request.Content.Headers)
             {
-                ArrayPool<T>.Shared.Return(_rented);
-                _rented = default;
-            }
-        }
-
-        public Memory<T> GetMemory(int sizeHint = 0)
-        {
-            ThrowIfNotEnoughSpace(sizeHint);
-            return _rented.AsMemory(WrittenCount);
-        }
-
-        public Span<T> GetSpan(int sizeHint = 0)
-        {
-            ThrowIfNotEnoughSpace(sizeHint);
-            return _rented.AsSpan(WrittenCount);
-        }
-
-        private void ThrowIfNotEnoughSpace(int count)
-        {
-            if (WrittenCount + count > Capacity)
-            {
-                throw new OutOfMemoryException(nameof(count));
+                yield return new(header.Key.ReplaceToUpperAscii('-', '_'), string.Join(", ", header.Value, FastCgiCoreParams.PREFIX));
             }
         }
     }
 
-    private sealed class RentedMemorySegment<T> : ReadOnlySequenceSegment<T>, IDisposable
-    {
-        private RentedReadOnlyMemory<T>? _rented;
-        internal RentedMemorySegment(RentedReadOnlyMemory<T> rented)
-        {
-            Memory = rented.Memory;
-            _rented = rented;
-        }
-
-        public void Dispose()
-        {
-            if (_rented is null)
-            {
-                return;
-            }
-
-            if (Next is RentedMemorySegment<T> next)
-            {
-                next.Dispose();
-            }
-
-            _rented.Value.Dispose();
-            _rented = default;
-        }
-
-        internal RentedMemorySegment<T> Append(RentedReadOnlyMemory<T> memory)
-        {
-            var segment = new RentedMemorySegment<T>(memory)
-            {
-                RunningIndex = RunningIndex + Memory.Length
-            };
-
-            Next = segment;
-
-            return segment;
-        }
-    }
-
-    private readonly record struct FastCgiRecordHeader(
+        private readonly record struct FastCgiRecordHeader(
         FastCgiRecordHeader.RecordVersion Version = FastCgiRecordHeader.RecordVersion.Version1,
         FastCgiRecordHeader.RecordType Type = FastCgiRecordHeader.RecordType.BeginRequest,
         ushort RequestId = 1,
@@ -905,6 +792,121 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
     {
         internal static readonly string BadResponse_UnrecognizedFastCgiVersion = "BadResponse_UnrecognizedFastCgiVersion";
         internal static readonly string BadResponse_UnrecognizedRequestType = "BadResponse_UnrecognizedRequestType";
+    }
+
+        private struct RentedReadOnlyMemory<T>(ReadOnlyMemory<T> memory, T[]? rented = default) : IDisposable
+    {
+        public T[]? Rented { get; private set; } = rented;
+        public ReadOnlyMemory<T> Memory { get; private set; } = memory;
+
+        public static readonly RentedReadOnlyMemory<T> Empty = new(ReadOnlyMemory<T>.Empty);
+
+        public void Dispose()
+        {
+            if (Rented is null)
+            {
+                return;
+            }
+
+            ArrayPool<T>.Shared.Return(Rented);
+
+            Rented = default;
+            Memory = default;
+        }
+    }
+
+    private sealed class RentedMemorySegment<T> : ReadOnlySequenceSegment<T>, IDisposable
+    {
+        private RentedReadOnlyMemory<T>? _rented;
+        internal RentedMemorySegment(RentedReadOnlyMemory<T> rented)
+        {
+            Memory = rented.Memory;
+            _rented = rented;
+        }
+
+        public void Dispose()
+        {
+            if (_rented is null)
+            {
+                return;
+            }
+
+            if (Next is RentedMemorySegment<T> next)
+            {
+                next.Dispose();
+            }
+
+            _rented.Value.Dispose();
+            _rented = default;
+        }
+
+        internal RentedMemorySegment<T> Append(RentedReadOnlyMemory<T> memory)
+        {
+            var segment = new RentedMemorySegment<T>(memory)
+            {
+                RunningIndex = RunningIndex + Memory.Length
+            };
+
+            Next = segment;
+
+            return segment;
+        }
+    }
+
+
+    private sealed class RentedArrayBufferWriter<T>(int maxCapacity) : IBufferWriter<T>, IDisposable
+    {
+        private T[]? _rented = ArrayPool<T>.Shared.Rent(maxCapacity);
+
+        public readonly int Capacity = maxCapacity;
+        public int WrittenCount { get; private set; }
+
+        public ReadOnlyMemory<T> GetWrittenMemory() { return _rented.AsMemory(0, WrittenCount); }
+
+        public void Advance(int count)
+        {
+            if (count < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(count));
+            }
+
+            ThrowIfNotEnoughSpace(count);
+            WrittenCount += count;
+        }
+
+        public void Clear()
+        {
+            WrittenCount = 0;
+        }
+
+        public void Dispose()
+        {
+            if (_rented != null)
+            {
+                ArrayPool<T>.Shared.Return(_rented);
+                _rented = default;
+            }
+        }
+
+        public Memory<T> GetMemory(int sizeHint = 0)
+        {
+            ThrowIfNotEnoughSpace(sizeHint);
+            return _rented.AsMemory(WrittenCount);
+        }
+
+        public Span<T> GetSpan(int sizeHint = 0)
+        {
+            ThrowIfNotEnoughSpace(sizeHint);
+            return _rented.AsSpan(WrittenCount);
+        }
+
+        private void ThrowIfNotEnoughSpace(int count)
+        {
+            if (WrittenCount + count > Capacity)
+            {
+                throw new OutOfMemoryException(nameof(count));
+            }
+        }
     }
 
     // COPIED FROM https://github.com/dotnet/Nerdbank.Streams/blob/main/src/Nerdbank.Streams/ReadOnlySequenceStream.cs
