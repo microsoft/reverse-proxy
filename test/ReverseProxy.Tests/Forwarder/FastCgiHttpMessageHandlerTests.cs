@@ -1,31 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Yarp.ReverseProxy.Forwarder.Tests;
 
 public class FastCgiHttpMessageHandlerTests
 {
-    private readonly ITestOutputHelper _output;
-
-    public FastCgiHttpMessageHandlerTests(ITestOutputHelper output)
-    {
-        _output = output;
-    }
-
-
     [Fact]
     public async Task CanDoBasicGet()
     {
@@ -38,14 +25,14 @@ public class FastCgiHttpMessageHandlerTests
         };
         req.Headers.Host = "example.com";
 
-        req.Options.Set(FastCgiHttpMessageHandler.FastCgiHttpOptions.DOCUMENT_ROOT, "/var/www/html");
+        req.Options.Set(FastCgiHttpMessageHandler.FastCgiHttpOptions.SCRIPT_FILENAME, "/var/www/html/index.php");
 
         var result = await client.SendAsync(req, cancellationToken: default);
 
-        using (var stream = result.Content.ReadAsStream())
+        await using (var stream = await result.Content.ReadAsStreamAsync())
         {
-            var reader = new StreamReader(result.Content.ReadAsStream());
-            var content = reader.ReadToEnd();
+            var reader = new StreamReader(stream);
+            var content = await reader.ReadToEndAsync();
             Assert.True(content.Length > 0);
         }
 
@@ -67,14 +54,14 @@ public class FastCgiHttpMessageHandlerTests
         req.Headers.Host = "example.com";
         req.Content = new StringContent(""" { "test": 1} """);
 
-        req.Options.Set(FastCgiHttpMessageHandler.FastCgiHttpOptions.DOCUMENT_ROOT, "/var/www/html");
+        req.Options.Set(FastCgiHttpMessageHandler.FastCgiHttpOptions.SCRIPT_FILENAME, "/var/www/html/index.php");
 
         var result = await client.SendAsync(req, cancellationToken: default);
 
-        using (var stream = result.Content.ReadAsStream())
+        await using (var stream = await result.Content.ReadAsStreamAsync())
         {
-            var reader = new StreamReader(result.Content.ReadAsStream());
-            var content = reader.ReadToEnd();
+            var reader = new StreamReader(stream);
+            var content = await reader.ReadToEndAsync();
             Assert.True(content.Length > 0);
         }
 

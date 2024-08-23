@@ -133,7 +133,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
             connection, cancellationToken);
 
         var response = new HttpResponseMessage() { RequestMessage = request, StatusCode = HttpStatusCode.OK };
-        var httpResponseReader = new HttpResponseReaderFastcgiRecordHandler(response, logger);
+        var httpResponseReader = new HttpResponseReaderFastCgiRecordHandler(response, logger);
 
         try
         {
@@ -219,20 +219,20 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
             documentRoot = string.Empty;
         }
 
+        if (!request.Options.TryGetValue(FastCgiHttpOptions.SCRIPT_FILENAME, out var scriptFilename))
+        {
+            scriptFilename = string.Empty;
+        }
+
         var fpath = request.RequestUri?.LocalPath ?? string.Empty;
 
-        var pathInfo = fpath;
-        var documentURI = fpath;
         var scriptName = fpath;
-
         // Ensure the SCRIPT_NAME has a leading slash for compliance with RFC3875
         // Info: https://tools.ietf.org/html/rfc3875#section-4.1.13
         if (scriptName.Length > 0 && !scriptName.StartsWith('/'))
         {
             scriptName = $"/{scriptName}";
         }
-
-        var scriptFilename = SanitizedPathJoin(documentRoot, pathInfo);
 
         var serverName = request.Headers.Host ?? string.Empty;
         if (serverName.Length > 0)
@@ -252,20 +252,15 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         yield return new(FastCgiCoreParams.CONTENT_TYPE, request.Content?.Headers.ContentType?.ToString() ?? (request.Method == System.Net.Http.HttpMethod.Post ? "application/x-www-form-urlencoded" : string.Empty));
 
         yield return new(FastCgiCoreParams.DOCUMENT_ROOT, documentRoot);
-        yield return new(FastCgiCoreParams.DOCUMENT_URI, documentURI);
+        yield return new(FastCgiCoreParams.DOCUMENT_URI, fpath);
 
         yield return new(FastCgiCoreParams.GATEWAY_INTERFACE, FastCgiCoreParamValues.GATEWAY_INTERFACE_CGI11);
 
         yield return new(FastCgiCoreParams.HTTPS, isHttps ? FastCgiCoreParamValues.HTTPS_ON : FastCgiCoreParamValues.HTTPS_OFF);
-        //new(FastCgiCoreParams.HTTP_HOST, request.Headers.Host ?? string.Empty), // will be added later
-
-        yield return new(FastCgiCoreParams.PATH_INFO, pathInfo);
-        yield return new(FastCgiCoreParams.PATH_TRANSLATED, pathInfo.Length > 0 ? SanitizedPathJoin(documentRoot, pathInfo) : string.Empty);
 
         yield return new(FastCgiCoreParams.QUERY_STRING, request.RequestUri?.Query ?? string.Empty);
 
         yield return new(FastCgiCoreParams.REMOTE_ADDR, remoteEndpoint);
-        yield return new(FastCgiCoreParams.REMOTE_HOST, remoteEndpoint); // For performance, remote host lookup is disabled;
         yield return new(FastCgiCoreParams.REMOTE_PORT, remotePort);
 
         yield return new(FastCgiCoreParams.REQUEST_METHOD, request.Method.Method);
@@ -280,11 +275,6 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         yield return new(FastCgiCoreParams.SERVER_PROTOCOL, HttpProtocol.GetHttpProtocol(request.Version));
         yield return new(FastCgiCoreParams.SERVER_SOFTWARE, FastCgiCoreParamValues.SERVER_SOFTWARE_YARP_2);
 
-        if (pathInfo.Length > 0)
-        {
-            yield return new(FastCgiCoreParams.PATH_TRANSLATED, SanitizedPathJoin(documentRoot, pathInfo));
-        }
-
         foreach (var header in request.Headers)
         {
             yield return new(header.Key.ReplaceToUpperAscii('-', '_'), string.Join(", ", header.Value), FastCgiCoreParams.PREFIX);
@@ -296,156 +286,6 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
             {
                 yield return new(header.Key.ReplaceToUpperAscii('-', '_'), string.Join(", ", header.Value, FastCgiCoreParams.PREFIX));
             }
-        }
-    }
-
-    private static string SanitizedPathJoin(string root, string reqPath)
-    {
-        if (root.Length == 0)
-        {
-            root = ".";
-        }
-
-        // TODO: its good enough for linux / unix but for windows it also needs finding of special devices names
-        // https://github.com/golang/go/issues/56336#issuecomment-1416214885
-        var relPath = PathClean("/" + reqPath);
-
-        return Path.Join(root, relPath);
-    }
-
-    // Copied from: https://cs.opensource.google/go/go/+/refs/tags/go1.23.0:src/path/path.go;l=72
-    private static string PathClean(string path)
-    {
-        if (path.Length == 0)
-        {
-            return ".";
-        }
-
-        var pathChars = path.AsSpan();
-
-        var lb = new LazyBuf(path);
-
-        var (r, dotdot, n, rooted) = (0, 0, path.Length, pathChars[0] == '/');
-
-        if (rooted)
-        {
-            lb.Append('/');
-            (r, dotdot) = (1, 1);
-        }
-
-        while (r < n)
-        {
-            switch (pathChars[r])
-            {
-                case '/':
-                    // empty path element
-                    r++;
-                    break;
-                case '.' when (r + 1 == n || pathChars[r + 1] == '/'):
-                    // . element
-                    r++;
-                    break;
-                case '.' when (pathChars[r + 1] == '.' && (r + 2 == n || pathChars[r + 2] == '/')):
-                    // .. element: remove to last /
-                    r += 2;
-
-                    if (lb.W > dotdot)
-                    {
-                        // can backtrack
-                        lb.W--;
-                        while (lb.W > dotdot && lb.Index(lb.W) != '/')
-                        {
-                            lb.W--;
-                        }
-                    }
-                    else if (!rooted)
-                    {
-                        // cannot backtrack, but not rooted, so append .. element.
-                        if (lb.W > 0)
-                        {
-                            lb.Append('/');
-                        }
-                        lb.Append('.');
-                        lb.Append('.');
-                        dotdot = lb.W;
-                    }
-                    break;
-                default:
-                    // real path element.
-                    // add slash if needed
-                    if (rooted && lb.W != 1 || !rooted && lb.W != 0)
-                    {
-                        lb.Append('/');
-                    }
-                    // copy element
-                    while (r < n && pathChars[r] != '/')
-                    {
-                        lb.Append(pathChars[r]);
-                        r++;
-                    }
-                    break;
-            }
-        }
-
-        if (lb.W == 0)
-        {
-            return ".";
-        }
-
-        return lb.ToString();
-    }
-
-    private ref struct LazyBuf(string s)
-    {
-        private char[]? _rented = default;
-        public int W { get; set; } = 0;
-        private readonly string _s = s;
-
-        public new readonly string ToString()
-        {
-            if (_rented == null)
-            {
-                return _s;
-            }
-            var v = new string(_rented[..W]);
-            ArrayPool<char>.Shared.Return(_rented);
-            return v;
-        }
-
-        public void Append(char c)
-        {
-            if (_rented == null)
-            {
-
-                if (W < _s.Length && _s[W] == c)
-                {
-                    W++;
-                    return;
-                }
-
-                _rented = ArrayPool<char>.Shared.Rent(_s.Length);
-                try
-                {
-                    _s.CopyTo(0, _rented, 0, W);
-                }
-                catch
-                {
-                    ArrayPool<char>.Shared.Return(_rented);
-                    throw;
-                }
-            }
-
-            _rented[W] = c;
-            W++;
-        }
-
-        public readonly char Index(int i)
-        {
-            if (_rented != null)
-            {
-                return _rented[W];
-            }
-            return _s[i];
         }
     }
 
@@ -471,7 +311,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                     {
                         try
                         {
-                            if (!handler.TryOnFastcgiRecord(ref record))
+                            if (!handler.TryOnFastCgiRecord(ref record))
                             {
                                 return;
                             }
@@ -586,7 +426,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
     private interface FastCgiRecordHandler
     {
-        bool TryOnFastcgiRecord(ref FastCgiRecord fastcgiRecord);
+        bool TryOnFastCgiRecord(ref FastCgiRecord fastCgiRecord);
     }
 
     private interface IFastCgiContentDataWriter
@@ -594,15 +434,15 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         void WriteTo(IBufferWriter<byte> buffer);
     }
 
-    private sealed class HttpResponseReaderFastcgiRecordHandler(HttpResponseMessage result, ILogger logger) : FastCgiRecordHandler
+    private sealed class HttpResponseReaderFastCgiRecordHandler(HttpResponseMessage result, ILogger logger) : FastCgiRecordHandler
     {
         private readonly HttpResponseReader _reader = new(result);
         private bool _headersDone;
         private RentedMemorySegment<byte>? _start;
         private RentedMemorySegment<byte>? _end;
-        public bool TryOnFastcgiRecord(ref FastCgiRecord fastcgiRecord)
+        public bool TryOnFastCgiRecord(ref FastCgiRecord fastCgiRecord)
         {
-            switch (fastcgiRecord.Header.Type)
+            switch (fastCgiRecord.Header.Type)
             {
                 case FastCgiRecordHeader.RecordType.Stdout when _headersDone:
                     {
@@ -610,51 +450,51 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                         // After headers are done it could act as stream and lazy parse rest of the data on the fly.
                         // This would lower memory footprint to only 1 record (max 65535).
                         // Stream would stop at EndRequest Record.
-                        if (fastcgiRecord.ContentData.Memory.Length == 0)
+                        if (fastCgiRecord.ContentData.Memory.Length == 0)
                         {
-                            fastcgiRecord.Dispose();
+                            fastCgiRecord.Dispose();
                             return true;
                         }
 
                         if (_start is null)
                         {
-                            _start = new RentedMemorySegment<byte>(fastcgiRecord.ContentData);
+                            _start = new RentedMemorySegment<byte>(fastCgiRecord.ContentData);
                         }
                         else if (_end is null)
                         {
-                            _end = _start.Append(fastcgiRecord.ContentData);
+                            _end = _start.Append(fastCgiRecord.ContentData);
                         }
                         else
                         {
-                            _end.Append(fastcgiRecord.ContentData);
+                            _end.Append(fastCgiRecord.ContentData);
                         }
 
                         return true;
                     }
                 case FastCgiRecordHeader.RecordType.Stdout:
                     {
-                        var reader = new SequenceReader<byte>(new ReadOnlySequence<byte>(fastcgiRecord.ContentData.Memory));
+                        var reader = new SequenceReader<byte>(new ReadOnlySequence<byte>(fastCgiRecord.ContentData.Memory));
                         if (_reader.ParseHttpHeaders(ref reader))
                         {
                             _headersDone = true;
 
-                            var left = fastcgiRecord.ContentData.Memory.Slice((int)reader.Consumed);
+                            var left = fastCgiRecord.ContentData.Memory.Slice((int)reader.Consumed);
                             if (left.Length > 0)
                             {
-                                _start = new RentedMemorySegment<byte>(new RentedReadOnlyMemory<byte>(left, fastcgiRecord.ContentData.Rented));
+                                _start = new RentedMemorySegment<byte>(new RentedReadOnlyMemory<byte>(left, fastCgiRecord.ContentData.Rented));
                                 return true;
                             }
                         }
 
-                        fastcgiRecord.Dispose();
+                        fastCgiRecord.Dispose();
                         return true;
                     }
                 // TODO: how to treat errors - caddy & nginx are just logging them
                 // stderr can interleave with stdout records so they do not interrupt connection
                 case FastCgiRecordHeader.RecordType.Stderr:
                     {
-                        logger.LogError(message: "stdErr {contentData}", Encoding.ASCII.GetString(fastcgiRecord.ContentData.Memory.Span));
-                        fastcgiRecord.Dispose();
+                        logger.LogError(message: "stdErr {contentData}", Encoding.ASCII.GetString(fastCgiRecord.ContentData.Memory.Span));
+                        fastCgiRecord.Dispose();
                         return true;
                     }
                 case FastCgiRecordHeader.RecordType.EndRequest:
@@ -681,14 +521,14 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
                         result.Content = content;
 
-                        fastcgiRecord.Dispose();
+                        fastCgiRecord.Dispose();
                         return false;
                     }
                 default:
                     {
                         result.StatusCode = HttpStatusCode.InternalServerError;
-                        result.Content = new StringContent($"recv unexpected fastcgi record type: {fastcgiRecord.Header.Type}");
-                        fastcgiRecord.Dispose();
+                        result.Content = new StringContent($"received unexpected fastcgi record type: {fastCgiRecord.Header.Type}");
+                        fastCgiRecord.Dispose();
                         _start?.Dispose();
                         _end?.Dispose();
                         return false;
@@ -1002,13 +842,9 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
         internal static readonly byte[] HTTPS = "HTTPS"u8.ToArray();
 
-        internal static readonly byte[] PATH_INFO = "PATH_INFO"u8.ToArray();
-        internal static readonly byte[] PATH_TRANSLATED = "PATH_TRANSLATED"u8.ToArray();
-
         internal static readonly byte[] QUERY_STRING = "QUERY_STRING"u8.ToArray();
 
         internal static readonly byte[] REMOTE_ADDR = "REMOTE_ADDR"u8.ToArray();
-        internal static readonly byte[] REMOTE_HOST = "REMOTE_HOST"u8.ToArray();
         internal static readonly byte[] REMOTE_PORT = "REMOTE_PORT"u8.ToArray();
 
         internal static readonly byte[] REQUEST_METHOD = "REQUEST_METHOD"u8.ToArray();
@@ -1044,6 +880,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
     public static class FastCgiHttpOptions
     {
         public static readonly HttpRequestOptionsKey<string> DOCUMENT_ROOT = new("DOCUMENT_ROOT");
+        public static readonly HttpRequestOptionsKey<string> SCRIPT_FILENAME = new("SCRIPT_FILENAME");
     }
 
     private enum FastCgiResponseRejectionReason
