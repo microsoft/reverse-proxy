@@ -50,10 +50,10 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         //TODO: implement connection pooling
         await using var connection = await ConnectAsync(endPoint, noDelay: true, cancellationToken);
 
-        await SendAsync(
+        Send(
             new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.BeginRequest, ContentLength: FastCgiRecordBeginRequestBody.ByteCount),
             new FastCgiRecordBeginRequestBody(Role: FastCgiRecordBeginRequestBody.RoleType.Responder, KeepConn: false),
-            connection, cancellationToken);
+            connection);
 
         using var paramBuffer = new RentedArrayBufferWriter<byte>(FastCgiRecordHeader.MAX_CONTENT_SIZE);
         {
@@ -93,6 +93,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                 ContentData: RentedReadOnlyMemory<byte>.Empty),
             connection, cancellationToken);
 
+        await FlushAsync(connection, cancellationToken);
 
         if (request.Content != null)
         {
@@ -131,6 +132,8 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                 Header: new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.Stdin),
                 ContentData: RentedReadOnlyMemory<byte>.Empty),
             connection, cancellationToken);
+
+        await FlushAsync(connection, cancellationToken);
 
         var response = new HttpResponseMessage() { RequestMessage = request, StatusCode = HttpStatusCode.OK };
         var httpResponseReader = new HttpResponseReaderFastCgiRecordHandler(response, logger);
@@ -185,16 +188,16 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
         var result = await connectionContext.Transport.Output.WriteAsync(fastcgiRecord.ContentData.Memory, cancellationToken);
         result.ThrowIfCanceled();
-        //TODO: probably flush is not needed but it does not hurt either
-        result = await connectionContext.Transport.Output.FlushAsync(cancellationToken);
-        result.ThrowIfCanceled();
     }
 
-    private static async ValueTask SendAsync(FastCgiRecordHeader header, IFastCgiContentDataWriter contentData, ConnectionContext connectionContext, CancellationToken cancellationToken)
+    private static void Send(FastCgiRecordHeader header, IFastCgiContentDataWriter contentData, ConnectionContext connectionContext)
     {
         header.WriteTo(connectionContext.Transport.Output);
         contentData.WriteTo(connectionContext.Transport.Output);
+    }
 
+    private static async ValueTask FlushAsync(ConnectionContext connectionContext, CancellationToken cancellationToken)
+    {
         var result = await connectionContext.Transport.Output.FlushAsync(cancellationToken);
         result.ThrowIfCanceled();
     }
@@ -215,14 +218,25 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         {
             var input = connectionContext.Transport.Input;
 
+            long? prevBuffLenOnCompleted = null;
             while (!cancellationToken.IsCancellationRequested)
             {
                 var result = await input.ReadAsync(cancellationToken);
                 var buffer = result.Buffer;
 
-                if (result.IsCompleted && buffer.Length == 0)
+                if (result.IsCompleted)
                 {
-                    return;
+                    if (buffer.Length == 0)
+                    {
+                        return;
+                    }
+
+                    if (prevBuffLenOnCompleted is {} prevLen && prevLen == buffer.Length)
+                    {
+                        throw new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse_IncompleteRecord, FastCgiResponseRejectionReason.IncompleteRecord);
+                    }
+
+                    prevBuffLenOnCompleted = buffer.Length;
                 }
 
                 try
@@ -446,10 +460,11 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                     if (value.Length > 2)
                     {
                         var codePart = value.Slice(0, 3);
-                        if (int.TryParse(Encoding.ASCII.GetString(codePart), out var code))
+                        if (!int.TryParse(Encoding.ASCII.GetString(codePart), out var code))
                         {
-                            response.StatusCode = (HttpStatusCode)code;
+                            throw new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse_UnrecognizedStatusCode, FastCgiResponseRejectionReason.UnrecognizedStatusCode);
                         }
+                        response.StatusCode = (HttpStatusCode)code;
                     }
                     added = response.Headers.TryAddWithoutValidation(status!, valueValue);
                 }
@@ -537,7 +552,11 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         //TODO: probably better https detection will be needed at some point
         var isHttps = request.RequestUri?.Scheme == "https";
 
-        yield return new(FastCgiCoreParams.CONTENT_LENGTH, request.Content?.Headers.ContentLength?.ToString() ?? string.Empty);
+        if (request.Content?.Headers.ContentLength is { } cl)
+        {
+            yield return new(FastCgiCoreParams.CONTENT_LENGTH, cl.ToString());
+        }
+
         // based on caddy implementation https://github.com/caddyserver/caddy/blob/9ddb78fadcdbec89a609127918604174121dcf42/modules/caddyhttp/reverseproxy/fastcgi/client.go#L289
         yield return new(FastCgiCoreParams.CONTENT_TYPE, request.Content?.Headers.ContentType?.ToString() ?? (request.Method == System.Net.Http.HttpMethod.Post ? "application/x-www-form-urlencoded" : string.Empty));
 
@@ -555,7 +574,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
         yield return new(FastCgiCoreParams.REQUEST_METHOD, request.Method.Method);
         yield return new(FastCgiCoreParams.REQUEST_SCHEME, request.RequestUri?.Scheme ?? FastCgiCoreParamValues.REQUEST_SCHEME_HTTP);
-        yield return new(FastCgiCoreParams.REQUEST_URI, request.RequestUri?.ToString() ?? string.Empty);
+        yield return new(FastCgiCoreParams.REQUEST_URI, request.RequestUri?.AbsoluteUri ?? string.Empty);
 
         yield return new(FastCgiCoreParams.SCRIPT_FILENAME, scriptFilename);
         yield return new(FastCgiCoreParams.SCRIPT_NAME, scriptName);
@@ -774,6 +793,8 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
     {
         UnrecognizedFastCgiVersion,
         UnrecognizedRequestType,
+        UnrecognizedStatusCode,
+        IncompleteRecord,
     }
 
     private sealed class BadFastCgiResponseException : IOException
@@ -792,6 +813,8 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
     {
         internal static readonly string BadResponse_UnrecognizedFastCgiVersion = "BadResponse_UnrecognizedFastCgiVersion";
         internal static readonly string BadResponse_UnrecognizedRequestType = "BadResponse_UnrecognizedRequestType";
+        internal static readonly string BadResponse_UnrecognizedStatusCode = "BadResponse_UnrecognizedStatusCode";
+        internal static readonly string BadResponse_IncompleteRecord = "BadResponse_IncompleteRecord";
     }
 
         private struct RentedReadOnlyMemory<T>(ReadOnlyMemory<T> memory, T[]? rented = default) : IDisposable
