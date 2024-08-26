@@ -135,13 +135,12 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
         await FlushAsync(connection, cancellationToken);
 
-        var response = new HttpResponseMessage() { RequestMessage = request, StatusCode = HttpStatusCode.OK };
-        var httpResponseReader = new HttpResponseReaderFastCgiRecordHandler(response, logger);
+        var httpResponseReader = new HttpResponseReaderFastCgiRecordHandler(request, logger);
 
         try
         {
             await FastCgiRecordReader.ProcessAsync(httpResponseReader, connection, cancellationToken);
-            return response;
+            return httpResponseReader.Result;
         }
         catch (BadFastCgiResponseException ex)
         {
@@ -335,12 +334,23 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         }
     }
 
-    private sealed class HttpResponseReaderFastCgiRecordHandler(HttpResponseMessage result, ILogger logger) : FastCgiRecordHandler
+    private sealed class HttpResponseReaderFastCgiRecordHandler : FastCgiRecordHandler
     {
-        private readonly HttpResponseReader _reader = new(result);
+        public readonly HttpResponseMessage Result;
+        private readonly HttpResponseReader _reader;
+        private readonly ILogger _logger;
+
         private bool _headersDone;
         private RentedMemorySegment<byte>? _start;
         private RentedMemorySegment<byte>? _end;
+
+        public HttpResponseReaderFastCgiRecordHandler(HttpRequestMessage request, ILogger logger)
+        {
+            Result = new HttpResponseMessage { RequestMessage = request, StatusCode = HttpStatusCode.OK };
+            _reader = new HttpResponseReader(Result);
+            _logger = logger;
+        }
+
         public bool TryOnFastCgiRecord(ref FastCgiRecord fastCgiRecord)
         {
             switch (fastCgiRecord.Header.Type)
@@ -394,7 +404,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                 // stderr can interleave with stdout records so they do not interrupt connection
                 case FastCgiRecordHeader.RecordType.Stderr:
                     {
-                        logger.LogError(message: "stdErr {contentData}", Encoding.ASCII.GetString(fastCgiRecord.ContentData.Memory.Span));
+                        _logger.LogError(message: "stdErr {contentData}", Encoding.ASCII.GetString(fastCgiRecord.ContentData.Memory.Span));
                         fastCgiRecord.Dispose();
                         return true;
                     }
@@ -413,22 +423,22 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
                         //TODO: content headers are "get" only so they need to be applied / copied to final content
                         //maybe there is another way to do it better?
-                        var contentHeaders = result.Content.Headers;
+                        var contentHeaders = Result.Content.Headers;
                         foreach (var header in contentHeaders)
                         {
                             var added = content.Headers.TryAddWithoutValidation(header.Key, header.Value);
                             Debug.Assert(added);
                         }
 
-                        result.Content = content;
+                        Result.Content = content;
 
                         fastCgiRecord.Dispose();
                         return false;
                     }
                 default:
                     {
-                        result.StatusCode = HttpStatusCode.InternalServerError;
-                        result.Content = new StringContent($"received unexpected fastcgi record type: {fastCgiRecord.Header.Type}");
+                        Result.StatusCode = HttpStatusCode.InternalServerError;
+                        Result.Content = new StringContent($"received unexpected fastcgi record type: {fastCgiRecord.Header.Type}");
                         fastCgiRecord.Dispose();
                         _start?.Dispose();
                         _end?.Dispose();
