@@ -202,6 +202,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
     private interface FastCgiRecordHandler
     {
         bool TryOnFastCgiRecord(ref FastCgiRecord fastCgiRecord);
+        void EndOfData();
     }
 
     private interface IFastCgiContentDataWriter
@@ -225,6 +226,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                 {
                     if (buffer.Length == 0)
                     {
+                        handler.EndOfData();
                         return;
                     }
 
@@ -340,9 +342,16 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         private readonly HttpResponseReader _reader;
         private readonly ILogger _logger;
 
-        private bool _headersDone;
+        private StateType _state = StateType.Headers;
         private RentedMemorySegment<byte>? _start;
         private RentedMemorySegment<byte>? _end;
+
+        private enum StateType
+        {
+            Headers,
+            Body,
+            Finished,
+        }
 
         public HttpResponseReaderFastCgiRecordHandler(HttpRequestMessage request, ILogger logger)
         {
@@ -355,7 +364,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         {
             switch (fastCgiRecord.Header.Type)
             {
-                case FastCgiRecordHeader.RecordType.Stdout when _headersDone:
+                case FastCgiRecordHeader.RecordType.Stdout when _state == StateType.Body:
                     {
                         // TODO: Idea to optimize it further.
                         // After headers are done it could act as stream and lazy parse rest of the data on the fly.
@@ -382,12 +391,12 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
                         return true;
                     }
-                case FastCgiRecordHeader.RecordType.Stdout:
+                case FastCgiRecordHeader.RecordType.Stdout when _state == StateType.Headers:
                     {
                         var reader = new SequenceReader<byte>(new ReadOnlySequence<byte>(fastCgiRecord.ContentData.Memory));
                         if (_reader.ParseHttpHeaders(ref reader))
                         {
-                            _headersDone = true;
+                            _state = StateType.Body;
 
                             var left = fastCgiRecord.ContentData.Memory.Slice((int)reader.Consumed);
                             if (left.Length > 0)
@@ -408,7 +417,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                         fastCgiRecord.Dispose();
                         return true;
                     }
-                case FastCgiRecordHeader.RecordType.EndRequest:
+                case FastCgiRecordHeader.RecordType.EndRequest when _state == StateType.Body:
                     {
                         HttpContent content;
                         if (_start is null)
@@ -433,18 +442,26 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                         Result.Content = content;
 
                         fastCgiRecord.Dispose();
+                        _state = StateType.Finished;
                         return false;
                     }
                 default:
                     {
-                        Result.StatusCode = HttpStatusCode.InternalServerError;
-                        Result.Content = new StringContent($"received unexpected fastcgi record type: {fastCgiRecord.Header.Type}");
                         fastCgiRecord.Dispose();
                         _start?.Dispose();
                         _end?.Dispose();
-                        return false;
+                        _logger.LogDebug(message: "received unexpected fastcgi record {recordType}", fastCgiRecord.Header.Type);
+                        throw new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse_UnexpectedRecord, FastCgiResponseRejectionReason.UnexpectedRecord);
                     }
             }
+        }
+
+        public void EndOfData()
+        {
+
+            if (_state == StateType.Finished) { return;}
+            _logger.LogDebug(message: "response finished when in wrong {state}", _state);
+            throw new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse_EndRequestNotReceived, FastCgiResponseRejectionReason.EndRequestNotReceived);
         }
 
         private sealed class HttpResponseReader(HttpResponseMessage response) : IHttpHeadersHandler, IHttpRequestLineHandler
@@ -802,6 +819,8 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         UnrecognizedFastCgiVersion,
         UnrecognizedRequestType,
         UnrecognizedStatusCode,
+        UnexpectedRecord,
+        EndRequestNotReceived,
         IncompleteRecord,
     }
 
@@ -822,6 +841,8 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         internal static readonly string BadResponse_UnrecognizedFastCgiVersion = "BadResponse_UnrecognizedFastCgiVersion";
         internal static readonly string BadResponse_UnrecognizedRequestType = "BadResponse_UnrecognizedRequestType";
         internal static readonly string BadResponse_UnrecognizedStatusCode = "BadResponse_UnrecognizedStatusCode";
+        internal static readonly string BadResponse_UnexpectedRecord = "BadResponse_UnexpectedRecord";
+        internal static readonly string BadResponse_EndRequestNotReceived = "BadResponse_EndRequestNotReceived";
         internal static readonly string BadResponse_IncompleteRecord = "BadResponse_IncompleteRecord";
     }
 
