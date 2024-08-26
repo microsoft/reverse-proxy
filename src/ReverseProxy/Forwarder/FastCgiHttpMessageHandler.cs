@@ -145,9 +145,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         }
         catch (BadFastCgiResponseException ex)
         {
-            response.StatusCode = HttpStatusCode.InternalServerError;
-            response.Content = new StringContent(ex.Message);
-            return response;
+            throw new HttpRequestException("Could not process FastCGI Response", ex, HttpStatusCode.InternalServerError);
         }
     }
 
