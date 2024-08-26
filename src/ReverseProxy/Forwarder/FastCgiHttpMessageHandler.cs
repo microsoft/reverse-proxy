@@ -202,7 +202,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
     private interface FastCgiRecordHandler
     {
         bool TryOnFastCgiRecord(ref FastCgiRecord fastCgiRecord);
-        void EndOfData();
+        void OnEndOfData();
     }
 
     private interface IFastCgiContentDataWriter
@@ -226,7 +226,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                 {
                     if (buffer.Length == 0)
                     {
-                        handler.EndOfData();
+                        handler.OnEndOfData();
                         return;
                     }
 
@@ -456,7 +456,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
             }
         }
 
-        public void EndOfData()
+        public void OnEndOfData()
         {
 
             if (_state == StateType.Finished) { return;}
