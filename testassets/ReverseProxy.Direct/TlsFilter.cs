@@ -68,6 +68,11 @@ public class TlsFilter
         TlsFrameHelper.TlsFrameInfo info = default;
         if (!TlsFrameHelper.TryGetFrameInfo(data, ref info))
         {
+            if (info.ParsingStatus == TlsFrameHelper.ParsingStatus.InvalidFrame)
+            {
+                logger.LogInformation("Invalid TLS frame");
+                abort = true;
+            }
             return false;
         }
 
