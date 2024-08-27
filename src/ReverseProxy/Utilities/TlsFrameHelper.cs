@@ -118,6 +118,14 @@ public static class TlsFrameHelper
         Other = 128
     }
 
+    public enum ParsingStatus
+    {
+        Ok = 0,
+        IncompleteFrame = 1,
+        InvalidFrame = 2,
+        UnsupportedFrame = 3,
+    }
+
     public struct TlsFrameInfo
     {
         internal TlsCipherSuite[]? _ciphers;
@@ -127,6 +135,7 @@ public static class TlsFrameHelper
         public string TargetName;
         public ApplicationProtocolInfo ApplicationProtocols;
         public TlsAlertDescription AlertDescription;
+        public ParsingStatus ParsingStatus;
         public ReadOnlyMemory<TlsCipherSuite> TlsCipherSuites
         {
             get
@@ -258,6 +267,7 @@ public static class TlsFrameHelper
         const int HandshakeTypeOffset = 5;
         if (frame.Length < HeaderSize)
         {
+            info.ParsingStatus = ParsingStatus.IncompleteFrame;
             return false;
         }
 
@@ -286,28 +296,37 @@ public static class TlsFrameHelper
             if (TryGetAlertInfo(frame, ref level, ref description))
             {
                 info.AlertDescription = description;
+                info.ParsingStatus = ParsingStatus.Ok;
                 return true;
             }
 
+            info.ParsingStatus = ParsingStatus.IncompleteFrame;
             return false;
         }
 
-        if (info.Header.Type != TlsContentType.Handshake || frame.Length <= HandshakeTypeOffset)
+        if (info.Header.Type != TlsContentType.Handshake)
         {
+            info.ParsingStatus = ParsingStatus.UnsupportedFrame;
+            return false;
+        }
+
+        if (frame.Length <= HandshakeTypeOffset)
+        {
+            info.ParsingStatus = ParsingStatus.IncompleteFrame;
             return false;
         }
 
         info.HandshakeType = (TlsHandshakeType)frame[HandshakeTypeOffset];
-
         // Check if we have full frame.
         var isComplete = frame.Length >= HeaderSize + info.Header.Length;
+        info.ParsingStatus = isComplete ? ParsingStatus.Ok : ParsingStatus.IncompleteFrame;
 
 #pragma warning disable SYSLIB0039 // TLS 1.0 and 1.1 are obsolete
         if (((int)info.Header.Version >= (int)SslProtocols.Tls) &&
 #pragma warning restore SYSLIB0039
             (info.HandshakeType == TlsHandshakeType.ClientHello || info.HandshakeType == TlsHandshakeType.ServerHello))
         {
-            if (!TryParseHelloFrame(frame.Slice(HeaderSize), ref info, options, callback))
+            if (!TryParseHelloFrame(frame.Slice(HeaderSize, Math.Min(info.Header.Length, frame.Length - HeaderSize)), ref info, options, callback))
             {
                 isComplete = false;
             }
@@ -404,19 +423,39 @@ public static class TlsFrameHelper
         const int HandshakeTypeOffset = 0;
         const int HelloLengthOffset = HandshakeTypeOffset + sizeof(TlsHandshakeType);
         const int HelloOffset = HelloLengthOffset + UInt24Size;
+        const int HandshakeHeaderLength = 4;   // Type and Handshake length
+        const int MinimalHandshakeLength = 44; // Version, Random, SessionID and Cipher length with at least one cipher
 
-        if (sslHandshake.Length < HelloOffset ||
-            ((TlsHandshakeType)sslHandshake[HandshakeTypeOffset] != TlsHandshakeType.ClientHello &&
-             (TlsHandshakeType)sslHandshake[HandshakeTypeOffset] != TlsHandshakeType.ServerHello))
+        if (info.Header.Length - HandshakeHeaderLength < MinimalHandshakeLength)
         {
+            info.ParsingStatus = ParsingStatus.InvalidFrame;
+            return false;
+        }
+
+        if (sslHandshake.Length < HelloOffset + 3)
+        {
+            info.ParsingStatus = ParsingStatus.IncompleteFrame;
+            return false;
+        }
+
+        if ((TlsHandshakeType)sslHandshake[HandshakeTypeOffset] != TlsHandshakeType.ClientHello &&
+             (TlsHandshakeType)sslHandshake[HandshakeTypeOffset] != TlsHandshakeType.ServerHello)
+        {
+            info.ParsingStatus = ParsingStatus.UnsupportedFrame;
             return false;
         }
 
         var helloLength = ReadUInt24BigEndian(sslHandshake.Slice(HelloLengthOffset));
-        var helloData = sslHandshake.Slice(HelloOffset);
+        if (helloLength < MinimalHandshakeLength || helloLength > info.Header.Length - HandshakeHeaderLength)
+        {
+            info.ParsingStatus = ParsingStatus.InvalidFrame;
+            return false;
+        }
 
+        var helloData = sslHandshake.Slice(HelloOffset);
         if (helloData.Length < helloLength)
         {
+            info.ParsingStatus = ParsingStatus.IncompleteFrame;
             return false;
         }
 
@@ -490,12 +529,12 @@ public static class TlsFrameHelper
         // }
         // ServerHello;
         const int CipherSuiteLength = 2;
-        const int CompressionMethiodLength = 1;
+        const int CompressionMethodLength = 1;
 
         var p = SkipBytes(serverHello, ProtocolVersionSize + RandomSize);
         // Skip SessionID (max size 32 => size fits in 1 byte)
         p = SkipOpaqueType1(p);
-        p = SkipBytes(p, CipherSuiteLength + CompressionMethiodLength);
+        p = SkipBytes(p, CipherSuiteLength + CompressionMethodLength);
 
         // is invalid structure or no extensions?
         if (p.IsEmpty)
