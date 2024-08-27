@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
 using Yarp.ReverseProxy.Utilities;
 
 namespace Yarp.ReverseProxy.Configuration;
@@ -86,6 +88,8 @@ public sealed record RouteConfig
     /// <summary>
     /// An optional override for how large request bodies can be in bytes. If set, this overrides the server's default (30MB) per request.
     /// Set to '-1' to disable the limit for this route.
+    /// Note that this limit applies only to the YARP forwarder middleware, it does not apply when reading the request body from a custom middleware registered via
+    /// <see cref="ReverseProxyIEndpointRouteBuilderExtensions.MapReverseProxy(IEndpointRouteBuilder, Action{IReverseProxyApplicationBuilder})"/>.
     /// </summary>
     public long? MaxRequestBodySize { get; init; }
 
