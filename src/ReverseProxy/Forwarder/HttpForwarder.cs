@@ -277,7 +277,14 @@ internal sealed class HttpForwarder : IHttpForwarder
             // and clients misbehave if the initial headers response does not indicate stream end.
 
             // :: Step 7-B: Copy response body Client ◄-- Proxy ◄-- Destination
-            var (responseBodyCopyResult, responseBodyException) = await CopyResponseBodyAsync(destinationResponse.Content, context.Response.Body, activityCancellationSource);
+            StreamCopyResult responseBodyCopyResult;
+            Exception? responseBodyException;
+
+            using (var destinationResponseStream = await destinationResponse.Content.ReadAsStreamAsync(activityCancellationSource.Token))
+            {
+                // The response content-length is enforced by the server.
+                (responseBodyCopyResult, responseBodyException) = await StreamCopier.CopyAsync(isRequest: false, destinationResponseStream, context.Response.Body, StreamCopier.UnknownLength, _timeProvider, activityCancellationSource, activityCancellationSource.Token);
+            }
 
             if (responseBodyCopyResult != StreamCopyResult.Success)
             {
@@ -873,23 +880,6 @@ internal sealed class HttpForwarder : IHttpForwarder
         }
 
         return ForwarderError.None;
-    }
-
-    private async ValueTask<(StreamCopyResult, Exception?)> CopyResponseBodyAsync(HttpContent destinationResponseContent, Stream clientResponseStream,
-        ActivityCancellationTokenSource activityCancellationSource)
-    {
-        // SocketHttpHandler and similar transports always provide an HttpContent object, even if it's empty.
-        // In 3.1 this is only likely to return null in tests.
-        // As of 5.0 HttpResponse.Content never returns null.
-        // https://github.com/dotnet/runtime/blame/8fc68f626a11d646109a758cb0fc70a0aa7826f1/src/libraries/System.Net.Http/src/System/Net/Http/HttpResponseMessage.cs#L46
-        if (destinationResponseContent is not null)
-        {
-            using var destinationResponseStream = await destinationResponseContent.ReadAsStreamAsync(activityCancellationSource.Token);
-            // The response content-length is enforced by the server.
-            return await StreamCopier.CopyAsync(isRequest: false, destinationResponseStream, clientResponseStream, StreamCopier.UnknownLength, _timeProvider, activityCancellationSource, activityCancellationSource.Token);
-        }
-
-        return (StreamCopyResult.Success, null);
     }
 
     private async ValueTask<ForwarderError> HandleResponseBodyErrorAsync(HttpContext context, StreamCopyHttpContent? requestContent, StreamCopyResult responseBodyCopyResult, Exception responseBodyException, ActivityCancellationTokenSource requestCancellationSource)
