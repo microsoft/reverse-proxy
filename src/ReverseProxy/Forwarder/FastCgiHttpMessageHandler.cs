@@ -1138,8 +1138,27 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default) => throw new NotSupportedException();
     }
 
-    private sealed class FastCgiStdinStream(ConnectionContext connection): Stream
+    private sealed class FastCgiStdinStream(ConnectionContext connection) : Stream
     {
+        public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            var count = buffer.Length;
+            var offset = 0;
+
+            while (count > 0)
+            {
+
+                var written = count < FastCgiRecordHeader.MAX_CONTENT_SIZE ? count : FastCgiRecordHeader.MAX_CONTENT_SIZE;
+
+                await FastCgiHttpMessageHandler.SendAsync(new FastCgiRecord(
+                    Header: new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.Stdin, ContentLength: (ushort)written),
+                    ContentData: new RentedReadOnlyMemory<byte>(buffer.Slice(offset, written))),connection, cancellationToken);
+
+                count -= written;
+                offset += written;
+            }
+        }
+
         public override void Write(byte[] buffer, int offset, int count)
         {
             while (count > 0)
@@ -1162,6 +1181,11 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         public override long Length { get; } = 0;
 
         public override long Position { get; set; }
+
+        public override async Task FlushAsync(CancellationToken cancellationToken)
+        {
+            await FastCgiHttpMessageHandler.FlushAsync(connection, cancellationToken);
+        }
 
         public override void Flush()
         {
