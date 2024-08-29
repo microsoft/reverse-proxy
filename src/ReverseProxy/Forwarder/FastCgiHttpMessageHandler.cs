@@ -31,6 +31,8 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 {
     private readonly SocketConnectionContextFactory _connectionFactory = new(options.Value, logger);
 
+    private static readonly HashSet<string> _skipHeaders = new(StringComparer.OrdinalIgnoreCase) { "Content-Length", "Content-Type" };
+
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request.RequestUri, nameof(request.RequestUri));
@@ -59,10 +61,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         {
             foreach (var fcgiParam in BuildFastCgiParams(connection.RemoteEndPoint, request))
             {
-                if (fcgiParam.ByteCount > paramBuffer.Capacity)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(fcgiParam));
-                }
+                Debug.Assert(fcgiParam.ByteCount <= paramBuffer.Capacity);
 
                 if (paramBuffer.WrittenCount + fcgiParam.ByteCount > paramBuffer.Capacity)
                 {
@@ -582,8 +581,10 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
             yield return new(FastCgiCoreParams.CONTENT_LENGTH, cl.ToString());
         }
 
-        // based on caddy implementation https://github.com/caddyserver/caddy/blob/9ddb78fadcdbec89a609127918604174121dcf42/modules/caddyhttp/reverseproxy/fastcgi/client.go#L289
-        yield return new(FastCgiCoreParams.CONTENT_TYPE, request.Content?.Headers.ContentType?.ToString() ?? (request.Method == System.Net.Http.HttpMethod.Post ? "application/x-www-form-urlencoded" : string.Empty));
+        if (request.Content?.Headers.ContentType is { } ct)
+        {
+            yield return new(FastCgiCoreParams.CONTENT_TYPE, ct.ToString());
+        }
 
         yield return new(FastCgiCoreParams.DOCUMENT_ROOT, documentRoot);
         yield return new(FastCgiCoreParams.DOCUMENT_URI, fpath);
@@ -611,14 +612,22 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
         foreach (var header in request.Headers)
         {
-            yield return new(header.Key.ReplaceToUpperAscii('-', '_'), string.Join(", ", header.Value), FastCgiCoreParams.PREFIX);
+            foreach (var value in header.Value)
+            {
+                yield return new(header.Key.ReplaceToUpperAscii('-', '_'), value, FastCgiCoreParams.PREFIX);
+            }
         }
 
         if (request.Content != null)
         {
             foreach (var header in request.Content.Headers)
             {
-                yield return new(header.Key.ReplaceToUpperAscii('-', '_'), string.Join(", ", header.Value, FastCgiCoreParams.PREFIX));
+                if (_skipHeaders.Contains(header.Key)) { continue; }
+
+                foreach (var value in header.Value)
+                {
+                    yield return new(header.Key.ReplaceToUpperAscii('-', '_'), value, FastCgiCoreParams.PREFIX);
+                }
             }
         }
     }
