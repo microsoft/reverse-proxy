@@ -75,7 +75,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                     paramBuffer.Clear();
                 }
 
-                fcgiParam.WriteTo(paramBuffer);
+                fcgiParam.CopyTo(paramBuffer);
             }
 
             await SendAsync(
@@ -96,34 +96,8 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
         if (request.Content != null)
         {
-            var contentStream = await request.Content.ReadAsStreamAsync(cancellationToken);
-
-            using var contentBuffer = new RentedArrayBufferWriter<byte>(FastCgiRecordHeader.MAX_CONTENT_SIZE);
-            {
-                var partMemory = contentBuffer.GetMemory(paramBuffer.Capacity);
-
-                while (true)
-                {
-                    var consumed = 0;
-                    int read;
-
-                    while ((consumed < partMemory.Length) && (read = await contentStream.ReadAsync(partMemory[consumed..], cancellationToken)) > 0)
-                    {
-                        consumed += read;
-                    }
-
-                    if (consumed == 0) { break; }
-
-                    await SendAsync(
-                            new FastCgiRecord(
-                                Header: new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.Stdin, ContentLength: (ushort)consumed),
-                                ContentData: new RentedReadOnlyMemory<byte>(partMemory[..consumed])),
-                            connection, cancellationToken);
-
-                    // stream has no more data
-                    if (consumed < partMemory.Length) { break; }
-                }
-            }
+            await using var stream = new FastCgiStdinStream(connection);
+            await request.Content.CopyToAsync(stream, cancellationToken);
         }
 
         await SendAsync(
@@ -180,16 +154,22 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
     private static async ValueTask SendAsync(FastCgiRecord fastcgiRecord, ConnectionContext connectionContext, CancellationToken cancellationToken)
     {
-        fastcgiRecord.Header.WriteTo(connectionContext.Transport.Output);
+        fastcgiRecord.Header.CopyTo(connectionContext.Transport.Output);
 
         var result = await connectionContext.Transport.Output.WriteAsync(fastcgiRecord.ContentData.Memory, cancellationToken);
         result.ThrowIfCanceled();
     }
 
-    private static void Send(FastCgiRecordHeader header, IFastCgiContentDataWriter contentData, ConnectionContext connectionContext)
+    private static void Send(FastCgiRecordHeader header, IFastCgiContentData contentData, ConnectionContext connectionContext)
     {
-        header.WriteTo(connectionContext.Transport.Output);
-        contentData.WriteTo(connectionContext.Transport.Output);
+        header.CopyTo(connectionContext.Transport.Output);
+        contentData.CopyTo(connectionContext.Transport.Output);
+    }
+
+    private static void Send(FastCgiRecordHeader header, ReadOnlySpan<byte> contentData, ConnectionContext connectionContext)
+    {
+        header.CopyTo(connectionContext.Transport.Output);
+        connectionContext.Transport.Output.Write(contentData);
     }
 
     private static async ValueTask FlushAsync(ConnectionContext connectionContext, CancellationToken cancellationToken)
@@ -204,9 +184,9 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         void OnEndOfData();
     }
 
-    private interface IFastCgiContentDataWriter
+    private interface IFastCgiContentData
     {
-        void WriteTo(IBufferWriter<byte> buffer);
+        void CopyTo(IBufferWriter<byte> buffer);
     }
 
     private static class FastCgiRecordReader
@@ -638,7 +618,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         ushort RequestId = 1,
         ushort ContentLength = 0,
         byte PaddingLength = 0,
-        byte Reserved = 0) : IFastCgiContentDataWriter
+        byte Reserved = 0) : IFastCgiContentData
     {
         public const uint FCGI_HEADER_LEN = 8;
         public const ushort MAX_CONTENT_SIZE = 65535;
@@ -669,7 +649,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         public readonly byte PaddingLength = PaddingLength;
         public readonly byte Reserved = Reserved;
 
-        public void WriteTo(IBufferWriter<byte> buffer)
+        public void CopyTo(IBufferWriter<byte> buffer)
         {
             var span = buffer.GetSpan((int)FCGI_HEADER_LEN);
 
@@ -698,7 +678,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         }
     }
 
-    private readonly record struct FastCgiRecordBeginRequestBody(FastCgiRecordBeginRequestBody.RoleType Role, bool KeepConn) : IFastCgiContentDataWriter
+    private readonly record struct FastCgiRecordBeginRequestBody(FastCgiRecordBeginRequestBody.RoleType Role, bool KeepConn) : IFastCgiContentData
     {
         public const int ByteCount = 8;
         public enum RoleType : ushort
@@ -711,7 +691,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         public readonly RoleType Role = Role;
         public readonly bool KeepConn = KeepConn;
 
-        public void WriteTo(IBufferWriter<byte> buffer)
+        public void CopyTo(IBufferWriter<byte> buffer)
         {
             var span = buffer.GetSpan(ByteCount);
 
@@ -727,7 +707,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         }
     }
 
-    private readonly record struct FastCgiParam(byte[] Key, string Value, byte[]? KeyPrefix = default) : IFastCgiContentDataWriter
+    private readonly record struct FastCgiParam(byte[] Key, string Value, byte[]? KeyPrefix = default) : IFastCgiContentData
     {
         public readonly int ByteCount =
             CalculateParamByteCount((KeyPrefix?.Length ?? 0) + Key.Length)
@@ -743,7 +723,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
             return 1;
         }
 
-        public readonly void WriteTo(IBufferWriter<byte> buffer)
+        public readonly void CopyTo(IBufferWriter<byte> buffer)
         {
             var written = WriteSize((uint)Key.Length + (uint)(KeyPrefix?.Length ?? 0), buffer);
             buffer.Advance(written);
@@ -1156,6 +1136,52 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         public override void Write(ReadOnlySpan<byte> buffer) => throw new NotSupportedException();
 
         public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+    }
+
+    private sealed class FastCgiStdinStream(ConnectionContext connection): Stream
+    {
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            while (count > 0)
+            {
+
+                var written = count < FastCgiRecordHeader.MAX_CONTENT_SIZE ? count : FastCgiRecordHeader.MAX_CONTENT_SIZE;
+
+                FastCgiHttpMessageHandler.Send(
+                    new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.Stdin, ContentLength: (ushort)written),
+                    buffer.AsSpan(offset, written),connection);
+
+                count -= written;
+                offset += written;
+            }
+        }
+
+        public override bool CanRead { get; } = false;
+        public override bool CanSeek { get; } = false;
+        public override bool CanWrite { get; } = true;
+        public override long Length { get; } = 0;
+
+        public override long Position { get; set; }
+
+        public override void Flush()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetLength(long value)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     private static class HttpResponseHeaders
