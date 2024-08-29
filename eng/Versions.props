@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <VersionPrefix>2.2.0</VersionPrefix>
+    <VersionPrefix>2.3.0</VersionPrefix>
     <!--
       For sorting purposes, it is very important there be a '.' between the word 'preview' and the preview number.
       That ensures that if we get up to preview 10, it doesn't sort as between preview 1 and preview 2!
       See https://semver.org/spec/v2.0.0.html for details.
     -->
-    <PreReleaseVersionLabel>preview.2</PreReleaseVersionLabel>
+    <PreReleaseVersionLabel>preview.1</PreReleaseVersionLabel>
     <DotNetFinalVersionKind Condition="'$(PreReleaseVersionLabel)' == 'rtw'">release</DotNetFinalVersionKind>
   </PropertyGroup>
   <!--Package versions-->
