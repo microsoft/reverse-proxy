@@ -492,17 +492,17 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
             public void OnStartLine(HttpVersionAndMethod versionAndMethod, TargetOffsetPathLength targetPath, Span<byte> startLine)
             {
-                throw new NotImplementedException();
+                throw new NotSupportedException();
             }
 
             public void OnStaticIndexedHeader(int index)
             {
-                throw new NotImplementedException();
+                throw new NotSupportedException();
             }
 
             public void OnStaticIndexedHeader(int index, ReadOnlySpan<byte> value)
             {
-                throw new NotImplementedException();
+                throw new NotSupportedException();
             }
         }
     }
@@ -1187,25 +1187,10 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
             await FastCgiHttpMessageHandler.FlushAsync(connection, cancellationToken);
         }
 
-        public override void Flush()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int Read(byte[] buffer, int offset, int count)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void SetLength(long value)
-        {
-            throw new NotImplementedException();
-        }
+        public override void Flush() => throw new NotSupportedException();
+        public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        public override void SetLength(long value) => throw new NotSupportedException();
     }
 
     private static class HttpResponseHeaders
