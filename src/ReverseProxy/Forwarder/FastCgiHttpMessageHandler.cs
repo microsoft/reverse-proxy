@@ -50,10 +50,9 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         var endPoint = new DnsEndPoint(request.RequestUri.Host, request.RequestUri.Port);
 
         //TODO: implement connection pooling
-        await using var connection = await ConnectAsync(endPoint, noDelay: true, cancellationToken);
+        var connection = await ConnectAsync(endPoint, noDelay: true, cancellationToken);
 
-        Send(
-            new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.BeginRequest, ContentLength: FastCgiRecordBeginRequestBody.ByteCount),
+        Send(new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.BeginRequest, ContentLength: FastCgiRecordBeginRequestBody.ByteCount),
             new FastCgiRecordBeginRequestBody(Role: FastCgiRecordBeginRequestBody.RoleType.Responder, KeepConn: false),
             connection);
 
@@ -66,11 +65,10 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                 if (paramBuffer.WrittenCount + fcgiParam.ByteCount > paramBuffer.Capacity)
                 {
 
-                    await SendAsync(
-                        new FastCgiRecord(
+                    Send(new FastCgiRecord(
                             Header: new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.Params, ContentLength: (ushort)paramBuffer.WrittenCount),
-                            ContentData: new RentedReadOnlyMemory<byte>(paramBuffer.GetWrittenMemory())),
-                        connection, cancellationToken: cancellationToken);
+                            ContentData: new ReadOnlySequence<byte>(paramBuffer.GetWrittenMemory())),
+                        connection);
 
                     paramBuffer.Clear();
                 }
@@ -78,19 +76,17 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                 fcgiParam.CopyTo(paramBuffer);
             }
 
-            await SendAsync(
-                new FastCgiRecord(
+            Send(new FastCgiRecord(
                     Header: new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.Params, ContentLength: (ushort)paramBuffer.WrittenCount),
-                    ContentData: new RentedReadOnlyMemory<byte>(paramBuffer.GetWrittenMemory())),
-                connection, cancellationToken: cancellationToken);
+                    ContentData: new ReadOnlySequence<byte>(paramBuffer.GetWrittenMemory())),
+                connection);
         }
 
 
-        await SendAsync(
-            new FastCgiRecord(
+        Send(new FastCgiRecord(
                 Header: new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.Params),
-                ContentData: RentedReadOnlyMemory<byte>.Empty),
-            connection, cancellationToken);
+                ContentData: ReadOnlySequence<byte>.Empty),
+            connection);
 
         await FlushAsync(connection, cancellationToken);
 
@@ -100,11 +96,10 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
             await request.Content.CopyToAsync(stream, cancellationToken);
         }
 
-        await SendAsync(
-            new FastCgiRecord(
+        Send(new FastCgiRecord(
                 Header: new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.Stdin),
-                ContentData: RentedReadOnlyMemory<byte>.Empty),
-            connection, cancellationToken);
+                ContentData: ReadOnlySequence<byte>.Empty),
+            connection);
 
         await FlushAsync(connection, cancellationToken);
 
@@ -112,11 +107,12 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
         try
         {
-            await FastCgiRecordReader.ProcessAsync(httpResponseReader, connection, cancellationToken);
+            await FastCgiRecordReader.ProcessAsync(connection, httpResponseReader, cancellationToken);
             return httpResponseReader.Result;
         }
         catch (BadFastCgiResponseException ex)
         {
+            await connection.DisposeAsync();
             throw new HttpRequestException("Could not process FastCGI Response", ex, HttpStatusCode.InternalServerError);
         }
     }
@@ -152,12 +148,10 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         return _connectionFactory.Create(socket);
     }
 
-    private static async ValueTask SendAsync(FastCgiRecord fastcgiRecord, ConnectionContext connectionContext, CancellationToken cancellationToken)
+    private static void Send(FastCgiRecord fastcgiRecord, ConnectionContext connectionContext)
     {
         fastcgiRecord.Header.CopyTo(connectionContext.Transport.Output);
-
-        var result = await connectionContext.Transport.Output.WriteAsync(fastcgiRecord.ContentData.Memory, cancellationToken);
-        result.ThrowIfCanceled();
+        fastcgiRecord.ContentData.CopyTo(connectionContext.Transport.Output);
     }
 
     private static void Send(FastCgiRecordHeader header, IFastCgiContentData contentData, ConnectionContext connectionContext)
@@ -180,7 +174,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
     private interface FastCgiRecordHandler
     {
-        bool TryOnFastCgiRecord(ref FastCgiRecord fastCgiRecord);
+        bool TryOnFastCgiRecord(ref FastCgiRecord fastCgiRecord, ConnectionContext connectionContext);
         void OnEndOfData();
     }
 
@@ -191,7 +185,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
     private static class FastCgiRecordReader
     {
-        public static async Task ProcessAsync(FastCgiRecordHandler handler, ConnectionContext connectionContext, CancellationToken cancellationToken)
+        public static async Task<bool> ProcessAsync(ConnectionContext connectionContext, FastCgiRecordHandler handler, CancellationToken cancellationToken)
         {
             var input = connectionContext.Transport.Input;
 
@@ -205,12 +199,20 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                 {
                     if (buffer.Length == 0)
                     {
-                        handler.OnEndOfData();
-                        return;
+                        try
+                        {
+                            handler.OnEndOfData();
+                        }
+                        finally
+                        {
+                            input.AdvanceTo(buffer.Start, buffer.End);
+                        }
+                        return true;
                     }
 
-                    if (prevBuffLenOnCompleted is {} prevLen && prevLen == buffer.Length)
+                    if (prevBuffLenOnCompleted is { } prevLen && prevLen == buffer.Length)
                     {
+                        input.AdvanceTo(buffer.Start, buffer.End);
                         throw new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse_IncompleteRecord, FastCgiResponseRejectionReason.IncompleteRecord);
                     }
 
@@ -221,17 +223,9 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                 {
                     while (TryReadRecord(ref buffer, out var record))
                     {
-                        try
+                        if (!handler.TryOnFastCgiRecord(ref record, connectionContext))
                         {
-                            if (!handler.TryOnFastCgiRecord(ref record))
-                            {
-                                return;
-                            }
-                        }
-                        catch
-                        {
-                            record.Dispose();
-                            throw;
+                            return false;
                         }
                     }
                 }
@@ -240,6 +234,8 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                     input.AdvanceTo(buffer.Start, buffer.End);
                 }
             }
+
+            return true;
         }
 
         private static bool TryReadRecord(ref ReadOnlySequence<byte> buffer, out FastCgiRecord fastCgiRecord)
@@ -255,7 +251,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
                 throw new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse_UnrecognizedFastCgiVersion, FastCgiResponseRejectionReason.UnrecognizedFastCgiVersion);
             }
 
-            if (header.Type < FastCgiRecordHeader.RecordType.BeginRequest || header.Type > FastCgiRecordHeader.RecordType.UnknownType)
+            if (header.Type is < FastCgiRecordHeader.RecordType.BeginRequest or > FastCgiRecordHeader.RecordType.UnknownType)
             {
                 throw new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse_UnrecognizedRequestType, FastCgiResponseRejectionReason.UnrecognizedRequestType);
             }
@@ -272,24 +268,19 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
             {
                 fastCgiRecord = new FastCgiRecord(
                     Header: header,
-                    ContentData: RentedReadOnlyMemory<byte>.Empty);
+                    ContentData: ReadOnlySequence<byte>.Empty);
 
                 // Advance the buffer
                 buffer = buffer.Slice(recordByteCount);
                 return true;
             }
 
-            var contentDataBytes = ArrayPool<byte>.Shared.Rent(header.ContentLength);
-            var contentData = buffer.Slice(FastCgiRecordHeader.FCGI_HEADER_LEN, header.ContentLength);
-            contentData.CopyTo(contentDataBytes);
-
             fastCgiRecord = new FastCgiRecord(
                 Header: header,
-                ContentData: new RentedReadOnlyMemory<byte>(contentDataBytes.AsMemory(0, header.ContentLength), contentDataBytes));
+                ContentData: buffer.Slice(FastCgiRecordHeader.FCGI_HEADER_LEN, header.ContentLength));
 
             // Advance the buffer
             buffer = buffer.Slice(recordByteCount);
-
             return true;
         }
 
@@ -322,113 +313,87 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         private readonly ILogger _logger;
 
         private StateType _state = StateType.Headers;
-        private RentedMemorySegment<byte>? _start;
-        private RentedMemorySegment<byte>? _end;
+        private readonly StateType _interruptOnState;
+        private readonly Pipe _pipe;
 
-        private enum StateType
+        public enum StateType
         {
             Headers,
             Body,
             Finished,
         }
 
-        public HttpResponseReaderFastCgiRecordHandler(HttpRequestMessage request, ILogger logger)
+        public HttpResponseReaderFastCgiRecordHandler(HttpRequestMessage request, ILogger logger, StateType interruptOnState = StateType.Body)
         {
             Result = new HttpResponseMessage { RequestMessage = request, StatusCode = HttpStatusCode.OK };
             _reader = new HttpResponseReader(Result);
+            _pipe = new Pipe(new PipeOptions(pauseWriterThreshold: 0));
             _logger = logger;
+            _interruptOnState = interruptOnState;
         }
 
-        public bool TryOnFastCgiRecord(ref FastCgiRecord fastCgiRecord)
+        public ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken)
+        {
+            return _pipe.Writer.FlushAsync(cancellationToken);
+        }
+
+        public bool TryOnFastCgiRecord(ref FastCgiRecord fastCgiRecord, ConnectionContext connection)
         {
             switch (fastCgiRecord.Header.Type)
             {
                 case FastCgiRecordHeader.RecordType.Stdout when _state == StateType.Body:
                     {
-                        // TODO: Idea to optimize it further.
-                        // After headers are done it could act as stream and lazy parse rest of the data on the fly.
-                        // This would lower memory footprint to only 1 record (max 65535).
-                        // Stream would stop at EndRequest Record.
-                        if (fastCgiRecord.ContentData.Memory.Length == 0)
+                        if (fastCgiRecord.ContentData.Length > 0)
                         {
-                            fastCgiRecord.Dispose();
-                            return true;
+                            fastCgiRecord.ContentData.CopyTo(_pipe.Writer);
                         }
-
-                        if (_start is null)
-                        {
-                            _start = new RentedMemorySegment<byte>(fastCgiRecord.ContentData);
-                        }
-                        else if (_end is null)
-                        {
-                            _end = _start.Append(fastCgiRecord.ContentData);
-                        }
-                        else
-                        {
-                            _end.Append(fastCgiRecord.ContentData);
-                        }
-
-                        return true;
+                        return _state != _interruptOnState;
                     }
                 case FastCgiRecordHeader.RecordType.Stdout when _state == StateType.Headers:
                     {
-                        var reader = new SequenceReader<byte>(new ReadOnlySequence<byte>(fastCgiRecord.ContentData.Memory));
+                        var reader = new SequenceReader<byte>(fastCgiRecord.ContentData);
                         if (_reader.ParseHttpHeaders(ref reader))
                         {
                             _state = StateType.Body;
 
-                            var left = fastCgiRecord.ContentData.Memory.Slice((int)reader.Consumed);
+                            var content = new StreamContent(new FastCgiStdoutStream(connection, this, _pipe.Reader.AsStream()));
+
+                            //TODO: content headers are "get" only so they need to be applied / copied to final content
+                            //maybe there is another way to do it better?
+                            var contentHeaders = Result.Content.Headers;
+                            foreach (var header in contentHeaders)
+                            {
+                                var added = content.Headers.TryAddWithoutValidation(header.Key, header.Value);
+                                Debug.Assert(added);
+                            }
+
+                            Result.Content = content;
+
+                            var left = fastCgiRecord.ContentData.Slice((int)reader.Consumed);
                             if (left.Length > 0)
                             {
-                                _start = new RentedMemorySegment<byte>(new RentedReadOnlyMemory<byte>(left, fastCgiRecord.ContentData.Rented));
-                                return true;
+                                left.CopyTo(_pipe.Writer);
                             }
                         }
 
-                        fastCgiRecord.Dispose();
-                        return true;
+                        return _state != _interruptOnState;
                     }
                 // TODO: how to treat errors - caddy & nginx are just logging them
                 // stderr can interleave with stdout records so they do not interrupt connection
                 case FastCgiRecordHeader.RecordType.Stderr:
                     {
-                        _logger.LogError(message: "stdErr {contentData}", Encoding.ASCII.GetString(fastCgiRecord.ContentData.Memory.Span));
-                        fastCgiRecord.Dispose();
-                        return true;
+                        _logger.LogError(message: "stdErr {contentData}", Encoding.ASCII.GetString(fastCgiRecord.ContentData));
+                        return _state != _interruptOnState;
                     }
                 case FastCgiRecordHeader.RecordType.EndRequest when _state == StateType.Body:
                     {
-                        HttpContent content;
-                        if (_start is null)
-                        {
-                            content = new EmptyHttpContent();
-                        }
-                        else
-                        {
-                            var stream = new RentedMemorySegmentStream(_start, _end);
-                            content = new StreamContent(stream);
-                        }
-
-                        //TODO: content headers are "get" only so they need to be applied / copied to final content
-                        //maybe there is another way to do it better?
-                        var contentHeaders = Result.Content.Headers;
-                        foreach (var header in contentHeaders)
-                        {
-                            var added = content.Headers.TryAddWithoutValidation(header.Key, header.Value);
-                            Debug.Assert(added);
-                        }
-
-                        Result.Content = content;
-
-                        fastCgiRecord.Dispose();
                         _state = StateType.Finished;
+                        _pipe.Writer.Complete();
                         return false;
                     }
                 default:
                     {
-                        fastCgiRecord.Dispose();
-                        _start?.Dispose();
-                        _end?.Dispose();
+                        _pipe.Writer.Complete();
                         _logger.LogDebug(message: "received unexpected fastcgi record {recordType}", fastCgiRecord.Header.Type);
                         throw new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse_UnexpectedRecord, FastCgiResponseRejectionReason.UnexpectedRecord);
                     }
@@ -438,7 +403,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         public void OnEndOfData()
         {
 
-            if (_state == StateType.Finished) { return;}
+            if (_state == StateType.Finished) { return; }
             _logger.LogDebug(message: "response finished when in wrong {state}", _state);
             throw new BadFastCgiResponseException(FastCgiCoreExpStrings.BadResponse_EndRequestNotReceived, FastCgiResponseRejectionReason.EndRequestNotReceived);
         }
@@ -447,12 +412,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         {
             private readonly HttpParser<HttpResponseReader> _httpParser = new();
 
-            public bool ParseHttpHeaders(ref SequenceReader<byte> reader)
-            {
-                var result = _httpParser.ParseHeaders(this, ref reader);
-                return result;
-            }
-
+            public bool ParseHttpHeaders(ref SequenceReader<byte> reader) => _httpParser.ParseHeaders(this, ref reader);
             public void OnHeader(ReadOnlySpan<byte> name, ReadOnlySpan<byte> value)
             {
 
@@ -487,23 +447,11 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
             public void OnHeadersComplete(bool endStream)
             {
-
             }
 
-            public void OnStartLine(HttpVersionAndMethod versionAndMethod, TargetOffsetPathLength targetPath, Span<byte> startLine)
-            {
-                throw new NotSupportedException();
-            }
-
-            public void OnStaticIndexedHeader(int index)
-            {
-                throw new NotSupportedException();
-            }
-
-            public void OnStaticIndexedHeader(int index, ReadOnlySpan<byte> value)
-            {
-                throw new NotSupportedException();
-            }
+            public void OnStartLine(HttpVersionAndMethod versionAndMethod, TargetOffsetPathLength targetPath, Span<byte> startLine) => throw new NotSupportedException();
+            public void OnStaticIndexedHeader(int index) => throw new NotSupportedException();
+            public void OnStaticIndexedHeader(int index, ReadOnlySpan<byte> value) => throw new NotSupportedException();
         }
     }
 
@@ -612,13 +560,13 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         }
     }
 
-        private readonly record struct FastCgiRecordHeader(
-        FastCgiRecordHeader.RecordVersion Version = FastCgiRecordHeader.RecordVersion.Version1,
-        FastCgiRecordHeader.RecordType Type = FastCgiRecordHeader.RecordType.BeginRequest,
-        ushort RequestId = 1,
-        ushort ContentLength = 0,
-        byte PaddingLength = 0,
-        byte Reserved = 0) : IFastCgiContentData
+    private readonly record struct FastCgiRecordHeader(
+    FastCgiRecordHeader.RecordVersion Version = FastCgiRecordHeader.RecordVersion.Version1,
+    FastCgiRecordHeader.RecordType Type = FastCgiRecordHeader.RecordType.BeginRequest,
+    ushort RequestId = 1,
+    ushort ContentLength = 0,
+    byte PaddingLength = 0,
+    byte Reserved = 0) : IFastCgiContentData
     {
         public const uint FCGI_HEADER_LEN = 8;
         public const ushort MAX_CONTENT_SIZE = 65535;
@@ -667,15 +615,9 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
     private readonly record struct FastCgiRecord(
         FastCgiRecordHeader Header,
-        RentedReadOnlyMemory<byte> ContentData) : IDisposable
+        ReadOnlySequence<byte> ContentData)
     {
         public FastCgiRecordHeader Header { get; } = Header;
-        public RentedReadOnlyMemory<byte> ContentData { get; } = ContentData ;
-
-        public void Dispose()
-        {
-            ContentData.Dispose();
-        }
     }
 
     private readonly record struct FastCgiRecordBeginRequestBody(FastCgiRecordBeginRequestBody.RoleType Role, bool KeepConn) : IFastCgiContentData
@@ -835,66 +777,6 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         internal static readonly string BadResponse_IncompleteRecord = "BadResponse_IncompleteRecord";
     }
 
-        private struct RentedReadOnlyMemory<T>(ReadOnlyMemory<T> memory, T[]? rented = default) : IDisposable
-    {
-        public T[]? Rented { get; private set; } = rented;
-        public ReadOnlyMemory<T> Memory { get; private set; } = memory;
-
-        public static readonly RentedReadOnlyMemory<T> Empty = new(ReadOnlyMemory<T>.Empty);
-
-        public void Dispose()
-        {
-            if (Rented is null)
-            {
-                return;
-            }
-
-            ArrayPool<T>.Shared.Return(Rented);
-
-            Rented = default;
-            Memory = default;
-        }
-    }
-
-    private sealed class RentedMemorySegment<T> : ReadOnlySequenceSegment<T>, IDisposable
-    {
-        private RentedReadOnlyMemory<T>? _rented;
-        internal RentedMemorySegment(RentedReadOnlyMemory<T> rented)
-        {
-            Memory = rented.Memory;
-            _rented = rented;
-        }
-
-        public void Dispose()
-        {
-            if (_rented is null)
-            {
-                return;
-            }
-
-            if (Next is RentedMemorySegment<T> next)
-            {
-                next.Dispose();
-            }
-
-            _rented.Value.Dispose();
-            _rented = default;
-        }
-
-        internal RentedMemorySegment<T> Append(RentedReadOnlyMemory<T> memory)
-        {
-            var segment = new RentedMemorySegment<T>(memory)
-            {
-                RunningIndex = RunningIndex + Memory.Length
-            };
-
-            Next = segment;
-
-            return segment;
-        }
-    }
-
-
     private sealed class RentedArrayBufferWriter<T>(int maxCapacity) : IBufferWriter<T>, IDisposable
     {
         private T[]? _rented = ArrayPool<T>.Shared.Rent(maxCapacity);
@@ -950,197 +832,52 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
         }
     }
 
-    // COPIED FROM https://github.com/dotnet/Nerdbank.Streams/blob/main/src/Nerdbank.Streams/ReadOnlySequenceStream.cs
-    // Copyright (c) Andrew Arnott. All rights reserved.
-    // Licensed under the MIT license. See LICENSE file in the project root for full license information.
-    private class RentedMemorySegmentStream : Stream
+    private sealed class FastCgiStdoutStream(ConnectionContext connection, HttpResponseReaderFastCgiRecordHandler handler, Stream stream) : Stream
     {
-        private static readonly Task<int> _taskOfZero = Task.FromResult(0);
-        private RentedMemorySegment<byte>? _start;
+        private bool _disposed;
+        private bool _readerFinished;
 
-        /// <summary>
-        /// A reusable task if two consecutive reads return the same number of bytes.
-        /// </summary>
-        private Task<int>? _lastReadTask;
-
-        private readonly ReadOnlySequence<byte> _readOnlySequence;
-
-        private SequencePosition _position;
-
-        internal RentedMemorySegmentStream(RentedMemorySegment<byte> start, RentedMemorySegment<byte>? end = default)
+        public override async ValueTask<int> ReadAsync(
+            Memory<byte> buffer,
+            CancellationToken cancellationToken = default)
         {
-            _readOnlySequence = end is not null ?
-                new ReadOnlySequence<byte>(start, 0, end, end.Memory.Length):
-                new ReadOnlySequence<byte>(start.Memory);
-            _position = _readOnlySequence.Start;
-            _start = start;
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (!IsDisposed)
+            if (!_readerFinished)
             {
-                IsDisposed = true;
-                if (_start != null)
+                if (await FastCgiRecordReader.ProcessAsync(connection, handler, cancellationToken))
                 {
-                    _start.Dispose();
-                    _start = null;
+                    _readerFinished = true;
                 }
+                var result = await handler.FlushAsync(cancellationToken);
+                result.ThrowIfCanceled();
             }
-            base.Dispose(disposing);
+            return await stream.ReadAsync(buffer, cancellationToken);
         }
 
-        public override bool CanRead => !IsDisposed;
-
-        public override bool CanSeek => !IsDisposed;
-
-        public override bool CanWrite => false;
-
-        public override long Length => _readOnlySequence.Length;
-
-        public override long Position
+        public override async ValueTask DisposeAsync()
         {
-            get => _readOnlySequence.Slice(0, _position).Length;
-            set
-            {
-                if (value < 0)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(value));
-                }
-
-                _position = _readOnlySequence.GetPosition(value, _readOnlySequence.Start);
-            }
+            _disposed = true;
+            await connection.DisposeAsync();
+            await stream.DisposeAsync();
+            await base.DisposeAsync();
         }
 
-        private bool IsDisposed { get; set; }
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => await ReadAsync(buffer.AsMemory(offset, count), cancellationToken);
+        public override void Flush() => stream.Flush();
+        public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        public override long Seek(long offset, SeekOrigin origin) => stream.Seek(offset, origin);
+        public override void SetLength(long value) => stream.SetLength(value);
+        public override void Write(byte[] buffer, int offset, int count) => stream.Write(buffer, offset, count);
 
-        public override void Flush() => throw new NotSupportedException();
-
-        public override Task FlushAsync(CancellationToken cancellationToken) => throw new NotSupportedException();
-
-        public override int Read(byte[] buffer, int offset, int count)
-        {
-            var remaining = _readOnlySequence.Slice(_position);
-            var toCopy = remaining.Slice(0, Math.Min(count, remaining.Length));
-            _position = toCopy.End;
-            toCopy.CopyTo(buffer.AsSpan(offset, count));
-            return (int)toCopy.Length;
-        }
-
-        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            var bytesRead = Read(buffer, offset, count);
-            if (bytesRead == 0)
-            {
-                return _taskOfZero;
-            }
-
-            if (_lastReadTask?.Result == bytesRead)
-            {
-                return _lastReadTask;
-            }
-            else
-            {
-                return _lastReadTask = Task.FromResult(bytesRead);
-            }
-        }
-
-        public override int ReadByte()
-        {
-            var remaining = _readOnlySequence.Slice(_position);
-            if (remaining.Length > 0)
-            {
-                var result = remaining.First.Span[0];
-                _position = _readOnlySequence.GetPosition(1, _position);
-                return result;
-            }
-            else
-            {
-                return -1;
-            }
-        }
-
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            SequencePosition relativeTo;
-            switch (origin)
-            {
-                case SeekOrigin.Begin:
-                    relativeTo = _readOnlySequence.Start;
-                    break;
-                case SeekOrigin.Current:
-                    if (offset >= 0)
-                    {
-                        relativeTo = _position;
-                    }
-                    else
-                    {
-                        relativeTo = _readOnlySequence.Start;
-                        offset += Position;
-                    }
-
-                    break;
-                case SeekOrigin.End:
-                    if (offset >= 0)
-                    {
-                        relativeTo = _readOnlySequence.End;
-                    }
-                    else
-                    {
-                        relativeTo = _readOnlySequence.Start;
-                        offset += Length;
-                    }
-
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(origin));
-            }
-
-            _position = _readOnlySequence.GetPosition(offset, relativeTo);
-            return Position;
-        }
-
-        public override void SetLength(long value) => throw new NotSupportedException();
-
-        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
-
-        public override void WriteByte(byte value) => throw new NotSupportedException();
-
-        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => throw new NotSupportedException();
-
-        public override async Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
-        {
-            foreach (var segment in _readOnlySequence)
-            {
-                await destination.WriteAsync(segment, cancellationToken).ConfigureAwait(false);
-            }
-        }
-
-
-        public override int Read(Span<byte> buffer)
-        {
-            var remaining = _readOnlySequence.Slice(_position);
-            var toCopy = remaining.Slice(0, Math.Min(buffer.Length, remaining.Length));
-            _position = toCopy.End;
-            toCopy.CopyTo(buffer);
-            return (int)toCopy.Length;
-        }
-
-        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            return new ValueTask<int>(Read(buffer.Span));
-        }
-
-        public override void Write(ReadOnlySpan<byte> buffer) => throw new NotSupportedException();
-
-        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public override bool CanRead => stream.CanRead && !_disposed;
+        public override bool CanSeek => stream.CanSeek;
+        public override bool CanWrite => stream.CanWrite;
+        public override long Length => stream.Length;
+        public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
     }
 
     private sealed class FastCgiStdinStream(ConnectionContext connection) : Stream
     {
-        public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
             var count = buffer.Length;
             var offset = 0;
@@ -1150,13 +887,15 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
                 var written = count < FastCgiRecordHeader.MAX_CONTENT_SIZE ? count : FastCgiRecordHeader.MAX_CONTENT_SIZE;
 
-                await FastCgiHttpMessageHandler.SendAsync(new FastCgiRecord(
+                FastCgiHttpMessageHandler.Send(new FastCgiRecord(
                     Header: new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.Stdin, ContentLength: (ushort)written),
-                    ContentData: new RentedReadOnlyMemory<byte>(buffer.Slice(offset, written))),connection, cancellationToken);
+                    ContentData: new ReadOnlySequence<byte>(buffer.Slice(offset, written))), connection);
 
                 count -= written;
                 offset += written;
             }
+
+            return ValueTask.CompletedTask;
         }
 
         public override void Write(byte[] buffer, int offset, int count)
@@ -1168,7 +907,7 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 
                 FastCgiHttpMessageHandler.Send(
                     new FastCgiRecordHeader(Type: FastCgiRecordHeader.RecordType.Stdin, ContentLength: (ushort)written),
-                    buffer.AsSpan(offset, written),connection);
+                    buffer.AsSpan(offset, written), connection);
 
                 count -= written;
                 offset += written;
@@ -1336,6 +1075,13 @@ public sealed class FastCgiHttpMessageHandler(IOptions<SocketConnectionFactoryOp
 internal static class FastCgiExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void CopyTo<T>(this ReadOnlySequence<T> source, IBufferWriter<T> writer)
+    {
+        source.CopyTo(writer.GetSpan((int)source.Length));
+        writer.Advance((int)source.Length);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ThrowIfCanceled(this FlushResult result)
     {
         if (result.IsCanceled)
@@ -1383,4 +1129,3 @@ internal static class FastCgiExtensions
         return bytesWritten;
     }
 }
-
