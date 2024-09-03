@@ -70,12 +70,13 @@
 <h1 id="request-timeouts">Request Timeouts</h1>
 
 <h2 id="introduction">Introduction</h2>
-<p>.NET 8 introduced the <a href="https://learn.microsoft.com/aspnet/core/performance/timeouts">Request Timeouts Middleware</a> to enable configuring request timeouts globally as well as per endpoint. This functionality is also available in YARP 2.1 when running on .NET 8.</p>
+<p>.NET 8 introduced the <a href="https://learn.microsoft.com/aspnet/core/performance/timeouts">Request Timeouts Middleware</a> to enable configuring request timeouts globally as well as per endpoint. This functionality is also available in YARP 2.1 when running on .NET 8 or newer.</p>
 <h2 id="defaults">Defaults</h2>
 <p>Requests do not have any timeouts by default, other than the <a href="http-client-config.html#HttpRequest">Activity Timeout</a> used to clean up idle requests. A default policy specified in <a href="https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.http.timeouts.requesttimeoutoptions">RequestTimeoutOptions</a> will apply to proxied requests as well.</p>
 <h2 id="configuration">Configuration</h2>
 <p>Timeouts and Timeout Policies can be specified per route via <a class="xref" href="../api/Yarp.ReverseProxy.Configuration.RouteConfig.html">RouteConfig</a> and can be bound from the <code>Routes</code> sections of the config file. As with other route properties, this can be modified and reloaded without restarting the proxy. Policy names are case insensitive.</p>
 <p>Timeouts are specified in a TimeSpan HH:MM:SS format. Specifying both Timeout and TimeoutPolicy on the same route is invalid and will cause the configuration to be rejected.</p>
+<p>Note that request timeouts do not apply when a debugger is attached to the process.</p>
 <p>Example:</p>
 <pre><code class="lang-JSON">{
   &quot;ReverseProxy&quot;: {

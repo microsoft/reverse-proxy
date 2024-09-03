@@ -366,9 +366,9 @@ There are two sets of policy parameters defined globally and on per cluster leve
 <h3 id="configuration-2">Configuration</h3>
 <h4 id="file-example-2">File example</h4>
 <pre><code class="lang-JSON">&quot;Clusters&quot;: {
-  &quot;cluster1&quot;: {
-    &quot;AvailableDestinationsPolicy&quot;: &quot;HealthyOrPanic&quot;,
+  &quot;cluster1&quot;: {    
     &quot;HealthCheck&quot;: {
+      &quot;AvailableDestinationsPolicy&quot;: &quot;HealthyOrPanic&quot;,
       &quot;Passive&quot;: {
         &quot;Enabled&quot;: &quot;true&quot;
       }

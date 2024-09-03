@@ -8080,6 +8080,36 @@ references:
   commentId: T:Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.HelloExtensionCallback
   fullName: Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.HelloExtensionCallback
   nameWithType: TlsFrameHelper.HelloExtensionCallback
+- uid: Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus
+  name: TlsFrameHelper.ParsingStatus
+  href: api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus.html
+  commentId: T:Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus
+  fullName: Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus
+  nameWithType: TlsFrameHelper.ParsingStatus
+- uid: Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus.IncompleteFrame
+  name: IncompleteFrame
+  href: api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus.html#Yarp_ReverseProxy_Utilities_Tls_TlsFrameHelper_ParsingStatus_IncompleteFrame
+  commentId: F:Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus.IncompleteFrame
+  fullName: Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus.IncompleteFrame
+  nameWithType: TlsFrameHelper.ParsingStatus.IncompleteFrame
+- uid: Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus.InvalidFrame
+  name: InvalidFrame
+  href: api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus.html#Yarp_ReverseProxy_Utilities_Tls_TlsFrameHelper_ParsingStatus_InvalidFrame
+  commentId: F:Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus.InvalidFrame
+  fullName: Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus.InvalidFrame
+  nameWithType: TlsFrameHelper.ParsingStatus.InvalidFrame
+- uid: Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus.Ok
+  name: Ok
+  href: api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus.html#Yarp_ReverseProxy_Utilities_Tls_TlsFrameHelper_ParsingStatus_Ok
+  commentId: F:Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus.Ok
+  fullName: Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus.Ok
+  nameWithType: TlsFrameHelper.ParsingStatus.Ok
+- uid: Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus.UnsupportedFrame
+  name: UnsupportedFrame
+  href: api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus.html#Yarp_ReverseProxy_Utilities_Tls_TlsFrameHelper_ParsingStatus_UnsupportedFrame
+  commentId: F:Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus.UnsupportedFrame
+  fullName: Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ParsingStatus.UnsupportedFrame
+  nameWithType: TlsFrameHelper.ParsingStatus.UnsupportedFrame
 - uid: Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ProcessingOptions
   name: TlsFrameHelper.ProcessingOptions
   href: api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.ProcessingOptions.html
@@ -8146,6 +8176,12 @@ references:
   commentId: F:Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.TlsFrameInfo.Header
   fullName: Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.TlsFrameInfo.Header
   nameWithType: TlsFrameHelper.TlsFrameInfo.Header
+- uid: Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.TlsFrameInfo.ParsingStatus
+  name: ParsingStatus
+  href: api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.TlsFrameInfo.html#Yarp_ReverseProxy_Utilities_Tls_TlsFrameHelper_TlsFrameInfo_ParsingStatus
+  commentId: F:Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.TlsFrameInfo.ParsingStatus
+  fullName: Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.TlsFrameInfo.ParsingStatus
+  nameWithType: TlsFrameHelper.TlsFrameInfo.ParsingStatus
 - uid: Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.TlsFrameInfo.SupportedVersions
   name: SupportedVersions
   href: api/Yarp.ReverseProxy.Utilities.Tls.TlsFrameHelper.TlsFrameInfo.html#Yarp_ReverseProxy_Utilities_Tls_TlsFrameHelper_TlsFrameInfo_SupportedVersions
@@ -9692,6 +9728,12 @@ references:
   commentId: T:Yarp.Telemetry.Consumption.WebSocketCloseReason
   fullName: Yarp.Telemetry.Consumption.WebSocketCloseReason
   nameWithType: WebSocketCloseReason
+- uid: Yarp.Telemetry.Consumption.WebSocketCloseReason.ActivityTimeout
+  name: ActivityTimeout
+  href: api/Yarp.Telemetry.Consumption.WebSocketCloseReason.html#Yarp_Telemetry_Consumption_WebSocketCloseReason_ActivityTimeout
+  commentId: F:Yarp.Telemetry.Consumption.WebSocketCloseReason.ActivityTimeout
+  fullName: Yarp.Telemetry.Consumption.WebSocketCloseReason.ActivityTimeout
+  nameWithType: WebSocketCloseReason.ActivityTimeout
 - uid: Yarp.Telemetry.Consumption.WebSocketCloseReason.ClientDisconnect
   name: ClientDisconnect
   href: api/Yarp.Telemetry.Consumption.WebSocketCloseReason.html#Yarp_Telemetry_Consumption_WebSocketCloseReason_ClientDisconnect
