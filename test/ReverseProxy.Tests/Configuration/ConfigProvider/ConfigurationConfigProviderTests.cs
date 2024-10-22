@@ -523,7 +523,7 @@ public class ConfigurationConfigProviderTests
         Assert.Equal(2, abstractConfig.Clusters.Count);
 
         var cluster1 = validConfig.Clusters.First(c => c.ClusterId == "cluster1");
-        Assert.Single(abstractConfig.Clusters.Where(c => c.ClusterId == "cluster1"));
+        Assert.Single(abstractConfig.Clusters, c => c.ClusterId == "cluster1");
         var abstractCluster1 = abstractConfig.Clusters.Single(c => c.ClusterId == "cluster1");
         Assert.Equal(cluster1.Destinations["destinationA"].Address, abstractCluster1.Destinations["destinationA"].Address);
         Assert.Equal(cluster1.Destinations["destinationA"].Health, abstractCluster1.Destinations["destinationA"].Health);
@@ -569,7 +569,7 @@ public class ConfigurationConfigProviderTests
         Assert.Equal(cluster1.Metadata, abstractCluster1.Metadata);
 
         var cluster2 = validConfig.Clusters.First(c => c.ClusterId == "cluster2");
-        Assert.Single(abstractConfig.Clusters.Where(c => c.ClusterId == "cluster2"));
+        Assert.Single(abstractConfig.Clusters, c => c.ClusterId == "cluster2");
         var abstractCluster2 = abstractConfig.Clusters.Single(c => c.ClusterId == "cluster2");
         Assert.Equal(cluster2.Destinations["destinationC"].Address, abstractCluster2.Destinations["destinationC"].Address);
         Assert.Equal(cluster2.Destinations["destinationC"].Metadata, abstractCluster2.Destinations["destinationC"].Metadata);
@@ -588,7 +588,7 @@ public class ConfigurationConfigProviderTests
     private void VerifyRoute(IProxyConfig validConfig, IProxyConfig abstractConfig, string routeId)
     {
         var route = validConfig.Routes.Single(c => c.RouteId == routeId);
-        Assert.Single(abstractConfig.Routes.Where(c => c.RouteId == routeId));
+        Assert.Single(abstractConfig.Routes, r => r.RouteId == routeId);
         var abstractRoute = abstractConfig.Routes.Single(c => c.RouteId == routeId);
         Assert.Equal(route.ClusterId, abstractRoute.ClusterId);
         Assert.Equal(route.Order, abstractRoute.Order);
