@@ -52,9 +52,16 @@ public static class ReverseProxyServiceCollectionExtensions
             .AddActiveHealthChecks()
             .AddPassiveHealthCheck()
             .AddLoadBalancingPolicies()
-            .AddHttpSysDelegation()
             .AddDestinationResolver()
             .AddProxy();
+
+        if (OperatingSystem.IsWindows())
+        {
+            // Workaround for https://github.com/dotnet/aspnetcore/issues/59166
+            // .NET 9.0 packages for Ubuntu ship a broken Microsoft.AspNetCore.Server.HttpSys assembly.
+            // Avoid loading types from that assembly on Linux unless the user explicitly tries to do so.
+            builder.AddHttpSysDelegation();
+        }
 
         services.TryAddSingleton<ProxyEndpointFactory>();
 
