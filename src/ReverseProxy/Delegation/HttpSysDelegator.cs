@@ -325,7 +325,12 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
 
         public Exception? InitializationException { get; }
 
-        public string Id { get; } = Activity.Current?.SpanId.ToHexString() ?? ActivitySpanId.CreateRandom().ToHexString();
+        public string Id { get; } = Activity.Current switch
+        {
+            { IdFormat: ActivityIdFormat.W3C } => Activity.Current.SpanId.ToHexString(),
+            { Id: not null } => Activity.Current.Id,
+            _ => ActivitySpanId.CreateRandom().ToHexString(),
+        };
     }
 
     private readonly struct QueueKey : IEquatable<QueueKey>
@@ -384,12 +389,12 @@ internal sealed class HttpSysDelegator : IHttpSysDelegator, IClusterChangeListen
             "Detached from queue with name '{queueName}' and url prefix '{urlPrefix}'. Detached queue state id '{stateId}'");
 
         private static readonly Action<ILogger, string?, string?, string, Exception?> _queueNoLongerExists = LoggerMessage.Define<string?, string?, string>(
-            LogLevel.Information,
+            LogLevel.Debug,
             EventIds.DelegationQueueNoLongerExists,
             "Destination queue with name '{queueName}' and url prefix '{urlPrefix}' no longer exists. Detaching and attempting to re-initialize. Current state id '{stateId}'");
 
         private static readonly Action<ILogger, string?, string?, Exception?> _queueDisposed = LoggerMessage.Define<string?, string?>(
-            LogLevel.Information,
+            LogLevel.Debug,
             EventIds.DelegationQueueDisposed,
             "Destination queue with name '{queueName}' and url prefix '{urlPrefix}' was disposed. Attempting to re-initialize.");
 
