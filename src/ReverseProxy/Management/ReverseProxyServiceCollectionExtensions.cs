@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Configuration.ConfigProvider;
+using Yarp.ReverseProxy.Delegation;
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Management;
 using Yarp.ReverseProxy.Routing;
@@ -57,10 +58,15 @@ public static class ReverseProxyServiceCollectionExtensions
 
         if (OperatingSystem.IsWindows())
         {
-            // Workaround for https://github.com/dotnet/aspnetcore/issues/59166
+            // Workaround for https://github.com/dotnet/aspnetcore/issues/59166.
             // .NET 9.0 packages for Ubuntu ship a broken Microsoft.AspNetCore.Server.HttpSys assembly.
             // Avoid loading types from that assembly on Linux unless the user explicitly tries to do so.
             builder.AddHttpSysDelegation();
+        }
+        else
+        {
+            // Add a no-op delegator in case someone is injecting the interface in their cross-plat logic.
+            builder.Services.TryAddSingleton<IHttpSysDelegator, DummyHttpSysDelegator>();
         }
 
         services.TryAddSingleton<ProxyEndpointFactory>();
