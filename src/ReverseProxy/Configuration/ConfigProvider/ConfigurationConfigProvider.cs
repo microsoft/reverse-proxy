@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
@@ -24,6 +25,7 @@ namespace Yarp.ReverseProxy.Configuration.ConfigProvider;
 internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDisposable
 {
     private readonly object _lockObject = new();
+    private readonly ConfigExtensionsOptions _extensionsOptions;
     private readonly ILogger<ConfigurationConfigProvider> _logger;
     private readonly IConfiguration _configuration;
     private ConfigurationSnapshot? _snapshot;
@@ -33,10 +35,12 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
 
     public ConfigurationConfigProvider(
         ILogger<ConfigurationConfigProvider> logger,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        ConfigExtensionsOptions extensionsOptions)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        _extensionsOptions = extensionsOptions ?? throw new ArgumentNullException(nameof(extensionsOptions));
     }
 
     public void Dispose()
@@ -120,8 +124,7 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             destinations.Add(destination.Key, CreateDestination(destination));
         }
 
-        return new ClusterConfig
-        {
+        return new ClusterConfig {
             ClusterId = section.Key,
             LoadBalancingPolicy = section[nameof(ClusterConfig.LoadBalancingPolicy)],
             SessionAffinity = CreateSessionAffinityConfig(section.GetSection(nameof(ClusterConfig.SessionAffinity))),
@@ -129,19 +132,20 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             HttpClient = CreateHttpClientConfig(section.GetSection(nameof(ClusterConfig.HttpClient))),
             HttpRequest = CreateProxyRequestConfig(section.GetSection(nameof(ClusterConfig.HttpRequest))),
             Metadata = section.GetSection(nameof(ClusterConfig.Metadata)).ReadStringDictionary(),
+            Extensions = CreateClusterExtensions(section.GetSection(nameof(ClusterConfig.Extensions))),
             Destinations = destinations,
         };
     }
 
-    private static RouteConfig CreateRoute(IConfigurationSection section)
+    private RouteConfig CreateRoute(IConfigurationSection section)
     {
         if (!string.IsNullOrEmpty(section["RouteId"]))
         {
-            throw new Exception("The route config format has changed, routes are now objects instead of an array. The route id must be set as the object name, not with the 'RouteId' field.");
+            throw new Exception(
+                "The route config format has changed, routes are now objects instead of an array. The route id must be set as the object name, not with the 'RouteId' field.");
         }
 
-        return new RouteConfig
-        {
+        return new RouteConfig {
             RouteId = section.Key,
             Order = section.ReadInt32(nameof(RouteConfig.Order)),
             MaxRequestBodySize = section.ReadInt64(nameof(RouteConfig.MaxRequestBodySize)),
@@ -158,8 +162,70 @@ internal sealed class ConfigurationConfigProvider : IProxyConfigProvider, IDispo
             CorsPolicy = section[nameof(RouteConfig.CorsPolicy)],
             Metadata = section.GetSection(nameof(RouteConfig.Metadata)).ReadStringDictionary(),
             Transforms = CreateTransforms(section.GetSection(nameof(RouteConfig.Transforms))),
+            Extensions = CreateRouteExtensions(section.GetSection(nameof(RouteConfig.Extensions))),
             Match = CreateRouteMatch(section.GetSection(nameof(RouteConfig.Match))),
         };
+    }
+
+    private IReadOnlyDictionary<Type, IConfigExtension>? CreateRouteExtensions(IConfigurationSection section)
+    {
+
+        if (section.GetChildren() is var children && !children.Any())
+        {
+            return null;
+        }
+
+        var extensions = _extensionsOptions.RouteExtensions;
+
+        var results = new Dictionary<Type, IConfigExtension>();
+
+        foreach (var extension in extensions)
+        {
+            try
+            {
+                var result = section.GetSection(extension.Key).Get(extension.Value);
+                if (result is IConfigExtension configExtension)
+                {
+                    results[extension.Value] = configExtension;
+                }
+            }
+            catch (Exception)
+            {
+                // ignore or throw
+            }
+        }
+
+        return new ReadOnlyDictionary<Type, IConfigExtension>(results);
+    }
+
+    private IReadOnlyDictionary<Type, IConfigExtension>? CreateClusterExtensions(IConfigurationSection section)
+    {
+        if (section.GetChildren() is var children && !children.Any())
+        {
+            return null;
+        }
+
+        var extensions = _extensionsOptions.ClusterExtensions;
+
+        var results = new Dictionary<Type, IConfigExtension>();
+
+        foreach (var extension in extensions)
+        {
+            try
+            {
+                var result = section.GetSection(extension.Key).Get(extension.Value);
+                if (result is IConfigExtension configExtension)
+                {
+                    results[extension.Value] = configExtension;
+                }
+            }
+            catch (Exception)
+            {
+                // ignore or throw
+            }
+        }
+
+        return new ReadOnlyDictionary<Type, IConfigExtension>(results);
     }
 
     private static IReadOnlyList<IReadOnlyDictionary<string, string>>? CreateTransforms(IConfigurationSection section)
