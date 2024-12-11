@@ -107,7 +107,8 @@ public class ConfigurationConfigProviderTests
                         VersionPolicy = HttpVersionPolicy.RequestVersionExact,
                         AllowResponseBuffering = true
                     },
-                    Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } }
+                    Metadata = new Dictionary<string, string> { { "cluster1-K1", "cluster1-V1" }, { "cluster1-K2", "cluster1-V2" } },
+                    Extensions = new Dictionary<Type, IConfigExtension> { { typeof(Service), new Service { State="Error"} } }
                 }
             },
             {
@@ -170,7 +171,20 @@ public class ConfigurationConfigProviderTests
                 {
                     new Dictionary<string, string> { { "PathRemovePrefix", "/apis" }, { "RequestHeadersCopy", "true" } }, new Dictionary<string, string> { { "PathPrefix", "/apis" } }
                 },
-                Metadata = new Dictionary<string, string> { { "routeA-K1", "routeA-V1" }, { "routeA-K2", "routeA-V2" } }
+                Metadata = new Dictionary<string, string> { { "routeA-K1", "routeA-V1" }, { "routeA-K2", "routeA-V2" } },
+                Extensions = new Dictionary<Type, IConfigExtension>
+                {
+                    {
+                        typeof(ABTest), new ABTest
+                        {
+                            ABTests = new Dictionary<string, double>
+                            {
+                                 {"C1",1},
+                                 {"C2",2}
+                             }
+                        }
+                    }
+                }
             },
             new RouteConfig
             {
@@ -290,6 +304,11 @@ public class ConfigurationConfigProviderTests
             ""Metadata"": {
                 ""cluster1-K1"": ""cluster1-V1"",
                 ""cluster1-K2"": ""cluster1-V2""
+            },
+            ""Extensions"": {
+                ""Service"": {
+                    ""State"": ""Error""
+                }
             }
         },
         ""cluster2"": {
@@ -312,11 +331,12 @@ public class ConfigurationConfigProviderTests
                     ""Metadata"": null
                 }
             },
-            ""Metadata"": null
+            ""Metadata"": null,
+            ""Extensions"": null
         }
     },
     ""Routes"": {
-        ""routeA"" : {
+        ""routeA"": {
             ""Match"": {
                 ""Methods"": [
                     ""GET"",
@@ -328,20 +348,24 @@ public class ConfigurationConfigProviderTests
                 ],
                 ""Path"": ""/apis/entities"",
                 ""Headers"": [
-                  {
-                    ""Name"": ""header1"",
-                    ""Values"": [ ""value1"" ],
-                    ""IsCaseSensitive"": true,
-                    ""Mode"": ""HeaderPrefix""
-                  }
+                    {
+                        ""Name"": ""header1"",
+                        ""Values"": [
+                            ""value1""
+                        ],
+                        ""IsCaseSensitive"": true,
+                        ""Mode"": ""HeaderPrefix""
+                    }
                 ],
                 ""QueryParameters"": [
-                  {
-                    ""Name"": ""queryparam1"",
-                    ""Values"": [ ""value1"" ],
-                    ""IsCaseSensitive"": true,
-                    ""Mode"": ""Contains""
-                  }
+                    {
+                        ""Name"": ""queryparam1"",
+                        ""Values"": [
+                            ""value1""
+                        ],
+                        ""IsCaseSensitive"": true,
+                        ""Mode"": ""Contains""
+                    }
                 ]
             },
             ""Order"": -1,
@@ -357,6 +381,14 @@ public class ConfigurationConfigProviderTests
                 ""routeA-K1"": ""routeA-V1"",
                 ""routeA-K2"": ""routeA-V2""
             },
+            ""Extensions"": {
+                ""ABTest"": {
+                    ""ABTests"": {
+                        ""C1"": 1,
+                        ""C2"": 2
+                    }
+                }
+            },
             ""Transforms"": [
                 {
                     ""RequestHeadersCopy"": ""true"",
@@ -367,7 +399,7 @@ public class ConfigurationConfigProviderTests
                 }
             ]
         },
-        ""routeB"" : {
+        ""routeB"": {
             ""Match"": {
                 ""Methods"": [
                     ""GET""
@@ -377,18 +409,22 @@ public class ConfigurationConfigProviderTests
                 ],
                 ""Path"": ""/apis/users"",
                 ""Headers"": [
-                  {
-                    ""Name"": ""header2"",
-                    ""Values"": [ ""value2"" ]
-                  }
+                    {
+                        ""Name"": ""header2"",
+                        ""Values"": [
+                            ""value2""
+                        ]
+                    }
                 ],
                 ""QueryParameters"": [
-                  {
-                    ""Name"": ""queryparam2"",
-                    ""Values"": [ ""value2"" ],
-                    ""IsCaseSensitive"": true,
-                    ""Mode"": ""Contains""
-                  }
+                    {
+                        ""Name"": ""queryparam2"",
+                        ""Values"": [
+                            ""value2""
+                        ],
+                        ""IsCaseSensitive"": true,
+                        ""Mode"": ""Contains""
+                    }
                 ]
             },
             ""Order"": 2,
@@ -399,6 +435,7 @@ public class ConfigurationConfigProviderTests
             ""OutputCachePolicy"": null,
             ""CorsPolicy"": null,
             ""Metadata"": null,
+            ""Extensions"": null,
             ""Transforms"": null
         }
     }
@@ -414,8 +451,11 @@ public class ConfigurationConfigProviderTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(_validJsonConfig));
         var proxyConfig = builder.AddJsonStream(stream).Build();
         var logger = new Mock<ILogger<ConfigurationConfigProvider>>();
+        var extensionsOptions = new ConfigExtensionsOptions();
+        extensionsOptions.RouteExtensions.Add("ABTest", typeof(ABTest));
+        extensionsOptions.ClusterExtensions.Add("Service", typeof(Service));
 
-        var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig);
+        var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig,extensionsOptions);
         Assert.NotNull(provider);
         var abstractConfig = provider.GetConfig();
 
@@ -429,8 +469,11 @@ public class ConfigurationConfigProviderTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(_validJsonConfig));
         var proxyConfig = builder.AddJsonStream(stream).Build();
         var logger = new Mock<ILogger<ConfigurationConfigProvider>>();
+        var extensionsOptions = new ConfigExtensionsOptions();
+        extensionsOptions.RouteExtensions.Add("ABTest", typeof(ABTest));
+        extensionsOptions.ClusterExtensions.Add("Service", typeof(Service));
 
-        var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig);
+        var provider = new ConfigurationConfigProvider(logger.Object, proxyConfig,extensionsOptions);
         var abstractConfig = (ConfigurationSnapshot)provider.GetConfig();
 
         var abstractionsNamespace = typeof(ClusterConfig).Namespace;
@@ -567,6 +610,8 @@ public class ConfigurationConfigProviderTests
         Assert.Equal(cluster1.HttpRequest.AllowResponseBuffering, abstractCluster1.HttpRequest.AllowResponseBuffering);
         Assert.Equal(cluster1.HttpClient.DangerousAcceptAnyServerCertificate, abstractCluster1.HttpClient.DangerousAcceptAnyServerCertificate);
         Assert.Equal(cluster1.Metadata, abstractCluster1.Metadata);
+        Assert.Equal(cluster1.Extensions, abstractCluster1.Extensions);
+
 
         var cluster2 = validConfig.Clusters.First(c => c.ClusterId == "cluster2");
         Assert.Single(abstractConfig.Clusters, c => c.ClusterId == "cluster2");
@@ -610,5 +655,88 @@ public class ConfigurationConfigProviderTests
 
         // Skipping header.Value/s because it's a fuzzy match
         Assert.Equal(route.Transforms, abstractRoute.Transforms);
+
+        Assert.Equal(route.Extensions, abstractRoute.Extensions);
+    }
+
+
+}
+
+public class ABTest : IConfigExtension
+{
+    public Dictionary<string, double> ABTests { get; set; }
+    public override bool Equals(object obj)
+    {
+        return obj is ABTest other && Equals(other);
+    }
+
+    public bool Equals(ABTest other)
+    {
+
+        if (ABTests is null || other.ABTests is null)
+        {
+            return false;
+        }
+
+        if (ABTests.Count != other.ABTests.Count)
+        {
+            return false;
+        }
+
+        if (ABTests.Count == 0)
+        {
+            return true;
+        }
+
+        var valueComparer = EqualityComparer<double>.Default;
+
+        foreach (var (key, value1) in ABTests)
+        {
+            if (other.ABTests.TryGetValue(key, out var value2))
+            {
+                if (!valueComparer.Equals(value1, value2))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(ABTests?.GetHashCode());
+    }
+
+
+}
+
+public class Service : IConfigExtension
+{
+    public string State { get; set; }
+
+    public override bool Equals(object obj)
+    {
+        return obj is Service other && Equals(other);
+    }
+
+    public bool Equals(Service other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+
+        return string.Equals(State, other.State, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(State?.GetHashCode(StringComparison.OrdinalIgnoreCase));
     }
 }
