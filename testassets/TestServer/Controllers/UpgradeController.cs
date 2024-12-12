@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.IO;
@@ -54,8 +54,7 @@ public class UpgradeController : ControllerBase
     private async Task RunPingPongAsync(Stream stream)
     {
         var buffer = new byte[1];
-        int read;
-        while ((read = await stream.ReadAsync(buffer, HttpContext.RequestAborted)) != 0)
+        while (await stream.ReadAsync(buffer, HttpContext.RequestAborted) != 0)
         {
             if (buffer[0] == 255)
             {
@@ -63,7 +62,7 @@ public class UpgradeController : ControllerBase
                 break;
             }
 
-            await stream.WriteAsync(buffer, 0, read);
+            await stream.WriteAsync(buffer);
         }
     }
 }

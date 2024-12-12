@@ -5,7 +5,7 @@ using System;
 
 namespace SampleClient;
 
-internal class CommandLineArgs
+internal sealed class CommandLineArgs
 {
     private CommandLineArgs()
     {

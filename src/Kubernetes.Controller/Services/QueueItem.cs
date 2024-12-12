@@ -32,9 +32,7 @@ public struct QueueItem : IEquatable<QueueItem>
 
     public override int GetHashCode()
     {
-#pragma warning disable CA1307 // Specify StringComparison
         return Change.GetHashCode();
-#pragma warning restore CA1307 // Specify StringComparison
     }
 
     public static bool operator ==(QueueItem left, QueueItem right)

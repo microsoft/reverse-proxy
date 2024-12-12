@@ -94,7 +94,7 @@ public class ReverseProxyConventionBuilder : IEndpointConventionBuilder
         return this;
     }
 
-    private class EndpointBuilderConventionBuilder : IEndpointConventionBuilder
+    private sealed class EndpointBuilderConventionBuilder : IEndpointConventionBuilder
     {
         private readonly EndpointBuilder _endpointBuilder;
 
