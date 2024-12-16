@@ -8,7 +8,7 @@ using Yarp.ReverseProxy.Transforms.Builder;
 
 namespace Yarp.ReverseProxy.Sample;
 
-internal class MyTransformProvider : ITransformProvider
+internal sealed class MyTransformProvider : ITransformProvider
 {
     public void ValidateRoute(TransformRouteValidationContext context)
     {

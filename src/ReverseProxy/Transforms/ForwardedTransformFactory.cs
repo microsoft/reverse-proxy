@@ -10,19 +10,19 @@ namespace Yarp.ReverseProxy.Transforms;
 
 internal sealed class ForwardedTransformFactory : ITransformFactory
 {
-    internal static readonly string XForwardedKey = "X-Forwarded";
-    internal static readonly string DefaultXForwardedPrefix = "X-Forwarded-";
-    internal static readonly string ForwardedKey = "Forwarded";
-    internal static readonly string ActionKey = "Action";
-    internal static readonly string HeaderPrefixKey = "HeaderPrefix";
-    internal static readonly string ForKey = "For";
-    internal static readonly string ByKey = "By";
-    internal static readonly string HostKey = "Host";
-    internal static readonly string ProtoKey = "Proto";
-    internal static readonly string PrefixKey = "Prefix";
-    internal static readonly string ForFormatKey = "ForFormat";
-    internal static readonly string ByFormatKey = "ByFormat";
-    internal static readonly string ClientCertKey = "ClientCert";
+    internal const string XForwardedKey = "X-Forwarded";
+    internal const string DefaultXForwardedPrefix = "X-Forwarded-";
+    internal const string ForwardedKey = "Forwarded";
+    internal const string ActionKey = "Action";
+    internal const string HeaderPrefixKey = "HeaderPrefix";
+    internal const string ForKey = "For";
+    internal const string ByKey = "By";
+    internal const string HostKey = "Host";
+    internal const string ProtoKey = "Proto";
+    internal const string PrefixKey = "Prefix";
+    internal const string ForFormatKey = "ForFormat";
+    internal const string ByFormatKey = "ByFormat";
+    internal const string ClientCertKey = "ClientCert";
 
     private readonly IRandomFactory _randomFactory;
 
@@ -102,7 +102,7 @@ internal sealed class ForwardedTransformFactory : ITransformFactory
             TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected);
 
             // for, host, proto, by
-            var tokens = forwardedHeader.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var tokens = forwardedHeader.Split([',', ' '], StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var token in tokens)
             {
@@ -115,7 +115,7 @@ internal sealed class ForwardedTransformFactory : ITransformFactory
                 }
             }
         }
-        else if (transformValues.TryGetValue(ClientCertKey, out var clientCertHeader))
+        else if (transformValues.TryGetValue(ClientCertKey, out _))
         {
             TransformHelpers.TryCheckTooManyParameters(context, transformValues, expected: 1);
         }
@@ -194,7 +194,7 @@ internal sealed class ForwardedTransformFactory : ITransformFactory
             var byFormat = NodeFormat.None;
 
             // for, host, proto, Prefix
-            var tokens = forwardedHeader.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var tokens = forwardedHeader.Split([',', ' '], StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var token in tokens)
             {

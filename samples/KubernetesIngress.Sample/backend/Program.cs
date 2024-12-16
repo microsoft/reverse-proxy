@@ -26,7 +26,7 @@ app.MapGet("/", async context =>
 
 app.Run();
 
-internal class BackendInfo
+internal sealed class BackendInfo
 {
     public string IP { get; set; } = default!;
 

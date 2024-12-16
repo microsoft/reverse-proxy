@@ -9,11 +9,11 @@ namespace Yarp.ReverseProxy.Transforms;
 
 internal sealed class QueryTransformFactory : ITransformFactory
 {
-    internal static readonly string QueryValueParameterKey = "QueryValueParameter";
-    internal static readonly string QueryRouteParameterKey = "QueryRouteParameter";
-    internal static readonly string QueryRemoveParameterKey = "QueryRemoveParameter";
-    internal static readonly string AppendKey = "Append";
-    internal static readonly string SetKey = "Set";
+    internal const string QueryValueParameterKey = "QueryValueParameter";
+    internal const string QueryRouteParameterKey = "QueryRouteParameter";
+    internal const string QueryRemoveParameterKey = "QueryRemoveParameter";
+    internal const string AppendKey = "Append";
+    internal const string SetKey = "Set";
 
     public bool Validate(TransformRouteValidationContext context, IReadOnlyDictionary<string, string> transformValues)
     {

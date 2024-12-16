@@ -19,9 +19,9 @@ public class RequestHeaderForwardedTransform : RequestTransform
     internal static readonly RequestHeaderForwardedTransform RemoveTransform =
         new RequestHeaderForwardedTransform(new NullRandomFactory(), NodeFormat.Random, NodeFormat.Random, false, false, ForwardedTransformActions.Remove);
 
-    private static readonly string ForwardedHeaderName = "Forwarded";
+    private const string ForwardedHeaderName = "Forwarded";
     // obfnode = "_" 1*( ALPHA / DIGIT / "." / "_" / "-")
-    private static readonly string ObfChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-";
+    private const string ObfChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-";
 
     private readonly IRandomFactory _randomFactory;
 

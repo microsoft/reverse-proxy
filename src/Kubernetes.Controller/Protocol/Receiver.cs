@@ -54,7 +54,6 @@ public class Receiver : BackgroundHostedService
         {
             await _limiter.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-#pragma warning disable CA1303 // Do not pass literals as localized parameters
             Logger.LogInformation("Connecting with {ControllerUrl}", _options.ControllerUrl.ToString());
 
             try
@@ -66,7 +65,11 @@ public class Receiver : BackgroundHostedService
                 using var cancellation = cancellationToken.Register(stream.Close);
                 while (true)
                 {
+#if NET6_0
                     var json = await reader.ReadLineAsync().ConfigureAwait(false);
+#else
+                    var json = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+#endif
                     if (string.IsNullOrEmpty(json))
                     {
                         break;
@@ -84,13 +87,10 @@ public class Receiver : BackgroundHostedService
                     }
                 }
             }
-#pragma warning disable CA1031 // Do not catch general exception types
             catch (Exception ex)
-#pragma warning restore CA1031 // Do not catch general exception types
             {
                 Logger.LogInformation(ex, "Stream ended");
             }
-#pragma warning restore CA1303 // Do not pass literals as localized parameters
         }
     }
 }

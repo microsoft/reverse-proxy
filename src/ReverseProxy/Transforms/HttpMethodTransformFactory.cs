@@ -9,8 +9,8 @@ namespace Yarp.ReverseProxy.Transforms;
 
 internal sealed class HttpMethodTransformFactory : ITransformFactory
 {
-    internal static readonly string HttpMethodChangeKey = "HttpMethodChange";
-    internal static readonly string SetKey = "Set";
+    internal const string HttpMethodChangeKey = "HttpMethodChange";
+    internal const string SetKey = "Set";
 
     public bool Validate(TransformRouteValidationContext context, IReadOnlyDictionary<string, string> transformValues)
     {

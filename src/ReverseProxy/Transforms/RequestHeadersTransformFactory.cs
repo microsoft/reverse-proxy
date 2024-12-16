@@ -9,14 +9,14 @@ namespace Yarp.ReverseProxy.Transforms;
 
 internal sealed class RequestHeadersTransformFactory : ITransformFactory
 {
-    internal static readonly string RequestHeadersCopyKey = "RequestHeadersCopy";
-    internal static readonly string RequestHeaderOriginalHostKey = "RequestHeaderOriginalHost";
-    internal static readonly string RequestHeaderKey = "RequestHeader";
-    internal static readonly string RequestHeaderRouteValueKey = "RequestHeaderRouteValue";
-    internal static readonly string RequestHeaderRemoveKey = "RequestHeaderRemove";
-    internal static readonly string RequestHeadersAllowedKey = "RequestHeadersAllowed";
-    internal static readonly string AppendKey = "Append";
-    internal static readonly string SetKey = "Set";
+    internal const string RequestHeadersCopyKey = "RequestHeadersCopy";
+    internal const string RequestHeaderOriginalHostKey = "RequestHeaderOriginalHost";
+    internal const string RequestHeaderKey = "RequestHeader";
+    internal const string RequestHeaderRouteValueKey = "RequestHeaderRouteValue";
+    internal const string RequestHeaderRemoveKey = "RequestHeaderRemove";
+    internal const string RequestHeadersAllowedKey = "RequestHeadersAllowed";
+    internal const string AppendKey = "Append";
+    internal const string SetKey = "Set";
 
     public bool Validate(TransformRouteValidationContext context, IReadOnlyDictionary<string, string> transformValues)
     {

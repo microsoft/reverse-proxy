@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-#pragma warning disable CA2213 // Disposable fields should be disposed
-
 namespace Yarp.Kubernetes.Controller.Queues;
 
 /// <summary>
@@ -24,7 +22,7 @@ public class WorkQueue<TItem> : IWorkQueue<TItem>
     private readonly Queue<TItem> _queue = new Queue<TItem>();
     private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(0);
     private readonly CancellationTokenSource _shuttingDown = new CancellationTokenSource();
-    private bool _disposedValue = false; // To detect redundant calls
+    private bool _disposedValue; // To detect redundant calls
 
     /// <summary>
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

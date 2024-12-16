@@ -186,7 +186,7 @@ internal sealed class HeaderMatcherPolicy : MatcherPolicy, IEndpointComparerPoli
         return matcher.Mode == HeaderMatchMode.NotContains;
     }
 
-    private class HeaderMetadataEndpointComparer : EndpointMetadataComparer<IHeaderMetadata>
+    private sealed class HeaderMetadataEndpointComparer : EndpointMetadataComparer<IHeaderMetadata>
     {
         protected override int CompareMetadata(IHeaderMetadata? x, IHeaderMetadata? y)
         {

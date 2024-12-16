@@ -147,9 +147,9 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
     /// <inheritdoc/>
     public override IChangeToken GetChangeToken() => Volatile.Read(ref _endpointsChangeToken);
 
-    private static IReadOnlyList<IProxyConfig> ExtractListOfProxyConfigs(IEnumerable<ConfigState> configStates)
+    private static IProxyConfig[] ExtractListOfProxyConfigs(IEnumerable<ConfigState> configStates)
     {
-        return configStates.Select(state => state.LatestConfig).ToList().AsReadOnly();
+        return configStates.Select(state => state.LatestConfig).ToArray();
     }
 
     internal async Task<EndpointDataSource> InitialLoadAsync()
@@ -895,7 +895,7 @@ internal sealed class ProxyConfigManager : EndpointDataSource, IProxyStateLookup
         }
     }
 
-    private class ConfigState
+    private sealed class ConfigState
     {
         public ConfigState(IProxyConfigProvider provider, IProxyConfig config)
         {

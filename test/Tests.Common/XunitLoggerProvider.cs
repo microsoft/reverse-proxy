@@ -13,7 +13,7 @@ namespace Microsoft.Extensions.Logging.Testing;
 public class XunitLoggerProvider : ILoggerProvider
 {
     // Used to distinguish when multiple apps are running as part of the same test.
-    private static int InstanceCount = 0;
+    private static int InstanceCount;
     private readonly int _providerInstanceId = Interlocked.Increment(ref InstanceCount);
     private readonly ITestOutputHelper _output;
     private readonly LogLevel _minLevel;

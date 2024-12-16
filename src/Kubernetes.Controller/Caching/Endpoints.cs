@@ -10,9 +10,7 @@ namespace Yarp.Kubernetes.Controller.Caching;
 /// <summary>
 /// Holds data needed from a <see cref="V1Endpoints"/> resource.
 /// </summary>
-#pragma warning disable CA1815 // Override equals and operator equals on value types
 public struct Endpoints
-#pragma warning restore CA1815 // Override equals and operator equals on value types
 {
     public Endpoints(V1Endpoints endpoints)
     {

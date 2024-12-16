@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
   <Import Project="Sdk.targets" Sdk="Microsoft.DotNet.Arcade.Sdk" />
+
+  <ItemGroup Condition="'$(IsTestProject)' != 'true' and '$(IsSampleProject)' != 'true'">
+    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)eng\CodeAnalysis.src.globalconfig" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsTestProject)' == 'true' or '$(IsSampleProject)' == 'true'">
+    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)eng\CodeAnalysis.test.globalconfig" />
+  </ItemGroup>
 </Project>

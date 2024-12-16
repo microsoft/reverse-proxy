@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace SampleClient.Scenarios;
 
-internal class Http2Scenario : IScenario
+internal sealed class Http2Scenario : IScenario
 {
     public async Task ExecuteAsync(CommandLineArgs args, CancellationToken cancellation)
     {

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace SampleClient.Scenarios;
 
-internal class SessionAffinityScenario : IScenario
+internal sealed class SessionAffinityScenario : IScenario
 {
     public async Task ExecuteAsync(CommandLineArgs args, CancellationToken cancellation)
     {

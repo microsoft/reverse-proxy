@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Yarp.ReverseProxy.Sample;
 
-internal class TokenService
+internal sealed class TokenService
 {
     internal Task<string> GetAuthTokenAsync(ClaimsPrincipal user)
     {

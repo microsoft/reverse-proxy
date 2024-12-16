@@ -10,7 +10,7 @@ using Yarp.ReverseProxy.Health;
 
 namespace Yarp.ReverseProxy.Sample;
 
-public class CustomConfigFilter : IProxyConfigFilter
+public sealed class CustomConfigFilter : IProxyConfigFilter
 {
     public ValueTask<ClusterConfig> ConfigureClusterAsync(ClusterConfig cluster, CancellationToken cancel)
     {

@@ -77,7 +77,7 @@ app.Run();
 /// <summary>
 /// Custom request transformation
 /// </summary>
-internal class CustomTransformer : HttpTransformer
+internal sealed class CustomTransformer : HttpTransformer
 {
     /// <summary>
     /// A callback that is invoked prior to sending the proxied request. All HttpRequestMessage

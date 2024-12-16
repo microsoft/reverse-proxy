@@ -21,7 +21,7 @@ internal interface IYarpRateLimiterPolicyProvider
     ValueTask<object?> GetPolicyAsync(string policyName);
 }
 
-internal class YarpRateLimiterPolicyProvider : IYarpRateLimiterPolicyProvider
+internal sealed class YarpRateLimiterPolicyProvider : IYarpRateLimiterPolicyProvider
 {
 #if NET7_0_OR_GREATER
     private readonly RateLimiterOptions _rateLimiterOptions;

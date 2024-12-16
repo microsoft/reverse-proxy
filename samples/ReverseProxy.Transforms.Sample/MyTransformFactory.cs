@@ -9,7 +9,7 @@ using Yarp.ReverseProxy.Transforms.Builder;
 
 namespace Yarp.Sample
 {
-    internal class MyTransformFactory : ITransformFactory
+    internal sealed class MyTransformFactory : ITransformFactory
     {
         public bool Validate(TransformRouteValidationContext context, IReadOnlyDictionary<string, string> transformValues)
         {

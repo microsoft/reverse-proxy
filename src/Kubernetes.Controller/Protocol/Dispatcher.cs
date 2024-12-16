@@ -26,9 +26,7 @@ public class Dispatcher : IDispatcher
 
     public async Task AttachAsync(IDispatchTarget target, CancellationToken cancellationToken)
     {
-#pragma warning disable CA1303 // Do not pass literals as localized parameters
         _logger.LogDebug("Attaching {DispatchTarget}", target?.ToString());
-#pragma warning restore CA1303 // Do not pass literals as localized parameters
 
         lock (_targetsSync)
         {
@@ -43,9 +41,7 @@ public class Dispatcher : IDispatcher
 
     public void Detach(IDispatchTarget target)
     {
-#pragma warning disable CA1303 // Do not pass literals as localized parameters
         _logger.LogDebug("Detaching {DispatchTarget}", target?.ToString());
-#pragma warning restore CA1303 // Do not pass literals as localized parameters
 
         lock (_targetsSync)
         {
