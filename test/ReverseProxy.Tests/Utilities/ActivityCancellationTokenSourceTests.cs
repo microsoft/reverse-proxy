@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -13,24 +14,16 @@ public class ActivityCancellationTokenSourceTests
     [Fact]
     public void ActivityCancellationTokenSource_PoolsSources()
     {
-        // This test can run in parallel with others making use of ActivityCancellationTokenSource
-        // A different thread could have already added/removed a source from the queue
+        HashSet<ActivityCancellationTokenSource> sources = [];
 
-        for (var i = 0; i < 1000; i++)
+        for (var i = 0; i < 1_000; i++)
         {
-            var cts = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
-            cts.Return();
-
-            var cts2 = ActivityCancellationTokenSource.Rent(TimeSpan.FromSeconds(10), CancellationToken.None);
-            cts2.Return();
-
-            if (ReferenceEquals(cts, cts2))
-            {
-                return;
-            }
+            var source = ActivityCancellationTokenSource.Rent(TimeSpan.FromMinutes(10), CancellationToken.None);
+            source.Return();
+            sources.Add(source);
         }
 
-        Assert.Fail("CancellationTokenSources were not pooled");
+        Assert.True(sources.Count < 1000);
     }
 
     [Fact]
