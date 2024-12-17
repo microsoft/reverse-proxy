@@ -11,6 +11,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="docfx.console" Version="2.59.4" />
+        <PackageReference Include="docfx.console" Version="$(DocfxConsoleVersion)" />
     </ItemGroup>
 </Project>

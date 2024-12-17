@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LettuceEncrypt" Version="1.2.0" />
+    <PackageReference Include="LettuceEncrypt" Version="$(LettuceEncryptVersion)" />
   </ItemGroup>
 
   <ItemGroup>
