@@ -1,0 +1,10 @@
+<Project>
+
+  <PropertyGroup>
+    <YarpAppRuntime>linux-arm64</YarpAppRuntime>
+    <YarpAppPlatformType>Unix</YarpAppPlatformType>
+  </PropertyGroup>
+
+  <Import Project="Common.projitems" />
+
+</Project>
