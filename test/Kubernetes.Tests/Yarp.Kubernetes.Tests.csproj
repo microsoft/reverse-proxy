@@ -13,7 +13,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Moq" Version="4.13.1" />
+    <PackageReference Include="Moq" Version="$(MoqVersion)" />
+    <PackageReference Include="FluentAssertions" Version="$(FluentAssertionsVersion)" />
+    <PackageReference Include="FluentAssertions.Json" Version="$(FluentAssertionsJsonVersion)" />
+    <PackageReference Include="Polly" Version="$(PollyVersion)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,13 +42,5 @@
   <ItemGroup>
     <Compile Include="..\ReverseProxy.Tests\Common\TaskExtensions.cs" Link="Common\TaskExtensions.cs" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="5.10.3" />
-    <PackageReference Include="FluentAssertions.Json" Version="5.5.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.2" />
-    <PackageReference Include="Polly" Version="7.2.1" />
-  </ItemGroup>
-
 
 </Project>
