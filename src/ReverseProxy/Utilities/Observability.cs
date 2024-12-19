@@ -37,7 +37,7 @@ internal static class Observability
         }
     }
 
-    private class YarpActivity
+    private sealed class YarpActivity
     {
     }
 }

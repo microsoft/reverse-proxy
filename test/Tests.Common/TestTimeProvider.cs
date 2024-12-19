@@ -107,7 +107,7 @@ public class TestTimeProvider : TimeProvider
         Assert.True(_timers[idx].IsDisposed);
     }
 
-    private class TestTimer : ITimer
+    private sealed class TestTimer : ITimer
     {
         public TestTimer(TimerCallback callback, object state, TimeSpan dueTime, TimeSpan period)
         {

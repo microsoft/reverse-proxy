@@ -9,17 +9,17 @@ namespace Yarp.ReverseProxy.Transforms;
 
 internal sealed class ResponseTransformFactory : ITransformFactory
 {
-    internal static readonly string ResponseHeadersCopyKey = "ResponseHeadersCopy";
-    internal static readonly string ResponseTrailersCopyKey = "ResponseTrailersCopy";
-    internal static readonly string ResponseHeaderKey = "ResponseHeader";
-    internal static readonly string ResponseTrailerKey = "ResponseTrailer";
-    internal static readonly string ResponseHeaderRemoveKey = "ResponseHeaderRemove";
-    internal static readonly string ResponseTrailerRemoveKey = "ResponseTrailerRemove";
-    internal static readonly string ResponseHeadersAllowedKey = "ResponseHeadersAllowed";
-    internal static readonly string ResponseTrailersAllowedKey = "ResponseTrailersAllowed";
-    internal static readonly string WhenKey = "When";
-    internal static readonly string AppendKey = "Append";
-    internal static readonly string SetKey = "Set";
+    internal const string ResponseHeadersCopyKey = "ResponseHeadersCopy";
+    internal const string ResponseTrailersCopyKey = "ResponseTrailersCopy";
+    internal const string ResponseHeaderKey = "ResponseHeader";
+    internal const string ResponseTrailerKey = "ResponseTrailer";
+    internal const string ResponseHeaderRemoveKey = "ResponseHeaderRemove";
+    internal const string ResponseTrailerRemoveKey = "ResponseTrailerRemove";
+    internal const string ResponseHeadersAllowedKey = "ResponseHeadersAllowed";
+    internal const string ResponseTrailersAllowedKey = "ResponseTrailersAllowed";
+    internal const string WhenKey = "When";
+    internal const string AppendKey = "Append";
+    internal const string SetKey = "Set";
 
     public bool Validate(TransformRouteValidationContext context, IReadOnlyDictionary<string, string> transformValues)
     {

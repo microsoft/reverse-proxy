@@ -98,7 +98,7 @@ internal sealed class TransportFailureRateHealthPolicy : IPassiveHealthCheckPoli
             || error == ForwarderError.UpgradeResponseDestination;
     }
 
-    private class ProxiedRequestHistory
+    private sealed class ProxiedRequestHistory
     {
         private long _nextRecordCreatedAt;
         private long _nextRecordTotalCount;

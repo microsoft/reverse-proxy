@@ -5,7 +5,7 @@ using System;
 
 namespace Yarp.ReverseProxy.Utilities;
 
-internal class NullRandomFactory : IRandomFactory
+internal sealed class NullRandomFactory : IRandomFactory
 {
     public Random CreateRandomInstance()
     {

@@ -37,7 +37,7 @@ public abstract class ResourceInformer<TResource, TListResource> : BackgroundHos
     private readonly SemaphoreSlim _start = new SemaphoreSlim(0);
     private readonly ResourceSelector<TResource> _selector;
     private ImmutableList<Registration> _registrations = ImmutableList<Registration>.Empty;
-    private IDictionary<NamespacedName, IList<V1OwnerReference>> _cache = new Dictionary<NamespacedName, IList<V1OwnerReference>>();
+    private Dictionary<NamespacedName, IList<V1OwnerReference>> _cache = [];
     private string _lastResourceVersion;
 
     /// <summary>
@@ -410,11 +410,7 @@ public abstract class ResourceInformer<TResource, TListResource> : BackgroundHos
             }
             catch (Exception innerException)
             {
-                if (innerExceptions is null)
-                {
-                    innerExceptions = new List<Exception>();
-                }
-
+                innerExceptions ??= new List<Exception>();
                 innerExceptions.Add(innerException);
             }
         }

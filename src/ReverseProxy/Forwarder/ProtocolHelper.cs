@@ -78,7 +78,9 @@ internal static class ProtocolHelper
         wsServerGuidBytes.CopyTo(bytes.Slice(encodedSecKeyLength));
 
         // Hash the seckey+wsServerGuidBytes bytes
+#pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms -- the spec demands SHA1 in this case.
         SHA1.TryHashData(bytes, bytes, out var bytesWritten);
+#pragma warning restore CA5350
         Debug.Assert(bytesWritten == 20 /* SHA1 hash length */);
         var accept = Convert.ToBase64String(bytes[..bytesWritten]);
 

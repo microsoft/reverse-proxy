@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Yarp.Sample
 {
-    internal class TokenService
+    internal sealed class TokenService
     {
         internal Task<string> GetAuthTokenAsync(ClaimsPrincipal user)
         {

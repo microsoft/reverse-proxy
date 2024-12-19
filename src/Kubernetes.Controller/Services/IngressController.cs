@@ -30,7 +30,7 @@ public class IngressController : BackgroundHostedService
     private readonly IReconciler _reconciler;
 
     private bool _registrationsReady;
-    private readonly IWorkQueue<QueueItem> _queue;
+    private readonly WorkQueue<QueueItem> _queue;
     private readonly QueueItem _ingressChangeQueueItem;
 
     public IngressController(

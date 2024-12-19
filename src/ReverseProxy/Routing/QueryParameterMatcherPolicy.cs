@@ -127,7 +127,7 @@ internal sealed class QueryParameterMatcherPolicy : MatcherPolicy, IEndpointComp
         }
     }
 
-    private class QueryParameterMetadataEndpointComparer : EndpointMetadataComparer<IQueryParameterMetadata>
+    private sealed class QueryParameterMetadataEndpointComparer : EndpointMetadataComparer<IQueryParameterMetadata>
     {
         protected override int CompareMetadata(IQueryParameterMetadata? x, IQueryParameterMetadata? y)
         {
