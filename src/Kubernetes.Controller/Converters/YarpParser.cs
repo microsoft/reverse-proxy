@@ -6,6 +6,7 @@ using k8s.Models;
 using YamlDotNet.Serialization;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.Kubernetes.Controller.Caching;
+using System.Runtime.InteropServices;
 
 namespace Yarp.Kubernetes.Controller.Converters;
 
@@ -161,11 +162,7 @@ internal static class YarpParser
         var clusters = configContext.ClusterTransfers;
         // Each ingress rule path can only be for one service
         var key = UpstreamName(ingressContext.Ingress.Metadata.NamespaceProperty, ingressServiceBackend);
-        if (!clusters.ContainsKey(key))
-        {
-            clusters.Add(key, new ClusterTransfer());
-        }
-        var cluster = clusters[key];
+        var cluster = CollectionsMarshal.GetValueRefOrAddDefault(clusters, key, out _) ??= new ClusterTransfer();
         cluster.ClusterId = key;
         cluster.LoadBalancingPolicy = ingressContext.Options.LoadBalancingPolicy;
         cluster.SessionAffinity = ingressContext.Options.SessionAffinity;
@@ -200,7 +197,7 @@ internal static class YarpParser
         if (string.Equals(path.PathType, "Prefix", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(path.PathType, "ImplementationSpecific", StringComparison.OrdinalIgnoreCase))
         {
-            if (!pathMatch.EndsWith("/", StringComparison.Ordinal))
+            if (!pathMatch.EndsWith('/'))
             {
                 pathMatch += "/";
             }

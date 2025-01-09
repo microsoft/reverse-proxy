@@ -64,7 +64,7 @@ app.MapForwarder("/{**catch-all}", "https://example.com", requestConfig, transfo
 
 app.Run();
 
-internal class CustomTransformer : HttpTransformer
+internal sealed class CustomTransformer : HttpTransformer
 {
     public override async ValueTask TransformRequestAsync(HttpContext httpContext, HttpRequestMessage proxyRequest, string destinationPrefix, CancellationToken cancellationToken)
     {

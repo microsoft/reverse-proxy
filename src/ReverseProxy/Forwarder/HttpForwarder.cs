@@ -26,10 +26,10 @@ namespace Yarp.ReverseProxy.Forwarder;
 /// </summary>
 internal sealed class HttpForwarder : IHttpForwarder
 {
-    private static readonly string WebSocketName = "websocket";
+    private const string WebSocketName = "websocket";
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(100);
     private static readonly Version DefaultVersion = HttpVersion.Version20;
-    private static readonly HttpVersionPolicy DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
+    private const HttpVersionPolicy DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
     private readonly ILogger _logger;
     private readonly TimeProvider _timeProvider;
 
@@ -886,7 +886,7 @@ internal sealed class HttpForwarder : IHttpForwarder
     {
         if (requestContent is not null && requestContent.Started)
         {
-            var alreadyFinished = requestContent.ConsumptionTask.IsCompleted == true;
+            var alreadyFinished = requestContent.ConsumptionTask.IsCompleted;
 
             if (!alreadyFinished)
             {

@@ -10,9 +10,7 @@ namespace Yarp.Kubernetes.Controller.Services;
 /// ReconcileData is the information returned from <see cref="ICache.TryGetReconcileData(Yarp.Kubernetes.Controller.NamespacedName, out ReconcileData)"/>
 /// and needed by <see cref="IReconciler.ProcessAsync(System.Threading.CancellationToken)"/>.
 /// </summary>
-#pragma warning disable CA1815 // Override equals and operator equals on value types
 public struct ReconcileData
-#pragma warning restore CA1815 // Override equals and operator equals on value types
 {
     public ReconcileData(IngressData ingress, List<ServiceData> services, List<Endpoints> endpoints)
     {

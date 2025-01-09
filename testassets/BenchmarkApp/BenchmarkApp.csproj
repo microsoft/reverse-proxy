@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Crank.EventSources" Version="0.1.0-alpha.20501.1" />
+    <PackageReference Include="Microsoft.Crank.EventSources" Version="$(MicrosoftCrankEventSourcesVersion)" />
   </ItemGroup>
 
   <ItemGroup>

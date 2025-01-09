@@ -16,7 +16,24 @@
     <SystemIOHashingVersion>8.0.0</SystemIOHashingVersion>
     <MicrosoftBclTimeProviderVersion>8.0.0</MicrosoftBclTimeProviderVersion>
     <MicrosoftDotNetXUnitExtensionsPackageVersion>10.0.0-beta.24613.2</MicrosoftDotNetXUnitExtensionsPackageVersion>
-
+    <MicrosoftAspNetCoreTestHostVersion>6.0.36</MicrosoftAspNetCoreTestHostVersion>
+    <MicrosoftCrankEventSourcesVersion>0.2.0-alpha.24576.2</MicrosoftCrankEventSourcesVersion>
+    <MicrosoftDotNetXUnitExtensionsPackageVersion>10.0.0-beta.25056.1</MicrosoftDotNetXUnitExtensionsPackageVersion>
+    <CoverletCollectorVersion>6.0.0</CoverletCollectorVersion>
+    <MoqVersion>4.18.4</MoqVersion>
+    <AutofacVersion>4.9.4</AutofacVersion>
+    <AutofacExtrasMoqVersion>4.3.0</AutofacExtrasMoqVersion>
+    <FluentAssertionsVersion>6.7.0</FluentAssertionsVersion>
+    <FluentAssertionsJsonVersion>6.1.0</FluentAssertionsJsonVersion>
+    <PollyVersion>8.4.2</PollyVersion>
+    <LettuceEncryptVersion>1.3.0</LettuceEncryptVersion>
+    <PrometheusNetVersion>8.2.1</PrometheusNetVersion>
+    <SerilogExtensionsLoggingVersion>3.0.1</SerilogExtensionsLoggingVersion>
+    <SerilogFormattingCompactVersion>1.1.0</SerilogFormattingCompactVersion>
+    <SerilogSinksConsoleVersion>3.1.1</SerilogSinksConsoleVersion>
+    <DocfxConsoleVersion>2.59.4</DocfxConsoleVersion>
+    <YamlDotNetVersion>16.2.1</YamlDotNetVersion>
+    <KubernetesClientVersion>15.0.1</KubernetesClientVersion>
     <!-- Container app dependencies -->
     <YarpNugetVersion>2.2.0</YarpNugetVersion>
     <MicrosoftExtensionsServiceDiscovery>8.2.2</MicrosoftExtensionsServiceDiscovery>

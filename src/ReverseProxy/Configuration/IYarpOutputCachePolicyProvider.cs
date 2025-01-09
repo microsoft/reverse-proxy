@@ -21,7 +21,7 @@ internal interface IYarpOutputCachePolicyProvider
     ValueTask<object?> GetPolicyAsync(string policyName);
 }
 
-internal class YarpOutputCachePolicyProvider : IYarpOutputCachePolicyProvider
+internal sealed class YarpOutputCachePolicyProvider : IYarpOutputCachePolicyProvider
 {
 #if NET7_0_OR_GREATER
     private readonly OutputCacheOptions _outputCacheOptions;
