@@ -16,5 +16,10 @@
     <SystemIOHashingVersion>8.0.0</SystemIOHashingVersion>
     <MicrosoftBclTimeProviderVersion>8.0.0</MicrosoftBclTimeProviderVersion>
     <MicrosoftDotNetXUnitExtensionsPackageVersion>10.0.0-beta.24613.2</MicrosoftDotNetXUnitExtensionsPackageVersion>
+
+    <!-- Container app dependencies -->
+    <YarpNugetVersion>2.2.0</YarpNugetVersion>
+    <MicrosoftExtensionsServiceDiscovery>8.2.2</MicrosoftExtensionsServiceDiscovery>
+    <MicrosoftExtensionsServiceDiscoveryYarp>8.2.2</MicrosoftExtensionsServiceDiscoveryYarp>
   </PropertyGroup>
 </Project>
