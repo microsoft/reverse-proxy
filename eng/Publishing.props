@@ -3,4 +3,48 @@
    <PropertyGroup>
       <PublishingVersion>3</PublishingVersion>
    </PropertyGroup>
+
+   <PropertyGroup>
+      <_UploadPathRoot>reverse-proxy</_UploadPathRoot>
+   </PropertyGroup>
+
+   <PropertyGroup>
+      <PublishDependsOnTargets>$(PublishDependsOnTargets);_PublishBlobItems</PublishDependsOnTargets>
+
+      <!-- NOTE: This property is also defined on the root-level Directory.Build.props, but that file is not imported by the Publishing project.
+           Pulling it in here will cause different issues as that file will conflict with Arcade's publishing logic, so as a workaround we define it here.
+           If you are editing this property, make sure to also edit the one in Directory.Build.props. -->
+      <YarpAppArtifactsOutputDir>$([MSBuild]::NormalizeDirectory('$(ArtifactsDir)',
+         'YarpAppArtifacts', '$(Configuration)'))</YarpAppArtifactsOutputDir>
+   </PropertyGroup>
+
+   <ItemGroup>
+      <_YarpAppFilesToPublish Include="$(YarpAppArtifactsOutputDir)\**\*.zip" />
+   </ItemGroup>
+
+   <Target Name="_PublishBlobItems">
+      <!-- 
+      For blob items, we want to make sure that the version we get back is not stable, even when the repo
+      is producing stable versions.
+      This is because we want to be able to re-spin the build if necessary without hitting issues of blob
+      items clashing with each other. For this reason,
+      We will pass SuppressFinalPackageVersion as true when fetching the package version so that we get
+      back a version with a prerelease suffix.
+      -->
+      <MSBuild Projects="$(RepoRoot)src\Application\Yarp.Application.csproj"
+         Targets="ReturnPackageVersion"
+         SkipNonexistentProjects="false"
+         Properties="SuppressFinalPackageVersion=true">
+         <Output TaskParameter="TargetOutputs" PropertyName="_PackageVersion" />
+      </MSBuild>
+
+      <ItemGroup>
+         <ItemsToPushToBlobFeed Include="@(_YarpAppFilesToPublish)">
+            <IsShipping>true</IsShipping>
+            <PublishFlatContainer>true</PublishFlatContainer>
+            <RelativeBlobPath>$(_UploadPathRoot)/$(_PackageVersion)/%(Filename)%(Extension)</RelativeBlobPath>
+         </ItemsToPushToBlobFeed>
+      </ItemGroup>
+   </Target>
+
 </Project>

@@ -1,0 +1,43 @@
+<Project>
+  <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <PackageOutputPath Condition=" '$(PackageOutputPath)' == '' ">$(ArtifactsShippingPackagesDir)</PackageOutputPath>
+    <YarpAppArtifactsOutputDir>$([MSBuild]::NormalizeDirectory('$(ArtifactsDir)', 'YarpAppArtifacts', '$(Configuration)'))</YarpAppArtifactsOutputDir>
+
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Yarp.Application.$(YarpAppRuntime)</PackageId>
+    <Description>Reverse proxy</Description>
+  </PropertyGroup>
+
+  <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
+
+  <Target Name="Build" />
+
+  <Target Name="BeforeBuild" BeforeTargets="Build">
+    <MSBuild Projects="../../src/Application/Yarp.Application.csproj" Targets="publish" Properties="Configuration=$(Configuration);Platform=$(Platform);TargetFramework=$(TargetFramework);RuntimeIdentifier=$(YarpAppRuntime)" />
+
+    <!-- After publishing the project, we ensure that the published assets get packed in the nuspec. -->
+    <ItemGroup>
+      <_PublishItems Include="$(ArtifactsBinDir)/Yarp.Application/$(Configuration)/$(TargetFramework)/$(YarpAppRuntime)/publish/**/*" />
+      <None Include="@(_PublishItems)" Pack="true" PackagePath="tools/" />
+    </ItemGroup>
+
+    <MakeDir Directories="$(YarpAppArtifactsOutputDir)/$(YarpAppRuntime)" />
+    <ZipDirectory 
+        SourceDirectory="$(ArtifactsBinDir)/Yarp.Application/$(Configuration)/$(TargetFramework)/$(YarpAppRuntime)/publish" 
+        DestinationFile="$(YarpAppArtifactsOutputDir)/$(YarpAppRuntime)/reverse-proxy-$(YarpAppRuntime).zip"
+        Overwrite="true" />
+
+    <!-- Throw an error if _PublishItems is empty. -->
+    <Error Condition="'@(_PublishItems)' == ''" Text="No files were found to pack. Ensure that the project being packed has a publish target defined." />
+  </Target>
+
+</Project>
