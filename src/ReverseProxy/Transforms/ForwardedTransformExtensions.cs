@@ -181,7 +181,7 @@ public static class ForwardedTransformExtensions
     /// </remarks>
     public static TransformBuilderContext AddForwarded(this TransformBuilderContext context,
         bool useHost = true, bool useProto = true, NodeFormat forFormat = NodeFormat.Random,
-        NodeFormat byFormat = NodeFormat.Random, ForwardedTransformActions action = ForwardedTransformActions.Set)
+        NodeFormat byFormat = NodeFormat.Random, ForwardedTransformActions action = ForwardedTransformActions.Set, bool suppressRemoveAllXForwardedHeaders = false)
     {
         context.UseDefaultForwarders = false;
 
@@ -196,8 +196,11 @@ public static class ForwardedTransformExtensions
             context.RequestTransforms.Add(new RequestHeaderForwardedTransform(random,
                 forFormat, byFormat, useHost, useProto, action));
 
-            // Remove the X-Forwarded headers when an Forwarded transform is enabled
-            TransformHelpers.RemoveAllXForwardedHeaders(context, ForwardedTransformFactory.DefaultXForwardedPrefix);
+            if (!suppressRemoveAllXForwardedHeaders)
+            {
+                // Remove the X-Forwarded headers when a Forwarded transform is enabled
+                TransformHelpers.RemoveAllXForwardedHeaders(context, ForwardedTransformFactory.DefaultXForwardedPrefix);
+            }
         }
         return context;
     }
