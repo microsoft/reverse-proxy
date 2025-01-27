@@ -116,15 +116,19 @@ public static class ForwardedTransformExtensions
     /// <remarks>
     /// Also removes the <c>Forwarded</c> header when enabled.
     /// </remarks>
-    public static TransformBuilderContext AddXForwarded(this TransformBuilderContext context, ForwardedTransformActions action = ForwardedTransformActions.Set)
+    public static TransformBuilderContext AddXForwarded(this TransformBuilderContext context, ForwardedTransformActions action = ForwardedTransformActions.Set, bool suppressRemoveForwardedHeader = false)
     {
         context.AddXForwardedFor(action: action);
         context.AddXForwardedPrefix(action: action);
         context.AddXForwardedHost(action: action);
         context.AddXForwardedProto(action: action);
 
-        // Remove the Forwarded header when an X-Forwarded transform is enabled
-        TransformHelpers.RemoveForwardedHeader(context);
+        if (!suppressRemoveForwardedHeader)
+        {
+            // Remove the Forwarded header when an X-Forwarded transform is enabled
+            TransformHelpers.RemoveForwardedHeader(context);
+        }
+
         return context;
     }
 
