@@ -125,7 +125,7 @@ public class WebSocketTests
         string expectedVersion, ForwarderError? expectedProxyError, bool e2eWillFail)
     {
 #if !NET8_0_OR_GREATER
-        if (OperatingSystem.IsMacOS() && useHttpsOnDestination)
+        if (OperatingSystem.IsMacOS() && useHttpsOnDestination && destinationProtocols != HttpProtocols.Http1)
         {
             // Does not support ALPN until .NET 8
             return;
@@ -136,7 +136,6 @@ public class WebSocketTests
 
         var test = CreateTestEnvironment();
         test.ProxyProtocol = incomingVersion.Major == 1 ? HttpProtocols.Http1 : HttpProtocols.Http2;
-        test.UseHttpsOnProxy = true;
         test.DestinationProtocol = destinationProtocols;
         test.DestinationHttpVersion = requestedDestinationVersion;
         test.DestinationHttpVersionPolicy = versionPolicy;
